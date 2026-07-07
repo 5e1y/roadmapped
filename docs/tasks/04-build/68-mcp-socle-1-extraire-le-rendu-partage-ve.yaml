@@ -1,7 +1,7 @@
 id: 90
 code: null
 title: MCP socle 1 — extraire le rendu partagé vers src/lib/render.ts
-status: todo
+status: in_progress
 tags: []
 size: M
 team: engineering

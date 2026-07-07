@@ -1,7 +1,7 @@
 id: 85
 code: null
 title: Doctrine worktrees concurrents dans delegation.md
-status: in_progress
+status: done
 tags: []
 size: S
 team: engineering
@@ -20,8 +20,13 @@ dependsOn: []
 milestone: null
 source: ai
 createdAt: "2026-07-08"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: 8aa19ec
+outcome: >-
+  Doctrine ajoutée à delegation.md : le verrou docs/tasks/.lock sérialise les écritures dans UN
+  arbre ; aucune garantie inter-branches (deux worktrees peuvent allouer le même id, révélé au
+  merge) ; worktrees = chantiers isolés qui mergent leurs tickets comme du code
+verification: >-
+  Note relue dans references/delegation.md, cohérente avec le comportement livré de withLock (#83) :
+  lock intra-arbre, conflit inter-worktrees au merge de _meta.yaml
 release: null
