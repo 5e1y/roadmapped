@@ -124,7 +124,7 @@ export function NotepadView() {
           {/* Création EN TÊTE de liste (pas de bouton en haut à droite, pas de ⌘N). */}
           <button
             type="button" onClick={createNote}
-            className="flex items-center gap-2 border-b border-neutral-100 px-4 py-2 text-left text-sm text-neutral-500 hover:bg-neutral-200 hover:text-neutral-800"
+            className="flex items-center gap-2 border-b border-neutral-100 px-4 py-2 text-left text-sm text-neutral-500 hover:bg-neutral-100 hover:text-neutral-800"
           >
             <span className="text-base leading-none text-neutral-400">+</span>
             Nouvelle note
