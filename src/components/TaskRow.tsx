@@ -38,18 +38,21 @@ export function agentBrief(task: TaskNode): string {
 }
 
 export function TaskRow({ task }: { task: TaskNode }) {
-  const { openTask } = usePanel()
+  const { openTask, top } = usePanel()
   // Dépliage des sous-tâches persisté (survit à la navigation et au rechargement).
   const [open, setOpen] = usePersistentFlag('backlog:tasks', task.id)
   const isDone = task.status === 'done'
   const subDone = task.subtasks.filter((s) => s.status === 'done').length
   const hasSubs = task.subtasks.length > 0
+  // Tâche affichée dans le side panel : surlignée à l'accent pour rester
+  // repérable pendant qu'on navigue dans le backlog (#36).
+  const isOpenInPanel = top?.type === 'task' && top.id === task.id
 
   return (
     <Collapsible.Root open={open} onOpenChange={setOpen}>
       {/* Le padding vertical vit dans les éléments INTERACTIFS (pas le
           conteneur) : toute la hauteur de la ligne est cliquable. */}
-      <div className="flex w-full flex-wrap items-center gap-2 px-4 text-sm hover:bg-neutral-50">
+      <div className={`flex w-full flex-wrap items-center gap-2 px-4 text-sm ${isOpenInPanel ? 'bg-accent/5 shadow-[inset_2px_0_0_var(--color-accent)]' : 'hover:bg-neutral-50'}`}>
         {/* Chevron = toggle des sous-tâches uniquement (invisible sinon). */}
         {hasSubs ? (
           <Collapsible.Trigger
