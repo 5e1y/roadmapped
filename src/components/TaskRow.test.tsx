@@ -26,12 +26,23 @@ function Spy() {
 }
 
 describe('TaskRow', () => {
-  it('affiche le titre et les chips', () => {
+  it('affiche le titre, les tags en texte léger et les chips — sans le chip source', () => {
     render(<PanelProvider><TaskRow task={task} /></PanelProvider>)
     expect(screen.getByText('addImage isDirty')).toBeInTheDocument()
-    expect(screen.getByText('bug')).toBeInTheDocument()
+    expect(screen.getByText('#bug')).toBeInTheDocument()
     expect(screen.getByText('#1')).toBeInTheDocument()
-    expect(screen.getByText('ai')).toBeInTheDocument()
+    expect(screen.getByText('S')).toBeInTheDocument()
+    expect(screen.getByText('store')).toBeInTheDocument()
+    // le chip source ('ai') n'est plus rendu dans la ligne (bruit — audit UX)
+    expect(screen.queryByText('ai')).not.toBeInTheDocument()
+  })
+
+  it('plafonne les tags affichés à 3 avec un +n', () => {
+    render(<PanelProvider><TaskRow task={{ ...task, tags: ['a', 'b', 'c', 'd', 'e'] }} /></PanelProvider>)
+    expect(screen.getByText('#a')).toBeInTheDocument()
+    expect(screen.getByText('#c')).toBeInTheDocument()
+    expect(screen.queryByText('#d')).not.toBeInTheDocument()
+    expect(screen.getByText('+2')).toBeInTheDocument()
   })
 
   it('ouvre le panneau détail au clic sur le corps de la ligne', () => {

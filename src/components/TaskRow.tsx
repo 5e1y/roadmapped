@@ -66,29 +66,37 @@ export function TaskRow({ task }: { task: TaskNode }) {
         <button
           type="button"
           onClick={() => openTask(task.id)}
-          className="flex min-w-0 flex-1 flex-wrap items-center gap-2 py-2.5 text-left"
+          className="flex min-w-0 flex-1 items-center gap-2 py-2.5 text-left"
         >
           <StatusGlyph status={task.status} />
           <span className="shrink-0 font-mono text-xs text-neutral-400">#{task.id}</span>
-          <span className={`min-w-0 ${isDone ? 'text-neutral-400 line-through' : 'text-neutral-900'}`}>
+          {/* Une ligne STRICTE (pattern Linear) : le titre tronque (tooltip natif),
+              les chips restent ancrés à droite. Familles différenciées (cf.
+              Chip.tsx), tags en texte léger plafonnés à 3 (+n), source retiré —
+              le détail complet vit dans le panneau. */}
+          <span
+            title={task.title}
+            className={`min-w-0 truncate ${isDone ? 'text-neutral-400 line-through' : 'text-neutral-900'}`}
+          >
             {task.title}
           </span>
-          {/* pas de shrink-0 : quand la ligne n'a plus de place, les chips passent
-              à la ligne suivante plutôt que d'être coupées par l'overflow-hidden
-              de la carte parente (bug réel constaté sur les tâches à 4-6 tags) */}
-          <span className="ml-auto flex flex-wrap items-center justify-end gap-1">
+          <span className="ml-auto flex shrink-0 items-center gap-1.5">
             {hasSubs && (
               <span className="font-mono text-[11px] text-neutral-400">
                 {subDone}/{task.subtasks.length}
               </span>
             )}
+            {task.tags.slice(0, 3).map((t) => (
+              <span key={t} className="text-[11px] text-neutral-400">#{t}</span>
+            ))}
+            {task.tags.length > 3 && (
+              <span className="text-[11px] text-neutral-400" title={task.tags.slice(3).join(', ')}>
+                +{task.tags.length - 3}
+              </span>
+            )}
             {task.code && <Chip label={task.code} mono />}
             {task.zone && <Chip label={task.zone} />}
-            {task.size && <Chip label={task.size} mono />}
-            {task.tags.map((t) => (
-              <Chip key={t} label={t} />
-            ))}
-            <Chip label={task.source} mono />
+            {task.size && <Chip label={task.size} mono strong />}
           </span>
         </button>
       </div>

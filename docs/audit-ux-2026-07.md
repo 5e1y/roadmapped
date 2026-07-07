@@ -13,15 +13,15 @@
 
 ## Constats visuels (passe Playwright — captures)
 
-- [ ] **[important]** [backlog] Les chips débordent en 2ᵉ ligne sur les titres longs (#6, #22) et cassent l'alignement des lignes → *#7* — réserver une zone chips fixe, tronquer avec « +n ».
+- [x] **[important]** [backlog] Les chips débordent en 2ᵉ ligne sur les titres longs (#6, #22) et cassent l'alignement des lignes → *#7* — réserver une zone chips fixe, tronquer avec « +n ». — fait : ligne stricte (titre tronqué + tooltip), tags plafonnés à 3 (+n), chips ancrés à droite — vérifié au pixel.
 - [x] **[important]** [colonnes] Titres de cartes quasi tous tronqués à une ligne (l'info principale est illisible) → *#7* — autoriser 2 lignes + title en tooltip natif. — fait : titres des cartes Colonnes passés en `line-clamp-2` (2 lignes max) avec `title={task.title}` en infobulle native.
-- [ ] **[important]** [shell] Sidebar quasi vide en vue Backlog : la spec V2 prévoit la liste des sections (accès direct/scroll) — espace mort aujourd'hui → *#7*.
-- [ ] **[important]** [panel] Le textarea Détail (min-h 120px) rend illisible un detail long — lecture au lasso dans une lucarne → *#2* (mode lecture d'abord ?) ; à défaut auto-grow → *#7*.
+- [x] **[important]** [shell] Sidebar quasi vide en vue Backlog : la spec V2 prévoit la liste des sections (accès direct/scroll) — espace mort aujourd'hui → *#7*. — fait : liste des sections (titre + x/y) dans la sidebar, clic = dépliage (store partagé) + scroll — vérifié au pixel.
+- [ ] **[important]** [panel] Le textarea Détail (min-h 120px) rend illisible un detail long — lecture au lasso dans une lucarne → *#2* (mode lecture acté par la spec approuvée).
 - [x] **[nice]** [backlog] « 22 tâches actives (1 faites) » : accord (« 1 faite ») ; « nextId 23 » est une info technique sans valeur pour l'humain → *#7*. — fait : helper `plural()` d'accord singulier/pluriel (section/tâche/faite/archivée) dans l'en-tête ; « nextId N » retiré de l'en-tête humain.
 - [ ] **[nice]** [panel] Chemin du fichier YAML brut sur 2 lignes en tête de panneau — reléguer en pied de panneau → *#2*.
 - [x] **[nice]** [colonnes] Dernière colonne coupée au bord sans affordance de scroll horizontal → *#7*. — fait : barre de défilement horizontale fine et toujours visible (`.roadmap-cols-scroll`, monochrome) + padding de fin, la rangée de colonnes remplit la hauteur.
 - [ ] **[nice]** [docs] Arbre replié par défaut (la vue paraît vide) et tutoiement « Sélectionne un document » incohérent avec le ton neutre du reste → *#5*.
-- [ ] **[nice]** [graphe] La carte done #22 affiche des chips (core, M) que les cartes actives n'ont pas — contenu de carte incohérent selon l'état (cf. finding « Zone et taille » ci-dessous) → *#7*.
+- [x] **[nice]** [graphe] La carte done #22 affiche des chips (core, M) que les cartes actives n'ont pas — contenu de carte incohérent selon l'état (cf. finding « Zone et taille » ci-dessous) → *#7*. — fait : contenu de carte identique quel que soit l'état (chips retirés des cartes done, Colonnes + Graphe).
 
 # Findings des auditeurs de code (46, triés par vue puis sévérité)
 
@@ -33,7 +33,7 @@
 - [x] **[important]** Création de section : aucun état de chargement, double-soumission possible, erreurs réseau avalées → *#7* — fait : état `busy` (bouton désactivé + « Création… », onKey court-circuité), fetch en try/catch/finally, échec réseau poussé dans `errors` ; même traitement appliqué à CreateTaskPanel.
   - Fichiers : src/components/Backlog.tsx
   - Fix : Ajouter un state `busy`, désactiver le bouton et court-circuiter onKey pendant l'appel (`disabled={busy}`), envelopper le fetch dans try/catch/finally et pousser le message d'échec dans `errors` (ex. « Échec réseau, réessayer »). Réinitialiser `busy` dans finally. Même traitement à prévoir côté panneaux de création de tâche.
-- [ ] **[important]** Chips de tâche indifférenciés : code, zone, size, tags et source ont tous le même rendu gris → *#7*
+- [x] **[important]** Chips de tâche indifférenciés : code, zone, size, tags et source ont tous le même rendu gris → *#7* — fait : 3 familles monochromes (size fort, zone neutre, code mono), tags en texte léger #tag, chip source retiré des lignes.
   - Fichiers : src/components/TaskRow.tsx, src/components/Chip.tsx
   - Fix : Différencier les familles de chips en restant monochrome : préfixer/typer (ex. size en pastille pleine, tags avec un point, code en mono sans fond), ou varier subtilement le fond/bord entre catégories. Retirer le chip `source` de la ligne (le réserver au panneau détail) ou ne l'afficher que pour `source==='ai'`. Limiter/tronquer le nombre de tags affichés au-delà de N.
 - [x] **[important]** Une section vide, une fois dépliée, n'affiche rien (pas d'état vide) → *#7* — fait : état vide « Aucune tâche. » + bouton « + première tâche » (openCreateTask) quand `section.tasks.length === 0` ; version archive (dimmed) sans bouton d'action.
@@ -60,10 +60,10 @@
 - [x] **[important]** Aucun feedback de sauvegarde : l'utilisateur ne sait jamais qu'un champ a été enregistré → *#7* — fait : indicateur « Enregistré » éphémère (~1,5 s, coche monochrome, même pattern que setCopied) affiché après chaque save réussi dans TaskPanel et SectionPanel.
   - Fichiers : src/components/TaskPanel.tsx, src/components/SectionPanel.tsx
   - Fix : Ajouter un état de save par champ ou global (idle/saving/saved) : afficher un discret "Enregistré" éphémère (~1.5s, même pattern que setCopied) à côté du label du champ qui vient de sauver, ou un point/coche dans le Row. Réutiliser le vert "done" toléré pour la coche de succès reste cohérent avec la charte.
-- [ ] **[important]** Les erreurs de validation s'affichent en haut du panneau, hors écran quand on édite un champ du bas → *#5*
+- [ ] **[important]** Les erreurs de validation s'affichent en haut du panneau, hors écran quand on édite un champ du bas → *#2*
   - Fichiers : src/components/TaskPanel.tsx, src/components/SectionPanel.tsx, src/components/SidePanel.tsx
   - Fix : Ancrer l'erreur près du champ concerné (le PATCH sait quel champ a échoué), ou à défaut scroller le bandeau dans la vue (errorRef.scrollIntoView) quand errors passe de vide à non-vide, et/ou marquer visuellement le champ fautif (bordure appuyée). Au minimum, remettre le focus/scroll sur l'erreur.
-- [ ] **[important]** Les dépendances d'une tâche archivée sont totalement invisibles (info cachée) → *#5*
+- [ ] **[important]** Les dépendances d'une tâche archivée sont totalement invisibles (info cachée) → *#2*
   - Fichiers : src/components/TaskPanel.tsx
   - Fix : En mode archived, remplacer le MultiCombobox éditable par un affichage lecture seule des dépendances (liste de chips #id titre non modifiables), au lieu de masquer tout le Row. Réutiliser dependItems/task.dependsOn pour résoudre les libellés.
 - [x] **[important]** Esc ferme le panneau entier même quand un menu Select/Combobox est ouvert → *#7* — fait : le handler Escape (capture) ne ferme pas si un popup Base UI est monté (`document.querySelector('[role="listbox"]')`) — Base UI referme alors son propre popup.
@@ -93,7 +93,7 @@
 - [x] **[important]** Aucun état vide global : une roadmap sans section active affiche un écran blanc → *#7* — fait : quand `sections.length === 0`, message « Aucune section active. Crée une section dans le Backlog… » (text-neutral-500).
   - Fichiers : src/components/RoadmapColumns.tsx
   - Fix : Avant le return, si sections.length === 0, rendre un état vide explicite (ex. "Aucune section active. Crée une section dans le Backlog pour la voir apparaître ici.") avec le même style discret que les autres textes vides (text-neutral-500).
-- [ ] **[important]** Les en-têtes de colonne (titre + compteur + barre) ne sont pas collants et disparaissent au scroll vertical → *#6*
+- [x] **[important]** Les en-têtes de colonne (titre + compteur + barre) ne sont pas collants et disparaissent au scroll vertical → *#6* — fait : rangée titre sticky top-0 (bg #fafafa), le pt-8 vit dans la cellule collante.
   - Fichiers : src/components/RoadmapColumns.tsx, src/components/RoadmapView.tsx
   - Fix : Contraindre la rangée de colonnes à la hauteur du viewport (h-full sur le conteneur ligne 64) et donner à chaque colonne son propre scroll vertical interne, avec l'en-tête (lignes 43-49) en position sticky top-0 sur fond opaque. La barre horizontale reste alors ancrée en bas de l'écran et les en-têtes restent visibles.
 - [x] **[important]** Les sous-tâches sont invisibles et exclues des compteurs, sans le moindre indice sur la carte → *#7* — fait : indicateur « x/y sous-tâches » (via `countTasksDeep`) sur la carte quand `task.subtasks.length > 0` ; le compteur/barre de colonne comptent désormais récursivement (countTasksDeep) — plus d'angle mort silencieux.
@@ -120,19 +120,19 @@
 - [x] **[important]** Arêtes sans direction (pas de flèche) et qui traversent les cartes des colonnes intermédiaires → *#7* — fait : `marker-end` (tête de flèche `#rm-arrow`) sur chaque arête pour la direction ; les segments verticaux inter-colonnes routés dans la gouttière collée à la source (COL_GAP) au lieu du centre du saut, réduisant la traversée des cartes.
   - Fichiers : src/components/RoadmapGraph.tsx
   - Fix : Ajouter des têtes de flèche (`marker-end`) pour la direction ; décaler les arêtes parallèles d'une même colonne sur des couloirs x distincts ; faire remonter les segments horizontaux dans les gouttières (COL_GAP) plutôt qu'au centre vertical des cartes traversées.
-- [ ] **[important]** La couche topo GLOBALE sert de plancher de rangée par colonne → grandes bandes vides → *#2*
+- [ ] **[important]** La couche topo GLOBALE sert de plancher de rangée par colonne → grandes bandes vides → *#4*
   - Fichiers : src/components/RoadmapGraph.tsx
   - Fix : Calculer le plancher de rangée à partir de la profondeur INTRA-colonne (deps de la même section) et laisser les arêtes exprimer l'ordre inter-colonnes, ou compacter les rangées après placement. L'alignement vertical strict sur la couche globale n'apporte rien puisque les prérequis d'une autre colonne sont sur une autre abscisse.
-- [ ] **[important]** Zone et taille affichées uniquement sur les cartes DONE — cachées sur les tâches actionnables → *#2*
+- [x] **[important]** Zone et taille affichées uniquement sur les cartes DONE — cachées sur les tâches actionnables → *#2* — fait : chips retirés des cartes done — contenu identique entre états (le détail vit dans le panneau).
   - Fichiers : src/components/RoadmapGraph.tsx
   - Fix : Afficher les chips zone/size aussi sur les cartes `available` (et `locked`), en complément de la ligne de statut, plutôt que de les réserver à l'état `done`.
-- [ ] **[important]** Aucune affordance de survol ni anneau de focus sur les cartes cliquables → *#2*
+- [x] **[important]** Aucune affordance de survol ni anneau de focus sur les cartes cliquables → *#2* — fait : hover:border-neutral-400 déjà présent sur les cartes + focus-visible global (outline 2px #171717).
   - Fichiers : src/components/RoadmapGraph.tsx
   - Fix : Ajouter un état de survol discret (`hover:border-neutral-400` ou léger fond) et un `focus-visible:ring-2 ring-neutral-900` pour rendre le focus clavier lisible et signaler l'interactivité.
-- [ ] **[nice]** Aucun état vide → *#2*
+- [x] **[nice]** Aucun état vide → *#2* — fait : état vide explicite du graphe quand aucune tâche.
   - Fichiers : src/components/RoadmapGraph.tsx
   - Fix : Afficher un état vide explicite (« Aucune tâche à afficher dans le graphe ») quand `placed.length === 0`.
-- [ ] **[nice]** Titres tronqués sans infobulle (cartes et labels de section) → *#2*
+- [x] **[nice]** Titres tronqués sans infobulle (cartes et labels de section) → *#2* — fait : title natif déjà posé sur cartes (GraphCard) et labels de section — constaté dans le code.
   - Fichiers : src/components/RoadmapGraph.tsx
   - Fix : Ajouter `title={task.title}` sur la carte et `title={s.title}` sur le label, et rendre le label `sticky top-0` pour qu'il reste visible au scroll.
 
@@ -147,25 +147,25 @@
 - [x] **[important]** Liens internes du markdown cassés : navigation hors SPA, ancres mortes, wikilinks bruts → *#7* — fait : onClick délégué sur `.doc-prose` — `#ancre` → preventDefault + scroll interne (headings dotés d'un id via renderer marked slugué) ; lien relatif `.md` → résolu au docPath courant + onSelectDoc ; `http(s)` → laissé passer en `target=_blank rel=noopener noreferrer`. (Wikilinks bruts non transformés — optionnels dans le fix.)
   - Fichiers : src/components/DocsView.tsx
   - Fix : Sur le conteneur `.doc-prose`, ajouter un onClick délégué qui inspecte `a[href]` : href commençant par `#` → preventDefault + scroll vers l'élément (et activer les id de headings via `marked` avec un heading-id/slugger) ; href relatif se terminant par `.md` (ou sans schéma) → preventDefault, résoudre relativement au docPath courant et appeler onSelectDoc ; href `http(s)` → laisser passer mais forcer `target=_blank rel=noopener`. Optionnellement, pré-transformer les `[[wikilinks]]` en liens .md avant parse.
-- [ ] **[nice]** Extension `.md` affichée dans l'arbre et noms tronqués sans tooltip → *#2*
+- [x] **[nice]** Extension `.md` affichée dans l'arbre et noms tronqués sans tooltip → *#2* — fait : extension .md masquée dans l'arbre, nom brut en tooltip.
   - Fichiers : src/components/DocsTree.tsx, src/server/docs.ts
   - Fix : Afficher le nom sans l'extension `.md` (dériver un `label` à partir de `node.name`, en gardant `path` intact pour l'API), et ajouter `title={node.name}` sur le span du dossier et le bouton du fichier pour exposer le nom complet au survol.
-- [ ] **[nice]** Tables larges débordent horizontalement (pas de conteneur scrollable comme pour <pre>) → *#4*
+- [x] **[nice]** Tables larges débordent horizontalement (pas de conteneur scrollable comme pour <pre>) → *#4* — fait : .doc-prose table : display block + overflow-x auto.
   - Fichiers : src/index.css, src/components/DocsView.tsx
   - Fix : Rendre les tables scrollables : `.doc-prose table { display: block; overflow-x: auto; }` (ou envelopper les tables via un renderer marked dans un `div` avec `overflow-x:auto`), en cohérence avec le traitement de `pre`.
 - [x] **[nice]** Incohérence de layout entre les états chargement / vide / erreur → *#7* — fait : état chargement rendu dans le même gabarit que le contenu (`mx-auto max-w-3xl px-8 py-10`) — la zone de lecture ne se déplace plus quand le contenu arrive.
   - Fichiers : src/components/DocsView.tsx
   - Fix : Uniformiser : rendre l'état chargement dans le même gabarit que le contenu (ex. `mx-auto max-w-3xl px-8 py-10` avec un skeleton/placeholder discret) ou au minimum centré comme les états vide/erreur, pour éviter le déplacement de la zone de lecture.
-- [ ] **[nice]** HTML brut du markdown rendu sans sanitisation (defense-in-depth manquante) → *#4*
+- [ ] **[nice]** HTML brut du markdown rendu sans sanitisation (defense-in-depth manquante) → *#5*
   - Fichiers : src/components/DocsView.tsx
   - Fix : Ajouter une sanitisation légère du HTML rendu (DOMPurify sur le html, ou un renderer marked qui neutralise le HTML brut). Coût minime, supprime la surface même pour des docs non écrits par l'utilisateur.
 
 ## Shell global (nav, chargement, a11y)
 
-- [ ] **[important]** La vue Roadmap avale les erreurs globales : écran vide sans message quand /api/tree échoue ou que le YAML est invalide → *#4*
+- [x] **[important]** La vue Roadmap avale les erreurs globales : écran vide sans message quand /api/tree échoue ou que le YAML est invalide → *#4* — fait : mêmes garde-fous que le Backlog (serveur injoignable / N erreurs de validation).
   - Fichiers : src/components/RoadmapView.tsx, src/App.tsx, src/state/TreeContext.tsx, src/components/Backlog.tsx, src/components/RoadmapColumns.tsx
   - Fix : Remonter la gestion loading / loadError / errors au niveau du shell (App.tsx, dans MainView ou autour de <MainView/>), pour couvrir Backlog ET Roadmap d'un seul point : afficher « Serveur injoignable » + loadError si loadError, et l'écran de validation (comme Backlog l.84-100) si errors.length>0, avant de router vers la vue. À défaut, dupliquer dans RoadmapView.tsx les gardes loadError/errors présentes dans Backlog.tsx.
-- [ ] **[important]** Aucun style focus-visible global : la navigation clavier est quasi invisible sur les contrôles du shell → *#4*
+- [x] **[important]** Aucun style focus-visible global : la navigation clavier est quasi invisible sur les contrôles du shell → *#4* — fait : :focus-visible global monochrome dans index.css (outline 2px, offset 2).
   - Fichiers : src/index.css, src/components/Sidebar.tsx, src/components/DocsTree.tsx, src/components/SidePanel.tsx
   - Fix : Ajouter dans index.css une règle globale monochrome, ex. `:focus-visible { outline: 2px solid #171717; outline-offset: 2px; border-radius: inherit; }`, et un offset clair/inverse pour les surfaces à fond noir (item de nav actif → outline blanc). Alternativement appliquer des utilitaires `focus-visible:ring-2 focus-visible:ring-neutral-900` (et ring blanc sur fond noir) sur chaque contrôle interactif du shell.
 - [x] **[important]** SidePanel : aucun transfert de focus à l'ouverture ni restauration à la fermeture → *#7* — fait : `document.activeElement` mémorisé à l'ouverture, focus déplacé dans l'`<aside>` (tabIndex -1) sauf si un champ autoFocus l'a déjà pris, restauré au démontage ; `role="dialog"` + `aria-label={title}` ajoutés.
@@ -174,7 +174,7 @@
 - [x] **[nice]** Le titre de l'onglet ne reflète jamais la vue courante ni le document ouvert → *#7* — fait : `useEffect([view, docPath])` dans Shell met `document.title` à « Backlog/Roadmap/Docs · Roadmaped » ou « <nom du doc> · Roadmaped ».
   - Fichiers : src/App.tsx, index.html
   - Fix : Dans Shell (App.tsx), un `useEffect([view, docPath])` qui met `document.title` à jour, ex. `Backlog · Roadmaped` / `Roadmap · Roadmaped` / `<nom du doc> · Roadmaped`.
-- [ ] **[nice]** Dans la sidebar Docs, l'erreur de chargement est stylée exactement comme un placeholder vide → *#4*
+- [x] **[nice]** Dans la sidebar Docs, l'erreur de chargement est stylée exactement comme un placeholder vide → *#4* — fait : encart bordé ⚠ distinct du placeholder.
   - Fichiers : src/components/Sidebar.tsx
   - Fix : Renforcer la ligne d'erreur : encre plus soutenue (`text-neutral-700`) et poids/label distinct (ex. préfixe « Erreur » en gras) pour la séparer des placeholders informatifs, tout en restant monochrome.
 - [x] **[nice]** L'état de navigation (vue + doc ouvert) n'est pas persisté : tout rechargement renvoie au Backlog → *#7* — fait : view + docPath persistés en localStorage (`nav:view`/`nav:doc`) et réhydratés au montage. (localStorage plutôt que le hash d'URL, qui entrerait en conflit avec les ancres #heading des docs.)

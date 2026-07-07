@@ -3,7 +3,6 @@ import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
 import { computeAvailability, missingPrereqs, topoLayers, type Availability } from '../lib/roadmap'
 import { StatusGlyph } from './glyphs'
-import { Chip } from './Chip'
 import type { TaskNode } from '../lib/tasks'
 
 const COL_W = 280, COL_GAP = 32, ROW_H = 96, CARD_W = 248, CARD_H = 72, PAD = 24, HEADER_H = 40
@@ -22,6 +21,13 @@ export function RoadmapGraph() {
   if (!tree) return null
 
   const sections = tree.sections.filter((s) => s.status !== 'abandoned')
+  if (sections.every((s) => s.tasks.length === 0)) {
+    return (
+      <div className="px-6 py-8 text-sm text-neutral-500">
+        Aucune tâche à afficher — le graphe se construit à partir des tâches et de leurs dépendances.
+      </div>
+    )
+  }
   const avail = computeAvailability(tree)
   const colOf = new Map(sections.map((s, i) => [s.key, i]))
   // Nœuds = tâches de premier niveau des sections actives.
@@ -156,14 +162,7 @@ function GraphCard({ placed, onOpen }: { placed: Placed; onOpen: () => void }) {
         </span>
       ) : state === 'available' ? (
         <span className="text-[11px] font-medium text-neutral-700">Disponible</span>
-      ) : (
-        (task.zone || task.size) && (
-          <div className="flex flex-wrap items-center gap-1">
-            {task.zone && <Chip label={task.zone} />}
-            {task.size && <Chip label={task.size} mono />}
-          </div>
-        )
-      )}
+      ) : null /* done : contenu identique aux autres états, sans chips (cohérence) */}
     </button>
   )
 }
