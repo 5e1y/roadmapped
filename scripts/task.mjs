@@ -14,29 +14,18 @@
 // Node >= 22.18 exécute les imports TypeScript nativement ; le script npm
 // (`npm run task`) garde --experimental-strip-types pour les Node plus vieux.
 
-import { execSync } from 'node:child_process'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync } from 'node:fs'
 import { loadPaths } from '../src/lib/paths.ts'
 import {
   treeWithErrors, readTree, findTask,
   addTask, startTask, doneTask, updateTask, archiveTask,
 } from '../src/lib/taskWrites.ts'
-import { computeAvailability, activeTasks, archivedTasks, nextQueue } from '../src/lib/roadmap.ts'
-import { parseRef, locateLine, snippet } from '../src/lib/refExtract.ts'
+import { computeAvailability, activeTasks, nextQueue } from '../src/lib/roadmap.ts'
+// Rendu partagé (#90) : CLI et serveur MCP consomment le MÊME code (src/lib/render.ts).
+import { git, taskLine, refLine, briefText, sitrepText } from '../src/lib/render.ts'
 import { TEAMS } from '../src/lib/tasks.ts'
 
 const { tasksDir: ROOT } = loadPaths()
-
-// git best-effort : hors dépôt ou commande en échec → null (jamais d'exception ni de
-// bruit sur stderr). Sert la fraîcheur des refs (#69), l'autofill du commit et la
-// suggestion de refs au done (#71). Le token le moins cher est celui que l'agent ne lit pas.
-function git(args) {
-  try {
-    return execSync(`git ${args}`, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim()
-  } catch {
-    return null
-  }
-}
 
 // ---------------------------------------------------------------- arguments
 
@@ -98,25 +87,8 @@ const parseDeps = (v, usage) => {
 }
 
 // ---------------------------------------------------------------- affichage
-
-const GLYPH = { todo: '[ ]', in_progress: '[~]', done: '[x]' }
-const STATUS_FR = { todo: 'à faire', in_progress: 'en cours', done: 'faite' }
-
-function taskLine(t, indent = '  ') {
-  const chips = [t.code, t.size, t.team, t.kind === 'quick' ? 'quick' : null, ...t.tags].filter(Boolean).join(' ')
-  return `${indent}${GLYPH[t.status]} #${String(t.id).padEnd(4)}${t.title}${chips ? `  (${chips})` : ''}`
-}
-
-/**
- * Lien titré « #id titre (statut) » — l'app porte le contexte, l'agent ne navigue
- * plus en cascade. Helper UNIQUE partagé par show et brief pour deps/liées/sous-tâches.
- */
-function refLine(tree, id) {
-  const hit = findTask(tree, id)
-  if (!hit) return `#${id} (inconnu)`
-  const st = STATUS_FR[hit.task.status] ?? hit.task.status
-  return `#${id} ${hit.task.title} (${hit.archived ? `${st}, archivée` : st})`
-}
+// taskLine/refLine/briefText/sitrepText/git vivent dans src/lib/render.ts (#90),
+// partagés avec le serveur MCP. Ici : le seul affichage propre au CLI (printTask).
 
 function printTask(hit, tree) {
   const { task, sectionKey, archived } = hit
@@ -133,59 +105,6 @@ function printTask(hit, tree) {
   if (task.release) console.log(`  release: ${task.release}`)
   console.log(`  dates: créée ${task.createdAt}${task.completedAt ? ` · terminée ${task.completedAt}` : ''} · source ${task.source}`)
   for (const sub of task.subtasks) console.log(taskLine(sub, '    '))
-}
-
-/**
- * Rend UNE ref dans le brief (#69) : drapeau de fraîcheur pour TOUTE ref dont le
- * fichier a été modifié après `createdAt` (git log), et — si la ref est ANCRÉE
- * (`fichier#symbole` ou `fichier:ligne`) — l'extrait ~10 lignes autour, lu au serve
- * (donc toujours le code actuel). Une ref nue reste une simple ligne : les tickets
- * existants ne gonflent pas, l'ancrage est opt-in.
- */
-function renderRef(ref, createdAt) {
-  const { path, anchor } = parseRef(ref)
-  const exists = existsSync(path)
-  // %cs = date du dernier commit touchant le fichier (YYYY-MM-DD) ; compare ISO en
-  // chaîne. Granularité au jour (le datetime précis viendra avec #77) : un même-jour
-  // ne lève pas le drapeau.
-  const lastCommit = exists ? git(`log -1 --format=%cs -- "${path}"`) : null
-  const flag = lastCommit && lastCommit > createdAt ? ' ⚠ modifié depuis la création du ticket' : ''
-  const head = `  ${ref}${flag}`
-  if (!anchor || !exists) return head
-  const line = locateLine(readFileSync(path, 'utf8'), anchor)
-  if (line === null) {
-    const what = anchor.kind === 'symbol' ? `symbole "${anchor.value}"` : `ligne ${anchor.value}`
-    return `${head}\n    ⚠ ancre introuvable (${what}) — lire le fichier`
-  }
-  const snip = snippet(readFileSync(path, 'utf8'), line).split('\n').map((l) => `    ${l}`).join('\n')
-  return `${head}\n${snip}`
-}
-
-/**
- * LE contexte d'exécution complet et dense d'une tâche (équivalent CLI du « brief
- * agent »). Zéro navigation : deps/liées/sous-tâches titrées + statut inline, refs
- * une par ligne (extraits d'ancre + fraîcheur, #69), rappel `done` en pied
- * (verification omise pour un quick).
- */
-function briefText(tree, hit) {
-  const t = hit.task
-  const out = [`#${t.id} ${t.title}`]
-  const meta = [`stage: ${hit.sectionKey}`, `team: ${t.team}`]
-  if (t.kind === 'quick') meta.push('kind: quick')
-  if (t.size) meta.push(`size: ${t.size}`)
-  if (t.tags.length) meta.push(`tags: ${t.tags.join(', ')}`)
-  out.push(meta.join(' · '))
-  if (t.detail) out.push(`detail: ${t.detail.trim()}`)
-  if (t.refs.length) { out.push('refs:'); for (const r of t.refs) out.push(renderRef(r, t.createdAt)) }
-  if (t.dependsOn.length) { out.push('dépend de:'); for (const d of t.dependsOn) out.push(`  ${refLine(tree, d)}`) }
-  if (t.links.length) { out.push('liées:'); for (const l of t.links) out.push(`  ${refLine(tree, l)}`) }
-  if (t.subtasks.length) { out.push('sous-tâches:'); for (const s of t.subtasks) out.push(`  ${refLine(tree, s.id)}`) }
-  out.push(
-    t.kind === 'quick'
-      ? `done ${t.id} --commit <sha> --outcome "…"`
-      : `done ${t.id} --commit <sha> --outcome "…" --verification "…"`,
-  )
-  return out.join('\n')
 }
 
 const USAGE = `task.mjs — gestion de docs/tasks/ (source de vérité du backlog Roadmaped)
@@ -538,49 +457,10 @@ function cmdArchive(id) {
   report(archiveTask(ROOT, id), `#${id} archivée → docs/tasks/_archive/…`)
 }
 
-const todayStr = () => {
-  const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-}
-const daysBetween = (isoA, isoB) =>
-  Math.round((Date.parse(isoB) - Date.parse(isoA)) / 86_400_000)
-
-/**
- * L'état du monde en ≤30 lignes (#70) : ouverture de session en UN appel. Ce que
- * l'agent relisait dans le backlog (~1 200 tokens) devient ~150. Titres seuls, pas
- * de detail. L'âge in_progress se compte depuis createdAt (faute de startedAt — un
- * proxy, pas une horloge de démarrage). Signale la dette ouverte via les tags.
- */
 function cmdSitrep(flags) {
   rejectUnknownFlags(flags, [], CMD_USAGE.sitrep)
   const { tree, errors } = treeWithErrors(ROOT)
-  const active = activeTasks(tree)
-  const today = todayStr()
-  const brief = (t) => `#${t.id} ${t.title}`
-  // Plafonne l'affichage (le budget est ≤30 lignes / ~150 tokens) : le COMPTE reste
-  // exact, seuls les titres au-delà de N sont résumés en « +K autres ».
-  const capped = (items, render, n = 8) => {
-    if (items.length === 0) return ''
-    const shown = items.slice(0, n).map(render).join(' · ')
-    return `: ${shown}${items.length > n ? ` (+${items.length - n} autres)` : ''}`
-  }
-  const doneToday = [...active, ...archivedTasks(tree)].filter((t) => t.completedAt === today)
-  const inProgress = active.filter((t) => t.status === 'in_progress')
-  const queue = nextQueue(tree).slice(0, 3)
-
-  console.log(`sitrep — ${today}`)
-  console.log(`done aujourd'hui (${doneToday.length})${capped(doneToday, brief)}`)
-  console.log(`in_progress (${inProgress.length})${capped(inProgress, (t) => `${brief(t)} (${daysBetween(t.createdAt, today)}j)`)}`)
-  console.log(`prochaines: ${queue.length ? queue.map(brief).join(' · ') : '— (file vide)'}`)
-  console.log(`validate: ${errors.length === 0 ? 'OK' : `${errors.length} erreur(s)`}`)
-
-  const alerts = []
-  const stale = inProgress.filter((t) => daysBetween(t.createdAt, today) >= 7)
-  if (stale.length) alerts.push(`${stale.length} in_progress ancienne(s) (≥7j) : ${stale.map((t) => `#${t.id}`).join(' ')}`)
-  const debt = active.filter((t) => t.status !== 'done' && t.tags.includes('debt'))
-  if (debt.length) alerts.push(`${debt.length} dette(s) ouverte(s) (#debt) : ${debt.map((t) => `#${t.id}`).join(' ')}`)
-  if (errors.length) alerts.push(`validate rouge — lance \`validate\``)
-  if (alerts.length) for (const a of alerts) console.log(`⚠ ${a}`)
+  console.log(sitrepText(tree, errors))
 }
 
 function cmdRoadmap(flags) {
