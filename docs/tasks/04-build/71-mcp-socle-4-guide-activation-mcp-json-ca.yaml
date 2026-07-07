@@ -1,7 +1,7 @@
 id: 93
 code: null
 title: "MCP socle 4 — guide : activation .mcp.json + catalogue des tools"
-status: in_progress
+status: done
 tags: []
 size: S
 team: engineering
@@ -21,8 +21,13 @@ dependsOn:
 milestone: null
 source: ai
 createdAt: "2026-07-08"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: bd60f05
+outcome: >-
+  Section MCP ajoutée au guide (fin §4) : activation via .mcp.json committé + redémarrage,
+  coexistence CLI+MCP sur le même noyau, catalogue des 14 tools (8 lecture + 6 écriture) avec leur
+  rôle et le comportement isError/rollback
+verification: >-
+  Section relue dans docs/guide.md, cohérente avec les tools réellement livrés (#91-92) : 14 tools
+  nommés, bloc .mcp.json exact, note Node ≥22.18 et coexistence
 release: null
