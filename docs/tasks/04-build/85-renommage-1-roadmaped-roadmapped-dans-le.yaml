@@ -1,0 +1,35 @@
+id: 110
+code: null
+title: Renommage 1 — roadmaped → Roadmapped dans le code, la config et les docs
+status: todo
+tags:
+  - marketing
+  - rename
+size: M
+team: engineering
+detail: >-
+  Renommer roadmaped → roadmapped (marque : Roadmapped, deux P) partout où le nom vit : package.json
+  (name), .mcp.json (clé serveur), serverInfo du serveur MCP (scripts/mcp-server.mjs),
+  roadmaped.config.json → roadmapped.config.json AVEC rétrocompat de lecture dans src/lib/paths.ts
+  (si roadmapped.config.json absent, lire l'ancien nom + signaler — 3 lignes, les repos hôtes
+  existants ne cassent pas), textes UI du dashboard (titres, App.tsx), USAGE du CLI, README.md,
+  docs/guide.md, CONTRIBUTING/CODE_OF_CONDUCT si mentionné. NE PAS toucher : l'historique (specs
+  datées, archive, outcomes de tâches consignées), package-lock (npm install le régénère), les ids.
+  Vérifier avec grep -ri roadmaped --exclude-dir={node_modules,dist,docs/tasks,docs/specs} → zéro
+  hit hors historique. Fini quand : grep propre, 224+ tests verts (les tests qui mentionnent le nom
+  sont mis à jour), build vert, serveur MCP répond serverInfo roadmapped après reconnexion.
+refs:
+  - package.json
+  - scripts/mcp-server.mjs
+  - src/lib/paths.ts
+  - docs/guide.md
+links: []
+dependsOn: []
+milestone: null
+source: user
+createdAt: "2026-07-08T01:56:46"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

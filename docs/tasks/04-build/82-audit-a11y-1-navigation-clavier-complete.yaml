@@ -1,0 +1,35 @@
+id: 107
+code: null
+title: Audit a11y 1 — navigation clavier complète du dashboard
+status: todo
+tags:
+  - design
+  - a11y
+  - audit
+size: M
+team: design
+detail: >-
+  Parcourir TOUTE l'app au clavier seul (npm run dev, sans souris) : les 4 tabs, Backlog (lignes,
+  quick-add mini), Roadmap (colonnes + graphe), Docs (arbre), Notepad, SidePanel/TaskPanel, chaque
+  combobox/select/dialog. Points connus à vérifier : les croix de suppression des tags dans les
+  combobox (focusables ? activables Entrée/Espace ? focus visible ?), les éléments cliquables
+  non-boutons, l'ordre de tabulation, le focus trap des dialogs BaseUI, l'échappement Esc, le focus
+  rendu APRÈS une action (création/suppression). Livrable : section « Clavier » dans
+  docs/audit-a11y-2026-07.md — un tableau par écran : élément, problème, sévérité
+  (bloquant/gênant/mineur), fix proposé (composant BaseUI ou attribut). AUCUN fix appliqué ici
+  (l'exécution = tâche fixes a11y). Fini quand : chaque écran a été réellement parcouru au clavier
+  et le rapport liste les findings avec repro.
+refs:
+  - docs/audit-ux-2026-07.md
+  - src/components/ui.tsx
+  - src/components/TaskPanel.tsx
+links: []
+dependsOn: []
+milestone: null
+source: user
+createdAt: "2026-07-08T01:56:24"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

@@ -1,0 +1,34 @@
+id: 113
+code: null
+title: Passe BaseUI — composants canoniques partout, zéro élément en dur
+status: todo
+tags:
+  - design
+  - baseui
+size: M
+team: engineering
+detail: >-
+  Appliquer la section « composants canoniques » de docs/design.md (#111) : remplacer chaque
+  variante en dur par le composant BaseUI retenu, centralisé dans src/components/ui.tsx. Cas connus
+  dès maintenant (l'inventaire #109 peut en ajouter) : le quick-add mini du Backlog — text field
+  sans arrondis à aligner, et son dropdown de fin qui est en dur et 100% différent des dropdowns de
+  la TaskBar → même composant Select BaseUI que la TaskBar ; les croix de suppression de tags des
+  combobox → le composant canonique avec focus/aria. Zéro changement de comportement (mêmes actions,
+  même data) — uniquement l'implémentation des contrôles. Fini quand : grep des implémentations
+  divergentes listées par #109 → toutes remplacées, tests + build verts, et chaque contrôle vérifié
+  à la main dans l'app (npm run dev).
+refs:
+  - src/components/ui.tsx
+  - src/components/Backlog.tsx
+  - src/components/TaskPanel.tsx
+links: []
+dependsOn:
+  - 111
+milestone: null
+source: user
+createdAt: "2026-07-08T01:57:19"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

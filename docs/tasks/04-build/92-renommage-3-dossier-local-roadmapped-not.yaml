@@ -1,0 +1,32 @@
+id: 117
+code: null
+title: Renommage 3 — dossier local Roadmapped + note repo GitHub futur
+status: todo
+tags:
+  - marketing
+  - rename
+size: S
+team: operations
+detail: >-
+  Étape finale du renommage, APRÈS #110-112 verts. Aucun remote GitHub n'existe aujourd'hui (git
+  remote -v vide) : rien à renommer côté GitHub, mais consigner dans README que le futur repo se
+  crée sous « Roadmapped ». Le dossier local ~/Documents/Roadmaped → ~/Documents/Roadmapped : à
+  faire par Rémi HORS session Claude Code (le cwd de la session, le serveur MCP et les chemins
+  ~/.claude/projects pointent dessus — renommer pendant une session casse tout) : fermer la session,
+  mv, rouvrir. Vérifier ensuite : npm install (réactive le hook via prepare), /mcp (serveur
+  roadmapped), sitrep OK. Fini quand : le dossier porte le nouveau nom et une session fraîche
+  fonctionne de bout en bout (checklist ci-dessus déroulée).
+refs:
+  - README.md
+links: []
+dependsOn:
+  - 110
+  - 112
+milestone: null
+source: user
+createdAt: "2026-07-08T01:57:44"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

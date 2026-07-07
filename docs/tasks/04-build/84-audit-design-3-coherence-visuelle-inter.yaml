@@ -1,0 +1,32 @@
+id: 109
+code: null
+title: Audit design 3 — cohérence visuelle inter-écrans (fonds, arrondis, dropdowns, espacements)
+status: todo
+tags:
+  - design
+  - audit
+size: S
+team: design
+detail: >-
+  Inventaire des divergences visuelles entre écrans (npm run dev + captures) : fonds de page blanc
+  vs gris selon l'écran (lister QUI a quoi), arrondis incohérents (ex. connu : text field du
+  quick-add mini sans arrondis), les dropdowns — recenser CHAQUE implémentation (celle de la TaskBar
+  vs celle en dur à la fin du quick-add mini vs autres) avec fichier:composant, espacements/paddings
+  divergents entre panneaux, tailles/graisses de titres. Livrable : section « Cohérence » dans
+  docs/audit-a11y-2026-07.md (même rapport que les audits a11y) : tableau élément → variantes
+  constatées (fichier) → variante canonique proposée. AUCUN fix ici. Fini quand : tous les écrans (4
+  tabs + panneaux) inventoriés, chaque divergence localisée dans le code.
+refs:
+  - docs/audit-ux-2026-07.md
+  - src/components/ui.tsx
+  - src/components/Backlog.tsx
+links: []
+dependsOn: []
+milestone: null
+source: user
+createdAt: "2026-07-08T01:56:38"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

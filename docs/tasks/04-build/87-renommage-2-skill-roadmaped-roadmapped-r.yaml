@@ -1,0 +1,31 @@
+id: 112
+code: null
+title: Renommage 2 — skill roadmaped → roadmapped + resync installation
+status: todo
+tags:
+  - marketing
+  - rename
+  - skill
+size: S
+team: engineering
+detail: >-
+  git mv skills/roadmaped skills/roadmapped ; frontmatter name: roadmapped + description mise à jour
+  (« Gestion de projet Roadmapped ») ; occurrences dans SKILL.md et references/*.md (planning,
+  setup, formats, delegation — y compris les chemins node scripts/task.mjs qui ne changent pas, et
+  la mention roadmapped.config.json de #110). Installation locale : supprimer
+  ~/.claude/skills/roadmaped et installer ~/.claude/skills/roadmapped (copie du repo). Fini quand :
+  /reload-skills expose « roadmapped » (et plus « roadmaped »), diff -r entre repo et installé vide,
+  grep roadmaped dans skills/ → zéro hit.
+refs:
+  - skills/roadmaped/SKILL.md
+links: []
+dependsOn:
+  - 110
+milestone: null
+source: user
+createdAt: "2026-07-08T01:57:06"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

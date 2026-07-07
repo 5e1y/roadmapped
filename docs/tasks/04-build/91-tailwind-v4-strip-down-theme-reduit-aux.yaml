@@ -1,0 +1,32 @@
+id: 116
+code: null
+title: Tailwind v4 strip down — @theme réduit aux tokens de design.md
+status: todo
+tags:
+  - design
+  - tailwind
+size: S
+team: engineering
+detail: >-
+  Note de cadrage : Tailwind v4 purge DÉJÀ automatiquement les utilities non utilisées au build — le
+  « strip down » utile n'est pas là. Le vrai travail : (1) réduire le @theme (CSS d'entrée) aux
+  tokens de design.md (#111) — virer les couleurs/valeurs de la palette par défaut non utilisées
+  pour que l'autocomplétion et le code ne proposent QUE le système ; (2) grep des classes
+  arbitraires ([#hex], valeurs magiques) dans src/ → remplacer par les tokens ; (3) vérifier
+  qu'aucun plugin/preset inutile ne traîne (package.json). Mesurer avant/après : taille du CSS de
+  dist/ au build. Fini quand : @theme = design.md, zéro couleur en dur hors tokens dans
+  src/components/, taille CSS consignée dans l'outcome, build vert.
+refs:
+  - vite.config.ts
+  - package.json
+links: []
+dependsOn:
+  - 111
+milestone: null
+source: user
+createdAt: "2026-07-08T01:57:37"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
