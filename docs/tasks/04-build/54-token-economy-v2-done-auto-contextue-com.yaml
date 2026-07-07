@@ -1,7 +1,7 @@
 id: 71
 code: null
 title: Token economy v2 — done auto-contextué (commit HEAD + refs suggérées du diff)
-status: in_progress
+status: done
 tags:
   - token-economy
   - cli
@@ -22,8 +22,12 @@ dependsOn:
 milestone: null
 source: user
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: e2d1c42
+outcome: >-
+  done auto-contextué : sans --commit l'app consigne le HEAD ; --suggest-refs propose les fichiers
+  du diff (commit + non-commité, hors docs/tasks) à confirmer, jamais écrits
+verification: >-
+  done 71 sans --commit → YAML relu porte commit=e2d1c42 (HEAD) ; --suggest-refs a listé les
+  fichiers modifiés en stderr sans les écrire dans refs
 release: null
