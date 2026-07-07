@@ -144,14 +144,17 @@ function GraphCard({ placed, onOpen }: { placed: Placed; onOpen: () => void }) {
   // transparaissent) ; l'état estompé s'exprime par la bordure et l'encre.
   // Tâche ouverte dans le panneau → bordure accent (#36).
   const isOpenInPanel = top?.type === 'task' && top.id === task.id
+  // Hover ≠ sélection : la carte ouverte reste accent sous la souris.
   const border = isOpenInPanel
     ? 'border-2 border-accent'
-    : state === 'available' ? 'border-2 border-neutral-900' : 'border border-neutral-200'
+    : state === 'available'
+      ? 'border-2 border-neutral-900 hover:border-neutral-400'
+      : 'border border-neutral-200 hover:border-neutral-400'
   const dim = state === 'done' || state === 'locked'
   const titleCls = task.status === 'done' ? 'text-neutral-400 line-through' : dim ? 'text-neutral-400' : 'text-neutral-900'
   return (
     <button type="button" onClick={onOpen} title={task.title}
-      className={`absolute flex flex-col gap-1.5 rounded-lg bg-white px-3 py-2.5 text-left hover:border-neutral-400 ${border}`}
+      className={`absolute flex flex-col gap-1.5 bg-white px-3 py-2.5 text-left ${border}`}
       style={{ left: xOf(placed.col), top: yOf(placed.row), width: CARD_W, minHeight: CARD_H }}>
       <div className="flex items-center gap-2">
         <StatusGlyph status={task.status} />

@@ -43,15 +43,15 @@ function AddSection() {
   if (!open) {
     return (
       <button type="button" onClick={() => setOpen(true)}
-        className="mt-3 rounded-lg border border-dashed border-neutral-300 px-4 py-3 text-sm text-neutral-500 hover:border-neutral-400 hover:text-neutral-700">
+        className="mt-3 border border-dashed border-neutral-300 px-4 py-3 text-sm text-neutral-500 hover:border-neutral-400 hover:text-neutral-700">
         + section
       </button>
     )
   }
   return (
-    <div className="mt-3 flex flex-col gap-2 rounded-lg border border-neutral-200 bg-white p-4">
+    <div className="mt-3 flex flex-col gap-2 border border-neutral-200 bg-white p-4">
       {errors.length > 0 && (
-        <ul className="rounded border-l-2 border-neutral-500 bg-neutral-100 px-3 py-2 text-xs text-neutral-700">
+        <ul className="border-l-2 border-neutral-500 bg-neutral-100 px-3 py-2 text-xs text-neutral-700">
           {errors.map((e, i) => <li key={i} className="font-mono">{e}</li>)}
         </ul>
       )}
@@ -98,7 +98,7 @@ export function Backlog() {
         <p className="mt-1 text-sm text-neutral-500">
           Corriger les fichiers fautifs — rien n'est rendu tant que la source n'est pas saine.
         </p>
-        <ul className="mt-6 flex flex-col divide-y divide-neutral-100 rounded-lg border border-neutral-200 bg-white">
+        <ul className="mt-6 flex flex-col divide-y divide-neutral-100 border border-neutral-200 bg-white">
           {errors.map((e, i) => (
             <li key={i} className="px-4 py-2.5 font-mono text-xs text-neutral-700">{e}</li>
           ))}
@@ -125,7 +125,7 @@ export function Backlog() {
       </header>
 
       {active.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-neutral-300 px-6 py-10 text-center">
+        <div className="border border-dashed border-neutral-300 px-6 py-10 text-center">
           <h2 className="text-sm font-semibold tracking-tight text-neutral-900">Backlog vide</h2>
           <p className="mx-auto mt-1 max-w-sm text-sm text-neutral-500">
             Aucune section pour l'instant. Crée une première section pour commencer à y ranger des tâches.
