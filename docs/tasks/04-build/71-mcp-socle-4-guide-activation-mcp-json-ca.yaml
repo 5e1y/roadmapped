@@ -1,0 +1,28 @@
+id: 93
+code: null
+title: "MCP socle 4 — guide : activation .mcp.json + catalogue des tools"
+status: todo
+tags: []
+size: S
+team: engineering
+detail: >-
+  Documenter dans docs/guide.md : comment activer le serveur MCP (redémarrer Claude Code pour
+  charger .mcp.json ; coexiste avec le skill/CLI), et le catalogue des 14 tools (lecture + écriture)
+  avec leur rôle en une ligne chacun. Noter la coexistence CLI+MCP (même noyau taskWrites) et que
+  MCP est la surface préférée de l'agent, le CLI restant pour l'humain/CI/tests. Fini quand :
+  section MCP dans le guide (activation + catalogue), cohérente avec les tools réellement livrés
+  (#91-92).
+refs:
+  - docs/specs/2026-07-08-mcp-server.md
+  - docs/guide.md
+links: []
+dependsOn:
+  - 92
+milestone: null
+source: ai
+createdAt: "2026-07-08"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

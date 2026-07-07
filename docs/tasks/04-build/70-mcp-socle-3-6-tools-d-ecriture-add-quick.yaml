@@ -1,0 +1,29 @@
+id: 92
+code: null
+title: MCP socle 3 — 6 tools d'écriture (add/quick/start/done/update/archive)
+status: todo
+tags: []
+size: M
+team: engineering
+detail: >-
+  Tools d'ÉCRITURE via taskWrites (validation + rollback + verrou #83 hérités, aucun second chemin)
+  : add, quick, start, done, update, archive. done conserve l'autofill HEAD (#71) et remonte les
+  warnings non bloquants (sans refs) en champ warnings de la sortie. Une erreur métier (team hors
+  enum, cycle de deps, flag manquant) revient en isError avec le MÊME message autoportant que le
+  noyau CLI (réutilisé). structuredContent = la tâche résultante. Fini quand : cycle complet PAR
+  TOOLS (sitrep→take→done) sur sandbox sans une commande bash, YAML relu conforme ; une écriture
+  invalide → isError + rollback vérifié (arbre inchangé) ; tests + build verts.
+refs:
+  - docs/specs/2026-07-08-mcp-server.md
+  - src/lib/taskWrites.ts
+links: []
+dependsOn:
+  - 91
+milestone: null
+source: ai
+createdAt: "2026-07-08"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
