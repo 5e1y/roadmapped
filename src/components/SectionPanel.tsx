@@ -1,7 +1,8 @@
 import { useState, type KeyboardEvent } from 'react'
 import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
-import { Select, TextInput, TextArea, ErrorBanner, blurOnEnter } from './ui'
+import { Select, TextInput, TextArea, ErrorBanner } from './ui'
+import { TEAMS } from '../lib/tasks'
 import type { SectionNode } from '../lib/tasks'
 
 const SECTION_STATUS_ITEMS: { value: SectionNode['status']; label: string }[] = [
@@ -17,6 +18,7 @@ export function CreateTaskPanel({ section }: { section: string }) {
   const { openTask, close } = usePanel()
   const [title, setTitle] = useState('')
   const [detail, setDetail] = useState('')
+  const [team, setTeam] = useState<string>('engineering')
   const [errors, setErrors] = useState<string[]>([])
   const [busy, setBusy] = useState(false)
 
@@ -29,7 +31,7 @@ export function CreateTaskPanel({ section }: { section: string }) {
       const r = await fetch('/api/tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ section, title, detail: detail === '' ? null : detail, source: 'user' }),
+        body: JSON.stringify({ section, title, team, detail: detail === '' ? null : detail, source: 'user' }),
       })
       const data = (await r.json()) as { ok: boolean; errors?: string[]; task?: { id: number } }
       // Bascule directe sur le détail de la tâche créée : l'utilisateur voit le
@@ -54,6 +56,16 @@ export function CreateTaskPanel({ section }: { section: string }) {
       <label className="flex flex-col gap-1">
         <span className="text-[11px] uppercase tracking-wide text-neutral-400">Titre</span>
         <TextInput value={title} autoFocus disabled={busy} onChange={(e) => setTitle(e.target.value)} onKeyDown={createOnEnter} />
+      </label>
+      <label className="flex flex-col gap-1">
+        <span className="text-[11px] uppercase tracking-wide text-neutral-400">Team</span>
+        <Select
+          aria-label="Team"
+          defaultValue={team}
+          items={TEAMS.map((t) => ({ value: t, label: t }))}
+          disabled={busy}
+          onValueChange={setTeam}
+        />
       </label>
       <label className="flex flex-col gap-1">
         <span className="text-[11px] uppercase tracking-wide text-neutral-400">Détail</span>
@@ -110,12 +122,11 @@ export function SectionPanel({ dir }: { dir: string }) {
           </span>
         )}
       </div>
-      <label className="flex flex-col gap-1">
+      {/* Le titre d'un stage est canonique (validation stricte) — lecture seule. */}
+      <div className="flex flex-col gap-1">
         <span className="text-[11px] uppercase tracking-wide text-neutral-400">Titre</span>
-        <TextInput defaultValue={section.title}
-          onKeyDown={blurOnEnter}
-          onBlur={(e) => { if (e.target.value !== section.title) void save({ title: e.target.value }) }} />
-      </label>
+        <p className="px-1 text-sm text-neutral-900">{section.title}</p>
+      </div>
       <label className="flex flex-col gap-1">
         <span className="text-[11px] uppercase tracking-wide text-neutral-400">Statut</span>
         <Select

@@ -1,73 +1,9 @@
-import { useState, type KeyboardEvent } from 'react'
 import { Accordion } from '@base-ui/react/accordion'
 import { useTree } from '../state/TreeContext'
 import { usePersistentStrings } from '../state/uiPersist'
-import { countTasksDeep } from '../lib/tasks'
+import { countTasksDeep, type TaskNode } from '../lib/tasks'
 import { SectionAccordion } from './SectionAccordion'
-import { TextInput } from './ui'
-
-function AddSection() {
-  const { reload } = useTree()
-  const [open, setOpen] = useState(false)
-  const [title, setTitle] = useState('')
-  const [errors, setErrors] = useState<string[]>([])
-  const [busy, setBusy] = useState(false)
-
-  const create = async () => {
-    if (busy) return
-    if (title.trim() === '') { setErrors(['Le titre est obligatoire.']); return }
-    setBusy(true)
-    setErrors([])
-    try {
-      const r = await fetch('/api/sections', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title }),
-      })
-      const data = (await r.json()) as { ok: boolean; errors?: string[] }
-      if (data.ok) { setTitle(''); setOpen(false); setErrors([]); await reload() }
-      else setErrors(data.errors ?? [])
-    } catch {
-      setErrors(['Échec réseau — la section n’a pas été créée, réessayer.'])
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  const onKey = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (busy) return
-    if (e.key === 'Enter') void create()
-    if (e.key === 'Escape') { setOpen(false); setTitle(''); setErrors([]) }
-  }
-
-  if (!open) {
-    return (
-      <button type="button" onClick={() => setOpen(true)}
-        className="mt-3 border border-dashed border-neutral-300 px-4 py-3 text-sm text-neutral-500 hover:border-neutral-400 hover:text-neutral-700">
-        + section
-      </button>
-    )
-  }
-  return (
-    <div className="mt-3 flex flex-col gap-2 border border-neutral-200 bg-white p-4">
-      {errors.length > 0 && (
-        <ul className="border-l-2 border-neutral-500 bg-neutral-100 px-3 py-2 text-xs text-neutral-700">
-          {errors.map((e, i) => <li key={i} className="font-mono">{e}</li>)}
-        </ul>
-      )}
-      <TextInput autoFocus value={title} disabled={busy} onChange={(e) => setTitle(e.target.value)} onKeyDown={onKey}
-        placeholder="Titre de la section (→ NN-slug auto)" />
-      <div className="flex gap-2">
-        <button type="button" onClick={create} disabled={busy}
-          className="rounded border border-neutral-900 bg-neutral-900 px-3 py-1.5 text-xs text-white hover:bg-neutral-700 disabled:opacity-50">
-          {busy ? 'Création…' : 'Créer'}
-        </button>
-        <button type="button" onClick={() => { setOpen(false); setTitle(''); setErrors([]) }}
-          className="rounded border border-neutral-300 px-3 py-1.5 text-xs text-neutral-700 hover:bg-neutral-100">Annuler</button>
-      </div>
-    </div>
-  )
-}
+import { useTeamFilter } from './Sidebar'
 
 /** Accord singulier/pluriel élémentaire (français). */
 const plural = (n: number, s: string) => `${n} ${s}${n === 1 ? '' : 's'}`
@@ -77,6 +13,7 @@ export function Backlog() {
   // Ouverture des sections persistée (survit à la navigation et au rechargement).
   const [openActive, setOpenActive] = usePersistentStrings('backlog:sections')
   const [openArchive, setOpenArchive] = usePersistentStrings('backlog:archive')
+  const [teamFilter] = useTeamFilter()
 
   if (loading && !tree) {
     return <div className="mx-auto max-w-2xl px-6 py-14 text-sm text-neutral-500">Chargement…</div>
@@ -108,7 +45,11 @@ export function Backlog() {
   }
   if (!tree) return null
 
-  const active = tree.sections.filter((s) => s.status !== 'abandoned')
+  // Filtre team (sidebar) : sections re-projetées sur les tâches qui matchent.
+  const matchTeam = (t: TaskNode) => teamFilter.length === 0 || teamFilter.includes(t.team)
+  const active = tree.sections
+    .filter((s) => s.status !== 'abandoned')
+    .map((s) => ({ ...s, tasks: s.tasks.filter(matchTeam) }))
   const activeCounts = countTasksDeep(active.flatMap((s) => s.tasks))
   const archiveCounts = countTasksDeep(tree.archive.flatMap((s) => s.tasks))
 
@@ -128,9 +69,8 @@ export function Backlog() {
         <div className="border border-dashed border-neutral-300 px-6 py-10 text-center">
           <h2 className="text-sm font-semibold tracking-tight text-neutral-900">Backlog vide</h2>
           <p className="mx-auto mt-1 max-w-sm text-sm text-neutral-500">
-            Aucune section pour l'instant. Crée une première section pour commencer à y ranger des tâches.
+            Les 8 stages sont prêts — crée une première tâche via « + tâche » dans un stage.
           </p>
-          <div className="mt-4 flex justify-center"><AddSection /></div>
         </div>
       ) : (
         <>
@@ -139,7 +79,6 @@ export function Backlog() {
               <SectionAccordion key={section.key} section={section} />
             ))}
           </Accordion.Root>
-          <AddSection />
         </>
       )}
 
