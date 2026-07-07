@@ -613,6 +613,30 @@ commit, surfaces the no-refs warning), `update`, `archive`. A business error (te
 enum, dependency cycle, missing section) comes back as an `isError` result carrying the
 same self-documenting message the CLI prints — the rollback leaves the tree untouched.
 
+### The pre-commit guard — every repo change is a ticket
+
+The rule (born from a real incident, see `docs/process-enforcement-gap.md`): **every
+change to the repo is a roadmaped unit — a `quick`, a task, or a spec — without
+exception, including right after a `done`.** A `done` is a boundary, not a lid: feedback,
+rework, and review fixes each get their own `quick`. "ASAP" is never a reason to skip it —
+the `quick` *is* the fast path (~2 commands). Only exchanges that produce no artifact
+(questions, explanations, status) stay conversational.
+
+Because a rule an agent must *remember* fails exactly when it matters (long context,
+"just polishing" after a done), the app enforces it at the real choke point — the commit:
+
+- **`task.mjs guard`**, wired as a committed pre-commit hook (`scripts/githooks/`,
+  activated automatically by `npm install` via the `prepare` script →
+  `git config core.hooksPath`). It **refuses** a commit that stages product files while
+  no task is `in_progress`, and its message hands you the exact `quick` command to run.
+  It stays out of the way for: backlog-only commits (the consignation itself), merges,
+  repos not yet initialized, and anything when a task is in progress.
+- **`sitrep` signal** (CLI and MCP): `⚠ N commit(s) non consigné(s)` when commits landed
+  after the last recorded delivery with no task in progress — drift that slipped through
+  becomes visible at the next session opening instead of silent.
+- **Escape hatch**: `git commit --no-verify` still works — deliberately. Skipping the
+  ticket becomes a conscious, visible act instead of an omission.
+
 ---
 
 ## 5. YAML formats
