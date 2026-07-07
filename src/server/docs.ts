@@ -37,6 +37,10 @@ export function buildDocsTree(docsDir: string, root: string = docsDir): DocNode[
 
   for (const entry of entries) {
     if (isHidden(entry) || IGNORE_DIRS.has(entry)) continue
+    // Notepad (#87) : docs/notes/ est un espace local gitignoré, hors connaissance
+    // projet → jamais dans l'arbre Docs. Exclu au niveau RACINE seulement (un doc
+    // légitimement nommé "notes" plus profond reste visible).
+    if (docsDir === root && entry === 'notes') continue
     const full = join(docsDir, entry)
     let st
     try {
