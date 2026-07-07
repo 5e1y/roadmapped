@@ -1,7 +1,7 @@
 id: 38
 code: null
 title: "Look sérieux : bords droits, cartes accolées, hover qui respecte la sélection"
-status: in_progress
+status: done
 tags:
   - ux
   - design
@@ -29,8 +29,14 @@ dependsOn: []
 milestone: null
 source: user
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-07"
+commit: 3e4651a
+outcome: >-
+  L'app a son look sérieux : angles droits sur toutes les surfaces, colonnes de roadmap denses façon
+  liste, et la sélection bleue reste visible sous la souris dès le clic
+verification: >-
+  Asserté au DOM : bordure rgb(37,99,235) constatée sous la souris immédiatement après le clic (le
+  hover ne masque plus la sélection). Captures relues : colonnes accolées bordures fusionnées,
+  backlog carré avec filet accent, popups/chips/consignation droits. Inputs et boutons toujours
+  arrondis (fieldCls/ghostCls/actionBtn intacts). 113 tests + build verts.
 release: null
