@@ -526,7 +526,7 @@ function TaskPanelBody({ id }: { id: number }) {
               const v = e.target.value || null
               void save('detail', changed(task.detail, v), { detail: v }).then((ok) => { if (ok) setDetailEditing(false) })
             }}
-            className="text-sm"
+            className="text-sm leading-relaxed"
           />
         ) : (
           <div
@@ -539,7 +539,7 @@ function TaskPanelBody({ id }: { id: number }) {
             className={`rounded border border-transparent px-1.5 py-1 ${editable ? 'cursor-text transition-colors hover:bg-neutral-100' : ''}`}
           >
             {task.detail ? (
-              <Markdown source={task.detail} className="text-sm" />
+              <Markdown source={task.detail} className="doc-prose--panel" />
             ) : (
               <p className="text-xs text-neutral-400">Aucun détail.{editable && ' Cliquer pour ajouter.'}</p>
             )}
