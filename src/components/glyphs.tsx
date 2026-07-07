@@ -1,22 +1,13 @@
+import { ChevronRight } from 'trinil-react'
 import type { TaskNode } from '../lib/tasks'
 
 /**
- * Chevron d'affordance expand/collapse. La classe `.chev` (index.css) le fait
- * pivoter de 90° quand l'ancêtre trigger porte `data-panel-open` (état Base UI).
+ * Chevron d'affordance expand/collapse (trinil-react). La classe `.chev`
+ * (index.css) le fait pivoter de 90° quand l'ancêtre trigger porte
+ * `data-panel-open` (état Base UI).
  */
 export function Chevron() {
-  return (
-    <svg
-      className="chev shrink-0 text-neutral-400"
-      width="10"
-      height="10"
-      viewBox="0 0 10 10"
-      fill="none"
-      aria-hidden="true"
-    >
-      <path d="M3 1.5 6.5 5 3 8.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  )
+  return <ChevronRight size={11} className="chev shrink-0 text-neutral-400" />
 }
 
 /**

@@ -1,5 +1,6 @@
 import { useRef, useState, type ReactNode } from 'react'
 import { Toast } from '@base-ui/react/toast'
+import { Check, Cross, Warning } from 'trinil-react'
 import { Collapsible } from '@base-ui/react/collapsible'
 import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
@@ -95,11 +96,7 @@ function SectionLabel({ children }: { children: ReactNode }) {
 }
 
 function CheckIcon() {
-  return (
-    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-      <path d="M1.5 5.5l2.5 2.5 4.5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  )
+  return <Check size={10} />
 }
 
 /** ✓ fugace « enregistré » posé sur la zone sauvée (spec §Feedback). */
@@ -118,10 +115,7 @@ function FieldError({ errs }: { errs?: string[] }) {
   if (!errs || errs.length === 0) return null
   return (
     <div className="flex items-start gap-1.5 px-1.5 text-[11px] text-neutral-800">
-      <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true" className="mt-px shrink-0">
-        <path d="M6 1.5 11 10.5H1L6 1.5z" stroke="currentColor" strokeWidth="1" strokeLinejoin="round" />
-        <path d="M6 5v2.5M6 9v.01" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-      </svg>
+      <Warning size={11} className="mt-px shrink-0" />
       <span className="font-mono">{errs.join(' · ')}</span>
     </div>
   )
@@ -137,9 +131,7 @@ function RemoveButton({ label, onClick }: { label: string; onClick: () => void }
       onClick={(e) => { e.stopPropagation(); onClick() }}
       className="shrink-0 rounded p-1 text-neutral-300 opacity-0 transition-opacity hover:bg-neutral-200 hover:text-neutral-700 focus-visible:opacity-100 group-hover:opacity-100"
     >
-      <svg width="9" height="9" viewBox="0 0 8 8" fill="none" aria-hidden="true">
-        <path d="M1 1l6 6M7 1l-6 6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-      </svg>
+      <Cross size={9} />
     </button>
   )
 }
