@@ -12,7 +12,7 @@ afterEach(cleanup)
 
 const task: TaskNode = {
   id: 1, code: 'A1', title: 'addImage isDirty', status: 'todo',
-  tags: ['bug', 'security'], size: 'S', zone: 'store',
+  tags: ['bug', 'security'], size: 'S', team: 'engineering',
   detail: 'Détail complet ici', refs: ['useDocumentStore.ts:809'], links: [],
   dependsOn: [], milestone: null,
   source: 'ai', createdAt: '2026-06-24', completedAt: null, commit: null,
@@ -32,7 +32,7 @@ describe('TaskRow', () => {
     expect(screen.getByText('#bug')).toBeInTheDocument()
     expect(screen.getByText('#1')).toBeInTheDocument()
     expect(screen.getByText('S')).toBeInTheDocument()
-    expect(screen.getByText('store')).toBeInTheDocument()
+    expect(screen.getByText('engineering')).toBeInTheDocument()
     // le chip source ('ai') n'est plus rendu dans la ligne (bruit — audit UX)
     expect(screen.queryByText('ai')).not.toBeInTheDocument()
   })

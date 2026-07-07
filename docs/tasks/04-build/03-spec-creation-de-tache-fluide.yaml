@@ -1,0 +1,29 @@
+id: 3
+code: null
+title: Spec — création de tâche fluide
+status: todo
+tags:
+  - ux
+  - spec
+size: S
+team: engineering
+detail: >-
+  Brainstorm avec Rémi : documenter la friction actuelle de la création (nombre de clics, champs, où
+  atterrit le focus), puis specifier une création rapide : saisie du titre inline dans la section,
+  raccourci clavier global, valeurs par défaut intelligentes (section courante, size null, source
+  user), remplissage progressif des autres champs dans le side panel, création en rafale (Entrée =
+  tâche suivante). Livrable : docs/specs/AAAA-MM-JJ-task-creation.md approuvée par Rémi, puis tâches
+  d'implémentation (workflow §2). Zéro code avant approbation.
+refs:
+  - docs/specs/2026-07-07-roadmaped-v2-design.md
+  - src/components/Backlog.tsx
+  - src/components/SectionAccordion.tsx
+links: []
+dependsOn: []
+milestone: null
+source: user
+createdAt: "2026-07-07"
+completedAt: null
+commit: null
+verification: null
+release: null

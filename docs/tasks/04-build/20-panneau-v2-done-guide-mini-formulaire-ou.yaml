@@ -1,0 +1,41 @@
+id: 27
+code: null
+title: Panneau v2 — done guidé (mini-formulaire outcome)
+status: done
+tags:
+  - panel
+  - ux
+size: M
+team: engineering
+detail: >-
+  Bouton d'action de cycle de vie contextuel en tête de panneau (spec §2) : todo → « Démarrer »
+  (PATCH status in_progress) ; in_progress → « Terminer… » ouvre un mini-formulaire inline
+  (Collapsible Base UI) : outcome REQUIS (bouton Done désactivé si vide), vérification, commit,
+  release optionnels → un seul PATCH {status:'done', outcome, verification, commit, release} ; done
+  → « Archiver ». Verrou : le Select de statut (édition de la chip) ne propose PAS de transition
+  directe vers done — choisir done ouvre le même mini-formulaire ; les retours en arrière
+  (done→todo, rollback) restent directs. Fini quand : critère n°3 de la spec joué — terminer une
+  tâche de test depuis l'UI exige l'outcome et le YAML relu sur disque contient status done +
+  outcome + completedAt.
+refs:
+  - docs/specs/2026-07-07-task-panel.md
+  - src/components/TaskPanel.tsx
+links: []
+dependsOn:
+  - 26
+milestone: null
+source: ai
+createdAt: "2026-07-07"
+completedAt: "2026-07-07"
+commit: be39d57
+outcome: >-
+  Terminer une tâche depuis le dashboard exige désormais son outcome : bouton contextuel
+  Démarrer/Terminer…/Archiver et mini-formulaire dont le Done est verrouillé tant que l'outcome est
+  vide
+verification: >-
+  E2E sur tâche jetable (créée/supprimée par API, ids 30-34 consommés jamais réutilisés) : Done ✓
+  désactivé sans outcome (asserté true), activé après saisie, YAML relu sur disque status done +
+  outcome + completedAt, bouton Archiver apparu. Cause racine du faux échec précédent : full-reload
+  Vite sur écriture YAML, corrigé (watch.ignored) et re-vérifié : 0 reload pendant une sauvegarde,
+  Esc = blur+save panneau ouvert, 2e Esc ferme.
+release: null

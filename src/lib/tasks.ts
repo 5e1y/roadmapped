@@ -2,6 +2,51 @@ import yaml from 'js-yaml'
 
 export type TaskFileMap = Record<string, string>
 
+/**
+ * Team — l'équipe métier qui réalise une tâche (le « qui »), enum fixe et
+ * obligatoire. Remplace l'ancien champ libre `zone`. 8 valeurs, minuscules.
+ */
+export type Team =
+  | 'marketing'
+  | 'sales'
+  | 'support'
+  | 'operations'
+  | 'finance'
+  | 'legal'
+  | 'engineering'
+  | 'design'
+
+export const TEAMS: Team[] = [
+  'marketing',
+  'sales',
+  'support',
+  'operations',
+  'finance',
+  'legal',
+  'engineering',
+  'design',
+]
+
+export interface Stage {
+  slug: string
+  title: string
+}
+
+/**
+ * Stages — les 8 sections canoniques d'un lancement produit (le « quand »).
+ * `docs/tasks/` contient EXACTEMENT ces 8 dossiers (validation stricte).
+ */
+export const STAGES: Stage[] = [
+  { slug: '01-idea', title: 'Idea Stage' },
+  { slug: '02-initial', title: 'Initial Stage' },
+  { slug: '03-identity', title: 'Identity Stage' },
+  { slug: '04-build', title: 'Build Stage' },
+  { slug: '05-gtm', title: 'GTM Stage' },
+  { slug: '06-launch', title: 'Launch Stage' },
+  { slug: '07-scale', title: 'Scale Stage' },
+  { slug: '08-mature', title: 'Mature Stage' },
+]
+
 export interface TaskNode {
   id: number
   code: string | null
@@ -9,7 +54,8 @@ export interface TaskNode {
   status: 'todo' | 'in_progress' | 'done'
   tags: string[]
   size: 'S' | 'M' | 'L' | null
-  zone: string | null
+  /** Équipe métier (enum fixe, obligatoire sur toute tâche active). */
+  team: Team
   detail: string | null
   refs: string[]
   links: number[]
@@ -119,7 +165,10 @@ function toTaskNode(raw: any, file: string): TaskNode {
     status: raw.status,
     tags: raw.tags ?? [],
     size: raw.size ?? null,
-    zone: raw.zone ?? null,
+    // Frontière de parse : raw est any. Pour une tâche active sans team (ou avec
+    // une team invalide), la valeur remonte telle quelle et validate.ts la rejette.
+    // L'archive (non revalidée) peut ne pas avoir de team — toléré.
+    team: raw.team,
     detail: raw.detail ?? null,
     refs: raw.refs ?? [],
     links: raw.links ?? [],

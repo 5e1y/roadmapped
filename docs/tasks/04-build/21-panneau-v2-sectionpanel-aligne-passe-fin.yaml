@@ -1,0 +1,32 @@
+id: 28
+code: null
+title: Panneau v2 — SectionPanel aligné + passe finale des critères
+status: todo
+tags:
+  - panel
+  - ux
+size: M
+team: engineering
+detail: >-
+  Aligner SectionPanel sur le paradigme lecture d'abord (titre/note lisibles, édition au clic, mêmes
+  feedbacks inline, statut de section en français) — même grammaire visuelle que TaskPanel. Puis
+  passe finale : dérouler LES 6 critères de fini de la spec un par un dans le navigateur (Playwright
+  + lecture des YAML sur disque), corriger les écarts, cocher les items d'audit routés #2 dans
+  docs/audit-ux-2026-07.md (textarea détail, chemin en pied, deps archivées visibles, sous-tâches,
+  hover/focus des cartes → vérifier ceux qui relèvent du panneau), npm run test + build verts. Fini
+  quand : les 6 critères sont observés et consignés dans la vérification du done.
+refs:
+  - docs/specs/2026-07-07-task-panel.md
+  - src/components/SectionPanel.tsx
+  - src/components/SidePanel.tsx
+links: []
+dependsOn:
+  - 27
+milestone: null
+source: ai
+createdAt: "2026-07-07"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

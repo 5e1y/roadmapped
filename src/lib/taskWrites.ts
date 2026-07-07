@@ -6,10 +6,10 @@ import { join, relative, dirname } from 'node:path'
 import yaml from 'js-yaml'
 import { buildTaskTree } from './tasks.ts'
 import { validateTaskTree, validateIdUniquenessAcrossFiles } from './validate.ts'
-import type { TaskTree, TaskNode, SectionNode, TaskFileMap } from './tasks'
+import type { TaskTree, TaskNode, TaskFileMap } from './tasks'
 
 export const FIELD_ORDER = [
-  'id', 'code', 'title', 'status', 'tags', 'size', 'zone', 'detail',
+  'id', 'code', 'title', 'status', 'tags', 'size', 'team', 'detail',
   'refs', 'links', 'dependsOn', 'milestone', 'source', 'createdAt', 'completedAt', 'commit',
   'outcome', 'verification', 'release',
 ]
@@ -170,10 +170,11 @@ function rollback(applied: Op[]): void {
 export interface AddTaskInput {
   section: string
   title: string
+  /** Équipe métier (enum fixe, REQUISE). Validée après écriture par validate.ts. */
+  team: string
   detail?: string | null
   tags?: string[]
   size?: string | null
-  zone?: string | null
   code?: string | null
   refs?: string[]
   links?: number[]
@@ -222,7 +223,9 @@ export function addTask(tasksDir: string, input: AddTaskInput): MutationResult {
     status: 'todo',
     tags: input.tags ?? [],
     size: str(input.size),
-    zone: str(input.zone),
+    // team REQUISE : une valeur absente/vide part telle quelle et validate.ts
+    // rejette (rollback) — jamais de coercion silencieuse vers une valeur bidon.
+    team: typeof input.team === 'string' && input.team !== '' ? input.team : null,
     detail: str(input.detail),
     refs: input.refs ?? [],
     links: input.links ?? [],
@@ -291,7 +294,7 @@ export interface UpdateTaskPatch {
   detail?: string | null
   status?: string
   size?: string | null
-  zone?: string | null
+  team?: string | null
   code?: string | null
   milestone?: string | null
   source?: string
@@ -308,7 +311,7 @@ export interface UpdateTaskPatch {
 
 export function updateTask(tasksDir: string, id: number, patch: UpdateTaskPatch): MutationResult {
   const stringFields: (keyof UpdateTaskPatch)[] = [
-    'title', 'detail', 'status', 'size', 'zone', 'code', 'milestone', 'source',
+    'title', 'detail', 'status', 'size', 'team', 'code', 'milestone', 'source',
     'commit', 'outcome', 'verification', 'release', 'completedAt',
   ]
   const listFields: (keyof UpdateTaskPatch)[] = ['tags', 'refs', 'links', 'dependsOn']
@@ -421,35 +424,9 @@ export function deleteTask(tasksDir: string, id: number): MutationResult {
 
 // ---------------------------------------------------------------- sections
 
-export interface CreateSectionInput {
-  title: string
-  note?: string | null
-  status?: SectionNode['status']
-}
-
-export function createSection(tasksDir: string, input: CreateSectionInput): MutationResult {
-  if (!input.title || input.title.trim() === '') {
-    return { ok: false, errors: ['Le titre de section est obligatoire.'] }
-  }
-  const dirs = readdirSync(tasksDir).filter(
-    (d) => !d.startsWith('_') && statSync(join(tasksDir, d)).isDirectory(),
-  )
-  const prefixes = dirs.map((d) => numericPrefix(d)).filter((n): n is number => n !== null)
-  const prefix = String(Math.max(0, ...prefixes) + 1).padStart(2, '0')
-  const key = `${prefix}-${slugify(input.title)}`
-  const absMeta = join(tasksDir, key, '_section.yaml')
-  if (existsSync(absMeta)) {
-    return { ok: false, errors: [`La section ${key} existe déjà.`] }
-  }
-  const meta = {
-    title: input.title,
-    status: input.status ?? 'open',
-    note: input.note ?? null,
-  }
-  return commitWrites(tasksDir, [
-    { absPath: absMeta, content: yaml.dump(meta, { lineWidth: 100, quotingType: '"' }), prevContent: null },
-  ])
-}
+// La CRÉATION de section a disparu (stages fixes) : docs/tasks/ contient
+// exactement les 8 stages canoniques, créés à l'init. Seul l'édition
+// (title canonique, status, note) reste possible via updateSection.
 
 export interface UpdateSectionPatch {
   title?: string

@@ -1,0 +1,42 @@
+id: 36
+code: null
+title: Couleur d'accent bleue — socle + tâche ouverte repérable partout
+status: done
+tags:
+  - ux
+  - design
+size: M
+team: engineering
+detail: >-
+  Introduire UN bleu d'accent dans la palette monochrome (décision Rémi 2026-07-07, remplace « seule
+  couleur tolérée : un vert discret » de la spec V2). Socle : token --color-accent dans index.css
+  (@theme Tailwind 4) pour obtenir les utilitaires text-accent/bg-accent/border-accent — jamais de
+  bleu en dur dans les composants. Usage n°1 : LA TÂCHE OUVERTE dans le side panel doit se repérer
+  d'un coup d'œil dans les trois vues — Backlog (ligne surlignée), Roadmap Colonnes (carte bordée
+  accent) et Graphe (carte bordée accent). L'id de la tâche ouverte vient de usePanel().top. Règle
+  d'usage : le bleu reste RARE (sélection active, points d'attention) pour garder sa force — le
+  reste demeure monochrome. Respect Base UI : la couleur s'applique par classes sur les composants
+  existants, pas de composant nouveau. Fini quand : une tâche ouverte est visuellement traçable dans
+  les 3 vues (captures Playwright), aucune couleur en dur hors token, npm run test + build verts.
+refs:
+  - src/index.css
+  - src/components/TaskRow.tsx
+  - src/components/RoadmapColumns.tsx
+  - src/components/RoadmapGraph.tsx
+  - docs/specs/2026-07-07-roadmaped-v2-design.md
+links: []
+dependsOn: []
+milestone: null
+source: user
+createdAt: "2026-07-07"
+completedAt: "2026-07-07"
+commit: 5ad66ba
+outcome: >-
+  Le dashboard a sa couleur d'accent (bleu #2563eb, token unique) : la tâche ouverte dans le panneau
+  se repère instantanément dans le Backlog, les Colonnes et le Graphe
+verification: >-
+  Token @theme vérifié (aucun bleu en dur : grep 2563eb → index.css seul). Au pixel : ligne Backlog
+  surlignée (fond accent/5 + filet gauche) constatée sur capture ; bordure accent des cartes
+  assertée dans le DOM des 2 vues Roadmap (borderColor rgb(37,99,235) constaté). 113 tests + build
+  verts.
+release: null
