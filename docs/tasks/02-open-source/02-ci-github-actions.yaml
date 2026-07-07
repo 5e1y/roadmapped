@@ -1,0 +1,26 @@
+id: 9
+code: null
+title: CI GitHub Actions
+status: todo
+tags:
+  - open-source
+  - ci
+size: S
+zone: repo
+detail: >-
+  Créer .github/workflows/ci.yml : déclenché sur push et pull_request, Node 22, npm ci, puis npm run
+  test (vitest) et npm run build (tsc -b + vite build, couvre le typecheck). Ajouter le badge CI
+  dans le README. Fini quand : le workflow est vert sur un push réel (vérifié dans l'onglet
+  Actions), pas seulement écrit.
+refs:
+  - package.json
+  - vite.config.ts
+links: []
+dependsOn: []
+milestone: null
+source: ai
+createdAt: "2026-07-07"
+completedAt: null
+commit: null
+verification: null
+release: null

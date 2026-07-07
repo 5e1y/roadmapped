@@ -1,0 +1,34 @@
+id: 14
+code: null
+title: Préparer le skill pour distribution
+status: todo
+tags:
+  - skill
+size: M
+zone: skill
+detail: >-
+  Adapter le skill livré dans skills/roadmaped/ pour fonctionner dans n'importe quel repo hôte :
+  chemins du CLI cohérents avec le mécanisme d'installation décidé en spec #12 (aujourd'hui le
+  SKILL.md dit « dashboard/scripts/task.mjs » alors que ce repo utilise scripts/task.mjs — unifier),
+  frontmatter/description de déclenchement au format attendu par le marketplace, et vérifier que les
+  trois references (formats, setup, workflows) reflètent l'état réel de l'outil — y compris
+  progression et milestones bloquants une fois la spec #6 livrée. Fini quand : le skill a été joué
+  de bout en bout dans un repo hôte vierge (setup, add, next, start, done, archive) sans qu'aucune
+  instruction ne soit fausse.
+refs:
+  - skills/roadmaped/SKILL.md
+  - skills/roadmaped/references/formats.md
+  - skills/roadmaped/references/setup.md
+  - skills/roadmaped/references/workflows.md
+links:
+  - 6
+  - 22
+dependsOn:
+  - 12
+milestone: null
+source: user
+createdAt: "2026-07-07"
+completedAt: null
+commit: null
+verification: null
+release: null

@@ -1,0 +1,28 @@
+id: 15
+code: null
+title: Publier le skill sur le marketplace Claude
+status: todo
+tags:
+  - skill
+  - open-source
+size: S
+zone: skill
+detail: >-
+  Suivre le process de publication du marketplace de skills/plugins Claude : vérifier les prérequis
+  du format (manifest, versionnage), métadonnées (nom, description de déclenchement testée,
+  version), lien vers le repo GitHub public, visuels si supportés. Vérifier l'installation depuis le
+  marketplace dans une session Claude fraîche et dérouler un setup complet. Fini quand : le skill
+  est trouvable publiquement et l'installation testée fonctionne.
+refs:
+  - skills/roadmaped/SKILL.md
+links: []
+dependsOn:
+  - 13
+  - 14
+milestone: null
+source: user
+createdAt: "2026-07-07"
+completedAt: null
+commit: null
+verification: null
+release: null
