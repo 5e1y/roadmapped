@@ -1,7 +1,7 @@
 id: 74
 code: null
 title: "trinil-react : corriger l'inversion ChevronLeft/ChevronRight (lib externe)"
-status: todo
+status: done
 tags:
   - bug
   - icons
@@ -21,8 +21,8 @@ dependsOn: []
 milestone: null
 source: ai
 createdAt: "2026-07-07"
-completedAt: null
+completedAt: "2026-07-07"
 commit: null
-outcome: null
+outcome: Bug reglé
 verification: null
 release: null
