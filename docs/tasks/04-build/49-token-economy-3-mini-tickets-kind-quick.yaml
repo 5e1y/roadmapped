@@ -1,7 +1,7 @@
 id: 66
 code: null
 title: Token economy 3 — mini-tickets kind:quick (schéma, validation, CLI)
-status: todo
+status: in_progress
 tags:
   - token-economy
   - data-model

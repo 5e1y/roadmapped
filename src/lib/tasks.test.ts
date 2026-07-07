@@ -5,7 +5,7 @@ import type { TaskNode } from './tasks'
 /** Tâche minimale pour les tests de comptage. */
 function mkTask(id: number, status: TaskNode['status'], subtasks: TaskNode[] = []): TaskNode {
   return {
-    id, code: null, title: `T${id}`, status, tags: [], size: null, team: 'engineering', detail: null,
+    id, kind: 'task', code: null, title: `T${id}`, status, tags: [], size: null, team: 'engineering', detail: null,
     refs: [], links: [], dependsOn: [], milestone: null, source: 'ai', createdAt: '2026-07-07',
     completedAt: null, commit: null, outcome: null, verification: null, release: null,
     file: `docs/tasks/01-x/${id}.yaml`, subtasks,
@@ -162,6 +162,27 @@ describe('buildTaskTree', () => {
     expect(tree.archive[0].title).toBe('Modale nouveautés') // titre emprunté à la section active
     expect(tree.archive[0].status).toBe('done')
     expect(tree.archive[0].tasks.map((t) => t.id)).toEqual([2])
+  })
+})
+
+describe('buildTaskTree — kind (mini-tickets)', () => {
+  it('kind absent → défaut "task" (rétrocompat totale)', () => {
+    const files = {
+      '/docs/tasks/_meta.yaml': 'nextId: 2\n',
+      '/docs/tasks/01-x/_section.yaml': 'title: "X"\nstatus: open\n',
+      '/docs/tasks/01-x/01-t.yaml': 'id: 1\ntitle: "T"\nstatus: todo\nsource: ai\ncreatedAt: "2026-07-07"\n',
+    }
+    expect(buildTaskTree(files).sections[0].tasks[0].kind).toBe('task')
+  })
+
+  it('kind: quick lu quand présent', () => {
+    const files = {
+      '/docs/tasks/_meta.yaml': 'nextId: 2\n',
+      '/docs/tasks/01-x/_section.yaml': 'title: "X"\nstatus: open\n',
+      '/docs/tasks/01-x/01-t.yaml':
+        'id: 1\nkind: quick\ntitle: "T"\nstatus: todo\nsource: ai\ncreatedAt: "2026-07-07"\n',
+    }
+    expect(buildTaskTree(files).sections[0].tasks[0].kind).toBe('quick')
   })
 })
 

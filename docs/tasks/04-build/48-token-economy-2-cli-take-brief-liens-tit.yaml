@@ -1,7 +1,7 @@
 id: 65
 code: null
 title: Token economy 2 — CLI take/brief, liens titrés, json allégé, erreurs autoportantes
-status: todo
+status: in_progress
 tags:
   - token-economy
   - cli

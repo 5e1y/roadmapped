@@ -46,33 +46,39 @@ function parseArgs(argv) {
   return { flags, positional }
 }
 
-function requireFlags(flags, names) {
+// Toute erreur de flag/valeur est AUTOPORTANTE : le message d'erreur est suivi de
+// l'usage EXACT de la commande fautive (2-3 lignes), pas du USAGE global (annexe 2 :
+// chaque ligne de sortie est relue N fois — on sert juste ce qu'il faut pour corriger).
+function fail(msg, usage) {
+  console.error(msg)
+  if (usage) console.error(usage)
+  process.exit(1)
+}
+
+function requireFlags(flags, names, usage) {
   for (const n of names) {
     if (typeof flags[n] !== 'string' || flags[n] === '') {
-      console.error(`Flag requis manquant : --${n}`)
-      process.exit(1)
+      fail(`Flag requis manquant : --${n}`, usage)
     }
   }
 }
 
-function rejectUnknownFlags(flags, allowed) {
+function rejectUnknownFlags(flags, allowed, usage) {
   for (const k of Object.keys(flags)) {
     if (!allowed.includes(k)) {
-      console.error(`Flag inconnu : --${k} (autorisés : ${allowed.map((a) => `--${a}`).join(', ')})`)
-      process.exit(1)
+      fail(`Flag inconnu : --${k}`, usage ?? `(autorisés : ${allowed.map((a) => `--${a}`).join(', ')})`)
     }
   }
 }
 
 const splitList = (v) => (v === '' ? [] : v.split(',').map((s) => s.trim()).filter(Boolean))
 const nullable = (v) => (v === 'null' ? null : v)
-const parseDeps = (v) => {
+const parseDeps = (v, usage) => {
   if (v === 'null' || v === '') return []
   const tokens = splitList(v)
   const bad = tokens.filter((t) => Number.isNaN(Number(t)))
   if (bad.length > 0) {
-    console.error(`--depends-on : id(s) invalide(s) : ${bad.join(', ')} (attendu des ids numériques séparés par des virgules, ou "null" pour vider).`)
-    process.exit(1)
+    fail(`--depends-on : id(s) invalide(s) : ${bad.join(', ')} (attendu des ids numériques séparés par des virgules, ou "null" pour vider).`, usage)
   }
   return tokens.map(Number)
 }
@@ -80,26 +86,65 @@ const parseDeps = (v) => {
 // ---------------------------------------------------------------- affichage
 
 const GLYPH = { todo: '[ ]', in_progress: '[~]', done: '[x]' }
+const STATUS_FR = { todo: 'à faire', in_progress: 'en cours', done: 'faite' }
 
 function taskLine(t, indent = '  ') {
-  const chips = [t.code, t.size, t.team, ...t.tags].filter(Boolean).join(' ')
+  const chips = [t.code, t.size, t.team, t.kind === 'quick' ? 'quick' : null, ...t.tags].filter(Boolean).join(' ')
   return `${indent}${GLYPH[t.status]} #${String(t.id).padEnd(4)}${t.title}${chips ? `  (${chips})` : ''}`
 }
 
-function printTask(hit) {
+/**
+ * Lien titré « #id titre (statut) » — l'app porte le contexte, l'agent ne navigue
+ * plus en cascade. Helper UNIQUE partagé par show et brief pour deps/liées/sous-tâches.
+ */
+function refLine(tree, id) {
+  const hit = findTask(tree, id)
+  if (!hit) return `#${id} (inconnu)`
+  const st = STATUS_FR[hit.task.status] ?? hit.task.status
+  return `#${id} ${hit.task.title} (${hit.archived ? `${st}, archivée` : st})`
+}
+
+function printTask(hit, tree) {
   const { task, sectionKey, archived } = hit
   console.log(taskLine(task, ''))
   console.log(`  section: ${sectionKey}${archived ? ' (archive)' : ''}`)
   console.log(`  fichier: ${task.file}`)
   if (task.detail) console.log(`  detail: ${task.detail.trim().replace(/\n/g, '\n          ')}`)
   if (task.refs.length) console.log(`  refs: ${task.refs.join(' · ')}`)
-  if (task.links.length) console.log(`  liées: ${task.links.map((l) => `#${l}`).join(' ')}`)
+  if (task.dependsOn.length) console.log(`  dépend de: ${task.dependsOn.map((d) => refLine(tree, d)).join(' · ')}`)
+  if (task.links.length) console.log(`  liées: ${task.links.map((l) => refLine(tree, l)).join(' · ')}`)
   if (task.outcome) console.log(`  outcome: ${task.outcome}`)
   if (task.verification) console.log(`  vérification: ${task.verification}`)
   if (task.commit) console.log(`  commit: ${task.commit}`)
   if (task.release) console.log(`  release: ${task.release}`)
   console.log(`  dates: créée ${task.createdAt}${task.completedAt ? ` · terminée ${task.completedAt}` : ''} · source ${task.source}`)
   for (const sub of task.subtasks) console.log(taskLine(sub, '    '))
+}
+
+/**
+ * LE contexte d'exécution complet et dense d'une tâche (équivalent CLI du « brief
+ * agent »). Zéro navigation : deps/liées/sous-tâches titrées + statut inline, refs
+ * une par ligne, rappel `done` en pied (verification omise pour un quick).
+ */
+function briefText(tree, hit) {
+  const t = hit.task
+  const out = [`#${t.id} ${t.title}`]
+  const meta = [`stage: ${hit.sectionKey}`, `team: ${t.team}`]
+  if (t.kind === 'quick') meta.push('kind: quick')
+  if (t.size) meta.push(`size: ${t.size}`)
+  if (t.tags.length) meta.push(`tags: ${t.tags.join(', ')}`)
+  out.push(meta.join(' · '))
+  if (t.detail) out.push(`detail: ${t.detail.trim()}`)
+  if (t.refs.length) { out.push('refs:'); for (const r of t.refs) out.push(`  ${r}`) }
+  if (t.dependsOn.length) { out.push('dépend de:'); for (const d of t.dependsOn) out.push(`  ${refLine(tree, d)}`) }
+  if (t.links.length) { out.push('liées:'); for (const l of t.links) out.push(`  ${refLine(tree, l)}`) }
+  if (t.subtasks.length) { out.push('sous-tâches:'); for (const s of t.subtasks) out.push(`  ${refLine(tree, s.id)}`) }
+  out.push(
+    t.kind === 'quick'
+      ? `done ${t.id} --commit <sha> --outcome "…"`
+      : `done ${t.id} --commit <sha> --outcome "…" --verification "…"`,
+  )
+  return out.join('\n')
 }
 
 const USAGE = `task.mjs — gestion de docs/tasks/ (source de vérité du backlog Roadmaped)
@@ -111,9 +156,16 @@ Stages (sections canoniques, fixes) : 01-idea · 02-initial · 03-identity · 04
   05-gtm · 06-launch · 07-scale · 08-mature  (créés à l'init, non modifiables au CLI)
 Teams (équipe métier, enum fixe) : ${TEAMS.join(' · ')}
 
+Ouverture de session (machine-first : tout le contexte en 1 appel)
+  take [--team <t>] [--json] next + start + brief EN UNE COMMANDE (la commande d'ouverture)
+  brief <id>                LE contexte d'exécution complet et dense (deps/liées titrées,
+                            refs, rappel done) — remplace show en cascade
+
 Lecture
-  list [--section <key>] [--status todo|in_progress|done] [--team <t>] [--archive] [--json]
-  show <id> [--json]        détail complet d'une tâche (id global, ex: 42)
+  list [--section <key>] [--status todo|in_progress|done] [--team <t>] [--archive] [--json] [--json-full]
+                            --json = allégé (id,title,status,team,stage,size,kind) ;
+                            --json-full = l'objet intégral (nextId + sections complètes)
+  show <id> [--json]        détail complet d'une tâche (deps/liées titrées, id global ex: 42)
   next [--count N] [--team t] [--json]
                             LA file de travail : les N prochaines todo DISPONIBLES
                             (deps done), ordre stage PUIS ancienneté — calculé par
@@ -128,6 +180,9 @@ Lecture
       [--size S|M|L] [--code <c>] [--refs a,b] [--links 1,2]
       [--depends-on 1,2] [--milestone <slug>] [--source ai|user] [--json]
                             --team est REQUIS (enum fixe ci-dessus)
+  quick "<titre>" --team <t> [--stage <s>] [--tags a,b] [--start] [--json]
+                            mini-ticket : titre+team suffisent (stage défaut = 1er open) ;
+                            au done, --outcome requis mais --verification facultative
   start <id>                status → in_progress
   done <id> [--commit <sha>] [--outcome <o>] [--verification <v>] [--release <r>]
                             status → done + completedAt=aujourd'hui + doc de livraison
@@ -148,6 +203,21 @@ Conventions
     + validate. Le CLI ne crée que des tâches de premier niveau.
   - Le dashboard (dashboard/ : npm run dev) rend la même donnée, même validation.`
 
+// Usage COURT par commande : servi tel quel sur une erreur de flag/valeur (message
+// autoportant, 2-3 lignes), au lieu du USAGE global. Coupe court (annexe 2 du coût).
+const CMD_USAGE = {
+  list: 'Usage : list [--section <key>] [--status todo|in_progress|done] [--team <t>] [--archive] [--json] [--json-full]',
+  show: 'Usage : show <id> [--json]',
+  next: 'Usage : next [--count N] [--team <t>] [--json]',
+  take: 'Usage : take [--team <t>] [--json]',
+  brief: 'Usage : brief <id>',
+  roadmap: 'Usage : roadmap [--json]',
+  add: 'Usage : add --section <stage> --title <t> --team <team> [--detail <d>] [--tags a,b] [--size S|M|L]\n        [--code <c>] [--refs a,b] [--links 1,2] [--depends-on 1,2] [--milestone <slug>] [--source ai|user] [--json]',
+  quick: 'Usage : quick "<titre>" --team <t> [--stage <s>] [--tags a,b] [--start] [--json]',
+  done: 'Usage : done <id> [--commit <sha>] [--outcome <o>] [--verification <v>] [--release <r>]',
+  update: 'Usage : update <id> [--title ...] [--detail ...] [--status ...] [--team ...] [--tags a,b] [--refs a,b]\n        [--links 1,2] [--depends-on 1,2] [--milestone <slug>] [--size ...] [--code ...] [--outcome ...] …',
+}
+
 // ---------------------------------------------------------------- commandes
 
 function cmdValidate() {
@@ -165,7 +235,7 @@ function cmdValidate() {
 }
 
 function cmdList(flags) {
-  rejectUnknownFlags(flags, ['section', 'status', 'team', 'archive', 'json'])
+  rejectUnknownFlags(flags, ['section', 'status', 'team', 'archive', 'json', 'json-full'], CMD_USAGE.list)
   const tree = readTree(ROOT)
   let sections = flags.archive ? [...tree.sections, ...tree.archive] : tree.sections
   if (typeof flags.section === 'string') sections = sections.filter((s) => s.key === flags.section)
@@ -179,8 +249,23 @@ function cmdList(flags) {
       .map((s) => ({ ...s, tasks: s.tasks.filter((t) => t.team === flags.team) }))
       .filter((s) => s.tasks.length > 0)
   }
-  if (flags.json) {
+  // --json-full : l'objet intégral d'avant (consommateurs qui exigent le detail).
+  // --json (défaut) : ALLÉGÉ — id,title,status,team,stage,size,kind, sous-tâches
+  // aplaties. Vérifié : aucun call-site programmatique de `list --json` (l'UI lit
+  // /api/tasks → readTree, jamais le CLI ; seuls des docs le mentionnaient).
+  if (flags['json-full']) {
     console.log(JSON.stringify({ nextId: tree.nextId, sections }, null, 2))
+    return
+  }
+  if (flags.json) {
+    const light = []
+    const push = (t, stage) =>
+      light.push({ id: t.id, title: t.title, status: t.status, team: t.team, stage, size: t.size, kind: t.kind })
+    for (const s of sections) for (const t of s.tasks) {
+      push(t, s.key)
+      for (const sub of t.subtasks) push(sub, s.key)
+    }
+    console.log(JSON.stringify(light, null, 2))
     return
   }
   for (const s of sections) {
@@ -194,17 +279,51 @@ function cmdList(flags) {
 }
 
 function cmdShow(id, flags) {
-  const hit = findTask(readTree(ROOT), id)
+  rejectUnknownFlags(flags, ['json'], CMD_USAGE.show)
+  const tree = readTree(ROOT)
+  const hit = findTask(tree, id)
   if (!hit) {
     console.error(`Aucune tâche #${id} (actives et archive confondues).`)
     process.exit(1)
   }
   if (flags.json) console.log(JSON.stringify(hit, null, 2))
-  else printTask(hit)
+  else printTask(hit, tree)
+}
+
+function cmdBrief(id, flags) {
+  rejectUnknownFlags(flags, [], CMD_USAGE.brief)
+  const tree = readTree(ROOT)
+  const hit = findTask(tree, id)
+  if (!hit) fail(`Aucune tâche #${id} (actives et archive confondues).`, CMD_USAGE.brief)
+  console.log(briefText(tree, hit))
+}
+
+function cmdTake(flags) {
+  rejectUnknownFlags(flags, ['team', 'json'], CMD_USAGE.take)
+  const team = typeof flags.team === 'string' ? flags.team : undefined
+  const queue = nextQueue(readTree(ROOT), { team })
+  if (queue.length === 0) {
+    console.log(
+      flags.json
+        ? '{}'
+        : `Aucune tâche disponible${team ? ` pour la team ${team}` : ''} (tout est fait, verrouillé ou en cours).`,
+    )
+    return
+  }
+  const id = queue[0].id
+  report(startTask(ROOT, id), null) // exit si échec (rollback déjà géré)
+  const tree = readTree(ROOT)
+  const hit = findTask(tree, id)
+  if (flags.json) {
+    console.log(JSON.stringify(hit.task, null, 2))
+    return
+  }
+  console.log(`#${id} démarrée.`)
+  console.log(briefText(tree, hit))
 }
 
 function cmdNext(flags) {
-  rejectUnknownFlags(flags, ['json', 'count', 'team'])
+  rejectUnknownFlags(flags, ['json', 'count', 'team'], CMD_USAGE.next)
   const count = flags.count ? Math.max(1, Number(flags.count) || 1) : 1
   const tree = readTree(ROOT)
   const queue = nextQueue(tree, { team: typeof flags.team === 'string' ? flags.team : undefined }).slice(0, count)
@@ -219,7 +338,7 @@ function cmdNext(flags) {
   }
   for (const task of queue) {
     const hit = findTask(tree, task.id)
-    if (count === 1) printTask(hit)
+    if (count === 1) printTask(hit, tree)
     else console.log(taskLine(task, ''))
   }
 }
@@ -235,10 +354,9 @@ function report(res, successMessage) {
 }
 
 /** Vérifie qu'une valeur de team appartient à l'enum ; sinon quitte en listant les 8. */
-function assertTeam(value) {
+function assertTeam(value, usage) {
   if (!TEAMS.includes(value)) {
-    console.error(`--team invalide : "${value}" (attendu l'une de : ${TEAMS.join(', ')})`)
-    process.exit(1)
+    fail(`--team invalide : "${value}" (attendu l'une de : ${TEAMS.join(', ')})`, usage)
   }
 }
 
@@ -246,9 +364,9 @@ function cmdAdd(flags) {
   rejectUnknownFlags(flags, [
     'section', 'title', 'team', 'detail', 'tags', 'size', 'code', 'refs', 'links',
     'depends-on', 'milestone', 'source', 'json',
-  ])
-  requireFlags(flags, ['section', 'title', 'team'])
-  assertTeam(flags.team)
+  ], CMD_USAGE.add)
+  requireFlags(flags, ['section', 'title', 'team'], CMD_USAGE.add)
+  assertTeam(flags.team, CMD_USAGE.add)
   const res = addTask(ROOT, {
     section: flags.section,
     title: flags.title,
@@ -259,7 +377,7 @@ function cmdAdd(flags) {
     code: typeof flags.code === 'string' ? flags.code : null,
     refs: typeof flags.refs === 'string' ? splitList(flags.refs) : [],
     links: typeof flags.links === 'string' ? splitList(flags.links).map(Number) : [],
-    dependsOn: typeof flags['depends-on'] === 'string' ? parseDeps(flags['depends-on']) : [],
+    dependsOn: typeof flags['depends-on'] === 'string' ? parseDeps(flags['depends-on'], CMD_USAGE.add) : [],
     milestone: typeof flags.milestone === 'string' ? nullable(flags.milestone) : null,
     source: typeof flags.source === 'string' ? flags.source : 'ai',
   })
@@ -267,13 +385,47 @@ function cmdAdd(flags) {
   if (flags.json && res.ok) console.log(JSON.stringify(res.task, null, 2))
 }
 
+function cmdQuick(flags, positional) {
+  rejectUnknownFlags(flags, ['team', 'stage', 'tags', 'start', 'json'], CMD_USAGE.quick)
+  const title = positional[0]
+  if (!title || title.trim() === '') {
+    fail('quick : titre requis (1er argument positionnel, entre guillemets).', CMD_USAGE.quick)
+  }
+  requireFlags(flags, ['team'], CMD_USAGE.quick)
+  assertTeam(flags.team, CMD_USAGE.quick)
+  // Stage par défaut = le premier stage "open" (Build aujourd'hui). tree.sections
+  // est déjà trié par préfixe numérique croissant.
+  const stage = typeof flags.stage === 'string'
+    ? flags.stage
+    : readTree(ROOT).sections.find((s) => s.status === 'open')?.key
+  if (!stage) fail('Aucun stage "open" pour accueillir le quick — préciser --stage.', CMD_USAGE.quick)
+  const res = addTask(ROOT, {
+    section: stage,
+    title,
+    team: flags.team,
+    tags: typeof flags.tags === 'string' ? splitList(flags.tags) : [],
+    kind: 'quick',
+  })
+  report(res, null) // exit si échec
+  const id = res.task.id
+  if (!flags.json) console.log(`#${id} créée (quick).`)
+  if (flags.start) {
+    report(startTask(ROOT, id), null)
+    if (!flags.json) console.log(`#${id} démarrée.`)
+  }
+  if (flags.json) {
+    const hit = findTask(readTree(ROOT), id)
+    console.log(JSON.stringify(hit.task, null, 2))
+  }
+}
+
 function cmdStart(id) {
   report(startTask(ROOT, id), `#${id} démarrée (in_progress).`)
 }
 
 function cmdDone(id, flags) {
-  rejectUnknownFlags(flags, ['commit', 'outcome', 'verification', 'release'])
-  report(
+  rejectUnknownFlags(flags, ['commit', 'outcome', 'verification', 'release'], CMD_USAGE.done)
+  const res = report(
     doneTask(ROOT, id, {
       commit: typeof flags.commit === 'string' ? flags.commit : undefined,
       outcome: typeof flags.outcome === 'string' ? flags.outcome : undefined,
@@ -282,19 +434,20 @@ function cmdDone(id, flags) {
     }),
     `#${id} terminée (done).`,
   )
+  // Warnings non bloquants (ex: task livrée sans refs) → stderr, succès préservé.
+  if (res.ok && res.warnings) for (const w of res.warnings) console.error(`⚠ ${w}`)
 }
 
 function cmdUpdate(id, flags) {
   const stringFields = ['title', 'detail', 'status', 'size', 'team', 'code', 'source', 'commit', 'outcome', 'verification', 'release', 'completedAt']
   const listFields = ['tags', 'refs', 'links']
-  rejectUnknownFlags(flags, [...stringFields, ...listFields, 'depends-on', 'milestone'])
+  rejectUnknownFlags(flags, [...stringFields, ...listFields, 'depends-on', 'milestone'], CMD_USAGE.update)
   if (Object.keys(flags).length === 0) {
-    console.error('update : aucun champ à modifier (voir --help).')
-    process.exit(1)
+    fail('update : aucun champ à modifier.', CMD_USAGE.update)
   }
   // --team : valider l'enum avant écriture (message clair listant les 8),
   // sauf "null" qui n'a pas de sens ici (team obligatoire) mais reste rejeté par validate.
-  if (typeof flags.team === 'string' && flags.team !== 'null') assertTeam(flags.team)
+  if (typeof flags.team === 'string' && flags.team !== 'null') assertTeam(flags.team, CMD_USAGE.update)
   const patch = {}
   for (const f of stringFields) if (typeof flags[f] === 'string') patch[f] = nullable(flags[f])
   for (const f of listFields) {
@@ -304,7 +457,7 @@ function cmdUpdate(id, flags) {
     if (flags[f] === 'null') { patch[f] = []; continue }
     patch[f] = f === 'links' ? splitList(flags[f]).map(Number) : splitList(flags[f])
   }
-  if (typeof flags['depends-on'] === 'string') patch.dependsOn = parseDeps(flags['depends-on'])
+  if (typeof flags['depends-on'] === 'string') patch.dependsOn = parseDeps(flags['depends-on'], CMD_USAGE.update)
   if (typeof flags.milestone === 'string') patch.milestone = nullable(flags.milestone)
   report(updateTask(ROOT, id, patch), `#${id} mise à jour.`)
 }
@@ -314,7 +467,7 @@ function cmdArchive(id) {
 }
 
 function cmdRoadmap(flags) {
-  rejectUnknownFlags(flags, ['json'])
+  rejectUnknownFlags(flags, ['json'], CMD_USAGE.roadmap)
   const tree = readTree(ROOT)
   const avail = computeAvailability(tree)
   const active = activeTasks(tree)
@@ -382,11 +535,20 @@ switch (cmd) {
   case 'show':
     cmdShow(needId(), flags)
     break
+  case 'brief':
+    cmdBrief(needId(), flags)
+    break
+  case 'take':
+    cmdTake(flags)
+    break
   case 'next':
     cmdNext(flags)
     break
   case 'add':
     cmdAdd(flags)
+    break
+  case 'quick':
+    cmdQuick(flags, positional)
     break
   case 'start':
     cmdStart(needId())

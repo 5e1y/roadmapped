@@ -9,7 +9,7 @@ import { validateTaskTree, validateIdUniquenessAcrossFiles } from './validate.ts
 import type { TaskTree, TaskNode, TaskFileMap } from './tasks'
 
 export const FIELD_ORDER = [
-  'id', 'code', 'title', 'status', 'tags', 'size', 'team', 'detail',
+  'id', 'kind', 'code', 'title', 'status', 'tags', 'size', 'team', 'detail',
   'refs', 'links', 'dependsOn', 'milestone', 'source', 'createdAt', 'completedAt', 'commit',
   'outcome', 'verification', 'release',
 ]
@@ -17,7 +17,7 @@ export const FIELD_ORDER = [
 export interface FoundTask { task: TaskNode; sectionKey: string; archived: boolean }
 
 export type MutationResult =
-  | { ok: true; tree: TaskTree; task?: TaskNode }
+  | { ok: true; tree: TaskTree; task?: TaskNode; warnings?: string[] }
   | { ok: false; errors: string[]; notFound?: boolean }
 
 interface Op {
@@ -86,7 +86,17 @@ export function findTask(tree: TaskTree, id: number): FoundTask | null {
 
 function dumpTask(raw: Record<string, unknown>): string {
   const ordered: Record<string, unknown> = {}
-  for (const key of FIELD_ORDER) ordered[key] = raw[key] ?? null
+  for (const key of FIELD_ORDER) {
+    // kind est ADDITIF : on ne l'écrit QUE pour un quick. Un task (le défaut) reste
+    // sans champ kind — sinon `kind ?? null` forcerait "kind: null" sur tous les
+    // YAML existants (violation de la rétrocompat). Position (après id) garantie
+    // par FIELD_ORDER quand présent.
+    if (key === 'kind') {
+      if (raw.kind === 'quick') ordered.kind = 'quick'
+      continue
+    }
+    ordered[key] = raw[key] ?? null
+  }
   for (const listKey of ['tags', 'refs', 'links', 'dependsOn']) {
     if (ordered[listKey] === null) ordered[listKey] = []
   }
@@ -172,6 +182,8 @@ export interface AddTaskInput {
   title: string
   /** Équipe métier (enum fixe, REQUISE). Validée après écriture par validate.ts. */
   team: string
+  /** 'quick' pour un mini-ticket ; absent/'task' = ticket normal (kind omis du YAML). */
+  kind?: 'task' | 'quick'
   detail?: string | null
   tags?: string[]
   size?: string | null
@@ -218,6 +230,8 @@ export function addTask(tasksDir: string, input: AddTaskInput): MutationResult {
     typeof v === 'string' && v !== '' ? v : null
   const raw = {
     id: nextId,
+    // 'task' par défaut : dumpTask omet alors le champ (rétrocompat). Seul 'quick' est écrit.
+    kind: input.kind === 'quick' ? 'quick' : 'task',
     code: str(input.code),
     title: input.title,
     status: 'todo',
@@ -279,7 +293,24 @@ export function doneTask(
   id: number,
   opts: { commit?: string; outcome?: string; verification?: string; release?: string },
 ): MutationResult {
-  return patchActive(tasksDir, id, (raw) => {
+  // Pré-lecture pour arbitrer selon le kind AVANT d'écrire (message clair plutôt
+  // qu'un rollback de validation opaque) et pour composer les warnings non bloquants.
+  const tree = readTree(tasksDir)
+  const hit = findTask(tree, id)
+  if (!hit) return { ok: false, errors: [`Aucune tâche #${id}.`], notFound: true }
+  if (hit.archived) return { ok: false, errors: [`#${id} est archivée — édition manuelle uniquement.`] }
+  const t = hit.task
+  const finalOutcome = typeof opts.outcome === 'string' ? opts.outcome : t.outcome
+  if (t.kind === 'quick' && (finalOutcome === null || finalOutcome === undefined || finalOutcome.trim() === '')) {
+    return { ok: false, errors: [`#${id} est un quick : --outcome requis au done (l'outcome tient lieu de vérification).`] }
+  }
+  const warnings: string[] = []
+  // Anti-exploration (spec §4) : une task livrée sans refs = le prochain lecteur
+  // explorera. Discipline rendue visible, pas punitive → warning, jamais un échec.
+  if (t.kind !== 'quick' && t.refs.length === 0) {
+    warnings.push(`#${id} terminée sans refs — ticket sans refs = le prochain lecteur explorera. Ajoute des refs (fichiers/specs) pour ancrer le contexte.`)
+  }
+  const res = patchActive(tasksDir, id, (raw) => {
     raw.status = 'done'
     raw.completedAt = today()
     if (typeof opts.commit === 'string') raw.commit = opts.commit
@@ -287,6 +318,8 @@ export function doneTask(
     if (typeof opts.verification === 'string') raw.verification = opts.verification
     if (typeof opts.release === 'string') raw.release = opts.release
   })
+  if (res.ok && warnings.length > 0) return { ...res, warnings }
+  return res
 }
 
 export interface UpdateTaskPatch {
