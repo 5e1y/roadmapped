@@ -48,4 +48,15 @@ describe('sitrepText', () => {
     expect(out).toMatch(/dette\(s\) ouverte\(s\).*#3/)
     expect(out).toMatch(/validate rouge/)
   })
+
+  // #101 : la dérive « commits sans ticket » devient visible en ouverture de session.
+  it('signale les commits non consignés quand aucune tâche n’est in_progress', () => {
+    const out = sitrepText(tree([task(1)]), [], { count: 3, sinceId: 42 })
+    expect(out).toMatch(/⚠ 3 commit\(s\) non consigné\(s\) depuis #42/)
+  })
+  it('muet si une in_progress existe (travail en cours = commits normaux), si null ou si 0', () => {
+    expect(sitrepText(tree([task(1, { status: 'in_progress' })]), [], { count: 3, sinceId: 42 })).not.toMatch(/non consigné/)
+    expect(sitrepText(tree([task(1)]), [], null)).not.toMatch(/non consigné/)
+    expect(sitrepText(tree([task(1)]), [], { count: 0, sinceId: 42 })).not.toMatch(/non consigné/)
+  })
 })

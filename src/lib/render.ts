@@ -95,7 +95,24 @@ const daysBetween = (isoA: string, isoB: string) =>
  * le CLI et le serveur MCP le partagent. L'âge in_progress se compte depuis createdAt
  * (proxy — pas de startedAt, cf. dette #82).
  */
-export function sitrepText(tree: TaskTree, errors: string[]): string {
+/**
+ * Commits plus récents que la dernière livraison consignée (#101) — le signal de la
+ * dérive « travail hors ticket ». Best-effort comme git() : null si pas de dépôt, rien
+ * de consigné, ou sha disparu (rebase/amend) — jamais de bruit.
+ */
+export interface UnloggedCommits { count: number; sinceId: number }
+export function unloggedCommits(tree: TaskTree): UnloggedCommits | null {
+  const last = [...activeTasks(tree), ...archivedTasks(tree)]
+    .filter((t) => t.commit && t.completedAt)
+    // completedAt desc, id desc en bris d'égalité (dates au jour : les ids sont monotones)
+    .sort((a, b) => (b.completedAt! > a.completedAt! ? 1 : b.completedAt! < a.completedAt! ? -1 : b.id - a.id))[0]
+  if (!last) return null
+  const out = git(`rev-list --count ${last.commit}..HEAD`)
+  const count = out === null ? NaN : Number(out)
+  return Number.isInteger(count) ? { count, sinceId: last.id } : null
+}
+
+export function sitrepText(tree: TaskTree, errors: string[], unlogged?: UnloggedCommits | null): string {
   const active = activeTasks(tree)
   const today = todayStr()
   const brief = (t: TaskNode) => `#${t.id} ${t.title}`
@@ -120,6 +137,10 @@ export function sitrepText(tree: TaskTree, errors: string[]): string {
   if (stale.length) lines.push(`⚠ ${stale.length} in_progress ancienne(s) (≥7j) : ${stale.map((t) => `#${t.id}`).join(' ')}`)
   const debt = active.filter((t) => t.status !== 'done' && t.tags.includes('debt'))
   if (debt.length) lines.push(`⚠ ${debt.length} dette(s) ouverte(s) (#debt) : ${debt.map((t) => `#${t.id}`).join(' ')}`)
+  // Dérive hors ticket (#101) : muet si une in_progress existe — committer en cours de tâche est normal.
+  if (unlogged && unlogged.count > 0 && inProgress.length === 0) {
+    lines.push(`⚠ ${unlogged.count} commit(s) non consigné(s) depuis #${unlogged.sinceId} — chaque changement a son ticket (quick)`)
+  }
   if (errors.length) lines.push('⚠ validate rouge — lance `validate`')
   return lines.join('\n')
 }

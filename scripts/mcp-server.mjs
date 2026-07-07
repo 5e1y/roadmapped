@@ -21,7 +21,7 @@ import {
   addTask, startTask, doneTask, updateTask, archiveTask,
 } from '../src/lib/taskWrites.ts'
 import { computeAvailability, activeTasks, nextQueue } from '../src/lib/roadmap.ts'
-import { briefText, sitrepText, taskLine, refLine, git } from '../src/lib/render.ts'
+import { briefText, sitrepText, taskLine, refLine, git, unloggedCommits } from '../src/lib/render.ts'
 import { TEAMS } from '../src/lib/tasks.ts'
 
 // ------------------------------------------------------------------ helpers de sortie
@@ -77,7 +77,7 @@ export function makeTools(ROOT) {
     inputSchema: S.none,
     handler: () => {
       const { tree, errors } = treeWithErrors(ROOT)
-      return ok(sitrepText(tree, errors))
+      return ok(sitrepText(tree, errors, unloggedCommits(tree)))
     },
   },
   {
