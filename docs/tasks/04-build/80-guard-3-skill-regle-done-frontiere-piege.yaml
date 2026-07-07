@@ -1,0 +1,36 @@
+id: 102
+code: null
+title: >-
+  Guard 3 — skill : règle « done = frontière », piège ASAP, interdit commit hors ticket + resync
+  installé
+status: todo
+tags:
+  - process
+  - enforcement
+  - skill
+size: S
+team: engineering
+detail: >-
+  skills/roadmaped/SKILL.md, ±0 ligne nette (compacter si besoin) : (1) règle en tête de l'échelle
+  de décision — « Tout changement du repo = une unité roadmaped ; le done est une frontière, pas un
+  couvercle ; un retour/rework/fix de revue → chacun son quick ; ASAP n'est jamais une raison de
+  sauter le quick, le quick EST le chemin rapide » ; (2) frontmatter description élargie — s'arme
+  sur « je m'apprête à modifier un fichier du repo » (feedback, rework, fix, retouche post-done),
+  pas seulement « crée les tâches » ; (3) interdit — « ❌ Committer sans unité roadmaped (le hook
+  guard refuse ; --no-verify = dérive consciente, à dire à l'utilisateur) ». Puis resync de
+  l'installation locale : remplacer ~/.claude/skills/roadmaped/ par la version du repo (l'installée
+  pointe dashboard/scripts/task.mjs, chemin mort). Fini quand : SKILL.md relu porte les 3 ajouts
+  sans gonfler, et ~/.claude/skills/roadmaped/SKILL.md est identique au repo.
+refs:
+  - docs/specs/2026-07-08-process-enforcement.md
+  - skills/roadmaped/SKILL.md
+links: []
+dependsOn: []
+milestone: null
+source: user
+createdAt: "2026-07-08T01:37:13"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

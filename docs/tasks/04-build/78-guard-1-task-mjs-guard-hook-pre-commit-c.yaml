@@ -1,0 +1,34 @@
+id: 100
+code: null
+title: Guard 1 — task.mjs guard + hook pre-commit committé + activation npm prepare
+status: todo
+tags:
+  - process
+  - enforcement
+size: M
+team: engineering
+detail: >-
+  Nouvelle commande CLI `guard` (scripts/task.mjs) : exit 0 si rien de stagé, OU tous les fichiers
+  stagés sous docs/tasks/, OU .git/MERGE_HEAD présent, OU ≥1 tâche in_progress (readTree +
+  activeTasks, pas de re-parse maison ; _meta.yaml absent → exit 0, repo non initialisé). Sinon exit
+  1, message autoportant : fichiers hors consignation + la commande `node scripts/task.mjs quick
+  "<titre>" --team <t> --start` + mention de l'échappatoire --no-verify. Rapide (<300ms, pas de
+  validation complète). Hook committé scripts/githooks/pre-commit (exécutable, `exec node
+  scripts/task.mjs guard`) + script npm prepare `git config core.hooksPath scripts/githooks || true`
+  + activation immédiate dans CE repo. TDD sandbox (pattern task.test.mjs) : bloqué sans in_progress
+  ; passe avec in_progress ; passe consignation seule ; passe merge ; message contient quick. Fini
+  quand : un VRAI commit sans ticket est refusé dans ce repo, et la consignation passe.
+refs:
+  - docs/specs/2026-07-08-process-enforcement.md
+  - scripts/task.mjs
+  - docs/process-enforcement-gap.md
+links: []
+dependsOn: []
+milestone: null
+source: user
+createdAt: "2026-07-08T01:36:52"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
