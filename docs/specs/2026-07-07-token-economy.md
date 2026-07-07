@@ -108,9 +108,16 @@ d'app :
 1. **L'échelle de décision** (le ladder ponytail, transposé) — écrite dans le noyau du
    skill : « ce changement mérite-t-il d'exister ? → un quick ? → un task ? → une
    spec ? » Stop au premier barreau qui tient. (Formalisation de la v1.)
-2. **Extraits de refs dans `brief`** : une ref `src/lib/tasks.ts:120` → le brief joint
-   les ~10 lignes autour (l'app lit le fichier, pas l'agent). Une lecture de fichier
-   complète (~2 500 tokens) devient un extrait (~100). Le plus gros gisement.
+2. **Extraits de refs dans `brief`** : une ref → le brief joint les ~10 lignes autour
+   (l'app lit le fichier AU MOMENT DU SERVE — le contenu est toujours le code actuel).
+   Une lecture complète (~2 500 tokens) devient un extrait (~100). Le plus gros
+   gisement. ⚠ Risque identifié (Rémi) : l'ANCRE peut dériver (la ligne 120 ne pointe
+   plus le bon symbole après un refactor voisin) → deux parades obligatoires :
+   (a) ancrage par SYMBOLE (`fichier#nextQueue`, résolu par grep au serve — les `:ligne`
+   restent permis mais documentés fragiles) ; (b) drapeau de fraîcheur : si le fichier
+   a été modifié APRÈS la création du ticket (un `git log -1 -- fichier`), l'extrait
+   est servi avec « ⚠ modifié depuis la création du ticket » — confiance vérifiée,
+   jamais aveugle. Le drapeau vaut pour TOUTES les refs, extraits ou pas.
 3. **`sitrep`** : l'état du monde en ~30 lignes (done du jour, in_progress, 3 prochaines,
    validate) — remplace la relecture du backlog en début de session (~1 200 → ~150).
 4. **`done` auto-contextué** : l'app remplit `commit` (HEAD) et SUGGÈRE les refs depuis
