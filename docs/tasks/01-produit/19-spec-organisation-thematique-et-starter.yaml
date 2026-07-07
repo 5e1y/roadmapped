@@ -1,6 +1,6 @@
 id: 39
 code: null
-title: Spec — organisation thématique et starter kit « lancement produit »
+title: "Spec — stages fixes (Idea→Mature) + teams : refactor de l'organisation"
 status: todo
 tags:
   - spec
@@ -8,20 +8,18 @@ tags:
 size: M
 zone: core
 detail: >-
-  Idée Rémi (2026-07-07) : aider l'utilisateur à pousser un VRAI projet (pas juste du code) —
-  organisation par domaines métier (Marketing, Sales, Support, Operations, Finance, Legal,
-  Engineering, Design), skills /roadmaped de stratégie de lancement, docs de best practices par
-  domaine livrées à l'install. Trois pistes débattues à trancher en brainstorm : (a) sections fixes
-  imposées — déconseillé par Fable : les sections SONT des jalons (séquence), pas une taxonomie ;
-  doublon avec zone ; 6 colonnes vides pour un dev solo ; (b) couche « thème » au-dessus des
-  sections — le concept _roadmaps.yaml (roadmaps nommées + jalons) couvre déjà ce besoin, il
-  faudrait le TERMINER (affichage dashboard, CLI, skill) plutôt qu'inventer une couche ; (c)
-  recommandation Fable : template d'init (roadmaped init --template product-launch) qui scaffolde
-  des sections SUGGÉRÉES + docs/ pré-rempli de best practices par domaine + workflow skill «
-  stratégie de lancement » — la structure reste de la donnée, zéro rigidité, converge avec la spec
-  distribution #12. Livrable : docs/specs/AAAA-MM-JJ-themes-starter-kit.md approuvée par Rémi
-  (périmètre : modèle de données OU templates, contenu du starter kit, liens avec #12 et la section
-  03-skill-claude). Zéro code avant approbation.
+  DÉCISION RÉMI (2026-07-07, après débat) : jalons FIXES formant la séquence universelle d'un
+  lancement produit — Idea Stage → Initial Stage → Identity Stage → Build Stage → GTM Stage → Launch
+  Stage → Scale Stage → Mature Stage (référence visuelle : docs/assets/refs/inspo-stages-*.png, app
+  cloud concurrente) — COMBINÉS à une dimension transverse « team » par tâche : Marketing, Sales,
+  Support, Operations, Finance, Legal, Engineering, Design. Le stage dit QUAND (colonne de roadmap),
+  la team dit QUI. Objectif : pousser l'utilisateur à mener un vrai projet d'entreprise, pas juste
+  du code. S'ajoutent : skills /roadmaped de stratégie de lancement et docs de best practices par
+  domaine livrées à l'install (converge avec spec #12 distribution). À trancher en spec : rigidité
+  des stages (validation stricte vs défaut d'init), team obligatoire ou nullable + sort du champ
+  zone, migration du backlog existant (mapping 5 sections → 8 stages), rendu des stages vides,
+  impact CLI/validate/skill/dashboard. Livrable : docs/specs/AAAA-MM-JJ-stages-teams.md approuvée
+  par Rémi, puis découpage. Zéro code avant approbation.
 refs:
   - docs/specs/2026-07-07-roadmaped-v2-design.md
   - skills/roadmaped/references/formats.md
