@@ -1,9 +1,17 @@
+import { Bank, Code, ColorPalette, Gear, Hammer, Handshake, Headphones, Megaphone } from 'trinil-react'
+import type { ComponentType } from 'react'
 import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
 import { usePersistentStrings } from '../state/uiPersist'
 import { TEAMS, type TaskNode, type Team } from '../lib/tasks'
 import { ViewHeader } from './ViewHeader'
 import { TaskList, sortOpen, sortDone } from './TaskColumns'
+
+/** Icône trinil de chaque métier (cartes du radar). */
+const TEAM_ICON: Record<Team, ComponentType<{ size?: number; className?: string }>> = {
+  marketing: Megaphone, sales: Handshake, support: Headphones, operations: Gear,
+  finance: Bank, legal: Hammer, engineering: Code, design: ColorPalette,
+}
 
 /** Team sélectionnée dans la vue Teams ('' = aucune) — persistée. */
 function useSelectedTeam(): [Team | '', (next: Team | '') => void] {
@@ -39,7 +47,7 @@ function TeamsRadar({ counts, selected, onSelect }: {
   const rOf = (team: Team) => ((counts.get(team) ?? 0) / max) * R
   const poly = TEAMS.map((t, i) => vertex(i, rOf(t)).join(',')).join(' ')
   return (
-    <svg viewBox={`-70 -40 ${SIZE + 140} ${SIZE + 80}`} className="max-h-full w-full" role="img" aria-label="Charge par team">
+    <svg viewBox={`-100 -30 ${SIZE + 200} ${SIZE + 60}`} className="max-h-full w-full" role="img" aria-label="Charge par team">
       {/* anneaux concentriques + axes */}
       {Array.from({ length: RINGS }, (_, k) => (
         <polygon key={k} points={ringPath(((k + 1) / RINGS) * R)} fill="none" stroke="#e5e5e5" strokeWidth={1} />
@@ -54,29 +62,45 @@ function TeamsRadar({ counts, selected, onSelect }: {
         const [x, y] = vertex(i, rOf(t))
         return <circle key={t} cx={x} cy={y} r={4} fill="var(--color-accent)" />
       })}
-      {/* labels cliquables (team + compte) aux sommets extérieurs */}
+      {/* Petites cartes OPAQUES aux sommets (icône + team + compte) : lisibles
+          quel que soit le polygone derrière, rollover accent, sélection tint. */}
       {TEAMS.map((t, i) => {
-        const [x, y] = vertex(i, R + 28)
+        const [x, y] = vertex(i, R + 40)
         const active = selected === t
+        const Icon = TEAM_ICON[t]
+        const count = counts.get(t) ?? 0
+        // largeur estimée : icône (26) + nom (~8.6px/car.) + compteur + paddings
+        const w = 26 + t.length * 8.6 + String(count).length * 8 + 26
+        const h = 30
         return (
           <g
             key={t}
             className="group cursor-pointer"
             onClick={(e) => { e.stopPropagation(); onSelect(active ? '' : t) }}
           >
-            {/* hit-area généreuse pour le rollover et le clic */}
-            <circle cx={x} cy={y + 8} r={34} fill="transparent" />
+            <rect
+              x={x - w / 2} y={y - h / 2} width={w} height={h} rx={6}
+              className={`transition-colors ${
+                active
+                  ? 'fill-accent-tint stroke-accent'
+                  : 'fill-white stroke-neutral-200 group-hover:stroke-neutral-400'
+              }`}
+              strokeWidth={1}
+            />
+            <g transform={`translate(${x - w / 2 + 9}, ${y - 7})`} className={active ? 'text-accent' : 'text-neutral-400 group-hover:text-neutral-700'}>
+              <Icon size={14} />
+            </g>
             <text
-              x={x} y={y} textAnchor="middle" dominantBaseline="middle"
-              className={`transition-[fill] ${active ? 'fill-accent text-[19px] font-semibold' : 'fill-neutral-600 text-[19px] group-hover:fill-accent'}`}
+              x={x - w / 2 + 29} y={y + 1} dominantBaseline="middle"
+              className={`text-[13px] transition-[fill] ${active ? 'fill-neutral-900 font-semibold' : 'fill-neutral-700 group-hover:fill-neutral-900'}`}
             >
               {t}
             </text>
             <text
-              x={x} y={y + 20} textAnchor="middle" dominantBaseline="middle"
-              className="fill-neutral-400 font-mono text-[13px] transition-[fill] group-hover:fill-accent"
+              x={x + w / 2 - 9} y={y + 1} textAnchor="end" dominantBaseline="middle"
+              className={`font-mono text-[11px] ${active ? 'fill-accent' : 'fill-neutral-400'}`}
             >
-              {counts.get(t) ?? 0}
+              {count}
             </text>
           </g>
         )
