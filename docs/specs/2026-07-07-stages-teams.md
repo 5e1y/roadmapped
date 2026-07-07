@@ -1,6 +1,6 @@
 # Spec — Stages fixes (Idea→Mature) + Teams : refactor de l'organisation
 
-**Date** : 2026-07-07 · **Statut** : DRAFT — en attente d'approbation Rémi
+**Date** : 2026-07-07 · **Statut** : APPROUVÉE par Rémi le 2026-07-07
 **Tâche** : #39 · **Référence visuelle** : docs/assets/refs/inspo-stages-*.png
 **Décisions Rémi** : stages fixes de lancement produit ; teams fixes ; stages stricts avec
 vides estompés ; `team` obligatoire, enum fixe, **remplace `zone`**.
