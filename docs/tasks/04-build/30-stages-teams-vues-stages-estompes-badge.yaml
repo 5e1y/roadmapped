@@ -1,7 +1,7 @@
 id: 43
 code: null
 title: "Stages+teams — vues : stages estompés, badge et filtre team, panneau"
-status: todo
+status: done
 tags:
   - refactor
   - ux
@@ -31,8 +31,16 @@ dependsOn:
 milestone: null
 source: user
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-07"
+commit: 4512d92
+outcome: >-
+  La Roadmap raconte le lancement complet : les 8 stages toujours visibles (vides estompés et
+  resserrés), chaque carte porte sa team, et un filtre par team dans la sidebar traverse toutes les
+  vues
+verification: >-
+  Captures relues : colonnes Idea/Initial « terminée » avec tâches barrées, stages vides estompés,
+  badges eng/mkt en coin de carte, filtre marketing appliqué (6 cartes restantes, stages vidés
+  resserrés à 180px, compteurs sidebar corrects 6/35/4). Test TaskRow adapté à l'abréviation
+  (128/128 verts), build tsc vert. Le Select team du panneau réutilise le composant ghost éprouvé
+  (compilé, non re-vérifié au pixel).
 release: null
