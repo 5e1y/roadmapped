@@ -1,7 +1,7 @@
 id: 77
 code: null
 title: "Spec — écritures concurrentes : verrou global de mutation"
-status: in_progress
+status: done
 tags:
   - spec
   - concurrency
@@ -23,8 +23,12 @@ dependsOn: []
 milestone: null
 source: user
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: e06cdde
+outcome: >-
+  Spec écritures concurrentes approuvée et décomposée en 3 tâches d'implémentation (#83 withLock,
+  #84 createdAt datetime, #85 doctrine worktrees)
+verification: >-
+  Spec relue et self-reviewée (mkdir lock atomique + TTL orphelin + datetime rétrocompat, limite
+  worktrees assumée) ; 3 tâches créées avec detail complet + refs spec, validate OK (78 tâches)
 release: null
