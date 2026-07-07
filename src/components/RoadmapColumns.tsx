@@ -41,20 +41,16 @@ function TaskCard({ task, state, missing }: { task: TaskNode; state: Availabilit
           {task.title}
         </span>
       </div>
+      {/* Contenu de carte identique quel que soit l'état : glyphe + id + titre
+          + ligne d'état. Les cartes done n'affichent plus de chips (le détail
+          vit dans le panneau) — cohérence entre états et avec le Graphe. */}
       {state === 'locked' ? (
         <span className="text-[11px] text-neutral-400">
           Prérequis manquants{missing.length ? ` (${missing.map((d) => `#${d}`).join(' ')})` : ''}
         </span>
       ) : state === 'available' ? (
         <span className="text-[11px] font-medium text-neutral-700">Disponible</span>
-      ) : (
-        (task.zone || task.size) && (
-          <div className="flex flex-wrap items-center gap-1">
-            {task.zone && <Chip label={task.zone} />}
-            {task.size && <Chip label={task.size} mono />}
-          </div>
-        )
-      )}
+      ) : null}
       {subs && (
         <span className="font-mono text-[11px] text-neutral-400">{subs.done}/{subs.total} sous-tâches</span>
       )}
@@ -75,7 +71,9 @@ function Column({ section, avail }: { section: SectionNode; avail: Map<number, A
   const statusFr = section.status !== 'open' ? SECTION_STATUS_FR[section.status] : null
   return (
     <div className="grid row-span-4 grid-rows-subgrid">
-      <div className="flex items-baseline justify-between gap-2">
+      {/* Rangée titre collante : le contexte (titre + compteur) survit au scroll
+          vertical. Le pt-8 du conteneur vit ici pour que rien ne dépasse au-dessus. */}
+      <div className="sticky top-0 z-10 flex items-baseline justify-between gap-2 bg-[#fafafa] pb-0.5 pt-8">
         <span className="min-w-0 truncate text-sm font-semibold tracking-tight text-neutral-900" title={section.title}>
           {section.title}
         </span>
@@ -116,7 +114,7 @@ export function RoadmapColumns() {
   }
 
   return (
-    <div className="roadmap-cols-scroll grid h-full auto-cols-[280px] grid-flow-col grid-rows-[auto_auto_auto_1fr] gap-x-4 gap-y-1.5 overflow-x-auto px-6 pb-6 pt-8">
+    <div className="roadmap-cols-scroll grid h-full auto-cols-[280px] grid-flow-col grid-rows-[auto_auto_auto_1fr] gap-x-4 gap-y-1.5 overflow-x-auto px-6 pb-6">
       {sections.map((s) => <Column key={s.key} section={s} avail={avail} />)}
     </div>
   )

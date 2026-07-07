@@ -75,8 +75,10 @@ function DocsTreeFile({
         active ? 'bg-neutral-100 text-neutral-900' : 'text-neutral-600 hover:bg-neutral-100'
       }`}
       style={{ paddingLeft: BASE_PADDING_PX + depth * INDENT_PX + INDENT_PX }}
+      title={node.name}
     >
-      {node.name}
+      {/* .md implicite (tout l'arbre en est) — le nom brut reste en tooltip. */}
+      {node.name.replace(/\.md$/, '')}
     </button>
   )
 }
