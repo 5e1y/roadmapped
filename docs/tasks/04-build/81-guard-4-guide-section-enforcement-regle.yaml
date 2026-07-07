@@ -1,0 +1,33 @@
+id: 103
+code: null
+title: "Guard 4 — guide : section enforcement (règle, hook, signal, échappatoire)"
+status: todo
+tags:
+  - process
+  - enforcement
+  - docs
+size: S
+team: engineering
+detail: >-
+  Courte section dans docs/guide.md (près du workflow / après la section MCP) : la règle « tout
+  changement du repo = une unité roadmaped, done = frontière » ; le hook pre-commit guard
+  (activation auto via npm prepare → core.hooksPath, conditions de passage : consignation
+  docs/tasks/, merge, tâche in_progress) ; le signal sitrep « commits non consignés » ; --no-verify
+  = échappatoire consciente. Cohérente avec le comportement RÉELLEMENT livré par #100/#101 (relire
+  leurs outcomes). Fini quand : section relue, exacte vs le code livré, et le doc
+  process-enforcement-gap.md marqué traité (pointer la spec + les tickets).
+refs:
+  - docs/specs/2026-07-08-process-enforcement.md
+  - docs/guide.md
+links: []
+dependsOn:
+  - 100
+  - 101
+milestone: null
+source: user
+createdAt: "2026-07-08T01:37:23"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

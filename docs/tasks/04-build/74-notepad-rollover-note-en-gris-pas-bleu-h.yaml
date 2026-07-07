@@ -2,7 +2,7 @@ id: 96
 kind: quick
 code: null
 title: "Notepad : rollover +note en gris (pas bleu) + halo/focus de la zone de texte à tuer"
-status: in_progress
+status: done
 tags:
   - ux
 size: null
@@ -14,8 +14,16 @@ dependsOn: []
 milestone: null
 source: ai
 createdAt: "2026-07-08T01:14:06"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: a030d99
+outcome: >-
+  Notepad : rollover « + Nouvelle note » repassé en gris standard (bg-neutral-100, plus de bleu
+  accent) ; halo/stroke noir au focus de la textarea supprimé via style inline outline:none +
+  boxShadow:none — nécessaire car le :focus-visible global (index.css, hors @layer) bat les
+  utilitaires Tailwind v4 layered
+verification: >-
+  Build vert ; inline outline:'none' présent dans le composant ; dev server relancé sert 200 sur
+  :5173. Cause racine tracée : Tailwind v4 (@import tailwindcss, utilitaires en @layer) + Base UI
+  coexistent ; le CSS non-layered l'emporte sur le layered → seul l'inline (ou !important) tue le
+  halo.
 release: null
