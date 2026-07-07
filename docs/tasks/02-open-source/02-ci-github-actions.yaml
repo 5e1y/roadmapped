@@ -1,7 +1,7 @@
 id: 9
 code: null
 title: CI GitHub Actions
-status: todo
+status: in_progress
 tags:
   - open-source
   - ci
@@ -10,8 +10,9 @@ zone: repo
 detail: >-
   Créer .github/workflows/ci.yml : déclenché sur push et pull_request, Node 22, npm ci, puis npm run
   test (vitest) et npm run build (tsc -b + vite build, couvre le typecheck). Ajouter le badge CI
-  dans le README. Fini quand : le workflow est vert sur un push réel (vérifié dans l'onglet
-  Actions), pas seulement écrit.
+  dans le README. FAIT : ci.yml écrit et validé syntaxiquement (js-yaml), test+build verts en local
+  — badge non ajouté (README réécrit en #11, slug GitHub inconnu). RESTE : vérifier le run vert sur
+  un push réel — bloqué par l'absence de remote, à finir avec la publication du repo (#13).
 refs:
   - package.json
   - vite.config.ts
@@ -22,5 +23,6 @@ source: ai
 createdAt: "2026-07-07"
 completedAt: null
 commit: null
+outcome: null
 verification: null
 release: null
