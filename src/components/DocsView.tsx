@@ -1,21 +1,5 @@
 import { useEffect, useState, type MouseEvent } from 'react'
-import { marked } from 'marked'
-
-/** Slug ASCII d'un titre (pour les id d'ancrage des headings). */
-const slugify = (s: string): string =>
-  s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
-
-// Headings dotés d'un id stable = les ancres `#slug` du markdown deviennent
-// cliquables (scroll interne). Configuré une seule fois au chargement du module.
-marked.use({
-  renderer: {
-    heading(token) {
-      const t = token as unknown as { tokens: unknown[]; depth: number; text: string }
-      const self = this as unknown as { parser: { parseInline: (tokens: unknown[]) => string } }
-      return `<h${t.depth} id="${slugify(t.text)}">${self.parser.parseInline(t.tokens)}</h${t.depth}>\n`
-    },
-  },
-})
+import { renderMarkdown } from './Markdown'
 
 /**
  * Résout un lien relatif `.md` (ex. « ../autre.md ») par rapport au document
@@ -127,7 +111,7 @@ export function DocsView({ path, onSelectDoc }: { path: string | null; onSelectD
   // dangerouslySetInnerHTML : contenu markdown LOCAL de l'utilisateur (docs/ du
   // repo), rendu par un outil localhost sans multi-utilisateurs ni contenu
   // distant — pas de surface XSS pertinente pour ce lecteur en lecture seule.
-  const html = marked.parse(content ?? '', { async: false })
+  const html = renderMarkdown(content ?? '')
   return (
     <div className="mx-auto max-w-3xl px-8 py-10">
       <div className="doc-prose" onClick={onProseClick} dangerouslySetInnerHTML={{ __html: html }} />

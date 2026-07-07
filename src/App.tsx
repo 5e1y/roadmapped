@@ -68,6 +68,20 @@ function Shell() {
     } catch { /* ignore */ }
   }, [docPath])
 
+  // Navigation refs → Vue Docs depuis le panneau de tâche (spec task-panel §5).
+  // Événement plutôt que du prop-drilling : l'état vue/doc vit ici, le panneau
+  // est monté ailleurs dans l'arbre.
+  useEffect(() => {
+    const onOpenDoc = (e: Event) => {
+      const path = (e as CustomEvent<string>).detail
+      if (typeof path !== 'string' || !path) return
+      setDocPath(path)
+      setView('docs')
+    }
+    window.addEventListener('roadmaped:open-doc', onOpenDoc)
+    return () => window.removeEventListener('roadmaped:open-doc', onOpenDoc)
+  }, [])
+
   // Titre d'onglet = vue courante (ou nom du doc ouvert).
   useEffect(() => {
     const name =

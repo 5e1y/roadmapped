@@ -3,40 +3,73 @@ import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
 import { agentBrief } from './TaskRow'
 import { findTaskInTree } from '../lib/findTaskInTree'
-import { Select, TextInput, TextArea, MultiCombobox, ErrorBanner, blurOnEnter } from './ui'
-import type { FocusEvent } from 'react'
-import { activeTasks, archivedTasks } from '../lib/roadmap'
-import type { TaskNode } from '../lib/tasks'
+import { reverseDependents, depState } from '../lib/roadmap'
+import { StatusGlyph } from './glyphs'
+import { Chip } from './Chip'
+import { ErrorBanner } from './ui'
+import { Markdown } from './Markdown'
+import type { TaskNode, TaskTree } from '../lib/tasks'
 
-const STATUS_ITEMS = [
-  { value: 'todo', label: 'todo' },
-  { value: 'in_progress', label: 'in_progress' },
-  { value: 'done', label: 'done' },
-]
-// '' = aucune (null). Enum réel validate.ts : S/M/L/null.
-const SIZE_ITEMS = [
-  { value: '', label: '(aucune)' },
-  { value: 'S', label: 'S' },
-  { value: 'M', label: 'M' },
-  { value: 'L', label: 'L' },
-]
+/**
+ * Panneau de tâche v2 « lecture d'abord » (spec docs/specs/2026-07-07-task-panel.md).
+ * Cette version est le MODE LECTURE : une fiche lisible, zéro input visible.
+ * L'édition au clic (tâche #26) et le done guidé (#27) s'ajoutent par-dessus.
+ */
 
-async function patchTask(id: number, patch: Record<string, unknown>): Promise<string[]> {
-  const r = await fetch(`/api/tasks/${id}`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(patch),
-  })
-  const data = (await r.json()) as { ok: boolean; errors?: string[] }
-  return data.ok ? [] : (data.errors ?? ['Erreur inconnue.'])
+const STATUS_FR: Record<TaskNode['status'], string> = {
+  todo: 'à faire', in_progress: 'en cours', done: 'faite',
+}
+const DEP_STATE_FR = {
+  done: 'faite', available: 'disponible', locked: 'verrouillée', archived: 'archivée',
+} as const
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return <div className="text-[11px] uppercase tracking-wide text-neutral-400">{children}</div>
 }
 
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
+/** Ligne cliquable d'une tâche liée : glyphe + id + titre + badge d'état. Empile la navigation. */
+function RelationRow({ tree, id, badge }: { tree: TaskTree; id: number; badge?: string }) {
+  const { openTask } = usePanel()
+  const t = findTaskInTree(tree, id)
+  if (!t) {
+    // Ne devrait pas arriver (deps validées) — on reste lisible plutôt que de planter.
+    return <div className="px-1 py-1 font-mono text-xs text-neutral-400">#{id}</div>
+  }
   return (
-    <label className="flex flex-col gap-1">
-      <span className="text-[11px] uppercase tracking-wide text-neutral-400">{label}</span>
-      {children}
-    </label>
+    <button
+      type="button"
+      onClick={() => openTask(id)}
+      className="flex w-full items-center gap-2 rounded-md px-1 py-1 text-left text-sm hover:bg-neutral-100"
+    >
+      <StatusGlyph status={t.status} />
+      <span className="shrink-0 font-mono text-xs text-neutral-400">#{t.id}</span>
+      <span
+        title={t.title}
+        className={`min-w-0 truncate ${t.status === 'done' ? 'text-neutral-400 line-through' : 'text-neutral-800'}`}
+      >
+        {t.title}
+      </span>
+      {badge && <span className="ml-auto shrink-0 text-[11px] text-neutral-400">{badge}</span>}
+    </button>
+  )
+}
+
+function RelationList({ label, tree, ids, badgeOf }: {
+  label: string
+  tree: TaskTree
+  ids: number[]
+  badgeOf?: (id: number) => string
+}) {
+  if (ids.length === 0) return null
+  return (
+    <div className="flex flex-col gap-1">
+      <SectionLabel>{label}</SectionLabel>
+      <div className="flex flex-col">
+        {ids.map((id) => (
+          <RelationRow key={id} tree={tree} id={id} badge={badgeOf?.(id)} />
+        ))}
+      </div>
+    </div>
   )
 }
 
@@ -44,237 +77,128 @@ function MetaLine({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex gap-2 text-xs">
       <span className="w-20 shrink-0 text-neutral-400">{label}</span>
-      <span className="min-w-0 font-mono text-neutral-600">{value}</span>
+      <span className="min-w-0 text-neutral-600">{value}</span>
     </div>
+  )
+}
+
+/** Une ref = un chemin par ligne ; les docs markdown naviguent vers la Vue Docs. */
+function RefLine({ refPath }: { refPath: string }) {
+  const { close } = usePanel()
+  const isDoc = refPath.startsWith('docs/') && refPath.endsWith('.md')
+  if (!isDoc) return <div className="truncate font-mono text-xs text-neutral-600" title={refPath}>{refPath}</div>
+  return (
+    <button
+      type="button"
+      title={refPath}
+      onClick={() => {
+        // L'état vue/doc vit dans App (événement documenté là-bas). docPath est
+        // relatif à docsDir — on retire le préfixe docs/ de la ref repo-relative.
+        window.dispatchEvent(new CustomEvent('roadmaped:open-doc', { detail: refPath.replace(/^docs\//, '') }))
+        close()
+      }}
+      className="w-full truncate rounded text-left font-mono text-xs text-neutral-800 underline decoration-neutral-300 underline-offset-2 hover:decoration-neutral-800"
+    >
+      {refPath}
+    </button>
   )
 }
 
 export function TaskPanel({ id }: { id: number }) {
   const { tree, reload } = useTree()
   const { close } = usePanel()
-  // Erreurs suivies PAR CHAMP : le succès d'un champ n'efface pas l'erreur d'un
-  // autre (clé '_action' pour archiver/supprimer).
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({})
-  const [saved, setSaved] = useState(false)
+  const [actionErrors, setActionErrors] = useState<string[]>([])
   const [pending, setPending] = useState(false)
   const [copied, setCopied] = useState(false)
 
   const task = tree ? findTaskInTree(tree, id) : null
-  if (!task) return <p className="text-sm text-neutral-400">Tâche introuvable (rechargez).</p>
+  if (!tree || !task) return <p className="text-sm text-neutral-400">Tâche introuvable (rechargez).</p>
 
-  // L'API refuse d'éditer l'archive — l'UI le dit d'avance plutôt que de
-  // laisser l'utilisateur le découvrir par une erreur au blur.
   const archived = task.file.includes('_archive/')
-
-  const allErrors = Object.values(fieldErrors).flat()
-  const setFieldErr = (field: string, errs: string[]) =>
-    setFieldErrors((prev) => {
-      const next = { ...prev }
-      if (errs.length) next[field] = errs
-      else delete next[field]
-      return next
-    })
-
-  // Sauvegarde d'un champ : PATCH puis reload, sauf si la valeur n'a pas bougé.
-  const save = async (field: string, patch: Record<string, unknown>) => {
-    const errs = await patchTask(id, patch)
-    setFieldErr(field, errs)
-    if (errs.length === 0) {
-      setSaved(true)
-      window.setTimeout(() => setSaved(false), 1500)
-      await reload()
-    }
-  }
-  const saveIfChanged = (field: keyof TaskNode, value: unknown) => {
-    if (JSON.stringify(task[field] ?? null) !== JSON.stringify(value ?? null)) void save(field, { [field]: value })
-  }
-  const csv = (v: string): string[] => v.split(',').map((s) => s.trim()).filter(Boolean)
-  // Champs CSV : après normalisation, réafficher la valeur CANONIQUE dans le
-  // champ pour que l'affiché ne mente jamais sur l'enregistré.
-  const csvBlur = (e: FocusEvent<HTMLInputElement>, field: 'tags' | 'refs') => {
-    const parsed = csv(e.target.value)
-    e.currentTarget.value = parsed.join(', ')
-    saveIfChanged(field, parsed)
-  }
-  const linksBlur = (e: FocusEvent<HTMLInputElement>) => {
-    const parsed = csv(e.target.value).map(Number).filter((n) => !Number.isNaN(n))
-    e.currentTarget.value = parsed.join(', ')
-    saveIfChanged('links', parsed)
+  const blocks = reverseDependents(tree, id).map((t) => t.id)
+  const depBadge = (depId: number) => DEP_STATE_FR[depState(tree, depId)]
+  const subBadge = (subId: number) => {
+    const sub = task.subtasks.find((s) => s.id === subId)
+    return sub ? STATUS_FR[sub.status] : ''
   }
 
-  // Prérequis sélectionnables : actives + ARCHIVÉES (soi-même exclu). Les
-  // archivées doivent figurer dans items, sinon une dep archivée existante
-  // serait invisible ET silencieusement perdue à la prochaine édition
-  // (onValueChange ne renvoie que les items présents).
-  const dependItems = tree
-    ? [
-        ...activeTasks(tree).filter((t) => t.id !== id)
-          .map((t) => ({ value: String(t.id), label: `#${t.id} ${t.title}` })),
-        ...archivedTasks(tree).filter((t) => t.id !== id)
-          .map((t) => ({ value: String(t.id), label: `#${t.id} ${t.title} (archivée)` })),
-      ]
-    : []
-
-  const archive = async () => {
+  const act = async (url: string, init: RequestInit, failMsg: string) => {
     if (pending) return
     setPending(true)
     try {
-      const r = await fetch(`/api/tasks/${id}/archive`, { method: 'POST' })
+      const r = await fetch(url, init)
       const data = (await r.json()) as { ok: boolean; errors?: string[] }
-      if (data.ok) { await reload(); close() } else setFieldErr('_action', data.errors ?? [])
+      if (data.ok) { await reload(); close() } else setActionErrors(data.errors ?? [])
     } catch {
-      setFieldErr('_action', ['Échec réseau — la tâche n’a pas été archivée.'])
+      setActionErrors([failMsg])
     } finally {
       setPending(false)
     }
   }
-  const remove = async () => {
-    if (pending) return
+  const archive = () => act(`/api/tasks/${id}/archive`, { method: 'POST' }, 'Échec réseau — la tâche n’a pas été archivée.')
+  const remove = () => {
     if (!window.confirm(`Supprimer définitivement la tâche #${id} ? (l'id ne sera jamais réutilisé)`)) return
-    setPending(true)
-    try {
-      const r = await fetch(`/api/tasks/${id}`, { method: 'DELETE' })
-      const data = (await r.json()) as { ok: boolean; errors?: string[] }
-      if (data.ok) { await reload(); close() } else setFieldErr('_action', data.errors ?? [])
-    } catch {
-      setFieldErr('_action', ['Échec réseau — la tâche n’a pas été supprimée.'])
-    } finally {
-      setPending(false)
-    }
+    void act(`/api/tasks/${id}`, { method: 'DELETE' }, 'Échec réseau — la tâche n’a pas été supprimée.')
   }
 
   const consignation = [
     { label: 'dates', value: `créée ${task.createdAt}${task.completedAt ? ` · terminée ${task.completedAt}` : ''}` },
     task.commit ? { label: 'commit', value: task.commit } : null,
+    task.outcome ? { label: 'outcome', value: task.outcome } : null,
     task.verification ? { label: 'vérification', value: task.verification } : null,
     task.release ? { label: 'release', value: task.release } : null,
   ].filter((m): m is { label: string; value: string } => m !== null)
 
   return (
-    <div className="flex flex-col gap-4">
-      <ErrorBanner errors={allErrors} />
+    <div className="flex min-h-full flex-col gap-5">
+      <ErrorBanner errors={actionErrors} />
 
-      <div className="flex items-center justify-between gap-2">
-        <div className="min-w-0 truncate font-mono text-xs text-neutral-400">#{task.id} · {task.file}</div>
-        {saved && (
-          <span className="flex shrink-0 items-center gap-1 text-[11px] text-neutral-500">
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-              <path d="M1.5 5.5l2.5 2.5 4.5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            Enregistré
-          </span>
+      {/* En-tête : glyphe + id (+ badge archive), puis le titre en gros. */}
+      <div className="flex flex-col gap-1.5">
+        <div className="flex items-center gap-2">
+          <StatusGlyph status={task.status} />
+          <span className="font-mono text-xs text-neutral-400">#{task.id}</span>
+          <span className="text-xs text-neutral-500">{STATUS_FR[task.status]}</span>
+          {archived && <Chip label="archivée" />}
+        </div>
+        <h2 className={`text-base font-semibold leading-snug tracking-tight ${task.status === 'done' ? 'text-neutral-400 line-through' : 'text-neutral-900'}`}>
+          {task.title}
+        </h2>
+        {(task.size || task.zone || task.code || task.tags.length > 0) && (
+          <div className="flex flex-wrap items-center gap-1.5">
+            {task.tags.map((t) => (
+              <span key={t} className="text-[11px] text-neutral-400">#{t}</span>
+            ))}
+            {task.code && <Chip label={task.code} mono />}
+            {task.zone && <Chip label={task.zone} />}
+            {task.size && <Chip label={task.size} mono strong />}
+          </div>
         )}
       </div>
 
-      {archived && (
-        <p className="rounded border border-neutral-200 bg-neutral-50 px-3 py-2 text-xs text-neutral-500">
-          Tâche archivée — lecture seule.
-        </p>
-      )}
-
-      <Row label="Titre">
-        <TextInput
-          defaultValue={task.title}
-          disabled={archived}
-          onKeyDown={blurOnEnter}
-          onBlur={(e) => saveIfChanged('title', e.target.value)}
-        />
-      </Row>
-
-      <Row label="Détail">
-        <TextArea
-          className="min-h-[120px]"
-          defaultValue={task.detail ?? ''}
-          disabled={archived}
-          onBlur={(e) => saveIfChanged('detail', e.target.value === '' ? null : e.target.value)}
-        />
-      </Row>
-
-      <div className="grid grid-cols-2 gap-3">
-        <Row label="Statut">
-          <Select
-            aria-label="Statut"
-            defaultValue={task.status}
-            items={STATUS_ITEMS}
-            disabled={archived}
-            onValueChange={(v) => saveIfChanged('status', v)}
-          />
-        </Row>
-        <Row label="Taille">
-          <Select
-            aria-label="Taille"
-            defaultValue={task.size ?? ''}
-            items={SIZE_ITEMS}
-            disabled={archived}
-            onValueChange={(v) => saveIfChanged('size', v === '' ? null : v)}
-          />
-        </Row>
+      {/* Détail : markdown rendu, pleine hauteur naturelle (fini la lucarne). */}
+      <div className="flex flex-col gap-1">
+        <SectionLabel>Détail</SectionLabel>
+        {task.detail ? (
+          <Markdown source={task.detail} className="text-sm" />
+        ) : (
+          <p className="text-xs text-neutral-400">Aucun détail.</p>
+        )}
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <Row label="Zone">
-          <TextInput
-            defaultValue={task.zone ?? ''}
-            disabled={archived}
-            onKeyDown={blurOnEnter}
-            onBlur={(e) => saveIfChanged('zone', e.target.value === '' ? null : e.target.value)}
-          />
-        </Row>
-        <Row label="Code">
-          <TextInput
-            defaultValue={task.code ?? ''}
-            disabled={archived}
-            onKeyDown={blurOnEnter}
-            onBlur={(e) => saveIfChanged('code', e.target.value === '' ? null : e.target.value)}
-          />
-        </Row>
-      </div>
+      <RelationList label="Dépend de" tree={tree} ids={task.dependsOn} badgeOf={depBadge} />
+      <RelationList label="Bloque" tree={tree} ids={blocks} />
+      <RelationList label="Sous-tâches" tree={tree} ids={task.subtasks.map((s) => s.id)} badgeOf={subBadge} />
+      <RelationList label="Liens" tree={tree} ids={task.links} />
 
-      {!archived && (
-        <Row label="Dépend de">
-          <MultiCombobox
-            aria-label="Dépend de"
-            value={task.dependsOn}
-            items={dependItems}
-            placeholder="Rechercher une tâche prérequise…"
-            onValueChange={(ids) => saveIfChanged('dependsOn', ids)}
-          />
-        </Row>
+      {task.refs.length > 0 && (
+        <div className="flex flex-col gap-1">
+          <SectionLabel>Références</SectionLabel>
+          <div className="flex flex-col gap-0.5">
+            {task.refs.map((r) => <RefLine key={r} refPath={r} />)}
+          </div>
+        </div>
       )}
-
-      <Row label="Tags (séparés par des virgules)">
-        <TextInput
-          defaultValue={task.tags.join(', ')}
-          disabled={archived}
-          onKeyDown={blurOnEnter}
-          onBlur={(e) => csvBlur(e, 'tags')}
-        />
-      </Row>
-      <Row label="Refs (séparés par des virgules)">
-        <TextInput
-          defaultValue={task.refs.join(', ')}
-          disabled={archived}
-          onKeyDown={blurOnEnter}
-          onBlur={(e) => csvBlur(e, 'refs')}
-        />
-      </Row>
-      <Row label="Liens (ids séparés par des virgules)">
-        <TextInput
-          defaultValue={task.links.join(', ')}
-          disabled={archived}
-          onKeyDown={blurOnEnter}
-          onBlur={linksBlur}
-        />
-      </Row>
-
-      <Row label="Outcome (ce qui a été livré — matière à changelog)">
-        <TextInput
-          defaultValue={task.outcome ?? ''}
-          disabled={archived}
-          onKeyDown={blurOnEnter}
-          onBlur={(e) => saveIfChanged('outcome', e.target.value === '' ? null : e.target.value)}
-        />
-      </Row>
 
       {consignation.length > 0 && (
         <div className="flex flex-col gap-1.5 rounded border border-neutral-200 bg-neutral-50 px-3 py-2.5">
@@ -282,44 +206,38 @@ export function TaskPanel({ id }: { id: number }) {
         </div>
       )}
 
-      <button
-        type="button"
-        className="self-start rounded border border-neutral-300 px-2 py-1 text-[11px] text-neutral-600 transition-colors hover:bg-neutral-900 hover:text-white"
-        onClick={async () => {
-          try {
-            await navigator.clipboard.writeText(agentBrief(task))
-            setCopied(true)
-            setTimeout(() => setCopied(false), 1500)
-          } catch {
-            // clipboard indisponible (contexte non sécurisé) — copie manuelle.
-            window.prompt('Copie manuelle du brief :', agentBrief(task))
-          }
-        }}
-      >
-        {copied ? 'Copié' : 'Copier le brief agent'}
-      </button>
-
-      {/* Supprimer reste disponible sur l'archive (deleteTask la couvre) ;
-          seul Archiver disparaît (déjà archivée / non done). */}
-      <div className="mt-2 flex gap-2 border-t border-neutral-200 pt-4">
-        {!archived && task.status === 'done' && (
-          <button
-            type="button"
-            onClick={archive}
-            disabled={pending}
-            className="rounded border border-neutral-300 px-3 py-1.5 text-xs text-neutral-700 hover:bg-neutral-100 disabled:opacity-50"
-          >
-            {pending ? 'Archivage…' : 'Archiver'}
-          </button>
-        )}
+      <div className="flex items-center gap-2">
         <button
           type="button"
-          onClick={remove}
-          disabled={pending}
-          className="rounded border border-neutral-300 px-3 py-1.5 text-xs text-neutral-700 hover:bg-neutral-900 hover:text-white disabled:opacity-50"
+          className="rounded border border-neutral-300 px-2 py-1 text-[11px] text-neutral-600 transition-colors hover:bg-neutral-900 hover:text-white"
+          onClick={async () => {
+            try {
+              await navigator.clipboard.writeText(agentBrief(task))
+              setCopied(true)
+              setTimeout(() => setCopied(false), 1500)
+            } catch {
+              // clipboard indisponible (contexte non sécurisé) — copie manuelle.
+              window.prompt('Copie manuelle du brief :', agentBrief(task))
+            }
+          }}
         >
-          {pending ? 'Suppression…' : 'Supprimer'}
+          {copied ? 'Copié' : 'Copier le brief agent'}
         </button>
+        {!archived && task.status === 'done' && (
+          <button type="button" onClick={archive} disabled={pending}
+            className="rounded border border-neutral-300 px-2 py-1 text-[11px] text-neutral-600 hover:bg-neutral-100 disabled:opacity-50">
+            Archiver
+          </button>
+        )}
+        <button type="button" onClick={remove} disabled={pending}
+          className="rounded border border-neutral-300 px-2 py-1 text-[11px] text-neutral-600 hover:bg-neutral-900 hover:text-white disabled:opacity-50">
+          Supprimer
+        </button>
+      </div>
+
+      {/* Pied : le chemin technique, relégué ici (audit UX). */}
+      <div className="mt-auto border-t border-neutral-200 pt-3">
+        <div className="truncate font-mono text-[11px] text-neutral-400" title={task.file}>{task.file}</div>
       </div>
     </div>
   )
