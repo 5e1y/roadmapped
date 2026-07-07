@@ -1,7 +1,7 @@
 id: 24
 code: null
 title: Panneau v2 — pile de navigation, Esc en cascade, focus
-status: in_progress
+status: done
 tags:
   - panel
   - ux
@@ -28,8 +28,13 @@ dependsOn: []
 milestone: null
 source: ai
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-07"
+commit: 105aa67
+outcome: >-
+  Le panneau navigue en pile entre tâches liées : bouton retour, Esc en cascade (popup → champ →
+  dépiler → fermer), focus transféré et restauré
+verification: >-
+  Vérifié au navigateur par l'agent (2 scénarios Playwright : ouverture/focus/Esc-ferme +
+  Esc-blur-d'abord) et par moi : build tsc strict vert, aucun consommateur cassé (compat target
+  préservée), 109 tests verts.
 release: null

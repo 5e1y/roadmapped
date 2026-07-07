@@ -1,7 +1,7 @@
 id: 23
 code: null
 title: "Panneau v2 — lib relations : Bloque et état des deps"
-status: in_progress
+status: done
 tags:
   - panel
   - lib
@@ -26,8 +26,13 @@ dependsOn: []
 milestone: null
 source: ai
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-07"
+commit: 105aa67
+outcome: >-
+  Le panneau sait calculer les relations inverses : quelles tâches une tâche bloque, et l'état réel
+  de chaque dépendance (faite, disponible, verrouillée, archivée)
+verification: >-
+  TDD respecté par l'agent (8 tests rouges constatés puis verts) ; 23 tests roadmap.test.ts verts
+  revérifiés par moi dans la suite complète (109/109) ; choix défensif id inconnu → archived
+  documenté en JSDoc.
 release: null

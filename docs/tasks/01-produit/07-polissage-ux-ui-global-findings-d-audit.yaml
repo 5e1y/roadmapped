@@ -1,7 +1,7 @@
 id: 7
 code: null
 title: Polissage UX/UI global (findings d'audit)
-status: in_progress
+status: done
 tags:
   - ux
 size: M
@@ -23,8 +23,17 @@ dependsOn:
 milestone: null
 source: ai
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-07"
+commit: 9c7226d
+outcome: >-
+  Le dashboard est poli de bout en bout : 47 des 55 findings de l'audit traités (les 8 restants
+  appartiennent aux specs en cours), avec notamment zéro perte de saisie, états visibles partout,
+  navigation persistée et clavier lisible
+verification: >-
+  3 vagues vérifiées : agent polissage (33 findings, revérifiés : 109 tests + build relancés par
+  moi) ; ma passe design (chips par famille, sidebar sections avec reveal vérifié au pixel
+  Playwright, cartes uniformisées, ligne stricte testée par 3 tests TaskRow) ; quick wins (sticky
+  vérifié par capture après scrollTop=400, focus-visible/tables/erreurs Roadmap/arbre docs).
+  docs/audit-ux-2026-07.md : 47 items cochés avec notes, 8 restants routés #2/#3/#4/#5 après
+  correction du décalage de routage.
 release: null
