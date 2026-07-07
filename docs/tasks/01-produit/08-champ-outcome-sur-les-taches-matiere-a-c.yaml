@@ -1,7 +1,7 @@
 id: 22
 code: null
 title: Champ outcome sur les tâches (matière à changelog)
-status: in_progress
+status: done
 tags:
   - data-model
 size: S
@@ -28,8 +28,15 @@ dependsOn: []
 milestone: null
 source: user
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-07"
+commit: 99a3fe9
+outcome: >-
+  Chaque tâche peut consigner en une phrase ce qu'elle a livré (champ outcome, CLI + dashboard) — la
+  matière première du futur changelog
+verification: >-
+  TDD : 2 tests rouges puis verts (24/24 taskWrites, 93/93 suite). Artefact réel : update 22
+  --outcome écrit puis vide le champ dans le YAML sur disque (relu, positionné entre commit et
+  verification) ; PATCH /api/tasks/22 via le serveur Vite écrit le YAML et le tree JSON expose le
+  champ ; npm run build vert. Champ éditable ajouté au TaskPanel (même pattern que zone/code), non
+  vérifié au pixel.
 release: null
