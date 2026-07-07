@@ -1,7 +1,7 @@
 id: 39
 code: null
 title: "Spec — stages fixes (Idea→Mature) + teams : refactor de l'organisation"
-status: todo
+status: done
 tags:
   - spec
   - data-model
@@ -30,8 +30,15 @@ dependsOn: []
 milestone: null
 source: user
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-07"
+commit: 385cfca
+outcome: >-
+  Le refactor structurant de Roadmaped a sa spec approuvée : 8 stages fixes de lancement produit
+  (Idea→Mature, validation stricte, vides estompés) + team obligatoire (enum 8) remplaçant zone,
+  avec le plan de migration du backlog
+verification: >-
+  Débat contradictoire mené (3 pistes argumentées dont 2 écartées avec raisons), 2 questions
+  structurantes tranchées par Rémi (stricts+estompés ; team obligatoire remplace zone), screens de
+  référence archivés dans docs/assets/refs/, mapping de migration tâche par tâche aligné sur l'app
+  de référence, approbation explicite (« ok pour moi »).
 release: null

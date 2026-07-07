@@ -1,0 +1,36 @@
+id: 44
+code: null
+title: Stages+teams — skill et guide à jour
+status: todo
+tags:
+  - refactor
+  - docs
+size: S
+zone: skill
+detail: >-
+  Spec §CLI & skill. Mettre à jour le skill embarqué : formats.md (schéma team enum obligatoire,
+  zone supprimé, les 8 stages canoniques et leur sémantique, plus de création de section libre),
+  SKILL.md (boussole : sections = les 8 stages fixes ; add --team requis), setup.md (l'init crée les
+  8 stages ; l'inventaire de l'existant se mappe vers les stages, plus de proposition de sections
+  libres), workflows.md (le découpage d'une spec choisit stage + team par tâche). docs/guide.md :
+  sections 4 (CLI --team) et 5 (formats YAML) réalignées, exemples re-exécutés sur le VRAI repo
+  migré (lectures seules). Fini quand : aucune mention de zone ni de section libre dans skill/ et
+  guide, exemples vérifiés.
+refs:
+  - docs/specs/2026-07-07-stages-teams.md
+  - skills/roadmaped/SKILL.md
+  - skills/roadmaped/references/formats.md
+  - skills/roadmaped/references/setup.md
+  - skills/roadmaped/references/workflows.md
+  - docs/guide.md
+links: []
+dependsOn:
+  - 42
+milestone: null
+source: ai
+createdAt: "2026-07-07"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

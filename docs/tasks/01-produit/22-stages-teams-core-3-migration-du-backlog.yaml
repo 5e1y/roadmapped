@@ -1,0 +1,36 @@
+id: 42
+code: null
+title: Stages+teams core 3 — migration du backlog réel
+status: in_progress
+tags:
+  - refactor
+  - migration
+size: M
+zone: core
+detail: >-
+  Spec §Migration (mapping tâche par tâche — le suivre à la lettre). Script one-shot JETABLE
+  (scratchpad, pas dans le repo) : créer les 8 dossiers de stages avec _section.yaml canoniques
+  (notes = esprit du stage, tableau de la spec) ; déplacer chaque fichier de tâche vers son stage
+  cible en renumérotant les préfixes proprement ; dans chaque YAML : insérer team selon le mapping
+  (01-produit→engineering, site→marketing, comms→marketing, etc.), SUPPRIMER zone, préserver tout le
+  reste à l'identique (ids, statuts, consignations) ; supprimer les 5 anciens dossiers vides ; créer
+  les tâches rétroactives DONE dans 01-idea (« Idée initiale — Roadmaped, gestion de projet locale
+  agent-first », outcome/verification honnêtes rétrospectifs) et 02-initial (« Préparer le repo » :
+  extraction standalone commit 388fbb2 ; « Choisir le nom Roadmaped ») avec team engineering, ids
+  alloués via nextId SANS le CLI (édition manuelle propre de _meta.yaml autorisée UNIQUEMENT ici, +N
+  exactement). 07-scale et 08-mature naissent vides. Fini quand : node scripts/task.mjs validate OK
+  sur le VRAI repo, next sert une tâche sensée, list montre les 8 stages, spot-check de 3 YAML
+  migrés (ids/consignation intacts, team correcte, zone absente).
+refs:
+  - docs/specs/2026-07-07-stages-teams.md
+links: []
+dependsOn:
+  - 41
+milestone: null
+source: ai
+createdAt: "2026-07-07"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
