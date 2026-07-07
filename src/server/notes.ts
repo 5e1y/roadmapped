@@ -6,7 +6,7 @@
 import {
   readdirSync, readFileSync, writeFileSync, statSync, existsSync, mkdirSync, renameSync, rmSync,
 } from 'node:fs'
-import { join, isAbsolute, resolve, sep, dirname } from 'node:path'
+import { join, isAbsolute, resolve, sep, dirname, relative } from 'node:path'
 import { homedir, platform } from 'node:os'
 import { spawn } from 'node:child_process'
 
@@ -30,6 +30,29 @@ const titleOf = (content: string, slug: string) => firstLine(content) || slug
 
 function ensureDir(dir: string): void {
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
+}
+
+/** Ajoute `line` à un .gitignore si absente (idempotent). Renvoie true si écrit. */
+export function ensureGitignore(gitignorePath: string, line: string): boolean {
+  const existing = existsSync(gitignorePath) ? readFileSync(gitignorePath, 'utf8') : ''
+  if (existing.split('\n').some((l) => l.trim() === line)) return false
+  const pad = existing === '' || existing.endsWith('\n') ? '' : '\n'
+  writeFileSync(gitignorePath, `${existing}${pad}${line}\n`)
+  return true
+}
+
+/**
+ * Setup Notepad au démarrage du serveur (#87) : crée docs/notes/ et garantit que le
+ * dossier est gitignoré (ligne relative au repoRoot). Idempotent — appelé une fois au
+ * boot, JAMAIS dans les tests unitaires (qui appellent runAction directement).
+ */
+export function ensureNotesSetup(docsDir: string, repoRoot: string): void {
+  ensureDir(notesDir(docsDir))
+  const rel = relative(repoRoot, notesDir(docsDir)).split(sep).join('/')
+  // Sous le repo → chemin relatif ignoré ; hors repo (config exotique) → on s'abstient.
+  if (rel && !rel.startsWith('..') && !isAbsolute(rel)) {
+    ensureGitignore(join(repoRoot, '.gitignore'), `${rel}/`)
+  }
 }
 
 export interface NoteMeta { slug: string; title: string; modified: number }

@@ -3,6 +3,7 @@ import { mkdtempSync, rmSync, existsSync, readFileSync } from 'node:fs'
 import { tmpdir, homedir } from 'node:os'
 import { join } from 'node:path'
 import { routeApi, runAction } from './api'
+import { ensureGitignore } from './notes'
 
 describe('routeApi', () => {
   it('GET /api/tree', () => {
@@ -155,5 +156,18 @@ describe('runAction — Notepad CRUD + sécurité reveal (#86)', () => {
   it('reveal refuse un chemin non absolu (400) et un fichier inexistant dans HOME (404)', () => {
     expect(run('POST', '/api/reveal', { path: 'relatif.txt' }).status).toBe(400)
     expect(run('POST', '/api/reveal', { path: join(homedir(), '__ne-existe-pas-roadmaped__.xyz') }).status).toBe(404)
+  })
+})
+
+describe('ensureGitignore — idempotent (#87)', () => {
+  let dir: string
+  beforeEach(() => { dir = mkdtempSync(join(tmpdir(), 'roadmaped-gi-')) })
+  afterEach(() => rmSync(dir, { recursive: true, force: true }))
+
+  it('ajoute la ligne une fois, jamais deux', () => {
+    const gi = join(dir, '.gitignore')
+    expect(ensureGitignore(gi, 'docs/notes/')).toBe(true)
+    expect(ensureGitignore(gi, 'docs/notes/')).toBe(false) // déjà présente
+    expect(readFileSync(gi, 'utf8').split('\n').filter((l) => l === 'docs/notes/').length).toBe(1)
   })
 })

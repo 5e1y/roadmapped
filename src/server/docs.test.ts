@@ -57,6 +57,17 @@ describe('buildDocsTree', () => {
     expect(tree.map((n) => n.name)).not.toContain('node_modules')
   })
 
+  it('exclut docs/notes/ à la racine (Notepad, #87) mais garde un "notes" plus profond', () => {
+    mkdirSync(join(dir, 'notes'), { recursive: true })
+    writeFileSync(join(dir, 'notes', 'brouillon.md'), '# note perso') // notes/ créé à la racine
+    mkdirSync(join(dir, 'plans', 'notes'), { recursive: true })
+    writeFileSync(join(dir, 'plans', 'notes', 'legit.md'), '# doc légitime')
+    const tree = buildDocsTree(dir)
+    expect(tree.map((n) => n.name)).not.toContain('notes') // racine exclue
+    const plans = tree.find((n) => n.name === 'plans')
+    expect(plans?.children?.some((c) => c.name === 'notes')).toBe(true) // profond conservé
+  })
+
   it('un dossier sans .md descendant (récursif) disparaît (plans/archive, tasks)', () => {
     const tree = buildDocsTree(dir)
     const plans = tree.find((n) => n.name === 'plans')!

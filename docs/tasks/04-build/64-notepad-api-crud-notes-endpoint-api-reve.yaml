@@ -1,7 +1,7 @@
 id: 86
 code: null
 title: Notepad API — CRUD notes + endpoint /api/reveal sécurisé
-status: in_progress
+status: done
 tags: []
 size: M
 team: engineering
@@ -23,8 +23,15 @@ dependsOn: []
 milestone: null
 source: ai
 createdAt: "2026-07-08"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: da8e56f
+outcome: >-
+  API Notepad : 6 routes notes (list/create/read/write/archive/delete) sur docs/notes/ plates +
+  renommage au fil de l'eau (titre=1re ligne) ; POST /api/reveal ouvre le Finder (open -R / xdg-open
+  / explorer) avec chemin absolu exigé, existence vérifiée, refus hors HOME, spawn en argv (pas de
+  shell)
+verification: >-
+  23 tests API verts : CRUD relu sur disque (autosave), renommage slug quand la 1re ligne change,
+  list trie + archive exclue, reveal → 403 hors HOME / 400 non absolu / 404 inexistant ; 229 tests +
+  build verts
 release: null

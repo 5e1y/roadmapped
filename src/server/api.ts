@@ -7,7 +7,7 @@ import {
 } from '../lib/taskWrites'
 import { buildDocsTree, readDocContent, unsafeDocPath } from './docs'
 import {
-  listNotes, readNote, createNote, writeNote, archiveNote, deleteNote, revealPath,
+  listNotes, readNote, createNote, writeNote, archiveNote, deleteNote, revealPath, ensureNotesSetup,
   type NoteResult,
 } from './notes'
 
@@ -208,6 +208,9 @@ export function roadmapedApi(): Plugin {
   return {
     name: 'roadmaped-api',
     configureServer(server) {
+      // Notepad (#87) : au boot, docs/notes/ existe et est gitignoré. repoRoot = cwd du
+      // serveur de dev. Best-effort — jamais bloquant si le FS refuse.
+      try { ensureNotesSetup(paths.docsDir, process.cwd()) } catch { /* non bloquant */ }
       server.middlewares.use(async (req: Connect.IncomingMessage, res: ServerResponse, next) => {
         const url = new URL(req.url ?? '/', 'http://localhost')
         if (!url.pathname.startsWith('/api/')) return next()
