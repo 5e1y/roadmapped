@@ -524,15 +524,15 @@ function TaskPanelBody({ id }: { id: number }) {
           />
         </div>
         <div className="flex flex-col gap-0.5">
-          <SectionLabel>Zone</SectionLabel>
+          <SectionLabel>Team</SectionLabel>
           <GhostInput
-            key={`zone-${task.zone ?? ''}`}
-            defaultValue={task.zone ?? ''}
+            key={`team-${task.team ?? ''}`}
+            defaultValue={task.team ?? ''}
             disabled={!editable}
             placeholder="—"
-            aria-label="Zone"
+            aria-label="Team"
             onKeyDown={blurOnEnter}
-            onBlur={(e) => void save('zone', changed(task.zone, e.target.value || null), { zone: e.target.value || null })}
+            onBlur={(e) => void save('team', changed(task.team, e.target.value || null), { team: e.target.value || null })}
             className="text-sm"
           />
         </div>
@@ -550,8 +550,8 @@ function TaskPanelBody({ id }: { id: number }) {
           />
         </div>
       </div>
-      <div className="-mt-4 px-1.5"><SavedTick show={savedIn('size', 'zone', 'code')} /></div>
-      <FieldError errs={errors.size ?? errors.zone ?? errors.code} />
+      <div className="-mt-4 px-1.5"><SavedTick show={savedIn('size', 'team', 'code')} /></div>
+      <FieldError errs={errors.size ?? errors.team ?? errors.code} />
 
       {/* Détail : markdown rendu au repos ; clic → textarea à taille identique. */}
       <div className="flex flex-col gap-1">

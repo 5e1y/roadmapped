@@ -1,15 +1,22 @@
 import yaml from 'js-yaml'
 import type { SectionNode, TaskNode, TaskFileMap, Roadmap } from './tasks'
+import { STAGES, TEAMS } from './tasks.ts'
 
 const TASK_STATUSES = ['todo', 'in_progress', 'done']
 const SECTION_STATUSES = ['open', 'done', 'dormant', 'abandoned']
 const SIZES = ['S', 'M', 'L', null]
+
+/** Titre canonique attendu pour chaque slug de stage (source unique : STAGES). */
+const CANONICAL_TITLE = new Map(STAGES.map((s) => [s.slug, s.title]))
 
 function validateTask(task: TaskNode, path: string, errors: string[]) {
   if (typeof task.id !== 'number') errors.push(`${path}: id manquant ou invalide`)
   if (!task.title) errors.push(`${path}: title manquant`)
   if (!TASK_STATUSES.includes(task.status)) errors.push(`${path}: status invalide (${task.status})`)
   if (!SIZES.includes(task.size)) errors.push(`${path}: size invalide (${task.size})`)
+  if (!TEAMS.includes(task.team)) {
+    errors.push(`${path}: team absente ou invalide (${task.team}) — attendu l'une de : ${TEAMS.join(', ')}`)
+  }
   if (!['user', 'ai'].includes(task.source)) errors.push(`${path}: source invalide (${task.source})`)
   if (!task.createdAt) errors.push(`${path}: createdAt manquant`)
   if (task.outcome !== null && typeof task.outcome !== 'string') {
@@ -70,8 +77,25 @@ export function validateTaskTree(tree: {
     for (const sub of task.subtasks) collectIds(sub, `${path}/${sub.id}`)
   }
 
+  // Invariant stages STRICT : l'ensemble des sections ACTIVES = exactement les
+  // 8 slugs canoniques (ni plus, ni moins), et chaque title = titre canonique.
+  // L'archive n'est PAS soumise à cette contrainte (historique).
+  const activeSlugs = new Set(tree.sections.map((s) => s.key))
+  for (const stage of STAGES) {
+    if (!activeSlugs.has(stage.slug)) {
+      errors.push(`stage manquant : "${stage.slug}" (${stage.title}) absent de docs/tasks/`)
+    }
+  }
+
   for (const section of tree.sections) {
-    if (!section.title) errors.push(`${section.key}/_section.yaml: title manquant`)
+    if (!CANONICAL_TITLE.has(section.key)) {
+      errors.push(`${section.key}/: section non canonique — seuls les 8 stages sont admis (${STAGES.map((s) => s.slug).join(', ')})`)
+    } else {
+      const expected = CANONICAL_TITLE.get(section.key)!
+      if (section.title !== expected) {
+        errors.push(`${section.key}/_section.yaml: title "${section.title}" ≠ titre canonique "${expected}"`)
+      }
+    }
     if (!SECTION_STATUSES.includes(section.status)) {
       errors.push(`${section.key}/_section.yaml: status invalide (${section.status})`)
     }

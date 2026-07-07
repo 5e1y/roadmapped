@@ -14,7 +14,7 @@ export function agentBrief(task: TaskNode): string {
   const meta = [
     `Statut : ${task.status}`,
     task.size && `Taille : ${task.size}`,
-    task.zone && `Zone : ${task.zone}`,
+    task.team && `Team : ${task.team}`,
     task.code && `Code : ${task.code}`,
   ]
     .filter(Boolean)
@@ -98,7 +98,7 @@ export function TaskRow({ task }: { task: TaskNode }) {
               </span>
             )}
             {task.code && <Chip label={task.code} mono />}
-            {task.zone && <Chip label={task.zone} />}
+            {task.team && <Chip label={task.team} />}
             {task.size && <Chip label={task.size} mono strong />}
           </span>
         </button>

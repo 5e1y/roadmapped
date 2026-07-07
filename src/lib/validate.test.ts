@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { validateTaskTree, validateIdUniquenessAcrossFiles } from './validate'
 import { buildTaskTree } from './tasks'
+import { stageSectionFiles } from './stageFixtures'
 
 describe('validateTaskTree', () => {
   it('signale une tâche sans title', () => {
@@ -190,10 +191,102 @@ describe('validateTaskTree — roadmap (phase 2)', () => {
 
   it('rétrocompat : arbre sans aucun champ roadmap → zéro nouvelle erreur', () => {
     const files = {
-      [meta]: 'nextId: 2\n', [sec]: 'title: "X"\nstatus: open\n',
-      '/docs/tasks/01-x/01-t.yaml': task(1),
+      [meta]: 'nextId: 2\n',
+      ...stageSectionFiles(),
+      '/docs/tasks/04-build/01-t.yaml': task(1, 'team: engineering\n'),
     }
     const errs = validateTaskTree(buildTaskTree(files))
     expect(errs).toEqual([])
+  })
+})
+
+describe('validateTaskTree — stages canoniques + team (stages+teams)', () => {
+  const meta = '/docs/tasks/_meta.yaml'
+  const okTask = (id: number, extra = '') =>
+    `id: ${id}\ntitle: "T${id}"\nstatus: todo\nteam: engineering\nsource: ai\ncreatedAt: "2026-07-07"\n${extra}`
+
+  it('happy path : 8 stages canoniques + tâche avec team valide → aucune erreur', () => {
+    const files = {
+      [meta]: 'nextId: 2\n',
+      ...stageSectionFiles(),
+      '/docs/tasks/04-build/01-t.yaml': okTask(1),
+    }
+    expect(validateTaskTree(buildTaskTree(files))).toEqual([])
+  })
+
+  it('rejette un 9e dossier de section (hors set canonique)', () => {
+    const files = {
+      [meta]: 'nextId: 2\n',
+      ...stageSectionFiles(),
+      '/docs/tasks/09-extra/_section.yaml': 'title: "Extra"\nstatus: open\nnote: null\n',
+    }
+    const errs = validateTaskTree(buildTaskTree(files))
+    expect(errs.some((e) => e.includes('09-extra'))).toBe(true)
+  })
+
+  it('rejette un slug de section non canonique', () => {
+    const files: Record<string, string> = {
+      [meta]: 'nextId: 2\n',
+      ...stageSectionFiles(),
+    }
+    // remplace le stage 04-build par un slug inconnu
+    delete files['/docs/tasks/04-build/_section.yaml']
+    files['/docs/tasks/04-atelier/_section.yaml'] = 'title: "Atelier"\nstatus: open\nnote: null\n'
+    const errs = validateTaskTree(buildTaskTree(files))
+    expect(errs.some((e) => e.includes('04-atelier'))).toBe(true)
+    expect(errs.some((e) => e.includes('04-build') && e.includes('manquant'))).toBe(true)
+  })
+
+  it('rejette un stage manquant', () => {
+    const files: Record<string, string> = {
+      [meta]: 'nextId: 2\n',
+      ...stageSectionFiles(),
+    }
+    delete files['/docs/tasks/08-mature/_section.yaml']
+    const errs = validateTaskTree(buildTaskTree(files))
+    expect(errs.some((e) => e.includes('08-mature') && e.includes('manquant'))).toBe(true)
+  })
+
+  it('rejette un title de section non canonique', () => {
+    const files: Record<string, string> = {
+      [meta]: 'nextId: 2\n',
+      ...stageSectionFiles(),
+    }
+    files['/docs/tasks/04-build/_section.yaml'] = 'title: "Mauvais titre"\nstatus: open\nnote: null\n'
+    const errs = validateTaskTree(buildTaskTree(files))
+    expect(errs.some((e) => e.includes('04-build') && e.includes('Build Stage'))).toBe(true)
+  })
+
+  it('rejette une tâche active sans team', () => {
+    const files = {
+      [meta]: 'nextId: 2\n',
+      ...stageSectionFiles(),
+      '/docs/tasks/04-build/01-t.yaml':
+        'id: 1\ntitle: "T"\nstatus: todo\nsource: ai\ncreatedAt: "2026-07-07"\n',
+    }
+    const errs = validateTaskTree(buildTaskTree(files))
+    expect(errs.some((e) => e.includes('04-build/1') && e.includes('team'))).toBe(true)
+  })
+
+  it('rejette une tâche active avec team inconnue', () => {
+    const files = {
+      [meta]: 'nextId: 2\n',
+      ...stageSectionFiles(),
+      '/docs/tasks/04-build/01-t.yaml': okTask(1).replace('team: engineering', 'team: wizardry'),
+    }
+    const errs = validateTaskTree(buildTaskTree(files))
+    expect(errs.some((e) => e.includes('04-build/1') && e.includes('team'))).toBe(true)
+  })
+
+  it('rejette une SOUS-tâche sans team', () => {
+    const files = {
+      [meta]: 'nextId: 3\n',
+      ...stageSectionFiles(),
+      '/docs/tasks/04-build/01-t.yaml': okTask(1),
+      '/docs/tasks/04-build/01-t/01-sub.yaml':
+        'id: 2\ntitle: "Sous"\nstatus: todo\nsource: ai\ncreatedAt: "2026-07-07"\n',
+    }
+    const errs = validateTaskTree(buildTaskTree(files))
+    expect(errs.some((e) => e.includes('team'))).toBe(true)
   })
 })

@@ -1,0 +1,26 @@
+id: 18
+code: null
+title: Déployer le site et le domaine
+status: todo
+tags:
+  - marketing
+size: S
+team: marketing
+detail: >-
+  Choisir l'hébergement statique (GitHub Pages suffit ; Netlify/Vercel si domaine custom), trancher
+  le domaine avec Rémi (roadmaped.dev ou équivalent — vérifier la disponibilité), HTTPS, déploiement
+  automatique depuis le repo, analytics légers ou aucun (Plausible si besoin de mesurer le
+  lancement). Fini quand : l'URL publique répond, testée sur mobile et desktop, et le README + la
+  description GitHub pointent dessus.
+refs:
+  - docs/site-copy.md
+links: []
+dependsOn:
+  - 17
+milestone: null
+source: ai
+createdAt: "2026-07-07"
+completedAt: null
+commit: null
+verification: null
+release: null

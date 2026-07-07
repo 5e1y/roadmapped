@@ -13,8 +13,8 @@ describe('routeApi', () => {
   })
 
   it('PATCH /api/tasks/:id → patchTask id numérique', () => {
-    expect(routeApi('PATCH', '/api/tasks/42', { zone: 'store' })).toEqual({
-      type: 'patchTask', id: 42, body: { zone: 'store' },
+    expect(routeApi('PATCH', '/api/tasks/42', { team: 'engineering' })).toEqual({
+      type: 'patchTask', id: 42, body: { team: 'engineering' },
     })
   })
 
@@ -26,10 +26,8 @@ describe('routeApi', () => {
     expect(routeApi('DELETE', '/api/tasks/42', null)).toEqual({ type: 'deleteTask', id: 42 })
   })
 
-  it('POST /api/sections → createSection', () => {
-    expect(routeApi('POST', '/api/sections', { title: 'S' })).toEqual({
-      type: 'createSection', body: { title: 'S' },
-    })
+  it('POST /api/sections → notFound (création de section supprimée)', () => {
+    expect(routeApi('POST', '/api/sections', { title: 'S' })).toEqual({ type: 'notFound' })
   })
 
   it('PATCH /api/sections/:dir → patchSection (dir décodé)', () => {

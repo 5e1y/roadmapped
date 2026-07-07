@@ -3,7 +3,7 @@ import type { ServerResponse, IncomingMessage } from 'node:http'
 import { loadPaths, type RoadmapedPaths } from '../lib/paths'
 import {
   treeWithErrors, addTask, updateTask, archiveTask, deleteTask,
-  createSection, updateSection, saveRoadmaps, type MutationResult,
+  updateSection, saveRoadmaps, type MutationResult,
 } from '../lib/taskWrites'
 import { buildDocsTree, readDocContent, unsafeDocPath } from './docs'
 
@@ -13,7 +13,6 @@ export type ApiAction =
   | { type: 'patchTask'; id: number; body: any }
   | { type: 'archiveTask'; id: number }
   | { type: 'deleteTask'; id: number }
-  | { type: 'createSection'; body: any }
   | { type: 'patchSection'; dir: string; body: any }
   | { type: 'putRoadmaps'; body: any }
   | { type: 'getDocsTree' }
@@ -67,7 +66,7 @@ export function routeApi(method: string, rawUrl: string, body: any): ApiAction {
   }
 
   if (seg[0] === 'sections') {
-    if (seg.length === 1 && method === 'POST') return { type: 'createSection', body }
+    // La création de section a disparu (stages fixes) : plus de POST /api/sections.
     if (seg.length === 2 && method === 'PATCH') {
       let dir: string | null = null
       try {
@@ -117,8 +116,6 @@ export function runAction(paths: RoadmapedPaths, action: ApiAction): ApiResponse
         return fromMutation(archiveTask(tasksDir, action.id))
       case 'deleteTask':
         return fromMutation(deleteTask(tasksDir, action.id))
-      case 'createSection':
-        return fromMutation(createSection(tasksDir, action.body ?? {}))
       case 'patchSection':
         return fromMutation(updateSection(tasksDir, action.dir, action.body ?? {}))
       case 'putRoadmaps':

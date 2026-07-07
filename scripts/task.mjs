@@ -20,6 +20,7 @@ import {
   addTask, startTask, doneTask, updateTask, archiveTask,
 } from '../src/lib/taskWrites.ts'
 import { computeAvailability, activeTasks } from '../src/lib/roadmap.ts'
+import { TEAMS } from '../src/lib/tasks.ts'
 
 const { tasksDir: ROOT } = loadPaths()
 
@@ -81,7 +82,7 @@ const parseDeps = (v) => {
 const GLYPH = { todo: '[ ]', in_progress: '[~]', done: '[x]' }
 
 function taskLine(t, indent = '  ') {
-  const chips = [t.code, t.size, t.zone, ...t.tags].filter(Boolean).join(' ')
+  const chips = [t.code, t.size, t.team, ...t.tags].filter(Boolean).join(' ')
   return `${indent}${GLYPH[t.status]} #${String(t.id).padEnd(4)}${t.title}${chips ? `  (${chips})` : ''}`
 }
 
@@ -106,8 +107,12 @@ const USAGE = `task.mjs — gestion de docs/tasks/ (source de vérité du backlo
 Usage : node scripts/task.mjs <commande> [arguments]
         (Node >= 22.18 ; sinon : npm run task --prefix dashboard -- <commande>)
 
+Stages (sections canoniques, fixes) : 01-idea · 02-initial · 03-identity · 04-build
+  05-gtm · 06-launch · 07-scale · 08-mature  (créés à l'init, non modifiables au CLI)
+Teams (équipe métier, enum fixe) : ${TEAMS.join(' · ')}
+
 Lecture
-  list [--section <key>] [--status todo|in_progress|done] [--archive] [--json]
+  list [--section <key>] [--status todo|in_progress|done] [--team <t>] [--archive] [--json]
   show <id> [--json]        détail complet d'une tâche (id global, ex: 42)
   next [--json]             la prochaine tâche : 1ère todo DISPONIBLE (deps done)
                             de la section open la plus prioritaire (= "on enchaîne
@@ -118,15 +123,16 @@ Lecture
                             + nextId, archive comprise) ; exit 1 si erreur
 
 Écriture (id alloué depuis _meta.yaml ; validation après CHAQUE écriture, rollback si erreur)
-  add --section <key> --title <t> [--detail <d>] [--tags a,b] [--size S|M|L]
-      [--zone <z>] [--code <c>] [--refs a,b] [--links 1,2]
+  add --section <stage> --title <t> --team <team> [--detail <d>] [--tags a,b]
+      [--size S|M|L] [--code <c>] [--refs a,b] [--links 1,2]
       [--depends-on 1,2] [--milestone <slug>] [--source ai|user] [--json]
+                            --team est REQUIS (enum fixe ci-dessus)
   start <id>                status → in_progress
   done <id> [--commit <sha>] [--outcome <o>] [--verification <v>] [--release <r>]
                             status → done + completedAt=aujourd'hui + doc de livraison
                             (--outcome : ce qui a été livré, en une phrase — le changelog)
   update <id> [--title] [--detail] [--status] [--tags] [--refs] [--links]
-      [--size] [--zone] [--code] [--source] [--commit] [--outcome] [--verification] [--release]
+      [--size] [--team] [--code] [--source] [--commit] [--outcome] [--verification] [--release]
       [--depends-on 1,2] [--milestone <slug>]
                             patch générique ("null" = remettre un champ à null ;
                             --depends-on null / --milestone null pour vider)
@@ -158,13 +164,18 @@ function cmdValidate() {
 }
 
 function cmdList(flags) {
-  rejectUnknownFlags(flags, ['section', 'status', 'archive', 'json'])
+  rejectUnknownFlags(flags, ['section', 'status', 'team', 'archive', 'json'])
   const tree = readTree(ROOT)
   let sections = flags.archive ? [...tree.sections, ...tree.archive] : tree.sections
   if (typeof flags.section === 'string') sections = sections.filter((s) => s.key === flags.section)
   if (typeof flags.status === 'string') {
     sections = sections
       .map((s) => ({ ...s, tasks: s.tasks.filter((t) => t.status === flags.status) }))
+      .filter((s) => s.tasks.length > 0)
+  }
+  if (typeof flags.team === 'string') {
+    sections = sections
+      .map((s) => ({ ...s, tasks: s.tasks.filter((t) => t.team === flags.team) }))
       .filter((s) => s.tasks.length > 0)
   }
   if (flags.json) {
@@ -226,19 +237,28 @@ function report(res, successMessage) {
   return res
 }
 
+/** Vérifie qu'une valeur de team appartient à l'enum ; sinon quitte en listant les 8. */
+function assertTeam(value) {
+  if (!TEAMS.includes(value)) {
+    console.error(`--team invalide : "${value}" (attendu l'une de : ${TEAMS.join(', ')})`)
+    process.exit(1)
+  }
+}
+
 function cmdAdd(flags) {
   rejectUnknownFlags(flags, [
-    'section', 'title', 'detail', 'tags', 'size', 'zone', 'code', 'refs', 'links',
+    'section', 'title', 'team', 'detail', 'tags', 'size', 'code', 'refs', 'links',
     'depends-on', 'milestone', 'source', 'json',
   ])
-  requireFlags(flags, ['section', 'title'])
+  requireFlags(flags, ['section', 'title', 'team'])
+  assertTeam(flags.team)
   const res = addTask(ROOT, {
     section: flags.section,
     title: flags.title,
+    team: flags.team,
     detail: typeof flags.detail === 'string' ? flags.detail : null,
     tags: typeof flags.tags === 'string' ? splitList(flags.tags) : [],
     size: typeof flags.size === 'string' ? flags.size : null,
-    zone: typeof flags.zone === 'string' ? flags.zone : null,
     code: typeof flags.code === 'string' ? flags.code : null,
     refs: typeof flags.refs === 'string' ? splitList(flags.refs) : [],
     links: typeof flags.links === 'string' ? splitList(flags.links).map(Number) : [],
@@ -268,13 +288,16 @@ function cmdDone(id, flags) {
 }
 
 function cmdUpdate(id, flags) {
-  const stringFields = ['title', 'detail', 'status', 'size', 'zone', 'code', 'source', 'commit', 'outcome', 'verification', 'release', 'completedAt']
+  const stringFields = ['title', 'detail', 'status', 'size', 'team', 'code', 'source', 'commit', 'outcome', 'verification', 'release', 'completedAt']
   const listFields = ['tags', 'refs', 'links']
   rejectUnknownFlags(flags, [...stringFields, ...listFields, 'depends-on', 'milestone'])
   if (Object.keys(flags).length === 0) {
     console.error('update : aucun champ à modifier (voir --help).')
     process.exit(1)
   }
+  // --team : valider l'enum avant écriture (message clair listant les 8),
+  // sauf "null" qui n'a pas de sens ici (team obligatoire) mais reste rejeté par validate.
+  if (typeof flags.team === 'string' && flags.team !== 'null') assertTeam(flags.team)
   const patch = {}
   for (const f of stringFields) if (typeof flags[f] === 'string') patch[f] = nullable(flags[f])
   for (const f of listFields) {
@@ -310,7 +333,7 @@ function cmdRoadmap(flags) {
         done: tasks.filter((t) => t.status === 'done').length,
         total: tasks.length,
         tasks: tasks.map((t) => ({
-          id: t.id, title: t.title, state: avail.get(t.id) ?? 'available', missing: missingOf(t),
+          id: t.id, title: t.title, team: t.team, state: avail.get(t.id) ?? 'available', missing: missingOf(t),
         })),
       }
     }),
@@ -331,7 +354,7 @@ function cmdRoadmap(flags) {
       console.log(`  ${m.slug} — ${m.title}  ${m.done}/${m.total}`)
       for (const t of m.tasks) {
         const tag = t.state === 'done' ? '[x]' : t.state === 'available' ? '[~] (disponible)' : `[ ] (verrouillé: ${t.missing.map((d) => `#${d}`).join(' ')})`
-        console.log(`    ${tag} #${t.id} ${t.title}`)
+        console.log(`    ${tag} #${t.id} ${t.title}${t.team ? `  (${t.team})` : ''}`)
       }
     }
   }
