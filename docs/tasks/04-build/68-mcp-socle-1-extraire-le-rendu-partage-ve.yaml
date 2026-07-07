@@ -1,7 +1,7 @@
 id: 90
 code: null
 title: MCP socle 1 — extraire le rendu partagé vers src/lib/render.ts
-status: in_progress
+status: done
 tags: []
 size: M
 team: engineering
@@ -22,8 +22,12 @@ dependsOn: []
 milestone: null
 source: ai
 createdAt: "2026-07-08"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: bec8b90
+outcome: >-
+  briefText, sitrepText, taskLine, refLine, renderRef et git extraits de scripts/task.mjs vers
+  src/lib/render.ts (node-only, réutilisable par le serveur MCP) ; le CLI les réimporte
+verification: >-
+  32 tests CLI inchangés verts (refactor transparent) + render.test.ts (6 tests directs) + build
+  vert ; sitrep/brief réels rendent le même contenu qu'avant
 release: null
