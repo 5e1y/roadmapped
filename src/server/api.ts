@@ -6,6 +6,10 @@ import {
   updateSection, saveRoadmaps, type MutationResult,
 } from '../lib/taskWrites'
 import { buildDocsTree, readDocContent, unsafeDocPath } from './docs'
+import {
+  listNotes, readNote, createNote, writeNote, archiveNote, deleteNote, revealPath,
+  type NoteResult,
+} from './notes'
 
 export type ApiAction =
   | { type: 'getTree' }
@@ -17,6 +21,13 @@ export type ApiAction =
   | { type: 'putRoadmaps'; body: any }
   | { type: 'getDocsTree' }
   | { type: 'getDocContent'; path: string }
+  | { type: 'listNotes' }
+  | { type: 'createNote'; body: any }
+  | { type: 'readNote'; slug: string }
+  | { type: 'writeNote'; slug: string; body: any }
+  | { type: 'archiveNote'; slug: string }
+  | { type: 'deleteNote'; slug: string }
+  | { type: 'reveal'; body: any }
   | { type: 'badRequest'; errors: string[] }
   | { type: 'notFound' }
 
@@ -85,6 +96,23 @@ export function routeApi(method: string, rawUrl: string, body: any): ApiAction {
     return { type: 'putRoadmaps', body }
   }
 
+  // Notepad (#86) : notes plates sous docs/notes/. Le slug (:slug) est validé côté
+  // notes.ts (unsafeSlug) ; ici on route seulement sur la forme.
+  if (seg[0] === 'notes') {
+    if (seg.length === 1 && method === 'GET') return { type: 'listNotes' }
+    if (seg.length === 1 && method === 'POST') return { type: 'createNote', body }
+    if (seg.length === 2 && method === 'GET') return { type: 'readNote', slug: seg[1] }
+    if (seg.length === 2 && method === 'PUT') return { type: 'writeNote', slug: seg[1], body }
+    if (seg.length === 2 && method === 'DELETE') return { type: 'deleteNote', slug: seg[1] }
+    if (seg.length === 3 && seg[2] === 'archive' && method === 'POST') {
+      return { type: 'archiveNote', slug: seg[1] }
+    }
+  }
+
+  if (seg[0] === 'reveal' && seg.length === 1 && method === 'POST') {
+    return { type: 'reveal', body }
+  }
+
   return { type: 'notFound' }
 }
 
@@ -97,6 +125,13 @@ interface ApiResponse {
 function fromMutation(res: MutationResult): ApiResponse {
   if (res.ok) return { status: 200, payload: { ok: true, tree: res.tree, task: res.task } }
   return { status: res.notFound ? 404 : 400, payload: { ok: false, errors: res.errors } }
+}
+
+/** Traduit un NoteResult (Notepad) en réponse HTTP. */
+function fromNote(res: NoteResult): ApiResponse {
+  return res.ok
+    ? { status: res.status, payload: { ok: true, ...(res.payload as object) } }
+    : { status: res.status, payload: { ok: false, errors: [res.error] } }
 }
 
 /** Exécute une action contre tasksDir/docsDir. Isole les exceptions en 500. */
@@ -127,6 +162,20 @@ export function runAction(paths: RoadmapedPaths, action: ApiAction): ApiResponse
         if (!res.ok) return { status: res.status, payload: { ok: false, errors: [res.error] } }
         return { status: 200, payload: { ok: true, content: res.content } }
       }
+      case 'listNotes':
+        return { status: 200, payload: { ok: true, notes: listNotes(docsDir) } }
+      case 'createNote':
+        return fromNote(createNote(docsDir, action.body?.content ?? ''))
+      case 'readNote':
+        return fromNote(readNote(docsDir, action.slug))
+      case 'writeNote':
+        return fromNote(writeNote(docsDir, action.slug, action.body?.content))
+      case 'archiveNote':
+        return fromNote(archiveNote(docsDir, action.slug))
+      case 'deleteNote':
+        return fromNote(deleteNote(docsDir, action.slug))
+      case 'reveal':
+        return fromNote(revealPath(action.body?.path))
       case 'badRequest':
         return { status: 400, payload: { ok: false, errors: action.errors } }
       case 'notFound':

@@ -1,5 +1,8 @@
-import { describe, it, expect } from 'vitest'
-import { routeApi } from './api'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { mkdtempSync, rmSync, existsSync, readFileSync } from 'node:fs'
+import { tmpdir, homedir } from 'node:os'
+import { join } from 'node:path'
+import { routeApi, runAction } from './api'
 
 describe('routeApi', () => {
   it('GET /api/tree', () => {
@@ -95,5 +98,62 @@ describe('routeApi — docs (phase 3)', () => {
   it('rejette une extension non-.md → badRequest', () => {
     expect(routeApi('GET', '/api/docs/content?path=FORMATS.txt', null).type).toBe('badRequest')
     expect(routeApi('GET', '/api/docs/content?path=FORMATS', null).type).toBe('badRequest')
+  })
+})
+
+describe('routeApi — Notepad (#86)', () => {
+  it('route les 6 routes notes + reveal sur leur action', () => {
+    expect(routeApi('GET', '/api/notes', null)).toEqual({ type: 'listNotes' })
+    expect(routeApi('POST', '/api/notes', { content: 'x' })).toEqual({ type: 'createNote', body: { content: 'x' } })
+    expect(routeApi('GET', '/api/notes/idee', null)).toEqual({ type: 'readNote', slug: 'idee' })
+    expect(routeApi('PUT', '/api/notes/idee', { content: 'y' })).toEqual({ type: 'writeNote', slug: 'idee', body: { content: 'y' } })
+    expect(routeApi('DELETE', '/api/notes/idee', null)).toEqual({ type: 'deleteNote', slug: 'idee' })
+    expect(routeApi('POST', '/api/notes/idee/archive', null)).toEqual({ type: 'archiveNote', slug: 'idee' })
+    expect(routeApi('POST', '/api/reveal', { path: '/x' })).toEqual({ type: 'reveal', body: { path: '/x' } })
+  })
+})
+
+describe('runAction — Notepad CRUD + sécurité reveal (#86)', () => {
+  let docsDir: string
+  const paths = () => ({ tasksDir: '/unused', docsDir })
+  const run = (method: string, url: string, body: unknown = null) =>
+    runAction(paths(), routeApi(method, url, body))
+  beforeEach(() => { docsDir = mkdtempSync(join(tmpdir(), 'roadmaped-notes-')) })
+  afterEach(() => rmSync(docsDir, { recursive: true, force: true }))
+
+  it('create → read → autosave relu sur disque', () => {
+    const created = run('POST', '/api/notes', { content: 'Mon idée\ndétail' })
+    const slug = (created.payload as any).slug
+    expect(created.status).toBe(200)
+    expect(existsSync(join(docsDir, 'notes', `${slug}.md`))).toBe(true)
+    const read = run('GET', `/api/notes/${slug}`)
+    expect((read.payload as any).content).toBe('Mon idée\ndétail')
+  })
+
+  it('write renomme au fil de l’eau quand la 1re ligne change', () => {
+    const slug = (run('POST', '/api/notes', { content: 'Brouillon' }).payload as any).slug
+    const w = run('PUT', `/api/notes/${slug}`, { content: 'Titre définitif\ncorps' })
+    expect((w.payload as any).slug).toBe('titre-definitif')
+    expect(readFileSync(join(docsDir, 'notes', 'titre-definitif.md'), 'utf8')).toContain('corps')
+    expect(existsSync(join(docsDir, 'notes', `${slug}.md`))).toBe(false) // ancien slug parti
+  })
+
+  it('list trie par modification décroissante ; archive puis delete', () => {
+    const a = (run('POST', '/api/notes', { content: 'A' }).payload as any).slug
+    run('POST', '/api/notes', { content: 'B' })
+    expect((run('GET', '/api/notes').payload as any).notes.length).toBe(2)
+    expect(run('POST', `/api/notes/${a}/archive`).status).toBe(200)
+    expect((run('GET', '/api/notes').payload as any).notes.length).toBe(1) // archive exclue
+    const b = (run('GET', '/api/notes').payload as any).notes[0].slug
+    expect(run('DELETE', `/api/notes/${b}`).status).toBe(200)
+    expect((run('GET', '/api/notes').payload as any).notes.length).toBe(0)
+  })
+
+  it('reveal REFUSE un chemin hors du HOME (403)', () => {
+    expect(run('POST', '/api/reveal', { path: '/etc/passwd' }).status).toBe(403)
+  })
+  it('reveal refuse un chemin non absolu (400) et un fichier inexistant dans HOME (404)', () => {
+    expect(run('POST', '/api/reveal', { path: 'relatif.txt' }).status).toBe(400)
+    expect(run('POST', '/api/reveal', { path: join(homedir(), '__ne-existe-pas-roadmaped__.xyz') }).status).toBe(404)
   })
 })
