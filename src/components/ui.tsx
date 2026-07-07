@@ -16,6 +16,29 @@ export const blurOnEnter = (e: KeyboardEvent<HTMLInputElement>) => {
   if (e.key === 'Enter') e.currentTarget.blur()
 }
 
+/**
+ * Bandeau d'erreur des panneaux : registre visuel distinct d'une simple boîte
+ * d'info neutre — libellé « Erreur » + icône d'alerte, bord gauche appuyé
+ * (border-l-4 neutral-900), fond neutre-100. Monochrome strict.
+ */
+export function ErrorBanner({ errors }: { errors: string[] }) {
+  if (errors.length === 0) return null
+  return (
+    <div role="alert" className="rounded border border-l-4 border-neutral-900 bg-neutral-100 px-3 py-2 text-xs text-neutral-800">
+      <div className="mb-1 flex items-center gap-1.5 font-semibold text-neutral-900">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+          <path d="M6 1.5 11 10.5H1L6 1.5z" stroke="currentColor" strokeWidth="1" strokeLinejoin="round" />
+          <path d="M6 5v2.5M6 9v.01" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+        </svg>
+        Erreur
+      </div>
+      <ul className="flex flex-col gap-1">
+        {errors.map((e, i) => <li key={i} className="font-mono">{e}</li>)}
+      </ul>
+    </div>
+  )
+}
+
 export function TextInput(props: ComponentProps<typeof BaseInput>) {
   return <BaseInput {...props} className={`${fieldCls} ${props.className ?? ''}`} />
 }
@@ -112,10 +135,10 @@ export function MultiCombobox({
         {selected.map((item) => (
           <Combobox.Chip
             key={item.value}
-            className="flex items-center gap-1 rounded bg-neutral-100 px-1.5 py-0.5 text-xs text-neutral-700"
+            className="flex max-w-full items-center gap-1 rounded bg-neutral-100 px-1.5 py-0.5 text-xs text-neutral-700"
           >
-            {item.label}
-            <Combobox.ChipRemove className="text-neutral-400 hover:text-neutral-700" aria-label={`Retirer ${item.label}`}>
+            <span className="min-w-0 max-w-[200px] truncate" title={item.label}>{item.label}</span>
+            <Combobox.ChipRemove className="shrink-0 text-neutral-400 hover:text-neutral-700" aria-label={`Retirer ${item.label}`}>
               <svg width="8" height="8" viewBox="0 0 8 8" fill="none" aria-hidden="true">
                 <path d="M1 1l6 6M7 1l-6 6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
               </svg>

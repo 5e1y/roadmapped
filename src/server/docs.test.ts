@@ -38,6 +38,13 @@ describe('buildDocsTree', () => {
     expect(tree.map((n) => n.name)).toEqual(['plans', 'FORMATS.md'])
   })
 
+  it('trie les fichiers en ordre naturel (10 après 2, pas alpha)', () => {
+    writeFileSync(join(dir, '2-second.md'), '# 2')
+    writeFileSync(join(dir, '10-tenth.md'), '# 10')
+    const names = buildDocsTree(dir).map((n) => n.name)
+    expect(names.indexOf('2-second.md')).toBeLessThan(names.indexOf('10-tenth.md'))
+  })
+
   it('exclut les entrées cachées et non-.md', () => {
     const tree = buildDocsTree(dir)
     const names = tree.map((n) => n.name)

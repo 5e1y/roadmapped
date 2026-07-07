@@ -3,6 +3,7 @@ import { TaskRow } from './TaskRow'
 import { Chip } from './Chip'
 import { Chevron } from './glyphs'
 import { usePanel } from '../state/PanelContext'
+import { countTasksDeep, SECTION_STATUS_FR } from '../lib/tasks'
 import type { SectionNode } from '../lib/tasks'
 
 /**
@@ -17,7 +18,9 @@ export function SectionAccordion({
   dimmed?: boolean
 }) {
   const { openSection, openCreateTask } = usePanel()
-  const done = section.tasks.filter((t) => t.status === 'done').length
+  // Comptage récursif (sous-tâches comprises) = même définition que l'en-tête
+  // global du Backlog, pour que la somme des sections égale le total affiché.
+  const { done, total } = countTasksDeep(section.tasks)
   return (
     <Accordion.Item
       value={section.key}
@@ -34,8 +37,8 @@ export function SectionAccordion({
             <span className={`flex-1 text-sm font-semibold ${dimmed ? 'text-neutral-500' : 'text-neutral-900'}`}>
               {section.title}
             </span>
-            {section.status !== 'open' && <Chip label={section.status} />}
-            <span className="shrink-0 font-mono text-xs text-neutral-400">{done}/{section.tasks.length}</span>
+            {section.status !== 'open' && <Chip label={SECTION_STATUS_FR[section.status]} />}
+            <span className="shrink-0 font-mono text-xs text-neutral-400">{done}/{total}</span>
           </Accordion.Trigger>
           {!dimmed && (
             <div className="flex shrink-0 items-center gap-1 self-stretch pr-3">
@@ -61,11 +64,25 @@ export function SectionAccordion({
             {section.note}
           </p>
         )}
-        <div className="divide-y divide-neutral-100">
-          {section.tasks.map((task) => (
-            <TaskRow key={task.id} task={task} />
-          ))}
-        </div>
+        {section.tasks.length === 0 ? (
+          dimmed ? (
+            <p className="px-4 py-2.5 text-xs text-neutral-400">Aucune tâche.</p>
+          ) : (
+            <div className="flex items-center justify-between gap-2 px-4 py-2.5">
+              <span className="text-xs text-neutral-400">Aucune tâche.</span>
+              <button type="button" onClick={() => openCreateTask(section.key)}
+                className="rounded px-2 py-1 text-[11px] text-neutral-500 hover:bg-neutral-200 hover:text-neutral-800">
+                + première tâche
+              </button>
+            </div>
+          )
+        ) : (
+          <div className="divide-y divide-neutral-100">
+            {section.tasks.map((task) => (
+              <TaskRow key={task.id} task={task} />
+            ))}
+          </div>
+        )}
       </Accordion.Panel>
     </Accordion.Item>
   )

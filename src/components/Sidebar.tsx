@@ -19,9 +19,9 @@ export function Sidebar({
 }) {
   const docs = useDocsTree()
   return (
-    <nav className="flex w-[220px] shrink-0 flex-col border-r border-neutral-200 bg-white px-3 py-4">
-      <div className="px-2 pb-4 text-sm font-semibold tracking-tight text-neutral-900">Roadmaped</div>
-      <ul className="flex flex-col gap-0.5">
+    <nav className="flex min-h-0 w-[220px] shrink-0 flex-col border-r border-neutral-200 bg-white px-3 py-4">
+      <div className="shrink-0 px-2 pb-4 text-sm font-semibold tracking-tight text-neutral-900">Roadmaped</div>
+      <ul className="flex shrink-0 flex-col gap-0.5">
         {NAV.map((item) => {
           const active = item.id === view
           return (
@@ -42,20 +42,22 @@ export function Sidebar({
       </ul>
 
       {view === 'docs' && (
-        <div className="mt-5">
-          <div className="px-2 pb-1.5 text-[10px] uppercase tracking-wide text-neutral-400">Fichiers</div>
-          {docs.loading && !docs.tree && (
-            <p className="px-2 text-xs text-neutral-400">Chargement…</p>
-          )}
-          {docs.loadError && (
-            <p className="px-2 text-xs text-neutral-400">Erreur : {docs.loadError}</p>
-          )}
-          {docs.tree && docs.tree.length === 0 && (
-            <p className="px-2 text-xs text-neutral-400">Aucun document .md.</p>
-          )}
-          {docs.tree && docs.tree.length > 0 && (
-            <DocsTree nodes={docs.tree} docPath={docPath} onSelectDoc={onSelectDoc} />
-          )}
+        <div className="mt-5 flex min-h-0 flex-1 flex-col">
+          <div className="shrink-0 px-2 pb-1.5 text-[10px] uppercase tracking-wide text-neutral-400">Fichiers</div>
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            {docs.loading && !docs.tree && (
+              <p className="px-2 text-xs text-neutral-400">Chargement…</p>
+            )}
+            {docs.loadError && (
+              <p className="px-2 text-xs text-neutral-400">Erreur : {docs.loadError}</p>
+            )}
+            {docs.tree && docs.tree.length === 0 && (
+              <p className="px-2 text-xs text-neutral-400">Aucun document .md.</p>
+            )}
+            {docs.tree && docs.tree.length > 0 && (
+              <DocsTree nodes={docs.tree} docPath={docPath} onSelectDoc={onSelectDoc} />
+            )}
+          </div>
         </div>
       )}
     </nav>
