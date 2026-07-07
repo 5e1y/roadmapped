@@ -2,7 +2,7 @@ id: 94
 kind: quick
 code: null
 title: "Doc de passation : dérive process (changements sans ticket) → skill + enforcement au commit"
-status: in_progress
+status: done
 tags:
   - process
 size: null
@@ -15,8 +15,12 @@ dependsOn: []
 milestone: null
 source: ai
 createdAt: "2026-07-08T01:10:18"
-completedAt: null
-commit: null
-outcome: null
+completedAt: "2026-07-08"
+commit: 1dd6d71
+outcome: >-
+  Doc docs/process-enforcement-gap.md : incident (fixes Notepad sans ticket), cause racine
+  (enforcement absent au commit, done traité comme couvercle), règle validée (tout changement du
+  repo = une unité), correctif à 2 étages (skill + hook guard + signal sitrep) avec critères de fini
+  et fichiers pertinents — prêt à passer à une instance Fable 5
 verification: null
 release: null
