@@ -35,7 +35,7 @@ export function RoadmapGraph() {
   const avail = computeAvailability(tree)
   const colOf = new Map(sections.map((s, i) => [s.key, i]))
   // Nœuds = tâches de premier niveau des sections actives.
-  let nodes = sections.flatMap((s) => s.tasks.map((t) => ({ task: t, sectionKey: s.key })))
+  let nodes = sections.flatMap((s) => s.tasks.filter((t) => t.kind !== 'quick').map((t) => ({ task: t, sectionKey: s.key })))
   if (!showDone) {
     // Done masqués SAUF s'ils sont dépendances (transitives) d'un ticket
     // visible — les arêtes du graphe restent intègres.
@@ -61,7 +61,13 @@ export function RoadmapGraph() {
   const placed: Placed[] = []
   for (const s of sections) {
     const col = colOf.get(s.key)!
-    const tasks = [...s.tasks].sort((a, b) => (layerOf.get(a.id)! - layerOf.get(b.id)!) || a.id - b.id)
+    // ⚠ Cartes construites depuis NODES (filtrés : quick exclus, done masqués
+    // hors dépendances transitives) — pas depuis s.tasks, sinon les filtres ne
+    // s'appliquent qu'aux arêtes (bug réel corrigé ici).
+    const tasks = nodes
+      .filter((n) => n.sectionKey === s.key)
+      .map((n) => n.task)
+      .sort((a, b) => (layerOf.get(a.id)! - layerOf.get(b.id)!) || a.id - b.id)
     let nextRow = 0
     for (const t of tasks) {
       const row = Math.max(layerOf.get(t.id) ?? 0, nextRow)

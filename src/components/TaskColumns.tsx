@@ -1,6 +1,10 @@
 import { useState } from 'react'
+import { Plus } from 'trinil-react'
 import { TaskRow } from './TaskRow'
-import type { TaskNode } from '../lib/tasks'
+import { Chip } from './Chip'
+import { StatusGlyph } from './glyphs'
+import { usePanel } from '../state/PanelContext'
+import { TEAMS, TEAM_ABBR, type Team, type TaskNode } from '../lib/tasks'
 
 const PREVIEW = 12
 
@@ -79,4 +83,121 @@ export function sortOpen(tasks: TaskNode[], stageOf: (id: number) => string): Ta
 /** Tri canonique des terminées : completedAt décroissant puis id décroissant. */
 export function sortDone(tasks: TaskNode[]): TaskNode[] {
   return [...tasks].sort((a, b) => (b.completedAt ?? '').localeCompare(a.completedAt ?? '') || b.id - a.id)
+}
+
+/**
+ * Zone « Mini » (spec token-economy §3) : les quick OUVERTS, au-dessus de
+ * « À faire ». Lignes ultra-denses, création inline (titre + team, Entrée),
+ * done rapide au clic sur le glyphe (outcome demandé, un seul PATCH). Les
+ * quick terminés rejoignent la liste « Terminées » normale.
+ */
+export function MiniZone({ quicks, reload }: { quicks: TaskNode[]; reload: () => Promise<void> }) {
+  const { openTask, top } = usePanel()
+  const [title, setTitle] = useState('')
+  const [team, setTeam] = useState<Team>('engineering')
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const create = async () => {
+    const t = title.trim()
+    if (!t || busy) return
+    setBusy(true)
+    setError(null)
+    try {
+      const r = await fetch('/api/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ section: '04-build', title: t, team, kind: 'quick', source: 'user' }),
+      })
+      const data = (await r.json()) as { ok: boolean; errors?: string[] }
+      if (data.ok) { setTitle(''); await reload() }
+      else setError((data.errors ?? ['Erreur inconnue.']).join(' · '))
+    } catch {
+      setError('Échec réseau — le mini n’a pas été créé.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const quickDone = async (t: TaskNode) => {
+    const outcome = window.prompt(`Terminer #${t.id} — qu'est-ce qui a été livré ?`)
+    if (outcome === null) return
+    if (outcome.trim() === '') { setError('Un outcome est requis pour terminer un mini.'); return }
+    try {
+      const r = await fetch(`/api/tasks/${t.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'done', outcome: outcome.trim() }),
+      })
+      const data = (await r.json()) as { ok: boolean; errors?: string[] }
+      if (data.ok) await reload()
+      else setError((data.errors ?? ['Erreur inconnue.']).join(' · '))
+    } catch {
+      setError('Échec réseau — le mini n’a pas été terminé.')
+    }
+  }
+
+  return (
+    <section>
+      <h2 className="mb-2 flex items-baseline justify-between px-1 text-xs font-medium text-neutral-400">
+        <span>Mini — changements éclair, terminés d'un clic sur le glyphe</span>
+        <span className="font-mono text-[11px]">{quicks.length}</span>
+      </h2>
+      <div className="divide-y divide-neutral-100 border border-neutral-200 bg-white">
+        {/* Création inline : titre puis Entrée — la team en select compact. */}
+        <div className="flex items-center gap-2 px-4 py-1.5">
+          <Plus size={11} className="shrink-0 text-neutral-400" />
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') void create() }}
+            placeholder="Nouveau mini — titre puis Entrée"
+            aria-label="Nouveau mini"
+            disabled={busy}
+            className="min-w-0 flex-1 bg-transparent py-1 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none"
+          />
+          <select
+            value={team}
+            onChange={(e) => setTeam(e.target.value as Team)}
+            aria-label="Team du mini"
+            disabled={busy}
+            className="shrink-0 rounded-md border border-neutral-200 bg-white px-1.5 py-0.5 text-[11px] text-neutral-600 focus:border-neutral-900 focus:outline-none"
+          >
+            {TEAMS.map((t) => <option key={t} value={t}>{t}</option>)}
+          </select>
+        </div>
+        {quicks.map((t) => {
+          const isOpenInPanel = top?.type === 'task' && top.id === t.id
+          return (
+            <div
+              key={t.id}
+              className={`flex items-center gap-2 px-4 ${isOpenInPanel ? 'bg-accent-tint shadow-[inset_2px_0_0_var(--color-accent)]' : 'hover:bg-neutral-50'}`}
+            >
+              <button
+                type="button"
+                onClick={() => void quickDone(t)}
+                title="Terminer (outcome demandé)"
+                aria-label={`Terminer #${t.id}`}
+                className="shrink-0 rounded p-1 hover:bg-neutral-200"
+              >
+                <StatusGlyph status={t.status} />
+              </button>
+              <button
+                type="button"
+                onClick={() => openTask(t.id)}
+                className="flex min-w-0 flex-1 items-center gap-2 py-1.5 text-left"
+              >
+                <span className="shrink-0 font-mono text-xs text-neutral-400">#{t.id}</span>
+                <span title={t.title} className="min-w-0 truncate text-sm text-neutral-900">{t.title}</span>
+                <span className="ml-auto shrink-0"><Chip label={TEAM_ABBR[t.team]} /></span>
+              </button>
+            </div>
+          )
+        })}
+      </div>
+      {error && (
+        <p className="mt-1 px-1 font-mono text-[11px] text-neutral-800">⚠ {error}</p>
+      )}
+    </section>
+  )
 }
