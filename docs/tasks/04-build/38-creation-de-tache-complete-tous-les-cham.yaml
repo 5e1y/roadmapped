@@ -1,0 +1,32 @@
+id: 54
+code: null
+title: Création de tâche complète — tous les champs d'un coup, stage compris
+status: in_progress
+tags:
+  - ux
+  - design
+size: M
+team: design
+detail: >-
+  Demande Rémi (2026-07-07) : le formulaire de création doit exposer TOUS les champs immédiatement
+  (sauf la consignation outcome/verification/commit/release, qui appartient à la résolution) : STAGE
+  (Select 8, prérempli par le contexte d'ouverture — c'était le manque le plus criant), titre, team,
+  tags (TagsCombobox creatable avec suggestions du backlog), taille, code, détail, dépendances et
+  liens (MultiCombobox), refs (textarea une par ligne). L'API POST /api/tasks accepte déjà tout
+  (addTask). Après création : ouverture du panneau de la tâche (comportement conservé). Fini quand :
+  une tâche créée avec stage+tags+deps+refs depuis l'UI est relue complète dans son YAML sur disque.
+refs:
+  - src/components/SectionPanel.tsx
+  - src/server/api.ts
+  - src/components/ui.tsx
+links: []
+dependsOn:
+  - 50
+milestone: null
+source: user
+createdAt: "2026-07-07"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
