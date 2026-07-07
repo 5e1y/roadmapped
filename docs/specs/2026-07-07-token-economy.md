@@ -96,3 +96,31 @@ références (seul le découpage change) ; caching côté agent.
    accepté au done pour un quick uniquement).
 4. UI : zone Mini fonctionnelle (création inline, done rapide), quick absents du Graphe.
 5. Mesure avant/après publiée dans ce doc ; tests + build verts ; guide et skill alignés.
+
+## Annexe — pistes v2 (inspiration ponytail, à chiffrer après la v1)
+
+Ponytail économise en changeant le COMPORTEMENT du modèle ; Roadmaped peut économiser
+en supprimant le BESOIN de savoir. Claude de base, sur un repo de cette taille, brûle
+8 000-20 000 tokens par session à reconstruire le contexte (greps, lectures, historique
+git). Chaque mécanisme ci-dessous remplace une catégorie d'exploration par une sortie
+d'app :
+
+1. **L'échelle de décision** (le ladder ponytail, transposé) — écrite dans le noyau du
+   skill : « ce changement mérite-t-il d'exister ? → un quick ? → un task ? → une
+   spec ? » Stop au premier barreau qui tient. (Formalisation de la v1.)
+2. **Extraits de refs dans `brief`** : une ref `src/lib/tasks.ts:120` → le brief joint
+   les ~10 lignes autour (l'app lit le fichier, pas l'agent). Une lecture de fichier
+   complète (~2 500 tokens) devient un extrait (~100). Le plus gros gisement.
+3. **`sitrep`** : l'état du monde en ~30 lignes (done du jour, in_progress, 3 prochaines,
+   validate) — remplace la relecture du backlog en début de session (~1 200 → ~150).
+4. **`done` auto-contextué** : l'app remplit `commit` (HEAD) et SUGGÈRE les refs depuis
+   le diff — l'agent confirme au lieu de lire git.
+5. **Le ledger de dette = les quick eux-mêmes** : un raccourci assumé se trace en quick
+   taggé `#debt` avec l'outcome qui nomme le plafond (l'équivalent des commentaires
+   `ponytail:` — mais requêtable : `list --tag debt`).
+6. **Serveur MCP** (déjà noté hors périmètre) : les commandes deviennent des tools aux
+   schémas auto-documentés — plus de bash à formater, plus de sorties parasites, et le
+   schéma de tool REMPLACE la doc du CLI dans le contexte.
+
+Cible v2 cumulée : une session Roadmaped coûte MOINS cher que la même session sur un
+repo nu — l'outil de gestion de projet devient un économiseur net de tokens.
