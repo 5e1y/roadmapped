@@ -93,7 +93,7 @@ export function DocsView({ path, onSelectDoc }: { path: string | null; onSelectD
   // Arbre des fichiers en FLANC GAUCHE (même gabarit que le radar du Backlog) —
   // la sidebar n'existe plus (décision Rémi).
   const shell = (body: React.ReactNode) => (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col bg-white">
       <ViewHeader meta={path ?? undefined} />
       <div className="flex min-h-0 flex-1">
         <div className="flex w-[420px] shrink-0 flex-col border-r border-neutral-200 px-3 py-4">

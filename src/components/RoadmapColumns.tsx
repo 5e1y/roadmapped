@@ -87,7 +87,9 @@ function Column({ section, visible, avail }: { section: SectionNode; visible: Ta
   const empty = section.tasks.length === 0
   const statusFr = section.status !== 'open' ? SECTION_STATUS_FR[section.status] : null
   return (
-    <div className="grid row-span-4 grid-rows-subgrid">
+    // min-w-0 : un enfant de grille a min-width:auto par défaut → sans ça, un contenu
+    // plus large que la piste (280px) déborde sur la colonne voisine (#97).
+    <div className="grid row-span-4 min-w-0 grid-rows-subgrid">
       {/* Rangée titre collante : le contexte (titre + compteur) survit au scroll
           vertical. Le pt-8 du conteneur vit ici pour que rien ne dépasse au-dessus. */}
       <div className="sticky top-0 z-20 flex items-baseline justify-between gap-2 bg-[#fafafa] pb-0.5 pt-8">
@@ -112,7 +114,7 @@ function Column({ section, visible, avail }: { section: SectionNode; visible: Ta
       {/* Cartes accolées (gap 0, bordures fusionnées par -mt-px) : liste dense.
           Les cartes à liseré fort (sélection, disponible) passent au-dessus (z-10)
           pour que leur bordure ne soit pas mangée par la carte suivante. */}
-      <div className="flex flex-col pt-1.5">
+      <div className="flex min-w-0 flex-col pt-1.5">
         {visible.map((t) => (
           <TaskCard key={t.id} task={t} state={avail.get(t.id) ?? 'available'} missing={missingPrereqs(t, avail)} />
         ))}

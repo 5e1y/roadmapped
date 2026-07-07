@@ -54,8 +54,9 @@ export function TaskRow({ task }: { task: TaskNode }) {
       {/* Le padding vertical vit dans les éléments INTERACTIFS (pas le
           conteneur) : toute la hauteur de la ligne est cliquable. */}
       <div className={`flex w-full flex-wrap items-center gap-2 px-4 text-sm ${isOpenInPanel ? 'bg-accent-tint shadow-[inset_2px_0_0_var(--color-accent)]' : 'hover:bg-neutral-50'}`}>
-        {/* Chevron = toggle des sous-tâches uniquement (invisible sinon). */}
-        {hasSubs ? (
+        {/* Chevron = toggle des sous-tâches, rendu UNIQUEMENT si la tâche en a. Pas de
+            spacer fantôme sinon (#97) : les lignes sans sous-tâche s'alignent à gauche. */}
+        {hasSubs && (
           <Collapsible.Trigger
             className="flex shrink-0 items-center self-stretch rounded px-0.5 hover:bg-neutral-200"
             aria-label={open ? 'Replier les sous-tâches' : 'Déplier les sous-tâches'}
@@ -63,8 +64,6 @@ export function TaskRow({ task }: { task: TaskNode }) {
           >
             <Chevron />
           </Collapsible.Trigger>
-        ) : (
-          <span className="w-[18px] shrink-0" aria-hidden="true" />
         )}
         {/* Corps cliquable = ouvre le panneau détail. */}
         <button
