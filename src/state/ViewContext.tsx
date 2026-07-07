@@ -1,0 +1,24 @@
+import { createContext, useContext, type ReactNode } from 'react'
+
+export type View = 'backlog' | 'roadmap' | 'docs'
+
+interface ViewState {
+  view: View
+  setView: (v: View) => void
+}
+
+const ViewContext = createContext<ViewState | null>(null)
+
+/**
+ * Vue courante partagée : l'état vit dans App (persisté), le header commun
+ * (ViewHeader) porte les tabs de navigation — plus de sidebar (décision Rémi).
+ */
+export function ViewProvider({ view, setView, children }: ViewState & { children: ReactNode }) {
+  return <ViewContext.Provider value={{ view, setView }}>{children}</ViewContext.Provider>
+}
+
+export function useView(): ViewState {
+  const ctx = useContext(ViewContext)
+  if (!ctx) throw new Error('useView doit être utilisé dans <ViewProvider>')
+  return ctx
+}

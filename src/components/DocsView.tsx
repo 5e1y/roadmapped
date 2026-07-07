@@ -1,6 +1,8 @@
 import { useEffect, useState, type MouseEvent } from 'react'
 import { renderMarkdown } from './Markdown'
 import { ViewHeader } from './ViewHeader'
+import { DocsTree } from './DocsTree'
+import { useDocsTree } from '../state/useDocsTree'
 
 /**
  * Résout un lien relatif `.md` (ex. « ../autre.md ») par rapport au document
@@ -87,10 +89,30 @@ export function DocsView({ path, onSelectDoc }: { path: string | null; onSelectD
     }
   }
 
+  const docs = useDocsTree()
+  // Arbre des fichiers en FLANC GAUCHE (même gabarit que le radar du Backlog) —
+  // la sidebar n'existe plus (décision Rémi).
   const shell = (body: React.ReactNode) => (
     <div className="flex h-full flex-col">
-      <ViewHeader title="Docs" meta={path ?? undefined} />
-      <div className="min-h-0 flex-1 overflow-y-auto">{body}</div>
+      <ViewHeader meta={path ?? undefined} />
+      <div className="flex min-h-0 flex-1">
+        <div className="flex w-[420px] shrink-0 flex-col border-r border-neutral-200 px-3 py-4">
+          <div className="shrink-0 px-2 pb-1.5 text-[10px] font-medium text-neutral-400">Fichiers</div>
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            {docs.loading && !docs.tree && <p className="px-2 text-xs text-neutral-400">Chargement…</p>}
+            {docs.loadError && (
+              <p className="mx-2 border border-neutral-400 bg-neutral-100 px-2 py-1.5 text-xs text-neutral-700">
+                ⚠ Chargement impossible : {docs.loadError}
+              </p>
+            )}
+            {docs.tree && docs.tree.length === 0 && <p className="px-2 text-xs text-neutral-400">Aucun document .md.</p>}
+            {docs.tree && docs.tree.length > 0 && (
+              <DocsTree nodes={docs.tree} docPath={path} onSelectDoc={onSelectDoc} />
+            )}
+          </div>
+        </div>
+        <div className="min-h-0 flex-1 overflow-y-auto">{body}</div>
+      </div>
     </div>
   )
 
