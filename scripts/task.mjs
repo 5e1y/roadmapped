@@ -278,7 +278,11 @@ function cmdUpdate(id, flags) {
   const patch = {}
   for (const f of stringFields) if (typeof flags[f] === 'string') patch[f] = nullable(flags[f])
   for (const f of listFields) {
-    if (typeof flags[f] === 'string') patch[f] = f === 'links' ? splitList(flags[f]).map(Number) : splitList(flags[f])
+    if (typeof flags[f] !== 'string') continue
+    // Parité avec --depends-on null : la valeur exacte "null" vide la liste ([]).
+    // Sans ça, splitList('null') produirait un élément littéral "null".
+    if (flags[f] === 'null') { patch[f] = []; continue }
+    patch[f] = f === 'links' ? splitList(flags[f]).map(Number) : splitList(flags[f])
   }
   if (typeof flags['depends-on'] === 'string') patch.dependsOn = parseDeps(flags['depends-on'])
   if (typeof flags.milestone === 'string') patch.milestone = nullable(flags.milestone)

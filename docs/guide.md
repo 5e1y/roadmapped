@@ -326,12 +326,14 @@ $ node scripts/task.mjs update 3 --status in_progress --code C1
 |---|---|---|
 | Scalar / string | `title`, `detail`, `status`, `size`, `zone`, `code`, `source`, `commit`, `outcome`, `verification`, `release` | pass the literal `null` |
 | Relations | `depends-on`, `milestone` | pass `null` |
-| Lists | `tags`, `refs`, `links` | pass an **empty string** `""` |
+| Lists | `tags`, `refs`, `links` | pass `null` (or `""`) |
 
-This is a real gotcha: `--tags null` does **not** clear the tags — it creates a tag
-literally named `null`. To empty a list, pass `--tags ""` (verified: it writes
-`tags: []`). Only scalar fields, `--depends-on` and `--milestone` treat `null`
-specially.
+Passing the literal `null` clears any field — scalar, relation, or list. For a list,
+`--tags null` writes `tags: []` (verified), on a par with `--depends-on null`. The
+empty-string form `--tags ""` still works and stays valid, but is no longer required.
+
+> Historical note: before this was fixed, `--tags null` created a tag literally named
+> `null` and `--tags ""` was the only way to empty a list. That gotcha is gone.
 
 ### `archive <id>` — move a delivered task out
 
@@ -562,9 +564,10 @@ one) don't use — hence "Aucune roadmap". Sections *are* your milestones: to bu
 roadmap, order your sections and set your `dependsOn` edges.
 
 **How do I clear a field with `update`?**
-Scalar fields (and `--depends-on` / `--milestone`) accept the literal `null`. List
-fields (`tags`, `refs`, `links`) are cleared with an empty string, e.g.
-`--tags ""` — passing `null` there would create a tag named `null`.
+Pass the literal `null` — it works for every field kind now: scalars,
+`--depends-on` / `--milestone`, and lists (`tags`, `refs`, `links`). For example
+`--tags null` writes `tags: []`. The old workaround `--tags ""` still works but is
+no longer necessary.
 
 **Does `done` create a delivery document?**
 No. The delivery record *is* the `outcome`, `verification`, `commit` and `release`
