@@ -1,0 +1,36 @@
+id: 53
+code: null
+title: Header unifié — même barre dans les 3 vues, filtres en dropdowns
+status: in_progress
+tags:
+  - ux
+  - design
+size: M
+team: design
+detail: >-
+  Demande Rémi (2026-07-07) : un seul modèle de header (barre en haut, style vue Roadmap) dans les
+  TROIS vues — hauteur STRICTEMENT identique à celle du header du panneau de tâche (SidePanel).
+  Composant partagé ViewHeader (h-12, filet bas). Les filtres quittent la sidebar (supprimer les
+  listes Stages et Teams) et deviennent des dropdowns/combobox DANS le header : Backlog = recherche
+  + Select stage + dropdown Teams (multi, Popover Base UI) + « + tâche » ; Roadmap = dropdown Teams
+  + toggle terminées + segmented Colonnes/Graphe ; Docs = titre + chemin du doc ouvert. Sidebar =
+  navigation pure (+ arbre de fichiers en vue Docs). Hooks de filtres déplacés hors de Sidebar
+  (state/filters.ts). Fini quand : hauteurs mesurées égales (assertion DOM), filtres fonctionnels
+  dans le header des 2 vues, sidebar sans filtre, captures relues.
+refs:
+  - src/components/RoadmapView.tsx
+  - src/components/Backlog.tsx
+  - src/components/DocsView.tsx
+  - src/components/Sidebar.tsx
+  - src/components/SidePanel.tsx
+links: []
+dependsOn:
+  - 50
+milestone: null
+source: user
+createdAt: "2026-07-07"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
