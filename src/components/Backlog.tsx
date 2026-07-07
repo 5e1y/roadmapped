@@ -10,6 +10,8 @@ import { TaskList, sortOpen, sortDone } from './TaskColumns'
 
 import { useTeamFilter, useStageFilter } from '../state/filters'
 import { ViewHeader, TeamFilterMenu, StageFilterMenu } from './ViewHeader'
+import { TeamsRadar } from './TeamsRadar'
+import { TEAMS, type Team } from '../lib/tasks'
 
 /** Accord singulier/pluriel élémentaire (français). */
 const plural = (n: number, s: string) => `${n} ${s}${n === 1 ? '' : 's'}`
@@ -25,9 +27,9 @@ const plural = (n: number, s: string) => `${n} ${s}${n === 1 ? '' : 's'}`
  */
 export function Backlog() {
   const { tree, errors, loading, loadError } = useTree()
-  const { openCreateTask } = usePanel()
+  const { openCreateTask, top } = usePanel()
   const [openArchive, setOpenArchive] = usePersistentStrings('backlog:archive')
-  const [teamFilter] = useTeamFilter()
+  const [teamFilter, setTeamFilter] = useTeamFilter()
   const [stageFilter] = useStageFilter()
   const [query, setQuery] = useState('')
 
@@ -60,6 +62,18 @@ export function Backlog() {
     )
   }
   if (!tree) return null
+
+  // Charge du radar : tickets ouverts par team, sous-tâches comprises,
+  // indépendante des filtres (le radar montre TOUT, la liste est filtrée).
+  const load = new Map<Team, number>(TEAMS.map((t) => [t, 0]))
+  const countLoad = (t: TaskNode) => {
+    if (t.status !== 'done') load.set(t.team, (load.get(t.team) ?? 0) + 1)
+    t.subtasks.forEach(countLoad)
+  }
+  for (const s of tree.sections) if (s.status !== 'abandoned') s.tasks.forEach(countLoad)
+  // Sélection du radar = LE filtre team (solo) ; clic vide = tout.
+  const radarSelected: Team | '' = teamFilter.length === 1 ? (teamFilter[0] as Team) : ''
+  const radarSelect = (t: Team | '') => setTeamFilter(t ? [t] : [])
 
   const q = query.trim().toLowerCase()
   const stageOf = new Map<number, string>()
@@ -106,6 +120,16 @@ export function Backlog() {
         </button>
       </ViewHeader>
 
+      <div className="flex min-h-0 flex-1">
+        {/* Flanc radar (fusion vue Teams) : charge par team, sélection = filtre.
+            S'efface quand le panneau est ouvert et que la place manque (< 2xl).
+            Clic dans le vide = toutes les teams. */}
+        <div
+          onClick={() => radarSelect('')}
+          className={`${top !== null ? 'hidden 2xl:flex' : 'flex'} w-[420px] shrink-0 cursor-pointer items-center border-r border-neutral-200 p-2`}
+        >
+          <TeamsRadar counts={load} selected={radarSelected} onSelect={radarSelect} />
+        </div>
       <div className="min-h-0 flex-1 overflow-y-auto">
       <div className="mx-auto max-w-3xl px-6 py-8">
       <TaskList open={open} done={done} filtered={Boolean(q || stageFilter || teamFilter.length)} />
@@ -120,6 +144,7 @@ export function Backlog() {
           </Accordion.Root>
         </section>
       )}
+      </div>
       </div>
       </div>
     </div>

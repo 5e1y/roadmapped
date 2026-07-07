@@ -1,12 +1,11 @@
 import { useDocsTree } from '../state/useDocsTree'
 import { DocsTree } from './DocsTree'
 
-export type View = 'backlog' | 'roadmap' | 'teams' | 'docs'
+export type View = 'backlog' | 'roadmap' | 'docs'
 
 const NAV: { id: View; label: string }[] = [
   { id: 'backlog', label: 'Backlog' },
   { id: 'roadmap', label: 'Roadmap' },
-  { id: 'teams', label: 'Teams' },
   { id: 'docs', label: 'Docs' },
 ]
 
