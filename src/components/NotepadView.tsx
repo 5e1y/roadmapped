@@ -124,9 +124,9 @@ export function NotepadView() {
           {/* Création EN TÊTE de liste (pas de bouton en haut à droite, pas de ⌘N). */}
           <button
             type="button" onClick={createNote}
-            className="group/new flex items-center gap-2 border-b border-neutral-100 px-4 py-2 text-left text-sm text-neutral-500 transition-colors hover:bg-accent-tint hover:text-neutral-900 hover:shadow-[inset_2px_0_0_var(--color-accent)]"
+            className="flex items-center gap-2 border-b border-neutral-100 px-4 py-2 text-left text-sm text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700"
           >
-            <span className="text-base leading-none text-neutral-400 group-hover/new:text-[var(--color-accent)]">+</span>
+            <span className="text-base leading-none text-neutral-400">+</span>
             Nouvelle note
           </button>
           <div className="min-h-0 flex-1 overflow-y-auto">
@@ -167,7 +167,10 @@ export function NotepadView() {
               onBlur={save}
               placeholder="Écris ton idée. La première ligne devient le titre."
               spellCheck={false}
-              className="mx-auto min-h-0 w-full max-w-3xl flex-1 resize-none border-0 bg-transparent px-6 py-10 text-[2rem] leading-relaxed text-neutral-800 outline-none ring-0 placeholder:text-neutral-300 focus:outline-none focus-visible:outline-none"
+              // Le :focus-visible global (index.css, hors @layer) bat toute classe
+              // utilitaire Tailwind (layered) → outline tué en inline, qui gagne toujours.
+              style={{ outline: 'none', boxShadow: 'none' }}
+              className="mx-auto min-h-0 w-full max-w-3xl flex-1 resize-none border-0 bg-transparent px-6 py-10 text-[2rem] leading-relaxed text-neutral-800 placeholder:text-neutral-300"
             />
             <div className="mx-auto flex w-full max-w-3xl shrink-0 items-center justify-between px-6 py-1.5 font-mono text-[11px] text-neutral-400">
               <span>{content.length} car. · ≈{tokens} tokens</span>
