@@ -1,7 +1,7 @@
 id: 42
 code: null
 title: Stages+teams core 3 — migration du backlog réel
-status: in_progress
+status: done
 tags:
   - refactor
   - migration
@@ -29,8 +29,13 @@ dependsOn:
 milestone: null
 source: ai
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-07"
+commit: 26473a0
+outcome: >-
+  Le backlog vit dans les 8 stages : 38 tâches migrées avec leur histoire intacte, l'aventure
+  commence à Idea Stage (déjà vert) et le prochain travail est la copy du site en Identity
+verification: >-
+  Vérifié par moi sur le vrai repo : validate OK (8 sections, 41 tâches, nextId=48), next sert #16
+  (03-identity, sensé), diff octet-à-octet d'un YAML migré = seule la ligne zone→team change,
+  rétroactive #47 porte le vrai sha 388fbb2, 128 tests + build verts.
 release: null
