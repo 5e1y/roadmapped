@@ -1,7 +1,7 @@
 id: 44
 code: null
 title: Stages+teams — skill et guide à jour
-status: in_progress
+status: done
 tags:
   - refactor
   - docs
@@ -29,8 +29,15 @@ dependsOn:
 milestone: null
 source: ai
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-07"
+commit: 1dd2360
+outcome: >-
+  Le skill embarqué et le guide enseignent le nouveau monde : 8 stages immuables, team requise, plus
+  aucune création de section — avec des exemples CLI re-capturés sur données réelles
+verification: >-
+  Revérifié par moi : git status = exactement les 5 fichiers autorisés, grep zone → seules des
+  mentions de suppression subsistent, formats.md porte le tableau des 8 stages et l'invariant team,
+  128 tests verts. L'agent a re-exécuté chaque commande documentée (lectures sur le vrai repo migré,
+  écritures en sandbox aux 8 stages) et a même rattrapé un drift de compteur causé par ma
+  consignation concurrente de #43.
 release: null

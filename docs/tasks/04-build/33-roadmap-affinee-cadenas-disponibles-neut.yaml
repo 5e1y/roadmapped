@@ -1,7 +1,7 @@
 id: 49
 code: null
 title: Roadmap affinée — cadenas, disponibles neutres, sélection unifiée, barres accent, fix z-index
-status: todo
+status: done
 tags:
   - ux
   - design
@@ -26,8 +26,14 @@ dependsOn:
 milestone: null
 source: user
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-07"
+commit: "1871706"
+outcome: >-
+  La roadmap est apaisée : les cartes faisables sont neutres, les bloquées portent un mini cadenas,
+  la sélection est le même bleu que partout, les barres de progression sont bleues et les titres
+  sticky ne sont plus recouverts au scroll
+verification: >-
+  Captures relues : cadenas trinil sur #14/#17, sélection de #3 en fond accent + filet gauche (plus
+  de bordure), barres Idea/Initial pleines en bleu, scrollTop=300 → cartes passées SOUS les en-têtes
+  sticky (z-20). 128 tests + build verts.
 release: null
