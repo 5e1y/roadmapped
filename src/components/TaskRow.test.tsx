@@ -11,7 +11,7 @@ import type { TaskNode } from '../lib/tasks'
 afterEach(cleanup)
 
 const task: TaskNode = {
-  id: 1, code: 'A1', title: 'addImage isDirty', status: 'todo',
+  id: 1, kind: 'task', code: 'A1', title: 'addImage isDirty', status: 'todo',
   tags: ['bug', 'security'], size: 'S', team: 'engineering',
   detail: 'Détail complet ici', refs: ['useDocumentStore.ts:809'], links: [],
   dependsOn: [], milestone: null,

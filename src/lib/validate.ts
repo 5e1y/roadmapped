@@ -14,6 +14,21 @@ function validateTask(task: TaskNode, path: string, errors: string[]) {
   if (!task.title) errors.push(`${path}: title manquant`)
   if (!TASK_STATUSES.includes(task.status)) errors.push(`${path}: status invalide (${task.status})`)
   if (!SIZES.includes(task.size)) errors.push(`${path}: size invalide (${task.size})`)
+  // kind : 'task' | 'quick' (toTaskNode met 'task' par défaut ; une valeur brute
+  // invalide remonte telle quelle et est rejetée ici).
+  if (!['task', 'quick'].includes(task.kind)) errors.push(`${path}: kind invalide (${task.kind}) — attendu task ou quick`)
+  // Garde-fou : un quick reste un mini-ticket. Size L = trop gros = c'est un ticket.
+  if (task.kind === 'quick' && task.size === 'L') {
+    errors.push(`${path}: un quick ne peut pas être en size L (si c'est gros, c'est un ticket, pas un quick)`)
+  }
+  // Requis outcome-quick : porté par la VALIDATION (pas seulement doneTask) pour
+  // couvrir AUSSI le done du dashboard (PATCH status=done via updateTask, qui ne
+  // passe pas par doneTask). validateTaskTree ne valide que les sections ACTIVES —
+  // l'archive n'est donc pas soumise à cette règle (comme team), un vieux quick
+  // livré sans outcome reste toléré.
+  if (task.kind === 'quick' && task.status === 'done' && !task.outcome) {
+    errors.push(`${path}: un quick terminé exige un outcome (l'outcome tient lieu de vérification)`)
+  }
   if (!TEAMS.includes(task.team)) {
     errors.push(`${path}: team absente ou invalide (${task.team}) — attendu l'une de : ${TEAMS.join(', ')}`)
   }

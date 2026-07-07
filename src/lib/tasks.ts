@@ -49,6 +49,12 @@ export const STAGES: Stage[] = [
 
 export interface TaskNode {
   id: number
+  /**
+   * Nature du ticket : 'task' (défaut, cérémonie complète) ou 'quick' (mini-ticket :
+   * titre+team+stage suffisent, outcome requis mais verification facultative au done).
+   * ADDITIF : absent d'un YAML = 'task' (rétrocompat totale, aucun YAML existant ne change).
+   */
+  kind: 'task' | 'quick'
   code: string | null
   title: string
   status: 'todo' | 'in_progress' | 'done'
@@ -160,6 +166,9 @@ function numericPrefix(name: string): number {
 function toTaskNode(raw: any, file: string): TaskNode {
   return {
     id: raw.id,
+    // ADDITIF : kind absent = 'task'. Une valeur invalide remonte telle quelle
+    // (ex: 'mega') et validate.ts la rejette — pas de coercion silencieuse.
+    kind: raw.kind ?? 'task',
     code: raw.code ?? null,
     title: raw.title,
     status: raw.status,

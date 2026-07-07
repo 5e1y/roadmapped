@@ -112,6 +112,58 @@ describe('start / done', () => {
   })
 })
 
+describe('kind quick (mini-tickets)', () => {
+  it('addTask kind: quick écrit "kind: quick" juste après id', () => {
+    const res = add({ title: 'Fix chevron', kind: 'quick' } as any)
+    expect(res.ok).toBe(true)
+    if (!res.ok) return
+    expect((res.task as any).kind).toBe('quick')
+    const yamlText = readFileSync(join(dir, SEC, '01-fix-chevron.yaml'), 'utf8')
+    expect(yamlText.indexOf('kind:')).toBeGreaterThan(yamlText.indexOf('id:'))
+    expect(yamlText.indexOf('kind:')).toBeLessThan(yamlText.indexOf('title:'))
+  })
+
+  it('une tâche normale (kind absent) ne matérialise JAMAIS "kind: null" dans le YAML', () => {
+    add({ title: 'Normale' })
+    const yamlText = readFileSync(join(dir, SEC, '01-normale.yaml'), 'utf8')
+    expect(yamlText).not.toContain('kind:')
+    // et un update ultérieur ne le fait pas non plus apparaître (le fichier ne change pas de nom)
+    updateTask(dir, 1, { detail: 'toujours normale' })
+    expect(readFileSync(join(dir, SEC, '01-normale.yaml'), 'utf8')).not.toContain('kind:')
+  })
+
+  it('doneTask sur un quick EXIGE un outcome (verification facultative)', () => {
+    add({ title: 'Q', kind: 'quick' } as any)
+    startTask(dir, 1)
+    const sansOutcome = doneTask(dir, 1, {})
+    expect(sansOutcome.ok).toBe(false)
+    if (sansOutcome.ok) return
+    expect(sansOutcome.errors.some((e) => e.includes('outcome'))).toBe(true)
+    // avec outcome seul (pas de verification) → OK
+    const avec = doneTask(dir, 1, { outcome: 'chevron droit' })
+    expect(avec.ok).toBe(true)
+    if (!avec.ok) return
+    expect(sectionOf(avec.tree).tasks[0].outcome).toBe('chevron droit')
+    expect(sectionOf(avec.tree).tasks[0].verification).toBeNull()
+  })
+
+  it('doneTask sur une task (non quick) SANS refs → succès + warning non bloquant', () => {
+    add({ title: 'Sans refs' }) // refs vides par défaut
+    const res = doneTask(dir, 1, { outcome: 'livré' })
+    expect(res.ok).toBe(true)
+    if (!res.ok) return
+    expect(res.warnings?.some((w) => w.includes('refs'))).toBe(true)
+  })
+
+  it('doneTask sur une task AVEC refs → aucun warning', () => {
+    add({ title: 'Avec refs', refs: ['docs/x.md'] })
+    const res = doneTask(dir, 1, { outcome: 'livré' })
+    expect(res.ok).toBe(true)
+    if (!res.ok) return
+    expect(res.warnings ?? []).toEqual([])
+  })
+})
+
 describe('outcome (updateTask)', () => {
   it('se modifie et se vide via updateTask ; absent du YAML = null', () => {
     add()
