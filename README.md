@@ -1,22 +1,44 @@
 # Roadmaped
 
-Gestion de projet locale pour founders pilotés par agent IA — mix Obsidian × Linear, sans base de données : **des fichiers YAML/markdown plats dans votre repo sont la seule source de vérité**.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
-- **Backlog** : sections + tâches (`docs/tasks/`), CRUD complet depuis le dashboard.
-- **Roadmap** : vos sections vues comme des jalons — dépendances façon arbre d'achievements (fait / disponible / verrouillé, calculé, jamais stocké).
-- **Docs** : votre `docs/` en lecture, rendu markdown.
-- **Agent-first** : un CLI (`scripts/task.mjs`) et un skill Claude (`skills/roadmaped/`) pour que votre agent crée specs, tâches et dépendances au bon format — et consigne ce qu'il livre.
+**Your repo becomes your project management tool.** Backlog, roadmap and docs live as
+plain YAML/markdown files inside your repository — the only source of truth. Agent-first
+by design: a CLI and a Claude skill let your AI agent create specs, tasks and dependencies
+in the right format. No database, no SaaS, no account.
 
-## Démarrer
+![Roadmaped dashboard — Backlog view](./docs/assets/dashboard.png)
+
+## Quickstart
 
 ```bash
 npm install
-npm run dev          # dashboard sur http://localhost:5173
-node scripts/task.mjs --help
+npm run dev                  # dashboard on http://localhost:5173
+node scripts/task.mjs --help # agent/human CLI over docs/tasks/
 ```
 
-À la première utilisation dans un repo, le skill exécute une phase de **setup** : il inventorie vos ROADMAP/TODO/plans existants et les convertit au format Roadmaped, avec votre accord.
+## Features
 
-## Principes
+| Area | What it does |
+|---|---|
+| **Backlog** | Sections and tasks under `docs/tasks/`, full CRUD from the dashboard or CLI. |
+| **Roadmap** | Your sections as milestones — columns and a dependency graph, with `done` / `available` / `locked` states **computed, never stored**. |
+| **Docs** | Your `docs/` folder rendered as markdown, read-only. |
+| **Agent CLI + Claude skill** | `scripts/task.mjs` and `skills/roadmaped/` so an agent creates and records work in the correct schema. |
+| **Validation + rollback** | Every write is validated against the same schema as the dashboard; on error the change is rolled back. Ids are never reused. |
 
-Simplicité radicale · fichiers plats éditables à la main · toute écriture est validée puis rollback si invalide · les ids ne sont jamais réutilisés · jalons sans dates.
+## How it works
+
+Everything is flat, hand-editable files: task YAML you can diff and review, no hidden
+state. The dashboard and the CLI read and write the same data through the same validator —
+never a second, parallel schema. Milestones have no dates; dependency states are derived
+from the graph on every read.
+
+## Documentation
+
+- [User guide](./docs/guide.md) — installation, dashboard tour, full CLI reference, YAML formats, agent workflow.
+- [Claude skill](./skills/roadmaped/) — the skill an agent loads to drive Roadmaped in your repo.
+
+## License
+
+[MIT](./LICENSE) © Rémi Courtillon
