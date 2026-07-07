@@ -1,7 +1,7 @@
 id: 37
 code: null
 title: Accent bleu sur le travail en cours (in_progress)
-status: todo
+status: done
 tags:
   - ux
   - design
@@ -25,8 +25,13 @@ dependsOn:
 milestone: null
 source: user
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-07"
+commit: 5ad66ba
+outcome: >-
+  Le travail en cours saute aux yeux : le demi-cercle in_progress est bleu dans toutes les vues
+  (Backlog, Colonnes, Graphe, panneau, relations)
+verification: >-
+  Un seul changement dans glyphs.tsx (currentColor + text-accent conditionnel) propagé partout ;
+  glyphes bleus constatés sur les captures Backlog et Graphe (#9, #11, #36, #37) ;
+  done/todo/available restés monochromes comme voulu. 113 tests verts.
 release: null
