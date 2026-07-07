@@ -253,6 +253,121 @@ export function AddCombobox({ items, placeholder, onAdd, 'aria-label': ariaLabel
   )
 }
 
+interface TagItem {
+  id: string
+  value: string
+  /** Présent sur l'item virtuel « Créer "xxx" » (pattern Creatable de Base UI). */
+  creatable?: string
+}
+
+/**
+ * Tags en Combobox multiple « Creatable » (https://base-ui.com/react/components/combobox#creatable),
+ * peau ghost : chips ✕ + saisie filtrante ; `suggestions` = les tags déjà utilisés
+ * dans le backlog (cohérence du vocabulaire) ; une saisie inconnue propose
+ * « Créer "xxx" ». Chaque geste (ajout, création, retrait) appelle onSave.
+ */
+export function TagsCombobox({ tags, suggestions, disabled = false, onSave }: {
+  tags: string[]
+  suggestions: string[]
+  disabled?: boolean
+  onSave: (next: string[]) => void
+}) {
+  const [query, setQuery] = useState('')
+  const norm = (s: string) => s.trim().replace(/^#/, '')
+  const selected: TagItem[] = tags.map((t) => ({ id: t, value: t }))
+  const known = [...new Set([...suggestions, ...tags])].sort()
+  const trimmed = norm(query)
+  const exactExists = known.some((t) => t.toLocaleLowerCase() === trimmed.toLocaleLowerCase())
+  const items: TagItem[] =
+    trimmed !== '' && !exactExists
+      ? [...known.map((t) => ({ id: t, value: t })), { id: `create:${trimmed}`, value: trimmed, creatable: trimmed }]
+      : known.map((t) => ({ id: t, value: t }))
+
+  if (disabled) {
+    return (
+      <div className="flex flex-wrap items-center gap-1.5 px-1.5 py-1">
+        {tags.length === 0 && <span className="text-[12px] text-neutral-400">—</span>}
+        {tags.map((t) => <span key={t} className="text-[12px] text-neutral-500">#{t}</span>)}
+      </div>
+    )
+  }
+
+  return (
+    <Combobox.Root
+      multiple
+      items={items}
+      value={selected}
+      inputValue={query}
+      onInputValueChange={setQuery}
+      onValueChange={(next: TagItem[]) => {
+        const created = next.find((i) => i.creatable)
+        setQuery('')
+        if (created?.creatable) {
+          const v = norm(created.creatable)
+          if (v && !tags.includes(v)) onSave([...tags, v])
+          return
+        }
+        onSave(next.filter((i) => !i.creatable).map((i) => i.value))
+      }}
+    >
+      <Combobox.Chips className={`${ghostCls} flex flex-wrap items-center gap-1.5 focus-within:border-neutral-300 focus-within:bg-white`}>
+        {selected.map((item) => (
+          <Combobox.Chip
+            key={item.id}
+            className="flex items-center gap-1 text-[12px] text-neutral-500"
+          >
+            #{item.value}
+            <Combobox.ChipRemove aria-label={`Retirer ${item.value}`} className="shrink-0 rounded text-neutral-300 hover:text-neutral-700">
+              <svg width="8" height="8" viewBox="0 0 8 8" fill="none" aria-hidden="true">
+                <path d="M1 1l6 6M7 1l-6 6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+              </svg>
+            </Combobox.ChipRemove>
+          </Combobox.Chip>
+        ))}
+        <Combobox.Input
+          aria-label="Tags"
+          placeholder={selected.length === 0 ? '+ tag' : '+'}
+          className="min-w-[60px] flex-1 bg-transparent text-[12px] text-neutral-900 placeholder:text-neutral-400 focus:outline-none"
+        />
+      </Combobox.Chips>
+      <Combobox.Portal>
+        <Combobox.Positioner sideOffset={4} className="z-50">
+          <Combobox.Popup className="max-h-56 min-w-[var(--anchor-width)] overflow-y-auto rounded border border-neutral-200 bg-white py-1 shadow-sm">
+            <Combobox.Empty className="px-2.5 py-1.5 text-sm text-neutral-400">Aucun tag.</Combobox.Empty>
+            <Combobox.List>
+              {(item: TagItem) => (
+                <Combobox.Item
+                  key={item.id}
+                  value={item}
+                  className="flex cursor-default items-center gap-2 px-2.5 py-1.5 text-sm text-neutral-900 data-[highlighted]:bg-neutral-100"
+                >
+                  {item.creatable ? (
+                    <>
+                      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true" className="shrink-0 text-neutral-500">
+                        <path d="M5 1v8M1 5h8" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+                      </svg>
+                      <span>Créer « {item.creatable} »</span>
+                    </>
+                  ) : (
+                    <>
+                      <Combobox.ItemIndicator className="shrink-0 text-neutral-900">
+                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                          <path d="M1.5 5.5l2.5 2.5 4.5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </Combobox.ItemIndicator>
+                      <span>#{item.value}</span>
+                    </>
+                  )}
+                </Combobox.Item>
+              )}
+            </Combobox.List>
+          </Combobox.Popup>
+        </Combobox.Positioner>
+      </Combobox.Portal>
+    </Combobox.Root>
+  )
+}
+
 /**
  * Multi-sélection filtrable à chips (Base UI Combobox multiple). Items = { value, label }
  * (value = id en string). value/onValueChange manipulent des number[] pour coller au schéma dependsOn.

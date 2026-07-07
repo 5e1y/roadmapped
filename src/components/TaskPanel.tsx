@@ -10,7 +10,7 @@ import { StatusGlyph } from './glyphs'
 import { Chip } from './Chip'
 import {
   ErrorBanner, Select, TextInput, AutoTextArea, GhostInput, GhostAutoTextArea,
-  AddCombobox, ToastViewport, blurOnEnter, ghostCls, type SelectItem,
+  AddCombobox, TagsCombobox, ToastViewport, blurOnEnter, type SelectItem,
 } from './ui'
 import { Markdown } from './Markdown'
 import type { TaskNode, TaskTree } from '../lib/tasks'
@@ -255,58 +255,6 @@ function DoneForm({ task, busy, onCancel, onSubmit }: {
   )
 }
 
-/**
- * Tags en ligne permanente : chips avec ✕ + input d'ajout ghost — PAS de CSV
- * (l'affiché EST l'enregistré), pas d'étape d'édition. Chaque geste sauvegarde.
- */
-function TagsRow({ tags, editable, errs, onSave }: {
-  tags: string[]
-  editable: boolean
-  errs?: string[]
-  onSave: (next: string[]) => void
-}) {
-  const [draft, setDraft] = useState('')
-  const add = () => {
-    const v = draft.trim().replace(/^#/, '')
-    setDraft('')
-    if (v && !tags.includes(v)) onSave([...tags, v])
-  }
-  return (
-    <div className="flex flex-col gap-1">
-      <div className={`flex flex-wrap items-center gap-1.5 rounded border border-transparent px-1.5 py-1 ${editable ? 'transition-colors hover:bg-neutral-100 focus-within:border-neutral-300 focus-within:bg-white' : ''}`}>
-        {tags.map((t) => (
-          <span key={t} className="group flex items-center gap-0.5 text-[12px] text-neutral-500">
-            #{t}
-            {editable && (
-              <button type="button" onClick={() => onSave(tags.filter((x) => x !== t))} aria-label={`Retirer ${t}`}
-                className="rounded text-neutral-300 opacity-0 transition-opacity hover:text-neutral-700 focus-visible:opacity-100 group-hover:opacity-100">
-                <svg width="8" height="8" viewBox="0 0 8 8" fill="none" aria-hidden="true">
-                  <path d="M1 1l6 6M7 1l-6 6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-                </svg>
-              </button>
-            )}
-          </span>
-        ))}
-        {editable && (
-          <input
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); add() }
-            }}
-            onBlur={add}
-            placeholder={tags.length === 0 ? '+ tag' : '+'}
-            aria-label="Ajouter un tag"
-            className="w-16 min-w-0 flex-1 bg-transparent text-[12px] text-neutral-900 placeholder:text-neutral-400 focus:outline-none"
-          />
-        )}
-        {!editable && tags.length === 0 && <span className="text-[12px] text-neutral-400">—</span>}
-      </div>
-      <FieldError errs={errs} />
-    </div>
-  )
-}
-
 // ------------------------------------------------------------------- panneau
 
 export function TaskPanel({ id }: { id: number }) {
@@ -348,6 +296,8 @@ function TaskPanelBody({ id }: { id: number }) {
     const sub = task.subtasks.find((s) => s.id === subId)
     return sub ? STATUS_FR[sub.status] : ''
   }
+  // Vocabulaire de tags du projet (actives + archive) — suggestions du Creatable.
+  const allTags = [...new Set([...activeTasks(tree), ...archivedTasks(tree)].flatMap((t) => t.tags))]
   // Tâches proposables en relation : actives + ARCHIVÉES (soi-même exclu),
   // moins celles déjà liées (l'AddCombobox ne fait qu'AJOUTER).
   const relItems = (already: number[]): SelectItem[] => [
@@ -477,13 +427,15 @@ function TaskPanelBody({ id }: { id: number }) {
         <div className="px-1.5"><SavedTick show={savedIn('title')} /></div>
         <FieldError errs={errors.title} />
 
-        {/* Tags : ligne permanente chips + input ghost. */}
-        <TagsRow
+        {/* Tags : Combobox multiple « Creatable » ghost — suggestions = tous les
+            tags du backlog, saisie inconnue → « Créer "xxx" ». */}
+        <TagsCombobox
           tags={task.tags}
-          editable={editable}
-          errs={errors.tags}
+          suggestions={allTags}
+          disabled={!editable}
           onSave={(next) => void save('tags', changed(task.tags, next), { tags: next })}
         />
+        <FieldError errs={errors.tags} />
         <div className="px-1.5"><SavedTick show={savedIn('tags')} /></div>
       </div>
 
