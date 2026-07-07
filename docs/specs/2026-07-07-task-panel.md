@@ -1,6 +1,6 @@
 # Spec — Panneau de détail de tâche v2 (« lecture d'abord »)
 
-**Date** : 2026-07-07 · **Statut** : DRAFT — en attente d'approbation Rémi
+**Date** : 2026-07-07 · **Statut** : APPROUVÉE par Rémi le 2026-07-07
 **Tâche** : #2 · **Nourrie par** : docs/audit-ux-2026-07.md (items routés *#2*)
 **Brainstorm** : 4 questions tranchées avec Rémi le 2026-07-07 (paradigme, navigation, done guidé, feedback).
 
