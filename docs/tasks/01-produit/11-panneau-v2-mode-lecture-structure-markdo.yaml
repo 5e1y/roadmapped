@@ -1,0 +1,37 @@
+id: 25
+code: null
+title: Panneau v2 — mode lecture (structure, markdown, relations)
+status: todo
+tags:
+  - panel
+  - ux
+size: L
+zone: dashboard
+detail: >-
+  Réécrire TaskPanel en « lecture d'abord » selon la spec §Structure : en-tête (#id + glyphe + titre
+  en gros), ligne de chips métadonnées, détail rendu markdown (marked, réutiliser les styles
+  typographiques de DocsView — extraire un composant Markdown partagé), sections Relations (Dépend
+  de avec badges d'état via depState, Bloque via reverseDependents, Sous-tâches avec glyphes + x/y,
+  Liens) toutes cliquables → openTask (pile de la tâche 24), refs en liste verticale (les refs
+  docs/**/*.md naviguent vers la vue Docs), consignation en bloc discret, pied = chemin YAML +
+  Copier le brief agent. AUCUNE édition dans cette tâche (l'édition au clic est la tâche suivante) —
+  les champs sont du texte. Tâche archivée : badge « archivée », navigation normale. Fini quand :
+  ouvrir une tâche riche (ex #6) = zéro input visible, markdown rendu, navigation dep→dep→← exacte,
+  captures Playwright relues.
+refs:
+  - docs/specs/2026-07-07-task-panel.md
+  - src/components/TaskPanel.tsx
+  - src/components/DocsView.tsx
+  - docs/audit-ux-2026-07.md
+links: []
+dependsOn:
+  - 23
+  - 24
+milestone: null
+source: ai
+createdAt: "2026-07-07"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
