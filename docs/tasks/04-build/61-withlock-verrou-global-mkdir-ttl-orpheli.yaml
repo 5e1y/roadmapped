@@ -1,7 +1,7 @@
 id: 83
 code: null
 title: withLock — verrou global mkdir + TTL orphelin (TDD concurrence réelle)
-status: todo
+status: in_progress
 tags: []
 size: M
 team: engineering

@@ -1,7 +1,7 @@
 id: 73
 code: null
 title: Spec — serveur MCP Roadmaped (l'étage final de l'économie de tokens)
-status: in_progress
+status: done
 tags:
   - spec
   - token-economy
@@ -23,8 +23,14 @@ dependsOn:
 milestone: null
 source: user
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: e6ac18a
+outcome: >-
+  Spec serveur MCP écrite et approuvée (docs/specs/2026-07-08-mcp-server.md) : distribution
+  repo-local .mcp.json, coexistence CLI+MCP sur taskWrites, 14 tools en v1 via SDK stdio ;
+  décomposée en 4 tâches chaînées #90→#91→#92→#93
+verification: >-
+  Brainstorm 3 questions tranchées par Rémi (distribution/coexistence/périmètre) ; spec rédigée avec
+  écartés + décisions techniques + critères de fini ; 4 tâches créées avec detail complet + refs
+  spec, chaîne de deps confirmée, validate OK (82 tâches)
 release: null

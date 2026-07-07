@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { mkdtempSync, rmSync, writeFileSync, existsSync, readFileSync } from 'node:fs'
+import { mkdtempSync, rmSync, writeFileSync, existsSync, readFileSync, mkdirSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import {
   addTask, updateTask, startTask, doneTask, archiveTask, deleteTask,
-  updateSection, readTree, findTask, saveRoadmaps,
+  updateSection, readTree, findTask, saveRoadmaps, withLock,
 } from './taskWrites'
 import { seedStages } from './stageFixtures'
 import type { TaskTree } from './tasks'
@@ -30,6 +30,38 @@ beforeEach(() => {
   seed()
 })
 afterEach(() => rmSync(dir, { recursive: true, force: true }))
+
+describe('withLock — verrou de mutation (#83)', () => {
+  const lockDir = () => join(dir, '.lock')
+
+  it('vole un verrou orphelin (détenteur plus vieux que le TTL) et écrit quand même', () => {
+    // Verrou tenu par un « détenteur » daté d'il y a 20s (> TTL 10s par défaut) → orphelin.
+    mkdirSync(lockDir())
+    writeFileSync(join(lockDir(), 'owner'), `99999:${Date.now() - 20_000}`)
+    const res = add({ title: 'Malgré un verrou orphelin' })
+    expect(res.ok).toBe(true)
+    expect(existsSync(lockDir())).toBe(false) // libéré en sortie
+  })
+
+  it('abandonne proprement sur un verrou frais tenu (timeout, message exploitable)', () => {
+    process.env.ROADMAPED_LOCK_TIMEOUT_MS = '150'
+    process.env.ROADMAPED_LOCK_TTL_MS = '60000' // TTL haut → le verrou n'est PAS orphelin
+    mkdirSync(lockDir())
+    writeFileSync(join(lockDir(), 'owner'), `99999:${Date.now()}`) // détenteur bien vivant
+    try {
+      expect(() => add({ title: 'Bloquée' })).toThrow(/Verrou .*\.lock/)
+    } finally {
+      rmSync(lockDir(), { recursive: true, force: true })
+      delete process.env.ROADMAPED_LOCK_TIMEOUT_MS
+      delete process.env.ROADMAPED_LOCK_TTL_MS
+    }
+  })
+
+  it('libère le verrou même si fn lève (finally)', () => {
+    expect(() => withLock(dir, () => { throw new Error('boom') })).toThrow('boom')
+    expect(existsSync(lockDir())).toBe(false)
+  })
+})
 
 describe('addTask', () => {
   it('crée un fichier, alloue l’id depuis nextId et incrémente nextId', () => {
