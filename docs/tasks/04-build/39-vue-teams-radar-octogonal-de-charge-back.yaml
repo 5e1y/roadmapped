@@ -1,7 +1,7 @@
 id: 56
 code: null
 title: Vue Teams — radar octogonal de charge + backlog filtré par team
-status: in_progress
+status: done
 tags:
   - ux
   - design
@@ -29,8 +29,15 @@ dependsOn:
 milestone: null
 source: user
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-07"
+commit: dff378b
+outcome: >-
+  La vue Teams montre la charge de chaque équipe d'un coup d'œil sur un radar octogonal, et un clic
+  sur une team ouvre son backlog dédié — le radar s'efface poliment quand on ouvre une tâche à
+  l'étroit
+verification: >-
+  Vérifié au navigateur à 1280px : radar fidèle à la référence (8 axes, anneaux, polygone accent,
+  compteurs), clic engineering → colonne radar + listes filtrées eng, ouverture d'une tâche → radar
+  caché (asserté), fermeture → revenu (asserté), sélection persistée. Colonnes en container queries
+  (1 colonne quand étroit). 132 tests + build verts.
 release: null
