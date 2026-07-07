@@ -1,6 +1,8 @@
 # Dérive process : des changements livrés sans ticket — cause racine & plan de correction
 
-**Date** : 2026-07-08 · **Auteur** : agent (Fable 5) · **Statut** : brief de passation (à traiter)
+**Date** : 2026-07-08 · **Auteur** : agent (Fable 5) · **Statut** : ✅ TRAITÉ le 2026-07-08 —
+spec `docs/specs/2026-07-08-process-enforcement.md` (#98), livré par #100 (hook guard),
+#101 (signal sitrep), #102 (skill + resync), #103 (guide).
 **Tâche source** : #94 · **Destiné à** : l'instance qui implémentera le correctif.
 
 > Ce document décrit un problème réel observé en session, sa cause racine, et le
