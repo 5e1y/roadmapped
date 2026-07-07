@@ -131,3 +131,20 @@ d'app :
 
 Cible v2 cumulée : une session Roadmaped coûte MOINS cher que la même session sur un
 repo nu — l'outil de gestion de projet devient un économiseur net de tokens.
+
+## Annexe 2 — modèle de coût réel d'un agent (pour arbitrer les implémentations)
+
+1. **Écrire ≈ 5× lire, et RÉFLÉCHIR est facturé comme écrire** (raisonnement = sortie
+   invisible, non réutilisée d'un tour à l'autre) → toute décision pré-calculée par
+   l'app supprime la classe de tokens la plus chère.
+2. **Lire est un loyer, pas un prix** : le contexte est retransmis à chaque tour ;
+   une sortie CLI de 1 200 tokens se repaie × tours restants → les sorties denses
+   rapportent bien plus que leur économie apparente. Le token le moins cher est
+   celui qui n'entre jamais dans le contexte.
+3. **Chaque appel d'outil retransmet toute la conversation** → réduire les
+   allers-retours (take = 1 commande au lieu de 3) est le levier le plus violent.
+4. **Le cache aime la stabilité de préfixe** (~10× moins cher) → noyau de skill
+   STRICTEMENT stable : aucun contenu dynamique, aucune date générée.
+
+Hiérarchie de rentabilité : allers-retours > taille des sorties > lectures >
+réflexion pré-calculée > stabilité cache.
