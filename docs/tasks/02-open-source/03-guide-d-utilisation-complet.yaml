@@ -1,21 +1,21 @@
 id: 10
 code: null
 title: Guide d'utilisation complet
-status: todo
+status: in_progress
 tags:
   - open-source
   - docs
 size: M
 zone: docs
 detail: >-
-  Écrire docs/guide.md, le guide de référence utilisateur : installation dans un repo hôte,
-  roadmaped.config.json (tasksDir/docsDir), tour du dashboard (Backlog, Roadmap Colonnes + Graphe,
-  Docs, side panel), référence CLI complète (toutes les commandes de task.mjs avec exemples),
-  formats YAML (tâche, section, sous-tâches, archive), workflow agent avec le skill Claude (setup à
-  la première utilisation, cycle next/start/done), FAQ (ids jamais réutilisés, validation/rollback,
-  édition manuelle). Langue : anglais recommandé pour l'open source — à confirmer avec Rémi avant
-  rédaction (le README FR actuel servirait alors de base à une VF courte). Fini quand : chaque
-  commande CLI documentée a été exécutée pour vérifier son exemple.
+  Écrire docs/guide.md EN ANGLAIS (décision Rémi 2026-07-07), le guide de référence utilisateur :
+  installation dans un repo hôte, roadmaped.config.json (tasksDir/docsDir), tour du dashboard
+  (Backlog, Roadmap Colonnes + Graphe, Docs, side panel), référence CLI complète (toutes les
+  commandes de task.mjs avec exemples), formats YAML (tâche, section, sous-tâches, archive),
+  workflow agent avec le skill Claude (setup à la première utilisation, cycle next/start/done), FAQ
+  (ids jamais réutilisés, validation/rollback, édition manuelle). Le README FR actuel servira de
+  base à une VF courte si besoin plus tard. Fini quand : chaque commande CLI documentée a été
+  exécutée pour vérifier son exemple.
 refs:
   - README.md
   - skills/roadmaped/SKILL.md
@@ -28,5 +28,6 @@ source: user
 createdAt: "2026-07-07"
 completedAt: null
 commit: null
+outcome: null
 verification: null
 release: null
