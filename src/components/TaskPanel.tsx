@@ -160,7 +160,7 @@ function RelationRow({ tree, id, badge, onRemove }: {
       <button
         type="button"
         onClick={() => openTask(id)}
-        className="flex min-w-0 flex-1 items-center gap-2 rounded-md px-1.5 py-1 text-left text-sm hover:bg-neutral-100"
+        className="flex min-w-0 flex-1 items-center gap-2 px-1.5 py-1 text-left text-sm hover:bg-neutral-100"
       >
         <StatusGlyph status={t.status} />
         <span className="shrink-0 font-mono text-xs text-neutral-400">#{t.id}</span>
@@ -213,7 +213,7 @@ function RefLine({ refPath, onRemove }: { refPath: string; onRemove?: () => void
             window.dispatchEvent(new CustomEvent('roadmaped:open-doc', { detail: refPath.replace(/^docs\//, '') }))
             close()
           }}
-          className="min-w-0 flex-1 truncate rounded px-1.5 py-0.5 text-left font-mono text-xs text-neutral-800 underline decoration-neutral-300 underline-offset-2 hover:decoration-neutral-800"
+          className="min-w-0 flex-1 truncate px-1.5 py-0.5 text-left font-mono text-xs text-neutral-800 underline decoration-neutral-300 underline-offset-2 hover:decoration-neutral-800"
         >
           {refPath}
         </button>
@@ -247,7 +247,7 @@ function DoneForm({ task, busy, onCancel, onSubmit }: {
   const canDone = outcome.trim().length > 0 && !busy
 
   return (
-    <div className="mt-2 flex flex-col gap-2.5 rounded border border-neutral-200 bg-neutral-50 p-3">
+    <div className="mt-2 flex flex-col gap-2.5 border border-neutral-200 bg-neutral-50 p-3">
       <label className="flex flex-col gap-1">
         <span className="text-[11px] uppercase tracking-wide text-neutral-400">Outcome — ce qui a été livré (requis)</span>
         <AutoTextArea
@@ -584,7 +584,7 @@ function TaskPanelBody({ id }: { id: number }) {
             title={editable ? 'Cliquer pour éditer' : undefined}
             onClick={editable ? (e) => { if (!(e.target as HTMLElement).closest('a')) openDetailEditor({ x: e.clientX, y: e.clientY }) } : undefined}
             onKeyDown={editable ? (e) => { if (e.key === 'Enter') { e.preventDefault(); openDetailEditor() } } : undefined}
-            className={`rounded border border-transparent px-1.5 py-1 ${editable ? 'cursor-text transition-colors hover:bg-neutral-100' : ''}`}
+            className={`border border-transparent px-1.5 py-1 ${editable ? 'cursor-text transition-colors hover:bg-neutral-100' : ''}`}
           >
             {task.detail ? (
               <Markdown source={task.detail} className="doc-prose--panel" />
@@ -688,7 +688,7 @@ function TaskPanelBody({ id }: { id: number }) {
       )}
 
       {/* Consignation : inputs ghost permanents (corrections rares mais directes). */}
-      <div className="flex flex-col gap-1 rounded border border-neutral-200 bg-neutral-50 px-2 py-2">
+      <div className="flex flex-col gap-1 border border-neutral-200 bg-neutral-50 px-2 py-2">
         <div className="flex items-center gap-2 px-1.5">
           <div className="text-[11px] uppercase tracking-wide text-neutral-400">Consignation</div>
           <SavedTick show={savedIn('outcome', 'verification', 'commit', 'release')} />

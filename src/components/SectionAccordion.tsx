@@ -25,7 +25,7 @@ export function SectionAccordion({
     <Accordion.Item
       value={section.key}
       id={`section-${section.key}`}
-      className={`overflow-hidden rounded-lg border bg-white ${
+      className={`overflow-hidden border bg-white ${
         dimmed ? 'border-dashed border-neutral-300' : 'border-neutral-200'
       }`}
     >

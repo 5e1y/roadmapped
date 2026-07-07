@@ -1,0 +1,36 @@
+id: 38
+code: null
+title: "Look sérieux : bords droits, cartes accolées, hover qui respecte la sélection"
+status: in_progress
+tags:
+  - ux
+  - design
+size: S
+zone: dashboard
+detail: >-
+  Trois décisions design de Rémi (2026-07-07). (1) Le hover gris ne doit JAMAIS masquer l'état
+  sélectionné : sur l'élément ouvert dans le panneau, le survol garde l'accent (cartes
+  Colonnes/Graphe : hover:border-neutral-400 seulement si non sélectionnée). (2) Bords droits sur
+  toutes les SURFACES (cartes de section, cartes roadmap, chips, consignation, formulaires,
+  bandeaux, toasts, popups, blocs code markdown) — les inputs et les éléments interactifs directs
+  (boutons, nav, segmented control) GARDENT leurs coins arrondis. (3) Mode Roadmap Colonnes : cartes
+  accolées verticalement (gap 0, bordures fusionnées -mt-px) façon liste dense. Fini quand : clic
+  sur une carte = bleu immédiat sans mouse exit (vérifié au pixel), aucune surface arrondie
+  restante, colonnes denses.
+refs:
+  - src/components/Chip.tsx
+  - src/components/SectionAccordion.tsx
+  - src/components/RoadmapColumns.tsx
+  - src/components/RoadmapGraph.tsx
+  - src/components/ui.tsx
+  - src/index.css
+links: []
+dependsOn: []
+milestone: null
+source: user
+createdAt: "2026-07-07"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

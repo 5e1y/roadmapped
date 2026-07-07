@@ -55,7 +55,7 @@ body {
 }
 .roadmap-cols-scroll::-webkit-scrollbar-thumb {
   background: #d4d4d4;
-  border-radius: 4px;
+
 }
 .roadmap-cols-scroll::-webkit-scrollbar-track {
   background: transparent;
@@ -126,7 +126,7 @@ body {
   font-size: 0.85em;
   background: #f5f5f5;
   border: 1px solid #e5e5e5;
-  border-radius: 4px;
+
   padding: 0.1em 0.35em;
 }
 .doc-prose pre {
@@ -134,7 +134,7 @@ body {
   padding: 0.875rem 1rem;
   background: #f5f5f5;
   border: 1px solid #e5e5e5;
-  border-radius: 6px;
+
   overflow-x: auto;
 }
 .doc-prose pre code {

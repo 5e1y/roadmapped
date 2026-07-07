@@ -28,15 +28,19 @@ function TaskCard({ task, state, missing }: { task: TaskNode; state: Availabilit
   // s'exprime par la bordure et l'encre (pas d'opacity), la disponibilité par la
   // bordure pleine marquée. Tâche ouverte dans le panneau → bordure accent (#36).
   const isOpenInPanel = top?.type === 'task' && top.id === task.id
+  // Le hover ne masque JAMAIS la sélection : une carte ouverte reste accent
+  // sous la souris (sinon le clic paraît « gris » jusqu'au mouse exit).
   const border = isOpenInPanel
     ? 'border-2 border-accent'
-    : state === 'available' ? 'border-2 border-neutral-900' : 'border border-neutral-200'
+    : state === 'available'
+      ? 'border-2 border-neutral-900 hover:border-neutral-400'
+      : 'border border-neutral-200 hover:border-neutral-400'
   const dim = state === 'done' || state === 'locked'
   const titleCls = task.status === 'done' ? 'text-neutral-400 line-through' : dim ? 'text-neutral-400' : 'text-neutral-900'
   const subs = task.subtasks.length > 0 ? countTasksDeep(task.subtasks) : null
   return (
     <button type="button" onClick={() => openTask(task.id)} title={task.title}
-      className={`flex w-full flex-col gap-1.5 rounded-lg bg-white px-3 py-2.5 text-left hover:border-neutral-400 ${border}`}>
+      className={`relative flex w-full flex-col gap-1.5 bg-white px-3 py-2.5 text-left first:mt-0 ${border} ${isOpenInPanel || state === 'available' ? 'z-10' : ''} -mt-px`}>
       <div className="flex items-start gap-2">
         <span className="mt-0.5"><StatusGlyph status={task.status} /></span>
         <span className="mt-px shrink-0 font-mono text-xs text-neutral-400">#{task.id}</span>
@@ -91,7 +95,10 @@ function Column({ section, avail }: { section: SectionNode; avail: Map<number, A
         <div aria-hidden />
       )}
       <div className="self-end">{!empty && <ProgressBar done={done} total={total} />}</div>
-      <div className="flex flex-col gap-2 pt-1.5">
+      {/* Cartes accolées (gap 0, bordures fusionnées par -mt-px) : liste dense.
+          Les cartes à liseré fort (sélection, disponible) passent au-dessus (z-10)
+          pour que leur bordure ne soit pas mangée par la carte suivante. */}
+      <div className="flex flex-col pt-1.5">
         {section.tasks.map((t) => (
           <TaskCard key={t.id} task={t} state={avail.get(t.id) ?? 'available'} missing={missingPrereqs(t, avail)} />
         ))}
