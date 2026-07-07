@@ -1,7 +1,7 @@
 id: 36
 code: null
 title: Couleur d'accent bleue — socle + tâche ouverte repérable partout
-status: todo
+status: done
 tags:
   - ux
   - design
@@ -29,8 +29,14 @@ dependsOn: []
 milestone: null
 source: user
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-07"
+commit: 5ad66ba
+outcome: >-
+  Le dashboard a sa couleur d'accent (bleu #2563eb, token unique) : la tâche ouverte dans le panneau
+  se repère instantanément dans le Backlog, les Colonnes et le Graphe
+verification: >-
+  Token @theme vérifié (aucun bleu en dur : grep 2563eb → index.css seul). Au pixel : ligne Backlog
+  surlignée (fond accent/5 + filet gauche) constatée sur capture ; bordure accent des cartes
+  assertée dans le DOM des 2 vues Roadmap (borderColor rgb(37,99,235) constaté). 113 tests + build
+  verts.
 release: null
