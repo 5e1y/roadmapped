@@ -1,7 +1,7 @@
 id: 76
 code: null
 title: "Spec — Notepad : incubateur d'idées et créateur de prompts"
-status: in_progress
+status: done
 tags:
   - spec
   - ux
@@ -23,8 +23,12 @@ dependsOn: []
 milestone: null
 source: user
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: e06cdde
+outcome: >-
+  Spec Notepad approuvée et décomposée en 4 tâches (#86 API+reveal, #87 gitignore/exclusion Docs,
+  #88 tab+éditeur ghost, #89 pièces jointes+copier-pour-agent) avec chaîne de deps API→UI→jointes
+verification: >-
+  Spec relue et self-reviewée (docs/notes gitignoré, /api/reveal sécurisé hors-HOME refusé,
+  token-neutre) ; 4 tâches créées, deps #88→#86 et #89→#88 confirmées via show, validate OK
 release: null
