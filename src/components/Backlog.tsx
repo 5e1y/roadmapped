@@ -98,7 +98,7 @@ export function Backlog() {
   return (
     <div className="flex h-full flex-col">
       {/* Header unifié (modèle Roadmap) : filtres en dropdowns, hauteur = panneau. */}
-      <ViewHeader title="Backlog" meta={`${plural(open.length, 'ouverte')} · ${plural(done.length, 'terminée')}`}>
+      <ViewHeader meta={`${plural(open.length, 'ouverte')} · ${plural(done.length, 'terminée')}`}>
         <div className="relative w-56">
           <Search size={13} className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-neutral-400" />
           <input

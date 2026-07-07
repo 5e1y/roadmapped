@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { TreeProvider } from './state/TreeContext'
 import { PanelProvider, usePanel } from './state/PanelContext'
-import { Sidebar, type View } from './components/Sidebar'
+import { ViewProvider, type View } from './state/ViewContext'
 import { SidePanel } from './components/SidePanel'
 import { Backlog } from './components/Backlog'
 import { TaskPanel } from './components/TaskPanel'
@@ -94,11 +94,11 @@ function Shell() {
 
   return (
     <div className="flex h-screen w-screen overflow-hidden">
-      <Sidebar view={view} onViewChange={setView} docPath={docPath} onSelectDoc={setDocPath} />
-      {/* overflow-y-auto conservé pour le scroll du Backlog ; RoadmapView pose
-          h-full et gère son propre scroll interne. */}
+      {/* Plus de sidebar : les tabs vivent dans le header commun (ViewHeader). */}
       <main className="min-w-0 flex-1 overflow-y-auto">
-        <MainView view={view} docPath={docPath} onSelectDoc={setDocPath} />
+        <ViewProvider view={view} setView={setView}>
+          <MainView view={view} docPath={docPath} onSelectDoc={setDocPath} />
+        </ViewProvider>
       </main>
       <PanelHost />
     </div>

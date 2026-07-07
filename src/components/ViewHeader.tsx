@@ -2,26 +2,50 @@ import { Popover } from '@base-ui/react/popover'
 import { ChevronDown } from 'trinil-react'
 import { type ReactNode } from 'react'
 import { useTree } from '../state/TreeContext'
+import { useView, type View } from '../state/ViewContext'
 import { useTeamFilter, useStageFilter } from '../state/filters'
 import { activeTasks } from '../lib/roadmap'
 import { STAGES, TEAMS, type Team } from '../lib/tasks'
 
+const NAV: { id: View; label: string }[] = [
+  { id: 'backlog', label: 'Backlog' },
+  { id: 'roadmap', label: 'Roadmap' },
+  { id: 'docs', label: 'Docs' },
+]
+
 /**
  * LE header commun des vues (décision Rémi) : une barre en haut, hauteur
  * STRICTEMENT égale au header du panneau de tâche (h-12 partagé, cf.
- * SidePanel). Titre à gauche, filtres/actions en dropdowns à droite.
+ * SidePanel). À gauche : marque + TABS de navigation (la sidebar n'existe
+ * plus) ; l'onglet actif remplace le titre de vue. À droite : dropdowns et
+ * actions de la vue.
  */
-export function ViewHeader({ title, meta, children }: {
-  title: string
-  /** Info discrète accolée au titre (compteurs, chemin du doc…). */
+export function ViewHeader({ meta, children }: {
+  /** Info discrète après les tabs (compteurs, chemin du doc…). */
   meta?: ReactNode
   /** Contrôles alignés à droite (dropdowns, boutons, segmented). */
   children?: ReactNode
 }) {
+  const { view, setView } = useView()
   return (
-    <header className="flex h-12 shrink-0 items-center justify-between gap-4 border-b border-neutral-200 px-6">
-      <div className="flex min-w-0 items-baseline gap-3">
-        <h1 className="shrink-0 text-sm font-semibold tracking-tight text-neutral-900">{title}</h1>
+    <header className="flex h-12 shrink-0 items-center justify-between gap-4 border-b border-neutral-200 px-4">
+      <div className="flex min-w-0 items-center gap-4">
+        <span className="shrink-0 text-sm font-semibold tracking-tight text-neutral-900">Roadmaped</span>
+        <nav className="flex shrink-0 overflow-hidden rounded-md border border-neutral-300">
+          {NAV.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => setView(item.id)}
+              aria-current={item.id === view ? 'page' : undefined}
+              className={`px-3 py-1 text-xs transition-colors ${
+                item.id === view ? 'bg-neutral-900 text-white' : 'bg-white text-neutral-600 hover:bg-neutral-100'
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </nav>
         {meta && <div className="min-w-0 truncate font-mono text-xs text-neutral-400">{meta}</div>}
       </div>
       {children && <div className="flex shrink-0 items-center gap-2">{children}</div>}

@@ -50,7 +50,7 @@ export function RoadmapView() {
 
   return (
     <div className="flex h-full flex-col">
-      <ViewHeader title="Roadmap">
+      <ViewHeader>
         <TeamFilterMenu />
         <button
           type="button"
