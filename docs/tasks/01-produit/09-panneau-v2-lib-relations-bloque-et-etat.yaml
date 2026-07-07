@@ -1,0 +1,33 @@
+id: 23
+code: null
+title: "Panneau v2 — lib relations : Bloque et état des deps"
+status: in_progress
+tags:
+  - panel
+  - lib
+size: S
+zone: dashboard
+detail: >-
+  Fonctions pures dans src/lib/roadmap.ts, TDD obligatoire (tests rouges d'abord dans
+  roadmap.test.ts). (1) reverseDependents(tree, id): TaskNode[] — les tâches actives (sous-tâches
+  comprises) dont dependsOn contient id, ordre stable par id. (2) depState(tree, id):
+  'done'|'available'|'locked'|'archived' — état d'une dépendance pour l'affichage (réutilise
+  computeAvailability ; une tâche archivée renvoie 'archived'). Interfaces attendues par la tâche «
+  panneau lecture » : elle appellera reverseDependents(tree, task.id) pour la section Bloque et
+  depState(tree, depId) pour les badges de Dépend de. Fini quand : tests verts couvrant cas vide,
+  deps croisées actives/archivées, sous-tâches.
+refs:
+  - docs/specs/2026-07-07-task-panel.md
+  - src/lib/roadmap.ts
+  - src/lib/roadmap.test.ts
+  - src/lib/findTaskInTree.ts
+links: []
+dependsOn: []
+milestone: null
+source: ai
+createdAt: "2026-07-07"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

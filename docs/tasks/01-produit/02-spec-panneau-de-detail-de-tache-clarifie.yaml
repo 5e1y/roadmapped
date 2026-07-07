@@ -1,7 +1,7 @@
 id: 2
 code: null
 title: Spec — panneau de détail de tâche clarifié
-status: in_progress
+status: done
 tags:
   - ux
   - spec
@@ -24,8 +24,13 @@ dependsOn: []
 milestone: null
 source: user
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-07"
+commit: d5ef960
+outcome: >-
+  Le panneau de tâche v2 a sa spec approuvée : lecture d'abord avec édition au clic, navigation en
+  pile entre tâches liées, done guidé avec outcome requis, feedback inline — Base UI au maximum
+verification: >-
+  Brainstorm en 4 questions avec previews (paradigme, navigation, done, feedback), toutes tranchées
+  par Rémi ; spec self-reviewée (1 contradiction corrigée : contournement du done guidé par le
+  Select) ; approbation explicite de Rémi sur le fichier spec (« go pour le plan du panneau »).
 release: null
