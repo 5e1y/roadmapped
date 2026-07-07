@@ -8,8 +8,8 @@ import { type TaskNode } from '../lib/tasks'
 import { SectionAccordion } from './SectionAccordion'
 import { TaskList, MiniZone, sortOpen, sortDone } from './TaskColumns'
 
-import { useTeamFilter, useStageFilter } from '../state/filters'
-import { ViewHeader, StageFilterMenu } from './ViewHeader'
+import { useTeamFilter } from '../state/filters'
+import { ViewHeader } from './ViewHeader'
 import { TeamsRadar } from './TeamsRadar'
 import { TEAMS, type Team } from '../lib/tasks'
 
@@ -30,7 +30,6 @@ export function Backlog() {
   const { openCreateTask, top } = usePanel()
   const [openArchive, setOpenArchive] = usePersistentStrings('backlog:archive')
   const [teamFilter, setTeamFilter] = useTeamFilter()
-  const [stageFilter] = useStageFilter()
   const [query, setQuery] = useState('')
 
   if (loading && !tree) {
@@ -80,7 +79,6 @@ export function Backlog() {
   const all: TaskNode[] = []
   for (const s of tree.sections) {
     if (s.status === 'abandoned') continue
-    if (stageFilter && s.key !== stageFilter) continue
     for (const t of s.tasks) { all.push(t); stageOf.set(t.id, s.key) }
   }
   const matches = (t: TaskNode) =>
@@ -94,9 +92,8 @@ export function Backlog() {
   const open = sortOpen(openAll.filter((t) => t.kind !== 'quick'), (id) => stageOf.get(id) ?? '99')
   const done = sortDone(all.filter((t) => t.status === 'done' && matches(t)))
 
-  // « + tâche » : le stage de destination = le filtre courant, sinon Build
-  // (le stage de travail par défaut — modifiable dans le panneau de création).
-  const createIn = stageFilter || '04-build'
+  // « + tâche » : Build par défaut (modifiable dans le panneau de création).
+  const createIn = '04-build'
 
   return (
     <div className="flex h-full flex-col">
@@ -112,7 +109,6 @@ export function Backlog() {
             className="w-full rounded-md border border-neutral-300 bg-white py-1 pl-7 pr-2 text-xs text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-900 focus:outline-none"
           />
         </div>
-        <StageFilterMenu />
         <button
           type="button"
           onClick={() => openCreateTask(createIn)}
@@ -136,7 +132,7 @@ export function Backlog() {
       <div className="mx-auto max-w-3xl px-6 py-8">
       <div className="flex flex-col gap-8">
       {(quicks.length > 0 || !q) && <MiniZone quicks={quicks} reload={reload} />}
-      <TaskList open={open} done={done} filtered={Boolean(q || stageFilter || teamFilter.length)} />
+      <TaskList open={open} done={done} filtered={Boolean(q || teamFilter.length)} />
       </div>
 
       {tree.archive.length > 0 && (

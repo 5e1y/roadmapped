@@ -3,7 +3,6 @@ import { ChevronDown } from 'trinil-react'
 import { type ReactNode } from 'react'
 import { useTree } from '../state/TreeContext'
 import { useView, type View } from '../state/ViewContext'
-import { useStageFilter } from '../state/filters'
 import { STAGES } from '../lib/tasks'
 
 const NAV: { id: View; label: string }[] = [
@@ -130,24 +129,5 @@ export function FilterMenu({ allLabel, options, selected, onChange, multiple = f
         </Popover.Positioner>
       </Popover.Portal>
     </Popover.Root>
-  )
-}
-
-/** Filtre Stage (simple) — compteurs = tickets ouverts par stage. */
-export function StageFilterMenu() {
-  const { tree } = useTree()
-  const [selected, setSelected] = useStageFilter()
-  const counts = new Map<string, number>()
-  if (tree) for (const s of tree.sections) {
-    counts.set(s.key, s.tasks.reduce((n, t) => n + (t.status !== 'done' ? 1 : 0), 0))
-  }
-  return (
-    <FilterMenu
-      aria-label="Filtrer par stage"
-      allLabel="Tous les stages"
-      options={STAGES.map((s) => ({ value: s.slug, label: s.title, count: counts.get(s.slug) ?? 0 }))}
-      selected={selected ? [selected] : []}
-      onChange={(next) => setSelected(next[0] ?? '')}
-    />
   )
 }
