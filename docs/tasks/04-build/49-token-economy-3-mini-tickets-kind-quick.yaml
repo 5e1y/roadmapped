@@ -1,0 +1,35 @@
+id: 66
+code: null
+title: Token economy 3 — mini-tickets kind:quick (schéma, validation, CLI)
+status: todo
+tags:
+  - token-economy
+  - data-model
+size: M
+team: engineering
+detail: >-
+  ⛔ N'exécuter qu'après approbation de la spec par Rémi. Spec §3 : champ optionnel kind: task|quick
+  (absent = task, rétrocompat totale, ADDITIF — aucun YAML existant modifié). TDD validation : quick
+  refuse size L ; au done d'un quick, outcome requis mais verification facultative (pour un task,
+  warning non bloquant si refs vides — spec §4). CLI : quick "<titre>" --team <t> [--stage <s>]
+  [--start] (stage défaut = premier stage open), servi normalement par next/take. FIELD_ORDER : kind
+  après id. Fini quand : cycle quick complet en 2 commandes rejoué en sandbox ET sur le vrai repo
+  (YAML relu : kind quick, done accepté sans verification), tests verts, ~120 tokens le cycle
+  mesuré.
+refs:
+  - docs/specs/2026-07-07-token-economy.md
+  - src/lib/tasks.ts
+  - src/lib/validate.ts
+  - src/lib/taskWrites.ts
+  - scripts/task.mjs
+links: []
+dependsOn:
+  - 65
+milestone: null
+source: user
+createdAt: "2026-07-07"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

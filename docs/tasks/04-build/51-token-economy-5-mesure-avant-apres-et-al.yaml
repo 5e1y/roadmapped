@@ -1,0 +1,31 @@
+id: 68
+code: null
+title: Token economy 5 — mesure avant/après et alignement doc
+status: todo
+tags:
+  - token-economy
+  - docs
+size: S
+team: engineering
+detail: >-
+  ⛔ N'exécuter qu'après approbation de la spec par Rémi, et en DERNIER du chantier (dépend de
+  64-67). Spec §5 : rejouer le scénario scripté (bootstrap skill + 1 ticket standard take→done + 1
+  quick + 1 navigation de liens) AVANT (git checkout du vieux skill en sandbox) et APRÈS, compter en
+  ≈tokens (chars/4), publier le tableau en tête de la spec token-economy. Aligner docs/guide.md
+  (sections CLI et formats : take/brief/quick/kind). Fini quand : tableau publié avec le % réel
+  (cible −70 % routine), guide re-exécuté, tests verts.
+refs:
+  - docs/specs/2026-07-07-token-economy.md
+  - docs/guide.md
+links: []
+dependsOn:
+  - 64
+  - 67
+milestone: null
+source: user
+createdAt: "2026-07-07"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
