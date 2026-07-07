@@ -199,6 +199,13 @@ function today(): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
+/** Horodatage local à la seconde (#84) : createdAt des nouvelles tâches — audit fin. */
+function now(): string {
+  const d = new Date()
+  const p = (n: number) => String(n).padStart(2, '0')
+  return `${today()}T${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`
+}
+
 function numericPrefix(name: string): number | null {
   const m = name.match(/^(\d+)-/)
   return m ? parseInt(m[1], 10) : null
@@ -324,7 +331,7 @@ function addTaskImpl(tasksDir: string, input: AddTaskInput): MutationResult {
     dependsOn: input.dependsOn ?? [],
     milestone: str(input.milestone),
     source: input.source ?? 'ai',
-    createdAt: today(),
+    createdAt: now(),
     completedAt: null,
     commit: null,
     outcome: null,

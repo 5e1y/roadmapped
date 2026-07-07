@@ -280,6 +280,26 @@ describe('validateTaskTree — stages canoniques + team (stages+teams)', () => {
     expect(validateTaskTree(buildTaskTree(files))).toEqual([])
   })
 
+  // #84 : createdAt accepte les DEUX formats (date héritée + datetime), rejette le reste.
+  const taskWithCreatedAt = (v: string) =>
+    `id: 1\ntitle: "T"\nstatus: todo\nteam: engineering\nsource: ai\ncreatedAt: "${v}"\n`
+
+  it('createdAt datetime local à la seconde → accepté', () => {
+    const files = {
+      [meta]: 'nextId: 2\n', ...stageSectionFiles(),
+      '/docs/tasks/04-build/01-t.yaml': taskWithCreatedAt('2026-07-08T22:58:41'),
+    }
+    expect(validateTaskTree(buildTaskTree(files))).toEqual([])
+  })
+
+  it('createdAt au format bidon → rejeté', () => {
+    const files = {
+      [meta]: 'nextId: 2\n', ...stageSectionFiles(),
+      '/docs/tasks/04-build/01-t.yaml': taskWithCreatedAt('hier'),
+    }
+    expect(validateTaskTree(buildTaskTree(files)).some((e) => e.includes('createdAt format invalide'))).toBe(true)
+  })
+
   it('rejette un 9e dossier de section (hors set canonique)', () => {
     const files = {
       [meta]: 'nextId: 2\n',

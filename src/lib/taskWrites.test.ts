@@ -82,6 +82,13 @@ describe('addTask', () => {
     expect(res.notFound).toBe(true)
   })
 
+  it('horodate createdAt en datetime local à la seconde (#84)', () => {
+    const res = add({ title: 'Horodatée' })
+    expect(res.ok).toBe(true)
+    if (!res.ok) return
+    expect(res.task!.createdAt).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/)
+  })
+
   it('rejette (rollback) une team inconnue', () => {
     const res = add({ team: 'wizardry' })
     expect(res.ok).toBe(false)
