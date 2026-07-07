@@ -1,7 +1,7 @@
 id: 26
 code: null
 title: Panneau v2 — édition au clic + feedback inline
-status: in_progress
+status: done
 tags:
   - panel
   - ux
@@ -28,8 +28,14 @@ dependsOn:
 milestone: null
 source: ai
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-07"
+commit: be39d57
+outcome: >-
+  Chaque champ du panneau s'édite directement là où on le lit : inputs fantômes permanents (gris au
+  survol, contour au focus), tags et relations sans étape intermédiaire, feedback enregistré/erreur
+  sur place
+verification: >-
+  Design retravaillé par moi après rejet du swap par Rémi. Vérifié au pixel (Playwright) : repos =
+  lecture pure, focus titre = contour sans changement de taille, tick « enregistré » observé après
+  édition de zone, valeur relue dans le YAML sur disque puis restaurée. 113 tests + build verts.
 release: null

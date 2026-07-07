@@ -1,7 +1,7 @@
 id: 27
 code: null
 title: Panneau v2 — done guidé (mini-formulaire outcome)
-status: in_progress
+status: done
 tags:
   - panel
   - ux
@@ -26,8 +26,16 @@ dependsOn:
 milestone: null
 source: ai
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-07"
+commit: be39d57
+outcome: >-
+  Terminer une tâche depuis le dashboard exige désormais son outcome : bouton contextuel
+  Démarrer/Terminer…/Archiver et mini-formulaire dont le Done est verrouillé tant que l'outcome est
+  vide
+verification: >-
+  E2E sur tâche jetable (créée/supprimée par API, ids 30-34 consommés jamais réutilisés) : Done ✓
+  désactivé sans outcome (asserté true), activé après saisie, YAML relu sur disque status done +
+  outcome + completedAt, bouton Archiver apparu. Cause racine du faux échec précédent : full-reload
+  Vite sur écriture YAML, corrigé (watch.ignored) et re-vérifié : 0 reload pendant une sauvegarde,
+  Esc = blur+save panneau ouvert, 2e Esc ferme.
 release: null
