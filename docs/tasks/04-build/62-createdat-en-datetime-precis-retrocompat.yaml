@@ -1,7 +1,7 @@
 id: 84
 code: null
 title: createdAt en datetime précis (rétrocompat date seule)
-status: in_progress
+status: done
 tags: []
 size: S
 team: engineering
@@ -22,8 +22,13 @@ dependsOn: []
 milestone: null
 source: ai
 createdAt: "2026-07-08"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: 0072ca5
+outcome: >-
+  createdAt des nouvelles tâches en datetime local à la seconde (now()) ; validation accepte date
+  seule OU datetime (DATE_OR_DATETIME), rejette le format bidon ; tri inchangé (consomme l'id)
+verification: >-
+  addTask relu → createdAt datetime (test) ; validate accepte les 2 formats et rejette 'hier'
+  (tests) ; validate OK sur le backlog réel (82 tâches, dates seules) SANS migration ; 186 tests +
+  build verts
 release: null
