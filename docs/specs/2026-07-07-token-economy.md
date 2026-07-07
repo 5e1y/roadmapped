@@ -1,6 +1,6 @@
 # Spec — Économie radicale de tokens : l'app porte le contexte, l'agent consomme
 
-**Date** : 2026-07-07 · **Statut** : DRAFT — à approuver par Rémi AVANT toute exécution
+**Date** : 2026-07-07 · **Statut** : APPROUVÉE par Rémi le 2026-07-07 (carte blanche)
 **Demande** : Rémi (carte blanche) · **Données** : dogfooding intégral de cette session
 (45+ tâches livrées en pilotant Roadmaped avec Roadmaped).
 
