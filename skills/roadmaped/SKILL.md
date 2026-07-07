@@ -61,7 +61,7 @@ Chaque écriture CLI revalide l'intégralité de `docs/tasks/` et **rollback** s
 
 ## Le cycle de travail d'un agent
 
-1. **Prendre** : `next` (ou l'id demandé par l'utilisateur). Si la tâche est verrouillée (`roadmap` la montre locked), fais d'abord ses prérequis — ne contourne JAMAIS une dépendance. ⚠️ Rien ne l'empêche techniquement : `start`/`done` acceptent une tâche verrouillée sans erreur — le verrou est TA discipline.
+1. **Prendre** : `next` (ou l'id demandé par l'utilisateur). La priorité (stage puis ancienneté) est CALCULÉE PAR L'APP — consomme les ids servis par `next`/`next --count N`, ne recalcule JAMAIS l'ordre en relisant le backlog (gaspillage massif de tokens). Si la tâche est verrouillée (`roadmap` la montre locked), fais d'abord ses prérequis — ne contourne JAMAIS une dépendance. ⚠️ Rien ne l'empêche techniquement : `start`/`done` acceptent une tâche verrouillée sans erreur — le verrou est TA discipline.
 2. **Démarrer** : `start <id>` avant la première ligne de code.
 3. **Travailler** : suis `detail` + les documents en `refs`. Lis la spec référencée AVANT de coder.
 4. **Vérifier l'artefact réel** (pas juste le typecheck) : le fichier produit, le pixel rendu, la commande exécutée.

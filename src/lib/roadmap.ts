@@ -128,3 +128,31 @@ export function slugify(input: string): string {
       .replace(/-+$/g, '') || 'roadmap'
   )
 }
+
+/**
+ * LA file de travail canonique (décision Rémi 2026-07-07) : les tâches todo
+ * DISPONIBLES (deps done), triées par stage (une tâche Build passe avant une
+ * tâche Launch) puis par ancienneté (id croissant = createdAt). C'est l'app
+ * qui calcule la priorité — le CLI la sert (`next --count`), le skill la
+ * CONSOMME sans jamais la recalculer (coût en tokens). Sections non `open`
+ * exclues ; tâches de premier niveau uniquement (les sous-tâches suivent leur
+ * parent). `team` optionnelle pour la vue Teams.
+ */
+export function nextQueue(tree: TaskTree, opts: { team?: string } = {}): TaskNode[] {
+  const avail = computeAvailability(tree)
+  // Ordre de stage = préfixe NN du dossier (robuste à l'ordre du tableau).
+  const stageOf = (key: string) => parseInt(key, 10) || 0
+  const out: Array<{ stage: number; task: TaskNode }> = []
+  for (const section of tree.sections) {
+    if (section.status !== 'open') continue
+    for (const t of section.tasks) {
+      if (t.status !== 'todo') continue
+      if (avail.get(t.id) !== 'available') continue
+      if (opts.team && t.team !== opts.team) continue
+      out.push({ stage: stageOf(section.key), task: t })
+    }
+  }
+  return out
+    .sort((a, b) => a.stage - b.stage || a.task.id - b.task.id)
+    .map((x) => x.task)
+}
