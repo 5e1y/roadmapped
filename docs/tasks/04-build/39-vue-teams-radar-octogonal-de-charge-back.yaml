@@ -1,0 +1,36 @@
+id: 56
+code: null
+title: Vue Teams — radar octogonal de charge + backlog filtré par team
+status: in_progress
+tags:
+  - ux
+  - design
+size: L
+team: design
+detail: >-
+  Demande Rémi (2026-07-07, référence image radar octogonal). Nouvelle vue « Teams » dans la nav :
+  un radar SVG à 8 axes (une team par sommet, ordre TEAMS) montrant la CHARGE (tickets ouverts par
+  team) — anneaux concentriques octogonaux, axes, polygone accent (trait + remplissage accent/15,
+  points aux sommets), labels cliquables avec compteur. Clic sur une team → layout deux zones :
+  radar en colonne entière à GAUCHE, à DROITE le même backlog deux-colonnes (ouvertes/terminées)
+  filtré sur la team (composant TaskColumns extrait de Backlog, réutilisé). Ouvrir une tâche →
+  panneau habituel à droite ; SI la place manque (< breakpoint 2xl), la colonne radar disparaît tant
+  que le panneau est ouvert et réapparaît à sa fermeture. Team sélectionnée persistée. Header unifié
+  (ViewHeader). Fini quand : radar fidèle à la référence (captures), clic team → backlog filtré,
+  ouverture de tâche à 1280px → radar caché puis restauré à la fermeture.
+refs:
+  - src/components/Sidebar.tsx
+  - src/App.tsx
+  - src/components/Backlog.tsx
+  - docs/assets/refs
+links: []
+dependsOn:
+  - 53
+milestone: null
+source: user
+createdAt: "2026-07-07"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
