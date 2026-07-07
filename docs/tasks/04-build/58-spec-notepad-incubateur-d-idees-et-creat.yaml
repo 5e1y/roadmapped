@@ -1,7 +1,7 @@
 id: 76
 code: null
 title: "Spec — Notepad : incubateur d'idées et créateur de prompts"
-status: todo
+status: in_progress
 tags:
   - spec
   - ux
@@ -18,8 +18,7 @@ refs:
   - docs/specs/2026-07-07-notepad.md
   - src/components/DocsView.tsx
   - src/server/api.ts
-links:
-  - 73
+links: []
 dependsOn: []
 milestone: null
 source: user
