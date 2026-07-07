@@ -1,7 +1,7 @@
 id: 64
 code: null
 title: Token economy 1 — skill scindé en noyau minimal + références routées
-status: in_progress
+status: done
 tags:
   - token-economy
   - skill
@@ -29,8 +29,15 @@ dependsOn:
 milestone: null
 source: user
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-07"
+commit: dffd595
+outcome: >-
+  Le skill tient en 49 lignes : boussole, échelle de décision quick→task→spec, cycle take→done, une
+  ligne par commande, règle d'or anti-token et routeur de références — une session de routine ne lit
+  plus rien d'autre
+verification: >-
+  Corps du SKILL.md compté : 49 lignes (awk depuis le titre). Références : workflows.md supprimé
+  (grep = 0 renvoi), planning.md + delegation.md créés, delegation dispatche via brief <id>. Sanity
+  : les 3 nouvelles commandes citées existent dans --help. Sonnet a inspecté take en lecture seule
+  (jamais exécuté). Aucune divergence CLI/spec.
 release: null

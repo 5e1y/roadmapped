@@ -1,7 +1,7 @@
 id: 67
 code: null
 title: Token economy 4 — zone Mini dans le Backlog (création inline, done rapide)
-status: in_progress
+status: done
 tags:
   - token-economy
   - ux
@@ -27,8 +27,17 @@ dependsOn:
 milestone: null
 source: user
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-07"
+commit: dffd595
+outcome: >-
+  Les minis se créent et se terminent sans quitter le Backlog : zone dédiée dense, titre+Entrée pour
+  créer, un clic sur le glyphe et un outcome pour terminer — et le Graphe reste réservé aux vraies
+  tâches
+verification: >-
+  E2E navigateur sur mini jetable : création inline constatée, done au glyphe (dialog outcome
+  auto-accepté) → YAML relu (kind quick, done, outcome, verification null acceptée), sorti de Mini
+  et présent dans Terminées. Le débug du Graphe a révélé un bug racine préexistant (cartes depuis
+  s.tasks non filtrés) corrigé et re-vérifié : quick absents avec et sans toggle terminées, done
+  masquées sauf chaîne transitive réelle (#17→#7→#1). Jetables supprimés, ids consommés. 162 tests +
+  build verts.
 release: null
