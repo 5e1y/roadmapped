@@ -1,0 +1,31 @@
+id: 1
+code: null
+title: Audit UX/UI complet du dashboard
+status: todo
+tags:
+  - ux
+  - audit
+size: M
+zone: dashboard
+detail: >-
+  Parcourir chaque vue avec des données réelles (ce backlog de lancement) : Backlog, Roadmap
+  Colonnes, Roadmap Graphe, Docs, side panel de tâche. Consigner chaque friction : hiérarchie
+  visuelle, densité, états vides, feedback des actions (création, édition, erreurs), incohérences de
+  style, navigation clavier. Livrable : docs/audit-ux-2026-07.md avec les findings classés bloquant
+  / important / nice-to-have. Ce doc alimente la tâche de polissage global et sert de matière aux
+  specs des features de cette section. Fini quand : le doc existe, chaque vue a été parcourue dans
+  le dashboard lancé (npm run dev), et les findings bloquants sont reportés dans les tâches
+  concernées.
+refs:
+  - docs/specs/2026-07-07-roadmaped-v2-design.md
+  - src/App.tsx
+  - src/index.css
+links: []
+dependsOn: []
+milestone: null
+source: ai
+createdAt: "2026-07-07"
+completedAt: null
+commit: null
+verification: null
+release: null

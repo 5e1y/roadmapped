@@ -1,0 +1,29 @@
+id: 7
+code: null
+title: Polissage UX/UI global (findings d'audit)
+status: todo
+tags:
+  - ux
+size: M
+zone: dashboard
+detail: >-
+  Implémenter les findings bloquants et importants de l'audit (docs/audit-ux-2026-07.md) qui ne
+  relèvent pas d'une des specs features de cette section : espacements, typographie, états vides,
+  feedback des mutations (toasts d'erreur API), cohérence de la palette monochrome, accessibilité
+  clavier de base (focus visibles, Esc, tab order). Fini quand : chaque finding traité est marqué
+  dans le doc d'audit avec la vérification observée dans le dashboard (npm run dev), et npm run test
+  passe.
+refs:
+  - docs/audit-ux-2026-07.md
+  - src/index.css
+  - src/components/ui.tsx
+links: []
+dependsOn:
+  - 1
+milestone: null
+source: ai
+createdAt: "2026-07-07"
+completedAt: null
+commit: null
+verification: null
+release: null

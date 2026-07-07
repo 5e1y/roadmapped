@@ -1,0 +1,28 @@
+id: 13
+code: null
+title: Publication du repo GitHub public
+status: todo
+tags:
+  - open-source
+size: S
+zone: repo
+detail: >-
+  Créer le repo GitHub public (roadmaped), pousser main, vérifier que la CI passe au vert sur le
+  vrai repo, activer Issues et Discussions, renseigner description + topics (project-management,
+  roadmap, claude, ai-agents, yaml, local-first) + lien vers le site quand il existera. Fini quand :
+  le repo est accessible depuis une fenêtre de navigation privée, badge CI vert visible sur le
+  README.
+refs:
+  - README.md
+links: []
+dependsOn:
+  - 8
+  - 9
+  - 11
+milestone: null
+source: ai
+createdAt: "2026-07-07"
+completedAt: null
+commit: null
+verification: null
+release: null

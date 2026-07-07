@@ -1,0 +1,27 @@
+id: 16
+code: null
+title: Positionnement et copy du site
+status: todo
+tags:
+  - marketing
+size: M
+zone: site
+detail: >-
+  Définir avec Rémi : audience (founders solo pilotés par agent IA, utilisateurs Claude Code),
+  promesse centrale (« votre repo est votre outil de gestion de projet »), différenciateurs
+  (fichiers plats sans SaaS ni base de données, agent-first, local, open source), structure de la
+  landing (hero, démo animée, features, quickstart, lien GitHub/skill), langue (EN, FR, ou les
+  deux), ton. Livrable : docs/site-copy.md avec la copy complète et approuvée, section par section.
+  C'est un livrable éditorial — pas de spec technique requise.
+refs:
+  - README.md
+  - docs/specs/2026-07-07-roadmaped-v2-design.md
+links: []
+dependsOn: []
+milestone: null
+source: user
+createdAt: "2026-07-07"
+completedAt: null
+commit: null
+verification: null
+release: null

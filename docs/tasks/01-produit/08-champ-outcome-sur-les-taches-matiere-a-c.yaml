@@ -1,0 +1,35 @@
+id: 22
+code: null
+title: Champ outcome sur les tâches (matière à changelog)
+status: in_progress
+tags:
+  - data-model
+size: S
+zone: core
+detail: >-
+  Ajouter un champ optionnel outcome (string ou null, défaut null) au schéma de tâche : une phrase
+  orientée utilisateur décrivant ce que la tâche a livré (« Le CLI supporte l'archivage »),
+  distincte de verification (la preuve technique observée). Sémantique changelog : l'archive +
+  outcome + release = le changelog de demain. Modifs : tasks.ts (type + parse), validate.ts
+  (string|null), FIELD_ORDER dans taskWrites/task.mjs (placer outcome juste avant verification),
+  done --outcome et update --outcome dans le CLI, champ éditable dans le TaskPanel du dashboard,
+  documentation dans skills/roadmaped/references/formats.md et le SKILL.md (règle d'usage :
+  consigner outcome à chaque done, comme verification). Rétrocompatible : les YAML existants sans le
+  champ restent valides. Fini quand : npm run test passe, un done --outcome réel est relu dans le
+  YAML sur disque, et le dashboard affiche/édite le champ.
+refs:
+  - src/lib/tasks.ts
+  - src/lib/validate.ts
+  - src/lib/taskWrites.ts
+  - scripts/task.mjs
+  - skills/roadmaped/references/formats.md
+links: []
+dependsOn: []
+milestone: null
+source: user
+createdAt: "2026-07-07"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
