@@ -23,7 +23,7 @@ import {
 } from '../src/lib/taskWrites.ts'
 import { computeAvailability, activeTasks, nextQueue } from '../src/lib/roadmap.ts'
 // Rendu partagé (#90) : CLI et serveur MCP consomment le MÊME code (src/lib/render.ts).
-import { git, taskLine, refLine, briefText, sitrepText } from '../src/lib/render.ts'
+import { git, taskLine, refLine, briefText, sitrepText, unloggedCommits } from '../src/lib/render.ts'
 import { TEAMS } from '../src/lib/tasks.ts'
 
 const { tasksDir: ROOT } = loadPaths()
@@ -495,7 +495,7 @@ function cmdGuard(flags) {
 function cmdSitrep(flags) {
   rejectUnknownFlags(flags, [], CMD_USAGE.sitrep)
   const { tree, errors } = treeWithErrors(ROOT)
-  console.log(sitrepText(tree, errors))
+  console.log(sitrepText(tree, errors, unloggedCommits(tree)))
 }
 
 function cmdRoadmap(flags) {
