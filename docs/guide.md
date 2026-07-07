@@ -582,8 +582,11 @@ enough (see [§6](#6-working-with-a-claude-agent)'s golden rule).
 The final rung of the token economy: `scripts/mcp-server.mjs` exposes the whole CLI as
 **MCP tools**. For an agent this beats the CLI on three counts — the tool's JSON schema
 *is* its documentation (injected once by the protocol instead of living in a reference),
-there is no shell line to assemble and quote, and the output is structured
-(`structuredContent`) with no formatting noise. It is the **agent's** surface; the CLI
+there is no shell line to assemble and quote, and the output has no formatting noise —
+dense text for the reading tools, plus `structuredContent` (always an object, per the MCP
+spec) only where the object *is* the payload: write tools return the resulting task, and
+clients that prefer `structuredContent` over text would otherwise hide the dense text
+([#95](#)). It is the **agent's** surface; the CLI
 stays for humans, CI, and tests. Both call the same `src/lib` core (`taskWrites` +
 `roadmap` + `render`) — one validation, one lock ([#83](#)), no second write path.
 

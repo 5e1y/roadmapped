@@ -35,16 +35,17 @@ describe('MCP — tools de lecture (#91)', () => {
     }
   })
 
-  it('sitrep → texte daté + structured.validateOk', () => {
+  it('sitrep → texte daté, PAS de structuredContent (le texte est la charge utile, #95)', () => {
     const r = tool('sitrep').handler({})
     expect(r.content[0].text).toMatch(/^sitrep — \d{4}-\d{2}-\d{2}/)
-    expect(r.structuredContent.validateOk).toBe(true)
+    expect(r.structuredContent).toBeUndefined()
   })
 
-  it('brief d’une tâche existante → structuredContent.id', () => {
+  it('brief d’une tâche existante → texte dense (pas de structured qui le masquerait)', () => {
     const r = tool('brief').handler({ id: 1 })
     expect(r.isError).toBeFalsy()
-    expect(r.structuredContent.id).toBe(1)
+    expect(r.content[0].text).toMatch(/Une tâche/)
+    expect(r.structuredContent).toBeUndefined()
   })
 
   it('brief d’un id absent → isError (message autoportant)', () => {
@@ -53,8 +54,8 @@ describe('MCP — tools de lecture (#91)', () => {
     expect(r.content[0].text).toMatch(/Aucune tâche #999/)
   })
 
-  it('next sert la file disponible (structuré)', () => {
-    expect(tool('next').handler({}).structuredContent[0].id).toBe(1)
+  it('next sert la file disponible (texte)', () => {
+    expect(tool('next').handler({}).content[0].text).toMatch(/#1\s+Une tâche/)
   })
 
   it('validate → structured.ok sur un arbre sain', () => {
@@ -71,7 +72,7 @@ describe('MCP — tools de lecture (#91)', () => {
   it('take démarre la prochaine dispo et renvoie son brief', () => {
     const r = tool('take').handler({})
     expect(r.content[0].text).toMatch(/#1 démarrée/)
-    expect(r.structuredContent.status).toBe('in_progress')
+    expect(tool('show').handler({ id: 1 }).structuredContent.status).toBe('in_progress')
   })
 })
 
@@ -93,19 +94,19 @@ describe('MCP — tools d’écriture (#92)', () => {
     tool('take').handler({}) // démarre #1
     const done = tool('done').handler({ id: 1, outcome: 'livré via tool', verification: 'observé via tool' })
     expect(done.isError).toBeFalsy()
-    expect(done.structuredContent.status).toBe('done')
-    expect(done.structuredContent.outcome).toBe('livré via tool')
+    expect(done.structuredContent.task.status).toBe('done')
+    expect(done.structuredContent.task.outcome).toBe('livré via tool')
     // relecture indépendante du disque
     expect(makeTools(dir).find((t) => t.name === 'show').handler({ id: 1 }).structuredContent.status).toBe('done')
   })
 
   it('écriture invalide (team hors enum) → isError ET rollback (arbre inchangé)', () => {
-    const before = makeTools(dir).find((t) => t.name === 'next').handler({ count: 9 }).structuredContent.length
+    const before = makeTools(dir).find((t) => t.name === 'next').handler({ count: 9 }).content[0].text
     const r = tool('add').handler({ section: '04-build', title: 'Mauvaise team', team: 'wizardry' })
     expect(r.isError).toBe(true)
     // rollback : la validation reste OK et aucune tâche n'a été ajoutée
     expect(makeTools(dir).find((t) => t.name === 'validate').handler({}).structuredContent.ok).toBe(true)
-    expect(makeTools(dir).find((t) => t.name === 'next').handler({ count: 9 }).structuredContent.length).toBe(before)
+    expect(makeTools(dir).find((t) => t.name === 'next').handler({ count: 9 }).content[0].text).toBe(before)
   })
 
   it('done d’un quick sans outcome → isError (message du noyau)', () => {
@@ -113,5 +114,36 @@ describe('MCP — tools d’écriture (#92)', () => {
     const r = tool('done').handler({ id: q.structuredContent.id })
     expect(r.isError).toBe(true)
     expect(r.content[0].text).toMatch(/outcome requis/)
+  })
+})
+
+describe('MCP — invariant de sortie (#95)', () => {
+  // La spec MCP exige structuredContent = OBJET ; le SDK client rejette array/null (-32602).
+  // Ce test appelle les 14 tools et vérifie l'invariant sur chaque résultat.
+  const check = (r) => {
+    if ('structuredContent' in r) {
+      expect(r.structuredContent, 'structuredContent doit être un objet (pas null/array)').toBeTruthy()
+      expect(Array.isArray(r.structuredContent)).toBe(false)
+      expect(typeof r.structuredContent).toBe('object')
+    }
+    expect(typeof r.content[0].text).toBe('string')
+  }
+  it('les 14 tools renvoient structuredContent objet ou rien, jamais array/null', () => {
+    check(tool('sitrep').handler({}))
+    check(tool('brief').handler({ id: 1 }))
+    check(tool('show').handler({ id: 1 }))
+    check(tool('next').handler({ count: 9 }))
+    check(tool('list').handler({}))
+    check(tool('roadmap').handler({}))
+    check(tool('validate').handler({}))
+    check(tool('take').handler({}))                                                   // démarre #1
+    check(tool('done').handler({ id: 1, outcome: 'x', verification: 'y' }))
+    check(tool('add').handler({ section: '04-build', title: 'T', team: 'design' }))   // #2
+    check(tool('update').handler({ id: 2, detail: 'd' }))
+    check(tool('quick').handler({ title: 'Q', team: 'engineering' }))                 // #3
+    check(tool('start').handler({ id: 2 }))
+    check(tool('archive').handler({ id: 1 }))
+    check(tool('take').handler({ team: 'legal' }))  // file vide → l'ancien cas structured:null
+    check(tool('next').handler({ team: 'legal' }))  // file vide → l'ancien cas structured:[]
   })
 })

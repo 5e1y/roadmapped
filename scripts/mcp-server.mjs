@@ -25,6 +25,10 @@ import { briefText, sitrepText, taskLine, refLine, git } from '../src/lib/render
 import { TEAMS } from '../src/lib/tasks.ts'
 
 // ------------------------------------------------------------------ helpers de sortie
+// Règle (#95) : structuredContent SEULEMENT quand l'objet est la charge utile (écriture →
+// tâche résultante, validate). Les clients (Claude Code) n'affichent QUE structuredContent
+// quand il est présent — un tool texte-first (sitrep, brief, next…) qui en émet perd son
+// texte dense. Et la spec MCP exige un OBJET : jamais d'array ni de null ici.
 const ok = (text, structured) => ({
   content: [{ type: 'text', text }],
   ...(structured !== undefined ? { structuredContent: structured } : {}),
@@ -73,7 +77,7 @@ export function makeTools(ROOT) {
     inputSchema: S.none,
     handler: () => {
       const { tree, errors } = treeWithErrors(ROOT)
-      return ok(sitrepText(tree, errors), { validateOk: errors.length === 0, errors })
+      return ok(sitrepText(tree, errors))
     },
   },
   {
@@ -83,7 +87,7 @@ export function makeTools(ROOT) {
     handler: ({ id }) => {
       const tree = readTree(ROOT)
       const hit = findTask(tree, id)
-      return hit ? ok(briefText(tree, hit), hit.task) : fail(`Aucune tâche #${id}.`)
+      return hit ? ok(briefText(tree, hit)) : fail(`Aucune tâche #${id}.`)
     },
   },
   {
@@ -106,8 +110,8 @@ export function makeTools(ROOT) {
     },
     handler: ({ count = 1, team } = {}) => {
       const queue = nextQueue(readTree(ROOT), { team }).slice(0, Math.max(1, count))
-      if (queue.length === 0) return ok('Aucune tâche disponible (tout est fait, verrouillé ou en cours).', [])
-      return ok(queue.map((t) => taskLine(t, '')).join('\n'), queue.map((t) => ({ id: t.id, title: t.title, team: t.team, size: t.size })))
+      if (queue.length === 0) return ok('Aucune tâche disponible (tout est fait, verrouillé ou en cours).')
+      return ok(queue.map((t) => taskLine(t, '')).join('\n'))
     },
   },
   {
@@ -116,13 +120,13 @@ export function makeTools(ROOT) {
     inputSchema: { type: 'object', properties: { team: S.team }, additionalProperties: false },
     handler: ({ team } = {}) => {
       const queue = nextQueue(readTree(ROOT), { team })
-      if (queue.length === 0) return ok(`Aucune tâche disponible${team ? ` pour la team ${team}` : ''}.`, null)
+      if (queue.length === 0) return ok(`Aucune tâche disponible${team ? ` pour la team ${team}` : ''}.`)
       const id = queue[0].id
       const res = startTask(ROOT, id)
       if (!res.ok) return fail(`Échec du start #${id} :\n${res.errors.join('\n')}`)
       const tree = readTree(ROOT)
       const hit = findTask(tree, id)
-      return ok(`#${id} démarrée.\n${briefText(tree, hit)}`, hit.task)
+      return ok(`#${id} démarrée.\n${briefText(tree, hit)}`)
     },
   },
   {
@@ -148,16 +152,12 @@ export function makeTools(ROOT) {
       if (a.team) keep((t) => t.team === a.team)
       if (a.tag) keep((t) => t.tags.includes(a.tag))
       const lines = []
-      const light = []
       for (const s of sections) {
         const done = s.tasks.filter((t) => t.status === 'done').length
         lines.push(`${s.key} — ${s.title} (${s.status}) ${done}/${s.tasks.length}`)
-        for (const t of s.tasks) {
-          lines.push(taskLine(t))
-          light.push({ id: t.id, title: t.title, status: t.status, team: t.team, stage: s.key, size: t.size, kind: t.kind })
-        }
+        for (const t of s.tasks) lines.push(taskLine(t))
       }
-      return ok(lines.join('\n') || '(aucune tâche)', light)
+      return ok(lines.join('\n') || '(aucune tâche)')
     },
   },
   {
@@ -174,14 +174,13 @@ export function makeTools(ROOT) {
         state: avail.get(t.id) ?? 'available', missing: missingOf(t),
       }))
       if (tree.roadmaps.length === 0) {
-        const summary = `Aucune roadmap déclarée (_roadmaps.yaml absent). ${active.length} tâches actives.`
-        return ok(summary, model)
+        return ok(`Aucune roadmap déclarée (_roadmaps.yaml absent). ${active.length} tâches actives.`)
       }
       const lines = model.map((m) => {
         const tag = m.state === 'done' ? '[x]' : m.state === 'available' ? '[~] (disponible)' : `[ ] (verrouillé: ${m.missing.map((d) => `#${d}`).join(' ')})`
         return `${tag} #${m.id} ${m.title} (${m.team})`
       })
-      return ok(lines.join('\n'), model)
+      return ok(lines.join('\n'))
     },
   },
   {
@@ -287,7 +286,8 @@ export function makeTools(ROOT) {
       const tree = readTree(ROOT)
       const hit = findTask(tree, a.id)
       const suffix = res.warnings?.length ? `\n⚠ ${res.warnings.join('\n⚠ ')}` : ''
-      return ok(`#${a.id} terminée (done).${commit ? ` commit=${commit}.` : ''}${suffix}`, hit.task)
+      // warnings AUSSI dans le structured : le client peut masquer le texte (#95).
+      return ok(`#${a.id} terminée (done).${commit ? ` commit=${commit}.` : ''}${suffix}`, { task: hit.task, warnings: res.warnings ?? [] })
     },
   },
   {
