@@ -1,0 +1,32 @@
+id: 69
+code: null
+title: Token economy v2 — extraits de refs dans brief (ancres symbole + drapeau de fraîcheur)
+status: todo
+tags:
+  - token-economy
+  - cli
+size: M
+team: engineering
+detail: >-
+  ⛔ Après livraison ET mesure de la v1 (#64-68). Annexe pt 2 avec les parades anti-dérive validées
+  par Rémi : brief joint ~10 lignes autour de chaque ref AU MOMENT DU SERVE (jamais figé) ; ancrage
+  par SYMBOLE (fichier#nextQueue, résolu par grep au serve ; :ligne permis mais documenté fragile) ;
+  drapeau « ⚠ modifié depuis la création du ticket » sur toute ref dont le fichier a bougé après
+  createdAt (git log -1 -- fichier). TDD sur le résolveur d'ancres (symbole trouvé/déplacé/absent).
+  Fini quand : brief d'une vraie tâche montre extraits + drapeaux corrects (fichier modifié exprès
+  en sandbox), lecture complète évitée mesurée (~2 500 → ~100 tokens par ref).
+refs:
+  - docs/specs/2026-07-07-token-economy.md
+  - scripts/task.mjs
+  - src/lib/taskWrites.ts
+links: []
+dependsOn:
+  - 68
+milestone: null
+source: user
+createdAt: "2026-07-07"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

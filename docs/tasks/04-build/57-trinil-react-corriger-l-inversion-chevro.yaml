@@ -1,0 +1,28 @@
+id: 74
+code: null
+title: "trinil-react : corriger l'inversion ChevronLeft/ChevronRight (lib externe)"
+status: todo
+tags:
+  - bug
+  - icons
+size: S
+team: engineering
+detail: >-
+  Découvert en #63 : dans trinil-react 1.3.9 (la lib perso de Rémi, hors de ce repo), le path de
+  ChevronRight pointe à GAUCHE et inversement (vérifié par rendu des paths : Right = m17.188 21.75
+  -9.644…, Left = m8.25 21.75 9.644…). ChevronDown est correct. À corriger DANS LA LIB (tous les
+  projets consommateurs sont touchés), publier, puis inverser notre contournement (glyphs.tsx
+  importe ChevronLeft avec un commentaire ⚠ à simplifier). Fini quand : trinil-react ≥ 1.3.10 publié
+  avec les bons sens, notre import revenu à ChevronRight, commentaire retiré.
+refs:
+  - src/components/glyphs.tsx
+links: []
+dependsOn: []
+milestone: null
+source: ai
+createdAt: "2026-07-07"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

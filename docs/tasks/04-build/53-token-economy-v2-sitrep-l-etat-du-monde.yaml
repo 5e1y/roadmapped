@@ -1,0 +1,29 @@
+id: 70
+code: null
+title: "Token economy v2 — sitrep : l'état du monde en 30 lignes"
+status: todo
+tags:
+  - token-economy
+  - cli
+size: S
+team: engineering
+detail: >-
+  ⛔ Après la v1. Annexe pt 3 : task.mjs sitrep = ouverture de session en un appel — N done
+  aujourd'hui (titres), in_progress avec âge, les 3 prochaines de la file, validate en un mot,
+  alertes (tâches in_progress anciennes, deps bloquantes). ≤ 30 lignes, ~150 tokens. Intégré au
+  routeur du skill comme PREMIER geste de session (avant même take). Fini quand : sitrep rejoué sur
+  le vrai repo, sortie ≤ 30 lignes, skill mis à jour.
+refs:
+  - docs/specs/2026-07-07-token-economy.md
+  - scripts/task.mjs
+links: []
+dependsOn:
+  - 68
+milestone: null
+source: user
+createdAt: "2026-07-07"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
