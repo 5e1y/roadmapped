@@ -1,0 +1,33 @@
+id: 29
+code: null
+title: "CLI : vider les listes avec null (tags, refs, links)"
+status: todo
+tags:
+  - cli
+  - bug
+size: S
+zone: core
+detail: >-
+  Bug découvert en vérifiant le guide (#10) : le --help promet « "null" = remettre un champ à null »
+  mais pour les champs LISTE, update --tags null crée un tag littéral « null » (seuls les champs
+  scalaires et --depends-on/--milestone honorent null). Cause : cmdUpdate passe les listes par
+  splitList sans le traitement nullable. Fix : dans cmdUpdate (scripts/task.mjs), traiter la valeur
+  "null" des champs liste comme [] (parité avec --depends-on null). TDD : test rouge d'abord
+  (updateTask est déjà couvert — le bug est dans le parsing CLI, tester la fonction de parsing
+  extraite ou à défaut un test d'intégration du CLI en sandbox). Mettre à jour la section 4 et la
+  FAQ du guide (docs/guide.md documente le contournement --tags '' — le simplifier une fois le fix
+  livré). Fini quand : update --tags null écrit tags: [] dans le YAML relu.
+refs:
+  - scripts/task.mjs
+  - docs/guide.md
+  - src/lib/taskWrites.ts
+links: []
+dependsOn: []
+milestone: null
+source: ai
+createdAt: "2026-07-07"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
