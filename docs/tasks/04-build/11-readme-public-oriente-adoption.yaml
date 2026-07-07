@@ -8,11 +8,11 @@ tags:
 size: M
 team: engineering
 detail: >-
-  Réécrire le README pour un visiteur GitHub qui découvre le projet : pitch en 3 lignes (votre repo
-  devient votre outil de gestion de projet, agent-first, zéro base de données), capture ou GIF du
-  dashboard, quickstart en 3 commandes, tableau des features, liens vers docs/guide.md, le skill
-  Claude et le site, badges (CI, licence). Même langue que le guide (décidée en tâche #10). Fini
-  quand : relu par Rémi, tous les liens valides, capture à jour du dashboard réel.
+  Réécrire le README pour un visiteur GitHub qui découvre le projet : pitch en 3 lignes, capture du
+  dashboard, quickstart en 3 commandes, tableau des features, liens guide/skill, badges. ÉTAT :
+  LIVRÉ en anglais (commit du chantier #29/#11 — capture docs/assets/dashboard.png prise sur le vrai
+  dashboard) mais la capture est ANTÉRIEURE aux refontes (stages, radar, tabs) → à re-prendre, et il
+  manque LA RELECTURE DE RÉMI (définition de fini). Reste : re-capture + relecture + done.
 refs:
   - README.md
   - docs/guide.md

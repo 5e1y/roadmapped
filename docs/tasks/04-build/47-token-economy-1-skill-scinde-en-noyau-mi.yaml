@@ -8,15 +8,16 @@ tags:
 size: M
 team: engineering
 detail: >-
-  ⛔ N'exécuter qu'après approbation de la spec par Rémi. Spec §1 : réécrire SKILL.md en noyau ≤ 50
-  lignes (boussole 5 lignes, cycle take→done, commandes en 1 ligne, interdits condensés, ROUTEUR de
-  références) avec la règle d'or anti-token (next/take/start/done/add/quick = zéro lecture de
-  référence, le CLI est autoportant). Éclater workflows.md en planning.md (idée→spec→tâches) et
-  delegation.md (subagents/revues) sans changer le fond ; mettre à jour le routeur et les renvois
-  croisés (setup.md, formats.md, guide). Dépend des nouvelles commandes CLI (take/brief/quick)
-  documentées par les tickets 2-3 — à faire EN DERNIER du chantier ou avec des placeholders assumés.
-  Fini quand : wc -l SKILL.md ≤ 50, cycle take→done rejoué en sandbox sans ouvrir une seule
-  référence, bootstrap mesuré ~900 tokens.
+  ⛔ N'exécuter qu'après approbation de la spec par Rémi. Spec §1 + annexe pt 1 : réécrire SKILL.md
+  en noyau ≤ 50 lignes (boussole 5 lignes, cycle take→done, commandes en 1 ligne, interdits
+  condensés, ROUTEUR de références) avec DEUX règles d'or : (a) anti-token —
+  next/take/start/done/add/quick = zéro lecture de référence, le CLI est autoportant ; (b) l'ÉCHELLE
+  de décision façon ponytail — « ce changement mérite-t-il d'exister ? → un quick ? → un task ? →
+  une spec ? », stop au premier barreau. Le noyau doit être STRICTEMENT STABLE (aucun contenu
+  dynamique — condition du cache, annexe 2). Éclater workflows.md en planning.md et delegation.md ;
+  mettre à jour routeur et renvois. À faire APRÈS les tickets CLI 65-66 (les commandes documentées
+  doivent exister). Fini quand : wc -l ≤ 50, cycle take→done rejoué en sandbox sans ouvrir une
+  référence, bootstrap ~900 tokens.
 refs:
   - docs/specs/2026-07-07-token-economy.md
   - skills/roadmaped/SKILL.md

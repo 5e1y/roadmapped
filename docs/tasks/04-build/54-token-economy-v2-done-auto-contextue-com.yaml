@@ -1,0 +1,29 @@
+id: 71
+code: null
+title: Token economy v2 — done auto-contextué (commit HEAD + refs suggérées du diff)
+status: todo
+tags:
+  - token-economy
+  - cli
+size: S
+team: engineering
+detail: >-
+  ⛔ Après la v1. Annexe pt 4 : au done sans --commit, l'app remplit le sha de HEAD ; --suggest-refs
+  liste les fichiers du diff depuis le start de la tâche (git diff --name-only) pour confirmation —
+  l'agent ne lit plus git. Prudence : ne JAMAIS écrire des refs non confirmées (suggestion affichée,
+  pas appliquée). Fini quand : done sans --commit porte le bon sha (relu YAML), suggestion de refs
+  constatée sur une vraie tâche.
+refs:
+  - docs/specs/2026-07-07-token-economy.md
+  - scripts/task.mjs
+links: []
+dependsOn:
+  - 68
+milestone: null
+source: user
+createdAt: "2026-07-07"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
