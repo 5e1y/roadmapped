@@ -16,6 +16,13 @@ export default defineConfig({
       // il faut ré-inclure la racine du dashboard, sinon index.html lui-même est 403.
       allow: [dashboardRoot(), paths.tasksDir, paths.docsDir],
     },
+    // Les données (tasks YAML, docs markdown) ne font PAS partie du graphe de
+    // modules : elles se lisent par /api/*. Sans cette exclusion, chaque
+    // sauvegarde (UI, CLI, agent) déclenche un FULL-RELOAD de la page — le
+    // panneau se fermait en pleine édition (bug constaté au Playwright).
+    watch: {
+      ignored: [`${paths.tasksDir}/**`, `${paths.docsDir}/**`],
+    },
   },
   test: {
     environment: 'jsdom',

@@ -1,7 +1,8 @@
 import { Select as BaseSelect } from '@base-ui/react/select'
 import { Input as BaseInput } from '@base-ui/react/input'
 import { Combobox } from '@base-ui/react/combobox'
-import type { ComponentProps, KeyboardEvent } from 'react'
+import { Toast } from '@base-ui/react/toast'
+import { useEffect, useRef, useState, type ComponentProps, type KeyboardEvent } from 'react'
 
 /**
  * Mini-kit de primitives Base UI stylées monochrome — source unique des
@@ -10,6 +11,15 @@ import type { ComponentProps, KeyboardEvent } from 'react'
 
 export const fieldCls =
   'w-full rounded border border-neutral-300 px-2 py-1.5 text-sm text-neutral-900 focus:border-neutral-900 focus:outline-none disabled:bg-neutral-50 disabled:text-neutral-400'
+
+/**
+ * Peau « ghost » (décision Rémi 2026-07-07) : l'élément éditable est un input
+ * MONTÉ EN PERMANENCE, camouflé en lecture — transparent, même typo que le
+ * texte lu ; fond gris au survol ; contour au focus (le :focus-visible global
+ * d'index.css). Jamais de swap lecture→input, jamais d'étape crayon.
+ */
+export const ghostCls =
+  'w-full rounded border border-transparent bg-transparent px-1.5 py-1 text-neutral-900 transition-colors hover:bg-neutral-100 focus:border-neutral-300 focus:bg-white focus:outline-none disabled:text-neutral-500 disabled:hover:bg-transparent'
 
 /** Enter = valider (blur déclenche la sauvegarde des champs "au blur"). */
 export const blurOnEnter = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -43,9 +53,91 @@ export function TextInput(props: ComponentProps<typeof BaseInput>) {
   return <BaseInput {...props} className={`${fieldCls} ${props.className ?? ''}`} />
 }
 
+export function GhostInput(props: ComponentProps<typeof BaseInput>) {
+  return <BaseInput {...props} className={`${ghostCls} ${props.className ?? ''}`} />
+}
+
+/** Textarea ghost auto-grow — l'équivalent camouflé d'AutoTextArea. */
+export function GhostAutoTextArea({ className = '', style, ...props }: ComponentProps<'textarea'>) {
+  const ref = useRef<HTMLTextAreaElement>(null)
+  const grow = (el: HTMLTextAreaElement) => {
+    el.style.height = 'auto'
+    el.style.height = `${el.scrollHeight}px`
+  }
+  useEffect(() => { if (ref.current) grow(ref.current) }, [])
+  return (
+    <textarea
+      ref={ref}
+      onInput={(e) => grow(e.currentTarget)}
+      className={`${ghostCls} resize-none overflow-hidden ${className}`}
+      style={style}
+      rows={1}
+      {...props}
+    />
+  )
+}
+
 export function TextArea(props: ComponentProps<'textarea'>) {
   // Base UI n'a pas de textarea — même peau que les autres champs.
   return <textarea {...props} className={`${fieldCls} min-h-[100px] resize-y ${props.className ?? ''}`} />
+}
+
+/**
+ * Textarea qui grandit avec son contenu (édition du détail markdown, spec §3 :
+ * « textarea auto-grow, pleine hauteur naturelle »). Même peau que les champs ;
+ * pas de scrollbar interne (overflow-hidden) — c'est le panneau qui scrolle.
+ */
+export function AutoTextArea({ className = '', ...props }: ComponentProps<'textarea'>) {
+  const ref = useRef<HTMLTextAreaElement>(null)
+  const grow = (el: HTMLTextAreaElement) => {
+    el.style.height = 'auto'
+    el.style.height = `${el.scrollHeight}px`
+  }
+  useEffect(() => { if (ref.current) grow(ref.current) }, [])
+  return (
+    <textarea
+      ref={ref}
+      onInput={(e) => grow(e.currentTarget)}
+      className={`${fieldCls} min-h-[80px] resize-none overflow-hidden ${className}`}
+      {...props}
+    />
+  )
+}
+
+/**
+ * File d'attente des toasts du panneau — Base UI Toast, réservée aux erreurs
+ * RÉSEAU (spec §Feedback). Registre visuel de l'ErrorBanner (bord gauche appuyé
+ * neutral-900), monochrome strict. À monter DANS un `<Toast.Provider>` ; le
+ * `add()` s'obtient via `Toast.useToastManager()` côté émetteur.
+ */
+export function ToastViewport() {
+  const { toasts } = Toast.useToastManager()
+  return (
+    <Toast.Viewport className="fixed bottom-4 right-4 z-[100] flex w-72 flex-col gap-2">
+      {toasts.map((toast) => (
+        <Toast.Root
+          key={toast.id}
+          toast={toast}
+          className="rounded border border-l-4 border-neutral-900 bg-white px-3 py-2 shadow-sm data-[ending]:opacity-0 data-[starting]:opacity-0"
+        >
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <Toast.Title className="text-xs font-semibold text-neutral-900" />
+              <Toast.Description className="mt-0.5 text-xs text-neutral-700" />
+            </div>
+            <Toast.Close
+              aria-label="Fermer"
+              className="shrink-0 rounded p-0.5 text-neutral-400 hover:text-neutral-700"
+            >
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                <path d="M2 2l6 6M8 2l-6 6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+              </svg>
+            </Toast.Close>
+          </div>
+        </Toast.Root>
+      ))}
+    </Toast.Viewport>
+  )
 }
 
 export interface SelectItem {
@@ -58,6 +150,7 @@ export function Select({
   onValueChange,
   items,
   disabled = false,
+  ghost = false,
   'aria-label': ariaLabel,
 }: {
   /** Non contrôlé (parité avec les champs "au blur") : le choix s'affiche
@@ -66,6 +159,8 @@ export function Select({
   onValueChange: (value: string) => void
   items: SelectItem[]
   disabled?: boolean
+  /** Peau camouflée (ghostCls) — pour les champs permanents du panneau. */
+  ghost?: boolean
   'aria-label'?: string
 }) {
   return (
@@ -77,7 +172,7 @@ export function Select({
     >
       <BaseSelect.Trigger
         aria-label={ariaLabel}
-        className={`${fieldCls} flex items-center justify-between gap-2 text-left data-[disabled]:bg-neutral-50 data-[disabled]:text-neutral-400`}
+        className={`${ghost ? `${ghostCls} text-sm` : fieldCls} flex items-center justify-between gap-2 text-left data-[disabled]:bg-neutral-50 data-[disabled]:text-neutral-400 ${ghost ? 'data-[disabled]:bg-transparent' : ''}`}
       >
         <BaseSelect.Value />
         <BaseSelect.Icon className="shrink-0 text-neutral-400">
@@ -107,6 +202,54 @@ export function Select({
         </BaseSelect.Positioner>
       </BaseSelect.Portal>
     </BaseSelect.Root>
+  )
+}
+
+/**
+ * Combobox « ajouter » ghost : sélection UNITAIRE qui appelle onAdd puis se
+ * vide (remontage par clé). Sert aux listes du panneau (dépendances, liens) :
+ * les éléments existants s'affichent en lignes navigables avec leur propre ✕,
+ * l'ajout se fait ici — pas de chips dupliquées, pas d'étape crayon.
+ */
+export function AddCombobox({ items, placeholder, onAdd, 'aria-label': ariaLabel }: {
+  items: SelectItem[]
+  placeholder: string
+  onAdd: (value: string) => void
+  'aria-label'?: string
+}) {
+  const [epoch, setEpoch] = useState(0)
+  return (
+    <Combobox.Root
+      key={epoch}
+      items={items}
+      onValueChange={(item: SelectItem | null) => {
+        if (item) { onAdd(item.value); setEpoch((e) => e + 1) }
+      }}
+    >
+      <Combobox.Input
+        aria-label={ariaLabel ?? placeholder}
+        placeholder={placeholder}
+        className={`${ghostCls} text-sm placeholder:text-neutral-400`}
+      />
+      <Combobox.Portal>
+        <Combobox.Positioner sideOffset={4} className="z-50">
+          <Combobox.Popup className="max-h-64 min-w-[var(--anchor-width)] overflow-y-auto rounded border border-neutral-200 bg-white py-1 shadow-sm">
+            <Combobox.Empty className="px-2.5 py-1.5 text-sm text-neutral-400">Aucune tâche.</Combobox.Empty>
+            <Combobox.List>
+              {(item: SelectItem) => (
+                <Combobox.Item
+                  key={item.value}
+                  value={item}
+                  className="cursor-default truncate px-2.5 py-1.5 text-sm text-neutral-900 data-[highlighted]:bg-neutral-100"
+                >
+                  {item.label}
+                </Combobox.Item>
+              )}
+            </Combobox.List>
+          </Combobox.Popup>
+        </Combobox.Positioner>
+      </Combobox.Portal>
+    </Combobox.Root>
   )
 }
 
