@@ -23,5 +23,6 @@ source: user
 createdAt: "2026-07-07"
 completedAt: null
 commit: null
+outcome: null
 verification: null
 release: null
