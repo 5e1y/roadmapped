@@ -1,7 +1,7 @@
 id: 7
 code: null
 title: Polissage UX/UI global (findings d'audit)
-status: todo
+status: in_progress
 tags:
   - ux
 size: M
@@ -25,5 +25,6 @@ source: ai
 createdAt: "2026-07-07"
 completedAt: null
 commit: null
+outcome: null
 verification: null
 release: null
