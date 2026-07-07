@@ -1,7 +1,7 @@
 id: 57
 code: null
 title: Tri par stage puis ancienneté — calculé par l'app, consommé par le skill
-status: in_progress
+status: done
 tags:
   - core
   - cli
@@ -28,8 +28,15 @@ dependsOn:
 milestone: null
 source: user
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-07"
+commit: dff378b
+outcome: >-
+  L'ordre de travail est calculé par l'app une fois pour toutes : stage d'abord, ancienneté ensuite
+  — visible dans les backlogs, servi par next --count, et le skill a interdiction de le recalculer
+verification: >-
+  TDD : 4 tests nextQueue rouges puis verts (stage avant ancienneté, exclusions
+  done/in_progress/verrouillées, filtre team, sections dormantes). Sur le vrai backlog : next
+  --count 3 → #16 (identity) avant #3 #4 (build) ; next --team marketing → #16 ; colonne ouvertes du
+  Backlog assertée [#16,#3,#4,#5]. SKILL.md consigne « consomme, ne recalcule jamais ». 132 tests +
+  build verts.
 release: null
