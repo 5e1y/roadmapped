@@ -57,6 +57,31 @@ export function missingPrereqs(task: TaskNode, avail: Map<number, Availability>)
 }
 
 /**
+ * Dépendances INVERSES : les tâches ACTIVES (sous-tâches comprises) dont
+ * `dependsOn` contient `id`. Triées par id croissant. Alimente le bloc « Bloque »
+ * du panneau — entièrement calculé, aucun champ YAML.
+ */
+export function reverseDependents(tree: TaskTree, id: number): TaskNode[] {
+  return activeTasks(tree)
+    .filter((t) => t.dependsOn.includes(id))
+    .sort((a, b) => a.id - b.id)
+}
+
+/**
+ * État d'affichage d'une dépendance (bloc « Dépend de » du panneau) :
+ * - 'archived' : la dep vit dans l'archive (done de fait, mais affichée avec son
+ *   badge), OU son id est inconnu — traité comme archivé défensivement : une dep
+ *   validée pointe toujours vers un id connu, on n'échoue donc pas l'affichage ;
+ * - sinon l'availability calculée de la tâche active : 'done' | 'available' | 'locked'
+ *   (réutilise computeAvailability, source unique de l'état des tâches).
+ */
+export function depState(tree: TaskTree, id: number): Availability | 'archived' {
+  const archivedIds = new Set(archivedTasks(tree).map((t) => t.id))
+  if (archivedIds.has(id)) return 'archived'
+  return computeAvailability(tree).get(id) ?? 'archived'
+}
+
+/**
  * Range les tâches en couches topologiques. La couche d'une tâche = profondeur
  * maximale de sa chaîne de dépendances DANS l'ensemble fourni (deps hors ensemble ignorées).
  * Couche 0 = tâches sans dépendance interne. Déterministe, pas de mesure DOM.
