@@ -1,0 +1,34 @@
+id: 41
+code: null
+title: Stages+teams core 2 — CLI et API
+status: in_progress
+tags:
+  - refactor
+  - cli
+size: M
+zone: cli
+detail: >-
+  Spec §CLI & skill + §Modèle. task.mjs : add exige --team (∈ enum, erreur sinon), --zone devient
+  flag inconnu partout, update --team, list --team <t> (filtre), show/next/roadmap affichent la
+  team, USAGE mis à jour. agentBrief (TaskRow.tsx, fonction pure — seule exception UI autorisée ici)
+  : « Team : » remplace « Zone : ». api.ts : supprimer POST /api/sections (createSection n'existe
+  plus), PATCH /api/sections/:dir reste (status/note — le title canonique est protégé par la
+  validation). Étendre scripts/task.test.mjs (sandbox hermétique, pattern existant) : add avec/sans
+  --team, --zone rejeté, list --team. ⚠️ même contrainte que core 1 : sandbox uniquement, le vrai
+  backlog est invalide jusqu'à core 3. Fini quand : tests CLI verts en sandbox aux 8 stages.
+refs:
+  - docs/specs/2026-07-07-stages-teams.md
+  - scripts/task.mjs
+  - scripts/task.test.mjs
+  - src/server/api.ts
+links: []
+dependsOn:
+  - 40
+milestone: null
+source: ai
+createdAt: "2026-07-07"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
