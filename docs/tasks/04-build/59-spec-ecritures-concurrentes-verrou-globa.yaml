@@ -1,7 +1,7 @@
 id: 77
 code: null
 title: "Spec — écritures concurrentes : verrou global de mutation"
-status: todo
+status: in_progress
 tags:
   - spec
   - concurrency
@@ -17,7 +17,8 @@ detail: >-
 refs:
   - docs/specs/2026-07-07-concurrent-writes.md
   - src/lib/taskWrites.ts
-links: []
+links:
+  - 73
 dependsOn: []
 milestone: null
 source: user
