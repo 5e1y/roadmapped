@@ -1,0 +1,22 @@
+id: 94
+kind: quick
+code: null
+title: "Doc de passation : dérive process (changements sans ticket) → skill + enforcement au commit"
+status: in_progress
+tags:
+  - process
+size: null
+team: engineering
+detail: null
+refs:
+  - docs/process-enforcement-gap.md
+links: []
+dependsOn: []
+milestone: null
+source: ai
+createdAt: "2026-07-08T01:10:18"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
