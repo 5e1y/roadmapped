@@ -1,0 +1,30 @@
+id: 83
+code: null
+title: withLock — verrou global mkdir + TTL orphelin (TDD concurrence réelle)
+status: todo
+tags: []
+size: M
+team: engineering
+detail: >-
+  Sérialise TOUTE mutation via withLock(tasksDir, fn) dans taskWrites.ts : mkdir docs/tasks/.lock
+  (atomique tous FS) autour de allocation→écriture→validation→libération (finally). Toutes les
+  mutations (addTask/patchActive/archiveTask/deleteTask/saveRoadmaps) passent dedans ; les LECTURES
+  restent lock-free. Échec mkdir → retry backoff 50ms×1.5 plafond ~1s, abandon ~10s avec erreur
+  exploitable. TTL anti-deadlock : le verrou écrit un fichier pid+timestamp dedans ; verrou >10s =
+  orphelin (process mort) écrasé. .lock exclu de walk/validation (pas une section). TDD (vitest) :
+  10 addTask réellement concurrents (spawn 2+ process sur même sandbox) → 10 ids uniques consécutifs
+  zéro rollback ; verrou orphelin daté vieux → écrasé ; timeout → erreur propre. Fini quand : test
+  de concurrence réelle vert, orphelin récupéré, timeout propre, build vert.
+refs:
+  - docs/specs/2026-07-07-concurrent-writes.md
+  - src/lib/taskWrites.ts
+links: []
+dependsOn: []
+milestone: null
+source: ai
+createdAt: "2026-07-08"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
