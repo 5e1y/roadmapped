@@ -6,7 +6,6 @@ import { LockLocked } from 'trinil-react'
 import { StatusGlyph } from './glyphs'
 import { TEAM_ABBR } from '../lib/tasks'
 import type { TaskNode } from '../lib/tasks'
-import { useTeamFilter } from '../state/filters'
 import { useShowDone } from './RoadmapView'
 
 const COL_W = 280, COL_GAP = 32, ROW_H = 96, CARD_W = 248, CARD_H = 72, PAD = 24, HEADER_H = 40
@@ -166,10 +165,6 @@ export function RoadmapGraph() {
 function GraphCard({ placed, onOpen }: { placed: Placed; onOpen: () => void }) {
   const { task, state } = placed
   const { top } = usePanel()
-  const [teamFilter] = useTeamFilter()
-  // Filtre team : dans le graphe on ESTOMPE (retirer une carte casserait les
-  // arêtes de dépendances) — l'encre s'éteint, la structure reste lisible.
-  const filteredOut = teamFilter.length > 0 && !teamFilter.includes(task.team)
   // Fond blanc TOUJOURS opaque (pas d'opacity sur le conteneur, sinon les arêtes
   // transparaissent) ; l'état estompé s'exprime par la bordure et l'encre.
   // Tâche ouverte dans le panneau → bordure accent (#36).
@@ -179,11 +174,11 @@ function GraphCard({ placed, onOpen }: { placed: Placed; onOpen: () => void }) {
   const skin = isOpenInPanel
     ? 'border border-neutral-200 bg-accent-tint shadow-[inset_2px_0_0_var(--color-accent)]'
     : 'border border-neutral-200 bg-white hover:border-neutral-400'
-  const dim = state === 'done' || state === 'locked' || filteredOut
+  const dim = state === 'done' || state === 'locked'
   const titleCls = task.status === 'done' ? 'text-neutral-400 line-through' : dim ? 'text-neutral-400' : 'text-neutral-900'
   return (
     <button type="button" onClick={onOpen} title={task.title}
-      className={`absolute flex flex-col gap-1.5 px-3 py-2.5 text-left ${filteredOut ? 'border border-neutral-100 bg-white' : skin}`}
+      className={`absolute flex flex-col gap-1.5 px-3 py-2.5 text-left ${skin}`}
       style={{ left: xOf(placed.col), top: yOf(placed.row), width: CARD_W, minHeight: CARD_H }}>
       <div className="flex items-center gap-2">
         {state === 'locked'

@@ -9,7 +9,7 @@ import { SectionAccordion } from './SectionAccordion'
 import { TaskList, sortOpen, sortDone } from './TaskColumns'
 
 import { useTeamFilter, useStageFilter } from '../state/filters'
-import { ViewHeader, TeamFilterMenu, StageFilterMenu } from './ViewHeader'
+import { ViewHeader, StageFilterMenu } from './ViewHeader'
 import { TeamsRadar } from './TeamsRadar'
 import { TEAMS, type Team } from '../lib/tasks'
 
@@ -110,7 +110,6 @@ export function Backlog() {
           />
         </div>
         <StageFilterMenu />
-        <TeamFilterMenu />
         <button
           type="button"
           onClick={() => openCreateTask(createIn)}
