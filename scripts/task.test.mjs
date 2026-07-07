@@ -284,3 +284,56 @@ describe('CLI list — filtre --team', () => {
     expect(r.stdout).not.toMatch(/#1 /)
   })
 })
+
+describe('CLI list — filtre --tag : le ledger de dette requêtable (#72)', () => {
+  it('ne renvoie que les tâches portant le tag demandé', () => {
+    runTask(['quick', 'Raccourci assumé', '--team', 'engineering', '--tags', 'debt']) // #2
+    const r = runTask(['list', '--tag', 'debt'])
+    expect(r.code).toBe(0)
+    expect(r.stdout).toMatch(/Raccourci assumé/)
+    expect(r.stdout).not.toMatch(/#1 /) // la seed (tags alpha,beta) est exclue
+  })
+
+  it('un tag sans occurrence sort une liste vide (aucune section)', () => {
+    const r = runTask(['list', '--tag', 'zzz-inexistant'])
+    expect(r.code).toBe(0)
+    expect(r.stdout.trim()).toBe('')
+  })
+})
+
+describe('CLI sitrep — l\'état du monde en ≤30 lignes (#70)', () => {
+  it('sort l\'en-tête, le compte in_progress, les prochaines et validate en un mot', () => {
+    runTask(['start', '1']) // #1 → in_progress
+    const r = runTask(['sitrep'])
+    expect(r.code).toBe(0)
+    expect(r.stdout).toMatch(/^sitrep — \d{4}-\d{2}-\d{2}/)
+    expect(r.stdout).toMatch(/in_progress \(1\)/)
+    expect(r.stdout).toMatch(/#1 Tâche/)
+    expect(r.stdout).toMatch(/validate: OK/)
+    expect(r.stdout.split('\n').length).toBeLessThanOrEqual(30)
+  })
+
+  it('signale la dette ouverte (#debt) en alerte', () => {
+    runTask(['quick', 'Dette ouverte', '--team', 'engineering', '--tags', 'debt']) // #2 todo
+    const r = runTask(['sitrep'])
+    expect(r.stdout).toMatch(/dette\(s\) ouverte\(s\).*#2/)
+  })
+})
+
+describe('CLI brief — extraits d\'ancre & fraîcheur (#69)', () => {
+  it('une ref ancrée par symbole joint l\'extrait autour du symbole (lu au serve)', () => {
+    // Ref résolue depuis le cwd (racine repo) : refExtract.ts existe et porte parseRef.
+    runTask(['update', '1', '--refs', 'src/lib/refExtract.ts#parseRef'])
+    const r = runTask(['brief', '1'])
+    expect(r.code).toBe(0)
+    expect(r.stdout).toMatch(/export function parseRef/)
+    expect(r.stdout).toMatch(/src\/lib\/refExtract\.ts#parseRef/)
+  })
+
+  it('une ancre introuvable est signalée sans planter (pas d\'extrait inventé)', () => {
+    runTask(['update', '1', '--refs', 'src/lib/refExtract.ts#symboleAbsent'])
+    const r = runTask(['brief', '1'])
+    expect(r.code).toBe(0)
+    expect(r.stdout).toMatch(/ancre introuvable \(symbole "symboleAbsent"\)/)
+  })
+})

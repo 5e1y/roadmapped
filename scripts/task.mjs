@@ -14,15 +14,29 @@
 // Node >= 22.18 exécute les imports TypeScript nativement ; le script npm
 // (`npm run task`) garde --experimental-strip-types pour les Node plus vieux.
 
+import { execSync } from 'node:child_process'
+import { existsSync, readFileSync } from 'node:fs'
 import { loadPaths } from '../src/lib/paths.ts'
 import {
   treeWithErrors, readTree, findTask,
   addTask, startTask, doneTask, updateTask, archiveTask,
 } from '../src/lib/taskWrites.ts'
-import { computeAvailability, activeTasks, nextQueue } from '../src/lib/roadmap.ts'
+import { computeAvailability, activeTasks, archivedTasks, nextQueue } from '../src/lib/roadmap.ts'
+import { parseRef, locateLine, snippet } from '../src/lib/refExtract.ts'
 import { TEAMS } from '../src/lib/tasks.ts'
 
 const { tasksDir: ROOT } = loadPaths()
+
+// git best-effort : hors dépôt ou commande en échec → null (jamais d'exception ni de
+// bruit sur stderr). Sert la fraîcheur des refs (#69), l'autofill du commit et la
+// suggestion de refs au done (#71). Le token le moins cher est celui que l'agent ne lit pas.
+function git(args) {
+  try {
+    return execSync(`git ${args}`, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim()
+  } catch {
+    return null
+  }
+}
 
 // ---------------------------------------------------------------- arguments
 
@@ -122,9 +136,36 @@ function printTask(hit, tree) {
 }
 
 /**
+ * Rend UNE ref dans le brief (#69) : drapeau de fraîcheur pour TOUTE ref dont le
+ * fichier a été modifié après `createdAt` (git log), et — si la ref est ANCRÉE
+ * (`fichier#symbole` ou `fichier:ligne`) — l'extrait ~10 lignes autour, lu au serve
+ * (donc toujours le code actuel). Une ref nue reste une simple ligne : les tickets
+ * existants ne gonflent pas, l'ancrage est opt-in.
+ */
+function renderRef(ref, createdAt) {
+  const { path, anchor } = parseRef(ref)
+  const exists = existsSync(path)
+  // %cs = date du dernier commit touchant le fichier (YYYY-MM-DD) ; compare ISO en
+  // chaîne. Granularité au jour (le datetime précis viendra avec #77) : un même-jour
+  // ne lève pas le drapeau.
+  const lastCommit = exists ? git(`log -1 --format=%cs -- "${path}"`) : null
+  const flag = lastCommit && lastCommit > createdAt ? ' ⚠ modifié depuis la création du ticket' : ''
+  const head = `  ${ref}${flag}`
+  if (!anchor || !exists) return head
+  const line = locateLine(readFileSync(path, 'utf8'), anchor)
+  if (line === null) {
+    const what = anchor.kind === 'symbol' ? `symbole "${anchor.value}"` : `ligne ${anchor.value}`
+    return `${head}\n    ⚠ ancre introuvable (${what}) — lire le fichier`
+  }
+  const snip = snippet(readFileSync(path, 'utf8'), line).split('\n').map((l) => `    ${l}`).join('\n')
+  return `${head}\n${snip}`
+}
+
+/**
  * LE contexte d'exécution complet et dense d'une tâche (équivalent CLI du « brief
  * agent »). Zéro navigation : deps/liées/sous-tâches titrées + statut inline, refs
- * une par ligne, rappel `done` en pied (verification omise pour un quick).
+ * une par ligne (extraits d'ancre + fraîcheur, #69), rappel `done` en pied
+ * (verification omise pour un quick).
  */
 function briefText(tree, hit) {
   const t = hit.task
@@ -135,7 +176,7 @@ function briefText(tree, hit) {
   if (t.tags.length) meta.push(`tags: ${t.tags.join(', ')}`)
   out.push(meta.join(' · '))
   if (t.detail) out.push(`detail: ${t.detail.trim()}`)
-  if (t.refs.length) { out.push('refs:'); for (const r of t.refs) out.push(`  ${r}`) }
+  if (t.refs.length) { out.push('refs:'); for (const r of t.refs) out.push(renderRef(r, t.createdAt)) }
   if (t.dependsOn.length) { out.push('dépend de:'); for (const d of t.dependsOn) out.push(`  ${refLine(tree, d)}`) }
   if (t.links.length) { out.push('liées:'); for (const l of t.links) out.push(`  ${refLine(tree, l)}`) }
   if (t.subtasks.length) { out.push('sous-tâches:'); for (const s of t.subtasks) out.push(`  ${refLine(tree, s.id)}`) }
@@ -157,12 +198,14 @@ Stages (sections canoniques, fixes) : 01-idea · 02-initial · 03-identity · 04
 Teams (équipe métier, enum fixe) : ${TEAMS.join(' · ')}
 
 Ouverture de session (machine-first : tout le contexte en 1 appel)
+  sitrep                    l'état du monde en ≤30 lignes (done du jour, in_progress,
+                            3 prochaines, validate, alertes) — LE 1er geste de session
   take [--team <t>] [--json] next + start + brief EN UNE COMMANDE (la commande d'ouverture)
   brief <id>                LE contexte d'exécution complet et dense (deps/liées titrées,
-                            refs, rappel done) — remplace show en cascade
+                            refs + extraits d'ancre & fraîcheur, rappel done) — remplace show en cascade
 
 Lecture
-  list [--section <key>] [--status todo|in_progress|done] [--team <t>] [--archive] [--json] [--json-full]
+  list [--section <key>] [--status todo|in_progress|done] [--team <t>] [--tag <tag>] [--archive] [--json] [--json-full]
                             --json = allégé (id,title,status,team,stage,size,kind) ;
                             --json-full = l'objet intégral (nextId + sections complètes)
   show <id> [--json]        détail complet d'une tâche (deps/liées titrées, id global ex: 42)
@@ -206,15 +249,16 @@ Conventions
 // Usage COURT par commande : servi tel quel sur une erreur de flag/valeur (message
 // autoportant, 2-3 lignes), au lieu du USAGE global. Coupe court (annexe 2 du coût).
 const CMD_USAGE = {
-  list: 'Usage : list [--section <key>] [--status todo|in_progress|done] [--team <t>] [--archive] [--json] [--json-full]',
+  list: 'Usage : list [--section <key>] [--status todo|in_progress|done] [--team <t>] [--tag <tag>] [--archive] [--json] [--json-full]',
   show: 'Usage : show <id> [--json]',
   next: 'Usage : next [--count N] [--team <t>] [--json]',
   take: 'Usage : take [--team <t>] [--json]',
   brief: 'Usage : brief <id>',
+  sitrep: 'Usage : sitrep',
+  done: 'Usage : done <id> [--commit <sha>] [--outcome <o>] [--verification <v>] [--release <r>] [--suggest-refs]',
   roadmap: 'Usage : roadmap [--json]',
   add: 'Usage : add --section <stage> --title <t> --team <team> [--detail <d>] [--tags a,b] [--size S|M|L]\n        [--code <c>] [--refs a,b] [--links 1,2] [--depends-on 1,2] [--milestone <slug>] [--source ai|user] [--json]',
   quick: 'Usage : quick "<titre>" --team <t> [--stage <s>] [--tags a,b] [--start] [--json]',
-  done: 'Usage : done <id> [--commit <sha>] [--outcome <o>] [--verification <v>] [--release <r>]',
   update: 'Usage : update <id> [--title ...] [--detail ...] [--status ...] [--team ...] [--tags a,b] [--refs a,b]\n        [--links 1,2] [--depends-on 1,2] [--milestone <slug>] [--size ...] [--code ...] [--outcome ...] …',
 }
 
@@ -235,20 +279,18 @@ function cmdValidate() {
 }
 
 function cmdList(flags) {
-  rejectUnknownFlags(flags, ['section', 'status', 'team', 'archive', 'json', 'json-full'], CMD_USAGE.list)
+  rejectUnknownFlags(flags, ['section', 'status', 'team', 'tag', 'archive', 'json', 'json-full'], CMD_USAGE.list)
   const tree = readTree(ROOT)
   let sections = flags.archive ? [...tree.sections, ...tree.archive] : tree.sections
   if (typeof flags.section === 'string') sections = sections.filter((s) => s.key === flags.section)
-  if (typeof flags.status === 'string') {
-    sections = sections
-      .map((s) => ({ ...s, tasks: s.tasks.filter((t) => t.status === flags.status) }))
-      .filter((s) => s.tasks.length > 0)
+  const keepTasks = (pred) => {
+    sections = sections.map((s) => ({ ...s, tasks: s.tasks.filter(pred) })).filter((s) => s.tasks.length > 0)
   }
-  if (typeof flags.team === 'string') {
-    sections = sections
-      .map((s) => ({ ...s, tasks: s.tasks.filter((t) => t.team === flags.team) }))
-      .filter((s) => s.tasks.length > 0)
-  }
+  if (typeof flags.status === 'string') keepTasks((t) => t.status === flags.status)
+  if (typeof flags.team === 'string') keepTasks((t) => t.team === flags.team)
+  // --tag : le ledger de dette (#72) est requêtable — `list --tag debt` sort les
+  // raccourcis assumés (quick taggés debt) comme l'équivalent des commentaires ponytail:.
+  if (typeof flags.tag === 'string') keepTasks((t) => t.tags.includes(flags.tag))
   // --json-full : l'objet intégral d'avant (consommateurs qui exigent le detail).
   // --json (défaut) : ALLÉGÉ — id,title,status,team,stage,size,kind, sous-tâches
   // aplaties. Vérifié : aucun call-site programmatique de `list --json` (l'UI lit
@@ -423,19 +465,49 @@ function cmdStart(id) {
   report(startTask(ROOT, id), `#${id} démarrée (in_progress).`)
 }
 
+/**
+ * Fichiers du diff associés à la livraison (#71), pour SUGGESTION uniquement (jamais
+ * écrits) : le commit consigné + les changements non commités, moins le bruit des
+ * YAML de tâches. L'agent confirme au lieu de lire git.
+ */
+function suggestedRefs(commit) {
+  const files = new Set()
+  const add = (out) => { if (out) for (const l of out.split('\n')) if (l.trim()) files.add(l.trim()) }
+  if (commit) add(git(`show --name-only --format= ${commit}`))
+  add(git('diff --name-only HEAD')) // changements non commités vs HEAD
+  return [...files].filter((f) => existsSync(f) && !f.startsWith('docs/tasks/'))
+}
+
 function cmdDone(id, flags) {
-  rejectUnknownFlags(flags, ['commit', 'outcome', 'verification', 'release'], CMD_USAGE.done)
+  rejectUnknownFlags(flags, ['commit', 'outcome', 'verification', 'release', 'suggest-refs'], CMD_USAGE.done)
+  // Auto-contexte (#71) : sans --commit, l'app consigne le HEAD courant (l'agent ne
+  // lit plus git). Hors dépôt → git null → commit reste absent (rétrocompat sandbox).
+  let commit = typeof flags.commit === 'string' ? flags.commit : undefined
+  if (commit === undefined) {
+    const head = git('rev-parse --short HEAD')
+    if (head) commit = head
+  }
   const res = report(
     doneTask(ROOT, id, {
-      commit: typeof flags.commit === 'string' ? flags.commit : undefined,
+      commit,
       outcome: typeof flags.outcome === 'string' ? flags.outcome : undefined,
       verification: typeof flags.verification === 'string' ? flags.verification : undefined,
       release: typeof flags.release === 'string' ? flags.release : undefined,
     }),
-    `#${id} terminée (done).`,
+    `#${id} terminée (done).${commit && typeof flags.commit !== 'string' ? ` commit=${commit} (HEAD).` : ''}`,
   )
   // Warnings non bloquants (ex: task livrée sans refs) → stderr, succès préservé.
   if (res.ok && res.warnings) for (const w of res.warnings) console.error(`⚠ ${w}`)
+  // --suggest-refs : liste le diff pour CONFIRMATION, jamais appliquée (prudence spec).
+  if (res.ok && flags['suggest-refs']) {
+    const refs = suggestedRefs(commit)
+    if (refs.length === 0) console.error('refs suggérées : aucune (pas de diff exploitable).')
+    else {
+      console.error('refs suggérées (diff — À CONFIRMER, non écrites) :')
+      for (const f of refs) console.error(`  ${f}`)
+      console.error(`→ pour les appliquer : update ${id} --refs ${refs.join(',')}`)
+    }
+  }
 }
 
 function cmdUpdate(id, flags) {
@@ -464,6 +536,51 @@ function cmdUpdate(id, flags) {
 
 function cmdArchive(id) {
   report(archiveTask(ROOT, id), `#${id} archivée → docs/tasks/_archive/…`)
+}
+
+const todayStr = () => {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+const daysBetween = (isoA, isoB) =>
+  Math.round((Date.parse(isoB) - Date.parse(isoA)) / 86_400_000)
+
+/**
+ * L'état du monde en ≤30 lignes (#70) : ouverture de session en UN appel. Ce que
+ * l'agent relisait dans le backlog (~1 200 tokens) devient ~150. Titres seuls, pas
+ * de detail. L'âge in_progress se compte depuis createdAt (faute de startedAt — un
+ * proxy, pas une horloge de démarrage). Signale la dette ouverte via les tags.
+ */
+function cmdSitrep(flags) {
+  rejectUnknownFlags(flags, [], CMD_USAGE.sitrep)
+  const { tree, errors } = treeWithErrors(ROOT)
+  const active = activeTasks(tree)
+  const today = todayStr()
+  const brief = (t) => `#${t.id} ${t.title}`
+  // Plafonne l'affichage (le budget est ≤30 lignes / ~150 tokens) : le COMPTE reste
+  // exact, seuls les titres au-delà de N sont résumés en « +K autres ».
+  const capped = (items, render, n = 8) => {
+    if (items.length === 0) return ''
+    const shown = items.slice(0, n).map(render).join(' · ')
+    return `: ${shown}${items.length > n ? ` (+${items.length - n} autres)` : ''}`
+  }
+  const doneToday = [...active, ...archivedTasks(tree)].filter((t) => t.completedAt === today)
+  const inProgress = active.filter((t) => t.status === 'in_progress')
+  const queue = nextQueue(tree).slice(0, 3)
+
+  console.log(`sitrep — ${today}`)
+  console.log(`done aujourd'hui (${doneToday.length})${capped(doneToday, brief)}`)
+  console.log(`in_progress (${inProgress.length})${capped(inProgress, (t) => `${brief(t)} (${daysBetween(t.createdAt, today)}j)`)}`)
+  console.log(`prochaines: ${queue.length ? queue.map(brief).join(' · ') : '— (file vide)'}`)
+  console.log(`validate: ${errors.length === 0 ? 'OK' : `${errors.length} erreur(s)`}`)
+
+  const alerts = []
+  const stale = inProgress.filter((t) => daysBetween(t.createdAt, today) >= 7)
+  if (stale.length) alerts.push(`${stale.length} in_progress ancienne(s) (≥7j) : ${stale.map((t) => `#${t.id}`).join(' ')}`)
+  const debt = active.filter((t) => t.status !== 'done' && t.tags.includes('debt'))
+  if (debt.length) alerts.push(`${debt.length} dette(s) ouverte(s) (#debt) : ${debt.map((t) => `#${t.id}`).join(' ')}`)
+  if (errors.length) alerts.push(`validate rouge — lance \`validate\``)
+  if (alerts.length) for (const a of alerts) console.log(`⚠ ${a}`)
 }
 
 function cmdRoadmap(flags) {
@@ -537,6 +654,9 @@ switch (cmd) {
     break
   case 'brief':
     cmdBrief(needId(), flags)
+    break
+  case 'sitrep':
+    cmdSitrep(flags)
     break
   case 'take':
     cmdTake(flags)
