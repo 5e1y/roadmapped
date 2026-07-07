@@ -1,7 +1,7 @@
 id: 53
 code: null
 title: Header unifié — même barre dans les 3 vues, filtres en dropdowns
-status: in_progress
+status: done
 tags:
   - ux
   - design
@@ -29,8 +29,15 @@ dependsOn:
 milestone: null
 source: user
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-07"
+commit: abd6778
+outcome: >-
+  Les trois vues partagent le même header — une barre unique de la hauteur exacte du panneau, où
+  vivent recherche, filtres stage et teams en dropdowns et la création ; la sidebar redevient de la
+  navigation pure
+verification: >-
+  Hauteurs assertées au DOM : header de vue 48px = header de panneau 48px ; sidebar vérifiée sans
+  Stages/Teams ; dropdown Teams joué (sélection marketing reflétée sur le trigger, effacement) ;
+  filtre stage GTM appliqué depuis le header (2 ouvertes restantes constatées sur capture). 128
+  tests + build verts.
 release: null

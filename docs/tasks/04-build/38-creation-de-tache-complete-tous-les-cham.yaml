@@ -1,7 +1,7 @@
 id: 54
 code: null
 title: Création de tâche complète — tous les champs d'un coup, stage compris
-status: in_progress
+status: done
 tags:
   - ux
   - design
@@ -25,8 +25,14 @@ dependsOn:
 milestone: null
 source: user
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-07"
+commit: abd6778
+outcome: >-
+  Créer une tâche expose enfin tout d'un coup : stage (le manque criant), team, taille, code, tags à
+  suggestions, détail, dépendances, liens et refs — seule la consignation reste à la résolution
+verification: >-
+  Parcours complet joué au navigateur : tâche jetable #55 créée avec stage 05-gtm + team marketing +
+  tag « jetag » créé à la volée + dépendance #19 + ref, YAML relu sur disque intégralement conforme,
+  panneau de la tâche ouvert après création ; jetable supprimée (id 55 consommé, jamais réutilisé).
+  128 tests + build verts.
 release: null
