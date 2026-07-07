@@ -1,7 +1,7 @@
 id: 50
 code: null
 title: Backlog v2 — liste plate en deux colonnes (ouverts / terminés)
-status: in_progress
+status: done
 tags:
   - ux
   - design
@@ -26,8 +26,14 @@ dependsOn:
 milestone: null
 source: user
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-07"
+commit: 8211b24
+outcome: >-
+  Le Backlog est devenu la vue « travail » : deux colonnes plates (ouvertes par ancienneté,
+  terminées par date de bouclage), recherche, filtre stage relié à la sidebar, création en un clic
+verification: >-
+  Capture relue : ouvertes #3→#52 dans l'ordre des ids, terminées #49→#23 dans l'ordre completedAt
+  puis id desc, header complet ; recherche « spec » filtre la colonne ouverte (asserté) ; clic stage
+  sidebar = filtre surligné accent + Select re-clé ; archive conservée en bas. 128 tests + build
+  verts.
 release: null

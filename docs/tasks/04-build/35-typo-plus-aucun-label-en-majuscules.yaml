@@ -1,7 +1,7 @@
 id: 51
 code: null
 title: Typo — plus aucun label en majuscules
-status: in_progress
+status: done
 tags:
   - ux
   - design
@@ -24,8 +24,12 @@ dependsOn:
 milestone: null
 source: user
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-07"
+commit: 8211b24
+outcome: >-
+  Plus une seule capitale forcée dans l'app : tous les labels passent en casse normale avec la
+  graisse en compensation
+verification: >-
+  grep uppercase sur src/components → 0 occurrence ; hiérarchie vérifiée sur les captures
+  Backlog/Roadmap (labels Stages/Teams/Détail lisibles sans crier). 128 tests + build verts.
 release: null
