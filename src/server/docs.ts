@@ -7,6 +7,8 @@ export interface DocNode {
   /** Chemin relatif POSIX à docsDir (jamais de `\`, même sur Windows). */
   path: string
   children?: DocNode[]
+  /** Date de création du fichier (AAAA-MM-JJ) — absente pour les dossiers. */
+  createdAt?: string
 }
 
 const IGNORE_DIRS = new Set(['node_modules'])
@@ -48,7 +50,10 @@ export function buildDocsTree(docsDir: string, root: string = docsDir): DocNode[
         dirs.push({ name: entry, path: toPosix(relative(root, full)), children })
       }
     } else if (entry.endsWith('.md')) {
-      files.push({ name: entry, path: toPosix(relative(root, full)) })
+      // birthtime = création réelle ; certains FS ne la portent pas (epoch 0) →
+      // repli sur mtime, moins juste mais jamais absurde.
+      const birth = st.birthtimeMs > 0 ? st.birthtime : st.mtime
+      files.push({ name: entry, path: toPosix(relative(root, full)), createdAt: birth.toISOString().slice(0, 10) })
     }
   }
 

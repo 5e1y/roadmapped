@@ -3,9 +3,8 @@ import { ChevronDown } from 'trinil-react'
 import { type ReactNode } from 'react'
 import { useTree } from '../state/TreeContext'
 import { useView, type View } from '../state/ViewContext'
-import { useTeamFilter, useStageFilter } from '../state/filters'
-import { activeTasks } from '../lib/roadmap'
-import { STAGES, TEAMS, type Team } from '../lib/tasks'
+import { useStageFilter } from '../state/filters'
+import { STAGES } from '../lib/tasks'
 
 const NAV: { id: View; label: string }[] = [
   { id: 'backlog', label: 'Backlog' },
@@ -131,26 +130,6 @@ export function FilterMenu({ allLabel, options, selected, onChange, multiple = f
         </Popover.Positioner>
       </Popover.Portal>
     </Popover.Root>
-  )
-}
-
-/** Filtre Teams (multi) — compteurs = tickets ouverts par team. */
-export function TeamFilterMenu() {
-  const { tree } = useTree()
-  const [selected, setSelected] = useTeamFilter()
-  const counts = new Map<Team, number>(TEAMS.map((t) => [t, 0]))
-  if (tree) for (const t of activeTasks(tree)) {
-    if (t.status !== 'done') counts.set(t.team, (counts.get(t.team) ?? 0) + 1)
-  }
-  return (
-    <FilterMenu
-      aria-label="Filtrer par team"
-      allLabel="Toutes les teams"
-      multiple
-      options={TEAMS.map((t) => ({ value: t, label: t, count: counts.get(t) ?? 0 }))}
-      selected={selected}
-      onChange={setSelected}
-    />
   )
 }
 

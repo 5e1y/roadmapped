@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { EyeClosed, EyeOpen } from 'trinil-react'
 import { useTree } from '../state/TreeContext'
 import { usePersistentFlag } from '../state/uiPersist'
-import { ViewHeader, TeamFilterMenu } from './ViewHeader'
+import { ViewHeader } from './ViewHeader'
 import { RoadmapColumns } from './RoadmapColumns'
 import { RoadmapGraph } from './RoadmapGraph'
 
@@ -51,7 +51,6 @@ export function RoadmapView() {
   return (
     <div className="flex h-full flex-col">
       <ViewHeader>
-        <TeamFilterMenu />
         <button
           type="button"
           onClick={() => setShowDone(!showDone)}

@@ -71,14 +71,17 @@ function DocsTreeFile({
       type="button"
       onClick={() => onSelectDoc(node.path)}
       aria-current={active ? 'page' : undefined}
-      className={`block w-full truncate rounded-md py-1.5 pr-2 text-left text-sm transition-colors ${
+      className={`flex w-full items-baseline gap-2 rounded-md py-1.5 pr-2 text-left text-sm transition-colors ${
         active ? 'bg-neutral-100 text-neutral-900' : 'text-neutral-600 hover:bg-neutral-100'
       }`}
       style={{ paddingLeft: BASE_PADDING_PX + depth * INDENT_PX + INDENT_PX }}
       title={node.name}
     >
       {/* .md implicite (tout l'arbre en est) — le nom brut reste en tooltip. */}
-      {node.name.replace(/\.md$/, '')}
+      <span className="min-w-0 flex-1 truncate">{node.name.replace(/\.md$/, '')}</span>
+      {node.createdAt && (
+        <span className="shrink-0 font-mono text-[10px] text-neutral-400">{node.createdAt}</span>
+      )}
     </button>
   )
 }

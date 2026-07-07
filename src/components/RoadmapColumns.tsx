@@ -6,7 +6,6 @@ import { StatusGlyph } from './glyphs'
 import { Chip } from './Chip'
 import { countTasksDeep, SECTION_STATUS_FR, TEAM_ABBR } from '../lib/tasks'
 import type { SectionNode, TaskNode } from '../lib/tasks'
-import { useTeamFilter } from '../state/filters'
 import { useShowDone } from './RoadmapView'
 
 function ProgressBar({ done, total }: { done: number; total: number }) {
@@ -125,13 +124,11 @@ function Column({ section, visible, avail }: { section: SectionNode; visible: Ta
 /** Vue stages : une colonne par stage canonique — les vides restent visibles, estompés et resserrés. */
 export function RoadmapColumns() {
   const { tree } = useTree()
-  const [teamFilter] = useTeamFilter()
   const [showDone] = useShowDone()
   if (!tree) return null
-  const matchTeam = (t: TaskNode) => teamFilter.length === 0 || teamFilter.includes(t.team)
-  const sections = tree.sections
-    .filter((s) => s.status !== 'abandoned')
-    .map((s) => ({ ...s, tasks: s.tasks.filter(matchTeam) }))
+  // Pas de filtre team en Roadmap (décision Rémi) : la vue montre TOUT le
+  // lancement — un filtre posé via le radar du Backlog ne déborde pas ici.
+  const sections = tree.sections.filter((s) => s.status !== 'abandoned')
   const visibleOf = (s: SectionNode) => (showDone ? s.tasks : s.tasks.filter((t) => t.status !== 'done'))
   const avail = computeAvailability(tree)
 

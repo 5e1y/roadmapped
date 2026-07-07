@@ -1,4 +1,4 @@
-import { ChevronRight } from 'trinil-react'
+import { ChevronLeft } from 'trinil-react'
 import type { TaskNode } from '../lib/tasks'
 
 /**
@@ -7,7 +7,10 @@ import type { TaskNode } from '../lib/tasks'
  * `data-panel-open` (état Base UI).
  */
 export function Chevron() {
-  return <ChevronRight size={11} className="chev shrink-0 text-neutral-400" />
+  // ⚠️ trinil-react 1.3.9 inverse ChevronLeft/ChevronRight (le path de
+  // « Right » pointe à gauche) : on importe ChevronLeft pour pointer à DROITE
+  // fermé. À simplifier quand la lib sera corrigée (signalé à Rémi).
+  return <ChevronLeft size={11} className="chev shrink-0 text-neutral-400" />
 }
 
 /**
