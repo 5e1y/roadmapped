@@ -1,5 +1,6 @@
 import { useEffect, useState, type MouseEvent } from 'react'
 import { renderMarkdown } from './Markdown'
+import { ViewHeader } from './ViewHeader'
 
 /**
  * Résout un lien relatif `.md` (ex. « ../autre.md ») par rapport au document
@@ -86,25 +87,32 @@ export function DocsView({ path, onSelectDoc }: { path: string | null; onSelectD
     }
   }
 
+  const shell = (body: React.ReactNode) => (
+    <div className="flex h-full flex-col">
+      <ViewHeader title="Docs" meta={path ?? undefined} />
+      <div className="min-h-0 flex-1 overflow-y-auto">{body}</div>
+    </div>
+  )
+
   if (!path) {
-    return (
+    return shell(
       <div className="flex h-full items-center justify-center text-sm text-neutral-400">
         Sélectionne un document
-      </div>
+      </div>,
     )
   }
 
   if (loading) {
     // Même gabarit que le contenu : la zone de lecture ne se déplace pas au chargement.
-    return <div className="mx-auto max-w-3xl px-8 py-10 text-sm text-neutral-400">Chargement…</div>
+    return shell(<div className="mx-auto max-w-3xl px-8 py-10 text-sm text-neutral-400">Chargement…</div>)
   }
 
   if (error) {
-    return (
+    return shell(
       <div className="flex h-full flex-col items-center justify-center gap-2 px-6 text-center">
         <p className="text-sm text-neutral-500">Impossible de charger ce document.</p>
         <p className="text-xs text-neutral-400">{error}</p>
-      </div>
+      </div>,
     )
   }
 
@@ -112,9 +120,9 @@ export function DocsView({ path, onSelectDoc }: { path: string | null; onSelectD
   // repo), rendu par un outil localhost sans multi-utilisateurs ni contenu
   // distant — pas de surface XSS pertinente pour ce lecteur en lecture seule.
   const html = renderMarkdown(content ?? '')
-  return (
+  return shell(
     <div className="mx-auto max-w-3xl px-8 py-10">
       <div className="doc-prose" onClick={onProseClick} dangerouslySetInnerHTML={{ __html: html }} />
-    </div>
+    </div>,
   )
 }

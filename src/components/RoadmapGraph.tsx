@@ -6,7 +6,7 @@ import { LockLocked } from 'trinil-react'
 import { StatusGlyph } from './glyphs'
 import { TEAM_ABBR } from '../lib/tasks'
 import type { TaskNode } from '../lib/tasks'
-import { useTeamFilter } from './Sidebar'
+import { useTeamFilter } from '../state/filters'
 import { useShowDone } from './RoadmapView'
 
 const COL_W = 280, COL_GAP = 32, ROW_H = 96, CARD_W = 248, CARD_H = 72, PAD = 24, HEADER_H = 40

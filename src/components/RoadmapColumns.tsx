@@ -6,7 +6,7 @@ import { StatusGlyph } from './glyphs'
 import { Chip } from './Chip'
 import { countTasksDeep, SECTION_STATUS_FR, TEAM_ABBR } from '../lib/tasks'
 import type { SectionNode, TaskNode } from '../lib/tasks'
-import { useTeamFilter } from './Sidebar'
+import { useTeamFilter } from '../state/filters'
 import { useShowDone } from './RoadmapView'
 
 function ProgressBar({ done, total }: { done: number; total: number }) {
