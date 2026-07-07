@@ -178,3 +178,36 @@ body {
   outline: 2px solid #171717;
   outline-offset: 2px;
 }
+
+/* Variante panneau du rendu markdown : métrique IDENTIQUE à la textarea ghost
+   d'édition (text-sm 14px, leading-relaxed 1.625) pour que le passage
+   lecture ⇄ édition du détail ne change ni corps ni interligne ni rythme.
+   Les titres restent au corps du texte (graisse seule) — un h2 dans un détail
+   de tâche est un intertitre, pas un titre de document. */
+.doc-prose--panel {
+  font-size: 0.875rem;
+  line-height: 1.625;
+}
+.doc-prose--panel h1,
+.doc-prose--panel h2,
+.doc-prose--panel h3,
+.doc-prose--panel h4 {
+  font-size: 0.875rem;
+  margin: 0.75rem 0 0.25rem;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+.doc-prose--panel p {
+  margin: 0 0 0.625rem;
+}
+.doc-prose--panel > *:last-child {
+  margin-bottom: 0;
+}
+.doc-prose--panel ul,
+.doc-prose--panel ol {
+  margin: 0 0 0.625rem;
+}
+.doc-prose--panel pre {
+  margin: 0 0 0.625rem;
+  padding: 0.5rem 0.625rem;
+}
