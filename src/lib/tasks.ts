@@ -19,6 +19,8 @@ export interface TaskNode {
   createdAt: string
   completedAt: string | null
   commit: string | null
+  /** Ce que la tâche a livré, en une phrase orientée utilisateur — matière à changelog. */
+  outcome: string | null
   verification: string | null
   release: string | null
   /** Chemin repo-relatif du fichier YAML source (ex: "docs/tasks/01-solidite/01-addimage.yaml"). */
@@ -103,6 +105,7 @@ function toTaskNode(raw: any, file: string): TaskNode {
     createdAt: raw.createdAt,
     completedAt: raw.completedAt ?? null,
     commit: raw.commit ?? null,
+    outcome: raw.outcome ?? null,
     verification: raw.verification ?? null,
     release: raw.release ?? null,
     file,

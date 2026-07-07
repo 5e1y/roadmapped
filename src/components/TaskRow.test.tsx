@@ -16,7 +16,7 @@ const task: TaskNode = {
   detail: 'Détail complet ici', refs: ['useDocumentStore.ts:809'], links: [],
   dependsOn: [], milestone: null,
   source: 'ai', createdAt: '2026-06-24', completedAt: null, commit: null,
-  verification: null, release: null,
+  outcome: null, verification: null, release: null,
   file: 'docs/tasks/01-solidite/01-addimage.yaml', subtasks: [],
 }
 

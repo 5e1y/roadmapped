@@ -11,7 +11,7 @@ import type { TaskTree, TaskNode, SectionNode, TaskFileMap } from './tasks'
 export const FIELD_ORDER = [
   'id', 'code', 'title', 'status', 'tags', 'size', 'zone', 'detail',
   'refs', 'links', 'dependsOn', 'milestone', 'source', 'createdAt', 'completedAt', 'commit',
-  'verification', 'release',
+  'outcome', 'verification', 'release',
 ]
 
 export interface FoundTask { task: TaskNode; sectionKey: string; archived: boolean }
@@ -232,6 +232,7 @@ export function addTask(tasksDir: string, input: AddTaskInput): MutationResult {
     createdAt: today(),
     completedAt: null,
     commit: null,
+    outcome: null,
     verification: null,
     release: null,
   }
@@ -273,12 +274,13 @@ export function startTask(tasksDir: string, id: number): MutationResult {
 export function doneTask(
   tasksDir: string,
   id: number,
-  opts: { commit?: string; verification?: string; release?: string },
+  opts: { commit?: string; outcome?: string; verification?: string; release?: string },
 ): MutationResult {
   return patchActive(tasksDir, id, (raw) => {
     raw.status = 'done'
     raw.completedAt = today()
     if (typeof opts.commit === 'string') raw.commit = opts.commit
+    if (typeof opts.outcome === 'string') raw.outcome = opts.outcome
     if (typeof opts.verification === 'string') raw.verification = opts.verification
     if (typeof opts.release === 'string') raw.release = opts.release
   })
@@ -294,6 +296,7 @@ export interface UpdateTaskPatch {
   milestone?: string | null
   source?: string
   commit?: string | null
+  outcome?: string | null
   verification?: string | null
   release?: string | null
   completedAt?: string | null
@@ -306,7 +309,7 @@ export interface UpdateTaskPatch {
 export function updateTask(tasksDir: string, id: number, patch: UpdateTaskPatch): MutationResult {
   const stringFields: (keyof UpdateTaskPatch)[] = [
     'title', 'detail', 'status', 'size', 'zone', 'code', 'milestone', 'source',
-    'commit', 'verification', 'release', 'completedAt',
+    'commit', 'outcome', 'verification', 'release', 'completedAt',
   ]
   const listFields: (keyof UpdateTaskPatch)[] = ['tags', 'refs', 'links', 'dependsOn']
   return patchActive(tasksDir, id, (raw) => {

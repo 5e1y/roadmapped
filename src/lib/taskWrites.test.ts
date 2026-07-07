@@ -75,6 +75,31 @@ describe('start / done', () => {
     expect(t.completedAt).not.toBeNull()
     expect(t.commit).toBe('abc1234')
   })
+
+  it('done consigne outcome ; le YAML le place entre commit et verification', () => {
+    addTask(dir, { section: '01-x', title: 'Tâche' })
+    const res = doneTask(dir, 1, { outcome: 'Le CLI supporte le champ outcome', verification: 'vérifié' })
+    expect(res.ok).toBe(true)
+    if (!res.ok) return
+    expect(res.tree.sections[0].tasks[0].outcome).toBe('Le CLI supporte le champ outcome')
+    const yamlText = readFileSync(join(dir, '01-x', '01-tache.yaml'), 'utf8')
+    const idx = (s: string) => yamlText.indexOf(`\n${s}:`)
+    expect(idx('outcome')).toBeGreaterThan(idx('commit'))
+    expect(idx('outcome')).toBeLessThan(idx('verification'))
+  })
+})
+
+describe('outcome (updateTask)', () => {
+  it('se modifie et se vide via updateTask ; absent du YAML = null', () => {
+    addTask(dir, { section: '01-x', title: 'Tâche' })
+    expect(readTree(dir).sections[0].tasks[0].outcome).toBeNull()
+    const res = updateTask(dir, 1, { outcome: 'Livré X' })
+    expect(res.ok).toBe(true)
+    if (!res.ok) return
+    expect(res.tree.sections[0].tasks[0].outcome).toBe('Livré X')
+    const cleared = updateTask(dir, 1, { outcome: null })
+    expect(cleared.ok && cleared.tree.sections[0].tasks[0].outcome === null).toBe(true)
+  })
 })
 
 describe('archiveTask', () => {

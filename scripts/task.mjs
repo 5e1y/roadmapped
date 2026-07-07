@@ -93,6 +93,7 @@ function printTask(hit) {
   if (task.detail) console.log(`  detail: ${task.detail.trim().replace(/\n/g, '\n          ')}`)
   if (task.refs.length) console.log(`  refs: ${task.refs.join(' · ')}`)
   if (task.links.length) console.log(`  liées: ${task.links.map((l) => `#${l}`).join(' ')}`)
+  if (task.outcome) console.log(`  outcome: ${task.outcome}`)
   if (task.verification) console.log(`  vérification: ${task.verification}`)
   if (task.commit) console.log(`  commit: ${task.commit}`)
   if (task.release) console.log(`  release: ${task.release}`)
@@ -121,10 +122,11 @@ Lecture
       [--zone <z>] [--code <c>] [--refs a,b] [--links 1,2]
       [--depends-on 1,2] [--milestone <slug>] [--source ai|user] [--json]
   start <id>                status → in_progress
-  done <id> [--commit <sha>] [--verification <v>] [--release <r>]
+  done <id> [--commit <sha>] [--outcome <o>] [--verification <v>] [--release <r>]
                             status → done + completedAt=aujourd'hui + doc de livraison
+                            (--outcome : ce qui a été livré, en une phrase — le changelog)
   update <id> [--title] [--detail] [--status] [--tags] [--refs] [--links]
-      [--size] [--zone] [--code] [--source] [--commit] [--verification] [--release]
+      [--size] [--zone] [--code] [--source] [--commit] [--outcome] [--verification] [--release]
       [--depends-on 1,2] [--milestone <slug>]
                             patch générique ("null" = remettre un champ à null ;
                             --depends-on null / --milestone null pour vider)
@@ -253,10 +255,11 @@ function cmdStart(id) {
 }
 
 function cmdDone(id, flags) {
-  rejectUnknownFlags(flags, ['commit', 'verification', 'release'])
+  rejectUnknownFlags(flags, ['commit', 'outcome', 'verification', 'release'])
   report(
     doneTask(ROOT, id, {
       commit: typeof flags.commit === 'string' ? flags.commit : undefined,
+      outcome: typeof flags.outcome === 'string' ? flags.outcome : undefined,
       verification: typeof flags.verification === 'string' ? flags.verification : undefined,
       release: typeof flags.release === 'string' ? flags.release : undefined,
     }),
@@ -265,7 +268,7 @@ function cmdDone(id, flags) {
 }
 
 function cmdUpdate(id, flags) {
-  const stringFields = ['title', 'detail', 'status', 'size', 'zone', 'code', 'source', 'commit', 'verification', 'release', 'completedAt']
+  const stringFields = ['title', 'detail', 'status', 'size', 'zone', 'code', 'source', 'commit', 'outcome', 'verification', 'release', 'completedAt']
   const listFields = ['tags', 'refs', 'links']
   rejectUnknownFlags(flags, [...stringFields, ...listFields, 'depends-on', 'milestone'])
   if (Object.keys(flags).length === 0) {
