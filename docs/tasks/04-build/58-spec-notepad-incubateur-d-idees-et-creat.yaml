@@ -1,0 +1,31 @@
+id: 76
+code: null
+title: "Spec — Notepad : incubateur d'idées et créateur de prompts"
+status: todo
+tags:
+  - spec
+  - ux
+  - notepad
+size: M
+team: design
+detail: >-
+  Brainstorm FAIT (3 questions tranchées par Rémi le 2026-07-07 : docs/notes/ gitignoré exclu de
+  Docs ; v1 = socle + pièces jointes en liens/reveal Finder + copier pour l'agent ; auto-archive à
+  la conversion, v2). Spec RÉDIGÉE : docs/specs/2026-07-07-notepad.md — en attente de
+  relecture/approbation Rémi, puis découpage en tâches d'implémentation (workflow §2). Zéro code
+  avant approbation.
+refs:
+  - docs/specs/2026-07-07-notepad.md
+  - src/components/DocsView.tsx
+  - src/server/api.ts
+links:
+  - 73
+dependsOn: []
+milestone: null
+source: user
+createdAt: "2026-07-07"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

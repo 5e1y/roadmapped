@@ -1,0 +1,29 @@
+id: 77
+code: null
+title: "Spec — écritures concurrentes : verrou global de mutation"
+status: todo
+tags:
+  - spec
+  - concurrency
+size: M
+team: engineering
+detail: >-
+  Brainstorm FAIT (3 questions tranchées par Rémi le 2026-07-07 : verrou mkdir global sur la
+  mutation avec TTL 10s ; périmètre = verrou seul, serveur-écrivain-unique → spec MCP #73 ;
+  createdAt en datetime précis rétrocompatible). Spec RÉDIGÉE :
+  docs/specs/2026-07-07-concurrent-writes.md — en attente de relecture/approbation Rémi, puis
+  découpage (withLock TDD + test de concurrence réelle + datetime + doctrine worktrees dans
+  delegation.md). Zéro code avant approbation.
+refs:
+  - docs/specs/2026-07-07-concurrent-writes.md
+  - src/lib/taskWrites.ts
+links: []
+dependsOn: []
+milestone: null
+source: user
+createdAt: "2026-07-07"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
