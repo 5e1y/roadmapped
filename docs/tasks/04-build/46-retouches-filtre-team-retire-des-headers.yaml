@@ -1,0 +1,44 @@
+id: 63
+code: null
+title: Retouches — filtre team retiré des headers, dates des docs, chevrons inversés
+status: done
+tags:
+  - ux
+  - design
+  - bug
+size: S
+team: design
+detail: >-
+  Batch Rémi (2026-07-07). (1) Le dropdown Teams disparaît des headers Roadmap ET Backlog
+  (inutile/cassé en roadmap) — le radar reste le pilote du filtre team côté Backlog ; la Roadmap ne
+  filtre plus par team du tout (retirer la logique des Colonnes et du Graphe pour qu'un filtre posé
+  au radar ne filtre pas silencieusement la roadmap). (2) Vue Docs : date de création affichée à
+  côté de chaque fichier dans le flanc gauche (stat côté serveur, DocNode.createdAt, rendu mono
+  discret). (3) BUG chevrons : dans tous les dépliants fermés le chevron pointe à GAUCHE au lieu de
+  la droite — corriger le glyphe (trinil) pour pointer à droite fermé, rotation vers le bas ouvert.
+  Fini quand : headers sans dropdown team, dates visibles dans l'arbre, chevron fermé → droite
+  constaté.
+refs:
+  - src/components/ViewHeader.tsx
+  - src/components/RoadmapView.tsx
+  - src/components/DocsTree.tsx
+  - src/server/docs.ts
+  - src/components/glyphs.tsx
+links: []
+dependsOn:
+  - 62
+milestone: null
+source: user
+createdAt: "2026-07-07"
+completedAt: "2026-07-07"
+commit: 7fc1341
+outcome: >-
+  Les headers sont débarrassés du filtre team (le radar suffit), chaque doc affiche sa date de
+  création dans l'arbre, et les chevrons des dépliants pointent enfin à droite quand c'est fermé
+verification: >-
+  Asserté au navigateur : dropdown absent des deux headers, radar filtre la liste (#16 en tête) SANS
+  filtrer la Roadmap (tâche eng visible malgré le filtre), date 2026-07-07 à côté de chaque doc
+  (capture), chevron fermé › vérifié au pixel. Cause racine du bug chevron : trinil-react 1.3.9
+  inverse les paths ChevronLeft/ChevronRight — contourné avec commentaire, à corriger dans la lib.
+  132 tests + build verts.
+release: null
