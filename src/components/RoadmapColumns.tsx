@@ -23,11 +23,14 @@ function ProgressBar({ done, total }: { done: number; total: number }) {
  *  - locked    : carte estompée + « Prérequis manquants (#…) ».
  */
 function TaskCard({ task, state, missing }: { task: TaskNode; state: Availability; missing: number[] }) {
-  const { openTask } = usePanel()
+  const { openTask, top } = usePanel()
   // Même convention visuelle que GraphCard : fond blanc opaque, l'état estompé
   // s'exprime par la bordure et l'encre (pas d'opacity), la disponibilité par la
-  // bordure pleine marquée.
-  const border = state === 'available' ? 'border-2 border-neutral-900' : 'border border-neutral-200'
+  // bordure pleine marquée. Tâche ouverte dans le panneau → bordure accent (#36).
+  const isOpenInPanel = top?.type === 'task' && top.id === task.id
+  const border = isOpenInPanel
+    ? 'border-2 border-accent'
+    : state === 'available' ? 'border-2 border-neutral-900' : 'border border-neutral-200'
   const dim = state === 'done' || state === 'locked'
   const titleCls = task.status === 'done' ? 'text-neutral-400 line-through' : dim ? 'text-neutral-400' : 'text-neutral-900'
   const subs = task.subtasks.length > 0 ? countTasksDeep(task.subtasks) : null

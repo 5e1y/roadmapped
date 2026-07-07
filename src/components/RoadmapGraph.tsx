@@ -139,9 +139,14 @@ export function RoadmapGraph() {
 
 function GraphCard({ placed, onOpen }: { placed: Placed; onOpen: () => void }) {
   const { task, state } = placed
+  const { top } = usePanel()
   // Fond blanc TOUJOURS opaque (pas d'opacity sur le conteneur, sinon les arêtes
   // transparaissent) ; l'état estompé s'exprime par la bordure et l'encre.
-  const border = state === 'available' ? 'border-2 border-neutral-900' : 'border border-neutral-200'
+  // Tâche ouverte dans le panneau → bordure accent (#36).
+  const isOpenInPanel = top?.type === 'task' && top.id === task.id
+  const border = isOpenInPanel
+    ? 'border-2 border-accent'
+    : state === 'available' ? 'border-2 border-neutral-900' : 'border border-neutral-200'
   const dim = state === 'done' || state === 'locked'
   const titleCls = task.status === 'done' ? 'text-neutral-400 line-through' : dim ? 'text-neutral-400' : 'text-neutral-900'
   return (

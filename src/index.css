@@ -1,6 +1,17 @@
 @import "tailwindcss";
 
 /*
+ * L'UNIQUE couleur du dashboard (décision Rémi 2026-07-07, tâche #36) : un
+ * bleu d'accent pour les éléments ACTIFS et les points d'attention — tâche
+ * ouverte dans le panneau, travail in_progress. Toujours via les utilitaires
+ * `accent` (text-accent, border-accent, bg-accent/5…), jamais en dur. Le bleu
+ * reste RARE : c'est sa rareté qui le rend repérable.
+ */
+@theme {
+  --color-accent: #2563eb;
+}
+
+/*
  * Palette propre au dashboard : monochrome, volontairement minuscule.
  * AUCUN import du DS de l'app parente (l'ex-import de tokens.css posait
  * `overflow: hidden` + `user-select: none` sur body — correct pour un éditeur

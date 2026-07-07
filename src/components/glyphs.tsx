@@ -20,14 +20,15 @@ export function Chevron() {
 }
 
 /**
- * État d'une tâche en un glyphe monochrome :
- * todo = cercle vide, in_progress = demi-cercle, done = cercle plein.
+ * État d'une tâche en un glyphe :
+ * todo = cercle vide, in_progress = demi-cercle ACCENT (le travail en cours
+ * attire l'œil dans toutes les vues — tâche #37), done = cercle plein.
  */
 export function StatusGlyph({ status }: { status: TaskNode['status'] }) {
   const label = { todo: 'à faire', in_progress: 'en cours', done: 'faite' }[status]
   return (
     <svg
-      className="shrink-0"
+      className={`shrink-0 ${status === 'in_progress' ? 'text-accent' : 'text-neutral-900'}`}
       width="10"
       height="10"
       viewBox="0 0 10 10"
@@ -36,11 +37,11 @@ export function StatusGlyph({ status }: { status: TaskNode['status'] }) {
     >
       <title>{label}</title>
       {status === 'done' ? (
-        <circle cx="5" cy="5" r="4" fill="#171717" />
+        <circle cx="5" cy="5" r="4" fill="currentColor" />
       ) : status === 'in_progress' ? (
         <>
-          <circle cx="5" cy="5" r="3.75" fill="none" stroke="#171717" strokeWidth="1" />
-          <path d="M5 1.25 A3.75 3.75 0 0 0 5 8.75 Z" fill="#171717" />
+          <circle cx="5" cy="5" r="3.75" fill="none" stroke="currentColor" strokeWidth="1" />
+          <path d="M5 1.25 A3.75 3.75 0 0 0 5 8.75 Z" fill="currentColor" />
         </>
       ) : (
         <circle cx="5" cy="5" r="3.75" fill="none" stroke="#a3a3a3" strokeWidth="1" />
