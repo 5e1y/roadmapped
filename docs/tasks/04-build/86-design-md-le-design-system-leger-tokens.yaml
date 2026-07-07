@@ -1,0 +1,38 @@
+id: 111
+code: null
+title: "design.md — le design system léger : tokens, composants BaseUI canoniques, règles"
+status: todo
+tags:
+  - design
+  - docs
+size: M
+team: design
+detail: >-
+  Créer docs/design.md — un Design.md, PAS un design system complet (décision : YAGNI pour un
+  dashboard local ; le doc peut devenir un système si l'app grossit). Contenu, nourri par les 3
+  audits (#107-109) : (1) tokens — palette réduite (avec les corrections de contraste #108), UN fond
+  de page canonique (trancher blanc vs gris d'après #109), échelle d'arrondis, échelle d'espacements
+  ; (2) composants canoniques — pour chaque besoin (dropdown/select, combobox+tags avec croix, text
+  field, dialog, tooltip) LE composant BaseUI retenu et son emplacement dans src/components/ui.tsx,
+  interdiction des variantes en dur ; (3) règles — pattern ghost input (inputs permanents camouflés,
+  JAMAIS de swap lecture→input ni d'étape crayon — décision Rémi actée), focus visible partout,
+  navigation clavier. Chaque règle cite les tâches sources (#107-109). Fini quand : doc relu, chaque
+  token/composant tranché (zéro « à décider »), et les 4 tâches d'exécution peuvent s'y référer
+  comme source de vérité.
+refs:
+  - docs/audit-ux-2026-07.md
+  - src/components/ui.tsx
+  - docs/tone-of-voice.md
+links: []
+dependsOn:
+  - 107
+  - 108
+  - 109
+milestone: null
+source: user
+createdAt: "2026-07-08T01:57:01"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

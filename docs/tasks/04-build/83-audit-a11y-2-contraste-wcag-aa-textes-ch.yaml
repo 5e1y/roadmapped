@@ -1,0 +1,33 @@
+id: 108
+code: null
+title: Audit a11y 2 — contraste WCAG AA (textes, chips, croix, ghost inputs)
+status: todo
+tags:
+  - design
+  - a11y
+  - audit
+size: S
+team: design
+detail: >-
+  Relever les paires couleur texte/fond réellement rendues (inspecteur sur npm run dev) et vérifier
+  WCAG AA (4.5:1 texte normal, 3:1 grand texte et composants UI) : textes secondaires/gris, chips de
+  teams/tags et leur croix de suppression dans les combobox, placeholders des ghost inputs (pattern
+  volontairement discret — mesurer quand même, AA composant = 3:1), badges de statut, liens, texte
+  sur fonds gris vs blancs. Livrable : section « Contraste » dans docs/audit-a11y-2026-07.md —
+  tableau : élément, paire mesurée, ratio, verdict, couleur corrigée proposée (la plus proche qui
+  passe). AUCUN fix appliqué ici. Fini quand : chaque famille d'éléments listée a son ratio MESURÉ
+  (pas estimé) et sa proposition.
+refs:
+  - docs/audit-ux-2026-07.md
+  - src/components/Chip.tsx
+  - src/components/ui.tsx
+links: []
+dependsOn: []
+milestone: null
+source: user
+createdAt: "2026-07-08T01:56:30"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

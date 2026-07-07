@@ -1,0 +1,28 @@
+id: 114
+code: null
+title: Passe uniformité — fonds, arrondis et espacements alignés sur design.md
+status: todo
+tags:
+  - design
+size: S
+team: engineering
+detail: >-
+  Appliquer les tokens de docs/design.md (#111) sur les écrans : LE fond de page canonique partout
+  (fin du mélange blanc/gris relevé par #109), échelle d'arrondis unique, espacements harmonisés
+  entre les 4 tabs et les panneaux latéraux. Purement visuel, zéro comportement. Fini quand :
+  bascule entre les 4 tabs sans rupture de fond ni de rythme (vérifié à l'œil dans l'app), les
+  valeurs utilisées sont celles de design.md, tests + build verts.
+refs:
+  - src/components/ViewHeader.tsx
+  - src/components/ui.tsx
+links: []
+dependsOn:
+  - 111
+milestone: null
+source: user
+createdAt: "2026-07-08T01:57:24"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
