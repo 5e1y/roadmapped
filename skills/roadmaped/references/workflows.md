@@ -18,13 +18,15 @@ Le cycle de vie complet d'une feature : **Idée → Spec → Tâches → Exécut
 
 Un « plan » Roadmaped = des tâches chaînées. La granularité : **une tâche = un livrable testable indépendamment**, qu'un exécuteur sans contexte peut prendre via `show <id> --json` + la spec en `refs`.
 
+**Chaque tâche choisit un stage (le QUAND) et une team (le QUI).** Le stage (`--section`, un des 8 fixes idea→mature) place la tâche dans la séquence de lancement produit ; la team (`--team`, enum fixe) dit quelle équipe métier la porte. Les deux sont requis à la création (`add`), aucune tâche active n'en est dispensée.
+
 **Le champ `detail` porte ce qu'un plan portait.** Pour chaque tâche :
 - QUOI et POURQUOI, les fichiers exacts à créer/modifier, l'approche décidée.
 - Les interfaces que les tâches voisines attendent (signatures, noms — l'exécuteur ne voit que SA tâche).
 - La définition de fini : quelle commande, quel artefact observé.
 - **Interdits absolus** : « TBD », « à compléter », « gérer les erreurs correctement », « comme la tâche N » sans le contenu. Si tu ne peux pas l'écrire précisément, la spec n'est pas finie — remonte.
 
-**Ordre et parallélisme** : `--depends-on` encode l'ordre RÉEL (A doit exister pour B). Ce qui peut se faire en parallèle n'a PAS de dépendance entre soi — c'est ce que la vue Graphe montre (colonnes = sections, cartes disponibles = front de travail). Ne chaîne pas artificiellement.
+**Ordre et parallélisme** : `--depends-on` encode l'ordre RÉEL (A doit exister pour B). Ce qui peut se faire en parallèle n'a PAS de dépendance entre soi — c'est ce que la vue Graphe montre (colonnes = stages, cartes disponibles = front de travail). Ne chaîne pas artificiellement.
 
 **Après création** : `roadmap` doit montrer un front de départ sensé (les premières tâches disponibles) et une fin claire. Sinon le découpage est faux.
 

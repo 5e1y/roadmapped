@@ -11,13 +11,19 @@ Roadmaped transforme le repo en base de gestion de projet : **des fichiers YAML/
 
 | Objet | Où | C'est quoi |
 |---|---|---|
-| Tâche | `docs/tasks/<NN-section>/<NN-slug>.yaml` | L'unité de travail. Statut, dépendances, consignation. |
-| Section | `docs/tasks/<NN-section>/_section.yaml` | Groupe thématique de tâches, priorité = préfixe numérique. **Les sections SONT les jalons** : la vue Roadmap du dashboard affiche une colonne par section, l'état fait/disponible/verrouillé est calculé depuis `status` + `dependsOn`. |
+| Tâche | `docs/tasks/<NN-stage>/<NN-slug>.yaml` | L'unité de travail. Statut, dépendances, consignation. Porte un `stage` (le QUAND, via son dossier) et une `team` (le QUI, enum fixe). |
+| Stage | `docs/tasks/<NN-stage>/_section.yaml` | Une des **8 sections fixes de lancement produit** (idea→mature, immuables — voir boussole ci-dessous). **Les stages SONT les jalons** : la vue Roadmap du dashboard affiche une colonne par stage, dans l'ordre, stage vide estompé ; l'état fait/disponible/verrouillé est calculé depuis `status` + `dependsOn`. |
 | Spec | `docs/specs/AAAA-MM-JJ-<sujet>.md` | Le design validé d'une feature, AVANT de créer ses tâches. |
 | Doc | `docs/**/*.md` | La connaissance du projet. Chaque tâche s'y raccroche via `refs`. |
-| Archive | `docs/tasks/_archive/<section>/` | Journal des tâches livrées. On n'y écrit jamais à la main. |
+| Archive | `docs/tasks/_archive/<stage>/` | Journal des tâches livrées. On n'y écrit jamais à la main. |
 
-**Il n'y a plus de fichiers « plan »** : un plan d'implémentation = des tâches chaînées par `dependsOn` (l'ordre), regroupées en sections (la destination). Le détail d'implémentation vit dans le champ `detail` de chaque tâche + la spec en `refs`.
+Les 8 stages, dans l'ordre : `01-idea` (Idea Stage) · `02-initial` (Initial Stage) ·
+`03-identity` (Identity Stage) · `04-build` (Build Stage) · `05-gtm` (GTM Stage) ·
+`06-launch` (Launch Stage) · `07-scale` (Scale Stage) · `08-mature` (Mature Stage).
+Ils sont créés une fois pour toutes au setup et **immuables** — pas de 9e stage, pas de
+renommage. Détail des formats : `references/formats.md`.
+
+**Il n'y a plus de fichiers « plan »** : un plan d'implémentation = des tâches chaînées par `dependsOn` (l'ordre), classées dans les stages (le moment) et affectées à une team (qui la porte). Le détail d'implémentation vit dans le champ `detail` de chaque tâche + la spec en `refs`.
 
 **Chemins** : le CLI résout `docs/tasks/` et `docs/` via `roadmaped.config.json` à la racine du dossier Roadmaped (défauts `../docs/tasks`, `../docs`). Si Roadmaped n'est pas installé à côté de `docs/`, ajuster ce fichier AVANT le setup.
 
@@ -32,10 +38,12 @@ Toutes les commandes depuis la racine du repo (adapter `scripts/` à l'emplaceme
 ```
 node scripts/task.mjs next                    # LA prochaine tâche à faire (jamais une verrouillée)
 node scripts/task.mjs show <id> [--json]      # détail d'une tâche
-node scripts/task.mjs list [--section S] [--status todo] [--archive] [--json]
+node scripts/task.mjs list [--section S] [--status todo] [--team engineering] [--archive] [--json]
 node scripts/task.mjs roadmap [--json]        # jalons, progression, disponible/verrouillé
-node scripts/task.mjs add --section <dir> --title "..." [--detail "..."] [--tags a,b]
-     [--size S|M|L] [--zone z] [--code C1] [--refs f1,f2] [--links 3,4] [--depends-on 12,45]
+node scripts/task.mjs add --section <stage> --title "..." --team <team> [--detail "..."] [--tags a,b]
+     [--size S|M|L] [--code C1] [--refs f1,f2] [--links 3,4] [--depends-on 12,45]
+     # --team REQUIS, enum : marketing|sales|support|operations|finance|legal|engineering|design
+     # --zone n'existe plus (flag inconnu)
 node scripts/task.mjs start <id>              # todo → in_progress
 node scripts/task.mjs done <id> --commit <sha> --outcome "..." --verification "..." [--release v1.2]
 node scripts/task.mjs update <id> [--title ...] [--status ...] [--depends-on 12,45] ["null" pour vider]
@@ -45,7 +53,7 @@ node scripts/task.mjs validate                # revalide TOUT (obligatoire aprè
 
 Chaque écriture CLI revalide l'intégralité de `docs/tasks/` et **rollback** si invalide. Les ids sont alloués par `_meta.yaml` et **jamais réutilisés** — ne touche jamais `nextId` à la main.
 
-**Édition manuelle autorisée** uniquement pour ce que le CLI ne couvre pas : créer une section (dossier `NN-slug/` + `_section.yaml`), créer des sous-tâches (dossier jumeau homonyme). TOUJOURS suivie de `validate`. Formats exacts : `references/formats.md`.
+**Édition manuelle autorisée** uniquement pour ce que le CLI ne couvre pas : créer des sous-tâches (dossier jumeau homonyme). TOUJOURS suivie de `validate`. Formats exacts : `references/formats.md`. **Il n'existe pas de commande « créer une section »** : les 8 stages sont créés une fois pour toutes au setup, ni le CLI ni l'API ne permettent d'en ajouter, renommer ou supprimer.
 
 ## Les workflows complets
 
@@ -64,7 +72,7 @@ Chaque écriture CLI revalide l'intégralité de `docs/tasks/` et **rollback** s
 
 1. **Spec d'abord, HARD-GATE** : zéro code et zéro tâche avant une spec écrite, self-reviewée et approuvée par l'utilisateur (questions une par une, 2-3 approches proposées).
 2. **Décompose** en 2-8 tâches : `add` avec `--depends-on` pour l'ordre réel (ce qui peut se faire en parallèle n'a PAS de dépendance entre soi), `--refs docs/specs/<la-spec>.md`. Le `detail` porte fichiers/approche/définition de fini — zéro placeholder.
-3. **Jalon** : si le chantier mérite sa propre colonne dans la roadmap, crée une section dédiée (le préfixe NN place sa priorité) plutôt que de gonfler une section existante.
+3. **Stage + team** : pour chaque tâche, choisis le stage qui correspond au moment du lancement produit où elle se joue (le QUAND — `--section` parmi les 8 stages fixes) et la team qui porte le travail (le QUI — `--team`, enum fixe). Il n'y a pas de section à créer, seulement à choisir.
 4. Les cycles de dépendances sont **refusés à l'écriture** — si le CLI rejette, repense l'ordre au lieu de forcer.
 5. **Contrôle final** : `roadmap` doit montrer un front de départ sensé et une fin claire.
 
