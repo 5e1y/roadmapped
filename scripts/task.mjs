@@ -14,7 +14,8 @@
 // Node >= 22.18 exécute les imports TypeScript nativement ; le script npm
 // (`npm run task`) garde --experimental-strip-types pour les Node plus vieux.
 
-import { existsSync } from 'node:fs'
+import { existsSync, realpathSync } from 'node:fs'
+import { join, relative } from 'node:path'
 import { loadPaths } from '../src/lib/paths.ts'
 import {
   treeWithErrors, readTree, findTask,
@@ -136,6 +137,8 @@ Lecture
                             progression + état de chaque tâche (done/disponible/verrouillé)
   validate                  valide tout docs/tasks/ (schéma + unicité des ids
                             + nextId, archive comprise) ; exit 1 si erreur
+  guard                     garde pre-commit : refuse un commit produit sans tâche
+                            in_progress (consignation/merge exemptés ; --no-verify assumé)
 
 Écriture (id alloué depuis _meta.yaml ; validation après CHAQUE écriture, rollback si erreur)
   add --section <stage> --title <t> --team <team> [--detail <d>] [--tags a,b]
@@ -174,6 +177,7 @@ const CMD_USAGE = {
   take: 'Usage : take [--team <t>] [--json]',
   brief: 'Usage : brief <id>',
   sitrep: 'Usage : sitrep',
+  guard: 'Usage : guard  (hook pre-commit — exit 1 si des fichiers produit sont stagés sans tâche in_progress)',
   done: 'Usage : done <id> [--commit <sha>] [--outcome <o>] [--verification <v>] [--release <r>] [--suggest-refs]',
   roadmap: 'Usage : roadmap [--json]',
   add: 'Usage : add --section <stage> --title <t> --team <team> [--detail <d>] [--tags a,b] [--size S|M|L]\n        [--code <c>] [--refs a,b] [--links 1,2] [--depends-on 1,2] [--milestone <slug>] [--source ai|user] [--json]',
@@ -457,6 +461,37 @@ function cmdArchive(id) {
   report(archiveTask(ROOT, id), `#${id} archivée → docs/tasks/_archive/…`)
 }
 
+// Garde pre-commit (#100, spec 2026-07-08-process-enforcement) : tout changement du
+// repo = une unité roadmaped. Refuse un commit produit sans tâche in_progress ; laisse
+// passer la consignation (backlog seul), les merges, et un repo non initialisé.
+// Appelé par scripts/githooks/pre-commit (core.hooksPath, activé au npm prepare).
+function cmdGuard(flags) {
+  rejectUnknownFlags(flags, [], CMD_USAGE.guard)
+  if (!existsSync(join(ROOT, '_meta.yaml'))) return // repo non initialisé : rien à garder
+  const top = git('rev-parse --show-toplevel')
+  if (!top) return // pas de dépôt git
+  if (git('rev-parse -q --verify MERGE_HEAD')) return // merge en cours = intégration, pas travail nouveau
+  const staged = (git('diff --cached --name-only') ?? '').split('\n').filter(Boolean)
+  if (staged.length === 0) return
+  // Consignation exemptée : fichiers sous le tasksDir configuré (realpath : /tmp vs /private/tmp).
+  const relRoot = relative(realpathSync(top), realpathSync(ROOT))
+  const offenders = relRoot.startsWith('..')
+    ? staged
+    : staged.filter((f) => f !== relRoot && !f.startsWith(`${relRoot}/`))
+  if (offenders.length === 0) return
+  if (activeTasks(readTree(ROOT)).some((t) => t.status === 'in_progress')) return
+  console.error(
+    [
+      '✋ guard : commit refusé — aucune tâche in_progress ne couvre ce travail.',
+      `Fichiers hors consignation : ${offenders.join(', ')}`,
+      'Le chemin rapide (~2 commandes), puis recommitte :',
+      '  node scripts/task.mjs quick "<titre>" --team <team> --start',
+      '(Échappatoire consciente : git commit --no-verify — la dérive restera visible au sitrep.)',
+    ].join('\n'),
+  )
+  process.exit(1)
+}
+
 function cmdSitrep(flags) {
   rejectUnknownFlags(flags, [], CMD_USAGE.sitrep)
   const { tree, errors } = treeWithErrors(ROOT)
@@ -537,6 +572,9 @@ switch (cmd) {
     break
   case 'sitrep':
     cmdSitrep(flags)
+    break
+  case 'guard':
+    cmdGuard(flags)
     break
   case 'take':
     cmdTake(flags)
