@@ -52,6 +52,42 @@ const SIZE_ITEMS: SelectItem[] = [
 /** Deux valeurs (potentiellement listes) diffèrent-elles ? Comparaison structurelle, null-safe. */
 const changed = (a: unknown, b: unknown) => JSON.stringify(a ?? null) !== JSON.stringify(b ?? null)
 
+/**
+ * Offset dans la SOURCE markdown correspondant à un clic dans le texte RENDU :
+ * (1) point de clic → position de caret dans le DOM rendu (caretRangeFromPoint,
+ * ou caretPositionFromPoint sur Firefox) ; (2) texte rendu avant ce caret ;
+ * (3) retrouver dans la source brute le plus long suffixe de ce texte (le rendu
+ * omet la syntaxe **…**, `-`, `#` — un suffixe court finit toujours par matcher).
+ * null si introuvable (l'appelant garde alors le comportement par défaut).
+ */
+function caretOffsetFromClick(container: HTMLElement, x: number, y: number, raw: string): number | null {
+  let node: Node | null = null
+  let offset = 0
+  const doc = document as Document & {
+    caretRangeFromPoint?: (x: number, y: number) => Range | null
+    caretPositionFromPoint?: (x: number, y: number) => { offsetNode: Node; offset: number } | null
+  }
+  if (doc.caretRangeFromPoint) {
+    const r = doc.caretRangeFromPoint(x, y)
+    if (r) { node = r.startContainer; offset = r.startOffset }
+  } else if (doc.caretPositionFromPoint) {
+    const p = doc.caretPositionFromPoint(x, y)
+    if (p) { node = p.offsetNode; offset = p.offset }
+  }
+  if (!node || !container.contains(node)) return null
+  const range = document.createRange()
+  range.setStart(container, 0)
+  range.setEnd(node, offset)
+  const before = range.toString()
+  if (before.length === 0) return 0
+  for (let len = Math.min(60, before.length); len >= 3; len--) {
+    const needle = before.slice(-len)
+    const idx = raw.indexOf(needle)
+    if (idx >= 0) return idx + needle.length
+  }
+  return null
+}
+
 function SectionLabel({ children }: { children: ReactNode }) {
   return <div className="px-1.5 text-[11px] uppercase tracking-wide text-neutral-400">{children}</div>
 }
@@ -284,6 +320,8 @@ function TaskPanelBody({ id }: { id: number }) {
   const [detailEditing, setDetailEditing] = useState(false)
   const detailReadRef = useRef<HTMLDivElement>(null)
   const detailMinHeight = useRef<number>(0)
+  /** Position de caret à poser dans la textarea au focus (mappée depuis le clic). */
+  const detailCaret = useRef<number | null>(null)
 
   const task = tree ? findTaskInTree(tree, id) : null
   if (!tree || !task) return <p className="text-sm text-neutral-400">Tâche introuvable (rechargez).</p>
@@ -371,10 +409,15 @@ function TaskPanelBody({ id }: { id: number }) {
     void runAction(`/api/tasks/${id}`, { method: 'DELETE' }, 'La tâche n’a pas été supprimée.', true)
   }
 
-  const openDetailEditor = () => {
+  const openDetailEditor = (click?: { x: number; y: number }) => {
     // Le passage en édition se fait À TAILLE IDENTIQUE : la textarea reprend la
     // hauteur du markdown rendu — rien ne rétrécit, aucun repère perdu.
     detailMinHeight.current = detailReadRef.current?.offsetHeight ?? 0
+    // Le curseur se pose LÀ OÙ on a cliqué (mappé rendu → source markdown) ;
+    // ouverture au clavier (Entrée) → début du texte.
+    detailCaret.current = click && task.detail && detailReadRef.current
+      ? caretOffsetFromClick(detailReadRef.current, click.x, click.y, task.detail)
+      : 0
     setDetailEditing(true)
   }
 
@@ -521,6 +564,11 @@ function TaskPanelBody({ id }: { id: number }) {
             autoFocus
             defaultValue={task.detail ?? ''}
             style={{ minHeight: detailMinHeight.current }}
+            onFocus={(e) => {
+              // Curseur posé à l'endroit cliqué (une seule fois, au focus initial).
+              const c = detailCaret.current
+              if (c !== null) { e.currentTarget.setSelectionRange(c, c); detailCaret.current = null }
+            }}
             onKeyDown={(e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') e.currentTarget.blur() }}
             onBlur={(e) => {
               const v = e.target.value || null
@@ -534,7 +582,7 @@ function TaskPanelBody({ id }: { id: number }) {
             role={editable ? 'button' : undefined}
             tabIndex={editable ? 0 : undefined}
             title={editable ? 'Cliquer pour éditer' : undefined}
-            onClick={editable ? (e) => { if (!(e.target as HTMLElement).closest('a')) openDetailEditor() } : undefined}
+            onClick={editable ? (e) => { if (!(e.target as HTMLElement).closest('a')) openDetailEditor({ x: e.clientX, y: e.clientY }) } : undefined}
             onKeyDown={editable ? (e) => { if (e.key === 'Enter') { e.preventDefault(); openDetailEditor() } } : undefined}
             className={`rounded border border-transparent px-1.5 py-1 ${editable ? 'cursor-text transition-colors hover:bg-neutral-100' : ''}`}
           >
