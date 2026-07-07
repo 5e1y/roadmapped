@@ -28,7 +28,7 @@ milestone: null
 source: user
 createdAt: "2026-07-08T01:12:44"
 completedAt: "2026-07-08"
-commit: 965d33a
+commit: 9b2c8e4
 outcome: >-
   structuredContent conforme sur les 14 tools : émis seulement quand l'objet est la charge utile
   (écriture → tâche résultante, validate) ; sitrep/brief/next/take/list/roadmap en texte seul (plus
