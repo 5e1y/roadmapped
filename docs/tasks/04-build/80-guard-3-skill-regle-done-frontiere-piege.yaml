@@ -3,7 +3,7 @@ code: null
 title: >-
   Guard 3 — skill : règle « done = frontière », piège ASAP, interdit commit hors ticket + resync
   installé
-status: todo
+status: done
 tags:
   - process
   - enforcement
@@ -29,8 +29,18 @@ dependsOn: []
 milestone: null
 source: user
 createdAt: "2026-07-08T01:37:13"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: 14e570a
+outcome: >-
+  SKILL.md : règle « tout changement du repo = une unité, done = frontière pas couvercle, ASAP ne
+  saute pas le quick » en tête de l'échelle de décision ; description frontmatter armée sur « avant
+  de modifier tout fichier du repo » (feedback/rework/fix/« répare ça ») ; interdit « committer sans
+  unité (guard refuse, --no-verify = dérive consciente) » ; bonus : mention des tools MCP comme
+  interface d'écriture équivalente. 61→64 lignes (+3 nettes). Installation locale
+  ~/.claude/skills/roadmaped remplacée par la version du repo (l'ancienne pointait
+  dashboard/scripts/task.mjs, chemin mort, avec un references/workflows.md obsolète)
+verification: >-
+  SKILL.md relu : les 3 ajouts présents, 64 lignes ; diff -r skills/roadmaped
+  ~/.claude/skills/roadmaped vide (identiques) ; zéro occurrence de dashboard/scripts dans
+  l'installé ; grep confirme les nouvelles références planning/delegation à la place de workflows.md
 release: null

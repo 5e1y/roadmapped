@@ -1,7 +1,7 @@
 id: 101
 code: null
 title: Guard 2 — signal sitrep « commits non consignés » (CLI + MCP)
-status: todo
+status: done
 tags:
   - process
   - enforcement
@@ -27,8 +27,16 @@ dependsOn: []
 milestone: null
 source: user
 createdAt: "2026-07-08T01:37:06"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: 4d075f8
+outcome: >-
+  unloggedCommits(tree) dans render.ts (compte git rev-list depuis le commit de la dernière tâche
+  consignée, null best-effort si pas de git/rien de consigné/sha disparu) ; sitrepText prend le
+  signal en 3e param optionnel et n'alerte que si N>0 sans aucune in_progress ; branché sur les DEUX
+  surfaces (cmdSitrep CLI + tool MCP sitrep)
+verification: >-
+  2 tests purs rouges puis verts (ligne présente sans in_progress, muette avec in_progress/null/0) ;
+  chemin git observé en réel sur repo jetable : 2 commits après le sha consigné →
+  {count:2,sinceId:7}, sha inconnu → null ; sitrep réel du repo muet (in_progress présentes,
+  comportement attendu) ; 224 tests + build verts
 release: null

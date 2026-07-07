@@ -1,7 +1,7 @@
 id: 100
 code: null
 title: Guard 1 — task.mjs guard + hook pre-commit committé + activation npm prepare
-status: todo
+status: done
 tags:
   - process
   - enforcement
@@ -27,8 +27,16 @@ dependsOn: []
 milestone: null
 source: user
 createdAt: "2026-07-08T01:36:52"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: 0e6458e
+outcome: >-
+  Commande task.mjs guard (exit 1 si fichiers produit stagés sans tâche in_progress ; consignation
+  docs/tasks/, merge et repo non initialisé exemptés ; message avec la commande quick exacte +
+  --no-verify) ; hook committé scripts/githooks/pre-commit ; activation auto npm prepare →
+  core.hooksPath, activée dans ce repo
+verification: >-
+  7 tests TDD rouges puis verts (sandbox git réel : blocage, in_progress, consignation, merge,
+  non-initialisé, e2e vrais commits refusé/accepté via le hook) ; 222 tests + build verts ; hook
+  observé tirer sur le VRAI commit de livraison (GIT_TRACE : start_command
+  scripts/githooks/pre-commit) et laisser passer grâce au ticket in_progress
 release: null

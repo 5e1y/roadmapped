@@ -1,0 +1,24 @@
+id: 104
+kind: quick
+code: null
+title: >-
+  Liaison vérifiable commit↔tâche (convention #id parsée, audit des orphelins) — différée de la spec
+  enforcement
+status: todo
+tags:
+  - debt
+  - process
+size: null
+team: engineering
+detail: null
+refs: []
+links: []
+dependsOn: []
+milestone: null
+source: ai
+createdAt: "2026-07-08T01:46:24"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
