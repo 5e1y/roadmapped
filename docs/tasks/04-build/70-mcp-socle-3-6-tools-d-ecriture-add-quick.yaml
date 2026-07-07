@@ -1,7 +1,7 @@
 id: 92
 code: null
 title: MCP socle 3 — 6 tools d'écriture (add/quick/start/done/update/archive)
-status: in_progress
+status: done
 tags: []
 size: M
 team: engineering
@@ -22,8 +22,14 @@ dependsOn:
 milestone: null
 source: ai
 createdAt: "2026-07-08"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: 306b3fe
+outcome: >-
+  6 tools d'écriture MCP (add, quick, start, done, update, archive) via taskWrites :
+  validation/rollback/verrou hérités, done auto-remplit HEAD et remonte les warnings, erreur métier
+  → isError avec le message du noyau ; registre complet à 14 tools
+verification: >-
+  Cycle complet PAR TOOLS (take→done) sur sandbox, YAML relu status=done ; add team invalide →
+  isError + rollback (vérifié aussi sur stdio RÉEL contre le vrai backlog : nextId inchangé, zéro
+  tâche parasite) ; quick sans outcome → isError ; 14 tests MCP + 206 tests + build verts
 release: null

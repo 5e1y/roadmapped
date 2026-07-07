@@ -577,6 +577,39 @@ the same. In practice this means `next/take/start/done/add/quick` never need a
 reference doc open to use correctly — `--help` and the error message itself are
 enough (see [§6](#6-working-with-a-claude-agent)'s golden rule).
 
+### The MCP server — the same commands as auto-documented tools
+
+The final rung of the token economy: `scripts/mcp-server.mjs` exposes the whole CLI as
+**MCP tools**. For an agent this beats the CLI on three counts — the tool's JSON schema
+*is* its documentation (injected once by the protocol instead of living in a reference),
+there is no shell line to assemble and quote, and the output is structured
+(`structuredContent`) with no formatting noise. It is the **agent's** surface; the CLI
+stays for humans, CI, and tests. Both call the same `src/lib` core (`taskWrites` +
+`roadmap` + `render`) — one validation, one lock ([#83](#)), no second write path.
+
+**Activation.** A committed `.mcp.json` at the repo root wires it in:
+
+```json
+{
+  "mcpServers": {
+    "roadmaped": { "command": "node", "args": ["scripts/mcp-server.mjs"] }
+  }
+}
+```
+
+Restart Claude Code to load it (Node ≥ 22.18 — the server imports `.ts` from `src/lib`
+with native type-stripping, like the CLI). It coexists with the CLI skill; nothing to
+uninstall.
+
+**Tool catalog (14).** Read: `sitrep` (state of the world), `take` (open a session:
+next + start + brief), `brief` (dense execution context), `next` (the work queue),
+`show` (full task detail), `list` (browse, filter by section/status/team/tag), `roadmap`
+(milestone rollup), `validate` (check everything). Write (via `taskWrites`, so validation
++ rollback + lock are inherited): `add`, `quick`, `start`, `done` (auto-fills the HEAD
+commit, surfaces the no-refs warning), `update`, `archive`. A business error (team out of
+enum, dependency cycle, missing section) comes back as an `isError` result carrying the
+same self-documenting message the CLI prints — the rollback leaves the tree untouched.
+
 ---
 
 ## 5. YAML formats
