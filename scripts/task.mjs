@@ -19,7 +19,7 @@ import {
   treeWithErrors, readTree, findTask,
   addTask, startTask, doneTask, updateTask, archiveTask,
 } from '../src/lib/taskWrites.ts'
-import { computeAvailability, activeTasks } from '../src/lib/roadmap.ts'
+import { computeAvailability, activeTasks, nextQueue } from '../src/lib/roadmap.ts'
 import { TEAMS } from '../src/lib/tasks.ts'
 
 const { tasksDir: ROOT } = loadPaths()
@@ -114,9 +114,10 @@ Teams (équipe métier, enum fixe) : ${TEAMS.join(' · ')}
 Lecture
   list [--section <key>] [--status todo|in_progress|done] [--team <t>] [--archive] [--json]
   show <id> [--json]        détail complet d'une tâche (id global, ex: 42)
-  next [--json]             la prochaine tâche : 1ère todo DISPONIBLE (deps done)
-                            de la section open la plus prioritaire (= "on enchaîne
-                            sur la roadmap") — ne propose jamais une tâche verrouillée
+  next [--count N] [--team t] [--json]
+                            LA file de travail : les N prochaines todo DISPONIBLES
+                            (deps done), ordre stage PUIS ancienneté — calculé par
+                            l'app, à CONSOMMER tel quel (jamais recalculer)
   roadmap [--json]          vue par roadmap/jalon (docs/tasks/_roadmaps.yaml) :
                             progression + état de chaque tâche (done/disponible/verrouillé)
   validate                  valide tout docs/tasks/ (schéma + unicité des ids
@@ -203,30 +204,26 @@ function cmdShow(id, flags) {
 }
 
 function cmdNext(flags) {
+  rejectUnknownFlags(flags, ['json', 'count', 'team'])
+  const count = flags.count ? Math.max(1, Number(flags.count) || 1) : 1
   const tree = readTree(ROOT)
-  const avail = computeAvailability(tree)
-  const firstAvailableTodo = (tasks) => {
-    for (const t of tasks) {
-      if (t.status === 'todo' && avail.get(t.id) === 'available') return t
-      const sub = firstAvailableTodo(t.subtasks)
-      if (sub) return sub
-    }
-    return null
+  const queue = nextQueue(tree, { team: typeof flags.team === 'string' ? flags.team : undefined }).slice(0, count)
+  if (queue.length === 0) {
+    console.log(flags.json ? '[]' : 'Aucune tâche disponible (tout est fait, verrouillé ou en cours).')
+    return
   }
-  for (const s of tree.sections) {
-    if (s.status !== 'open') continue
-    const t = firstAvailableTodo(s.tasks)
-    if (t) {
-      if (flags.json) console.log(JSON.stringify({ task: t, sectionKey: s.key, archived: false }, null, 2))
-      else printTask({ task: t, sectionKey: s.key, archived: false })
-      return
-    }
+  if (flags.json) {
+    // count=1 : objet (compat skill) ; sinon tableau ordonné.
+    console.log(JSON.stringify(count === 1 ? queue[0] : queue, null, 2))
+    return
   }
-  console.error('Aucune tâche todo disponible (les todo restantes sont verrouillées par des dépendances non terminées).')
-  process.exit(1)
+  for (const task of queue) {
+    const hit = findTask(tree, task.id)
+    if (count === 1) printTask(hit)
+    else console.log(taskLine(task, ''))
+  }
 }
 
-/** Traduit un MutationResult en sortie CLI (exit 1 si erreur). */
 function report(res, successMessage) {
   if (!res.ok) {
     console.error('Échec :')

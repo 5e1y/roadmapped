@@ -6,7 +6,7 @@ import { usePanel } from '../state/PanelContext'
 import { usePersistentStrings } from '../state/uiPersist'
 import { STAGES, type TaskNode } from '../lib/tasks'
 import { SectionAccordion } from './SectionAccordion'
-import { TaskRow } from './TaskRow'
+import { TaskColumns, sortOpen, sortDone } from './TaskColumns'
 import { Select, type SelectItem } from './ui'
 import { useTeamFilter, useStageFilter } from '../state/filters'
 import { ViewHeader, TeamFilterMenu } from './ViewHeader'
@@ -78,9 +78,9 @@ export function Backlog() {
     (teamFilter.length === 0 || teamFilter.includes(t.team)) &&
     (q === '' || t.title.toLowerCase().includes(q) || `#${t.id}`.includes(q))
 
-  const open = all.filter((t) => t.status !== 'done' && matches(t)).sort((a, b) => a.id - b.id)
-  const done = all.filter((t) => t.status === 'done' && matches(t)).sort((a, b) =>
-    (b.completedAt ?? '').localeCompare(a.completedAt ?? '') || b.id - a.id)
+  // Ordre canonique (décision Rémi) : stage puis ancienneté — partagé (TaskColumns).
+  const open = sortOpen(all.filter((t) => t.status !== 'done' && matches(t)), (id) => stageOf.get(id) ?? '99')
+  const done = sortDone(all.filter((t) => t.status === 'done' && matches(t)))
 
   // « + tâche » : le stage de destination = le filtre courant, sinon Build
   // (le stage de travail par défaut — modifiable dans le panneau de création).
@@ -123,36 +123,7 @@ export function Backlog() {
 
       <div className="min-h-0 flex-1 overflow-y-auto">
       <div className="mx-auto max-w-5xl px-6 py-8">
-      <div className="grid grid-cols-2 gap-4">
-        <section>
-          <h2 className="mb-2 px-1 text-xs font-medium text-neutral-400">
-            Ouvertes — de la plus ancienne à la plus récente
-          </h2>
-          {open.length === 0 ? (
-            <p className="border border-dashed border-neutral-300 px-4 py-8 text-center text-xs text-neutral-400">
-              Rien d'ouvert{q || stageFilter || teamFilter.length ? ' avec ces filtres' : ''}.
-            </p>
-          ) : (
-            <div className="divide-y divide-neutral-100 border border-neutral-200 bg-white">
-              {open.map((t) => <TaskRow key={t.id} task={t} />)}
-            </div>
-          )}
-        </section>
-        <section>
-          <h2 className="mb-2 px-1 text-xs font-medium text-neutral-400">
-            Terminées — dernière bouclée en premier
-          </h2>
-          {done.length === 0 ? (
-            <p className="border border-dashed border-neutral-300 px-4 py-8 text-center text-xs text-neutral-400">
-              Rien de terminé{q || stageFilter || teamFilter.length ? ' avec ces filtres' : ''}.
-            </p>
-          ) : (
-            <div className="divide-y divide-neutral-100 border border-neutral-200 bg-white">
-              {done.map((t) => <TaskRow key={t.id} task={t} />)}
-            </div>
-          )}
-        </section>
-      </div>
+      <TaskColumns open={open} done={done} filtered={Boolean(q || stageFilter || teamFilter.length)} />
 
       {tree.archive.length > 0 && (
         <section className="mt-14">

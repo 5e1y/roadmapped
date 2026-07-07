@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { computeAvailability, missingPrereqs, topoLayers, milestoneProgress, activeTasks, archivedTasks, slugify, reverseDependents, depState } from './roadmap'
+import { computeAvailability, missingPrereqs, topoLayers, milestoneProgress, activeTasks, archivedTasks, slugify, reverseDependents, depState, nextQueue } from './roadmap'
 import type { TaskTree, TaskNode, SectionNode } from './tasks'
 
 /** Fabrique une tâche minimale ; les champs non pertinents prennent des défauts. */
@@ -156,5 +156,36 @@ describe('archivedTasks', () => {
       }],
     }
     expect(archivedTasks(tree as never).map((t) => t.id)).toEqual([1, 2])
+  })
+})
+
+describe('nextQueue', () => {
+  const sec = (key: string, tasks: TaskNode[]): SectionNode =>
+    ({ key, title: key, status: 'open', note: null, tasks })
+  const multi = (sections: Array<[string, TaskNode[]]>): TaskTree =>
+    ({ nextId: 999, sections: sections.map(([k, t]) => sec(k, t)), archive: [], roadmaps: [] })
+
+  it('trie par stage PUIS par ancienneté (id) — une tâche d’un stage tôt passe avant, même plus récente', () => {
+    const t = multi([
+      ['04-build', [task(3, 'todo'), task(4, 'todo')]],
+      ['03-identity', [task(16, 'todo')]],
+    ])
+    expect(nextQueue(t).map((x) => x.id)).toEqual([16, 3, 4])
+  })
+  it('exclut les done, les in_progress et les verrouillées', () => {
+    const t = multi([
+      ['04-build', [task(1, 'done'), task(2, 'in_progress'), task(3, 'todo', [4]), task(4, 'todo')]],
+    ])
+    expect(nextQueue(t).map((x) => x.id)).toEqual([4])
+  })
+  it('filtre par team quand demandé', () => {
+    const mkt = { ...task(5, 'todo'), team: 'marketing' as const }
+    const t = multi([['04-build', [task(4, 'todo'), mkt]]])
+    expect(nextQueue(t, { team: 'marketing' }).map((x) => x.id)).toEqual([5])
+  })
+  it('ignore les sections non ouvertes (dormant)', () => {
+    const dormant: SectionNode = { key: '03-identity', title: 'x', status: 'dormant', note: null, tasks: [task(9, 'todo')] }
+    const t: TaskTree = { nextId: 999, sections: [dormant, sec('04-build', [task(4, 'todo')])], archive: [], roadmaps: [] }
+    expect(nextQueue(t).map((x) => x.id)).toEqual([4])
   })
 })
