@@ -18,27 +18,34 @@ Des fichiers YAML/markdown plats sous `docs/tasks/` sont la SEULE source de vér
 
 ## Le cycle
 
-`take [--team t]` (prend + démarre + brief en 1 appel) → travailler (`detail` + `refs`) → vérifier l'artefact RÉEL (pas juste le typecheck) → `done <id> --commit <sha> --outcome "…" --verification "…"` (un `quick` : `--outcome` seul suffit).
+`sitrep` (l'état du monde en 1 appel — LE 1er geste de session) → `take [--team t]` (prend + démarre + brief en 1 appel) → travailler (`detail` + `refs`) → vérifier l'artefact RÉEL (pas juste le typecheck) → `done <id> --outcome "…" --verification "…"` (le `--commit` est auto-rempli au HEAD ; un `quick` : `--outcome` seul suffit).
+
+## Dette assumée = un `quick` taggé `debt`
+
+Un raccourci délibéré (plafond connu, upgrade path) se trace en `quick "<le plafond>" --team <t> --tags debt` — l'équivalent requêtable d'un commentaire `ponytail:`. `list --tag debt` sort le ledger ; `sitrep` alerte sur la dette ouverte.
 
 ## Les commandes (une ligne chacune)
 
-- `take [--team t] [--json]` — next + start + brief, LA commande d'ouverture de session.
-- `brief <id>` — contexte d'exécution complet et dense (deps/liées titrées, refs, rappel `done`).
+- `sitrep` — done du jour, in_progress, 3 prochaines, validate, alertes en ≤30 lignes. Ouvre la session.
+- `take [--team t] [--json]` — next + start + brief, LA commande d'ouverture de travail.
+- `brief <id>` — contexte d'exécution dense (deps/liées titrées, refs + extraits d'ancre & drapeau de fraîcheur, rappel `done`).
 - `next [--count N] [--team t] [--json]` — la file de travail à CONSOMMER telle quelle.
-- `quick "<titre>" --team <t> [--stage s] [--start] [--json]` — mini-ticket, cérémonie minimale.
+- `quick "<titre>" --team <t> [--stage s] [--tags a,b] [--start] [--json]` — mini-ticket, cérémonie minimale.
 - `add --section <stage> --title <t> --team <t> [--detail d] [--refs a,b] [--depends-on 1,2] [--json]` — créer une tâche.
 - `start <id>` — todo → in_progress.
-- `done <id> [--commit sha] [--outcome o] [--verification v] [--release r]` — consigner la livraison.
+- `done <id> [--commit sha] [--outcome o] [--verification v] [--release r] [--suggest-refs]` — consigner (commit auto=HEAD ; `--suggest-refs` propose les refs du diff, à confirmer).
 - `update <id> [--champ valeur ...]` — patch générique (`"null"` pour vider un champ).
 - `archive <id>` — done → `_archive/<stage>/`.
-- `list [--section s] [--status s] [--team t] [--archive] [--json]` — lister.
+- `list [--section s] [--status s] [--team t] [--tag t] [--archive] [--json]` — lister.
 - `show <id> [--json]` — détail complet d'une tâche.
 - `validate` — revalide tout `docs/tasks/` (obligatoire après toute édition manuelle).
 - `roadmap [--json]` — vue jalons/progression, disponible/verrouillé.
 
+Ancrer une ref (opt-in) : `fichier#symbole` (robuste, résolu par grep au serve) ou `fichier:ligne` (fragile) → `brief` en joint l'extrait. Une ref nue reste une ligne.
+
 ## Règle d'or anti-token
 
-Pour `take`/`brief`/`next`/`quick`/`add`/`start`/`done` : n'ouvre AUCUNE référence — le CLI est autoportant (`--help` et les messages d'erreur guident). Consomme la file servie par `next`/`take` telle quelle, ne RECALCULE jamais la priorité en relisant le backlog.
+Pour `sitrep`/`take`/`brief`/`next`/`quick`/`add`/`start`/`done` : n'ouvre AUCUNE référence — le CLI est autoportant (`--help` et les messages d'erreur guident). Consomme la file servie par `next`/`take` telle quelle, ne RECALCULE jamais la priorité en relisant le backlog.
 
 ## Interdits
 

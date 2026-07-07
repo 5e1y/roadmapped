@@ -173,6 +173,27 @@ node scripts/task.mjs <command> [arguments]
 > from source instead and flagged as such; only their read-only paths (`brief`, and
 > `quick`'s own flag-validation error) are shown running for real.
 
+### `sitrep` — the state of the world in one call
+
+The **first** gesture of a session: what closed today, what is in progress (with an
+age in days), the next three available tasks, a one-word `validate`, and alerts
+(stale in-progress ≥ 7 days, open `#debt`, red validate). Capped at ≤ 30 lines — it
+replaces re-reading the whole backlog at session start (~1 200 tokens → ~150). Titles
+only; the count stays exact even when the display is truncated with `(+K autres)`.
+
+```console
+$ node scripts/task.mjs sitrep
+sitrep — 2026-07-08
+done aujourd'hui (2): #64 Token economy 1 · #65 Token economy 2
+in_progress (1): #28 Panneau v2 — SectionPanel aligné (3j)
+prochaines: #16 Positionnement et copy du site · #3 Spec — création de tâche fluide · #4 Spec — vue Graphe v2
+validate: OK
+⚠ 1 dette(s) ouverte(s) (#debt) : #72
+```
+
+The in-progress age is measured from `createdAt` (there is no `startedAt` field yet);
+treat it as a staleness proxy, not a precise start clock.
+
 ### `take [--team <t>]` — open a session in one call
 
 The session-opening command: `next` + `start` + `brief`, in **one** call — the
@@ -224,10 +245,19 @@ Note the last line: for a `quick` task, `brief` prints `done <id> --commit <sha>
 `done`. `dependsOn`/`links` lines are only present when the task has any — this one has
 no `links`.
 
+**Anchored refs and freshness (opt-in).** A ref written as `file#symbol` (robust —
+resolved by grep at serve time, so the snippet is always the *current* code) or
+`file:line` (fragile — documented as such) makes `brief` inline the ~10 lines around
+that anchor, turning a full-file read (~2 500 tokens) into a snippet (~100). A bare
+`file` ref stays a single line. Independently, **any** ref whose file was committed
+*after* the ticket's `createdAt` is flagged `⚠ modifié depuis la création du ticket`
+(git, day granularity) — trust verified, never blind. A symbol that no longer resolves
+prints `⚠ ancre introuvable (…)` instead of a fabricated snippet.
+
 ### `list` — browse the backlog
 
 ```
-list [--section <key>] [--status todo|in_progress|done] [--team <t>] [--archive] [--json] [--json-full]
+list [--section <key>] [--status todo|in_progress|done] [--team <t>] [--tag <tag>] [--archive] [--json] [--json-full]
 ```
 
 ```console
@@ -254,8 +284,11 @@ $ node scripts/task.mjs list --team engineering
   ...
 ```
 
-`--archive` folds the delivered stages in; `--status` filters. There is no `--zone`
-any more — it is an unknown flag (see [`add`](#add--create-a-task) below).
+`--archive` folds the delivered stages in; `--status` filters. `--tag <tag>` keeps
+only tasks carrying that tag — this is how the **debt ledger** is queried:
+`list --tag debt` surfaces every deliberate shortcut (a `quick` tagged `debt` whose
+title names the ceiling), the requestable equivalent of a `ponytail:` code comment.
+There is no `--zone` any more — it is an unknown flag (see [`add`](#add--create-a-task) below).
 
 **`--json` is LIGHT by default now**: `{ id, title, status, team, stage, size, kind }`
 per task (sub-tasks flattened in), not the full tree — this is the format meant for
@@ -450,7 +483,7 @@ lock is your discipline, not a technical guard.
 ### `done <id>` — deliver and record
 
 ```
-done <id> [--commit <sha>] [--outcome <o>] [--verification <v>] [--release <r>]
+done <id> [--commit <sha>] [--outcome <o>] [--verification <v>] [--release <r>] [--suggest-refs]
 ```
 
 Sets `status: done`, stamps `completedAt` with today's date, and records the delivery
@@ -467,7 +500,12 @@ $ node scripts/task.mjs done 1 --commit a1b2c3d \
 - `--outcome` — **what shipped**, one user-facing sentence. This is changelog
   material (archive + outcome + release = tomorrow's changelog).
 - `--verification` — **what was observed** to prove it works, not "it works".
-- `--commit` — the delivery sha. `--release` — a version tag if applicable.
+- `--commit` — the delivery sha. When omitted, the CLI **auto-fills `HEAD`** (`git
+  rev-parse --short HEAD`) so the agent never reads git; outside a repo it stays empty.
+- `--release` — a version tag if applicable.
+- `--suggest-refs` — prints the files in the recorded commit plus the uncommitted diff
+  (minus `docs/tasks/` churn) as a **suggestion to confirm**, never written. Apply the
+  ones that matter with `update <id> --refs a,b`. Keeps refs honest without a git read.
 
 The CLI accepts `done` with no flags (only `completedAt` is automatic), but recording
 an honest `--outcome` and `--verification` is a usage rule, not an option.

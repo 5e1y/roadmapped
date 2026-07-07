@@ -1,7 +1,7 @@
 id: 71
 code: null
 title: Token economy v2 — done auto-contextué (commit HEAD + refs suggérées du diff)
-status: todo
+status: in_progress
 tags:
   - token-economy
   - cli
