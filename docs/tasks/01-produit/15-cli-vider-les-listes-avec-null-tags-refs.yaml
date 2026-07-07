@@ -1,7 +1,7 @@
 id: 29
 code: null
 title: "CLI : vider les listes avec null (tags, refs, links)"
-status: todo
+status: done
 tags:
   - cli
   - bug
@@ -26,8 +26,14 @@ dependsOn: []
 milestone: null
 source: ai
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-07"
+commit: de480f6
+outcome: >-
+  Le CLI honore enfin sa doc : update --tags/refs/links null vide la liste au lieu de créer un
+  élément littéral « null »
+verification: >-
+  TDD en sandbox hermétique par l'agent (YAML fautif observé avant fix : tags: ["null"] ; après :
+  tags: []), revérifié par moi : diff minimal relu (4 lignes cmdUpdate), nouveau
+  scripts/task.test.mjs pilote le vrai binaire en sous-processus (4 tests), suite complète 113/113
+  verte.
 release: null

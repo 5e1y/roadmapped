@@ -1,7 +1,7 @@
 id: 25
 code: null
 title: Panneau v2 — mode lecture (structure, markdown, relations)
-status: todo
+status: done
 tags:
   - panel
   - ux
@@ -30,8 +30,15 @@ dependsOn:
 milestone: null
 source: ai
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-07"
+commit: 61546f0
+outcome: >-
+  Le panneau de tâche est devenu une fiche lisible : détail en markdown, dépendances avec leur état,
+  tâches bloquées visibles, sous-tâches, références cliquables vers les docs, navigation en pile
+  entre tâches liées
+verification: >-
+  Vérifié au navigateur (Playwright, captures relues) : ouverture de #25 = zéro input visible,
+  markdown rendu, badges « faite » sur les deps, Bloque montre #26, clic dep → fiche #23, bouton
+  Retour → #25 (asserté), clic sur la ref spec → Vue Docs ouverte sur le bon document. 113 tests +
+  build tsc verts.
 release: null
