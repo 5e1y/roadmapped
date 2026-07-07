@@ -1,7 +1,7 @@
 id: 48
 code: null
 title: Icônes trinil-react — intégration et remplacement des SVG inline
-status: todo
+status: done
 tags:
   - ux
   - design
@@ -27,8 +27,13 @@ dependsOn:
 milestone: null
 source: user
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-07"
+commit: "1871706"
+outcome: >-
+  L'app utilise la banque d'icônes trinil-react de Rémi : chevrons, croix, coches, crayon, alerte,
+  flèche retour — les cercles de statut maison restent la signature du produit
+verification: >-
+  npm i trinil-react@1.3.9 dans le repo ; 11 SVG inline remplacés dans 6 composants ; grep <svg → ne
+  restent que StatusGlyph (choix) et le marker de flèche du graphe (structurel) ; build tsc + 128
+  tests verts ; rendu vérifié sur les captures #49 (chevrons, ✕, ✓ visibles).
 release: null
