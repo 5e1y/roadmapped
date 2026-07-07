@@ -1,7 +1,7 @@
 id: 72
 code: null
 title: "Token economy v2 — convention #debt : les quick comme ledger de dette"
-status: in_progress
+status: done
 tags:
   - token-economy
   - docs
@@ -22,8 +22,13 @@ dependsOn:
 milestone: null
 source: user
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: e2d1c42
+outcome: >-
+  convention #debt : un raccourci assumé se trace en quick taggé debt (plafond dans le titre),
+  requêtable via 'list --tag debt' ; sitrep alerte la dette ouverte ; documenté dans le noyau du
+  skill (2 lignes)
+verification: >-
+  list --tag debt sort #82 (exemple réel créé : âge sitrep depuis createdAt) et exclut les autres ;
+  2 tests CLI verts ; convention dans SKILL.md et guide.md
 release: null

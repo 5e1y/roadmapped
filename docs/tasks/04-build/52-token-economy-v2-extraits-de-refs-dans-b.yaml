@@ -1,7 +1,7 @@
 id: 69
 code: null
 title: Token economy v2 — extraits de refs dans brief (ancres symbole + drapeau de fraîcheur)
-status: in_progress
+status: done
 tags:
   - token-economy
   - cli
@@ -25,8 +25,13 @@ dependsOn:
 milestone: null
 source: user
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: e2d1c42
+outcome: >-
+  brief : refs ancrées (fichier#symbole résolu par grep au serve, ou fichier:ligne) → extrait ~10
+  lignes du code ACTUEL ; drapeau '⚠ modifié depuis la création' sur toute ref au fichier commité
+  après createdAt ; ancre absente signalée sans extrait inventé
+verification: >-
+  brief 71 avec ref scripts/task.mjs#suggestedRefs → extrait lignes 468-478 ; ancre bidon → '⚠ ancre
+  introuvable' ; résolveur pur en TDD (11 tests refExtract) + 2 tests CLI bout-en-bout
 release: null
