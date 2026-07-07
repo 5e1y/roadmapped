@@ -91,16 +91,6 @@ export function NotepadView() {
     })()
   }, [openNote, createNote])
 
-  const archive = useCallback(async (s: string) => {
-    await fetch(`/api/notes/${s}/archive`, { method: 'POST' }).catch(() => {})
-    const rest = await fetchNotes()
-    setNotes(rest)
-    if (slugRef.current === s) {
-      if (rest.length > 0) openNote(rest[0].slug)
-      else { setSlug(null); setContent('') }
-    }
-  }, [openNote])
-
   const removeNote = useCallback(async (s: string) => {
     await fetch(`/api/notes/${s}`, { method: 'DELETE' }).catch(() => {})
     const rest = await fetchNotes()
@@ -134,9 +124,10 @@ export function NotepadView() {
           {/* Création EN TÊTE de liste (pas de bouton en haut à droite, pas de ⌘N). */}
           <button
             type="button" onClick={createNote}
-            className="flex items-center gap-2 border-b border-neutral-100 px-4 py-2 text-left text-sm text-neutral-500 hover:bg-neutral-50"
+            className="group/new flex items-center gap-2 border-b border-neutral-100 px-4 py-2 text-left text-sm text-neutral-500 transition-colors hover:bg-accent-tint hover:text-neutral-900 hover:shadow-[inset_2px_0_0_var(--color-accent)]"
           >
-            <span className="text-base leading-none text-neutral-400">+</span> Nouvelle note
+            <span className="text-base leading-none text-neutral-400 group-hover/new:text-[var(--color-accent)]">+</span>
+            Nouvelle note
           </button>
           <div className="min-h-0 flex-1 overflow-y-auto">
             {notes.map((n) => (
@@ -151,11 +142,7 @@ export function NotepadView() {
                 </button>
                 <span className="shrink-0 font-mono text-[10px] text-neutral-400">{relDate(n.modified)}</span>
                 <button
-                  type="button" onClick={() => archive(n.slug)} title="Archiver"
-                  className="shrink-0 text-neutral-300 opacity-0 hover:text-neutral-700 group-hover:opacity-100"
-                >⌫</button>
-                <button
-                  type="button" onClick={() => removeNote(n.slug)} title="Supprimer"
+                  type="button" onClick={() => removeNote(n.slug)} title="Supprimer la note"
                   className="shrink-0 text-neutral-300 opacity-0 hover:text-red-600 group-hover:opacity-100"
                 >✕</button>
               </div>
@@ -180,7 +167,7 @@ export function NotepadView() {
               onBlur={save}
               placeholder="Écris ton idée. La première ligne devient le titre."
               spellCheck={false}
-              className="mx-auto min-h-0 w-full max-w-3xl flex-1 resize-none border-0 bg-transparent px-6 py-10 text-base leading-relaxed text-neutral-800 outline-none ring-0 placeholder:text-neutral-300 focus:outline-none focus:ring-0"
+              className="mx-auto min-h-0 w-full max-w-3xl flex-1 resize-none border-0 bg-transparent px-6 py-10 text-[2rem] leading-relaxed text-neutral-800 outline-none ring-0 placeholder:text-neutral-300 focus:outline-none focus-visible:outline-none"
             />
             <div className="mx-auto flex w-full max-w-3xl shrink-0 items-center justify-between px-6 py-1.5 font-mono text-[11px] text-neutral-400">
               <span>{content.length} car. · ≈{tokens} tokens</span>
