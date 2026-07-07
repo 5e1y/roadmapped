@@ -32,7 +32,9 @@ describe('TaskRow', () => {
     expect(screen.getByText('#bug')).toBeInTheDocument()
     expect(screen.getByText('#1')).toBeInTheDocument()
     expect(screen.getByText('S')).toBeInTheDocument()
-    expect(screen.getByText('engineering')).toBeInTheDocument()
+    // la team s'affiche en abrégé (badge TEAM_ABBR), pas en toutes lettres
+    expect(screen.getByText('eng')).toBeInTheDocument()
+    expect(screen.queryByText('engineering')).not.toBeInTheDocument()
     // le chip source ('ai') n'est plus rendu dans la ligne (bruit — audit UX)
     expect(screen.queryByText('ai')).not.toBeInTheDocument()
   })

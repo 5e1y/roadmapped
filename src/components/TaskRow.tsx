@@ -3,6 +3,7 @@ import { Chip } from './Chip'
 import { Chevron, StatusGlyph } from './glyphs'
 import { usePanel } from '../state/PanelContext'
 import { usePersistentFlag } from '../state/uiPersist'
+import { TEAM_ABBR } from '../lib/tasks'
 import type { TaskNode } from '../lib/tasks'
 
 /**
@@ -98,7 +99,7 @@ export function TaskRow({ task }: { task: TaskNode }) {
               </span>
             )}
             {task.code && <Chip label={task.code} mono />}
-            {task.team && <Chip label={task.team} />}
+            <Chip label={TEAM_ABBR[task.team]} />
             {task.size && <Chip label={task.size} mono strong />}
           </span>
         </button>

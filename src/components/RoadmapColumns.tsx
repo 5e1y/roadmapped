@@ -3,8 +3,9 @@ import { usePanel } from '../state/PanelContext'
 import { computeAvailability, missingPrereqs, type Availability } from '../lib/roadmap'
 import { StatusGlyph } from './glyphs'
 import { Chip } from './Chip'
-import { countTasksDeep, SECTION_STATUS_FR } from '../lib/tasks'
+import { countTasksDeep, SECTION_STATUS_FR, TEAM_ABBR } from '../lib/tasks'
 import type { SectionNode, TaskNode } from '../lib/tasks'
+import { useTeamFilter } from './Sidebar'
 
 function ProgressBar({ done, total }: { done: number; total: number }) {
   const pct = total === 0 ? 0 : Math.round((done / total) * 100)
@@ -61,6 +62,8 @@ function TaskCard({ task, state, missing }: { task: TaskNode; state: Availabilit
       {subs && (
         <span className="font-mono text-[11px] text-neutral-400">{subs.done}/{subs.total} sous-tâches</span>
       )}
+      {/* Badge team (le QUI) — abrégé, coin bas droit de la carte. */}
+      <span className="absolute bottom-1.5 right-2 text-[10px] text-neutral-300">{TEAM_ABBR[task.team]}</span>
     </button>
   )
 }
@@ -81,15 +84,19 @@ function Column({ section, avail }: { section: SectionNode; avail: Map<number, A
       {/* Rangée titre collante : le contexte (titre + compteur) survit au scroll
           vertical. Le pt-8 du conteneur vit ici pour que rien ne dépasse au-dessus. */}
       <div className="sticky top-0 z-10 flex items-baseline justify-between gap-2 bg-[#fafafa] pb-0.5 pt-8">
-        <span className="min-w-0 truncate text-sm font-semibold tracking-tight text-neutral-900" title={section.title}>
+        <span
+          className={`min-w-0 truncate text-sm font-semibold tracking-tight ${empty ? 'text-neutral-300' : 'text-neutral-900'}`}
+          title={section.title}
+        >
           {section.title}
         </span>
         <span className="flex shrink-0 items-center gap-1.5">
-          {statusFr && <Chip label={statusFr} />}
-          <span className="font-mono text-xs text-neutral-400">{empty ? '—' : `${done}/${total}`}</span>
+          {statusFr && !empty && <Chip label={statusFr} />}
+          <span className={`font-mono text-xs ${empty ? 'text-neutral-300' : 'text-neutral-400'}`}>{done}/{total}</span>
         </span>
       </div>
-      {section.note ? (
+      {/* Stage vide = estompé : ni note ni barre, l'espace va aux stages peuplés. */}
+      {section.note && !empty ? (
         <p className="text-xs leading-relaxed text-neutral-500">{section.note}</p>
       ) : (
         <div aria-hidden />
@@ -102,29 +109,31 @@ function Column({ section, avail }: { section: SectionNode; avail: Map<number, A
         {section.tasks.map((t) => (
           <TaskCard key={t.id} task={t} state={avail.get(t.id) ?? 'available'} missing={missingPrereqs(t, avail)} />
         ))}
-        {empty && <p className="text-xs text-neutral-400">Rien de planifié.</p>}
       </div>
     </div>
   )
 }
 
-/** Vue jalons du backlog : une colonne = une section active, dans l'ordre de priorité. */
+/** Vue stages : une colonne par stage canonique — les vides restent visibles, estompés et resserrés. */
 export function RoadmapColumns() {
   const { tree } = useTree()
+  const [teamFilter] = useTeamFilter()
   if (!tree) return null
-  const sections = tree.sections.filter((s) => s.status !== 'abandoned')
+  const matchTeam = (t: TaskNode) => teamFilter.length === 0 || teamFilter.includes(t.team)
+  const sections = tree.sections
+    .filter((s) => s.status !== 'abandoned')
+    .map((s) => ({ ...s, tasks: s.tasks.filter(matchTeam) }))
   const avail = computeAvailability(tree)
 
-  if (sections.length === 0) {
-    return (
-      <div className="px-6 py-8 text-sm text-neutral-500">
-        Aucune section active. Crée une section dans le Backlog pour la voir apparaître ici.
-      </div>
-    )
-  }
+  // Largeurs par colonne : un stage vide (ou vidé par le filtre) est resserré —
+  // le chemin Idea→Mature reste entièrement visible sans voler l'espace.
+  const template = sections.map((s) => (s.tasks.length === 0 ? '180px' : '280px')).join(' ')
 
   return (
-    <div className="roadmap-cols-scroll grid h-full auto-cols-[280px] grid-flow-col grid-rows-[auto_auto_auto_1fr] gap-x-4 gap-y-1.5 overflow-x-auto px-6 pb-6">
+    <div
+      className="roadmap-cols-scroll grid h-full grid-flow-col grid-rows-[auto_auto_auto_1fr] gap-x-4 gap-y-1.5 overflow-x-auto px-6 pb-6"
+      style={{ gridTemplateColumns: template }}
+    >
       {sections.map((s) => <Column key={s.key} section={s} avail={avail} />)}
     </div>
   )

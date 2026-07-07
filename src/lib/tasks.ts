@@ -305,3 +305,9 @@ export function buildTaskTree(files: TaskFileMap): TaskTree {
     roadmaps,
   }
 }
+
+/** Abréviations d'affichage des teams (badges de cartes et de lignes). */
+export const TEAM_ABBR: Record<Team, string> = {
+  marketing: 'mkt', sales: 'sales', support: 'sup', operations: 'ops',
+  finance: 'fin', legal: 'legal', engineering: 'eng', design: 'dsgn',
+}

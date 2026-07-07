@@ -3,7 +3,9 @@ import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
 import { computeAvailability, missingPrereqs, topoLayers, type Availability } from '../lib/roadmap'
 import { StatusGlyph } from './glyphs'
+import { TEAM_ABBR } from '../lib/tasks'
 import type { TaskNode } from '../lib/tasks'
+import { useTeamFilter } from './Sidebar'
 
 const COL_W = 280, COL_GAP = 32, ROW_H = 96, CARD_W = 248, CARD_H = 72, PAD = 24, HEADER_H = 40
 
@@ -106,11 +108,16 @@ export function RoadmapGraph() {
         {/* Boîte de layout à la taille mise à l'échelle (bornes de scroll correctes) */}
         <div style={{ width: width * scale, height: height * scale }}>
           <div className="relative" style={{ width, height, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
-            {/* Bandes de colonnes (fond) + labels de sections */}
+            {/* Bandes de colonnes (fond) + labels de stages — vides estompés. */}
             {sections.map((s, i) => (
               <div key={s.key} className="absolute top-0 border-l border-neutral-100"
                 style={{ left: xOf(i) - COL_GAP / 2, width: COL_W + COL_GAP, height }}>
-                <div className="truncate px-3 pt-3 text-xs font-semibold uppercase tracking-wide text-neutral-400" title={s.title}>{s.title}</div>
+                <div
+                  className={`truncate px-3 pt-3 text-xs font-semibold uppercase tracking-wide ${s.tasks.length === 0 ? 'text-neutral-200' : 'text-neutral-400'}`}
+                  title={s.title}
+                >
+                  {s.title}
+                </div>
               </div>
             ))}
 
@@ -140,6 +147,10 @@ export function RoadmapGraph() {
 function GraphCard({ placed, onOpen }: { placed: Placed; onOpen: () => void }) {
   const { task, state } = placed
   const { top } = usePanel()
+  const [teamFilter] = useTeamFilter()
+  // Filtre team : dans le graphe on ESTOMPE (retirer une carte casserait les
+  // arêtes de dépendances) — l'encre s'éteint, la structure reste lisible.
+  const filteredOut = teamFilter.length > 0 && !teamFilter.includes(task.team)
   // Fond blanc TOUJOURS opaque (pas d'opacity sur le conteneur, sinon les arêtes
   // transparaissent) ; l'état estompé s'exprime par la bordure et l'encre.
   // Tâche ouverte dans le panneau → bordure accent (#36).
@@ -150,11 +161,11 @@ function GraphCard({ placed, onOpen }: { placed: Placed; onOpen: () => void }) {
     : state === 'available'
       ? 'border-2 border-neutral-900 hover:border-neutral-400'
       : 'border border-neutral-200 hover:border-neutral-400'
-  const dim = state === 'done' || state === 'locked'
+  const dim = state === 'done' || state === 'locked' || filteredOut
   const titleCls = task.status === 'done' ? 'text-neutral-400 line-through' : dim ? 'text-neutral-400' : 'text-neutral-900'
   return (
     <button type="button" onClick={onOpen} title={task.title}
-      className={`absolute flex flex-col gap-1.5 bg-white px-3 py-2.5 text-left ${border}`}
+      className={`absolute flex flex-col gap-1.5 bg-white px-3 py-2.5 text-left ${filteredOut ? 'border border-neutral-100' : border}`}
       style={{ left: xOf(placed.col), top: yOf(placed.row), width: CARD_W, minHeight: CARD_H }}>
       <div className="flex items-center gap-2">
         <StatusGlyph status={task.status} />
@@ -171,6 +182,8 @@ function GraphCard({ placed, onOpen }: { placed: Placed; onOpen: () => void }) {
       ) : state === 'available' ? (
         <span className="text-[11px] font-medium text-neutral-700">Disponible</span>
       ) : null /* done : contenu identique aux autres états, sans chips (cohérence) */}
+      {/* Badge team (le QUI) — abrégé, coin bas droit. */}
+      <span className="absolute bottom-1 right-2 text-[10px] text-neutral-300">{TEAM_ABBR[task.team]}</span>
     </button>
   )
 }

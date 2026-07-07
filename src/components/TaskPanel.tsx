@@ -13,6 +13,7 @@ import {
   AddCombobox, TagsCombobox, ToastViewport, blurOnEnter, type SelectItem,
 } from './ui'
 import { Markdown } from './Markdown'
+import { TEAMS } from '../lib/tasks'
 import type { TaskNode, TaskTree } from '../lib/tasks'
 
 /**
@@ -48,6 +49,7 @@ const SIZE_ITEMS: SelectItem[] = [
   { value: 'M', label: 'M' },
   { value: 'L', label: 'L' },
 ]
+const TEAM_ITEMS: SelectItem[] = TEAMS.map((t) => ({ value: t, label: t }))
 
 /** Deux valeurs (potentiellement listes) diffèrent-elles ? Comparaison structurelle, null-safe. */
 const changed = (a: unknown, b: unknown) => JSON.stringify(a ?? null) !== JSON.stringify(b ?? null)
@@ -525,15 +527,14 @@ function TaskPanelBody({ id }: { id: number }) {
         </div>
         <div className="flex flex-col gap-0.5">
           <SectionLabel>Team</SectionLabel>
-          <GhostInput
-            key={`team-${task.team ?? ''}`}
-            defaultValue={task.team ?? ''}
-            disabled={!editable}
-            placeholder="—"
+          {/* Enum stricte (8 teams, requise) : Select ghost, pas d'option vide. */}
+          <Select
+            ghost
             aria-label="Team"
-            onKeyDown={blurOnEnter}
-            onBlur={(e) => void save('team', changed(task.team, e.target.value || null), { team: e.target.value || null })}
-            className="text-sm"
+            defaultValue={task.team}
+            items={TEAM_ITEMS}
+            disabled={!editable}
+            onValueChange={(v) => void save('team', changed(task.team, v), { team: v })}
           />
         </div>
         <div className="flex flex-col gap-0.5">
