@@ -32,6 +32,7 @@ interface Op {
 
 function walk(dir: string, root: string, files: TaskFileMap): void {
   for (const entry of readdirSync(dir)) {
+    if (entry === '.lock') continue // verrou de mutation (#83), pas une section
     const full = join(dir, entry)
     if (statSync(full).isDirectory()) {
       walk(full, root, files)
@@ -80,6 +81,79 @@ export function findTask(tree: TaskTree, id: number): FoundTask | null {
     if (hit) return hit
   }
   return null
+}
+
+// ---------------------------------------------------------------- verrou
+
+// Verrou global de mutation (#83). Toute écriture sérialise via mkdir docs/tasks/.lock
+// (atomique sur tous les filesystems) — sans lui, deux agents concurrents allouent le
+// même nextId ou relisent des fichiers à moitié écrits par un voisin. Les LECTURES ne
+// prennent pas le verrou (writeFileSync est atomique par fichier une fois les écrivains
+// sérialisés). Limite assumée : aucune garantie inter-branches/worktrees (cf. delegation.md).
+// TTL/timeout surchargeables par env (défaut 10s) — la surcharge sert les tests
+// (timeout court sans attendre 10s) ; en prod les défauts tiennent. Lus à l'acquisition.
+const lockTtlMs = () => Number(process.env.ROADMAPED_LOCK_TTL_MS) || 10_000
+const lockTimeoutMs = () => Number(process.env.ROADMAPED_LOCK_TIMEOUT_MS) || 10_000
+
+/** Sommeil synchrone sans spawn (Atomics.wait sur un buffer partagé jamais notifié). */
+function sleepSync(ms: number): void {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms)
+}
+
+/**
+ * Âge (ms) du verrou courant. D'abord via le fichier `owner` (pid:timestamp) ; s'il
+ * n'est pas ENCORE écrit — fenêtre entre le mkdir et l'écriture du détenteur — on se
+ * rabat sur le mtime du dossier `.lock`. Un verrou tout frais a donc un âge minuscule
+ * (jamais volé à tort). null seulement si le dossier a disparu (⇒ l'appelant retente).
+ */
+function lockAgeMs(lockDir: string): number | null {
+  try {
+    const ts = Number(readFileSync(join(lockDir, 'owner'), 'utf8').split(':')[1])
+    if (Number.isFinite(ts)) return Date.now() - ts
+  } catch {
+    /* owner pas encore écrit ou illisible → fallback mtime du dossier */
+  }
+  try {
+    return Date.now() - statSync(lockDir).mtimeMs
+  } catch {
+    return null // dossier volatilisé entre l'EEXIST et le stat
+  }
+}
+
+export function withLock<T>(tasksDir: string, fn: () => T): T {
+  const lockDir = join(tasksDir, '.lock')
+  const ttl = lockTtlMs()
+  const timeout = lockTimeoutMs()
+  const deadline = Date.now() + timeout
+  let delay = 50
+  for (;;) {
+    try {
+      mkdirSync(lockDir) // échoue (EEXIST) si un autre écrivain tient le verrou
+      break
+    } catch (e) {
+      if ((e as NodeJS.ErrnoException).code !== 'EEXIST') throw e
+      const age = lockAgeMs(lockDir)
+      if (age === null) continue // dossier disparu → retente le mkdir immédiatement
+      if (age > ttl) {
+        rmSync(lockDir, { recursive: true, force: true }) // vol de l'orphelin (process mort)
+        continue
+      }
+      if (Date.now() > deadline) {
+        throw new Error(
+          `Verrou docs/tasks/.lock tenu depuis ${Math.round(age / 1000)}s — abandon après ` +
+            `${Math.round(timeout / 1000)}s. Un autre écrivain est actif ; supprime .lock si tu es sûr qu'aucun ne tourne.`,
+        )
+      }
+      sleepSync(delay)
+      delay = Math.min(1000, delay * 1.5)
+    }
+  }
+  try {
+    writeFileSync(join(lockDir, 'owner'), `${process.pid}:${Date.now()}`)
+    return fn()
+  } finally {
+    rmSync(lockDir, { recursive: true, force: true })
+  }
 }
 
 // ---------------------------------------------------------------- écriture
@@ -196,6 +270,10 @@ export interface AddTaskInput {
 }
 
 export function addTask(tasksDir: string, input: AddTaskInput): MutationResult {
+  return withLock(tasksDir, () => addTaskImpl(tasksDir, input))
+}
+
+function addTaskImpl(tasksDir: string, input: AddTaskInput): MutationResult {
   const sectionDir = join(tasksDir, input.section)
   if (
     input.section.startsWith('_') ||
@@ -283,12 +361,22 @@ function patchActive(
 }
 
 export function startTask(tasksDir: string, id: number): MutationResult {
-  return patchActive(tasksDir, id, (raw) => {
-    raw.status = 'in_progress'
-  })
+  return withLock(tasksDir, () =>
+    patchActive(tasksDir, id, (raw) => {
+      raw.status = 'in_progress'
+    }),
+  )
 }
 
 export function doneTask(
+  tasksDir: string,
+  id: number,
+  opts: { commit?: string; outcome?: string; verification?: string; release?: string },
+): MutationResult {
+  return withLock(tasksDir, () => doneTaskImpl(tasksDir, id, opts))
+}
+
+function doneTaskImpl(
   tasksDir: string,
   id: number,
   opts: { commit?: string; outcome?: string; verification?: string; release?: string },
@@ -343,6 +431,10 @@ export interface UpdateTaskPatch {
 }
 
 export function updateTask(tasksDir: string, id: number, patch: UpdateTaskPatch): MutationResult {
+  return withLock(tasksDir, () => updateTaskImpl(tasksDir, id, patch))
+}
+
+function updateTaskImpl(tasksDir: string, id: number, patch: UpdateTaskPatch): MutationResult {
   const stringFields: (keyof UpdateTaskPatch)[] = [
     'title', 'detail', 'status', 'size', 'team', 'code', 'milestone', 'source',
     'commit', 'outcome', 'verification', 'release', 'completedAt',
@@ -383,6 +475,10 @@ function listFilesRecursive(dir: string): string[] {
 }
 
 export function archiveTask(tasksDir: string, id: number): MutationResult {
+  return withLock(tasksDir, () => archiveTaskImpl(tasksDir, id))
+}
+
+function archiveTaskImpl(tasksDir: string, id: number): MutationResult {
   const tree = readTree(tasksDir)
   const hit = findTask(tree, id)
   if (!hit) return { ok: false, errors: [`Aucune tâche #${id}.`], notFound: true }
@@ -429,6 +525,10 @@ export function archiveTask(tasksDir: string, id: number): MutationResult {
 }
 
 export function deleteTask(tasksDir: string, id: number): MutationResult {
+  return withLock(tasksDir, () => deleteTaskImpl(tasksDir, id))
+}
+
+function deleteTaskImpl(tasksDir: string, id: number): MutationResult {
   const tree = readTree(tasksDir)
   const hit = findTask(tree, id)
   if (!hit) return { ok: false, errors: [`Aucune tâche #${id}.`], notFound: true }
@@ -472,6 +572,14 @@ export function updateSection(
   dir: string,
   patch: UpdateSectionPatch,
 ): MutationResult {
+  return withLock(tasksDir, () => updateSectionImpl(tasksDir, dir, patch))
+}
+
+function updateSectionImpl(
+  tasksDir: string,
+  dir: string,
+  patch: UpdateSectionPatch,
+): MutationResult {
   const absMeta = join(tasksDir, dir, '_section.yaml')
   if (dir.startsWith('_') || !existsSync(absMeta)) {
     return { ok: false, errors: [`Section introuvable : "${dir}".`], notFound: true }
@@ -502,6 +610,10 @@ export interface SaveRoadmapsInput {
  * commitWrites → validation totale (jalons déclarés vs tâches) + rollback.
  */
 export function saveRoadmaps(tasksDir: string, input: SaveRoadmapsInput): MutationResult {
+  return withLock(tasksDir, () => saveRoadmapsImpl(tasksDir, input))
+}
+
+function saveRoadmapsImpl(tasksDir: string, input: SaveRoadmapsInput): MutationResult {
   if (!Array.isArray(input?.roadmaps)) {
     return { ok: false, errors: ['Body invalide : "roadmaps" doit être un tableau (réécriture complète).'] }
   }

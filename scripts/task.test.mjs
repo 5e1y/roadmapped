@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { execFileSync, spawnSync } from 'node:child_process'
+import { execFileSync, spawnSync, spawn } from 'node:child_process'
 import {
   mkdtempSync, rmSync, mkdirSync, writeFileSync, readFileSync, cpSync, symlinkSync,
 } from 'node:fs'
@@ -283,6 +283,28 @@ describe('CLI list — filtre --team', () => {
     // La tâche seed (#1, engineering) n'apparaît pas non plus
     expect(r.stdout).not.toMatch(/#1 /)
   })
+})
+
+describe('CLI concurrence — verrou global de mutation (#83)', () => {
+  it('N add réellement simultanés → N ids uniques consécutifs, zéro échec', async () => {
+    // Lance N `add` VRAIMENT en parallèle (spawn async, tous démarrés avant d'attendre) sur
+    // le MÊME sandbox : sans verrou, deux allouent le même nextId. Avec le verrou, chaque id
+    // est unique, aucun process n'échoue, et validate reste OK.
+    const N = 8
+    const run = (i) =>
+      new Promise((resolve) => {
+        const p = spawn('node', [scriptPath(), 'add', '--section', SEC, '--title', `Concurrente ${i}`, '--team', 'engineering', '--json'], { encoding: 'utf8' })
+        let out = ''
+        p.stdout.on('data', (d) => { out += d })
+        p.on('close', (code) => resolve({ code, out }))
+      })
+    const results = await Promise.all(Array.from({ length: N }, (_, i) => run(i)))
+    expect(results.every((r) => r.code === 0)).toBe(true)
+    const ids = results.map((r) => JSON.parse(r.out).id).sort((a, b) => a - b)
+    expect(new Set(ids).size).toBe(N) // tous distincts
+    expect(ids).toEqual(Array.from({ length: N }, (_, i) => i + 2)) // consécutifs dès #2 (seed = #1)
+    expect(runTask(['validate']).code).toBe(0)
+  }, 20_000)
 })
 
 describe('CLI list — filtre --tag : le ledger de dette requêtable (#72)', () => {
