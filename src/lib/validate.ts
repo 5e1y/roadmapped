@@ -5,6 +5,8 @@ import { STAGES, TEAMS } from './tasks.ts'
 const TASK_STATUSES = ['todo', 'in_progress', 'done']
 const SECTION_STATUSES = ['open', 'done', 'dormant', 'abandoned']
 const SIZES = ['S', 'M', 'L', null]
+/** createdAt/completedAt : date seule (héritage) ou datetime local à la seconde (#84). */
+const DATE_OR_DATETIME = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2})?$/
 
 /** Titre canonique attendu pour chaque slug de stage (source unique : STAGES). */
 const CANONICAL_TITLE = new Map(STAGES.map((s) => [s.slug, s.title]))
@@ -34,6 +36,14 @@ function validateTask(task: TaskNode, path: string, errors: string[]) {
   }
   if (!['user', 'ai'].includes(task.source)) errors.push(`${path}: source invalide (${task.source})`)
   if (!task.createdAt) errors.push(`${path}: createdAt manquant`)
+  // Accepte les DEUX formats (#84) : date seule (héritage) OU datetime local à la
+  // seconde (nouvelles tâches). Le tri consomme l'id, pas createdAt — c'est de l'audit.
+  else if (!DATE_OR_DATETIME.test(task.createdAt)) {
+    errors.push(`${path}: createdAt format invalide (attendu YYYY-MM-DD ou YYYY-MM-DDTHH:MM:SS)`)
+  }
+  if (task.completedAt && !DATE_OR_DATETIME.test(task.completedAt)) {
+    errors.push(`${path}: completedAt format invalide (attendu YYYY-MM-DD ou YYYY-MM-DDTHH:MM:SS)`)
+  }
   if (task.outcome !== null && typeof task.outcome !== 'string') {
     errors.push(`${path}: outcome doit être une string ou null`)
   }

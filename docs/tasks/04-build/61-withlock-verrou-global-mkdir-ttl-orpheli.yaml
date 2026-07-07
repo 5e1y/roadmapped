@@ -1,7 +1,7 @@
 id: 83
 code: null
 title: withLock — verrou global mkdir + TTL orphelin (TDD concurrence réelle)
-status: in_progress
+status: done
 tags: []
 size: M
 team: engineering
@@ -23,8 +23,13 @@ dependsOn: []
 milestone: null
 source: ai
 createdAt: "2026-07-08"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: 1f4338b
+outcome: >-
+  Verrou global withLock (mkdir .lock atomique + TTL 10s orphelin + backoff, surchargeable par env)
+  sérialise toute mutation dans taskWrites ; lectures lock-free ; .lock exclu de la validation
+verification: >-
+  8 add réellement parallèles (spawn async) → 8 ids uniques consécutifs zéro échec + validate OK ;
+  orphelin daté vieux volé ; verrou frais → timeout 150ms avec message exploitable ; libération en
+  finally même si fn lève ; 183 tests + build verts
 release: null
