@@ -1,7 +1,7 @@
 id: 41
 code: null
 title: Stages+teams core 2 — CLI et API
-status: in_progress
+status: done
 tags:
   - refactor
   - cli
@@ -27,8 +27,12 @@ dependsOn:
 milestone: null
 source: ai
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-07"
+commit: 26473a0
+outcome: >-
+  Le CLI parle stages+teams : add exige --team, --zone n'existe plus, list filtre par team, la
+  création de section a disparu (CLI et API)
+verification: >-
+  Tests CLI sandbox étendus (add sans --team refusé, enum contrôlée, --zone rejeté, list --team)
+  verts dans la suite complète 128/128 revérifiée par moi ; agentBrief affiche Team.
 release: null

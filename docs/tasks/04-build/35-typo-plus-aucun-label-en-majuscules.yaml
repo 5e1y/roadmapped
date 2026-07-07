@@ -1,0 +1,31 @@
+id: 51
+code: null
+title: Typo — plus aucun label en majuscules
+status: todo
+tags:
+  - ux
+  - design
+size: S
+team: design
+detail: >-
+  Batch design Rémi (2026-07-07) : supprimer TOUTE utilisation de titres/labels en full majuscules
+  (« trop IA, pas élégant ») — les uppercase tracking-wide : SectionLabel du panneau (Détail, Dépend
+  de…), labels Taille/Zone→Team/Code, Consignation, DoneForm, Fichiers/Sections de la sidebar,
+  en-têtes de colonnes du Graphe, etc. Remplacer par sentence case (première majuscule), en
+  compensant la hiérarchie perdue par la graisse/couleur si besoin (text-neutral-400 font-medium).
+  Fini quand : grep uppercase sur src/components = zéro occurrence de label UI, captures relues.
+refs:
+  - src/components/TaskPanel.tsx
+  - src/components/Sidebar.tsx
+  - src/components/RoadmapGraph.tsx
+links: []
+dependsOn:
+  - 43
+milestone: null
+source: user
+createdAt: "2026-07-07"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

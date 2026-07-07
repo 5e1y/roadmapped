@@ -1,0 +1,33 @@
+id: 50
+code: null
+title: Backlog v2 — liste plate en deux colonnes (ouverts / terminés)
+status: todo
+tags:
+  - ux
+  - design
+size: L
+team: design
+detail: >-
+  Batch design Rémi (2026-07-07) — refonte de la vue Backlog : PLUS d'accordéons par stage (les
+  stages vivent dans la Roadmap). Liste plate en DEUX colonnes : gauche = tickets ouverts (todo +
+  in_progress) du plus ancien créé au plus récent (haut→bas) ; droite = tickets terminés du plus
+  récemment bouclé (completedAt) au plus ancien. Tri par createdAt (ids croissants = proxy fiable).
+  Header de filtres : recherche texte (titre), filtre team (multi), filtre stage — à affiner sur
+  capture avec Rémi. Conserver : lignes TaskRow (ghost sélection accent, chips, sous-tâches ?), « +
+  tâche » (repensé : le bouton doit choisir le stage — probablement dans le header). L'état vide et
+  l'archive : à re-proposer dans la nouvelle grille. Fini quand : les deux colonnes trient
+  correctement (vérifié sur données réelles), filtres fonctionnels, captures relues par Rémi.
+refs:
+  - src/components/Backlog.tsx
+  - src/components/TaskRow.tsx
+links: []
+dependsOn:
+  - 48
+milestone: null
+source: user
+createdAt: "2026-07-07"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

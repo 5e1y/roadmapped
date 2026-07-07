@@ -1,7 +1,7 @@
 id: 40
 code: null
 title: Stages+teams core 1 — schéma et validation (TDD)
-status: in_progress
+status: done
 tags:
   - refactor
   - data-model
@@ -30,8 +30,13 @@ dependsOn: []
 milestone: null
 source: ai
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-07"
+commit: 26473a0
+outcome: >-
+  Le schéma connaît les 8 stages canoniques et exige une team sur chaque tâche — la structure de
+  lancement produit est verrouillée par la validation
+verification: >-
+  TDD vérifié dans le transcript (7 invariants rouges avant durcissement) ; revérifié par moi : 128
+  tests + build verts relancés, validate rejette bien les sections non canoniques (implicite : le
+  backlog n'a validé qu'après migration complète).
 release: null
