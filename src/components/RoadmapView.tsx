@@ -1,7 +1,18 @@
 import { useState } from 'react'
+import { EyeClosed, EyeOpen } from 'trinil-react'
 import { useTree } from '../state/TreeContext'
+import { usePersistentFlag } from '../state/uiPersist'
 import { RoadmapColumns } from './RoadmapColumns'
 import { RoadmapGraph } from './RoadmapGraph'
+
+/**
+ * Tickets terminés MASQUÉS par défaut dans la Roadmap (décision Rémi) —
+ * préférence partagée Colonnes/Graphe et persistée. Le Graphe garde les done
+ * qui sont dépendances (transitives) de tickets affichés : arêtes intègres.
+ */
+export function useShowDone(): [boolean, (v: boolean) => void] {
+  return usePersistentFlag('roadmap:showDone', 1)
+}
 
 /**
  * Vue Roadmap = les sections du backlog vues comme des jalons (une colonne
@@ -10,6 +21,7 @@ import { RoadmapGraph } from './RoadmapGraph'
 export function RoadmapView() {
   const { tree, errors, loading, loadError } = useTree()
   const [mode, setMode] = useState<'columns' | 'graph'>('columns')
+  const [showDone, setShowDone] = useShowDone()
 
   if (loading && !tree) {
     return <div className="px-6 py-14 text-sm text-neutral-500">Chargement…</div>
@@ -39,6 +51,19 @@ export function RoadmapView() {
     <div className="flex h-full flex-col">
       <header className="flex items-center justify-between border-b border-neutral-200 px-6 py-3">
         <h1 className="text-sm font-semibold tracking-tight text-neutral-900">Roadmap</h1>
+        <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setShowDone(!showDone)}
+          aria-pressed={showDone}
+          title={showDone ? 'Masquer les tickets terminés' : 'Afficher les tickets terminés'}
+          className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs transition-colors ${
+            showDone ? 'border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100' : 'border-neutral-300 bg-neutral-100 text-neutral-500 hover:bg-neutral-200'
+          }`}
+        >
+          {showDone ? <EyeOpen size={12} /> : <EyeClosed size={12} />}
+          terminées
+        </button>
         <div className="flex overflow-hidden rounded-md border border-neutral-300">
           {(['columns', 'graph'] as const).map((m) => (
             <button key={m} type="button" onClick={() => setMode(m)}
@@ -49,6 +74,7 @@ export function RoadmapView() {
               {m === 'columns' ? 'Colonnes' : 'Graphe'}
             </button>
           ))}
+        </div>
         </div>
       </header>
       <div className="min-h-0 flex-1 overflow-auto">

@@ -1,6 +1,6 @@
 import { useDocsTree } from '../state/useDocsTree'
 import { useTree } from '../state/TreeContext'
-import { addPersistentString, usePersistentStrings } from '../state/uiPersist'
+import { usePersistentStrings } from '../state/uiPersist'
 import { countTasksDeep, TEAMS, type Team } from '../lib/tasks'
 import { activeTasks } from '../lib/roadmap'
 import { DocsTree } from './DocsTree'
@@ -11,6 +11,12 @@ import { DocsTree } from './DocsTree'
  */
 export function useTeamFilter(): [string[], (next: string[]) => void] {
   return usePersistentStrings('filter:teams')
+}
+
+/** Filtre stage du Backlog v2 ('' = tous) — partagé sidebar ⇄ header du Backlog. */
+export function useStageFilter(): [string, (next: string) => void] {
+  const [arr, setArr] = usePersistentStrings('filter:stage')
+  return [arr[0] ?? '', (next) => setArr(next ? [next] : [])]
 }
 
 export type View = 'backlog' | 'roadmap' | 'docs'
@@ -36,7 +42,7 @@ function TeamFilter() {
   return (
     <div className="mt-5 flex min-h-0 flex-col">
       <div className="flex shrink-0 items-baseline justify-between px-2 pb-1.5">
-        <span className="text-[10px] uppercase tracking-wide text-neutral-400">Teams</span>
+        <span className="text-[10px] font-medium text-neutral-400">Teams</span>
         {selected.length > 0 && (
           <button type="button" onClick={() => setSelected([])}
             className="rounded text-[10px] text-neutral-400 hover:text-neutral-700">
@@ -80,15 +86,13 @@ export function Sidebar({
 }) {
   const docs = useDocsTree()
   const { tree } = useTree()
+  const [stageFilter, setStageFilter] = useStageFilter()
   const sections = tree ? tree.sections.filter((s) => s.status !== 'abandoned') : []
-  // Déplie la section (store partagé avec l'accordéon du Backlog) puis scrolle
-  // jusqu'à elle. Double rAF : laisser React monter/déplier avant de viser le DOM.
+  // Backlog v2 (liste plate) : cliquer un stage FILTRE le backlog dessus
+  // (toggle), au lieu de scroller vers un accordéon qui n'existe plus.
   const revealSection = (key: string) => {
     onViewChange('backlog')
-    addPersistentString('backlog:sections', key)
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      document.getElementById(`section-${key}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }))
+    setStageFilter(stageFilter === key ? '' : key)
   }
   return (
     <nav className="flex min-h-0 w-[220px] shrink-0 flex-col border-r border-neutral-200 bg-white px-3 py-4">
@@ -115,7 +119,7 @@ export function Sidebar({
 
       {view === 'backlog' && sections.length > 0 && (
         <div className="mt-5 flex min-h-0 flex-col">
-          <div className="shrink-0 px-2 pb-1.5 text-[10px] uppercase tracking-wide text-neutral-400">Stages</div>
+          <div className="shrink-0 px-2 pb-1.5 text-[10px] font-medium text-neutral-400">Stages</div>
           <ul className="min-h-0 overflow-y-auto">
             {sections.map((s) => {
               const { done, total } = countTasksDeep(s.tasks)
@@ -124,7 +128,10 @@ export function Sidebar({
                   <button
                     type="button"
                     onClick={() => revealSection(s.key)}
-                    className={`flex w-full items-baseline justify-between gap-2 rounded-md px-2 py-1 text-left text-xs hover:bg-neutral-100 ${total === 0 ? 'text-neutral-300' : 'text-neutral-600'}`}
+                    aria-pressed={stageFilter === s.key}
+                    className={`flex w-full items-baseline justify-between gap-2 rounded-md px-2 py-1 text-left text-xs hover:bg-neutral-100 ${
+                      stageFilter === s.key ? 'bg-accent/5 font-medium text-neutral-900 shadow-[inset_2px_0_0_var(--color-accent)]'
+                      : total === 0 ? 'text-neutral-300' : 'text-neutral-600'}`}
                   >
                     <span className="min-w-0 truncate" title={s.title}>{s.title}</span>
                     <span className="shrink-0 font-mono text-[11px] text-neutral-400">{done}/{total}</span>
@@ -140,7 +147,7 @@ export function Sidebar({
 
       {view === 'docs' && (
         <div className="mt-5 flex min-h-0 flex-1 flex-col">
-          <div className="shrink-0 px-2 pb-1.5 text-[10px] uppercase tracking-wide text-neutral-400">Fichiers</div>
+          <div className="shrink-0 px-2 pb-1.5 text-[10px] font-medium text-neutral-400">Fichiers</div>
           <div className="min-h-0 flex-1 overflow-y-auto">
             {docs.loading && !docs.tree && (
               <p className="px-2 text-xs text-neutral-400">Chargement…</p>

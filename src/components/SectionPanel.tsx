@@ -55,11 +55,11 @@ export function CreateTaskPanel({ section }: { section: string }) {
       <ErrorBanner errors={errors} />
       <div className="font-mono text-xs text-neutral-400">Section : {section}</div>
       <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-neutral-400">Titre</span>
+        <span className="text-[11px] font-medium text-neutral-400">Titre</span>
         <TextInput value={title} autoFocus disabled={busy} onChange={(e) => setTitle(e.target.value)} onKeyDown={createOnEnter} />
       </label>
       <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-neutral-400">Team</span>
+        <span className="text-[11px] font-medium text-neutral-400">Team</span>
         <Select
           aria-label="Team"
           defaultValue={team}
@@ -69,7 +69,7 @@ export function CreateTaskPanel({ section }: { section: string }) {
         />
       </label>
       <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-neutral-400">Détail</span>
+        <span className="text-[11px] font-medium text-neutral-400">Détail</span>
         <TextArea className="min-h-[120px]" value={detail} disabled={busy} onChange={(e) => setDetail(e.target.value)} />
       </label>
       <div className="flex gap-2">
@@ -123,11 +123,11 @@ export function SectionPanel({ dir }: { dir: string }) {
       </div>
       {/* Le titre d'un stage est canonique (validation stricte) — lecture seule. */}
       <div className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-neutral-400">Titre</span>
+        <span className="text-[11px] font-medium text-neutral-400">Titre</span>
         <p className="px-1 text-sm text-neutral-900">{section.title}</p>
       </div>
       <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-neutral-400">Statut</span>
+        <span className="text-[11px] font-medium text-neutral-400">Statut</span>
         <Select
           aria-label="Statut de la section"
           defaultValue={section.status}
@@ -136,7 +136,7 @@ export function SectionPanel({ dir }: { dir: string }) {
         />
       </label>
       <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-neutral-400">Note</span>
+        <span className="text-[11px] font-medium text-neutral-400">Note</span>
         <TextArea defaultValue={section.note ?? ''}
           onBlur={(e) => {
             const v = e.target.value === '' ? null : e.target.value
