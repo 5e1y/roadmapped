@@ -3,7 +3,7 @@ import { usePanel } from '../state/PanelContext'
 import { usePersistentStrings } from '../state/uiPersist'
 import { TEAMS, type TaskNode, type Team } from '../lib/tasks'
 import { ViewHeader } from './ViewHeader'
-import { TaskColumns, sortOpen, sortDone } from './TaskColumns'
+import { TaskList, sortOpen, sortDone } from './TaskColumns'
 
 /** Team sélectionnée dans la vue Teams ('' = aucune) — persistée. */
 function useSelectedTeam(): [Team | '', (next: Team | '') => void] {
@@ -59,14 +59,23 @@ function TeamsRadar({ counts, selected, onSelect }: {
         const [x, y] = vertex(i, R + 28)
         const active = selected === t
         return (
-          <g key={t} className="cursor-pointer" onClick={() => onSelect(active ? '' : t)}>
+          <g
+            key={t}
+            className="group cursor-pointer"
+            onClick={(e) => { e.stopPropagation(); onSelect(active ? '' : t) }}
+          >
+            {/* hit-area généreuse pour le rollover et le clic */}
+            <circle cx={x} cy={y + 8} r={34} fill="transparent" />
             <text
               x={x} y={y} textAnchor="middle" dominantBaseline="middle"
-              className={active ? 'fill-accent text-[14px] font-semibold' : 'fill-neutral-600 text-[14px]'}
+              className={`transition-[fill] ${active ? 'fill-accent text-[19px] font-semibold' : 'fill-neutral-600 text-[19px] group-hover:fill-accent'}`}
             >
               {t}
             </text>
-            <text x={x} y={y + 17} textAnchor="middle" dominantBaseline="middle" className="fill-neutral-400 font-mono text-[11px]">
+            <text
+              x={x} y={y + 20} textAnchor="middle" dominantBaseline="middle"
+              className="fill-neutral-400 font-mono text-[13px] transition-[fill] group-hover:fill-accent"
+            >
               {counts.get(t) ?? 0}
             </text>
           </g>
@@ -124,20 +133,10 @@ export function TeamsView() {
 
   return (
     <div className="flex h-full flex-col">
-      <ViewHeader title="Teams" meta={selected || 'charge par team — cliquer un sommet'}>
-        {selected && (
-          <button
-            type="button"
-            onClick={() => setSelected('')}
-            className="rounded-md border border-neutral-300 px-2.5 py-1 text-xs text-neutral-600 hover:bg-neutral-100"
-          >
-            Toutes les teams
-          </button>
-        )}
-      </ViewHeader>
+      <ViewHeader title="Teams" meta={selected ? `${selected} — cliquer dans le vide du radar pour tout revoir` : 'charge par team — cliquer un sommet'} />
 
       {!selected ? (
-        <div className="flex min-h-0 flex-1 items-center justify-center p-8">
+        <div className="flex min-h-0 flex-1 items-center justify-center p-8" onClick={() => setSelected('')}>
           <div className="h-full max-h-[640px] w-full max-w-[640px]">
             <TeamsRadar counts={counts} selected={selected} onSelect={setSelected} />
           </div>
@@ -146,12 +145,16 @@ export function TeamsView() {
         <div className="flex min-h-0 flex-1">
           {/* Colonne radar : s'efface quand le panneau est ouvert et que la
               place manque (< 2xl) — réapparaît à la fermeture. */}
-          <div className={`${panelOpen ? 'hidden 2xl:flex' : 'flex'} w-[420px] shrink-0 items-center border-r border-neutral-200 p-4`}>
+          {/* Clic dans le vide de la fenêtre du radar = revoir toutes les teams. */}
+          <div
+            onClick={() => setSelected('')}
+            className={`${panelOpen ? 'hidden 2xl:flex' : 'flex'} w-[420px] shrink-0 cursor-pointer items-center border-r border-neutral-200 p-2`}
+          >
             <TeamsRadar counts={counts} selected={selected} onSelect={setSelected} />
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto">
-            <div className="mx-auto max-w-5xl px-6 py-8">
-              <TaskColumns open={open} done={done} filtered />
+            <div className="mx-auto max-w-3xl px-6 py-8">
+              <TaskList open={open} done={done} filtered />
             </div>
           </div>
         </div>

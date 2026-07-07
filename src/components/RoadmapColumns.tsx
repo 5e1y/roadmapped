@@ -36,7 +36,7 @@ function TaskCard({ task, state, missing }: { task: TaskNode; state: Availabilit
   // Sélection = même langage que le Backlog (fond accent + filet gauche) ;
   // les disponibles n'ont PLUS de contour fort (décision Rémi batch 2).
   const skin = isOpenInPanel
-    ? 'border border-neutral-200 bg-accent/5 shadow-[inset_2px_0_0_var(--color-accent)]'
+    ? 'border border-neutral-200 bg-accent-tint shadow-[inset_2px_0_0_var(--color-accent)]'
     : 'border border-neutral-200 bg-white hover:z-10 hover:border-neutral-400'
   const dim = state === 'done' || state === 'locked'
   const titleCls = task.status === 'done' ? 'text-neutral-400 line-through' : dim ? 'text-neutral-400' : 'text-neutral-900'
