@@ -1,7 +1,7 @@
 id: 88
 code: null
 title: Notepad — 4e tab, liste gauche, éditeur ghost autosave + raccourcis
-status: in_progress
+status: done
 tags: []
 size: L
 team: design
@@ -24,8 +24,17 @@ dependsOn:
 milestone: null
 source: ai
 createdAt: "2026-07-08"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: 66e3849
+outcome: >-
+  Onglet Notepad : liste gauche (nom+date, +note ⌘N), éditeur ghost plein écran, autosave
+  blur+debounce 800ms avec réconciliation du slug renommé, ⌘N/⌘S, archive/suppression par note,
+  compteur car.+≈tokens, avertissement 'notes locales non versionnées' dismissable ;
+  View/NAV/App/persistance câblés
+verification: >-
+  Flux exact du composant rejoué contre le serveur de dev RÉEL : POST create → PUT (slug renommé en
+  idee-lancement, titre=1re ligne) → fichier docs/notes/idee-lancement.md relu conforme → GET list →
+  archive vers _archive/ → liste vide → git status propre (gitignoré) ; page sert 200,
+  build/typecheck verts. (Raccourcis clavier non pilotés en navigateur — pas de Playwright dispo ;
+  logique standard React typée.)
 release: null
