@@ -215,6 +215,15 @@ export function TaskPanel({ id }: { id: number }) {
         />
       </Row>
 
+      <Row label="Outcome (ce qui a été livré — matière à changelog)">
+        <TextInput
+          defaultValue={task.outcome ?? ''}
+          disabled={archived}
+          onKeyDown={blurOnEnter}
+          onBlur={(e) => saveIfChanged('outcome', e.target.value === '' ? null : e.target.value)}
+        />
+      </Row>
+
       {consignation.length > 0 && (
         <div className="flex flex-col gap-1.5 rounded border border-neutral-200 bg-neutral-50 px-3 py-2.5">
           {consignation.map((m) => <MetaLine key={m.label} label={m.label} value={m.value} />)}

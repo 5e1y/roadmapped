@@ -12,6 +12,9 @@ function validateTask(task: TaskNode, path: string, errors: string[]) {
   if (!SIZES.includes(task.size)) errors.push(`${path}: size invalide (${task.size})`)
   if (!['user', 'ai'].includes(task.source)) errors.push(`${path}: source invalide (${task.source})`)
   if (!task.createdAt) errors.push(`${path}: createdAt manquant`)
+  if (task.outcome !== null && typeof task.outcome !== 'string') {
+    errors.push(`${path}: outcome doit être une string ou null`)
+  }
   for (const sub of task.subtasks) {
     validateTask(sub, `${path}/${sub.id}`, errors)
   }

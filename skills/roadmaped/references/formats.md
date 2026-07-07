@@ -41,6 +41,7 @@ source: ai                # user | ai — qui a créé la tâche
 createdAt: "2026-07-07"
 completedAt: null         # posé automatiquement au passage à done
 commit: null              # sha du commit de livraison (consigné par done --commit)
+outcome: null             # CE QUI A ÉTÉ LIVRÉ, une phrase orientée utilisateur (done --outcome) — matière à changelog
 verification: null        # COMMENT l'artefact a été vérifié (done --verification)
 release: null             # version de release si applicable
 ```
@@ -86,4 +87,4 @@ Dossier jumeau homonyme du fichier de tâche (voir arborescence). Le CLI ne les 
 
 ## Archive
 
-`task.mjs archive <id>` déplace le fichier (+ dossier jumeau) vers `_archive/<section>/`. Exige `status: done` — rien d'autre : `completedAt` est garanti (posé automatiquement au passage à done), mais `commit`/`verification` ne le sont que si le `done` les a fournis. Consigne-les TOUJOURS avant d'archiver. On ne modifie jamais l'archive.
+`task.mjs archive <id>` déplace le fichier (+ dossier jumeau) vers `_archive/<section>/`. Exige `status: done` — rien d'autre : `completedAt` est garanti (posé automatiquement au passage à done), mais `commit`/`outcome`/`verification` ne le sont que si le `done` les a fournis. Consigne-les TOUJOURS avant d'archiver. On ne modifie jamais l'archive.

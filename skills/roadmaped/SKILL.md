@@ -37,7 +37,7 @@ node scripts/task.mjs roadmap [--json]        # jalons, progression, disponible/
 node scripts/task.mjs add --section <dir> --title "..." [--detail "..."] [--tags a,b]
      [--size S|M|L] [--zone z] [--code C1] [--refs f1,f2] [--links 3,4] [--depends-on 12,45]
 node scripts/task.mjs start <id>              # todo → in_progress
-node scripts/task.mjs done <id> --commit <sha> --verification "..." [--release v1.2]
+node scripts/task.mjs done <id> --commit <sha> --outcome "..." --verification "..." [--release v1.2]
 node scripts/task.mjs update <id> [--title ...] [--status ...] [--depends-on 12,45] ["null" pour vider]
 node scripts/task.mjs archive <id>            # done → _archive/ (déplace fichier + sous-tâches)
 node scripts/task.mjs validate                # revalide TOUT (obligatoire après toute édition manuelle)
@@ -57,7 +57,7 @@ Chaque écriture CLI revalide l'intégralité de `docs/tasks/` et **rollback** s
 2. **Démarrer** : `start <id>` avant la première ligne de code.
 3. **Travailler** : suis `detail` + les documents en `refs`. Lis la spec référencée AVANT de coder.
 4. **Vérifier l'artefact réel** (pas juste le typecheck) : le fichier produit, le pixel rendu, la commande exécutée.
-5. **Consigner** : `done <id> --commit <sha> --verification "..."` — la vérification décrit CE QUI A ÉTÉ OBSERVÉ, pas « ça marche ». Le CLI accepte `done` sans ces flags : ne le fais jamais (règle d'usage, pas garde technique — `completedAt` seul est automatique).
+5. **Consigner** : `done <id> --commit <sha> --outcome "..." --verification "..."` — l'outcome dit CE QUI A ÉTÉ LIVRÉ en une phrase orientée utilisateur (matière à changelog), la vérification décrit CE QUI A ÉTÉ OBSERVÉ, pas « ça marche ». Le CLI accepte `done` sans ces flags : ne le fais jamais (règle d'usage, pas garde technique — `completedAt` seul est automatique).
 6. **Archiver** quand l'utilisateur clôt un chantier : `archive <id>`.
 
 ## Créer du travail (feature non triviale) — détail : workflows.md §1-2
