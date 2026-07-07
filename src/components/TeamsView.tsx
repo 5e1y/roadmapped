@@ -34,9 +34,12 @@ const ringPath = (r: number) =>
   Array.from({ length: 8 }, (_, i) => vertex(i, r).join(',')).join(' ')
 
 /**
- * Radar octogonal de CHARGE (référence visuelle de Rémi) : un axe par team,
- * valeur = tickets ouverts. Anneaux + axes gris fins, polygone accent,
- * sommets cliquables → sélection de la team.
+ * Radar octogonal de CHARGE. Lisibilité à TOUTE échelle (retour Rémi) :
+ *  - le SVG ne porte que la géométrie (anneaux, axes, polygone, points) avec
+ *    des traits NON-SCALANTS (vector-effect) — visibles même tout petit ;
+ *  - les cartes de teams sont des BOUTONS HTML superposés, positionnés en %,
+ *    police 12px FIXE quelle que soit la taille du radar, ancrés vers
+ *    l'extérieur (jamais par-dessus les anneaux, jamais hors cadre).
  */
 function TeamsRadar({ counts, selected, onSelect }: {
   counts: Map<Team, number>
@@ -47,65 +50,56 @@ function TeamsRadar({ counts, selected, onSelect }: {
   const rOf = (team: Team) => ((counts.get(team) ?? 0) / max) * R
   const poly = TEAMS.map((t, i) => vertex(i, rOf(t)).join(',')).join(' ')
   return (
-    <svg viewBox={`-100 -30 ${SIZE + 200} ${SIZE + 60}`} className="max-h-full w-full" role="img" aria-label="Charge par team">
-      {/* anneaux concentriques + axes */}
-      {Array.from({ length: RINGS }, (_, k) => (
-        <polygon key={k} points={ringPath(((k + 1) / RINGS) * R)} fill="none" stroke="#e5e5e5" strokeWidth={1} />
-      ))}
-      {TEAMS.map((_, i) => {
-        const [x, y] = vertex(i, R)
-        return <line key={i} x1={CX} y1={CY} x2={x} y2={y} stroke="#e5e5e5" strokeWidth={1} />
-      })}
-      {/* polygone de charge */}
-      <polygon points={poly} fill="var(--color-accent)" fillOpacity={0.12} stroke="var(--color-accent)" strokeWidth={2} strokeLinejoin="round" />
+    <div className="relative aspect-square w-full" role="img" aria-label="Charge par team">
+      <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="absolute inset-[15%] h-[70%] w-[70%] overflow-visible" aria-hidden="true">
+        {Array.from({ length: RINGS }, (_, k) => (
+          <polygon key={k} points={ringPath(((k + 1) / RINGS) * R)} fill="none" stroke="#d4d4d4" strokeWidth={1} vectorEffect="non-scaling-stroke" />
+        ))}
+        {TEAMS.map((_, i) => {
+          const [x, y] = vertex(i, R)
+          return <line key={i} x1={CX} y1={CY} x2={x} y2={y} stroke="#d4d4d4" strokeWidth={1} vectorEffect="non-scaling-stroke" />
+        })}
+        <polygon points={poly} fill="var(--color-accent)" fillOpacity={0.12} stroke="var(--color-accent)" strokeWidth={2} strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+        {TEAMS.map((t, i) => {
+          const [x, y] = vertex(i, rOf(t))
+          return <circle key={t} cx={x} cy={y} r={5} fill="var(--color-accent)" vectorEffect="non-scaling-stroke" />
+        })}
+      </svg>
+      {/* Cartes HTML à taille FIXE, centrées sur un rayon au-delà des anneaux
+          (l'anneau extérieur vit à ~25 % du conteneur, les cartes à 35/38 %) :
+          jamais sur la grille, jamais hors cadre. */}
       {TEAMS.map((t, i) => {
-        const [x, y] = vertex(i, rOf(t))
-        return <circle key={t} cx={x} cy={y} r={4} fill="var(--color-accent)" />
-      })}
-      {/* Petites cartes OPAQUES aux sommets (icône + team + compte) : lisibles
-          quel que soit le polygone derrière, rollover accent, sélection tint. */}
-      {TEAMS.map((t, i) => {
-        const [x, y] = vertex(i, R + 40)
+        const a = (Math.PI * 2 * i) / 8 - Math.PI / 2
+        const cos = Math.cos(a)
+        const sin = Math.sin(a)
         const active = selected === t
         const Icon = TEAM_ICON[t]
-        const count = counts.get(t) ?? 0
-        // largeur estimée : icône (26) + nom (~8.6px/car.) + compteur + paddings
-        const w = 26 + t.length * 8.6 + String(count).length * 8 + 26
-        const h = 30
         return (
-          <g
+          <button
             key={t}
-            className="group cursor-pointer"
+            type="button"
             onClick={(e) => { e.stopPropagation(); onSelect(active ? '' : t) }}
+            aria-pressed={active}
+            style={{
+              left: `${50 + cos * 35}%`,
+              top: `${50 + sin * 38}%`,
+              transform: 'translate(-50%, -50%)',
+            }}
+            className={`absolute flex items-center gap-1.5 whitespace-nowrap rounded-md border px-2 py-1 text-xs transition-colors ${
+              active
+                ? 'border-accent bg-accent-tint font-medium text-neutral-900'
+                : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400 hover:text-neutral-900'
+            }`}
           >
-            <rect
-              x={x - w / 2} y={y - h / 2} width={w} height={h} rx={6}
-              className={`transition-colors ${
-                active
-                  ? 'fill-accent-tint stroke-accent'
-                  : 'fill-white stroke-neutral-200 group-hover:stroke-neutral-400'
-              }`}
-              strokeWidth={1}
-            />
-            <g transform={`translate(${x - w / 2 + 9}, ${y - 7})`} className={active ? 'text-accent' : 'text-neutral-400 group-hover:text-neutral-700'}>
-              <Icon size={14} />
-            </g>
-            <text
-              x={x - w / 2 + 29} y={y + 1} dominantBaseline="middle"
-              className={`text-[13px] transition-[fill] ${active ? 'fill-neutral-900 font-semibold' : 'fill-neutral-700 group-hover:fill-neutral-900'}`}
-            >
-              {t}
-            </text>
-            <text
-              x={x + w / 2 - 9} y={y + 1} textAnchor="end" dominantBaseline="middle"
-              className={`font-mono text-[11px] ${active ? 'fill-accent' : 'fill-neutral-400'}`}
-            >
-              {count}
-            </text>
-          </g>
+            <Icon size={12} className={active ? 'text-accent' : 'text-neutral-400'} />
+            {t}
+            <span className={`font-mono text-[11px] ${active ? 'text-accent' : 'text-neutral-400'}`}>
+              {counts.get(t) ?? 0}
+            </span>
+          </button>
         )
       })}
-    </svg>
+    </div>
   )
 }
 
