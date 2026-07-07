@@ -1,15 +1,17 @@
 ---
 name: roadmaped
-description: Gestion de projet Roadmaped — utiliser dès qu'il faut créer, planifier, exécuter ou consigner du travail dans ce repo (tâches, specs, roadmaps, jalons, documentation), quand l'utilisateur dit « on enchaîne sur la roadmap », « crée les tâches », « planifie X », ou à la PREMIÈRE utilisation dans un repo (phase de setup obligatoire).
+description: Gestion de projet Roadmaped — utiliser AVANT de modifier tout fichier de ce repo, quel que soit le cadrage — feature, feedback, rework, fix post-done, « ASAP » compris — et dès qu'il faut créer, planifier, exécuter ou consigner du travail (tâches, specs, roadmaps, documentation), quand l'utilisateur dit « on enchaîne sur la roadmap », « crée les tâches », « répare ça », ou à la PREMIÈRE utilisation dans un repo (phase de setup obligatoire).
 ---
 
 # Roadmaped — le projet piloté par fichiers
 
 ## Boussole
 
-Des fichiers YAML/markdown plats sous `docs/tasks/` sont la SEULE source de vérité (pas de plan parallèle). 8 stages fixes et immuables (`01-idea` → `08-mature` = les jalons, une colonne du dashboard chacun). Toute tâche active porte une `team` obligatoire (enum fixe). Le CLI `node scripts/task.mjs <commande>` est ta SEULE interface d'écriture — jamais d'édition manuelle d'un YAML que le CLI couvre.
+Des fichiers YAML/markdown plats sous `docs/tasks/` sont la SEULE source de vérité (pas de plan parallèle). 8 stages fixes et immuables (`01-idea` → `08-mature` = les jalons, une colonne du dashboard chacun). Toute tâche active porte une `team` obligatoire (enum fixe). Le CLI `node scripts/task.mjs <commande>` — ou les tools MCP roadmaped s'ils sont chargés (même noyau, mêmes garanties) — est ta SEULE interface d'écriture — jamais d'édition manuelle d'un YAML que le CLI couvre.
 
 ## Échelle de décision — stop au premier barreau qui tient
+
+**Tout changement du repo = une unité roadmaped, sans exception.** Le `done` est une frontière, pas un couvercle : un retour, un rework, un fix de revue → chacun son `quick`. « ASAP » n'est jamais une raison de sauter le `quick` — le `quick` EST le chemin rapide (~2 commandes). Seul l'échange sans artefact (question, explication, statut) reste conversationnel.
 
 1. Ce changement mérite-t-il seulement d'exister ? Sinon ne crée rien.
 2. Un `quick` suffit-il (fix isolé, taille S, pas de decisions à trancher) ? → `quick`, done avec `--outcome` seul.
@@ -49,6 +51,7 @@ Pour `sitrep`/`take`/`brief`/`next`/`quick`/`add`/`start`/`done` : n'ouvre AUCUN
 
 ## Interdits
 
+- ❌ Committer sans unité roadmaped — le hook `guard` refuse ; `--no-verify` = dérive consciente, à dire à l'utilisateur.
 - ❌ Éditer un YAML à la main quand le CLI couvre l'opération, ou toucher `_meta.yaml`/l'archive/réutiliser un id.
 - ❌ Démarrer une tâche verrouillée ou contourner une dépendance sans accord explicite.
 - ❌ `done` sans `--outcome` honnête (et `--verification` réellement exécutée pour un `task`) — jamais « ça devrait marcher ».
