@@ -9,6 +9,7 @@ const NAV: { id: View; label: string }[] = [
   { id: 'backlog', label: 'Backlog' },
   { id: 'roadmap', label: 'Roadmap' },
   { id: 'docs', label: 'Docs' },
+  { id: 'notepad', label: 'Notepad' },
 ]
 
 /**

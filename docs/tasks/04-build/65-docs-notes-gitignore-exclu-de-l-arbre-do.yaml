@@ -1,7 +1,7 @@
 id: 87
 code: null
 title: docs/notes/ gitignoré + exclu de l'arbre Docs + création au 1er usage
-status: in_progress
+status: done
 tags: []
 size: S
 team: engineering
@@ -18,8 +18,14 @@ dependsOn: []
 milestone: null
 source: ai
 createdAt: "2026-07-08"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: d491b55
+outcome: >-
+  docs/notes/ invisible dans l'onglet Docs (buildDocsTree l'exclut à la racine, garde un notes/ plus
+  profond) ; ensureNotesSetup au boot du serveur crée le dossier + ajoute 'docs/notes/' au
+  .gitignore si absente (idempotent) ; ligne ajoutée au .gitignore du repo
+verification: >-
+  Créer docs/notes/_probe.md → git status propre (ignoré, vérifié en réel) ; test docs : notes/
+  racine exclu, plans/notes conservé ; test ensureGitignore idempotent (ajoute 1×, jamais 2) ; 214
+  tests + build verts
 release: null
