@@ -1,0 +1,29 @@
+id: 90
+code: null
+title: MCP socle 1 — extraire le rendu partagé vers src/lib/render.ts
+status: todo
+tags: []
+size: M
+team: engineering
+detail: >-
+  Prérequis du serveur MCP : le rendu vit aujourd'hui dans scripts/task.mjs (CLI-only). Migrer
+  briefText, la composition de sitrep, refLine, taskLine, renderRef vers src/lib/render.ts (pur,
+  testable). Le CLI les RÉIMPORTE (zéro régression — ses 31 tests restent verts). Les tools MCP les
+  réutiliseront. Garder la logique git/fs (fraîcheur, autofill) là où elle doit être appelable des
+  deux surfaces. TDD : un test direct léger du rendu partagé + la suite CLI existante inchangée.
+  Fini quand : render.ts extrait, task.mjs réimporte, tests CLI + build verts sans modification de
+  comportement observable.
+refs:
+  - docs/specs/2026-07-08-mcp-server.md
+  - scripts/task.mjs
+  - src/lib/refExtract.ts
+links: []
+dependsOn: []
+milestone: null
+source: ai
+createdAt: "2026-07-08"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

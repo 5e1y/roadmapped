@@ -1,0 +1,31 @@
+id: 91
+code: null
+title: MCP socle 2 — serveur stdio + .mcp.json + 8 tools de lecture
+status: todo
+tags: []
+size: L
+team: engineering
+detail: >-
+  scripts/mcp-server.mjs : instancie @modelcontextprotocol/sdk (transport stdio, Node ≥22.18),
+  résout tasksDir via loadPaths(). Enregistre les 8 tools de LECTURE : sitrep, brief, next, show,
+  list, roadmap, validate, take (take est read+write mais c'est LA porte d'entrée — l'inclure ici
+  avec start). Chaque tool : description court + inputSchema typé/décrit (= la doc qui remplace
+  --help), handler appelant render.ts (#90) + taskWrites/roadmap, sortie = structuredContent (objet)
+  + content texte dense. .mcp.json committé à la racine (command node, args scripts/mcp-server.mjs).
+  Fini quand : Claude Code liste les tools après redémarrage, un sitrep et un brief via tool
+  renvoient le même contenu que le CLI (vérifié en session réelle), build vert.
+refs:
+  - docs/specs/2026-07-08-mcp-server.md
+  - src/lib/taskWrites.ts
+  - src/lib/roadmap.ts
+links: []
+dependsOn:
+  - 90
+milestone: null
+source: ai
+createdAt: "2026-07-08"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
