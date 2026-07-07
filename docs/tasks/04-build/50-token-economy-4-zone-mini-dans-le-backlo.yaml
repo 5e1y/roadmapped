@@ -1,0 +1,34 @@
+id: 67
+code: null
+title: Token economy 4 — zone Mini dans le Backlog (création inline, done rapide)
+status: todo
+tags:
+  - token-economy
+  - ux
+  - design
+size: M
+team: design
+detail: >-
+  ⛔ N'exécuter qu'après approbation de la spec par Rémi. RÉSERVÉ FABLE (design). Spec §3 UI : zone «
+  Mini » compacte au-dessus de « À faire » dans le Backlog — lignes ultra-denses (glyphe, #id,
+  titre, badge team), création INLINE dans l'en-tête de la zone (titre + team, Entrée = créé), done
+  rapide depuis la ligne (clic glyphe → prompt outcome court, un seul PATCH). Les quick comptent
+  dans compteurs et radar, apparaissent dans les colonnes de la Roadmap mais PAS dans le Graphe.
+  Fini quand : créer/terminer un quick sans ouvrir le panneau (captures), Graphe sans quick, tests +
+  build verts.
+refs:
+  - docs/specs/2026-07-07-token-economy.md
+  - src/components/Backlog.tsx
+  - src/components/TaskColumns.tsx
+  - src/components/RoadmapGraph.tsx
+links: []
+dependsOn:
+  - 66
+milestone: null
+source: user
+createdAt: "2026-07-07"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

@@ -1,0 +1,34 @@
+id: 65
+code: null
+title: Token economy 2 — CLI take/brief, liens titrés, json allégé, erreurs autoportantes
+status: todo
+tags:
+  - token-economy
+  - cli
+size: M
+team: engineering
+detail: >-
+  ⛔ N'exécuter qu'après approbation de la spec par Rémi. Spec §2 : (a) take [--team] =
+  next+start+brief en une commande ; (b) brief <id> = brief d'exécution complet
+  (titre/stage/team/detail/refs + deps et links TITRÉS avec statut inline + rappel de la consigne
+  done) — devient la porte d'entrée officielle d'exécution ; (c) show affiche « dépend de/liées » en
+  #id titre (statut) ; (d) list --json allégé (id,title,status,team,stage,size) + --json-full
+  intégral — VÉRIFIER d'abord les call-sites de --json (UI/scripts) ; (e) toute erreur de flag
+  imprime l'usage exact de sa commande. Tests sandbox étendus (pattern task.test.mjs existant). Fini
+  quand : take rejoué sur le vrai repo (une commande = contexte complet), aucun show en cascade
+  nécessaire (liens titrés constatés), tests verts.
+refs:
+  - docs/specs/2026-07-07-token-economy.md
+  - scripts/task.mjs
+  - scripts/task.test.mjs
+  - src/lib/roadmap.ts
+links: []
+dependsOn: []
+milestone: null
+source: user
+createdAt: "2026-07-07"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
