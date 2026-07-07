@@ -6,7 +6,7 @@ import { usePanel } from '../state/PanelContext'
 import { usePersistentStrings } from '../state/uiPersist'
 import { type TaskNode } from '../lib/tasks'
 import { SectionAccordion } from './SectionAccordion'
-import { TaskList, sortOpen, sortDone } from './TaskColumns'
+import { TaskList, MiniZone, sortOpen, sortDone } from './TaskColumns'
 
 import { useTeamFilter, useStageFilter } from '../state/filters'
 import { ViewHeader, StageFilterMenu } from './ViewHeader'
@@ -26,7 +26,7 @@ const plural = (n: number, s: string) => `${n} ${s}${n === 1 ? '' : 's'}`
  * dans la sidebar et s'applique aussi).
  */
 export function Backlog() {
-  const { tree, errors, loading, loadError } = useTree()
+  const { tree, errors, loading, loadError, reload } = useTree()
   const { openCreateTask, top } = usePanel()
   const [openArchive, setOpenArchive] = usePersistentStrings('backlog:archive')
   const [teamFilter, setTeamFilter] = useTeamFilter()
@@ -88,7 +88,10 @@ export function Backlog() {
     (q === '' || t.title.toLowerCase().includes(q) || `#${t.id}`.includes(q))
 
   // Ordre canonique (décision Rémi) : stage puis ancienneté — partagé (TaskColumns).
-  const open = sortOpen(all.filter((t) => t.status !== 'done' && matches(t)), (id) => stageOf.get(id) ?? '99')
+  const openAll = all.filter((t) => t.status !== 'done' && matches(t))
+  // Les quick vivent dans la zone Mini ; les task dans « À faire ».
+  const quicks = sortOpen(openAll.filter((t) => t.kind === 'quick'), (id) => stageOf.get(id) ?? '99')
+  const open = sortOpen(openAll.filter((t) => t.kind !== 'quick'), (id) => stageOf.get(id) ?? '99')
   const done = sortDone(all.filter((t) => t.status === 'done' && matches(t)))
 
   // « + tâche » : le stage de destination = le filtre courant, sinon Build
@@ -131,7 +134,10 @@ export function Backlog() {
         </div>
       <div className="min-h-0 flex-1 overflow-y-auto">
       <div className="mx-auto max-w-3xl px-6 py-8">
+      <div className="flex flex-col gap-8">
+      {(quicks.length > 0 || !q) && <MiniZone quicks={quicks} reload={reload} />}
       <TaskList open={open} done={done} filtered={Boolean(q || stageFilter || teamFilter.length)} />
+      </div>
 
       {tree.archive.length > 0 && (
         <section className="mt-14">
