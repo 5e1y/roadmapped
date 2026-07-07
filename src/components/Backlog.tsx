@@ -124,7 +124,7 @@ export function Backlog() {
             Clic dans le vide = toutes les teams. */}
         <div
           onClick={() => radarSelect('')}
-          className={`${top !== null ? 'hidden 2xl:flex' : 'flex'} w-[420px] shrink-0 cursor-pointer items-center border-r border-neutral-200 p-2`}
+          className={`${top !== null ? 'hidden 2xl:flex' : 'flex'} w-[420px] shrink-0 cursor-pointer items-center border-r border-neutral-200 bg-white p-2`}
         >
           <TeamsRadar counts={load} selected={radarSelected} onSelect={radarSelect} />
         </div>
