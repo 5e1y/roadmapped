@@ -1,8 +1,41 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type MouseEvent } from 'react'
 import { marked } from 'marked'
 
+/** Slug ASCII d'un titre (pour les id d'ancrage des headings). */
+const slugify = (s: string): string =>
+  s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+
+// Headings dotés d'un id stable = les ancres `#slug` du markdown deviennent
+// cliquables (scroll interne). Configuré une seule fois au chargement du module.
+marked.use({
+  renderer: {
+    heading(token) {
+      const t = token as unknown as { tokens: unknown[]; depth: number; text: string }
+      const self = this as unknown as { parser: { parseInline: (tokens: unknown[]) => string } }
+      return `<h${t.depth} id="${slugify(t.text)}">${self.parser.parseInline(t.tokens)}</h${t.depth}>\n`
+    },
+  },
+})
+
+/**
+ * Résout un lien relatif `.md` (ex. « ../autre.md ») par rapport au document
+ * courant, en chemin repo-relatif normalisé pour onSelectDoc. `null` si le lien
+ * ne cible pas un `.md`.
+ */
+function resolveDocLink(base: string, href: string): string | null {
+  const clean = href.split('#')[0].split('?')[0]
+  if (!clean || !clean.endsWith('.md')) return null
+  const parts = base.includes('/') ? base.slice(0, base.lastIndexOf('/')).split('/') : []
+  for (const seg of clean.split('/')) {
+    if (seg === '' || seg === '.') continue
+    if (seg === '..') parts.pop()
+    else parts.push(seg)
+  }
+  return parts.join('/')
+}
+
 /** Vue principale de la Vue Docs : rendu markdown en lecture seule d'un fichier sélectionné dans l'arbre. */
-export function DocsView({ path }: { path: string | null }) {
+export function DocsView({ path, onSelectDoc }: { path: string | null; onSelectDoc: (path: string) => void }) {
   const [content, setContent] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -39,6 +72,36 @@ export function DocsView({ path }: { path: string | null }) {
     }
   }, [path])
 
+  // Délégation des clics sur les liens du markdown rendu :
+  //  - `#ancre`      → scroll interne (pas de navigation hors SPA) ;
+  //  - `…/x.md`      → ouverture du doc dans la Vue Docs ;
+  //  - `http(s)://…` → laissé passer, mais forcé en nouvel onglet sécurisé.
+  const onProseClick = (e: MouseEvent<HTMLDivElement>) => {
+    const a = (e.target as HTMLElement).closest('a')
+    if (!a) return
+    const href = a.getAttribute('href') ?? ''
+    if (href.startsWith('#')) {
+      e.preventDefault()
+      document.getElementById(href.slice(1))?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      return
+    }
+    if (/^https?:\/\//i.test(href)) {
+      a.setAttribute('target', '_blank')
+      a.setAttribute('rel', 'noopener noreferrer')
+      return
+    }
+    if (path) {
+      const resolved = resolveDocLink(path, href)
+      if (resolved) {
+        e.preventDefault()
+        onSelectDoc(resolved)
+      } else if (!href.includes(':')) {
+        // Lien relatif non-.md : ne pas naviguer hors SPA (ancre morte évitée).
+        e.preventDefault()
+      }
+    }
+  }
+
   if (!path) {
     return (
       <div className="flex h-full items-center justify-center text-sm text-neutral-400">
@@ -48,7 +111,8 @@ export function DocsView({ path }: { path: string | null }) {
   }
 
   if (loading) {
-    return <div className="px-6 py-14 text-sm text-neutral-500">Chargement…</div>
+    // Même gabarit que le contenu : la zone de lecture ne se déplace pas au chargement.
+    return <div className="mx-auto max-w-3xl px-8 py-10 text-sm text-neutral-400">Chargement…</div>
   }
 
   if (error) {
@@ -66,7 +130,7 @@ export function DocsView({ path }: { path: string | null }) {
   const html = marked.parse(content ?? '', { async: false })
   return (
     <div className="mx-auto max-w-3xl px-8 py-10">
-      <div className="doc-prose" dangerouslySetInnerHTML={{ __html: html }} />
+      <div className="doc-prose" onClick={onProseClick} dangerouslySetInnerHTML={{ __html: html }} />
     </div>
   )
 }

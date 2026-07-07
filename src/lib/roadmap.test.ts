@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { computeAvailability, topoLayers, milestoneProgress, activeTasks, archivedTasks, slugify } from './roadmap'
+import { computeAvailability, missingPrereqs, topoLayers, milestoneProgress, activeTasks, archivedTasks, slugify } from './roadmap'
 import type { TaskTree, TaskNode, SectionNode } from './tasks'
 
 /** Fabrique une tâche minimale ; les champs non pertinents prennent des défauts. */
@@ -37,6 +37,28 @@ describe('computeAvailability', () => {
   it('dépendance vers un id inconnu ignorée défensivement (non bloquante)', () => {
     const av = computeAvailability(tree([task(2, 'todo', [999])]))
     expect(av.get(2)).toBe('available')
+  })
+})
+
+describe('missingPrereqs', () => {
+  it('liste les prérequis non faits (état ≠ done)', () => {
+    const t = tree([task(1, 'done'), task(2, 'todo'), task(3, 'todo', [1, 2])])
+    const av = computeAvailability(t)
+    const t3 = t.sections[0].tasks.find((x) => x.id === 3)!
+    // #1 est done (exclu), #2 est locked/available mais pas done (retenu)
+    expect(missingPrereqs(t3, av)).toEqual([2])
+  })
+  it('une dep done ne bloque pas', () => {
+    const t = tree([task(1, 'done'), task(2, 'todo', [1])])
+    const av = computeAvailability(t)
+    const t2 = t.sections[0].tasks.find((x) => x.id === 2)!
+    expect(missingPrereqs(t2, av)).toEqual([])
+  })
+  it('une dep archivée/inconnue (absente de la map) est done de fait, non listée', () => {
+    const t = tree([task(2, 'todo', [999])])
+    const av = computeAvailability(t)
+    const t2 = t.sections[0].tasks.find((x) => x.id === 2)!
+    expect(missingPrereqs(t2, av)).toEqual([])
   })
 })
 

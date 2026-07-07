@@ -36,6 +36,13 @@ export interface SectionNode {
   tasks: TaskNode[]
 }
 
+/** Libellés FR des statuts de section non-« open » (UI française, source unique). */
+export const SECTION_STATUS_FR: Record<Exclude<SectionNode['status'], 'open'>, string> = {
+  done: 'terminée',
+  dormant: 'en veille',
+  abandoned: 'abandonnée',
+}
+
 export interface Milestone {
   slug: string
   title: string
@@ -55,6 +62,23 @@ export interface TaskTree {
   archive: SectionNode[]
   /** Roadmaps déclarées dans _roadmaps.yaml (racine de tasksDir). Vide si le fichier est absent. */
   roadmaps: Roadmap[]
+}
+
+/**
+ * Comptage récursif d'une liste de tâches (sous-tâches comprises) : { total, done }.
+ * Source unique du compteur d'en-tête global et des compteurs de section, pour
+ * que la somme des sections égale toujours le total affiché en tête de Backlog.
+ */
+export function countTasksDeep(tasks: TaskNode[]): { total: number; done: number } {
+  let total = 0
+  let done = 0
+  const visit = (t: TaskNode) => {
+    total += 1
+    if (t.status === 'done') done += 1
+    t.subtasks.forEach(visit)
+  }
+  tasks.forEach(visit)
+  return { total, done }
 }
 
 interface ParsedPath {

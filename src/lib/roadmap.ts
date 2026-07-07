@@ -44,6 +44,19 @@ export function computeAvailability(tree: TaskTree): Map<number, Availability> {
 }
 
 /**
+ * Prérequis d'une tâche qui ne sont PAS encore faits, d'après la carte
+ * d'availability. Une dep absente de la map (archivée / inconnue) est done de
+ * fait — elle n'est jamais listée. Source unique partagée par le Graphe et les
+ * Colonnes pour afficher « Prérequis manquants (#…) » de façon cohérente.
+ */
+export function missingPrereqs(task: TaskNode, avail: Map<number, Availability>): number[] {
+  return task.dependsOn.filter((d) => {
+    const st = avail.get(d)
+    return st !== undefined && st !== 'done'
+  })
+}
+
+/**
  * Range les tâches en couches topologiques. La couche d'une tâche = profondeur
  * maximale de sa chaîne de dépendances DANS l'ensemble fourni (deps hors ensemble ignorées).
  * Couche 0 = tâches sans dépendance interne. Déterministe, pas de mesure DOM.

@@ -1,8 +1,10 @@
 import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
+import { computeAvailability, missingPrereqs, type Availability } from '../lib/roadmap'
 import { StatusGlyph } from './glyphs'
 import { Chip } from './Chip'
-import type { TaskNode } from '../lib/tasks'
+import { countTasksDeep, SECTION_STATUS_FR } from '../lib/tasks'
+import type { SectionNode, TaskNode } from '../lib/tasks'
 
 function ProgressBar({ done, total }: { done: number; total: number }) {
   const pct = total === 0 ? 0 : Math.round((done / total) * 100)
@@ -13,43 +15,86 @@ function ProgressBar({ done, total }: { done: number; total: number }) {
   )
 }
 
-function TaskCard({ task }: { task: TaskNode }) {
+/**
+ * Carte de tâche du mode Colonnes. Rend les trois états d'availability comme
+ * GraphCard (mode Graphe) pour que les deux modes soient cohérents :
+ *  - done      : coche (StatusGlyph) + titre barré/atténué + chips zone/size ;
+ *  - available : bordure pleine marquée + mention « Disponible » ;
+ *  - locked    : carte estompée + « Prérequis manquants (#…) ».
+ */
+function TaskCard({ task, state, missing }: { task: TaskNode; state: Availability; missing: number[] }) {
   const { openTask } = usePanel()
+  // Même convention visuelle que GraphCard : fond blanc opaque, l'état estompé
+  // s'exprime par la bordure et l'encre (pas d'opacity), la disponibilité par la
+  // bordure pleine marquée.
+  const border = state === 'available' ? 'border-2 border-neutral-900' : 'border border-neutral-200'
+  const dim = state === 'done' || state === 'locked'
+  const titleCls = task.status === 'done' ? 'text-neutral-400 line-through' : dim ? 'text-neutral-400' : 'text-neutral-900'
+  const subs = task.subtasks.length > 0 ? countTasksDeep(task.subtasks) : null
   return (
-    <button type="button" onClick={() => openTask(task.id)}
-      className="flex w-full flex-col gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-2.5 text-left hover:border-neutral-400">
-      <div className="flex items-center gap-2">
-        <StatusGlyph status={task.status} />
-        <span className="shrink-0 font-mono text-xs text-neutral-400">#{task.id}</span>
-        <span className={`min-w-0 truncate text-sm ${task.status === 'done' ? 'text-neutral-400 line-through' : 'text-neutral-900'}`}>
+    <button type="button" onClick={() => openTask(task.id)} title={task.title}
+      className={`flex w-full flex-col gap-1.5 rounded-lg bg-white px-3 py-2.5 text-left hover:border-neutral-400 ${border}`}>
+      <div className="flex items-start gap-2">
+        <span className="mt-0.5"><StatusGlyph status={task.status} /></span>
+        <span className="mt-px shrink-0 font-mono text-xs text-neutral-400">#{task.id}</span>
+        <span className={`min-w-0 line-clamp-2 text-sm ${titleCls}`}>
           {task.title}
         </span>
       </div>
-      {(task.zone || task.size || task.tags.length > 0) && (
-        <div className="flex flex-wrap items-center gap-1">
-          {task.zone && <Chip label={task.zone} />}
-          {task.size && <Chip label={task.size} mono />}
-          {task.tags.map((t) => <Chip key={t} label={t} />)}
-        </div>
+      {state === 'locked' ? (
+        <span className="text-[11px] text-neutral-400">
+          Prérequis manquants{missing.length ? ` (${missing.map((d) => `#${d}`).join(' ')})` : ''}
+        </span>
+      ) : state === 'available' ? (
+        <span className="text-[11px] font-medium text-neutral-700">Disponible</span>
+      ) : (
+        (task.zone || task.size) && (
+          <div className="flex flex-wrap items-center gap-1">
+            {task.zone && <Chip label={task.zone} />}
+            {task.size && <Chip label={task.size} mono />}
+          </div>
+        )
+      )}
+      {subs && (
+        <span className="font-mono text-[11px] text-neutral-400">{subs.done}/{subs.total} sous-tâches</span>
       )}
     </button>
   )
 }
 
-function Column({ title, tasks }: { title: string; tasks: TaskNode[] }) {
-  const done = tasks.filter((t) => t.status === 'done').length
+/**
+ * Chaque colonne est une sous-grille alignée sur les 4 rangées partagées du
+ * conteneur (titre / note / barre / cartes) : les en-têtes prennent tous la
+ * hauteur du plus grand et les barres de progression sont alignées entre
+ * colonnes, quelle que soit la longueur des notes. Les rangées vides gardent
+ * un placeholder pour ne pas décaler les suivantes.
+ */
+function Column({ section, avail }: { section: SectionNode; avail: Map<number, Availability> }) {
+  const { done, total } = countTasksDeep(section.tasks)
+  const empty = section.tasks.length === 0
+  const statusFr = section.status !== 'open' ? SECTION_STATUS_FR[section.status] : null
   return (
-    <div className="flex w-[280px] shrink-0 flex-col gap-3">
-      <div className="flex flex-col gap-1.5">
-        <div className="flex items-baseline justify-between gap-2">
-          <span className="text-sm font-semibold tracking-tight text-neutral-900">{title}</span>
-          <span className="font-mono text-xs text-neutral-400">{done}/{tasks.length}</span>
-        </div>
-        <ProgressBar done={done} total={tasks.length} />
+    <div className="grid row-span-4 grid-rows-subgrid">
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="min-w-0 truncate text-sm font-semibold tracking-tight text-neutral-900" title={section.title}>
+          {section.title}
+        </span>
+        <span className="flex shrink-0 items-center gap-1.5">
+          {statusFr && <Chip label={statusFr} />}
+          <span className="font-mono text-xs text-neutral-400">{empty ? '—' : `${done}/${total}`}</span>
+        </span>
       </div>
-      <div className="flex flex-col gap-2">
-        {tasks.map((t) => <TaskCard key={t.id} task={t} />)}
-        {tasks.length === 0 && <p className="text-xs text-neutral-400">Aucune tâche.</p>}
+      {section.note ? (
+        <p className="text-xs leading-relaxed text-neutral-500">{section.note}</p>
+      ) : (
+        <div aria-hidden />
+      )}
+      <div className="self-end">{!empty && <ProgressBar done={done} total={total} />}</div>
+      <div className="flex flex-col gap-2 pt-1.5">
+        {section.tasks.map((t) => (
+          <TaskCard key={t.id} task={t} state={avail.get(t.id) ?? 'available'} missing={missingPrereqs(t, avail)} />
+        ))}
+        {empty && <p className="text-xs text-neutral-400">Rien de planifié.</p>}
       </div>
     </div>
   )
@@ -60,9 +105,19 @@ export function RoadmapColumns() {
   const { tree } = useTree()
   if (!tree) return null
   const sections = tree.sections.filter((s) => s.status !== 'abandoned')
+  const avail = computeAvailability(tree)
+
+  if (sections.length === 0) {
+    return (
+      <div className="px-6 py-8 text-sm text-neutral-500">
+        Aucune section active. Crée une section dans le Backlog pour la voir apparaître ici.
+      </div>
+    )
+  }
+
   return (
-    <div className="flex gap-4 overflow-x-auto px-6 py-8">
-      {sections.map((s) => <Column key={s.key} title={s.title} tasks={s.tasks} />)}
+    <div className="roadmap-cols-scroll grid h-full auto-cols-[280px] grid-flow-col grid-rows-[auto_auto_auto_1fr] gap-x-4 gap-y-1.5 overflow-x-auto px-6 pb-6 pt-8">
+      {sections.map((s) => <Column key={s.key} section={s} avail={avail} />)}
     </div>
   )
 }

@@ -19,7 +19,8 @@ const toPosix = (p: string): string => p.split(sep).join('/')
  * Arbre récursif de docsDir : dossiers + fichiers `.md` uniquement, entrées
  * cachées et `node_modules` exclues. Un dossier sans aucun `.md` descendant
  * (ex. `docs/tasks`, du YAML pur) disparaît naturellement de l'arbre — pas de
- * filtre nommé, juste l'absence d'enfants. Tri : dossiers d'abord, puis alpha.
+ * filtre nommé, juste l'absence d'enfants. Tri : dossiers d'abord, puis ordre
+ * naturel (numérique) — « 10-x.md » après « 2-x.md », pas avant.
  */
 export function buildDocsTree(docsDir: string, root: string = docsDir): DocNode[] {
   let entries: string[]
@@ -51,8 +52,8 @@ export function buildDocsTree(docsDir: string, root: string = docsDir): DocNode[
     }
   }
 
-  dirs.sort((a, b) => a.name.localeCompare(b.name))
-  files.sort((a, b) => a.name.localeCompare(b.name))
+  dirs.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }))
+  files.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }))
   return [...dirs, ...files]
 }
 

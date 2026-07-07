@@ -1,5 +1,29 @@
 import { describe, it, expect } from 'vitest'
-import { buildTaskTree } from './tasks'
+import { buildTaskTree, countTasksDeep } from './tasks'
+import type { TaskNode } from './tasks'
+
+/** Tâche minimale pour les tests de comptage. */
+function mkTask(id: number, status: TaskNode['status'], subtasks: TaskNode[] = []): TaskNode {
+  return {
+    id, code: null, title: `T${id}`, status, tags: [], size: null, zone: null, detail: null,
+    refs: [], links: [], dependsOn: [], milestone: null, source: 'ai', createdAt: '2026-07-07',
+    completedAt: null, commit: null, outcome: null, verification: null, release: null,
+    file: `docs/tasks/01-x/${id}.yaml`, subtasks,
+  }
+}
+
+describe('countTasksDeep', () => {
+  it('compte les tâches de premier niveau', () => {
+    expect(countTasksDeep([mkTask(1, 'done'), mkTask(2, 'todo')])).toEqual({ total: 2, done: 1 })
+  })
+  it('compte récursivement les sous-tâches', () => {
+    const t = mkTask(1, 'todo', [mkTask(2, 'done'), mkTask(3, 'done', [mkTask(4, 'todo')])])
+    expect(countTasksDeep([t])).toEqual({ total: 4, done: 2 })
+  })
+  it('liste vide → 0/0', () => {
+    expect(countTasksDeep([])).toEqual({ total: 0, done: 0 })
+  })
+})
 
 describe('buildTaskTree', () => {
   it('construit une section avec une tâche', () => {

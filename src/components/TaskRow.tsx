@@ -1,8 +1,8 @@
-import { useState } from 'react'
 import { Collapsible } from '@base-ui/react/collapsible'
 import { Chip } from './Chip'
 import { Chevron, StatusGlyph } from './glyphs'
 import { usePanel } from '../state/PanelContext'
+import { usePersistentFlag } from '../state/uiPersist'
 import type { TaskNode } from '../lib/tasks'
 
 /**
@@ -39,7 +39,8 @@ export function agentBrief(task: TaskNode): string {
 
 export function TaskRow({ task }: { task: TaskNode }) {
   const { openTask } = usePanel()
-  const [open, setOpen] = useState(false)
+  // Dépliage des sous-tâches persisté (survit à la navigation et au rechargement).
+  const [open, setOpen] = usePersistentFlag('backlog:tasks', task.id)
   const isDone = task.status === 'done'
   const subDone = task.subtasks.filter((s) => s.status === 'done').length
   const hasSubs = task.subtasks.length > 0

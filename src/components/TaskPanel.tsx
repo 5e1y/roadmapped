@@ -3,7 +3,8 @@ import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
 import { agentBrief } from './TaskRow'
 import { findTaskInTree } from '../lib/findTaskInTree'
-import { Select, TextInput, TextArea, MultiCombobox, blurOnEnter } from './ui'
+import { Select, TextInput, TextArea, MultiCombobox, ErrorBanner, blurOnEnter } from './ui'
+import type { FocusEvent } from 'react'
 import { activeTasks, archivedTasks } from '../lib/roadmap'
 import type { TaskNode } from '../lib/tasks'
 
@@ -51,7 +52,11 @@ function MetaLine({ label, value }: { label: string; value: string }) {
 export function TaskPanel({ id }: { id: number }) {
   const { tree, reload } = useTree()
   const { close } = usePanel()
-  const [errors, setErrors] = useState<string[]>([])
+  // Erreurs suivies PAR CHAMP : le succès d'un champ n'efface pas l'erreur d'un
+  // autre (clé '_action' pour archiver/supprimer).
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({})
+  const [saved, setSaved] = useState(false)
+  const [pending, setPending] = useState(false)
   const [copied, setCopied] = useState(false)
 
   const task = tree ? findTaskInTree(tree, id) : null
@@ -61,16 +66,41 @@ export function TaskPanel({ id }: { id: number }) {
   // laisser l'utilisateur le découvrir par une erreur au blur.
   const archived = task.file.includes('_archive/')
 
+  const allErrors = Object.values(fieldErrors).flat()
+  const setFieldErr = (field: string, errs: string[]) =>
+    setFieldErrors((prev) => {
+      const next = { ...prev }
+      if (errs.length) next[field] = errs
+      else delete next[field]
+      return next
+    })
+
   // Sauvegarde d'un champ : PATCH puis reload, sauf si la valeur n'a pas bougé.
-  const save = async (patch: Record<string, unknown>) => {
+  const save = async (field: string, patch: Record<string, unknown>) => {
     const errs = await patchTask(id, patch)
-    setErrors(errs)
-    if (errs.length === 0) await reload()
+    setFieldErr(field, errs)
+    if (errs.length === 0) {
+      setSaved(true)
+      window.setTimeout(() => setSaved(false), 1500)
+      await reload()
+    }
   }
   const saveIfChanged = (field: keyof TaskNode, value: unknown) => {
-    if (JSON.stringify(task[field] ?? null) !== JSON.stringify(value ?? null)) void save({ [field]: value })
+    if (JSON.stringify(task[field] ?? null) !== JSON.stringify(value ?? null)) void save(field, { [field]: value })
   }
   const csv = (v: string): string[] => v.split(',').map((s) => s.trim()).filter(Boolean)
+  // Champs CSV : après normalisation, réafficher la valeur CANONIQUE dans le
+  // champ pour que l'affiché ne mente jamais sur l'enregistré.
+  const csvBlur = (e: FocusEvent<HTMLInputElement>, field: 'tags' | 'refs') => {
+    const parsed = csv(e.target.value)
+    e.currentTarget.value = parsed.join(', ')
+    saveIfChanged(field, parsed)
+  }
+  const linksBlur = (e: FocusEvent<HTMLInputElement>) => {
+    const parsed = csv(e.target.value).map(Number).filter((n) => !Number.isNaN(n))
+    e.currentTarget.value = parsed.join(', ')
+    saveIfChanged('links', parsed)
+  }
 
   // Prérequis sélectionnables : actives + ARCHIVÉES (soi-même exclu). Les
   // archivées doivent figurer dans items, sinon une dep archivée existante
@@ -86,15 +116,31 @@ export function TaskPanel({ id }: { id: number }) {
     : []
 
   const archive = async () => {
-    const r = await fetch(`/api/tasks/${id}/archive`, { method: 'POST' })
-    const data = (await r.json()) as { ok: boolean; errors?: string[] }
-    if (data.ok) { await reload(); close() } else setErrors(data.errors ?? [])
+    if (pending) return
+    setPending(true)
+    try {
+      const r = await fetch(`/api/tasks/${id}/archive`, { method: 'POST' })
+      const data = (await r.json()) as { ok: boolean; errors?: string[] }
+      if (data.ok) { await reload(); close() } else setFieldErr('_action', data.errors ?? [])
+    } catch {
+      setFieldErr('_action', ['Échec réseau — la tâche n’a pas été archivée.'])
+    } finally {
+      setPending(false)
+    }
   }
   const remove = async () => {
+    if (pending) return
     if (!window.confirm(`Supprimer définitivement la tâche #${id} ? (l'id ne sera jamais réutilisé)`)) return
-    const r = await fetch(`/api/tasks/${id}`, { method: 'DELETE' })
-    const data = (await r.json()) as { ok: boolean; errors?: string[] }
-    if (data.ok) { await reload(); close() } else setErrors(data.errors ?? [])
+    setPending(true)
+    try {
+      const r = await fetch(`/api/tasks/${id}`, { method: 'DELETE' })
+      const data = (await r.json()) as { ok: boolean; errors?: string[] }
+      if (data.ok) { await reload(); close() } else setFieldErr('_action', data.errors ?? [])
+    } catch {
+      setFieldErr('_action', ['Échec réseau — la tâche n’a pas été supprimée.'])
+    } finally {
+      setPending(false)
+    }
   }
 
   const consignation = [
@@ -106,13 +152,19 @@ export function TaskPanel({ id }: { id: number }) {
 
   return (
     <div className="flex flex-col gap-4">
-      {errors.length > 0 && (
-        <ul className="flex flex-col gap-1 rounded border border-neutral-400 bg-neutral-100 px-3 py-2 text-xs text-neutral-700">
-          {errors.map((e, i) => <li key={i} className="font-mono">{e}</li>)}
-        </ul>
-      )}
+      <ErrorBanner errors={allErrors} />
 
-      <div className="font-mono text-xs text-neutral-400">#{task.id} · {task.file}</div>
+      <div className="flex items-center justify-between gap-2">
+        <div className="min-w-0 truncate font-mono text-xs text-neutral-400">#{task.id} · {task.file}</div>
+        {saved && (
+          <span className="flex shrink-0 items-center gap-1 text-[11px] text-neutral-500">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+              <path d="M1.5 5.5l2.5 2.5 4.5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            Enregistré
+          </span>
+        )}
+      </div>
 
       {archived && (
         <p className="rounded border border-neutral-200 bg-neutral-50 px-3 py-2 text-xs text-neutral-500">
@@ -195,7 +247,7 @@ export function TaskPanel({ id }: { id: number }) {
           defaultValue={task.tags.join(', ')}
           disabled={archived}
           onKeyDown={blurOnEnter}
-          onBlur={(e) => saveIfChanged('tags', csv(e.target.value))}
+          onBlur={(e) => csvBlur(e, 'tags')}
         />
       </Row>
       <Row label="Refs (séparés par des virgules)">
@@ -203,7 +255,7 @@ export function TaskPanel({ id }: { id: number }) {
           defaultValue={task.refs.join(', ')}
           disabled={archived}
           onKeyDown={blurOnEnter}
-          onBlur={(e) => saveIfChanged('refs', csv(e.target.value))}
+          onBlur={(e) => csvBlur(e, 'refs')}
         />
       </Row>
       <Row label="Liens (ids séparés par des virgules)">
@@ -211,7 +263,7 @@ export function TaskPanel({ id }: { id: number }) {
           defaultValue={task.links.join(', ')}
           disabled={archived}
           onKeyDown={blurOnEnter}
-          onBlur={(e) => saveIfChanged('links', csv(e.target.value).map(Number).filter((n) => !Number.isNaN(n)))}
+          onBlur={linksBlur}
         />
       </Row>
 
@@ -254,17 +306,19 @@ export function TaskPanel({ id }: { id: number }) {
           <button
             type="button"
             onClick={archive}
-            className="rounded border border-neutral-300 px-3 py-1.5 text-xs text-neutral-700 hover:bg-neutral-100"
+            disabled={pending}
+            className="rounded border border-neutral-300 px-3 py-1.5 text-xs text-neutral-700 hover:bg-neutral-100 disabled:opacity-50"
           >
-            Archiver
+            {pending ? 'Archivage…' : 'Archiver'}
           </button>
         )}
         <button
           type="button"
           onClick={remove}
-          className="rounded border border-neutral-300 px-3 py-1.5 text-xs text-neutral-700 hover:bg-neutral-900 hover:text-white"
+          disabled={pending}
+          className="rounded border border-neutral-300 px-3 py-1.5 text-xs text-neutral-700 hover:bg-neutral-900 hover:text-white disabled:opacity-50"
         >
-          Supprimer
+          {pending ? 'Suppression…' : 'Supprimer'}
         </button>
       </div>
     </div>

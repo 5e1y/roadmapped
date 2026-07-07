@@ -31,6 +31,26 @@ body {
 }
 
 /*
+ * Mode Colonnes de la Roadmap : barre de défilement horizontale toujours
+ * visible (fine, monochrome) = affordance de scroll pour la dernière colonne
+ * quand les jalons débordent de la largeur de l'écran.
+ */
+.roadmap-cols-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #d4d4d4 transparent;
+}
+.roadmap-cols-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+.roadmap-cols-scroll::-webkit-scrollbar-thumb {
+  background: #d4d4d4;
+  border-radius: 4px;
+}
+.roadmap-cols-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/*
  * Rendu markdown de la Vue Docs (lecteur seul, `marked` → HTML brut injecté).
  * Fait maison, monochrome strict (encre #171717, filets #e5e5e5, fond
  * neutre #f5f5f5 pour le code) — pas de plugin @tailwindcss/typography.

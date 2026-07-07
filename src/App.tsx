@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { TreeProvider } from './state/TreeContext'
 import { PanelProvider, usePanel } from './state/PanelContext'
 import { Sidebar, type View } from './components/Sidebar'
@@ -9,13 +9,14 @@ import { CreateTaskPanel, SectionPanel } from './components/SectionPanel'
 import { RoadmapView } from './components/RoadmapView'
 import { DocsView } from './components/DocsView'
 
-function MainView({ view, docPath }: {
+function MainView({ view, docPath, onSelectDoc }: {
   view: View
   docPath: string | null
+  onSelectDoc: (path: string) => void
 }) {
   if (view === 'backlog') return <Backlog />
   if (view === 'roadmap') return <RoadmapView />
-  return <DocsView path={docPath} />
+  return <DocsView path={docPath} onSelectDoc={onSelectDoc} />
 }
 
 function PanelHost() {
@@ -45,15 +46,45 @@ function PanelHost() {
 }
 
 function Shell() {
-  const [view, setView] = useState<View>('backlog')
-  const [docPath, setDocPath] = useState<string | null>(null)
+  // Vue + doc ouvert persistés (localStorage) : un rechargement revient là où on
+  // était, plus systématiquement au Backlog. (localStorage plutôt que le hash
+  // d'URL, qui entrerait en conflit avec les ancres #heading des docs.)
+  const [view, setView] = useState<View>(() => {
+    try {
+      const v = localStorage.getItem('nav:view')
+      if (v === 'backlog' || v === 'roadmap' || v === 'docs') return v
+    } catch { /* localStorage indisponible */ }
+    return 'backlog'
+  })
+  const [docPath, setDocPath] = useState<string | null>(() => {
+    try { return localStorage.getItem('nav:doc') } catch { return null }
+  })
+
+  useEffect(() => { try { localStorage.setItem('nav:view', view) } catch { /* ignore */ } }, [view])
+  useEffect(() => {
+    try {
+      if (docPath) localStorage.setItem('nav:doc', docPath)
+      else localStorage.removeItem('nav:doc')
+    } catch { /* ignore */ }
+  }, [docPath])
+
+  // Titre d'onglet = vue courante (ou nom du doc ouvert).
+  useEffect(() => {
+    const name =
+      view === 'docs' && docPath ? docPath.split('/').pop()!.replace(/\.md$/, '')
+      : view === 'roadmap' ? 'Roadmap'
+      : view === 'docs' ? 'Docs'
+      : 'Backlog'
+    document.title = `${name} · Roadmaped`
+  }, [view, docPath])
+
   return (
     <div className="flex h-screen w-screen overflow-hidden">
       <Sidebar view={view} onViewChange={setView} docPath={docPath} onSelectDoc={setDocPath} />
       {/* overflow-y-auto conservé pour le scroll du Backlog ; RoadmapView pose
           h-full et gère son propre scroll interne. */}
       <main className="min-w-0 flex-1 overflow-y-auto">
-        <MainView view={view} docPath={docPath} />
+        <MainView view={view} docPath={docPath} onSelectDoc={setDocPath} />
       </main>
       <PanelHost />
     </div>
