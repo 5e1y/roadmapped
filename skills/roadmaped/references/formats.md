@@ -4,19 +4,44 @@ Tout écart à ces formats est rejeté par la validation (`task.mjs validate`, r
 
 ## Arborescence
 
+`docs/tasks/` contient **exactement les 8 stages canoniques** ci-dessous — la séquence
+universelle d'un lancement de produit. Aucun autre dossier de section n'est admis :
+`validate` rejette un 9e dossier, un slug non canonique, ou un stage manquant.
+
+| Dossier | Titre canonique | Esprit (note par défaut à l'init) |
+|---|---|---|
+| `01-idea` | Idea Stage | L'idée initiale, sa validation, le problème/la cible. |
+| `02-initial` | Initial Stage | Nom, repo, structure juridique — l'existence du projet. |
+| `03-identity` | Identity Stage | Marque, domaine, présence sociale, positionnement. |
+| `04-build` | Build Stage | Construire le produit ET ses fondations business (site, emails, comptabilité). |
+| `05-gtm` | GTM Stage | Go-to-market : contenu, outbound, acquisition payante. |
+| `06-launch` | Launch Stage | Lancer : produit, site, moteur de contenu, qualification. |
+| `07-scale` | Scale Stage | Monitoring, SEO, communauté, deals, billing, support. |
+| `08-mature` | Mature Stage | Referral, legal & compliance, intégrations avancées. |
+
 ```
 docs/tasks/
 ├── _meta.yaml                  # { nextId: N } — compteur global, monotone, JAMAIS édité à la main
 ├── _roadmaps.yaml              # optionnel — roadmaps + jalons ordonnés
-├── 01-<slug>/                  # une section = un dossier, préfixe = priorité (01 = plus prioritaire)
+├── 01-idea/                    # stage canonique, créé au setup — jamais créé/renommé à la main
 │   ├── _section.yaml
 │   ├── 01-<slug>.yaml          # une tâche = un fichier
 │   ├── 02-<slug>.yaml
 │   └── 02-<slug>/              # dossier JUMEAU homonyme = sous-tâches de 02-<slug>.yaml
 │       └── 01-<slug>.yaml
+├── 02-initial/
+├── 03-identity/
+├── 04-build/
+├── 05-gtm/
+├── 06-launch/
+├── 07-scale/
+├── 08-mature/
 └── _archive/
-    └── 01-<slug>/              # miroir de la section d'origine, tâches livrées
+    └── 01-idea/                # miroir du stage d'origine, tâches livrées
 ```
+
+Un stage vide (aucune tâche) reste présent — il s'affiche estompé dans le dashboard,
+il ne disparaît jamais.
 
 ## Tâche — schéma complet, ordre des champs CANONIQUE
 
@@ -27,7 +52,7 @@ title: "Titre de la tâche"
 status: todo              # todo | in_progress | done — RIEN d'autre
 tags: [bug, perf]         # libres, [] si aucun
 size: M                   # S | M | L | null
-zone: store               # zone du code concernée (libre, null si non pertinent)
+team: engineering         # marketing | sales | support | operations | finance | legal | engineering | design — REQUIS, enum stricte
 detail: |
   Le QUOI et le POURQUOI, les pièges connus, la définition de fini.
 refs:                     # fichiers pertinents : code (chemin:ligne) ET documentation
@@ -46,21 +71,23 @@ verification: null        # COMMENT l'artefact a été vérifié (done --verific
 release: null             # version de release si applicable
 ```
 
-Invariants appliqués : ids uniques globalement (archive comprise) ; chaque id de `dependsOn` existe ; pas d'auto-dépendance ; graphe `dependsOn` acyclique ; `milestone` déclaré dans `_roadmaps.yaml` ; une dépendance vers une tâche archivée compte comme satisfaite (done de fait).
+Invariants appliqués : ids uniques globalement (archive comprise) ; chaque id de `dependsOn` existe ; pas d'auto-dépendance ; graphe `dependsOn` acyclique ; `milestone` déclaré dans `_roadmaps.yaml` ; une dépendance vers une tâche archivée compte comme satisfaite (done de fait) ; `team` présente et ∈ l'enum sur toute tâche active, sous-tâches comprises (l'archive n'est pas re-validée — les tâches archivées avant le refactor stages+teams gardent leur ancien schéma tel quel).
 
-## Section — `_section.yaml`
+## Stage — `_section.yaml`
 
 ```yaml
-title: "Solidité — zéro perte de données"
+title: "Idea Stage"
 status: open              # open | done | dormant | abandoned
-note: "Contexte de la section, d'où elle vient, pourquoi elle prime."   # ou null
+note: "L'idée initiale, sa validation, le problème/la cible."   # ou null — pré-rempli à l'init avec l'esprit du stage
 ```
 
-Création : `mkdir docs/tasks/NN-slug` + écrire `_section.yaml` + `task.mjs validate`. Le préfixe `NN` donne la priorité (le `next` du CLI sert la première tâche `todo` disponible de la section `open` la plus prioritaire).
+`title` est **verrouillé** par la validation : il doit être exactement le titre canonique du stage (tableau ci-dessus). `status` et `note` restent libres — un stage traversé se marque `done`, `note` s'enrichit avec le temps (best practices, contexte propre au projet).
+
+**Il n'y a pas de commande « créer une section »** : ni CLI, ni API, ni édition manuelle. Les 8 stages sont créés une fois pour toutes à l'init du setup (`references/setup.md`) et sont immuables — on ne les renomme ni ne les ajoute ni ne les supprime jamais. Le préfixe `NN` donne l'ordre d'affichage (déjà fixé par la séquence idea→mature).
 
 ## Roadmap
 
-**La vue Roadmap du dashboard = les sections du backlog** (une colonne par section active, ordre NN). L'état d'une tâche (fait / disponible / verrouillé) est **calculé** depuis `status` + `dependsOn` — jamais stocké. Il n'y a rien à créer : organiser les sections ET les `dependsOn`, c'est construire la roadmap.
+**La vue Roadmap du dashboard = les 8 stages du backlog** (une colonne par stage, dans l'ordre idea→mature, stage vide estompé). L'état d'une tâche (fait / disponible / verrouillé) est **calculé** depuis `status` + `dependsOn` — jamais stocké. Il n'y a rien à créer : classer chaque tâche dans le bon stage ET poser ses `dependsOn`, c'est construire la roadmap.
 
 ### `_roadmaps.yaml` (avancé, optionnel — non affiché par le dashboard)
 

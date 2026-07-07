@@ -21,11 +21,20 @@ you can read, diff, edit by hand and commit alongside your code.
 
 | Piece | Where | What it is |
 |---|---|---|
-| Task | `docs/tasks/<NN-section>/<NN-slug>.yaml` | The unit of work: status, dependencies, and the record of what shipped. |
-| Section | `docs/tasks/<NN-section>/_section.yaml` | A themed group of tasks. The numeric prefix is its priority. **Sections are the milestones**: the Roadmap view shows one column per section. |
+| Task | `docs/tasks/<NN-stage>/<NN-slug>.yaml` | The unit of work: status, dependencies, and the record of what shipped. Carries a `stage` (its folder — *when* in the launch sequence) and a `team` (*who* owns it). |
+| Stage | `docs/tasks/<NN-stage>/_section.yaml` | One of **8 fixed product-launch stages** — Idea, Initial, Identity, Build, GTM, Launch, Scale, Mature, always in that order. **Stages are the milestones**: the Roadmap view shows one column per stage, dimmed when empty. |
 | Spec | `docs/specs/YYYY-MM-DD-<topic>.md` | The approved design of a feature, written *before* its tasks exist. |
 | Doc | `docs/**/*.md` | Project knowledge. Tasks link to it through `refs`. |
-| Archive | `docs/tasks/_archive/<section>/` | The journal of delivered tasks. Never edited by hand. |
+| Archive | `docs/tasks/_archive/<stage>/` | The journal of delivered tasks. Never edited by hand. |
+
+The 8 stages, in order: `01-idea` (Idea Stage) · `02-initial` (Initial Stage) ·
+`03-identity` (Identity Stage) · `04-build` (Build Stage) · `05-gtm` (GTM Stage) ·
+`06-launch` (Launch Stage) · `07-scale` (Scale Stage) · `08-mature` (Mature Stage).
+They are created once at setup and are **immutable** — no 9th stage, no renaming, no
+"create a section" command anywhere (CLI, API, or dashboard). Every active task also
+carries a **team** — the business function that owns it — from a fixed enum:
+`marketing | sales | support | operations | finance | legal | engineering | design`.
+Stage says *when* in the launch; team says *who*.
 
 Three properties follow from this design and are enforced everywhere:
 
@@ -37,12 +46,13 @@ Three properties follow from this design and are enforced everywhere:
   every id. Deleting or archiving a task never frees its number.
 - **Dependency state is computed, never stored.** Whether a task is *done*,
   *available* or *locked* is derived on the fly from its `status` and its
-  `dependsOn` list. You organise sections and dependencies; the roadmap draws itself.
+  `dependsOn` list. You place tasks in their stage and set the dependencies; the
+  roadmap draws itself.
 
 There is no separate "plan" file. An implementation plan *is* a set of tasks chained
-by `dependsOn` (the order) and grouped into sections (the destination). Progress
-tracking *is* the task statuses. If you find yourself keeping a parallel checklist,
-you are fighting the tool.
+by `dependsOn` (the order) and placed into the stage they belong to (the destination)
+with the team that owns them. Progress tracking *is* the task statuses. If you find
+yourself keeping a parallel checklist, you are fighting the tool.
 
 ---
 
@@ -74,7 +84,7 @@ the Roadmaped root:
 
 | Key | Meaning | Default |
 |---|---|---|
-| `tasksDir` | Where the backlog lives (sections, tasks, `_meta.yaml`, archive). | `../docs/tasks` |
+| `tasksDir` | Where the backlog lives (stages, tasks, `_meta.yaml`, archive). | `../docs/tasks` |
 | `docsDir` | Where the Docs view reads markdown from. | `../docs` |
 
 Relative paths are resolved against the Roadmaped root (the folder that contains
@@ -96,19 +106,21 @@ task anywhere opens a **side panel** on the right.
 
 ### Backlog
 
-The working list. Sections in priority order (numeric prefix), each with a
-`done/total` count and its tasks below. A task row shows a status glyph
+The working list. The 8 stages in order (empty ones dimmed and collapsed by default),
+each with a `done/total` count and its tasks below. A task row shows a status glyph
 (`[ ]` todo, `[~]` in progress, `[x]` done), the `#id`, the title, and chips for its
-`code`, `size`, `zone` and `tags`. Sub-tasks are indented under their parent. This is
-where you do full CRUD: add sections and tasks, edit fields, change status.
+`code`, `size`, `team` and `tags`. Sub-tasks are indented under their parent. This is
+where you do full CRUD on tasks — add a task to any stage, edit fields, change status.
+There is no "add stage" button: the 8 stages are fixed.
 
 ### Roadmap — Columns and Graph
 
-The Roadmap view treats **your backlog sections as milestones**: one column per
-active section, ordered by priority. It has two modes, toggled in the header
-(*Colonnes* / *Graphe*).
+The Roadmap view treats **the 8 fixed stages as milestones**: always 8 columns, in
+idea→mature order. An empty stage renders dimmed and narrow (grey header, "0" count,
+no body) so the full path stays visible without competing for attention with the
+populated stages. It has two modes, toggled in the header (*Colonnes* / *Graphe*).
 
-- **Columns** — each section is a column with a progress bar and its task cards.
+- **Columns** — each stage is a column with a progress bar and its task cards.
 - **Graph** — an "achievement tree". Cards are laid out in dependency layers so a
   dependent card always sits below its prerequisite, and arrows draw the `dependsOn`
   edges. Zoom controls in the corner: `−` / `Ajuster` (fit to width) / `+`.
@@ -133,11 +145,11 @@ relative `.md` links. This guide itself renders here.
 
 ### Side panel
 
-Clicking a task opens it on the right for inline editing: title, status, size, zone,
-code, tags, `dependsOn` (chosen from existing tasks, archived ones included),
-`refs`, `links`, and the delivery fields `commit`, `outcome`, `verification`,
-`release`. Every edit goes through the same validate-then-rollback path as the CLI,
-so the panel can never save an invalid state.
+Clicking a task opens it on the right for inline editing: title, status, size, team
+(a ghost Select over the 8 fixed values), code, tags, `dependsOn` (chosen from
+existing tasks, archived ones included), `refs`, `links`, and the delivery fields
+`commit`, `outcome`, `verification`, `release`. Every edit goes through the same
+validate-then-rollback path as the CLI, so the panel can never save an invalid state.
 
 ---
 
@@ -151,68 +163,88 @@ node scripts/task.mjs <command> [arguments]
 ```
 
 > The CLI's own messages are currently in French; the outputs below are shown
-> verbatim. **Read** commands below were run against this repository's live backlog.
-> **Write** commands were run in an isolated sandbox (a copy of `src/` + `scripts/`
-> with a throwaway `tasksDir`), because writing to the real backlog is out of scope
-> for a doc task. The displayed file paths are always shown rooted at `docs/tasks/`.
+> verbatim. **Read** commands below were run against this repository's live backlog
+> (already migrated to stages+teams). **Write** commands were run in an isolated
+> sandbox (a copy of `src/` + `scripts/` with a throwaway `tasksDir`, seeded with the
+> 8 canonical stages — `add` refuses to write into anything else), because writing to
+> the real backlog is out of scope for a doc task. The displayed file paths are always
+> shown rooted at `docs/tasks/`.
 
 ### `list` — browse the backlog
 
 ```
-list [--section <key>] [--status todo|in_progress|done] [--archive] [--json]
+list [--section <key>] [--status todo|in_progress|done] [--team <t>] [--archive] [--json]
 ```
 
 ```console
-$ node scripts/task.mjs list --section 02-open-source
-02-open-source — Open source — repo public (open) 1/6
-  [x] #8   Fichiers communautaires (LICENSE, CONTRIBUTING, templates)  (S repo open-source)
-  [~] #9   CI GitHub Actions  (S repo open-source ci)
-  [~] #10  Guide d'utilisation complet  (M docs open-source docs)
-  [ ] #11  README public orienté adoption  (M docs open-source marketing)
-  [ ] #12  Spec — distribution et installation (npx roadmaped init)  (S repo spec open-source)
-  [ ] #13  Publication du repo GitHub public  (S repo open-source)
+$ node scripts/task.mjs list --section 05-gtm
+05-gtm — GTM Stage (open) 0/2
+  [ ] #19  Stratégie de communication  (M marketing marketing)
+  [ ] #20  Préparer les contenus d'annonce  (M marketing marketing)
 ```
 
-`--archive` folds the delivered sections in; `--status` filters; `--json` prints the
-full tree object for machine consumption.
+`--section` takes one of the 8 stage slugs (`01-idea` … `08-mature`) — there is no
+other value to give it. `--team` filters across all stages:
+
+```console
+$ node scripts/task.mjs list --team engineering
+01-idea — Idea Stage (done) 1/1
+  [x] #45  Idée initiale — Roadmaped, gestion de projet locale agent-first  (engineering)
+02-initial — Initial Stage (done) 2/2
+  [x] #46  Choisir le nom Roadmaped  (engineering)
+  [x] #47  Préparer le repo standalone  (engineering)
+04-build — Build Stage (open) 20/30
+  [x] #1   Audit UX/UI complet du dashboard  (S engineering ux audit)
+  [x] #2   Spec — panneau de détail de tâche clarifié  (S engineering ux spec)
+  [ ] #3   Spec — création de tâche fluide  (S engineering ux spec)
+  ...
+```
+
+`--archive` folds the delivered stages in; `--status` filters; `--json` prints the
+full tree object for machine consumption. There is no `--zone` any more — it is an
+unknown flag (see [`add`](#add--create-a-task) below).
 
 ### `show <id>` — full detail of one task
 
-Takes a **global** id (not a per-section number).
+Takes a **global** id (not a per-stage number).
 
 ```console
-$ node scripts/task.mjs show 22
-[x] #22  Champ outcome sur les tâches (matière à changelog)  (S core data-model)
-  section: 01-produit
-  fichier: docs/tasks/01-produit/08-champ-outcome-sur-les-taches-matiere-a-c.yaml
-  detail: Ajouter un champ optionnel outcome ...
-  refs: src/lib/tasks.ts · src/lib/validate.ts · ...
-  outcome: Chaque tâche peut consigner en une phrase ce qu'elle a livré ...
-  vérification: TDD : 2 tests rouges puis verts (24/24 taskWrites, 93/93 suite) ...
-  commit: 99a3fe9
+$ node scripts/task.mjs show 47
+[x] #47  Préparer le repo standalone  (engineering)
+  section: 02-initial
+  fichier: docs/tasks/02-initial/02-preparer-le-repo-standalone.yaml
+  detail: Extraire Roadmaped de son incubation dans ZineKit vers un repo autonome : code, dépendances (@types/node explicite), config, backlog.
+  outcome: Repo standalone Roadmaped 0.1.0 initialisé — extraction depuis ZineKit, arbre propre.
+  vérification: Commit d'extraction 388fbb2 ; npm run build et npm run test verts sur le repo autonome.
+  commit: 388fbb2
   dates: créée 2026-07-07 · terminée 2026-07-07 · source user
 ```
 
-Add `--json` to get the raw task object (ideal as a subagent brief).
+The `(engineering)` next to the title is the task's **team**. Add `--json` to get the
+raw task object (ideal as a subagent brief) — it includes the `team` field like any
+other.
 
 ### `next` — the one task to do now
 
 Returns the **first available todo** (all dependencies done) of the highest-priority
-`open` section. It never proposes a locked task — that is the whole point of "let's
+`open` stage. It never proposes a locked task — that is the whole point of "let's
 continue on the roadmap".
 
 ```console
 $ node scripts/task.mjs next
-[ ] #3   Spec — création de tâche fluide  (S dashboard ux spec)
-  section: 01-produit
-  fichier: docs/tasks/01-produit/03-spec-creation-de-tache-fluide.yaml
-  detail: Brainstorm avec Rémi : documenter la friction actuelle ...
-  refs: docs/specs/2026-07-07-roadmaped-v2-design.md · ...
+[ ] #16  Positionnement et copy du site  (M marketing marketing)
+  section: 03-identity
+  fichier: docs/tasks/03-identity/01-positionnement-et-copy-du-site.yaml
+  detail: Définir avec Rémi : audience (founders solo pilotés par agent IA, utilisateurs Claude Code), promesse centrale (« votre repo est votre outil de gestion de projet »), différenciateurs (fichiers plats sans SaaS ni base de données, agent-first, local, open source), structure de la landing (hero, démo animée, features, quickstart, lien GitHub/skill), langue (EN, FR, ou les deux), ton. Livrable : docs/site-copy.md avec la copy complète et approuvée, section par section. C'est un livrable éditorial — pas de spec technique requise.
+  refs: README.md · docs/specs/2026-07-07-roadmaped-v2-design.md
   dates: créée 2026-07-07 · source user
 ```
 
-If every remaining todo is locked, `next` exits 1 with an explanation. Note that
-in-progress tasks are skipped — `next` only surfaces *todo* work.
+`next` walked past the fully-`done` `01-idea` and `02-initial` stages and the
+partially-done `04-build` stage to reach `03-identity`, the earliest stage that still
+has available work — exactly the "which stage am I at" question stages exist to
+answer. If every remaining todo is locked, `next` exits 1 with an explanation. Note
+that in-progress tasks are skipped — `next` only surfaces *todo* work.
 
 ### `roadmap` — milestone rollup
 
@@ -225,8 +257,8 @@ Aucune roadmap (docs/tasks/_roadmaps.yaml absent).
 `docs/tasks/_roadmaps.yaml` file — the named milestone groupings, an advanced feature
 the dashboard does not display. This repository has no such file, so the command
 reports none. The **dashboard's** Roadmap view is the everyday roadmap and is driven
-by *sections*, not by `_roadmaps.yaml`. When `_roadmaps.yaml` does exist, the command
-prints progress and per-task state:
+by the *8 fixed stages*, not by `_roadmaps.yaml`. When `_roadmaps.yaml` does exist,
+the command prints progress and per-task state:
 
 ```console
 $ node scripts/task.mjs roadmap      # sandbox, with a _roadmaps.yaml present
@@ -240,32 +272,49 @@ launch — Product launch
 ### `validate` — check everything
 
 Validates the whole `docs/tasks/` tree: schema, global id uniqueness, `nextId`,
-dependency graph, archive included. Exit 1 on any error. **Run it after every manual
-edit.**
+dependency graph, archive included — plus the two invariants stages+teams added: the
+set of active section folders must be *exactly* the 8 canonical slugs (title included),
+and every active task must carry a `team` from the fixed enum. Exit 1 on any error.
+**Run it after every manual edit.**
 
 ```console
 $ node scripts/task.mjs validate
-OK — 5 sections actives (22 tâches), 0 sections archivées (0 tâches), nextId=23.
+OK — 8 sections actives (45 tâches), 0 sections archivées (0 tâches), nextId=52.
 ```
 
 ### `add` — create a task
 
 ```
-add --section <key> --title <t> [--detail <d>] [--tags a,b] [--size S|M|L]
-    [--zone <z>] [--code <c>] [--refs a,b] [--links 1,2]
+add --section <stage> --title <t> --team <team> [--detail <d>] [--tags a,b]
+    [--size S|M|L] [--code <c>] [--refs a,b] [--links 1,2]
     [--depends-on 1,2] [--milestone <slug>] [--source ai|user] [--json]
 ```
 
-The id is allocated from `_meta.yaml`; the file is created in the section folder.
+`--section` must be one of the 8 stage slugs and `--team` is **required**, one of
+`marketing | sales | support | operations | finance | legal | engineering | design`.
+The id is allocated from `_meta.yaml`; the file is created in the stage folder.
 
 ```console
-$ node scripts/task.mjs add --section 01-demo --title "Set up the database schema" \
-    --detail "Create the users and sessions tables." --tags backend,db --size M --zone store
-#1 créée → docs/tasks/01-demo/01-set-up-the-database-schema.yaml
+$ node scripts/task.mjs add --section 04-build --title "Set up the database schema" \
+    --team engineering --detail "Create the users and sessions tables." \
+    --tags backend,db --size M
+#1 créée → docs/tasks/04-build/01-set-up-the-database-schema.yaml
 
-$ node scripts/task.mjs add --section 01-demo --title "Wire the login endpoint" \
-    --depends-on 1 --size S --refs "src/api/auth.ts,docs/specs/2026-07-07-auth.md"
-#2 créée → docs/tasks/01-demo/02-wire-the-login-endpoint.yaml
+$ node scripts/task.mjs add --section 04-build --title "Wire the login endpoint" \
+    --team engineering --depends-on 1 --size S \
+    --refs "src/api/auth.ts,docs/specs/2026-07-07-auth.md"
+#2 créée → docs/tasks/04-build/02-wire-the-login-endpoint.yaml
+```
+
+Omitting `--team` refuses the write outright, and `--zone` is gone — both fail loud
+rather than silently falling back:
+
+```console
+$ node scripts/task.mjs add --section 04-build --title "Missing team" --size S
+Flag requis manquant : --team
+
+$ node scripts/task.mjs add --section 04-build --title "Zone flag" --team engineering --zone store
+Flag inconnu : --zone (autorisés : --section, --title, --team, --detail, --tags, --size, --code, --refs, --links, --depends-on, --milestone, --source, --json)
 ```
 
 `--source` defaults to `ai`; use `--source user` for work that comes from the user's
@@ -311,24 +360,37 @@ an honest `--outcome` and `--verification` is a usage rule, not an option.
 
 ```
 update <id> [--title] [--detail] [--status] [--tags] [--refs] [--links]
-    [--size] [--zone] [--code] [--source] [--commit] [--outcome] [--verification]
+    [--size] [--team] [--code] [--source] [--commit] [--outcome] [--verification]
     [--release] [--depends-on 1,2] [--milestone <slug>]
 ```
 
 ```console
-$ node scripts/task.mjs update 3 --status in_progress --code C1
-#3 mise à jour.
+$ node scripts/task.mjs update 2 --status in_progress --code C1
+#2 mise à jour.
+
+$ node scripts/task.mjs update 2 --team design
+#2 mise à jour.
 ```
 
 **Clearing a field — two different conventions:**
 
 | Field kind | Fields | How to clear |
 |---|---|---|
-| Scalar / string | `title`, `detail`, `status`, `size`, `zone`, `code`, `source`, `commit`, `outcome`, `verification`, `release` | pass the literal `null` |
+| Scalar / string | `title`, `detail`, `status`, `size`, `code`, `source`, `commit`, `outcome`, `verification`, `release` | pass the literal `null` |
 | Relations | `depends-on`, `milestone` | pass `null` |
 | Lists | `tags`, `refs`, `links` | pass `null` (or `""`) |
 
-Passing the literal `null` clears any field — scalar, relation, or list. For a list,
+`team` is **not** in that scalar list: it is required on every active task, so
+`--team null` is rejected by validation instead of clearing the field —
+
+```console
+$ node scripts/task.mjs update 2 --team null
+Échec :
+  - 04-build/2: team absente ou invalide (null) — attendu l'une de : marketing, sales, support, operations, finance, legal, engineering, design
+```
+
+— the write rolls back and the task keeps its previous team. For every other field,
+passing the literal `null` clears it — scalar, relation, or list. For a list,
 `--tags null` writes `tags: []` (verified), on a par with `--depends-on null`. The
 empty-string form `--tags ""` still works and stays valid, but is no longer required.
 
@@ -338,16 +400,16 @@ empty-string form `--tags ""` still works and stays valid, but is no longer requ
 ### `archive <id>` — move a delivered task out
 
 ```console
-$ node scripts/task.mjs archive 1
-#1 archivée → docs/tasks/_archive/…
-
 $ node scripts/task.mjs archive 2      # not done yet
 Échec :
   - #2 doit être done avant d'être archivée.
+
+$ node scripts/task.mjs archive 1
+#1 archivée → docs/tasks/_archive/…
 ```
 
 Requires `status: done`. Moves the task file (and its twin sub-task folder, if any)
-to `_archive/<section>/`. Record `commit`/`outcome`/`verification` **before**
+to `_archive/<stage>/`. Record `commit`/`outcome`/`verification` **before**
 archiving — the archive is your changelog and is never edited afterwards.
 
 ---
@@ -355,21 +417,46 @@ archiving — the archive is your changelog and is never edited afterwards.
 ## 5. YAML formats
 
 Anything that deviates from these formats is rejected by validation (rolled back on
-CLI/API writes). File tree:
+CLI/API writes). `docs/tasks/` holds **exactly the 8 canonical stages** below — no
+other section folder is admitted, and `validate` rejects a 9th one, a non-canonical
+slug, or a missing stage:
+
+| Folder | Canonical title | Spirit (default note at setup) |
+|---|---|---|
+| `01-idea` | Idea Stage | The initial idea, its validation, the problem/target. |
+| `02-initial` | Initial Stage | Name, repo, legal structure — the project's existence. |
+| `03-identity` | Identity Stage | Brand, domain, social presence, positioning. |
+| `04-build` | Build Stage | Build the product AND its business foundations (site, email, accounting). |
+| `05-gtm` | GTM Stage | Go-to-market: content, outbound, paid acquisition. |
+| `06-launch` | Launch Stage | Launch: product, site, content engine, qualification. |
+| `07-scale` | Scale Stage | Monitoring, SEO, community, deals, billing, support. |
+| `08-mature` | Mature Stage | Referral, legal & compliance, advanced integrations. |
+
+File tree:
 
 ```
 docs/tasks/
 ├── _meta.yaml                  # { nextId: N } — global counter, monotonic, never hand-edited
 ├── _roadmaps.yaml              # optional — named roadmaps + ordered milestones
-├── 01-<slug>/                  # a section = a folder; prefix = priority (01 = highest)
+├── 01-idea/                    # canonical stage, created once at setup — never created/renamed by hand
 │   ├── _section.yaml
 │   ├── 01-<slug>.yaml          # a task = a file
 │   ├── 02-<slug>.yaml
 │   └── 02-<slug>/              # twin folder = sub-tasks of 02-<slug>.yaml
 │       └── 01-<slug>.yaml
+├── 02-initial/
+├── 03-identity/
+├── 04-build/
+├── 05-gtm/
+├── 06-launch/
+├── 07-scale/
+├── 08-mature/
 └── _archive/
-    └── 01-<slug>/              # mirror of the origin section, delivered tasks
+    └── 01-idea/                # mirror of the origin stage, delivered tasks
 ```
+
+An empty stage (no tasks) still exists as a folder — the dashboard dims it, it is
+never removed.
 
 ### Task schema — field by field
 
@@ -383,7 +470,7 @@ The field order below is canonical (the CLI writes it this way).
 | `status` | `todo` \| `in_progress` \| `done` | Nothing else is valid. |
 | `tags` | string[] | Free labels; `[]` if none. |
 | `size` | `S` \| `M` \| `L` \| null | Rough effort. |
-| `zone` | string \| null | The area of code touched (free-form). |
+| `team` | `marketing`\|`sales`\|`support`\|`operations`\|`finance`\|`legal`\|`engineering`\|`design` | **Required** on every active task (sub-tasks included). Says *who* owns the work; the stage folder already says *when*. Validation rejects a missing or unknown value. |
 | `detail` | string \| null | The *what* and *why*, known traps, definition of done. |
 | `refs` | string[] | Relevant files: code (`path:line`) **and** documentation. |
 | `links` | int[] | Ids of related tasks (context, not order). |
@@ -399,7 +486,9 @@ The field order below is canonical (the CLI writes it this way).
 
 Enforced invariants: ids unique globally (archive included); every `dependsOn` id
 exists; no self-dependency; the `dependsOn` graph is acyclic; any `milestone` is
-declared in `_roadmaps.yaml`; a dependency on an archived task counts as satisfied.
+declared in `_roadmaps.yaml`; a dependency on an archived task counts as satisfied;
+`team` present and in the enum on every active task (the archive is not re-validated —
+tasks archived before the stages+teams refactor keep their pre-refactor schema as-is).
 
 ```yaml
 id: 42
@@ -408,7 +497,7 @@ title: "Wire the login endpoint"
 status: todo
 tags: [backend, db]
 size: S
-zone: store
+team: engineering
 detail: |
   Create the POST /login handler against the sessions table.
 refs:
@@ -426,23 +515,30 @@ verification: null
 release: null
 ```
 
-### Section — `_section.yaml`
+### Stage — `_section.yaml`
 
 ```yaml
-title: "Produit — UX/UI impeccable"
+title: "Build Stage"
 status: open              # open | done | dormant | abandoned
-note: "Why this section exists and why it takes priority."   # or null
+note: "Construire le produit ET ses fondations business (site, emails, comptabilité)."   # or null
 ```
 
-Create one by hand: `mkdir docs/tasks/NN-slug`, write `_section.yaml`, then
-`validate`. The `NN` prefix sets priority — `next` serves the first available todo of
-the highest-priority `open` section.
+`title` is **locked** by validation: it must be exactly the canonical title of the
+stage (table above). `status` and `note` stay free — a stage the project has fully
+moved past can be marked `done`; `note` is pre-filled with the stage's spirit at setup
+and can grow over time.
+
+**There is no "create a section" command** — not in the CLI, not in the API, not by
+hand. All 8 stages are created once at setup (see [§6](#6-working-with-a-claude-agent))
+and are immutable: never renamed, never added to, never removed. `next` serves the
+first available todo of the highest-priority `open` stage, in the fixed idea→mature
+order.
 
 ### Sub-tasks — twin folder
 
 The CLI creates only top-level tasks. A sub-task lives in a **twin folder** named
 exactly like its parent file (`04-x/` next to `04-x.yaml`). The clean way to make
-one: `add` the task in the section (so the id is allocated properly), then `mv` its
+one: `add` the task in the stage (so the id is allocated properly), then `mv` its
 file into the twin folder (use `mv`, not `git mv` — the file is untracked), then
 `validate`. Never consume `nextId` by hand. A parent's status is never recomputed
 from its sub-tasks (a deliberate decision).
@@ -466,7 +562,7 @@ slug.
 
 ### Archive
 
-`task.mjs archive <id>` moves the file (and twin folder) to `_archive/<section>/`. It
+`task.mjs archive <id>` moves the file (and twin folder) to `_archive/<stage>/`. It
 requires `status: done`. `completedAt` is guaranteed (set automatically on `done`),
 but `commit`/`outcome`/`verification` exist only if `done` supplied them — so record
 them before archiving. The archive is never modified by hand.
@@ -484,15 +580,19 @@ If `docs/tasks/_meta.yaml` does **not** exist, the repo is not initialised and t
 skill runs a setup phase first (see `references/setup.md`). It:
 
 1. **Inventories** what already exists, read-only: README, ROADMAP, TODO, BACKLOG,
-   checkbox plans, `docs/specs/`, existing docs, and the source tree (which gives
-   natural `zone` values).
-2. **Proposes a mapping** and waits for the user's approval: 3–8 sections ordered by
-   priority; every open item becomes a task (finished/checked items are *not*
-   imported); ordered plan steps become `dependsOn` chains; existing docs are wired
-   into `refs`. Phases/versions ("v1", "beta") become *ordered sections*, not a
-   separate file.
-3. **Initialises**: create `_meta.yaml` (`nextId: 1`), create each section,
-   `validate`, then create tasks **via the CLI only**, in dependency order.
+   checkbox plans, `docs/specs/`, existing docs, and the code/team structure (which
+   suggests a natural `team` for each item).
+2. **Maps everything onto the 8 fixed stages** and waits for the user's approval —
+   there is nothing to propose about the stages themselves (idea→mature, always the
+   same 8); the work is mapping. Every open item becomes a task in the stage it
+   belongs to (finished/checked items are *not* imported, except a couple of
+   retroactive `done` tasks in `01-idea`/`02-initial` to tell the project's real
+   history); every task gets a `team`; ordered plan steps become `dependsOn` chains;
+   existing docs are wired into `refs`. Phases/versions ("v1", "beta", "phase 2") map
+   onto the stage of the launch sequence they resemble — not a new section.
+3. **Initialises**: create `_meta.yaml` (`nextId: 1`), create the 8 canonical stage
+   folders with their locked titles, `validate`, then create tasks **via the CLI
+   only** (`add --team` required on each), in dependency order.
 
 If `_meta.yaml` already exists, the repo is initialised — the agent never re-runs
 setup (it would overwrite real state) and never creates a stray task in an
@@ -533,7 +633,8 @@ guardrails (TDD, root cause before fix, proof before claiming success).
   root cause, or stack a fourth patch on an approach that failed three times.
 
 Manual editing is allowed **only** for what the CLI does not cover — creating a
-section, creating a sub-task twin folder — and is **always** followed by `validate`.
+sub-task twin folder — and is **always** followed by `validate`. There is no "create
+a stage" edit to make: the 8 stages are fixed and created once at setup.
 
 ---
 
@@ -550,18 +651,20 @@ writing and **rolls back** on any error — schema violation, duplicate id, depe
 cycle, unknown milestone. You cannot end up in a half-written state.
 
 **Can I edit the files by hand?**
-Yes, for what the CLI does not do (creating sections and sub-task folders) — and then
-run `node scripts/task.mjs validate`. For everything the CLI covers (add, status
-changes, field edits, archiving), use the CLI: it allocates ids correctly and
-validates for you. If you do hand-edit a task, keep the field order canonical and run
-`validate` immediately.
+Yes, for what the CLI does not do (creating a sub-task twin folder) — and then run
+`node scripts/task.mjs validate`. There is no hand-edit for stages: the 8 are created
+once at setup and are immutable. For everything the CLI covers (add, status changes,
+field edits, archiving), use the CLI: it allocates ids correctly and validates for
+you. If you do hand-edit a task, keep the field order canonical and run `validate`
+immediately.
 
 **Where is the roadmap? The `roadmap` command says there is none.**
-The everyday roadmap is the **dashboard's Roadmap view**, built from your *sections*
-(one column per section, dependency state computed). The `roadmap` *command* reports
-the optional `_roadmaps.yaml` named milestones, which most projects (including this
-one) don't use — hence "Aucune roadmap". Sections *are* your milestones: to build a
-roadmap, order your sections and set your `dependsOn` edges.
+The everyday roadmap is the **dashboard's Roadmap view**, built from the *8 fixed
+stages* (one column per stage, idea→mature order, dependency state computed). The
+`roadmap` *command* reports the optional `_roadmaps.yaml` named milestones, which
+most projects (including this one) don't use — hence "Aucune roadmap". Stages *are*
+your milestones: to build a roadmap, put each task in the right stage and set your
+`dependsOn` edges — there is no section to create or order.
 
 **How do I clear a field with `update`?**
 Pass the literal `null` — it works for every field kind now: scalars,
