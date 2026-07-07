@@ -1,7 +1,7 @@
 id: 66
 code: null
 title: Token economy 3 — mini-tickets kind:quick (schéma, validation, CLI)
-status: in_progress
+status: done
 tags:
   - token-economy
   - data-model
@@ -28,8 +28,14 @@ dependsOn:
 milestone: null
 source: user
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-07"
+commit: e9150bd
+outcome: >-
+  Les mini-tickets existent : kind quick, créés en une commande, terminés avec un simple outcome —
+  la cérémonie d'un fix d'une ligne tient en 2 commandes
+verification: >-
+  TDD vérifié dans la suite (quick+size L rejeté, done quick sans verification accepté, task sans
+  refs → warning stderr, kind omis des YAML existants — grep kind: docs/tasks = zéro hors nouveaux).
+  Cycle réel joué par l'agent puis nettoyé (id 75 consommé, nextId=76, aucun résidu, validate OK
+  revérifié par moi).
 release: null
