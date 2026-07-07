@@ -1,0 +1,31 @@
+id: 88
+code: null
+title: Notepad — 4e tab, liste gauche, éditeur ghost autosave + raccourcis
+status: todo
+tags: []
+size: L
+team: design
+detail: >-
+  4e tab « Notepad » dans le header (après Docs). Layout : flanc gauche 420px (gabarit Docs/radar) =
+  liste des notes triées par modification décroissante (nom + date, bouton « + note » = Cmd+N) ;
+  zone principale = éditeur écriture-d'abord (textarea ghost plein écran, même peau que le détail de
+  tâche). Autosave au blur + debounce 800ms, indicateur « enregistré » discret. Titre = première
+  ligne (fichier <slug>.md renommé au fil de l'eau). Raccourcis : Cmd+N (nouvelle), Cmd+S (save
+  forcé). Compteur caractères ≈tokens (chars/4) en pied. AVERTISSEMENT affiché une fois : « notes
+  locales, non versionnées, non sauvegardées par git ». Consomme l'API #86. Fini quand :
+  créer/éditer/archiver une note au clavier seul (Cmd+N, taper, blur), autosave vérifié par
+  relecture du fichier sur disque, build vert.
+refs:
+  - docs/specs/2026-07-07-notepad.md
+  - src/components/DocsView.tsx
+links: []
+dependsOn:
+  - 86
+milestone: null
+source: ai
+createdAt: "2026-07-08"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

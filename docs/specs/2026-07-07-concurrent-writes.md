@@ -1,6 +1,6 @@
 # Spec — Écritures concurrentes : N agents sans collision
 
-**Date** : 2026-07-07 · **Statut** : DRAFT — en attente d'approbation Rémi
+**Date** : 2026-07-07 · **Statut** : APPROUVÉE par Rémi le 2026-07-08 (« enchaine sur le reste »)
 **Brainstorm** : 3 questions tranchées par Rémi le 2026-07-07 (mécanisme, périmètre, horodatage).
 
 ## Contexte et diagnostic

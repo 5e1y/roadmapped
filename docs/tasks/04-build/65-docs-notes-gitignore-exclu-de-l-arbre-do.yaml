@@ -1,0 +1,25 @@
+id: 87
+code: null
+title: docs/notes/ gitignoré + exclu de l'arbre Docs + création au 1er usage
+status: todo
+tags: []
+size: S
+team: engineering
+detail: >-
+  L'app crée docs/notes/ au premier usage ET ajoute 'docs/notes/' à .gitignore si absent
+  (idempotent). buildDocsTree exclut explicitement notes/ (comme node_modules) → invisible dans
+  l'onglet Docs. Fini quand : créer une note laisse git status propre (gitignoré), notes/ absent de
+  l'arbre Docs (test docs), ligne .gitignore ajoutée une seule fois.
+refs:
+  - docs/specs/2026-07-07-notepad.md
+  - src/server/docs.ts
+links: []
+dependsOn: []
+milestone: null
+source: ai
+createdAt: "2026-07-08"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

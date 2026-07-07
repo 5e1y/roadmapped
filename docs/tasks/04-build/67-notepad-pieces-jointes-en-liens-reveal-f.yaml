@@ -1,0 +1,28 @@
+id: 89
+code: null
+title: Notepad — pièces jointes en liens (reveal Finder) + « Copier pour l'agent »
+status: todo
+tags: []
+size: M
+team: design
+detail: >-
+  Drag & drop d'un fichier sur l'éditeur → insère son CHEMIN ABSOLU en ligne dédiée ([fichier:
+  /Users/…/maquette.png]) — JAMAIS de copie. Clic sur la ligne → POST /api/reveal (#86) ouvre le
+  Finder sur le fichier. « Copier pour l'agent » (Cmd+Shift+C) : copie la note nettoyée (lignes
+  [fichier:…] converties en chemins nus, titre en 1re ligne) — prête à coller au terminal ; le Cmd+C
+  brut reste possible. Fini quand : drag&drop → lien inséré, clic → Finder s'ouvre (vérifié macOS),
+  « Copier pour l'agent » produit le prompt nettoyé (asserté sur le presse-papier), build vert.
+refs:
+  - docs/specs/2026-07-07-notepad.md
+  - src/components/DocsView.tsx
+links: []
+dependsOn:
+  - 88
+milestone: null
+source: ai
+createdAt: "2026-07-08"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
