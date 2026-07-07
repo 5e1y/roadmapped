@@ -147,6 +147,7 @@ export function Select({
   items,
   disabled = false,
   ghost = false,
+  compact = false,
   'aria-label': ariaLabel,
 }: {
   /** Non contrôlé (parité avec les champs "au blur") : le choix s'affiche
@@ -157,6 +158,8 @@ export function Select({
   disabled?: boolean
   /** Peau camouflée (ghostCls) — pour les champs permanents du panneau. */
   ghost?: boolean
+  /** Variante header : hauteur réduite (py-1, text-xs, coins md). */
+  compact?: boolean
   'aria-label'?: string
 }) {
   return (
@@ -168,7 +171,7 @@ export function Select({
     >
       <BaseSelect.Trigger
         aria-label={ariaLabel}
-        className={`${ghost ? `${ghostCls} text-sm` : fieldCls} flex items-center justify-between gap-2 text-left data-[disabled]:bg-neutral-50 data-[disabled]:text-neutral-400 ${ghost ? 'data-[disabled]:bg-transparent' : ''}`}
+        className={`${ghost ? `${ghostCls} text-sm` : compact ? 'w-full rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-xs text-neutral-700 focus:border-neutral-900 focus:outline-none' : fieldCls} flex items-center justify-between gap-2 text-left data-[disabled]:bg-neutral-50 data-[disabled]:text-neutral-400 ${ghost ? 'data-[disabled]:bg-transparent' : ''}`}
       >
         <BaseSelect.Value />
         <BaseSelect.Icon className="shrink-0 text-neutral-400">

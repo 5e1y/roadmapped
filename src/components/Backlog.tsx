@@ -7,8 +7,9 @@ import { usePersistentStrings } from '../state/uiPersist'
 import { STAGES, type TaskNode } from '../lib/tasks'
 import { SectionAccordion } from './SectionAccordion'
 import { TaskRow } from './TaskRow'
-import { Select, ghostCls, type SelectItem } from './ui'
-import { useTeamFilter, useStageFilter } from './Sidebar'
+import { Select, type SelectItem } from './ui'
+import { useTeamFilter, useStageFilter } from '../state/filters'
+import { ViewHeader, TeamFilterMenu } from './ViewHeader'
 
 /** Accord singulier/pluriel élémentaire (français). */
 const plural = (n: number, s: string) => `${n} ${s}${n === 1 ? '' : 's'}`
@@ -86,46 +87,42 @@ export function Backlog() {
   const createIn = stageFilter || '04-build'
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-10">
-      <header className="mb-6 flex flex-col gap-4">
-        <div className="flex items-baseline justify-between">
-          <h1 className="text-lg font-semibold tracking-tight">Backlog</h1>
-          <p className="font-mono text-xs text-neutral-500">
-            {plural(open.length, 'ouverte')} · {plural(done.length, 'terminée')}
-          </p>
+    <div className="flex h-full flex-col">
+      {/* Header unifié (modèle Roadmap) : filtres en dropdowns, hauteur = panneau. */}
+      <ViewHeader title="Backlog" meta={`${plural(open.length, 'ouverte')} · ${plural(done.length, 'terminée')}`}>
+        <div className="relative w-56">
+          <Search size={13} className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-neutral-400" />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Rechercher…"
+            aria-label="Rechercher une tâche"
+            className="w-full rounded-md border border-neutral-300 bg-white py-1 pl-7 pr-2 text-xs text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-900 focus:outline-none"
+          />
         </div>
-        {/* Header de filtres : recherche + stage + création. */}
-        <div className="flex items-center gap-2">
-          <div className="relative min-w-0 flex-1">
-            <Search size={13} className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-neutral-400" />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Rechercher (titre, #id)…"
-              aria-label="Rechercher une tâche"
-              className={`${ghostCls} border-neutral-200 pl-7 text-sm`}
-            />
-          </div>
-          <div className="w-44 shrink-0">
-            {/* key : Select non contrôlé — remonté quand la sidebar change le filtre. */}
-            <Select
-              key={stageFilter}
-              aria-label="Filtrer par stage"
-              defaultValue={stageFilter}
-              items={STAGE_ITEMS}
-              onValueChange={setStageFilter}
-            />
-          </div>
-          <button
-            type="button"
-            onClick={() => openCreateTask(createIn)}
-            className="shrink-0 rounded border border-neutral-900 bg-neutral-900 px-3 py-1.5 text-xs text-white hover:bg-neutral-700"
-          >
-            + tâche
-          </button>
+        {/* key : Select non contrôlé — remonté si le filtre change ailleurs. */}
+        <div className="w-40">
+          <Select
+            key={stageFilter}
+            aria-label="Filtrer par stage"
+            defaultValue={stageFilter}
+            items={STAGE_ITEMS}
+            onValueChange={setStageFilter}
+            compact
+          />
         </div>
-      </header>
+        <TeamFilterMenu />
+        <button
+          type="button"
+          onClick={() => openCreateTask(createIn)}
+          className="rounded-md border border-neutral-900 bg-neutral-900 px-2.5 py-1 text-xs text-white hover:bg-neutral-700"
+        >
+          + tâche
+        </button>
+      </ViewHeader>
 
+      <div className="min-h-0 flex-1 overflow-y-auto">
+      <div className="mx-auto max-w-5xl px-6 py-8">
       <div className="grid grid-cols-2 gap-4">
         <section>
           <h2 className="mb-2 px-1 text-xs font-medium text-neutral-400">
@@ -167,6 +164,8 @@ export function Backlog() {
           </Accordion.Root>
         </section>
       )}
+      </div>
+      </div>
     </div>
   )
 }

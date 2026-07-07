@@ -2,8 +2,9 @@ import { useState, type KeyboardEvent } from 'react'
 import { Check } from 'trinil-react'
 import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
-import { Select, TextInput, TextArea, ErrorBanner } from './ui'
-import { TEAMS } from '../lib/tasks'
+import { Select, TextInput, TextArea, ErrorBanner, MultiCombobox, TagsCombobox } from './ui'
+import { STAGES, TEAMS } from '../lib/tasks'
+import { activeTasks, archivedTasks } from '../lib/roadmap'
 import type { SectionNode } from '../lib/tasks'
 
 const SECTION_STATUS_ITEMS: { value: SectionNode['status']; label: string }[] = [
@@ -13,15 +14,43 @@ const SECTION_STATUS_ITEMS: { value: SectionNode['status']; label: string }[] = 
   { value: 'abandoned', label: 'abandoned' },
 ]
 
-/** Création d'une tâche : titre obligatoire, section préremplie (non éditable). */
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label className="flex flex-col gap-1">
+      <span className="text-[11px] font-medium text-neutral-400">{label}</span>
+      {children}
+    </label>
+  )
+}
+
+/**
+ * Création d'une tâche : TOUS les champs d'un coup (décision Rémi) — stage
+ * compris — sauf la consignation (outcome/vérification/commit/release), qui
+ * appartient à la résolution. POST unique, puis ouverture du panneau créé.
+ */
 export function CreateTaskPanel({ section }: { section: string }) {
-  const { reload } = useTree()
+  const { tree, reload } = useTree()
   const { openTask, close } = usePanel()
+  const [stage, setStage] = useState(section)
   const [title, setTitle] = useState('')
-  const [detail, setDetail] = useState('')
   const [team, setTeam] = useState<string>('engineering')
+  const [tags, setTags] = useState<string[]>([])
+  const [size, setSize] = useState('')
+  const [code, setCode] = useState('')
+  const [detail, setDetail] = useState('')
+  const [dependsOn, setDependsOn] = useState<number[]>([])
+  const [links, setLinks] = useState<number[]>([])
+  const [refs, setRefs] = useState('')
   const [errors, setErrors] = useState<string[]>([])
   const [busy, setBusy] = useState(false)
+
+  const allTags = tree ? [...new Set([...activeTasks(tree), ...archivedTasks(tree)].flatMap((t) => t.tags))] : []
+  const relItems = tree
+    ? [
+        ...activeTasks(tree).map((t) => ({ value: String(t.id), label: `#${t.id} ${t.title}` })),
+        ...archivedTasks(tree).map((t) => ({ value: String(t.id), label: `#${t.id} ${t.title} (archivée)` })),
+      ]
+    : []
 
   const create = async () => {
     if (busy) return
@@ -32,11 +61,23 @@ export function CreateTaskPanel({ section }: { section: string }) {
       const r = await fetch('/api/tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ section, title, team, detail: detail === '' ? null : detail, source: 'user' }),
+        body: JSON.stringify({
+          section: stage,
+          title,
+          team,
+          tags,
+          size: size || null,
+          code: code.trim() || null,
+          detail: detail === '' ? null : detail,
+          dependsOn,
+          links,
+          refs: refs.split('\n').map((s) => s.trim()).filter(Boolean),
+          source: 'user',
+        }),
       })
       const data = (await r.json()) as { ok: boolean; errors?: string[]; task?: { id: number } }
       // Bascule directe sur le détail de la tâche créée : l'utilisateur voit le
-      // résultat et peut compléter (tags, taille…) sans re-chercher la ligne.
+      // résultat et peut compléter sans re-chercher la ligne.
       if (data.ok && data.task) { await reload(); openTask(data.task.id) }
       else setErrors(data.errors ?? ['Erreur inconnue.'])
     } catch {
@@ -53,25 +94,61 @@ export function CreateTaskPanel({ section }: { section: string }) {
   return (
     <div className="flex flex-col gap-4">
       <ErrorBanner errors={errors} />
-      <div className="font-mono text-xs text-neutral-400">Section : {section}</div>
-      <label className="flex flex-col gap-1">
-        <span className="text-[11px] font-medium text-neutral-400">Titre</span>
+      <Field label="Titre">
         <TextInput value={title} autoFocus disabled={busy} onChange={(e) => setTitle(e.target.value)} onKeyDown={createOnEnter} />
-      </label>
-      <label className="flex flex-col gap-1">
-        <span className="text-[11px] font-medium text-neutral-400">Team</span>
-        <Select
-          aria-label="Team"
-          defaultValue={team}
-          items={TEAMS.map((t) => ({ value: t, label: t }))}
-          disabled={busy}
-          onValueChange={setTeam}
-        />
-      </label>
-      <label className="flex flex-col gap-1">
-        <span className="text-[11px] font-medium text-neutral-400">Détail</span>
-        <TextArea className="min-h-[120px]" value={detail} disabled={busy} onChange={(e) => setDetail(e.target.value)} />
-      </label>
+      </Field>
+      <div className="grid grid-cols-2 gap-3">
+        <Field label="Stage">
+          <Select
+            aria-label="Stage"
+            defaultValue={stage}
+            items={STAGES.map((s) => ({ value: s.slug, label: s.title }))}
+            disabled={busy}
+            onValueChange={setStage}
+          />
+        </Field>
+        <Field label="Team">
+          <Select
+            aria-label="Team"
+            defaultValue={team}
+            items={TEAMS.map((t) => ({ value: t, label: t }))}
+            disabled={busy}
+            onValueChange={setTeam}
+          />
+        </Field>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <Field label="Taille">
+          <Select
+            aria-label="Taille"
+            defaultValue=""
+            items={[{ value: '', label: '—' }, { value: 'S', label: 'S' }, { value: 'M', label: 'M' }, { value: 'L', label: 'L' }]}
+            disabled={busy}
+            onValueChange={setSize}
+          />
+        </Field>
+        <Field label="Code">
+          <TextInput value={code} disabled={busy} placeholder="FEAT-12" onChange={(e) => setCode(e.target.value)} onKeyDown={createOnEnter} />
+        </Field>
+      </div>
+      <Field label="Tags">
+        <TagsCombobox tags={tags} suggestions={allTags} disabled={busy} onSave={setTags} />
+      </Field>
+      <Field label="Détail">
+        <TextArea className="min-h-[100px]" value={detail} disabled={busy} onChange={(e) => setDetail(e.target.value)} />
+      </Field>
+      <Field label="Dépend de">
+        <MultiCombobox aria-label="Dépend de" value={dependsOn} items={relItems}
+          placeholder="Rechercher une tâche prérequise…" onValueChange={setDependsOn} />
+      </Field>
+      <Field label="Liens">
+        <MultiCombobox aria-label="Liens" value={links} items={relItems}
+          placeholder="Rechercher une tâche liée…" onValueChange={setLinks} />
+      </Field>
+      <Field label="Refs (un chemin par ligne)">
+        <TextArea className="min-h-[60px] font-mono text-xs" value={refs} disabled={busy}
+          placeholder={'docs/specs/....md\nsrc/lib/....ts'} onChange={(e) => setRefs(e.target.value)} />
+      </Field>
       <div className="flex gap-2">
         <button type="button" onClick={create} disabled={busy}
           className="rounded border border-neutral-900 bg-neutral-900 px-3 py-1.5 text-xs text-white hover:bg-neutral-700 disabled:opacity-50">
