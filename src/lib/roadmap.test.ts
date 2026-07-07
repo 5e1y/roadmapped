@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { computeAvailability, missingPrereqs, topoLayers, milestoneProgress, activeTasks, archivedTasks, slugify } from './roadmap'
+import { computeAvailability, missingPrereqs, topoLayers, milestoneProgress, activeTasks, archivedTasks, slugify, reverseDependents, depState } from './roadmap'
 import type { TaskTree, TaskNode, SectionNode } from './tasks'
 
 /** Fabrique une tâche minimale ; les champs non pertinents prennent des défauts. */
@@ -103,6 +103,45 @@ describe('slugify', () => {
     expect(slugify('Lancement Produit')).toBe('lancement-produit')
     expect(slugify('Bêta 2')).toBe('beta-2')
     expect(slugify('   ')).toBe('roadmap') // fallback
+  })
+})
+
+describe('reverseDependents', () => {
+  it('aucun dépendant → liste vide', () => {
+    const t = tree([task(1, 'todo'), task(2, 'todo')])
+    expect(reverseDependents(t, 1)).toEqual([])
+  })
+  it('plusieurs dépendants, triés par id croissant', () => {
+    const t = tree([task(1, 'done'), task(3, 'todo', [1]), task(2, 'todo', [1])])
+    expect(reverseDependents(t, 1).map((x) => x.id)).toEqual([2, 3])
+  })
+  it('trouve un dépendant qui est une sous-tâche', () => {
+    const parent = { ...task(2, 'todo'), subtasks: [{ ...task(3, 'todo', [1]), subtasks: [] }] }
+    const t = tree([task(1, 'done'), parent])
+    expect(reverseDependents(t, 1).map((x) => x.id)).toEqual([3])
+  })
+})
+
+describe('depState', () => {
+  it('dep archivée → archived', () => {
+    const t = tree([task(2, 'todo', [1])], [task(1, 'done')])
+    expect(depState(t, 1)).toBe('archived')
+  })
+  it('dep done', () => {
+    const t = tree([task(1, 'done')])
+    expect(depState(t, 1)).toBe('done')
+  })
+  it('dep available (deps done)', () => {
+    const t = tree([task(1, 'done'), task(2, 'todo', [1])])
+    expect(depState(t, 2)).toBe('available')
+  })
+  it('dep locked (dep non faite)', () => {
+    const t = tree([task(1, 'todo'), task(2, 'todo', [1])])
+    expect(depState(t, 2)).toBe('locked')
+  })
+  it('id inconnu → archived (défensif, dep validée pointe toujours vers un id connu)', () => {
+    const t = tree([task(1, 'done')])
+    expect(depState(t, 999)).toBe('archived')
   })
 })
 
