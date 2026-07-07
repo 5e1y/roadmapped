@@ -22,9 +22,9 @@ beforeEach(() => {
 afterEach(() => rmSync(dir, { recursive: true, force: true }))
 
 describe('MCP — tools de lecture (#91)', () => {
-  it('expose exactement les 8 tools de lecture', () => {
+  it('expose les 14 tools (8 lecture + 6 écriture)', () => {
     expect(tools.map((t) => t.name).sort()).toEqual(
-      ['brief', 'list', 'next', 'roadmap', 'show', 'sitrep', 'take', 'validate'],
+      ['add', 'archive', 'brief', 'done', 'list', 'next', 'quick', 'roadmap', 'show', 'sitrep', 'start', 'take', 'update', 'validate'],
     )
   })
 
@@ -72,5 +72,46 @@ describe('MCP — tools de lecture (#91)', () => {
     const r = tool('take').handler({})
     expect(r.content[0].text).toMatch(/#1 démarrée/)
     expect(r.structuredContent.status).toBe('in_progress')
+  })
+})
+
+describe('MCP — tools d’écriture (#92)', () => {
+  it('add crée une tâche (structured.id) sans casser la validation', () => {
+    const r = tool('add').handler({ section: '04-build', title: 'Née par tool', team: 'design' })
+    expect(r.isError).toBeFalsy()
+    expect(r.structuredContent.id).toBe(2)
+    expect(makeTools(dir).find((t) => t.name === 'validate').handler({}).structuredContent.ok).toBe(true)
+  })
+
+  it('quick --start crée un mini-ticket in_progress', () => {
+    const r = tool('quick').handler({ title: 'Fix rapide', team: 'engineering', start: true })
+    expect(r.structuredContent.kind).toBe('quick')
+    expect(r.structuredContent.status).toBe('in_progress')
+  })
+
+  it('cycle complet PAR TOOLS : take → done, YAML relu conforme', () => {
+    tool('take').handler({}) // démarre #1
+    const done = tool('done').handler({ id: 1, outcome: 'livré via tool', verification: 'observé via tool' })
+    expect(done.isError).toBeFalsy()
+    expect(done.structuredContent.status).toBe('done')
+    expect(done.structuredContent.outcome).toBe('livré via tool')
+    // relecture indépendante du disque
+    expect(makeTools(dir).find((t) => t.name === 'show').handler({ id: 1 }).structuredContent.status).toBe('done')
+  })
+
+  it('écriture invalide (team hors enum) → isError ET rollback (arbre inchangé)', () => {
+    const before = makeTools(dir).find((t) => t.name === 'next').handler({ count: 9 }).structuredContent.length
+    const r = tool('add').handler({ section: '04-build', title: 'Mauvaise team', team: 'wizardry' })
+    expect(r.isError).toBe(true)
+    // rollback : la validation reste OK et aucune tâche n'a été ajoutée
+    expect(makeTools(dir).find((t) => t.name === 'validate').handler({}).structuredContent.ok).toBe(true)
+    expect(makeTools(dir).find((t) => t.name === 'next').handler({ count: 9 }).structuredContent.length).toBe(before)
+  })
+
+  it('done d’un quick sans outcome → isError (message du noyau)', () => {
+    const q = tool('quick').handler({ title: 'Sans outcome', team: 'engineering', start: true })
+    const r = tool('done').handler({ id: q.structuredContent.id })
+    expect(r.isError).toBe(true)
+    expect(r.content[0].text).toMatch(/outcome requis/)
   })
 })

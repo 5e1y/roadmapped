@@ -16,9 +16,12 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { ListToolsRequestSchema, CallToolRequestSchema } from '@modelcontextprotocol/sdk/types.js'
 import { loadPaths } from '../src/lib/paths.ts'
-import { treeWithErrors, readTree, findTask, startTask } from '../src/lib/taskWrites.ts'
+import {
+  treeWithErrors, readTree, findTask,
+  addTask, startTask, doneTask, updateTask, archiveTask,
+} from '../src/lib/taskWrites.ts'
 import { computeAvailability, activeTasks, nextQueue } from '../src/lib/roadmap.ts'
-import { briefText, sitrepText, taskLine, refLine, STATUS_FR } from '../src/lib/render.ts'
+import { briefText, sitrepText, taskLine, refLine, git } from '../src/lib/render.ts'
 import { TEAMS } from '../src/lib/tasks.ts'
 
 // ------------------------------------------------------------------ helpers de sortie
@@ -27,6 +30,10 @@ const ok = (text, structured) => ({
   ...(structured !== undefined ? { structuredContent: structured } : {}),
 })
 const fail = (text) => ({ content: [{ type: 'text', text }], isError: true })
+/** MutationResult → sortie MCP : succès (texte + tâche structurée) ou isError (erreurs autoportantes). */
+const fromRes = (res, okText, structured) =>
+  res.ok ? ok(okText, structured) : fail(`Échec :\n${res.errors.map((e) => `  - ${e}`).join('\n')}`)
+const splitList = (v) => (Array.isArray(v) ? v : typeof v === 'string' && v !== '' ? v.split(',').map((s) => s.trim()).filter(Boolean) : [])
 
 // Schémas de params réutilisés (le schéma EST la doc injectée dans le contexte).
 const S = {
@@ -187,6 +194,135 @@ export function makeTools(ROOT) {
         ? ok('OK — validation passée.', { ok: true, errors: [] })
         : fail(`${errors.length} erreur(s) :\n${errors.map((e) => `  - ${e}`).join('\n')}`)
     },
+  },
+
+  // ---------------------------------------------------------------- écriture (#92)
+  // Via taskWrites : validation + rollback + verrou (#83) HÉRITÉS. Une erreur métier
+  // (team hors enum, cycle, section absente) revient en isError avec le message du noyau.
+  {
+    name: 'add',
+    description: 'Crée une tâche. team REQUISE (enum fixe). Pour un mini-ticket, préférer quick.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        section: { type: 'string', description: 'slug de stage (01-idea … 08-mature)' },
+        title: { type: 'string' },
+        team: S.team,
+        detail: { type: 'string' },
+        tags: { type: 'array', items: { type: 'string' } },
+        size: { type: 'string', enum: ['S', 'M', 'L'] },
+        refs: { type: 'array', items: { type: 'string' } },
+        links: { type: 'array', items: { type: 'number' } },
+        dependsOn: { type: 'array', items: { type: 'number' } },
+        milestone: { type: 'string' },
+        source: { type: 'string', enum: ['ai', 'user'] },
+      },
+      required: ['section', 'title', 'team'], additionalProperties: false,
+    },
+    handler: (a) => {
+      const res = addTask(ROOT, {
+        section: a.section, title: a.title, team: a.team,
+        detail: a.detail ?? null, tags: splitList(a.tags), size: a.size ?? null,
+        refs: splitList(a.refs), links: splitList(a.links).map(Number),
+        dependsOn: splitList(a.dependsOn).map(Number), milestone: a.milestone ?? null,
+        source: a.source ?? 'ai',
+      })
+      return fromRes(res, res.ok ? `#${res.task.id} créée → ${res.task.file}` : '', res.ok ? res.task : undefined)
+    },
+  },
+  {
+    name: 'quick',
+    description: 'Crée un mini-ticket (kind:quick) : titre + team suffisent (stage défaut = 1er open). --start enchaîne le start. Au done, outcome requis mais verification facultative.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        title: { type: 'string' },
+        team: S.team,
+        stage: { type: 'string', description: 'slug de stage (défaut : 1er stage open)' },
+        tags: { type: 'array', items: { type: 'string' } },
+        start: { type: 'boolean', description: 'démarrer aussitôt (todo → in_progress)' },
+      },
+      required: ['title', 'team'], additionalProperties: false,
+    },
+    handler: (a) => {
+      const stage = a.stage ?? readTree(ROOT).sections.find((s) => s.status === 'open')?.key
+      if (!stage) return fail('Aucun stage "open" pour accueillir le quick — préciser stage.')
+      const res = addTask(ROOT, { section: stage, title: a.title, team: a.team, tags: splitList(a.tags), kind: 'quick' })
+      if (!res.ok) return fromRes(res)
+      if (a.start) {
+        const s = startTask(ROOT, res.task.id)
+        if (!s.ok) return fromRes(s)
+      }
+      const tree = readTree(ROOT)
+      const hit = findTask(tree, res.task.id)
+      return ok(`#${res.task.id} créée (quick)${a.start ? ' et démarrée' : ''}.`, hit.task)
+    },
+  },
+  {
+    name: 'start',
+    description: 'Démarre une tâche (todo → in_progress).',
+    inputSchema: S.id,
+    handler: ({ id }) => fromRes(startTask(ROOT, id), `#${id} démarrée (in_progress).`),
+  },
+  {
+    name: 'done',
+    description: 'Consigne une livraison (→ done). Sans commit, l\'app remplit le HEAD. outcome = ce qui a été livré ; verification = ce qui a été OBSERVÉ (facultative pour un quick).',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        id: { type: 'number' },
+        commit: { type: 'string', description: 'sha de livraison (défaut : HEAD courant)' },
+        outcome: { type: 'string' },
+        verification: { type: 'string' },
+        release: { type: 'string' },
+      },
+      required: ['id'], additionalProperties: false,
+    },
+    handler: (a) => {
+      // Autofill HEAD (#71) : l'agent ne lit plus git.
+      let commit = typeof a.commit === 'string' ? a.commit : undefined
+      if (commit === undefined) { const head = git('rev-parse --short HEAD'); if (head) commit = head }
+      const res = doneTask(ROOT, a.id, { commit, outcome: a.outcome, verification: a.verification, release: a.release })
+      if (!res.ok) return fromRes(res)
+      const tree = readTree(ROOT)
+      const hit = findTask(tree, a.id)
+      const suffix = res.warnings?.length ? `\n⚠ ${res.warnings.join('\n⚠ ')}` : ''
+      return ok(`#${a.id} terminée (done).${commit ? ` commit=${commit}.` : ''}${suffix}`, hit.task)
+    },
+  },
+  {
+    name: 'update',
+    description: 'Patch générique d\'une tâche (champs string, listes, dependsOn, milestone). Envoyer [] pour vider une liste.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        id: { type: 'number' },
+        title: { type: 'string' }, detail: { type: 'string' }, status: { type: 'string', enum: ['todo', 'in_progress', 'done'] },
+        size: { type: 'string' }, team: S.team, code: { type: 'string' }, source: { type: 'string', enum: ['ai', 'user'] },
+        commit: { type: 'string' }, outcome: { type: 'string' }, verification: { type: 'string' }, release: { type: 'string' },
+        milestone: { type: 'string' },
+        tags: { type: 'array', items: { type: 'string' } }, refs: { type: 'array', items: { type: 'string' } },
+        links: { type: 'array', items: { type: 'number' } }, dependsOn: { type: 'array', items: { type: 'number' } },
+      },
+      required: ['id'], additionalProperties: false,
+    },
+    handler: (a) => {
+      const patch = {}
+      for (const f of ['title', 'detail', 'status', 'size', 'team', 'code', 'source', 'commit', 'outcome', 'verification', 'release', 'milestone']) {
+        if (a[f] !== undefined) patch[f] = a[f]
+      }
+      if (a.tags !== undefined) patch.tags = splitList(a.tags)
+      if (a.refs !== undefined) patch.refs = splitList(a.refs)
+      if (a.links !== undefined) patch.links = splitList(a.links).map(Number)
+      if (a.dependsOn !== undefined) patch.dependsOn = splitList(a.dependsOn).map(Number)
+      return fromRes(updateTask(ROOT, a.id, patch), `#${a.id} mise à jour.`)
+    },
+  },
+  {
+    name: 'archive',
+    description: 'Déplace une tâche done vers _archive/<stage>/ (avec son dossier jumeau de sous-tâches).',
+    inputSchema: S.id,
+    handler: ({ id }) => fromRes(archiveTask(ROOT, id), `#${id} archivée → _archive/.`),
   },
   ]
 }

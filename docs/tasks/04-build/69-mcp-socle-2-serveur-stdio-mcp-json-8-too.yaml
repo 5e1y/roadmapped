@@ -1,7 +1,7 @@
 id: 91
 code: null
 title: MCP socle 2 — serveur stdio + .mcp.json + 8 tools de lecture
-status: in_progress
+status: done
 tags: []
 size: L
 team: engineering
@@ -24,8 +24,14 @@ dependsOn:
 milestone: null
 source: ai
 createdAt: "2026-07-08"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+completedAt: "2026-07-08"
+commit: db48ea4
+outcome: >-
+  Serveur MCP stdio (scripts/mcp-server.mjs, SDK officiel) + .mcp.json committé ; 8 tools de lecture
+  (sitrep, brief, show, next, take, list, roadmap, validate) aux schémas auto-documentés, sortie
+  texte + structuredContent, branchés sur render.ts/taskWrites (noyau unique CLI+MCP)
+verification: >-
+  Handshake JSON-RPC réel sur stdio : initialize → serverInfo roadmaped, tools/list → 8 tools avec
+  inputSchema, tools/call sitrep → rendu + structured.validateOk ; 9 tests handlers sur sandbox
+  (makeTools injectable) ; 201 tests + build verts
+release: v0.2
