@@ -7,6 +7,7 @@ import { Chip } from './Chip'
 import { countTasksDeep, SECTION_STATUS_FR, TEAM_ABBR } from '../lib/tasks'
 import type { SectionNode, TaskNode } from '../lib/tasks'
 import { useTeamFilter } from './Sidebar'
+import { useShowDone } from './RoadmapView'
 
 function ProgressBar({ done, total }: { done: number; total: number }) {
   const pct = total === 0 ? 0 : Math.round((done / total) * 100)
@@ -80,7 +81,9 @@ function TaskCard({ task, state, missing }: { task: TaskNode; state: Availabilit
  * colonnes, quelle que soit la longueur des notes. Les rangées vides gardent
  * un placeholder pour ne pas décaler les suivantes.
  */
-function Column({ section, avail }: { section: SectionNode; avail: Map<number, Availability> }) {
+function Column({ section, visible, avail }: { section: SectionNode; visible: TaskNode[]; avail: Map<number, Availability> }) {
+  // Compteurs et barre = RÉEL (section.tasks) ; les cartes rendues = visible
+  // (les done masqués ne changent pas la progression affichée).
   const { done, total } = countTasksDeep(section.tasks)
   const empty = section.tasks.length === 0
   const statusFr = section.status !== 'open' ? SECTION_STATUS_FR[section.status] : null
@@ -111,7 +114,7 @@ function Column({ section, avail }: { section: SectionNode; avail: Map<number, A
           Les cartes à liseré fort (sélection, disponible) passent au-dessus (z-10)
           pour que leur bordure ne soit pas mangée par la carte suivante. */}
       <div className="flex flex-col pt-1.5">
-        {section.tasks.map((t) => (
+        {visible.map((t) => (
           <TaskCard key={t.id} task={t} state={avail.get(t.id) ?? 'available'} missing={missingPrereqs(t, avail)} />
         ))}
       </div>
@@ -123,11 +126,13 @@ function Column({ section, avail }: { section: SectionNode; avail: Map<number, A
 export function RoadmapColumns() {
   const { tree } = useTree()
   const [teamFilter] = useTeamFilter()
+  const [showDone] = useShowDone()
   if (!tree) return null
   const matchTeam = (t: TaskNode) => teamFilter.length === 0 || teamFilter.includes(t.team)
   const sections = tree.sections
     .filter((s) => s.status !== 'abandoned')
     .map((s) => ({ ...s, tasks: s.tasks.filter(matchTeam) }))
+  const visibleOf = (s: SectionNode) => (showDone ? s.tasks : s.tasks.filter((t) => t.status !== 'done'))
   const avail = computeAvailability(tree)
 
   // Largeurs par colonne : un stage vide (ou vidé par le filtre) est resserré —
@@ -139,7 +144,7 @@ export function RoadmapColumns() {
       className="roadmap-cols-scroll grid h-full grid-flow-col grid-rows-[auto_auto_auto_1fr] gap-x-4 gap-y-1.5 overflow-x-auto px-6 pb-6"
       style={{ gridTemplateColumns: template }}
     >
-      {sections.map((s) => <Column key={s.key} section={s} avail={avail} />)}
+      {sections.map((s) => <Column key={s.key} section={s} visible={visibleOf(s)} avail={avail} />)}
     </div>
   )
 }

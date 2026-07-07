@@ -7,6 +7,7 @@ import { StatusGlyph } from './glyphs'
 import { TEAM_ABBR } from '../lib/tasks'
 import type { TaskNode } from '../lib/tasks'
 import { useTeamFilter } from './Sidebar'
+import { useShowDone } from './RoadmapView'
 
 const COL_W = 280, COL_GAP = 32, ROW_H = 96, CARD_W = 248, CARD_H = 72, PAD = 24, HEADER_H = 40
 
@@ -21,6 +22,7 @@ export function RoadmapGraph() {
   const { openTask } = usePanel()
   const scrollRef = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(1)
+  const [showDone] = useShowDone()
   if (!tree) return null
 
   const sections = tree.sections.filter((s) => s.status !== 'abandoned')
@@ -34,7 +36,23 @@ export function RoadmapGraph() {
   const avail = computeAvailability(tree)
   const colOf = new Map(sections.map((s, i) => [s.key, i]))
   // Nœuds = tâches de premier niveau des sections actives.
-  const nodes = sections.flatMap((s) => s.tasks.map((t) => ({ task: t, sectionKey: s.key })))
+  let nodes = sections.flatMap((s) => s.tasks.map((t) => ({ task: t, sectionKey: s.key })))
+  if (!showDone) {
+    // Done masqués SAUF s'ils sont dépendances (transitives) d'un ticket
+    // visible — les arêtes du graphe restent intègres.
+    const byId = new Map(nodes.map((n) => [n.task.id, n.task]))
+    const keep = new Set(nodes.filter((n) => n.task.status !== 'done').map((n) => n.task.id))
+    let grew = true
+    while (grew) {
+      grew = false
+      for (const id of [...keep]) {
+        for (const dep of byId.get(id)?.dependsOn ?? []) {
+          if (byId.has(dep) && !keep.has(dep)) { keep.add(dep); grew = true }
+        }
+      }
+    }
+    nodes = nodes.filter((n) => keep.has(n.task.id))
+  }
   const nodeIds = new Set(nodes.map((n) => n.task.id))
   const layerOf = new Map<number, number>()
   topoLayers(nodes.map((n) => n.task)).forEach((layerTasks, layer) => layerTasks.forEach((t) => layerOf.set(t.id, layer)))
@@ -114,7 +132,7 @@ export function RoadmapGraph() {
               <div key={s.key} className="absolute top-0 border-l border-neutral-100"
                 style={{ left: xOf(i) - COL_GAP / 2, width: COL_W + COL_GAP, height }}>
                 <div
-                  className={`truncate px-3 pt-3 text-xs font-semibold uppercase tracking-wide ${s.tasks.length === 0 ? 'text-neutral-200' : 'text-neutral-400'}`}
+                  className={`truncate px-3 pt-3 text-xs font-semibold ${s.tasks.length === 0 ? 'text-neutral-200' : 'text-neutral-400'}`}
                   title={s.title}
                 >
                   {s.title}

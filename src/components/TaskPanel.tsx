@@ -92,7 +92,7 @@ function caretOffsetFromClick(container: HTMLElement, x: number, y: number, raw:
 }
 
 function SectionLabel({ children }: { children: ReactNode }) {
-  return <div className="px-1.5 text-[11px] uppercase tracking-wide text-neutral-400">{children}</div>
+  return <div className="px-1.5 text-[11px] font-medium text-neutral-400">{children}</div>
 }
 
 function CheckIcon() {
@@ -243,7 +243,7 @@ function DoneForm({ task, busy, onCancel, onSubmit }: {
   return (
     <div className="mt-2 flex flex-col gap-2.5 border border-neutral-200 bg-neutral-50 p-3">
       <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-neutral-400">Outcome — ce qui a été livré (requis)</span>
+        <span className="text-[11px] font-medium text-neutral-400">Outcome — ce qui a été livré (requis)</span>
         <AutoTextArea
           autoFocus
           value={outcome}
@@ -252,16 +252,16 @@ function DoneForm({ task, busy, onCancel, onSubmit }: {
         />
       </label>
       <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-neutral-400">Vérification (optionnel)</span>
+        <span className="text-[11px] font-medium text-neutral-400">Vérification (optionnel)</span>
         <TextInput value={verification} onChange={(e) => setVerification(e.target.value)} placeholder="Comment l'artefact a été vérifié." />
       </label>
       <div className="grid grid-cols-2 gap-2">
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-neutral-400">Commit (optionnel)</span>
+          <span className="text-[11px] font-medium text-neutral-400">Commit (optionnel)</span>
           <TextInput value={commit} onChange={(e) => setCommit(e.target.value)} placeholder="sha" />
         </label>
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-neutral-400">Release (optionnel)</span>
+          <span className="text-[11px] font-medium text-neutral-400">Release (optionnel)</span>
           <TextInput value={release} onChange={(e) => setRelease(e.target.value)} placeholder="v0.1.0" />
         </label>
       </div>
@@ -683,7 +683,7 @@ function TaskPanelBody({ id }: { id: number }) {
       {/* Consignation : inputs ghost permanents (corrections rares mais directes). */}
       <div className="flex flex-col gap-1 border border-neutral-200 bg-neutral-50 px-2 py-2">
         <div className="flex items-center gap-2 px-1.5">
-          <div className="text-[11px] uppercase tracking-wide text-neutral-400">Consignation</div>
+          <div className="text-[11px] font-medium text-neutral-400">Consignation</div>
           <SavedTick show={savedIn('outcome', 'verification', 'commit', 'release')} />
         </div>
         <div className="px-1.5 text-xs text-neutral-500">
