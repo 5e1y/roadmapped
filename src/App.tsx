@@ -8,6 +8,7 @@ import { TaskPanel } from './components/TaskPanel'
 import { CreateTaskPanel, SectionPanel } from './components/SectionPanel'
 import { RoadmapView } from './components/RoadmapView'
 import { DocsView } from './components/DocsView'
+import { NotepadView } from './components/NotepadView'
 
 function MainView({ view, docPath, onSelectDoc }: {
   view: View
@@ -16,6 +17,7 @@ function MainView({ view, docPath, onSelectDoc }: {
 }) {
   if (view === 'backlog') return <Backlog />
   if (view === 'roadmap') return <RoadmapView />
+  if (view === 'notepad') return <NotepadView />
   return <DocsView path={docPath} onSelectDoc={onSelectDoc} />
 }
 
@@ -52,7 +54,7 @@ function Shell() {
   const [view, setView] = useState<View>(() => {
     try {
       const v = localStorage.getItem('nav:view')
-      if (v === 'backlog' || v === 'roadmap' || v === 'docs') return v
+      if (v === 'backlog' || v === 'roadmap' || v === 'docs' || v === 'notepad') return v
     } catch { /* localStorage indisponible */ }
     return 'backlog'
   })
@@ -88,6 +90,7 @@ function Shell() {
       view === 'docs' && docPath ? docPath.split('/').pop()!.replace(/\.md$/, '')
       : view === 'roadmap' ? 'Roadmap'
       : view === 'docs' ? 'Docs'
+      : view === 'notepad' ? 'Notepad'
       : 'Backlog'
     document.title = `${name} · Roadmaped`
   }, [view, docPath])

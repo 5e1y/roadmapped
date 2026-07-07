@@ -1,6 +1,6 @@
 import { createContext, useContext, type ReactNode } from 'react'
 
-export type View = 'backlog' | 'roadmap' | 'docs'
+export type View = 'backlog' | 'roadmap' | 'docs' | 'notepad'
 
 interface ViewState {
   view: View
