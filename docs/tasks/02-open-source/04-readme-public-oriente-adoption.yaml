@@ -1,7 +1,7 @@
 id: 11
 code: null
 title: README public orienté adoption
-status: todo
+status: in_progress
 tags:
   - open-source
   - marketing
@@ -24,5 +24,6 @@ source: ai
 createdAt: "2026-07-07"
 completedAt: null
 commit: null
+outcome: null
 verification: null
 release: null
