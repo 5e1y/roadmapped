@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prepare": "git config core.hooksPath scripts/githooks || true",
     "build": "tsc -b && vite build",
     "test": "vitest run",
     "validate": "node --experimental-strip-types scripts/task.mjs validate",

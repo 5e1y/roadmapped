@@ -1,0 +1,4 @@
+#!/bin/sh
+# Garde roadmaped (#100) : tout changement du repo = une unité roadmaped.
+# Refuse un commit produit sans tâche in_progress. Échappatoire : git commit --no-verify.
+exec node scripts/task.mjs guard

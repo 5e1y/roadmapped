@@ -359,3 +359,79 @@ describe('CLI brief — extraits d\'ancre & fraîcheur (#69)', () => {
     expect(r.stdout).toMatch(/ancre introuvable \(symbole "symboleAbsent"\)/)
   })
 })
+
+describe('CLI guard — enforcement au commit (#100)', () => {
+  // Le sandbox devient un vrai repo git : le guard se teste contre de VRAIS
+  // fichiers stagés, et le hook contre de VRAIES tentatives de commit.
+  const gitSb = (...args) => execFileSync('git', args, { cwd: sandbox, encoding: 'utf8' })
+  const runGuard = () => {
+    const r = spawnSync('node', [scriptPath(), 'guard'], { cwd: sandbox, encoding: 'utf8' })
+    return { code: r.status ?? 1, stderr: r.stderr ?? '' }
+  }
+  const initGit = () => {
+    gitSb('init', '-q')
+    gitSb('config', 'user.email', 'guard@test.local')
+    gitSb('config', 'user.name', 'Guard Test')
+  }
+  const stageProductFile = () => {
+    writeFileSync(join(sandbox, 'produit.txt'), 'x')
+    gitSb('add', 'produit.txt')
+  }
+
+  it('bloque un commit produit sans tâche in_progress — message : fichiers, quick, --no-verify', () => {
+    initGit()
+    stageProductFile()
+    const r = runGuard()
+    expect(r.code).toBe(1)
+    expect(r.stderr).toMatch(/produit\.txt/)
+    expect(r.stderr).toMatch(/quick "<titre>" --team/)
+    expect(r.stderr).toMatch(/--no-verify/)
+  })
+
+  it('passe quand une tâche est in_progress', () => {
+    initGit()
+    stageProductFile()
+    execFileSync('node', [scriptPath(), 'start', '1'], { encoding: 'utf8' })
+    expect(runGuard().code).toBe(0)
+  })
+
+  it('passe quand rien n’est stagé', () => {
+    initGit()
+    expect(runGuard().code).toBe(0)
+  })
+
+  it('passe pour la consignation pure (seuls des fichiers du backlog stagés)', () => {
+    initGit()
+    gitSb('add', 'tasks') // = le tasksDir du sandbox
+    expect(runGuard().code).toBe(0)
+  })
+
+  it('passe pendant un merge (MERGE_HEAD présent)', () => {
+    initGit()
+    writeFileSync(join(sandbox, 'base.txt'), 'b')
+    gitSb('add', 'base.txt')
+    gitSb('commit', '-q', '--no-verify', '-m', 'base')
+    writeFileSync(join(sandbox, '.git', 'MERGE_HEAD'), `${gitSb('rev-parse', 'HEAD').trim()}\n`)
+    stageProductFile()
+    expect(runGuard().code).toBe(0)
+  })
+
+  it('passe (muet) dans un repo roadmaped non initialisé (_meta.yaml absent)', () => {
+    initGit()
+    stageProductFile()
+    rmSync(join(tasksDir, '_meta.yaml'))
+    expect(runGuard().code).toBe(0)
+  })
+
+  it('hook de bout en bout : le VRAI commit est refusé sans ticket, accepté avec', () => {
+    initGit()
+    cpSync(join(repoRoot, 'scripts', 'githooks'), join(sandbox, 'scripts', 'githooks'), { recursive: true })
+    gitSb('config', 'core.hooksPath', 'scripts/githooks')
+    stageProductFile()
+    const refused = spawnSync('git', ['commit', '-q', '-m', 'hors ticket'], { cwd: sandbox, encoding: 'utf8' })
+    expect(refused.status).not.toBe(0)
+    execFileSync('node', [scriptPath(), 'start', '1'], { encoding: 'utf8' })
+    const accepted = spawnSync('git', ['commit', '-q', '-m', 'sous ticket'], { cwd: sandbox, encoding: 'utf8' })
+    expect(accepted.status).toBe(0)
+  })
+})
