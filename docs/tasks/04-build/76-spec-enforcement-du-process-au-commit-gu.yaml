@@ -1,7 +1,7 @@
 id: 98
 code: null
 title: Spec — enforcement du process au commit (guard bloquant + signal sitrep + skill)
-status: in_progress
+status: done
 tags:
   - process
   - spec
@@ -26,8 +26,14 @@ dependsOn: []
 milestone: null
 source: user
 createdAt: "2026-07-08T01:28:37"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: 763dae2
+outcome: >-
+  Spec docs/specs/2026-07-08-process-enforcement.md écrite et approuvée (hook BLOQUANT tranché avec
+  Rémi, liaison commit↔tâche différée, carte blanche sur l'exécution) ; décomposée en 4 tâches :
+  #100 guard+hook, #101 signal sitrep, #102 skill+resync, #103 guide (deps 100+101)
+verification: >-
+  2 questions tranchées par Rémi (bloquer / différer), challenge « skill seul suffirait ? » répondu
+  et arbitré carte blanche ; spec self-reviewée (zéro placeholder, alternatives écartées, périmètre
+  unique) ; roadmap montre un front de départ sensé (100-102 disponibles, 103 verrouillée)
 release: null

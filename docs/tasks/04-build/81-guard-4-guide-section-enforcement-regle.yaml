@@ -1,7 +1,7 @@
 id: 103
 code: null
 title: "Guard 4 — guide : section enforcement (règle, hook, signal, échappatoire)"
-status: todo
+status: done
 tags:
   - process
   - enforcement
@@ -26,8 +26,16 @@ dependsOn:
 milestone: null
 source: user
 createdAt: "2026-07-08T01:37:23"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: 9dc361e
+outcome: >-
+  Section « The pre-commit guard — every repo change is a ticket » dans docs/guide.md (fin §4) : la
+  règle done = frontière, le hook guard (activation npm prepare → core.hooksPath, exemptions
+  consignation/merge/non-initialisé/in_progress), le signal sitrep, --no-verify comme échappatoire
+  consciente ; doc process-enforcement-gap.md marqué ✅ TRAITÉ avec pointeurs spec #98 + livraisons
+  #100-103
+verification: >-
+  Section relue et vérifiée contre le comportement livré : conditions d'exemption identiques à
+  cmdGuard, message quick conforme, signal sitrep décrit tel qu'implémenté (muet si in_progress) ;
+  en-tête du doc source relu avec les 4 ids de livraison
 release: null

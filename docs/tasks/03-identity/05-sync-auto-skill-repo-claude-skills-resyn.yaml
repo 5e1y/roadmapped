@@ -1,0 +1,24 @@
+id: 106
+kind: quick
+code: null
+title: >-
+  Sync auto skill repo → ~/.claude/skills (resync manuel fait le 2026-07-08, dérive silencieuse
+  possible)
+status: todo
+tags:
+  - debt
+  - process
+size: null
+team: engineering
+detail: null
+refs: []
+links: []
+dependsOn: []
+milestone: null
+source: ai
+createdAt: "2026-07-08T01:46:24"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
