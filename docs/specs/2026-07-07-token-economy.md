@@ -4,6 +4,33 @@
 **Demande** : Rémi (carte blanche) · **Données** : dogfooding intégral de cette session
 (45+ tâches livrées en pilotant Roadmaped avec Roadmaped).
 
+## Mesure avant/après (livrée, #68)
+
+Scénario « routine » rejoué dans les deux mondes, coût compté en ≈tokens
+(caractères/4, arrondi à la dizaine). **AVANT** = `git show` du SKILL.md/références
+d'avant le commit `dffd595` (skill noyau) + sorties réelles des commandes
+d'alors (`next`/`show`/`start`/`done` séparés, cérémonie complète). **APRÈS** =
+sorties réelles des commandes actuelles (`take`/`brief`/`quick`, SKILL.md noyau
+seul). Détail du calcul et des commandes exécutées : voir §5.
+
+| Poste | AVANT (≈tokens) | APRÈS (≈tokens) | Réduction |
+|---|---|---|---|
+| Bootstrap session (SKILL.md + 3 références → SKILL.md noyau seul) | 6 990 | 1 000 | **−85,7 %** |
+| Ticket standard (`next`+`show`+`start`+`done` → `take`+`done`) | 500 | 280 | **−44,0 %** ⚠ |
+| Mini-changement (`add`+`start`+`done --verification` → `quick`+`done --outcome`) | 230 | 70 | **−69,6 %** ⚠ (sous la cible) |
+| Navigation de liens (ids nus → liens titrés dans `show`) | 970 | 270 | **−72,2 %** |
+| **Total (somme des 4 postes)** | **8 690** | **1 620** | **−81,4 %** |
+
+Honnêteté du chiffre : la cible de −70 % est **atteinte globalement** (−81,4 %),
+mais **pas poste par poste**. Le ticket standard ne gagne que −44 % : `show 28`
+(1 123 car.) et `brief 28` (1 074 car.) sont d'une densité quasi identique — le
+gain de `take` vient du nombre d'allers-retours évités (3 commandes → 1), pas
+d'une sortie plus courte. Le mini-changement (`quick`) est à −69,6 %, sous la
+barre des −70 % visée par la spec (les deux commandes `quick`/`done` restent
+elles-mêmes verbeuses : usage, confirmations). Le poste qui porte l'essentiel du
+gain global est le bootstrap (85,7 %, 6 990 des 8 690 tokens AVANT) — c'est lui
+qui tire le total au-dessus de la cible, pas une amélioration uniforme.
+
 ## Constat mesuré (session du 2026-07-07)
 
 | Poste | Coût actuel (≈ tokens) | Cause |
@@ -74,11 +101,35 @@ on généralise.
 - `brief` devient LA porte d'entrée d'exécution officielle du skill (remplace
   show --json dans les instructions de délégation).
 
-### 5. Mesure avant/après (preuve, pas promesse)
+### 5. Mesure avant/après (preuve, pas promesse) — LIVRÉE #68
 
 - Scénario scripté rejoué avant/après (bootstrap + 1 ticket standard + 1 quick +
-  1 navigation de liens), coût compté en ≈tokens (chars/4), consigné en tête de ce doc
-  à la livraison. Cible globale : **−70 % sur la routine**.
+  1 navigation de liens), coût compté en ≈tokens (chars/4), consigné en tête de ce doc.
+  **Résultat réel : −81,4 % global** (tableau en tête de doc). Poste par poste :
+  bootstrap −85,7 %, navigation de liens −72,2 %, mini-changement −69,6 %
+  (sous la cible), ticket standard −44,0 % (sous la cible — le gain de `take` est
+  dans le nombre d'allers-retours évités, pas dans la taille des sorties, déjà
+  denses des deux côtés).
+
+**Méthode et sources** (reproductible) :
+  - AVANT SKILL.md + références : `git show dffd595~1:skills/roadmaped/SKILL.md`
+    (9 199 car.) + `references/workflows.md` (6 201) + `references/formats.md`
+    (7 262) + `references/setup.md` (5 289) — dernière version avant le commit
+    `dffd595` (« skill noyau 50 lignes »). APRÈS : `skills/roadmaped/SKILL.md`
+    actuel seul (4 008 car.).
+  - Ticket standard AVANT : sortie réelle de `next` (825 car., a servi #16) +
+    `show 28` (1 123 car.) + messages types `start`/`done`
+    (`#28 démarrée (in_progress).` 29 car. · `#28 terminée (done).` 21 car.).
+    APRÈS : `#28 démarrée.` (15 car., 1re ligne de `take`) + sortie réelle de
+    `brief 28` (1 074 car.) + message type `done` (21 car.).
+  - Mini-changement AVANT/APRÈS : messages types représentatifs des deux
+    cérémonies (`add --detail "…"` ~380 car. de detail + réponse + `start` +
+    `done --verification "…"` = 916 car. total AVANT ; `quick "…" --team … --start`
+    + réponses + `done --outcome "…"` = 290 car. total APRÈS).
+  - Navigation de liens : `show 68` actuel (1 065 car., liens titrés) = coût APRÈS
+    complet. AVANT = même contenu + 2 `show` supplémentaires (~1 400 car. chacun,
+    moyenne observée) qu'un ancien format à ids nus aurait forcés pour identifier
+    les tâches liées.
 
 ## Hors périmètre (explicitement)
 

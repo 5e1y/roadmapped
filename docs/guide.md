@@ -168,12 +168,66 @@ node scripts/task.mjs <command> [arguments]
 > sandbox (a copy of `src/` + `scripts/` with a throwaway `tasksDir`, seeded with the
 > 8 canonical stages — `add` refuses to write into anything else), because writing to
 > the real backlog is out of scope for a doc task. The displayed file paths are always
-> shown rooted at `docs/tasks/`.
+> shown rooted at `docs/tasks/`. `take` and `quick "<title>"` are **not** demonstrated
+> live in this section (both start a real task) — their success output is documented
+> from source instead and flagged as such; only their read-only paths (`brief`, and
+> `quick`'s own flag-validation error) are shown running for real.
+
+### `take [--team <t>]` — open a session in one call
+
+The session-opening command: `next` + `start` + `brief`, in **one** call — the
+"let's continue on the roadmap" command. It picks the next available task (optionally
+filtered by `--team`), starts it, and prints the full execution brief, so no separate
+`show` is ever needed to get moving.
+
+```console
+$ node scripts/task.mjs take
+#16 démarrée.
+#16 Positionnement et copy du site
+stage: 03-identity · team: marketing · size: M
+detail: Définir avec Rémi : audience (…) …
+refs:
+  README.md
+  docs/specs/2026-07-07-roadmaped-v2-design.md
+done 16 --commit <sha> --outcome "…" --verification "…"
+```
+
+> Not run live (it would start a real task on this backlog and cannot be undone from
+> the CLI). The `#16 démarrée.` line and the `done …` reminder are the exact strings
+> `task.mjs` prints (source: `cmdTake`/`briefText`); the brief body below it is
+> identical in shape to the real `brief <id>` output shown next — `take` is
+> `next` + `start` + that same `briefText()` call, concatenated.
+
+### `brief <id>` — the dense execution context
+
+The CLI equivalent of "copy the agent brief": title, stage, team, size, `detail`,
+`refs`, **`dependsOn`/`links` with their title and status inline** (no bare ids), and
+a ready-to-paste `done` reminder. This is what `take` prints after starting the task,
+and what a delegated subagent should be handed instead of `show --json`.
+
+```console
+$ node scripts/task.mjs brief 28
+#28 Panneau v2 — SectionPanel aligné + passe finale des critères
+stage: 04-build · team: engineering · size: M · tags: panel, ux
+detail: Aligner SectionPanel sur le paradigme lecture d'abord (…) Fini quand : les 6 critères sont observés et consignés dans la vérification du done.
+refs:
+  docs/specs/2026-07-07-task-panel.md
+  src/components/SectionPanel.tsx
+  src/components/SidePanel.tsx
+dépend de:
+  #27 Panneau v2 — done guidé (mini-formulaire outcome) (faite)
+done 28 --commit <sha> --outcome "…" --verification "…"
+```
+
+Note the last line: for a `quick` task, `brief` prints `done <id> --commit <sha>
+--outcome "…"` (no `--verification` slot) since a quick only requires `--outcome` at
+`done`. `dependsOn`/`links` lines are only present when the task has any — this one has
+no `links`.
 
 ### `list` — browse the backlog
 
 ```
-list [--section <key>] [--status todo|in_progress|done] [--team <t>] [--archive] [--json]
+list [--section <key>] [--status todo|in_progress|done] [--team <t>] [--archive] [--json] [--json-full]
 ```
 
 ```console
@@ -200,9 +254,15 @@ $ node scripts/task.mjs list --team engineering
   ...
 ```
 
-`--archive` folds the delivered stages in; `--status` filters; `--json` prints the
-full tree object for machine consumption. There is no `--zone` any more — it is an
-unknown flag (see [`add`](#add--create-a-task) below).
+`--archive` folds the delivered stages in; `--status` filters. There is no `--zone`
+any more — it is an unknown flag (see [`add`](#add--create-a-task) below).
+
+**`--json` is LIGHT by default now**: `{ id, title, status, team, stage, size, kind }`
+per task (sub-tasks flattened in), not the full tree — this is the format meant for
+scripts/UI consumption and it is what actually gets read (no programmatic call-site
+was found reading the old full shape). Need the complete task object (detail, refs,
+dates, everything) for every task in one call — `--json-full`, which prints
+`{ nextId, sections }` exactly as `--json` used to before this change.
 
 ### `show <id>` — full detail of one task
 
@@ -221,8 +281,25 @@ $ node scripts/task.mjs show 47
 ```
 
 The `(engineering)` next to the title is the task's **team**. Add `--json` to get the
-raw task object (ideal as a subagent brief) — it includes the `team` field like any
-other.
+raw task object; for handing context to a subagent, prefer [`brief <id>`](#brief-id--the-dense-execution-context)
+instead — it is the official execution entry point now.
+
+**`dépend de`/`liées` print the linked task's title and status inline** — no more
+bare ids to chase with a follow-up `show`:
+
+```console
+$ node scripts/task.mjs show 68
+[~] #68  Token economy 5 — mesure avant/après et alignement doc  (S engineering token-economy docs)
+  section: 04-build
+  fichier: docs/tasks/04-build/51-token-economy-5-mesure-avant-apres-et-al.yaml
+  detail: ⛔ N'exécuter qu'après approbation de la spec par Rémi, et en DERNIER du chantier (dépend de 64-67). (…)
+  refs: docs/specs/2026-07-07-token-economy.md · docs/guide.md
+  dépend de: #64 Token economy 1 — skill scindé en noyau minimal + références routées (faite) · #67 Token economy 4 — zone Mini dans le Backlog (création inline, done rapide) (faite)
+  dates: créée 2026-07-07 · source user
+```
+
+`#64 … (faite)` tells you the dependency is done without a second `show 64` — the old
+bare-id format (`liées: #6`) used to force exactly that extra round trip.
 
 ### `next` — the one task to do now
 
@@ -245,6 +322,20 @@ partially-done `04-build` stage to reach `03-identity`, the earliest stage that 
 has available work — exactly the "which stage am I at" question stages exist to
 answer. If every remaining todo is locked, `next` exits 1 with an explanation. Note
 that in-progress tasks are skipped — `next` only surfaces *todo* work.
+
+**`--count N`** returns the next *N* available todos as a compact queue instead of one
+full detail block — the priority order (stage, then age) is **computed by the app**;
+consume it as given, never recompute it by re-reading the backlog:
+
+```console
+$ node scripts/task.mjs next --count 3
+[ ] #16  Positionnement et copy du site  (M marketing marketing)
+[ ] #3   Spec — création de tâche fluide  (S engineering ux spec)
+[ ] #4   Spec — vue Graphe v2 (lisibilité et navigation)  (S engineering ux spec)
+```
+
+`--team` filters the queue to one team; `--json` prints the same N task objects as an
+array (or a single object, unwrapped, when `--count` is 1 or omitted).
 
 ### `roadmap` — milestone rollup
 
@@ -320,6 +411,31 @@ Flag inconnu : --zone (autorisés : --section, --title, --team, --detail, --tags
 `--source` defaults to `ai`; use `--source user` for work that comes from the user's
 own notes. `--json` prints the created task object. The CLI only creates top-level
 tasks (see [sub-tasks](#5-yaml-formats)).
+
+### `quick "<title>"` — a mini-ticket, half the ceremony
+
+```
+quick "<title>" --team <t> [--stage <s>] [--tags a,b] [--start] [--json]
+```
+
+For work too small to deserve a full task: a one-line fix, a copy tweak. Only
+`--title` (positional) and `--team` are required — no `detail`, no `refs`, no `size`
+gate to think about (`--stage` defaults to the first `open` stage). It writes `kind:
+quick` onto the task (see [§5](#5-yaml-formats)); `--start` chains a `start` in the
+same call. At `done`, a quick only requires `--outcome` — `--verification` is
+optional, because for a one-line fix the outcome *is* the verification.
+
+```console
+$ node scripts/task.mjs quick
+quick : titre requis (1er argument positionnel, entre guillemets).
+Usage : quick "<titre>" --team <t> [--stage <s>] [--tags a,b] [--start] [--json]
+```
+
+> The success path (`quick "Fix chevron alignment" --team design --start`) is not run
+> live in this doc — it would create and start a real task on this backlog. Per
+> source (`cmdQuick`): it prints `#<id> créée (quick).`, then `#<id> démarrée.` if
+> `--start` was passed. Two commands close the loop: `quick "…" --team <t> --start`
+> then `done <id> --outcome "…"`.
 
 ### `start <id>` — begin work
 
@@ -412,6 +528,17 @@ Requires `status: done`. Moves the task file (and its twin sub-task folder, if a
 to `_archive/<stage>/`. Record `commit`/`outcome`/`verification` **before**
 archiving — the archive is your changelog and is never edited afterwards.
 
+### Errors are self-documenting
+
+Every command now fails loud with **that command's own usage line** on a bad or
+missing flag — never a generic error, never the full global `USAGE` dump. Two
+examples already above, both in this section: `add --zone store` prints `add`'s own
+allowed-flags list; `quick` with no title prints `quick`'s one-line usage. The rule
+generalizes across the whole CLI: `next`/`take`/`brief`/`show`/`done`/`update` all do
+the same. In practice this means `next/take/start/done/add/quick` never need a
+reference doc open to use correctly — `--help` and the error message itself are
+enough (see [§6](#6-working-with-a-claude-agent)'s golden rule).
+
 ---
 
 ## 5. YAML formats
@@ -465,6 +592,7 @@ The field order below is canonical (the CLI writes it this way).
 | Field | Type | Meaning |
 |---|---|---|
 | `id` | int | Allocated by the CLI from `_meta.yaml`. Never chosen by hand, never reused. |
+| `kind` | `task` \| `quick` | **Additive, omitted from the YAML for the default** (`task`) — only written when `quick "…"` creates the file. A quick skips `refs`/`detail` gates and only requires `--outcome` (no `--verification`) at `done`; validation rejects `kind: quick` combined with `size: L` (if it's big, it's a task). Never set by hand: created via `quick`, read via `show`/`brief`/`list --json`. |
 | `code` | string \| null | Optional short human code (e.g. `B3`). |
 | `title` | string | The task title. |
 | `status` | `todo` \| `in_progress` \| `done` | Nothing else is valid. |
@@ -487,8 +615,10 @@ The field order below is canonical (the CLI writes it this way).
 Enforced invariants: ids unique globally (archive included); every `dependsOn` id
 exists; no self-dependency; the `dependsOn` graph is acyclic; any `milestone` is
 declared in `_roadmaps.yaml`; a dependency on an archived task counts as satisfied;
-`team` present and in the enum on every active task (the archive is not re-validated —
-tasks archived before the stages+teams refactor keep their pre-refactor schema as-is).
+`team` present and in the enum on every active task; `kind` is either `task` or
+`quick`; a `quick` cannot have `size: L`; a `quick` cannot be marked `done` without an
+`outcome` (the archive is not re-validated — tasks archived before the stages+teams
+refactor keep their pre-refactor schema as-is).
 
 ```yaml
 id: 42
@@ -511,6 +641,33 @@ createdAt: "2026-07-07"
 completedAt: null
 commit: null
 outcome: null
+verification: null
+release: null
+```
+
+A `quick` file is the same shape minus the ceremony — `kind: quick` is the only extra
+field, `detail`/`refs`/`dependsOn` stay empty, and `verification` can legitimately
+stay `null` even once `done`:
+
+```yaml
+id: 69
+kind: quick
+code: null
+title: "Fix chevron alignment mobile nav"
+status: done
+tags: []
+size: null
+team: design
+detail: null
+refs: []
+links: []
+dependsOn: []
+milestone: null
+source: ai
+createdAt: "2026-07-07"
+completedAt: "2026-07-07"
+commit: null
+outcome: "Chevron du menu mobile recentré verticalement."
 verification: null
 release: null
 ```
@@ -574,10 +731,29 @@ them before archiving. The archive is never modified by hand.
 Roadmaped ships a Claude skill (`skills/roadmaped/`) so an agent drives the backlog in
 the correct format. The CLI is the agent's **only write interface**.
 
+**The skill is split**: `skills/roadmaped/SKILL.md` is a ≤50-line **core** — boussole,
+decision ladder, the cycle, one line per command, the prohibitions, and a **router** —
+and it is the *only* thing a routine session loads. Everything else lives in
+`references/` and is opened **only on its own explicit trigger**, never speculatively:
+
+| Trigger | Reference |
+|---|---|
+| Breaking a spec down / planning multi-task work | `references/planning.md` |
+| First setup of a repo (`docs/tasks/_meta.yaml` absent) | `references/setup.md` |
+| Hand-editing a YAML (sub-tasks, uncovered cases) | `references/formats.md` |
+| Delegating to subagents | `references/delegation.md` |
+
+For `next`/`take`/`start`/`done`/`add`/`quick` — the everyday commands — **no
+reference is opened at all**: the CLI is self-contained, `--help` and the
+[self-documenting error messages](#errors-are-self-documenting) are the only guidance
+needed. This is the core's explicit "golden rule" and the main token-economy lever
+(see `docs/specs/2026-07-07-token-economy.md`): a routine session costs one SKILL.md
+read, not a SKILL.md plus three references.
+
 ### First use in a repo — mandatory setup
 
 If `docs/tasks/_meta.yaml` does **not** exist, the repo is not initialised and the
-skill runs a setup phase first (see `references/setup.md`). It:
+skill routes to the setup phase (`references/setup.md`). It:
 
 1. **Inventories** what already exists, read-only: README, ROADMAP, TODO, BACKLOG,
    checkbox plans, `docs/specs/`, existing docs, and the code/team structure (which
@@ -598,25 +774,41 @@ If `_meta.yaml` already exists, the repo is initialised — the agent never re-r
 setup (it would overwrite real state) and never creates a stray task in an
 uninitialised repo.
 
-### The work cycle: `next → start → work → done`
+### The decision ladder — stop at the first rung that holds
 
-1. **Take** — `next` (or the id the user asked for). If a task is locked, do its
-   prerequisites first; never route around a dependency.
-2. **Start** — `start <id>` before the first line of code.
-3. **Work** — follow `detail` and the documents in `refs`; read the referenced spec
+Written into the skill's core, run before creating anything:
+
+1. **Does this change even deserve to exist?** If not, create nothing.
+2. **Does a `quick` suffice** (isolated fix, size S, no decision to arbitrate)? →
+   `quick "…" --team <t> [--start]`, `done <id> --outcome "…"` alone closes it.
+3. **Otherwise, does one task suffice?** → `add`, the normal cycle below.
+4. **Otherwise** (multi-task, an architecture choice to settle): spec first, **then**
+   the tasks (`references/planning.md`) — the hard gate from §1 of that reference.
+
+### The work cycle: `take → work → done`
+
+1. **Take** — `take [--team <t>]`: `next` + `start` + `brief`, **in one call**. It
+   picks the next available task (or the id the user asked for, via `start <id>`
+   directly if already chosen), starts it, and prints the full execution brief —
+   deps/links titled, refs, the exact `done` line to use at the end. No separate
+   `show` needed to get moving. If the task is locked, do its prerequisites first;
+   never route around a dependency.
+2. **Work** — follow `detail` and the documents in `refs`; read the referenced spec
    *before* coding.
-4. **Verify the real artifact** — the file produced, the pixel rendered, the command
+3. **Verify the real artifact** — the file produced, the pixel rendered, the command
    run. Not just a typecheck.
-5. **Record** — `done <id> --commit <sha> --outcome "…" --verification "…"`. The
-   outcome says what shipped in one user-facing sentence; the verification says what
-   was *observed*, never "it works".
-6. **Archive** — when the user closes a piece of work: `archive <id>`.
+4. **Record** — `done <id> --commit <sha> --outcome "…" --verification "…"` for a
+   task (`--outcome` alone for a `quick` — it *is* the verification). The outcome says
+   what shipped in one user-facing sentence; the verification says what was
+   *observed*, never "it works".
+5. **Archive** — when the user closes a piece of work: `archive <id>`.
 
-For anything beyond a single task, the skill's `references/workflows.md` is the
-operating manual: ① Idea → Spec (hard gate: no code before an approved spec),
-② Spec → Tasks (`detail` carries the plan, `dependsOn` is the real order),
-③ execution solo or delegated to fresh subagents (review before `done`), ④ transverse
-guardrails (TDD, root cause before fix, proof before claiming success).
+For anything beyond a single task — decomposing a spec into a task graph, sizing,
+sequencing with `dependsOn` — `references/planning.md` is the operating manual (①
+Idea → Spec hard gate, ② Spec → Tasks). Delegating solo work to fresh subagents lives
+in `references/delegation.md` (③), which now hands out `brief <id>` instead of `show
+--json` as the subagent's context. Transverse guardrails (TDD, root cause before fix,
+proof before claiming success) are in the core's prohibitions below.
 
 ### Key prohibitions
 
@@ -626,11 +818,15 @@ guardrails (TDD, root cause before fix, proof before claiming success).
 - Do **not** touch `_meta.yaml`, reuse an id, or edit the archive.
 - Do **not** write a status outside `todo|in_progress|done`, or a size outside
   `S|M|L`.
-- Do **not** `done` without an honest `--verification` that you actually ran.
+- Do **not** `done` without an honest `--outcome`, and for a `task` (not a `quick`) a
+  `--verification` you actually ran — never "it should work".
 - Do **not** create markdown checklist plans or a parallel progress ledger — plans
   are `dependsOn` tasks, tracking is their status.
-- Do **not** code before the spec is approved, fix a bug without understanding the
-  root cause, or stack a fourth patch on an approach that failed three times.
+- Do **not** code non-trivial work (ladder rung 4) before the spec is approved, fix a
+  bug without understanding the root cause, or stack a fourth patch on an approach
+  that failed three times.
+- Do **not** create a 9th stage, rename a stage, or write a `kind` outside `task |
+  quick`.
 
 Manual editing is allowed **only** for what the CLI does not cover — creating a
 sub-task twin folder — and is **always** followed by `validate`. There is no "create
@@ -681,3 +877,16 @@ changelog.
 Nothing technical — `start` and `done` accept a locked task without error. Respecting
 locks is the agent's discipline; the dashboard and `next` simply never *offer* locked
 work.
+
+**`quick` or `add`? Which one do I use?**
+Run the [decision ladder](#the-decision-ladder--stop-at-the-first-rung-that-holds):
+isolated fix, size S, nothing to decide → `quick`. Anything needing `detail`, `refs`,
+`dependsOn`, or a size beyond S → `add`. Validation enforces the boundary from one
+side (`kind: quick` + `size: L` is rejected) but not the other — nothing stops using
+`add` for a one-liner, it is just more ceremony than the work needs.
+
+**Why does `list --json` look different from before?**
+`--json` became the *light* shape (`id, title, status, team, stage, size, kind`) —
+it's what scripts/UI actually consume, and the full task objects were dead weight in
+that path. If you need the complete tree (every field, every task) in one call, ask
+for `--json-full` instead — it is the old `--json` shape, unchanged.
