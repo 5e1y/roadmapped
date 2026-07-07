@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { ViewHeader } from './ViewHeader'
 
-// Notepad (#88) — incubateur d'idées local. Liste à gauche (420px, gabarit Docs),
-// éditeur ghost écriture-d'abord à droite. Autosave (blur + debounce 800ms), titre =
-// 1re ligne (le serveur renomme au fil de l'eau, #86). Notes gitignorées (#87) : rien
-// n'entre dans l'historique. Pièces jointes & « Copier pour l'agent » → #89.
+// Notepad (#88) — incubateur d'idées local. Liste à gauche (gabarit ligne de backlog :
+// pas de bords arrondis), éditeur ghost écriture-d'abord centré à droite. À l'ouverture,
+// on est projeté directement dans une note en édition. Autosave (blur + debounce 800ms),
+// titre = 1re ligne (le serveur renomme au fil de l'eau, #86). Notes gitignorées (#87).
 
 interface NoteMeta { slug: string; title: string; modified: number }
 
@@ -13,7 +13,9 @@ const jsonOk = async (r: Response) => {
   if (!r.ok || d?.ok === false) throw new Error(d?.errors?.join(' · ') ?? `HTTP ${r.status}`)
   return d
 }
-
+const fetchNotes = async (): Promise<NoteMeta[]> => {
+  try { return (await jsonOk(await fetch('/api/notes'))).notes ?? [] } catch { return [] }
+}
 const relDate = (ms: number) => new Date(ms).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' })
 
 export function NotepadView() {
@@ -30,16 +32,13 @@ export function NotepadView() {
   slugRef.current = slug
   contentRef.current = content
 
-  const refreshList = useCallback(async () => {
-    try { setNotes((await jsonOk(await fetch('/api/notes'))).notes ?? []) } catch { /* liste best-effort */ }
-  }, [])
-
-  useEffect(() => { refreshList() }, [refreshList])
+  const refreshList = useCallback(async () => { setNotes(await fetchNotes()) }, [])
 
   const openNote = useCallback(async (s: string) => {
     try {
       const d = await jsonOk(await fetch(`/api/notes/${s}`))
       setSlug(d.slug); setContent(d.content ?? ''); setStatus('idle')
+      requestAnimationFrame(() => textareaRef.current?.focus())
     } catch { /* note disparue → ignorer */ }
   }, [])
 
@@ -66,7 +65,7 @@ export function NotepadView() {
     return () => clearTimeout(t)
   }, [content, slug, save])
 
-  const newNote = useCallback(async () => {
+  const createNote = useCallback(async () => {
     await save() // fige la note courante avant d'en ouvrir une neuve
     try {
       const d = await jsonOk(await fetch('/api/notes', {
@@ -78,28 +77,39 @@ export function NotepadView() {
     } catch { /* création échouée → rien */ }
   }, [save, refreshList])
 
+  // À l'ouverture : projeté directement dans une note en édition (la plus récente,
+  // ou une neuve si le carnet est vide). Une seule fois au montage.
+  const booted = useRef(false)
+  useEffect(() => {
+    if (booted.current) return
+    booted.current = true
+    ;(async () => {
+      const list = await fetchNotes()
+      setNotes(list)
+      if (list.length > 0) openNote(list[0].slug)
+      else createNote()
+    })()
+  }, [openNote, createNote])
+
   const archive = useCallback(async (s: string) => {
     await fetch(`/api/notes/${s}/archive`, { method: 'POST' }).catch(() => {})
-    if (slugRef.current === s) { setSlug(null); setContent('') }
-    refreshList()
-  }, [refreshList])
+    const rest = await fetchNotes()
+    setNotes(rest)
+    if (slugRef.current === s) {
+      if (rest.length > 0) openNote(rest[0].slug)
+      else { setSlug(null); setContent('') }
+    }
+  }, [openNote])
 
   const removeNote = useCallback(async (s: string) => {
     await fetch(`/api/notes/${s}`, { method: 'DELETE' }).catch(() => {})
-    if (slugRef.current === s) { setSlug(null); setContent('') }
-    refreshList()
-  }, [refreshList])
-
-  // Raccourcis globaux : Cmd+N (nouvelle), Cmd+S (save forcé).
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (!(e.metaKey || e.ctrlKey)) return
-      if (e.key === 'n') { e.preventDefault(); newNote() }
-      else if (e.key === 's') { e.preventDefault(); save() }
+    const rest = await fetchNotes()
+    setNotes(rest)
+    if (slugRef.current === s) {
+      if (rest.length > 0) openNote(rest[0].slug)
+      else { setSlug(null); setContent('') }
     }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [newNote, save])
+  }, [openNote])
 
   const dismissWarning = () => {
     setWarned(true)
@@ -110,14 +120,7 @@ export function NotepadView() {
 
   return (
     <div className="flex h-full flex-col">
-      <ViewHeader meta={slug ?? undefined}>
-        <button
-          type="button" onClick={newNote}
-          className="rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-xs text-neutral-600 hover:bg-neutral-100"
-        >
-          + note <span className="text-neutral-400">⌘N</span>
-        </button>
-      </ViewHeader>
+      <ViewHeader meta={slug ?? undefined} />
 
       {!warned && (
         <div className="flex items-center justify-between gap-3 border-b border-amber-200 bg-amber-50 px-4 py-1.5 text-xs text-amber-800">
@@ -127,15 +130,20 @@ export function NotepadView() {
       )}
 
       <div className="flex min-h-0 flex-1">
-        <div className="flex w-[420px] shrink-0 flex-col border-r border-neutral-200 px-3 py-4">
-          <div className="shrink-0 px-2 pb-1.5 text-[10px] font-medium text-neutral-400">Notes</div>
+        <div className="flex w-[420px] shrink-0 flex-col border-r border-neutral-200 py-2">
+          {/* Création EN TÊTE de liste (pas de bouton en haut à droite, pas de ⌘N). */}
+          <button
+            type="button" onClick={createNote}
+            className="flex items-center gap-2 border-b border-neutral-100 px-4 py-2 text-left text-sm text-neutral-500 hover:bg-neutral-50"
+          >
+            <span className="text-base leading-none text-neutral-400">+</span> Nouvelle note
+          </button>
           <div className="min-h-0 flex-1 overflow-y-auto">
-            {notes.length === 0 && <p className="px-2 text-xs text-neutral-400">Aucune note. ⌘N pour commencer.</p>}
             {notes.map((n) => (
               <div
                 key={n.slug}
-                className={`group flex items-center justify-between gap-2 rounded px-2 py-1.5 text-xs ${
-                  n.slug === slug ? 'bg-accent-tint text-neutral-900 shadow-[inset_2px_0_0_var(--color-accent)]' : 'text-neutral-600 hover:bg-neutral-100'
+                className={`group flex items-center gap-2 px-4 py-1.5 text-sm ${
+                  n.slug === slug ? 'bg-accent-tint text-neutral-900 shadow-[inset_2px_0_0_var(--color-accent)]' : 'text-neutral-600 hover:bg-neutral-50'
                 }`}
               >
                 <button type="button" onClick={() => openNote(n.slug)} className="min-w-0 flex-1 truncate text-left">
@@ -155,29 +163,31 @@ export function NotepadView() {
           </div>
         </div>
 
-        <div className="flex min-h-0 flex-1 flex-col">
-          {slug === null ? (
-            <div className="flex h-full items-center justify-center text-sm text-neutral-400">
-              Sélectionne une note, ou ⌘N pour en créer une
+        {/* Zone d'édition : clic dans le vide → crée une note ; sinon éditeur ghost. */}
+        {slug === null ? (
+          <button
+            type="button" onClick={createNote}
+            className="min-h-0 flex-1 cursor-text text-sm text-neutral-300 hover:text-neutral-400"
+          >
+            Clique ici pour écrire une note
+          </button>
+        ) : (
+          <div className="flex min-h-0 flex-1 flex-col">
+            <textarea
+              ref={textareaRef}
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              onBlur={save}
+              placeholder="Écris ton idée. La première ligne devient le titre."
+              spellCheck={false}
+              className="mx-auto min-h-0 w-full max-w-3xl flex-1 resize-none border-0 bg-transparent px-6 py-10 text-base leading-relaxed text-neutral-800 outline-none ring-0 placeholder:text-neutral-300 focus:outline-none focus:ring-0"
+            />
+            <div className="mx-auto flex w-full max-w-3xl shrink-0 items-center justify-between px-6 py-1.5 font-mono text-[11px] text-neutral-400">
+              <span>{content.length} car. · ≈{tokens} tokens</span>
+              <span>{status === 'saving' ? 'enregistrement…' : status === 'saved' ? 'enregistré' : ''}</span>
             </div>
-          ) : (
-            <>
-              <textarea
-                ref={textareaRef}
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                onBlur={save}
-                placeholder="Écris ton idée. La première ligne devient le titre."
-                spellCheck={false}
-                className="min-h-0 flex-1 resize-none bg-transparent px-8 py-8 font-mono text-sm leading-relaxed text-neutral-800 outline-none placeholder:text-neutral-300"
-              />
-              <div className="flex shrink-0 items-center justify-between border-t border-neutral-100 px-8 py-1.5 font-mono text-[11px] text-neutral-400">
-                <span>{content.length} car. · ≈{tokens} tokens</span>
-                <span>{status === 'saving' ? 'enregistrement…' : status === 'saved' ? 'enregistré' : ''}</span>
-              </div>
-            </>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   )
