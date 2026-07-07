@@ -3,6 +3,7 @@ import { Input as BaseInput } from '@base-ui/react/input'
 import { Combobox } from '@base-ui/react/combobox'
 import { Toast } from '@base-ui/react/toast'
 import { useEffect, useRef, useState, type ComponentProps, type KeyboardEvent } from 'react'
+import { Check, ChevronDown, Cross, Plus, Warning } from 'trinil-react'
 
 /**
  * Mini-kit de primitives Base UI stylées monochrome — source unique des
@@ -36,10 +37,7 @@ export function ErrorBanner({ errors }: { errors: string[] }) {
   return (
     <div role="alert" className="border border-l-4 border-neutral-900 bg-neutral-100 px-3 py-2 text-xs text-neutral-800">
       <div className="mb-1 flex items-center gap-1.5 font-semibold text-neutral-900">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-          <path d="M6 1.5 11 10.5H1L6 1.5z" stroke="currentColor" strokeWidth="1" strokeLinejoin="round" />
-          <path d="M6 5v2.5M6 9v.01" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-        </svg>
+<Warning size={12} className="shrink-0" />
         Erreur
       </div>
       <ul className="flex flex-col gap-1">
@@ -129,9 +127,7 @@ export function ToastViewport() {
               aria-label="Fermer"
               className="shrink-0 rounded p-0.5 text-neutral-400 hover:text-neutral-700"
             >
-              <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-                <path d="M2 2l6 6M8 2l-6 6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-              </svg>
+<Cross size={10} />
             </Toast.Close>
           </div>
         </Toast.Root>
@@ -176,9 +172,7 @@ export function Select({
       >
         <BaseSelect.Value />
         <BaseSelect.Icon className="shrink-0 text-neutral-400">
-          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-            <path d="M2 3.5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
+<ChevronDown size={10} />
         </BaseSelect.Icon>
       </BaseSelect.Trigger>
       <BaseSelect.Portal>
@@ -192,9 +186,7 @@ export function Select({
               >
                 <BaseSelect.ItemText>{item.label}</BaseSelect.ItemText>
                 <BaseSelect.ItemIndicator className="text-neutral-900">
-                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-                    <path d="M1.5 5.5l2.5 2.5 4.5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
+                  <Check size={10} />
                 </BaseSelect.ItemIndicator>
               </BaseSelect.Item>
             ))}
@@ -318,9 +310,7 @@ export function TagsCombobox({ tags, suggestions, disabled = false, onSave }: {
           >
             #{item.value}
             <Combobox.ChipRemove aria-label={`Retirer ${item.value}`} className="shrink-0 rounded text-neutral-300 hover:text-neutral-700">
-              <svg width="8" height="8" viewBox="0 0 8 8" fill="none" aria-hidden="true">
-                <path d="M1 1l6 6M7 1l-6 6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-              </svg>
+              <Cross size={8} />
             </Combobox.ChipRemove>
           </Combobox.Chip>
         ))}
@@ -343,17 +333,13 @@ export function TagsCombobox({ tags, suggestions, disabled = false, onSave }: {
                 >
                   {item.creatable ? (
                     <>
-                      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true" className="shrink-0 text-neutral-500">
-                        <path d="M5 1v8M1 5h8" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-                      </svg>
+                      <Plus size={10} className="shrink-0 text-neutral-500" />
                       <span>Créer « {item.creatable} »</span>
                     </>
                   ) : (
                     <>
                       <Combobox.ItemIndicator className="shrink-0 text-neutral-900">
-                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-                          <path d="M1.5 5.5l2.5 2.5 4.5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
+                        <Check size={10} />
                       </Combobox.ItemIndicator>
                       <span>#{item.value}</span>
                     </>
@@ -397,9 +383,7 @@ export function MultiCombobox({
           >
             <span className="min-w-0 max-w-[200px] truncate" title={item.label}>{item.label}</span>
             <Combobox.ChipRemove className="shrink-0 text-neutral-400 hover:text-neutral-700" aria-label={`Retirer ${item.label}`}>
-              <svg width="8" height="8" viewBox="0 0 8 8" fill="none" aria-hidden="true">
-                <path d="M1 1l6 6M7 1l-6 6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-              </svg>
+              <Cross size={8} />
             </Combobox.ChipRemove>
           </Combobox.Chip>
         ))}
@@ -422,9 +406,7 @@ export function MultiCombobox({
                 >
                   <span className="truncate">{item.label}</span>
                   <Combobox.ItemIndicator className="text-neutral-900">
-                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-                      <path d="M1.5 5.5l2.5 2.5 4.5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
+                    <Check size={10} />
                   </Combobox.ItemIndicator>
                 </Combobox.Item>
               )}

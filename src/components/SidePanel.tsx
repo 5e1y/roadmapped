@@ -1,4 +1,5 @@
 import { useEffect, useRef, type ReactNode } from 'react'
+import { ArrowLeft, Cross } from 'trinil-react'
 import { usePanel } from '../state/PanelContext'
 
 /**
@@ -94,9 +95,7 @@ export function SidePanel({
               aria-label="Retour"
               className="rounded p-1 text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-700"
             >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                <path d="M8.5 3l-4 4 4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+              <ArrowLeft size={14} />
             </button>
           )}
           <h2 className="truncate text-sm font-semibold tracking-tight text-neutral-900">{title}</h2>
@@ -107,9 +106,7 @@ export function SidePanel({
           aria-label="Fermer le panneau"
           className="rounded p-1 text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-700"
         >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-            <path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
+          <Cross size={13} />
         </button>
       </header>
       <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">{children}</div>

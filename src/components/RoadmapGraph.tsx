@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
 import { computeAvailability, missingPrereqs, topoLayers, type Availability } from '../lib/roadmap'
+import { LockLocked } from 'trinil-react'
 import { StatusGlyph } from './glyphs'
 import { TEAM_ABBR } from '../lib/tasks'
 import type { TaskNode } from '../lib/tasks'
@@ -155,20 +156,21 @@ function GraphCard({ placed, onOpen }: { placed: Placed; onOpen: () => void }) {
   // transparaissent) ; l'état estompé s'exprime par la bordure et l'encre.
   // Tâche ouverte dans le panneau → bordure accent (#36).
   const isOpenInPanel = top?.type === 'task' && top.id === task.id
-  // Hover ≠ sélection : la carte ouverte reste accent sous la souris.
-  const border = isOpenInPanel
-    ? 'border-2 border-accent'
-    : state === 'available'
-      ? 'border-2 border-neutral-900 hover:border-neutral-400'
-      : 'border border-neutral-200 hover:border-neutral-400'
+  // Sélection = langage du Backlog (fond + filet gauche) ; disponibles sans
+  // contour fort ; hover ≠ sélection (la carte ouverte reste accent sous la souris).
+  const skin = isOpenInPanel
+    ? 'border border-neutral-200 bg-accent/5 shadow-[inset_2px_0_0_var(--color-accent)]'
+    : 'border border-neutral-200 bg-white hover:border-neutral-400'
   const dim = state === 'done' || state === 'locked' || filteredOut
   const titleCls = task.status === 'done' ? 'text-neutral-400 line-through' : dim ? 'text-neutral-400' : 'text-neutral-900'
   return (
     <button type="button" onClick={onOpen} title={task.title}
-      className={`absolute flex flex-col gap-1.5 bg-white px-3 py-2.5 text-left ${filteredOut ? 'border border-neutral-100' : border}`}
+      className={`absolute flex flex-col gap-1.5 px-3 py-2.5 text-left ${filteredOut ? 'border border-neutral-100 bg-white' : skin}`}
       style={{ left: xOf(placed.col), top: yOf(placed.row), width: CARD_W, minHeight: CARD_H }}>
       <div className="flex items-center gap-2">
-        <StatusGlyph status={task.status} />
+        {state === 'locked'
+          ? <LockLocked size={11} className="shrink-0 text-neutral-400" ariaLabel="Verrouillée" />
+          : <StatusGlyph status={task.status} />}
         <span className="shrink-0 font-mono text-xs text-neutral-400">#{task.id}</span>
         <span className={`min-w-0 truncate text-sm ${titleCls}`}>
           {task.title}

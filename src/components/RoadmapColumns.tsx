@@ -1,6 +1,7 @@
 import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
 import { computeAvailability, missingPrereqs, type Availability } from '../lib/roadmap'
+import { LockLocked } from 'trinil-react'
 import { StatusGlyph } from './glyphs'
 import { Chip } from './Chip'
 import { countTasksDeep, SECTION_STATUS_FR, TEAM_ABBR } from '../lib/tasks'
@@ -11,7 +12,7 @@ function ProgressBar({ done, total }: { done: number; total: number }) {
   const pct = total === 0 ? 0 : Math.round((done / total) * 100)
   return (
     <div className="h-1 w-full overflow-hidden rounded-full bg-neutral-200">
-      <div className="h-full bg-neutral-900" style={{ width: `${pct}%` }} />
+      <div className="h-full bg-accent" style={{ width: `${pct}%` }} />
     </div>
   )
 }
@@ -31,19 +32,23 @@ function TaskCard({ task, state, missing }: { task: TaskNode; state: Availabilit
   const isOpenInPanel = top?.type === 'task' && top.id === task.id
   // Le hover ne masque JAMAIS la sélection : une carte ouverte reste accent
   // sous la souris (sinon le clic paraît « gris » jusqu'au mouse exit).
-  const border = isOpenInPanel
-    ? 'border-2 border-accent'
-    : state === 'available'
-      ? 'border-2 border-neutral-900 hover:border-neutral-400'
-      : 'border border-neutral-200 hover:border-neutral-400'
+  // Sélection = même langage que le Backlog (fond accent + filet gauche) ;
+  // les disponibles n'ont PLUS de contour fort (décision Rémi batch 2).
+  const skin = isOpenInPanel
+    ? 'border border-neutral-200 bg-accent/5 shadow-[inset_2px_0_0_var(--color-accent)]'
+    : 'border border-neutral-200 bg-white hover:z-10 hover:border-neutral-400'
   const dim = state === 'done' || state === 'locked'
   const titleCls = task.status === 'done' ? 'text-neutral-400 line-through' : dim ? 'text-neutral-400' : 'text-neutral-900'
   const subs = task.subtasks.length > 0 ? countTasksDeep(task.subtasks) : null
   return (
     <button type="button" onClick={() => openTask(task.id)} title={task.title}
-      className={`relative flex w-full flex-col gap-1.5 bg-white px-3 py-2.5 text-left first:mt-0 ${border} ${isOpenInPanel || state === 'available' ? 'z-10' : ''} -mt-px`}>
+      className={`relative -mt-px flex w-full flex-col gap-1.5 px-3 py-2.5 text-left first:mt-0 ${skin}`}>
       <div className="flex items-start gap-2">
-        <span className="mt-0.5"><StatusGlyph status={task.status} /></span>
+        <span className="mt-0.5">
+          {state === 'locked'
+            ? <LockLocked size={11} className="shrink-0 text-neutral-400" ariaLabel="Verrouillée" />
+            : <StatusGlyph status={task.status} />}
+        </span>
         <span className="mt-px shrink-0 font-mono text-xs text-neutral-400">#{task.id}</span>
         <span className={`min-w-0 line-clamp-2 text-sm ${titleCls}`}>
           {task.title}
@@ -83,7 +88,7 @@ function Column({ section, avail }: { section: SectionNode; avail: Map<number, A
     <div className="grid row-span-4 grid-rows-subgrid">
       {/* Rangée titre collante : le contexte (titre + compteur) survit au scroll
           vertical. Le pt-8 du conteneur vit ici pour que rien ne dépasse au-dessus. */}
-      <div className="sticky top-0 z-10 flex items-baseline justify-between gap-2 bg-[#fafafa] pb-0.5 pt-8">
+      <div className="sticky top-0 z-20 flex items-baseline justify-between gap-2 bg-[#fafafa] pb-0.5 pt-8">
         <span
           className={`min-w-0 truncate text-sm font-semibold tracking-tight ${empty ? 'text-neutral-300' : 'text-neutral-900'}`}
           title={section.title}

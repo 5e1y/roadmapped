@@ -1,4 +1,5 @@
 import { Accordion } from '@base-ui/react/accordion'
+import { EditPen } from 'trinil-react'
 import { TaskRow } from './TaskRow'
 import { Chip } from './Chip'
 import { Chevron } from './glyphs'
@@ -46,9 +47,7 @@ export function SectionAccordion({
               <button type="button" aria-label="Éditer la section"
                 onClick={(e) => { e.stopPropagation(); openSection(section.key) }}
                 className="rounded p-1 text-neutral-400 hover:bg-neutral-200 hover:text-neutral-700">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                  <path d="M9 2.5l2.5 2.5L5 11.5 2.5 12l.5-2.5L9 2.5z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
-                </svg>
+                <EditPen size={13} />
               </button>
               <button type="button"
                 onClick={(e) => { e.stopPropagation(); openCreateTask(section.key) }}

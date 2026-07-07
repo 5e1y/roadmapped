@@ -1,4 +1,5 @@
 import { useState, type KeyboardEvent } from 'react'
+import { Check } from 'trinil-react'
 import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
 import { Select, TextInput, TextArea, ErrorBanner } from './ui'
@@ -115,9 +116,7 @@ export function SectionPanel({ dir }: { dir: string }) {
         <div className="min-w-0 truncate font-mono text-xs text-neutral-400">{dir}</div>
         {saved && (
           <span className="flex shrink-0 items-center gap-1 text-[11px] text-neutral-500">
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-              <path d="M1.5 5.5l2.5 2.5 4.5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+            <Check size={10} />
             Enregistré
           </span>
         )}
