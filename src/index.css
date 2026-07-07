@@ -9,6 +9,9 @@
  */
 @theme {
   --color-accent: #2563eb;
+  /* Tint de sélection OPAQUE (accent ~6% sur blanc) : ne se mélange pas au
+     fond gris et ne laisse rien transparaître (arêtes du graphe). */
+  --color-accent-tint: #eef3fd;
 }
 
 /*

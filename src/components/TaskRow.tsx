@@ -53,7 +53,7 @@ export function TaskRow({ task }: { task: TaskNode }) {
     <Collapsible.Root open={open} onOpenChange={setOpen}>
       {/* Le padding vertical vit dans les éléments INTERACTIFS (pas le
           conteneur) : toute la hauteur de la ligne est cliquable. */}
-      <div className={`flex w-full flex-wrap items-center gap-2 px-4 text-sm ${isOpenInPanel ? 'bg-accent/5 shadow-[inset_2px_0_0_var(--color-accent)]' : 'hover:bg-neutral-50'}`}>
+      <div className={`flex w-full flex-wrap items-center gap-2 px-4 text-sm ${isOpenInPanel ? 'bg-accent-tint shadow-[inset_2px_0_0_var(--color-accent)]' : 'hover:bg-neutral-50'}`}>
         {/* Chevron = toggle des sous-tâches uniquement (invisible sinon). */}
         {hasSubs ? (
           <Collapsible.Trigger
@@ -85,6 +85,10 @@ export function TaskRow({ task }: { task: TaskNode }) {
             {task.title}
           </span>
           <span className="ml-auto flex shrink-0 items-center gap-1.5">
+            {/* Liste une-colonne : la date de bouclage passe sur la ligne. */}
+            {task.completedAt && (
+              <span className="font-mono text-[11px] text-neutral-400">{task.completedAt}</span>
+            )}
             {hasSubs && (
               <span className="font-mono text-[11px] text-neutral-400">
                 {subDone}/{task.subtasks.length}

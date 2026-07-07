@@ -177,7 +177,7 @@ function GraphCard({ placed, onOpen }: { placed: Placed; onOpen: () => void }) {
   // Sélection = langage du Backlog (fond + filet gauche) ; disponibles sans
   // contour fort ; hover ≠ sélection (la carte ouverte reste accent sous la souris).
   const skin = isOpenInPanel
-    ? 'border border-neutral-200 bg-accent/5 shadow-[inset_2px_0_0_var(--color-accent)]'
+    ? 'border border-neutral-200 bg-accent-tint shadow-[inset_2px_0_0_var(--color-accent)]'
     : 'border border-neutral-200 bg-white hover:border-neutral-400'
   const dim = state === 'done' || state === 'locked' || filteredOut
   const titleCls = task.status === 'done' ? 'text-neutral-400 line-through' : dim ? 'text-neutral-400' : 'text-neutral-900'

@@ -4,20 +4,15 @@ import { Search } from 'trinil-react'
 import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
 import { usePersistentStrings } from '../state/uiPersist'
-import { STAGES, type TaskNode } from '../lib/tasks'
+import { type TaskNode } from '../lib/tasks'
 import { SectionAccordion } from './SectionAccordion'
-import { TaskColumns, sortOpen, sortDone } from './TaskColumns'
-import { Select, type SelectItem } from './ui'
+import { TaskList, sortOpen, sortDone } from './TaskColumns'
+
 import { useTeamFilter, useStageFilter } from '../state/filters'
-import { ViewHeader, TeamFilterMenu } from './ViewHeader'
+import { ViewHeader, TeamFilterMenu, StageFilterMenu } from './ViewHeader'
 
 /** Accord singulier/pluriel élémentaire (français). */
 const plural = (n: number, s: string) => `${n} ${s}${n === 1 ? '' : 's'}`
-
-const STAGE_ITEMS: SelectItem[] = [
-  { value: '', label: 'Tous les stages' },
-  ...STAGES.map((s) => ({ value: s.slug, label: s.title })),
-]
 
 /**
  * Backlog v2 (décision Rémi) : liste PLATE — les stages vivent dans la
@@ -33,7 +28,7 @@ export function Backlog() {
   const { openCreateTask } = usePanel()
   const [openArchive, setOpenArchive] = usePersistentStrings('backlog:archive')
   const [teamFilter] = useTeamFilter()
-  const [stageFilter, setStageFilter] = useStageFilter()
+  const [stageFilter] = useStageFilter()
   const [query, setQuery] = useState('')
 
   if (loading && !tree) {
@@ -100,17 +95,7 @@ export function Backlog() {
             className="w-full rounded-md border border-neutral-300 bg-white py-1 pl-7 pr-2 text-xs text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-900 focus:outline-none"
           />
         </div>
-        {/* key : Select non contrôlé — remonté si le filtre change ailleurs. */}
-        <div className="w-40">
-          <Select
-            key={stageFilter}
-            aria-label="Filtrer par stage"
-            defaultValue={stageFilter}
-            items={STAGE_ITEMS}
-            onValueChange={setStageFilter}
-            compact
-          />
-        </div>
+        <StageFilterMenu />
         <TeamFilterMenu />
         <button
           type="button"
@@ -122,8 +107,8 @@ export function Backlog() {
       </ViewHeader>
 
       <div className="min-h-0 flex-1 overflow-y-auto">
-      <div className="mx-auto max-w-5xl px-6 py-8">
-      <TaskColumns open={open} done={done} filtered={Boolean(q || stageFilter || teamFilter.length)} />
+      <div className="mx-auto max-w-3xl px-6 py-8">
+      <TaskList open={open} done={done} filtered={Boolean(q || stageFilter || teamFilter.length)} />
 
       {tree.archive.length > 0 && (
         <section className="mt-14">

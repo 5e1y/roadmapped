@@ -2,15 +2,14 @@ import { Popover } from '@base-ui/react/popover'
 import { ChevronDown } from 'trinil-react'
 import { type ReactNode } from 'react'
 import { useTree } from '../state/TreeContext'
-import { useTeamFilter } from '../state/filters'
+import { useTeamFilter, useStageFilter } from '../state/filters'
 import { activeTasks } from '../lib/roadmap'
-import { TEAMS, type Team } from '../lib/tasks'
+import { STAGES, TEAMS, type Team } from '../lib/tasks'
 
 /**
- * LE header commun des trois vues (décision Rémi) : une barre en haut, sur le
- * modèle de la vue Roadmap, de hauteur STRICTEMENT égale au header du panneau
- * de tâche (h-12 partagé, cf. SidePanel). Titre à gauche, filtres/actions en
- * dropdowns à droite — plus aucun filtre dans la sidebar.
+ * LE header commun des vues (décision Rémi) : une barre en haut, hauteur
+ * STRICTEMENT égale au header du panneau de tâche (h-12 partagé, cf.
+ * SidePanel). Titre à gauche, filtres/actions en dropdowns à droite.
  */
 export function ViewHeader({ title, meta, children }: {
   title: string
@@ -30,29 +29,39 @@ export function ViewHeader({ title, meta, children }: {
   )
 }
 
+interface FilterOption {
+  value: string
+  label: string
+  count?: number
+}
+
 /**
- * Dropdown de filtre Teams (multi-sélection, Popover Base UI) : le déclencheur
- * résume l'état (« Toutes les teams » / « 2 teams »), le popup liste les 8 avec
- * compteurs — même logique qu'avant, sortie de la sidebar.
+ * LE dropdown de filtre du header — apparence et comportement UNIQUES pour
+ * stages et teams (décision Rémi : « c'est la même chose ») : Popover Base UI,
+ * trigger qui résume l'état (tint accent quand actif), liste avec compteurs,
+ * « Effacer » en pied quand un filtre est posé. `multiple` distingue la
+ * sélection (teams = multi, stage = simple qui referme au choix).
  */
-export function TeamFilterMenu() {
-  const { tree } = useTree()
-  const [selected, setSelected] = useTeamFilter()
-  const counts = new Map<Team, number>(TEAMS.map((t) => [t, 0]))
-  if (tree) for (const t of activeTasks(tree)) counts.set(t.team, (counts.get(t.team) ?? 0) + 1)
-  const toggle = (team: Team) =>
-    setSelected(selected.includes(team) ? selected.filter((t) => t !== team) : [...selected, team])
+export function FilterMenu({ allLabel, options, selected, onChange, multiple = false, 'aria-label': ariaLabel }: {
+  allLabel: string
+  options: FilterOption[]
+  selected: string[]
+  onChange: (next: string[]) => void
+  multiple?: boolean
+  'aria-label': string
+}) {
+  const byValue = new Map(options.map((o) => [o.value, o.label]))
   const label =
-    selected.length === 0 ? 'Toutes les teams'
-    : selected.length === 1 ? selected[0]
-    : `${selected.length} teams`
+    selected.length === 0 ? allLabel
+    : selected.length === 1 ? (byValue.get(selected[0]) ?? selected[0])
+    : `${selected.length} filtres`
 
   return (
     <Popover.Root>
       <Popover.Trigger
-        aria-label="Filtrer par team"
+        aria-label={ariaLabel}
         className={`flex items-center gap-1.5 rounded-md border border-neutral-300 px-2.5 py-1 text-xs transition-colors hover:bg-neutral-100 ${
-          selected.length > 0 ? 'bg-accent/5 text-neutral-900 shadow-[inset_2px_0_0_var(--color-accent)]' : 'bg-white text-neutral-600'
+          selected.length > 0 ? 'bg-accent-tint text-neutral-900 shadow-[inset_2px_0_0_var(--color-accent)]' : 'bg-white text-neutral-600'
         }`}
       >
         {label}
@@ -60,38 +69,82 @@ export function TeamFilterMenu() {
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Positioner sideOffset={4} align="end" className="z-50">
-          <Popover.Popup className="w-52 border border-neutral-200 bg-white py-1 shadow-sm">
-            {TEAMS.map((team) => {
-              const n = counts.get(team) ?? 0
-              const active = selected.includes(team)
+          <Popover.Popup className="w-56 border border-neutral-200 bg-white py-1 shadow-sm">
+            {options.map((o) => {
+              const active = selected.includes(o.value)
               return (
-                <button
-                  key={team}
-                  type="button"
-                  onClick={() => toggle(team)}
+                <Popover.Close
+                  key={o.value}
+                  disabled={multiple}
+                  render={<button type="button" />}
+                  onClick={() => {
+                    if (multiple) onChange(active ? selected.filter((v) => v !== o.value) : [...selected, o.value])
+                    else onChange(active ? [] : [o.value])
+                  }}
                   aria-pressed={active}
                   className={`flex w-full items-baseline justify-between gap-2 px-2.5 py-1.5 text-left text-xs hover:bg-neutral-100 ${
-                    active ? 'bg-accent/5 font-medium text-neutral-900 shadow-[inset_2px_0_0_var(--color-accent)]'
-                    : n === 0 ? 'text-neutral-300' : 'text-neutral-600'
+                    active ? 'bg-accent-tint font-medium text-neutral-900 shadow-[inset_2px_0_0_var(--color-accent)]'
+                    : o.count === 0 ? 'text-neutral-300' : 'text-neutral-600'
                   }`}
                 >
-                  <span>{team}</span>
-                  <span className="shrink-0 font-mono text-[11px] text-neutral-400">{n}</span>
-                </button>
+                  <span className="min-w-0 truncate">{o.label}</span>
+                  {o.count !== undefined && (
+                    <span className="shrink-0 font-mono text-[11px] text-neutral-400">{o.count}</span>
+                  )}
+                </Popover.Close>
               )
             })}
             {selected.length > 0 && (
-              <button
-                type="button"
-                onClick={() => setSelected([])}
+              <Popover.Close
+                render={<button type="button" />}
+                onClick={() => onChange([])}
                 className="mt-1 flex w-full border-t border-neutral-100 px-2.5 py-1.5 text-left text-xs text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700"
               >
                 Effacer le filtre
-              </button>
+              </Popover.Close>
             )}
           </Popover.Popup>
         </Popover.Positioner>
       </Popover.Portal>
     </Popover.Root>
+  )
+}
+
+/** Filtre Teams (multi) — compteurs = tickets ouverts par team. */
+export function TeamFilterMenu() {
+  const { tree } = useTree()
+  const [selected, setSelected] = useTeamFilter()
+  const counts = new Map<Team, number>(TEAMS.map((t) => [t, 0]))
+  if (tree) for (const t of activeTasks(tree)) {
+    if (t.status !== 'done') counts.set(t.team, (counts.get(t.team) ?? 0) + 1)
+  }
+  return (
+    <FilterMenu
+      aria-label="Filtrer par team"
+      allLabel="Toutes les teams"
+      multiple
+      options={TEAMS.map((t) => ({ value: t, label: t, count: counts.get(t) ?? 0 }))}
+      selected={selected}
+      onChange={setSelected}
+    />
+  )
+}
+
+/** Filtre Stage (simple) — compteurs = tickets ouverts par stage. */
+export function StageFilterMenu() {
+  const { tree } = useTree()
+  const [selected, setSelected] = useStageFilter()
+  const counts = new Map<string, number>()
+  if (tree) for (const s of tree.sections) {
+    counts.set(s.key, s.tasks.reduce((n, t) => n + (t.status !== 'done' ? 1 : 0), 0))
+  }
+  return (
+    <FilterMenu
+      aria-label="Filtrer par stage"
+      allLabel="Tous les stages"
+      options={STAGES.map((s) => ({ value: s.slug, label: s.title, count: counts.get(s.slug) ?? 0 }))}
+      selected={selected ? [selected] : []}
+      onChange={(next) => setSelected(next[0] ?? '')}
+    />
   )
 }
