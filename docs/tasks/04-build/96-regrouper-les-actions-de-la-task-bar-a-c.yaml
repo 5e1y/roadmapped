@@ -1,7 +1,7 @@
 id: 124
 code: null
 title: Regrouper les actions de la task bar à côté de « Démarrer »
-status: todo
+status: in_progress
 tags:
   - ux
   - panel
@@ -14,7 +14,7 @@ detail: >-
 refs: []
 links: []
 dependsOn: []
-epic: polish-ui
+milestone: null
 source: ai
 createdAt: "2026-07-08T09:28:18"
 completedAt: null

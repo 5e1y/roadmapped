@@ -1,7 +1,7 @@
 id: 28
 code: null
 title: Panneau v2 — SectionPanel aligné + passe finale des critères
-status: todo
+status: in_progress
 tags:
   - panel
   - ux
@@ -22,7 +22,7 @@ refs:
 links: []
 dependsOn:
   - 27
-epic: panneau-v2
+milestone: null
 source: ai
 createdAt: "2026-07-07"
 completedAt: null

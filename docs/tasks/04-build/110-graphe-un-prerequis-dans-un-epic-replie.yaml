@@ -4,7 +4,7 @@ code: null
 title: >-
   Graphe : un prérequis dans un epic replié affiché « +n hors graphe » au lieu de « #id » ; + clé
   localStorage backlog:groupByEpic orpheline (inoffensive)
-status: todo
+status: in_progress
 tags:
   - debt
 size: null
@@ -13,7 +13,7 @@ detail: null
 refs: []
 links: []
 dependsOn: []
-epic: hierarchie-regroupement
+milestone: null
 source: ai
 createdAt: "2026-07-08T12:23:26"
 completedAt: null
