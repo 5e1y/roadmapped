@@ -4,7 +4,7 @@ code: null
 title: >-
   Bug Backlog : on peut scroller toute la vue dans le vide (elle remonte) — régression
   hauteur/overflow
-status: todo
+status: in_progress
 tags:
   - bug
 size: null
@@ -16,6 +16,7 @@ dependsOn: []
 epic: hierarchie-regroupement
 source: ai
 createdAt: "2026-07-08T12:26:54"
+startedAt: "2026-07-08T12:29:45"
 completedAt: null
 commit: null
 outcome: null
