@@ -1,0 +1,31 @@
+id: 146
+code: null
+title: >-
+  Graph de liens façon Obsidian pour les tags — flanc droit Backlog, sous le radar Teams, clic =
+  filtre par tag
+status: todo
+tags:
+  - ux
+  - fable
+size: L
+team: design
+detail: >-
+  Nouveau graphe de liens (façon Obsidian) visualisant les THÈMES (tags) des tickets OUVERTS (todo +
+  in_progress). Objectif : voir sur quoi le travail se porte. Clic sur un tag → filtre le backlog
+  par ce tag (MÊME système que le radar Teams : radarSelected/useTeamFilter → un teamFilter
+  équivalent pour les tags). Placement : dans le flanc DROIT de la vue Backlog, EN DESSOUS du radar
+  Teams (TeamsRadar). Nœuds = tags, taille/poids ~ nombre de tickets ouverts portant le tag ; liens
+  = co-occurrence de tags sur un même ticket (façon graphe de connaissances Obsidian). Monochrome +
+  accent (design.md), le tag actif surligné comme la team active. Carte blanche design Fable 5. NOTE
+  ORCHESTRATION : à faire APRÈS #144 (collision src/roadmap.ts + graphe).
+refs: []
+links: []
+dependsOn: []
+epic: vues-dashboard
+source: ai
+createdAt: "2026-07-08T15:02:17"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

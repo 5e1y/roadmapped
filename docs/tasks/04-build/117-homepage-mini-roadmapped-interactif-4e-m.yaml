@@ -1,0 +1,35 @@
+id: 145
+code: null
+title: >-
+  Homepage : mini-Roadmapped interactif (4e mur) — flux fictif = les tickets qui ont construit la
+  homepage
+status: in_progress
+tags:
+  - marketing
+  - fable
+size: L
+team: marketing
+detail: >-
+  Dans le repo /Users/rcourtillon/Documents/roadmapped-site (site statique, déployé Cloudflare Pages
+  roadmapped.work). Remplacer/compléter la démo animée du hero par une version TRÈS SIMPLIFIÉE et
+  INTERACTIVE de Roadmapped, embarquée dans la homepage. Casse le 4e mur : le flux fictif = les
+  (vrais/plausibles) tickets qui ont servi à construire cette homepage → montre que l'outil s'est
+  construit avec lui-même. Contenu du mini-dashboard : (1) vue COLONNES (stages) + (2) vue GRAPHE de
+  dépendances, toggle entre les deux ; (3) panneau simplifié au clic sur une task ; (4) volet IA à
+  gauche qui « prompte » (montre le workflow agent : take → work → done), pour que l'utilisateur
+  comprenne d'emblée que c'est un dashboard local pensé pour Claude Code ouvert à côté.
+  Statique/vanilla (pas de framework, déploie sans build), données fictives en dur, mêmes tokens que
+  design.md (monochrome + accent), light/dark, responsive, a11y. Confié à Fable 5 — carte blanche
+  design.
+refs: []
+links: []
+dependsOn: []
+epic: site
+source: ai
+createdAt: "2026-07-08T15:02:02"
+startedAt: "2026-07-08T15:02:21"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
