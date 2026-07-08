@@ -1,0 +1,23 @@
+id: 192
+code: null
+title: Feedback 2 — CLI/MCP feedback <id> + reopen (take rouvre done) + done --resolve-feedback
+status: todo
+tags:
+  - feedback
+size: null
+team: engineering
+detail: null
+refs:
+  - scripts/task.mjs
+  - scripts/mcp-server.mjs
+links: []
+dependsOn:
+  - 191
+epic: feedback-mode
+source: ai
+createdAt: "2026-07-09T00:24:07"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

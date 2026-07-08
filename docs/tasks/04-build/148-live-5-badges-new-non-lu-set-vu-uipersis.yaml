@@ -1,0 +1,22 @@
+id: 189
+code: null
+title: Live 5 — badges NEW/non-lu (set vu uiPersist, effacé à l'ouverture)
+status: todo
+tags:
+  - live
+size: null
+team: design
+detail: null
+refs: []
+links: []
+dependsOn:
+  - 186
+  - 187
+epic: live-reactivity
+source: ai
+createdAt: "2026-07-09T00:23:53"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

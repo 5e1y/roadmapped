@@ -1,0 +1,22 @@
+id: 186
+code: null
+title: Live 2 — diff prev/next dans TreeContext (primitive des couches UX)
+status: todo
+tags:
+  - live
+size: null
+team: engineering
+detail: null
+refs:
+  - src/state/TreeContext.tsx
+links: []
+dependsOn:
+  - 185
+epic: live-reactivity
+source: ai
+createdAt: "2026-07-09T00:23:51"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

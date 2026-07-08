@@ -1,0 +1,21 @@
+id: 190
+code: null
+title: Live 6 — console d'actions (tiroir, diff live) + toast sur done
+status: todo
+tags:
+  - live
+size: null
+team: design
+detail: null
+refs: []
+links: []
+dependsOn:
+  - 186
+epic: live-reactivity
+source: ai
+createdAt: "2026-07-09T00:23:54"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

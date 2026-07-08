@@ -1,0 +1,22 @@
+id: 187
+code: null
+title: Live 4 — updatedAt au niveau ticket (prérequis badges NEW)
+status: todo
+tags:
+  - live
+  - data-model
+size: null
+team: engineering
+detail: null
+refs:
+  - src/lib/validate.ts
+links: []
+dependsOn: []
+epic: live-reactivity
+source: ai
+createdAt: "2026-07-09T00:23:52"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

@@ -1,0 +1,23 @@
+id: 194
+code: null
+title: "Feedback 4 — skill + process-enforcement : rung feedback vs quick (frontière même-périmètre)"
+status: todo
+tags:
+  - feedback
+  - skill
+size: null
+team: engineering
+detail: null
+refs:
+  - skills/roadmapped/SKILL.md
+links: []
+dependsOn:
+  - 192
+epic: feedback-mode
+source: ai
+createdAt: "2026-07-09T00:24:09"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
