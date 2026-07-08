@@ -1,0 +1,26 @@
+id: 163
+code: null
+title: >-
+  Vérification end-to-end dans un repo hôte fictif : npx roadmapped init → cycle complet → dashboard
+  --open
+status: todo
+tags:
+  - verify
+size: null
+team: engineering
+detail: >-
+  Monter un repo vierge dans un scratch, y lancer le paquet packé (npm pack puis install local),
+  dérouler : init (questionnaire, _meta, 1ère vague de tickets, CLAUDE.md), puis take/start/done,
+  puis dashboard. Confirmer que rien ne dépend du self-hosting (paths.ts packageRoot vs hostRoot).
+  Prouver l'install propre côté utilisateur final.
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-08T18:03:09"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

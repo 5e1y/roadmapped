@@ -1,0 +1,24 @@
+id: 168
+code: null
+title: "SEO niveau repo : About/topics GitHub, keywords README, découvrabilité"
+status: todo
+tags:
+  - seo
+size: null
+team: marketing
+detail: >-
+  Optimiser la découvrabilité du repo public : description About GitHub concise + keyword-rich,
+  topics (project-management, ai-agents, local-first, flat-file, claude, yaml, cli, open-source),
+  section keywords implicites dans le README (termes recherchés : local-first PM, agent project
+  management, flat file tasks). Sans bourrage — factuel.
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-08T18:03:14"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

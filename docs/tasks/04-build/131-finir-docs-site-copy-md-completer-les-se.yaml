@@ -1,0 +1,26 @@
+id: 167
+code: null
+title: "Finir docs/site-copy.md : compléter les sections restantes (proposal section-by-section)"
+status: todo
+tags:
+  - marketing
+  - homepage
+size: null
+team: marketing
+detail: >-
+  site-copy.md est en statut 'proposal, section by section' — incomplet. Compléter : au-delà de
+  Hero/Demo/Features, ajouter How-it-works, Privacy, FAQ courte, Footer, meta/SEO copy, en
+  appliquant tone-of-voice.md. Source de vérité de la copy pour la landing.
+refs:
+  - docs/site-copy.md
+  - docs/tone-of-voice.md
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-08T18:03:13"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

@@ -1,0 +1,23 @@
+id: 159
+kind: quick
+code: null
+title: >-
+  package.json : métadonnées de publication manquantes (repository, license, description, keywords,
+  author, homepage, bugs)
+status: todo
+tags:
+  - publish
+size: null
+team: engineering
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-08T18:03:05"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
