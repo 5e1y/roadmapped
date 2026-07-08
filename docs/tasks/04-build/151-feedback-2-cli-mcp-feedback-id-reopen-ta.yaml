@@ -1,7 +1,7 @@
 id: 192
 code: null
 title: Feedback 2 — CLI/MCP feedback <id> + reopen (take rouvre done) + done --resolve-feedback
-status: todo
+status: done
 tags:
   - feedback
 size: null
@@ -16,8 +16,17 @@ dependsOn:
 epic: feedback-mode
 source: ai
 createdAt: "2026-07-09T00:24:07"
-completedAt: null
-commit: null
-outcome: null
+startedAt: "2026-07-09T00:51:30"
+updatedAt: "2026-07-09T01:11:39"
+completedAt: "2026-07-09"
+commit: 747f6be
+outcome: >-
+  CLI+MCP mode feedback. Lib : addFeedback(id,{text,author}) append
+  {date:now,author|user,text,resolved:false} ; startTask efface completedAt (réouverture
+  done→in_progress propre) ; doneTask --resolveFeedback ('all' ou positions 1-based) marque
+  resolved. CLI task.mjs : commande 'feedback <id> "<text>" [--author]' (rappel
+  même-périmètre→reopen / nouveau→quick), done --resolve-feedback, USAGE+help. MCP : tool feedback +
+  resolveFeedback sur done (parité). Vérif : 4 tests lib (append/author défaut/reopen efface
+  completedAt/resolve all+ciblé), smoke CLI (usage, handler→lib, help), tsc clean, 389 tests.
 verification: null
 release: null
