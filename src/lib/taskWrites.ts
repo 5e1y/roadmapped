@@ -394,23 +394,41 @@ export function startTask(tasksDir: string, id: number): MutationResult {
     patchActive(tasksDir, id, (raw) => {
       raw.status = 'in_progress'
       if (!raw.startedAt) raw.startedAt = now() // #82 — posé une seule fois, pas ré-écrasé au re-start
+      // Réouverture (#149) : une tâche done redevenue in_progress n'est plus complétée.
+      raw.completedAt = null
     }),
   )
 }
 
-export function doneTask(
+/** Ajoute un retour au journal de feedback (#149) — capture sans créer de ticket. */
+export function addFeedback(
   tasksDir: string,
   id: number,
-  opts: { commit?: string; outcome?: string; verification?: string; release?: string },
+  opts: { text: string; author?: string },
 ): MutationResult {
+  return withLock(tasksDir, () =>
+    patchActive(tasksDir, id, (raw) => {
+      const list = Array.isArray(raw.feedback) ? (raw.feedback as unknown[]) : []
+      list.push({ date: now(), author: opts.author?.trim() || 'user', text: opts.text, resolved: false })
+      raw.feedback = list
+    }),
+  )
+}
+
+interface DoneOpts {
+  commit?: string
+  outcome?: string
+  verification?: string
+  release?: string
+  /** Résout les feedbacks à la clôture (#149) : 'all' ou des positions 1-based. */
+  resolveFeedback?: 'all' | number[]
+}
+
+export function doneTask(tasksDir: string, id: number, opts: DoneOpts): MutationResult {
   return withLock(tasksDir, () => doneTaskImpl(tasksDir, id, opts))
 }
 
-function doneTaskImpl(
-  tasksDir: string,
-  id: number,
-  opts: { commit?: string; outcome?: string; verification?: string; release?: string },
-): MutationResult {
+function doneTaskImpl(tasksDir: string, id: number, opts: DoneOpts): MutationResult {
   // Pré-lecture pour arbitrer selon le kind AVANT d'écrire (message clair plutôt
   // qu'un rollback de validation opaque) et pour composer les warnings non bloquants.
   const tree = readTree(tasksDir)
@@ -435,6 +453,14 @@ function doneTaskImpl(
     if (typeof opts.outcome === 'string') raw.outcome = opts.outcome
     if (typeof opts.verification === 'string') raw.verification = opts.verification
     if (typeof opts.release === 'string') raw.release = opts.release
+    // Résolution des feedbacks à la clôture (#149) : 'all' ou positions 1-based.
+    if (opts.resolveFeedback && Array.isArray(raw.feedback)) {
+      ;(raw.feedback as { resolved: boolean }[]).forEach((f, i) => {
+        if (opts.resolveFeedback === 'all' || (Array.isArray(opts.resolveFeedback) && opts.resolveFeedback.includes(i + 1))) {
+          f.resolved = true
+        }
+      })
+    }
   })
   if (res.ok && warnings.length > 0) return { ...res, warnings }
   return res

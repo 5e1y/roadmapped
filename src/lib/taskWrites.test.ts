@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync, writeFileSync, existsSync, readFileSync, mkdirSync
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import {
-  addTask, updateTask, startTask, doneTask, deleteTask,
+  addTask, updateTask, startTask, doneTask, deleteTask, addFeedback,
   updateSection, readTree, findTask, saveEpics, withLock,
 } from './taskWrites'
 import { seedStages } from './stageFixtures'
@@ -238,6 +238,52 @@ describe('feedback[] (#149)', () => {
     t = findTask(readTree(dir), 1)!.task
     expect(t.feedback).toHaveLength(1)
     expect(readFileSync(file, 'utf8')).toContain('feedback:')
+  })
+})
+
+describe('mode feedback (#149)', () => {
+  const fb = (id: number) => findTask(readTree(dir), id)!.task.feedback ?? []
+
+  it('addFeedback ajoute un item open (date/author/text/resolved)', () => {
+    add({ title: 'Iterated' })
+    const res = addFeedback(dir, 1, { text: 'revoir le wording', author: 'remi' })
+    expect(res.ok).toBe(true)
+    const items = fb(1)
+    expect(items).toHaveLength(1)
+    expect(items[0]).toMatchObject({ author: 'remi', text: 'revoir le wording', resolved: false })
+    expect(items[0].date).toMatch(/^\d{4}-\d{2}-\d{2}T/)
+  })
+
+  it('author par défaut = user', () => {
+    add({ title: 'Iterated' })
+    addFeedback(dir, 1, { text: 'x' })
+    expect(fb(1)[0].author).toBe('user')
+  })
+
+  it('reopen (start sur une tâche done) efface completedAt', () => {
+    add({ title: 'Iterated' })
+    startTask(dir, 1)
+    doneTask(dir, 1, { outcome: 'v1' })
+    expect(findTask(readTree(dir), 1)!.task.completedAt).not.toBeNull()
+    startTask(dir, 1) // réouverture
+    const t = findTask(readTree(dir), 1)!.task
+    expect(t.status).toBe('in_progress')
+    expect(t.completedAt).toBeNull()
+  })
+
+  it("done --resolve-feedback 'all' résout tous les retours ; positions 1-based ciblent", () => {
+    add({ title: 'Iterated' })
+    addFeedback(dir, 1, { text: 'a' })
+    addFeedback(dir, 1, { text: 'b' })
+    startTask(dir, 1)
+    doneTask(dir, 1, { outcome: 'ok', resolveFeedback: [1] }) // seul le 1er
+    let items = fb(1)
+    expect(items[0].resolved).toBe(true)
+    expect(items[1].resolved).toBe(false)
+    startTask(dir, 1)
+    doneTask(dir, 1, { outcome: 'ok', resolveFeedback: 'all' })
+    items = fb(1)
+    expect(items.every((f) => f.resolved)).toBe(true)
   })
 })
 

@@ -19,7 +19,7 @@ import { join, relative } from 'node:path'
 import { loadPaths } from '../src/lib/paths.ts'
 import {
   treeWithErrors, readTree, findTask,
-  addTask, startTask, doneTask, updateTask,
+  addTask, startTask, doneTask, updateTask, addFeedback,
 } from '../src/lib/taskWrites.ts'
 import { computeAvailability, activeTasks, nextQueue, globalProgress, epicProgress, allEpics } from '../src/lib/roadmap.ts'
 // Rendu partagé (#90) : CLI et serveur MCP consomment le MÊME code (src/lib/render.ts).
@@ -156,9 +156,12 @@ Writing (id allocated from _meta.yaml; validated after EVERY write, full rollbac
                             mini-ticket: title+team suffice (default stage = 1st open one);
                             at done, --outcome required but --verification optional
   start <id>                status → in_progress
-  done <id> [--commit <sha>] [--outcome <o>] [--verification <v>] [--release <r>]
+  done <id> [--commit <sha>] [--outcome <o>] [--verification <v>] [--release <r>] [--resolve-feedback all|1,3]
                             status → done + completedAt=today + delivery record
                             (--outcome: what was delivered, in one sentence — the changelog)
+  feedback <id> "<text>" [--author <name>]
+                            capture a note on a task WITHOUT a new ticket (#149).
+                            Same scope → reopen (start <id>) + re-done; new scope → a quick.
   update <id> [--title] [--detail] [--status] [--tags] [--refs] [--links]
       [--size] [--team] [--code] [--source] [--commit] [--outcome] [--verification] [--release]
       [--depends-on 1,2] [--epic <slug>]
@@ -185,7 +188,8 @@ const CMD_USAGE = {
   sitrep: 'Usage: sitrep',
   audit: 'Usage: audit [--json]  (parses the #id convention in commits since the last logged task; surfaces orphans + dead references)',
   guard: 'Usage: guard  (pre-commit hook — exit 1 if staged product files have no in_progress task)',
-  done: 'Usage: done <id> [--commit <sha>] [--outcome <o>] [--verification <v>] [--release <r>] [--suggest-refs]',
+  done: 'Usage: done <id> [--commit <sha>] [--outcome <o>] [--verification <v>] [--release <r>] [--suggest-refs] [--resolve-feedback all|1,3]',
+  feedback: 'Usage: feedback <id> "<text>" [--author <name>]',
   roadmap: 'Usage: roadmap [--json]',
   add: 'Usage: add --section <stage> --title <t> --team <team> [--detail <d>] [--tags a,b] [--size S|M|L]\n        [--code <c>] [--refs a,b] [--links 1,2] [--depends-on 1,2] [--epic <slug>]\n        [--kind task|quick|milestone] [--blocks 1,2] [--source ai|user] [--json]',
   quick: 'Usage: quick "<title>" --team <t> [--stage <s>] [--tags a,b] [--start] [--json]',
@@ -447,8 +451,33 @@ function suggestedRefs(commit) {
   return [...files].filter((f) => existsSync(f) && !f.startsWith('docs/tasks/'))
 }
 
+/**
+ * Feedback (#149) : capture un retour sur une tâche SANS créer de ticket. Un
+ * retour de même périmètre → rouvrir la tâche (take/start) et la re-terminer ;
+ * un périmètre nouveau → un quick. Le journal rend la distinction auditable.
+ */
+function cmdFeedback(flags, positional) {
+  rejectUnknownFlags(flags, ['author'], CMD_USAGE.feedback)
+  const id = parseInt(positional[0], 10)
+  if (!Number.isInteger(id)) fail('feedback: <id> required (1st positional).', CMD_USAGE.feedback)
+  const text = positional[1]
+  if (typeof text !== 'string' || text.trim() === '') {
+    fail('feedback: "<text>" required (2nd positional, in quotes).', CMD_USAGE.feedback)
+  }
+  const author = typeof flags.author === 'string' ? flags.author : undefined
+  report(
+    addFeedback(ROOT, id, { text, author }),
+    `feedback added to #${id}. Same scope → reopen it (take/start ${id}) then re-done; new scope → a quick.`,
+  )
+}
+
 function cmdDone(id, flags) {
-  rejectUnknownFlags(flags, ['commit', 'outcome', 'verification', 'release', 'suggest-refs'], CMD_USAGE.done)
+  rejectUnknownFlags(flags, ['commit', 'outcome', 'verification', 'release', 'suggest-refs', 'resolve-feedback'], CMD_USAGE.done)
+  // --resolve-feedback : sans valeur (ou 'all') → tous ; sinon positions 1-based "1,3".
+  const rf = flags['resolve-feedback']
+  let resolveFeedback
+  if (rf === true || rf === 'all') resolveFeedback = 'all'
+  else if (typeof rf === 'string') resolveFeedback = rf.split(',').map((n) => parseInt(n, 10)).filter(Number.isInteger)
   // Auto-contexte (#71) : sans --commit, l'app consigne le HEAD courant (l'agent ne
   // lit plus git). Hors dépôt → git null → commit reste absent (rétrocompat sandbox).
   let commit = typeof flags.commit === 'string' ? flags.commit : undefined
@@ -462,6 +491,7 @@ function cmdDone(id, flags) {
       outcome: typeof flags.outcome === 'string' ? flags.outcome : undefined,
       verification: typeof flags.verification === 'string' ? flags.verification : undefined,
       release: typeof flags.release === 'string' ? flags.release : undefined,
+      resolveFeedback,
     }),
     `#${id} done.${commit && typeof flags.commit !== 'string' ? ` commit=${commit} (HEAD).` : ''}`,
   )
@@ -654,6 +684,9 @@ switch (cmd) {
     break
   case 'start':
     cmdStart(needId())
+    break
+  case 'feedback':
+    cmdFeedback(flags, positional)
     break
   case 'done':
     cmdDone(needId(), flags)
