@@ -58,6 +58,21 @@ switch (cmd) {
   }
 
   case 'dashboard': {
+    // Idempotent (#153) : si NOTRE dashboard répond déjà sur le port par défaut,
+    // ne pas relancer une 2e instance — no-op + URL. On sonde /api/tree et on
+    // vérifie la forme { ok: … } : un autre serveur (le projet de l'hôte) sur le
+    // même port ne matche pas, on laisse alors vite démarrer (et auto-incrémenter).
+    // ponytail: sonde le port 5173 seul (le foyer du dashboard) ; s'il a migré sur
+    // 5174 à un lancement précédent, la détection le rate — plafond assumé.
+    const DASH_PORT = 5173
+    try {
+      const res = await fetch(`http://localhost:${DASH_PORT}/api/tree`, { signal: AbortSignal.timeout(500) })
+      const body = res.ok ? await res.json().catch(() => null) : null
+      if (body && typeof body.ok === 'boolean') {
+        console.log(`roadmapped dashboard : déjà ouvert → http://localhost:${DASH_PORT}/`)
+        process.exit(0)
+      }
+    } catch { /* rien n'écoute (ou autre appli) → on démarre normalement */ }
     const { findHostRoot } = await importPkg('src/lib/paths.ts')
     const envRoot = process.env.ROADMAPPED_ROOT
     const hostRoot = envRoot && envRoot.trim() !== '' ? resolve(envRoot) : findHostRoot()

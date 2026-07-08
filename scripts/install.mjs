@@ -22,6 +22,19 @@ import { findHostRoot, packageRoot, loadPathsAt } from '../src/lib/paths.ts'
 const GUARD_START = '# >>> roadmapped guard >>>'
 const GUARD_END = '# <<< roadmapped guard <<<'
 
+const CLAUDE_START = '<!-- >>> roadmapped >>> -->'
+const CLAUDE_END = '<!-- <<< roadmapped <<< -->'
+const CLAUDE_BLOCK = `${CLAUDE_START}
+## Roadmapped
+
+Ce repo utilise **Roadmapped** (gestion de projet en fichiers plats, pilotée par agent).
+
+- **Au démarrage de session** : si le dashboard Roadmapped n'est pas déjà ouvert, lance
+  \`npx roadmapped dashboard\` (idempotent — no-op s'il tourne déjà, sinon ouvre le navigateur).
+- Toute création/mise à jour de tâche passe par le skill roadmapped ou \`npx roadmapped <cmd>\`
+  (jamais d'édition manuelle des YAML de \`docs/tasks/\`).
+${CLAUDE_END}`
+
 const CONFIG_NAMES = ['roadmapped.config.json', 'roadmaped.config.json'] // rétrocompat un p
 
 // ------------------------------------------------------------------ étapes (testables)
@@ -144,6 +157,30 @@ export function ensureSessionHook(hostRoot, sitrepCommand, log = () => {}) {
   return true
 }
 
+/** Écrit un bloc Roadmapped dans le CLAUDE.md du repo hôte (#153) : consigne
+ *  « au démarrage, ouvre le dashboard s'il n'est pas déjà ouvert » lue par l'agent.
+ *  Idempotent et NON destructif (pattern marqueurs, comme installGuardHook) : le
+ *  CLAUDE.md existant de l'utilisateur est PRÉSERVÉ, le bloc entre marqueurs est
+ *  ajouté (fichier absent → créé) ou remplacé à l'identique au ré-init/upgrade. */
+export function ensureClaudeMd(hostRoot, log = () => {}) {
+  const file = join(hostRoot, 'CLAUDE.md')
+  if (!existsSync(file)) {
+    writeFileSync(file, `${CLAUDE_BLOCK}\n`)
+    log(`CLAUDE.md : créé avec le bloc roadmapped (${file}).`)
+    return
+  }
+  const current = readFileSync(file, 'utf8')
+  if (current.includes(CLAUDE_START)) {
+    const re = new RegExp(`${escapeRe(CLAUDE_START)}[\\s\\S]*?${escapeRe(CLAUDE_END)}`)
+    const next = current.replace(re, CLAUDE_BLOCK)
+    if (next !== current) writeFileSync(file, next)
+    log(`CLAUDE.md : bloc roadmapped déjà présent — remis à jour.`)
+  } else {
+    writeFileSync(file, `${current.replace(/\s+$/, '')}\n\n${CLAUDE_BLOCK}\n`)
+    log(`CLAUDE.md existant PRÉSERVÉ, bloc roadmapped ajouté à la suite (${file}).`)
+  }
+}
+
 /** Installe le hook guard en CHAÎNANT (décision verrouillée) : un pre-commit
  *  existant (husky, lefthook-shim, hook maison) est PRÉSERVÉ, le guard est ajouté
  *  à la suite entre marqueurs ; core.hooksPath n'est JAMAIS modifié. Le bloc entre
@@ -223,6 +260,7 @@ export function runInit({ hostRoot = findHostRoot(), packageDir = packageRoot(),
   else log('skill : self-host — le skill vit déjà dans skills/roadmapped/, pas de copie.')
   mergeMcpEntry(hostRoot, mcpArgs, log)
   ensureSessionHook(hostRoot, sitrepCommand, log)
+  ensureClaudeMd(hostRoot, log)
   installGuardHook(hostRoot, guardCommand, log)
   log('init terminé. Prochaine étape : le skill roadmapped (phase de setup) remplit le backlog.')
   log('▶ Dashboard : npx roadmapped dashboard   (ouvre le navigateur ; pas « npm run dev », qui lance TON projet)')
@@ -237,6 +275,7 @@ export function runUpgrade({ hostRoot = findHostRoot(), packageDir = packageRoot
   else log('skill : self-host — rien à recopier.')
   mergeMcpEntry(hostRoot, mcpArgs, log)
   ensureSessionHook(hostRoot, sitrepCommand, log)
+  ensureClaudeMd(hostRoot, log)
   installGuardHook(hostRoot, guardCommand, log)
   log('upgrade terminé (docs/tasks/ et roadmapped.config.json non touchés). Pour bumper le paquet : npm install -D roadmapped@latest')
 }
