@@ -1,7 +1,7 @@
 id: 194
 code: null
 title: "Feedback 4 — skill + process-enforcement : rung feedback vs quick (frontière même-périmètre)"
-status: todo
+status: done
 tags:
   - feedback
   - skill
@@ -16,8 +16,15 @@ dependsOn:
 epic: feedback-mode
 source: ai
 createdAt: "2026-07-09T00:24:09"
-completedAt: null
-commit: null
-outcome: null
+startedAt: "2026-07-09T01:14:42"
+updatedAt: "2026-07-09T01:15:26"
+completedAt: "2026-07-09"
+commit: 887b466
+outcome: >-
+  SKILL.md : nouveau paragraphe 'Feedback vs quick — the same-scope exception' dans le decision
+  ladder (note → feedback ; agir même-périmètre → reopen+re-done ; nouveau → quick ; sitrep flag).
+  Commandes : ajout de 'feedback <id>' et de --resolve-feedback sur done. process-enforcement.md :
+  section d'assouplissement #149 pointant la spec feedback-mode. Docs-only, cohérent avec
+  l'implémentation #191-193.
 verification: null
 release: null
