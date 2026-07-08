@@ -6,6 +6,7 @@ import { usePanel } from '../state/PanelContext'
 import { useOptionalTree } from '../state/TreeContext'
 import { usePersistentFlag } from '../state/uiPersist'
 import { computeAvailability } from '../lib/roadmap'
+import { relativeTime, absoluteDate } from '../lib/relativeTime'
 import { TEAM_ABBR } from '../lib/tasks'
 import type { TaskNode } from '../lib/tasks'
 
@@ -95,7 +96,7 @@ export function TaskRow({ task }: { task: TaskNode }) {
           <span className="ml-auto flex shrink-0 items-center gap-1.5">
             {/* Liste une-colonne : la date de bouclage passe sur la ligne. */}
             {task.completedAt && (
-              <span className="font-mono text-[11px] text-neutral-500">{task.completedAt}</span>
+              <span className="font-mono text-[11px] text-neutral-500" title={absoluteDate(task.completedAt)}>{relativeTime(task.completedAt)}</span>
             )}
             {hasSubs && (
               <span className="font-mono text-[11px] text-neutral-500">

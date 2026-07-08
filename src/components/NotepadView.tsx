@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { ViewHeader } from './ViewHeader'
+import { relativeTime, absoluteDate } from '../lib/relativeTime'
 
 // Notepad (#88) — incubateur d'idées local. Liste à gauche (gabarit ligne de backlog :
 // pas de bords arrondis), éditeur ghost écriture-d'abord centré à droite. À l'ouverture,
@@ -16,7 +17,6 @@ const jsonOk = async (r: Response) => {
 const fetchNotes = async (): Promise<NoteMeta[]> => {
   try { return (await jsonOk(await fetch('/api/notes'))).notes ?? [] } catch { return [] }
 }
-const relDate = (ms: number) => new Date(ms).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' })
 
 export function NotepadView() {
   const [notes, setNotes] = useState<NoteMeta[]>([])
@@ -144,7 +144,7 @@ export function NotepadView() {
                 <button type="button" onClick={() => openNote(n.slug)} className="min-w-0 flex-1 truncate text-left">
                   {n.title || n.slug}
                 </button>
-                <span className="shrink-0 font-mono text-[10px] text-neutral-500">{relDate(n.modified)}</span>
+                <span className="shrink-0 font-mono text-[10px] text-neutral-500" title={absoluteDate(n.modified)}>{relativeTime(n.modified)}</span>
                 {/* Action destructive : confirmation (pattern window.confirm de
                     TaskPanel.remove) ; révélée au survol ET au focus (design.md §3.4). */}
                 <button
