@@ -44,12 +44,12 @@ function TaskCard({ task, state, missing }: { task: TaskNode; state: Availabilit
     <button type="button" onClick={() => openTask(task.id)} title={task.title}
       className={`relative -mt-px flex w-full flex-col gap-1.5 px-3 py-2.5 text-left first:mt-0 ${skin}`}>
       <div className="flex items-start gap-2">
-        <span className="mt-0.5">
+        <span className="flex h-5 shrink-0 items-center">
           {state === 'locked'
             ? <LockLocked size={11} className="shrink-0 text-neutral-500" ariaLabel="Verrouillée" />
             : <StatusGlyph status={task.status} />}
         </span>
-        <span className="mt-px shrink-0 font-mono text-xs text-neutral-500">#{task.id}</span>
+        <span className="shrink-0 font-mono text-xs leading-5 text-neutral-500">#{task.id}</span>
         <span className={`min-w-0 line-clamp-2 text-sm ${titleCls}`}>
           {task.title}
         </span>
