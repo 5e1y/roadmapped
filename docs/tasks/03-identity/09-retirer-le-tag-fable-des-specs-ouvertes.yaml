@@ -2,7 +2,7 @@ id: 157
 kind: quick
 code: null
 title: "Retirer le tag fable des specs ouvertes (#147, #149) — doctrine Fable 5 annulée (coût)"
-status: todo
+status: done
 tags:
   - debt
 size: null
@@ -14,8 +14,11 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-08T17:57:59"
-completedAt: null
-commit: null
-outcome: null
+completedAt: "2026-07-08"
+commit: 4ad6fb5
+outcome: >-
+  Tag 'fable' retiré des specs ouvertes #147 (réactivité live) et #149 (feedback mode). Doctrine
+  Fable 5 annulée (Rémi, coût). Mémoire mise à jour. Reste seulement des mentions historiques dans
+  les outcomes de tâches done + 1 fixture de test (tagGraph.test.ts), non touchées.
 verification: null
 release: null
