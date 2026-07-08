@@ -13,6 +13,8 @@ Flat YAML/markdown files under `docs/tasks/` are the ONLY source of truth (no pa
 
 **Every repo change = one roadmapped unit, no exceptions.** `done` is a boundary, not a lid: feedback, a rework, a review fix → each gets its own `quick`. "ASAP" is never a reason to skip the `quick` — the `quick` IS the fast path (~2 commands). Only artefact-free exchange (question, explanation, status) stays conversational.
 
+**Feedback vs quick (#149) — the same-scope exception.** A note on a task that isn't a change yet → `feedback <id> "…"` (captured, no ticket). When you ACT on it: SAME scope (finishing the same thing) → **reopen** the task (`start <id>`) and re-`done` with a new commit — git keeps every commit, the task carries the journal, no twin ticket. NEW scope (a different concern) → a `quick`, as always. `sitrep` flags done tasks with open feedback.
+
 1. Does this change even deserve to exist? If not, create nothing.
 2. Does a `quick` suffice (isolated fix, size S, no decisions to make)? → `quick`, done with `--outcome` alone.
 3. Otherwise, does a single task suffice? → `add`, normal cycle.
@@ -37,7 +39,8 @@ A deliberate shortcut (known ceiling, upgrade path) gets logged as `quick "<the 
 - `quick "<title>" --team <t> [--stage s] [--tags a,b] [--start] [--json]` — mini-ticket, minimal ceremony.
 - `add --section <stage> --title <t> --team <t> [--detail d] [--refs a,b] [--depends-on 1,2] [--epic slug] [--kind task|quick|milestone] [--blocks 1,2] [--json]` — create a task (`--epic` = cross-stage grouping; `--kind milestone` + `--blocks` = a milestone that locks the cited tasks via their dependsOn).
 - `start <id>` — todo → in_progress.
-- `done <id> [--commit sha] [--outcome o] [--verification v] [--release r] [--suggest-refs]` — log completion (commit auto=HEAD; `--suggest-refs` suggests refs from the diff, to confirm).
+- `done <id> [--commit sha] [--outcome o] [--verification v] [--release r] [--suggest-refs] [--resolve-feedback all|1,3]` — log completion (commit auto=HEAD; `--suggest-refs` suggests refs from the diff, to confirm; `--resolve-feedback` closes open feedback items).
+- `feedback <id> "<text>" [--author name]` — capture a note on a task WITHOUT a ticket (#149). Same scope → reopen (`start <id>`) + re-`done`; new scope → a `quick`.
 - `update <id> [--field value ...]` — generic patch (`"null"` to clear a field).
 - `list [--section s] [--status s] [--team t] [--tag t] [--json]` — list.
 - `show <id> [--json]` — full detail of a task.
