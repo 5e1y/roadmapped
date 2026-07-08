@@ -1,4 +1,4 @@
-# Tone of voice — la voix de Rémi (et de Roadmaped)
+# Tone of voice — la voix de Rémi (et de Roadmapped)
 
 **Statut : DRAFT — proposition Fable à relire par Rémi.**
 S'applique à TOUTE communication publique : posts, site, README, fiches produit,
@@ -49,7 +49,7 @@ tout en sachant très bien que c'est du marketing, et en le disant aussi.
 > J'ai passé trois semaines à construire un outil de gestion de projet pour éviter
 > de gérer mon projet.
 >
-> Ça s'appelle Roadmaped. C'est open source, c'est des fichiers YAML dans votre
+> Ça s'appelle Roadmapped. C'est open source, c'est des fichiers YAML dans votre
 > repo, et c'est piloté par un agent IA qui consigne son travail plus proprement
 > que moi. L'outil s'est construit lui-même en s'utilisant — l'archive du repo en
 > témoigne, commit par commit, avec une honnêteté que je trouve personnellement

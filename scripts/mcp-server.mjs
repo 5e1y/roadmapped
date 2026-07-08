@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Serveur MCP Roadmaped (#91-92) — l'étage final de l'économie de tokens : les
+// Serveur MCP Roadmapped (#91-92) — l'étage final de l'économie de tokens : les
 // commandes deviennent des tools aux schémas AUTO-DOCUMENTÉS (le schéma remplace la
 // doc du CLI dans le contexte), zéro bash à formater, sortie structurée sans bruit.
 //
@@ -330,7 +330,7 @@ export function makeTools(ROOT) {
 // ------------------------------------------------------------------ serveur
 /** Monte un serveur MCP branché sur `tools` (registre déjà lié à un ROOT). */
 export function buildServer(tools) {
-  const server = new Server({ name: 'roadmaped', version: '1.0.0' }, { capabilities: { tools: {} } })
+  const server = new Server({ name: 'roadmapped', version: '1.0.0' }, { capabilities: { tools: {} } })
   server.setRequestHandler(ListToolsRequestSchema, () => ({
     tools: tools.map(({ name, description, inputSchema }) => ({ name, description, inputSchema })),
   }))
@@ -351,5 +351,5 @@ export function buildServer(tools) {
 if (import.meta.url === `file://${process.argv[1]}`) {
   const { tasksDir: ROOT } = loadPaths()
   await buildServer(makeTools(ROOT)).connect(new StdioServerTransport())
-  process.stderr.write('roadmaped MCP server prêt (stdio).\n')
+  process.stderr.write('roadmapped MCP server prêt (stdio).\n')
 }

@@ -1,6 +1,6 @@
-# Roadmaped — User Guide
+# Roadmapped — User Guide
 
-Roadmaped is local project management for founders who drive their work with an AI
+Roadmapped is local project management for founders who drive their work with an AI
 agent — think Obsidian × Linear, with **no database**. Flat YAML and markdown files
 inside your repo are the single source of truth. A local dashboard renders them for
 humans; a CLI (`scripts/task.mjs`) and a Claude skill let your agent create specs,
@@ -13,9 +13,9 @@ write examples from an isolated sandbox (see [CLI reference](#4-cli-reference)).
 
 ---
 
-## 1. What is Roadmaped
+## 1. What is Roadmapped
 
-Roadmaped has one hard rule: **the files are the truth**. There is no server-side
+Roadmapped has one hard rule: **the files are the truth**. There is no server-side
 state, no SaaS, no hidden index. Everything lives in your repository as plain text
 you can read, diff, edit by hand and commit alongside your code.
 
@@ -58,7 +58,7 @@ yourself keeping a parallel checklist, you are fighting the tool.
 
 ## 2. Installation in a host repo
 
-Roadmaped lives as a folder in (or next to) your project. Install its dependencies
+Roadmapped lives as a folder in (or next to) your project. Install its dependencies
 and start the dashboard:
 
 ```bash
@@ -70,10 +70,10 @@ node scripts/task.mjs --help
 Node **≥ 22.18** is required — it runs the TypeScript imports natively. On older
 Node, use `npm run task -- <command>` instead of `node scripts/task.mjs <command>`.
 
-### `roadmaped.config.json`
+### `roadmapped.config.json`
 
-The CLI and the dashboard resolve two directories from a `roadmaped.config.json` at
-the Roadmaped root:
+The CLI and the dashboard resolve two directories from a `roadmapped.config.json` at
+the Roadmapped root:
 
 ```json
 {
@@ -87,10 +87,10 @@ the Roadmaped root:
 | `tasksDir` | Where the backlog lives (stages, tasks, `_meta.yaml`, archive). | `../docs/tasks` |
 | `docsDir` | Where the Docs view reads markdown from. | `../docs` |
 
-Relative paths are resolved against the Roadmaped root (the folder that contains
-`roadmaped.config.json`), **not** your shell's working directory — so the CLI always
+Relative paths are resolved against the Roadmapped root (the folder that contains
+`roadmapped.config.json`), **not** your shell's working directory — so the CLI always
 targets the same backlog no matter where you run it from. The defaults
-(`../docs/tasks`, `../docs`) assume Roadmaped sits *beside* your `docs/`. If it sits
+(`../docs/tasks`, `../docs`) assume Roadmapped sits *beside* your `docs/`. If it sits
 *inside* the repo it manages (as in this repository), point both keys at the repo's
 own `docs`, as shown above. Adjust this file **before** the first run — otherwise the
 tool works in the wrong place. A missing or unreadable config silently falls back to
@@ -156,7 +156,7 @@ validate-then-rollback path as the CLI, so the panel can never save an invalid s
 ## 4. CLI reference
 
 `scripts/task.mjs` is the agent's entry point and the only *write* interface you
-should use for anything the CLI covers. Run everything from the Roadmaped root:
+should use for anything the CLI covers. Run everything from the Roadmapped root:
 
 ```bash
 node scripts/task.mjs <command> [arguments]
@@ -209,7 +209,7 @@ stage: 03-identity · team: marketing · size: M
 detail: Définir avec Rémi : audience (…) …
 refs:
   README.md
-  docs/specs/2026-07-07-roadmaped-v2-design.md
+  docs/specs/2026-07-07-roadmapped-v2-design.md
 done 16 --commit <sha> --outcome "…" --verification "…"
 ```
 
@@ -273,9 +273,9 @@ other value to give it. `--team` filters across all stages:
 ```console
 $ node scripts/task.mjs list --team engineering
 01-idea — Idea Stage (done) 1/1
-  [x] #45  Idée initiale — Roadmaped, gestion de projet locale agent-first  (engineering)
+  [x] #45  Idée initiale — Roadmapped, gestion de projet locale agent-first  (engineering)
 02-initial — Initial Stage (done) 2/2
-  [x] #46  Choisir le nom Roadmaped  (engineering)
+  [x] #46  Choisir le nom Roadmapped  (engineering)
   [x] #47  Préparer le repo standalone  (engineering)
 04-build — Build Stage (open) 20/30
   [x] #1   Audit UX/UI complet du dashboard  (S engineering ux audit)
@@ -306,8 +306,8 @@ $ node scripts/task.mjs show 47
 [x] #47  Préparer le repo standalone  (engineering)
   section: 02-initial
   fichier: docs/tasks/02-initial/02-preparer-le-repo-standalone.yaml
-  detail: Extraire Roadmaped de son incubation dans ZineKit vers un repo autonome : code, dépendances (@types/node explicite), config, backlog.
-  outcome: Repo standalone Roadmaped 0.1.0 initialisé — extraction depuis ZineKit, arbre propre.
+  detail: Extraire Roadmapped de son incubation dans ZineKit vers un repo autonome : code, dépendances (@types/node explicite), config, backlog.
+  outcome: Repo standalone Roadmapped 0.1.0 initialisé — extraction depuis ZineKit, arbre propre.
   vérification: Commit d'extraction 388fbb2 ; npm run build et npm run test verts sur le repo autonome.
   commit: 388fbb2
   dates: créée 2026-07-07 · terminée 2026-07-07 · source user
@@ -346,7 +346,7 @@ $ node scripts/task.mjs next
   section: 03-identity
   fichier: docs/tasks/03-identity/01-positionnement-et-copy-du-site.yaml
   detail: Définir avec Rémi : audience (founders solo pilotés par agent IA, utilisateurs Claude Code), promesse centrale (« votre repo est votre outil de gestion de projet »), différenciateurs (fichiers plats sans SaaS ni base de données, agent-first, local, open source), structure de la landing (hero, démo animée, features, quickstart, lien GitHub/skill), langue (EN, FR, ou les deux), ton. Livrable : docs/site-copy.md avec la copy complète et approuvée, section par section. C'est un livrable éditorial — pas de spec technique requise.
-  refs: README.md · docs/specs/2026-07-07-roadmaped-v2-design.md
+  refs: README.md · docs/specs/2026-07-07-roadmapped-v2-design.md
   dates: créée 2026-07-07 · source user
 ```
 
@@ -595,7 +595,7 @@ stays for humans, CI, and tests. Both call the same `src/lib` core (`taskWrites`
 ```json
 {
   "mcpServers": {
-    "roadmaped": { "command": "node", "args": ["scripts/mcp-server.mjs"] }
+    "roadmapped": { "command": "node", "args": ["scripts/mcp-server.mjs"] }
   }
 }
 ```
@@ -616,7 +616,7 @@ same self-documenting message the CLI prints — the rollback leaves the tree un
 ### The pre-commit guard — every repo change is a ticket
 
 The rule (born from a real incident, see `docs/process-enforcement-gap.md`): **every
-change to the repo is a roadmaped unit — a `quick`, a task, or a spec — without
+change to the repo is a roadmapped unit — a `quick`, a task, or a spec — without
 exception, including right after a `done`.** A `done` is a boundary, not a lid: feedback,
 rework, and review fixes each get their own `quick`. "ASAP" is never a reason to skip it —
 the `quick` *is* the fast path (~2 commands). Only exchanges that produce no artifact
@@ -826,10 +826,10 @@ them before archiving. The archive is never modified by hand.
 
 ## 6. Working with a Claude agent
 
-Roadmaped ships a Claude skill (`skills/roadmaped/`) so an agent drives the backlog in
+Roadmapped ships a Claude skill (`skills/roadmapped/`) so an agent drives the backlog in
 the correct format. The CLI is the agent's **only write interface**.
 
-**The skill is split**: `skills/roadmaped/SKILL.md` is a ≤50-line **core** — boussole,
+**The skill is split**: `skills/roadmapped/SKILL.md` is a ≤50-line **core** — boussole,
 decision ladder, the cycle, one line per command, the prohibitions, and a **router** —
 and it is the *only* thing a routine session loads. Everything else lives in
 `references/` and is opened **only on its own explicit trigger**, never speculatively:

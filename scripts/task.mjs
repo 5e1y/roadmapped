@@ -108,7 +108,7 @@ function printTask(hit, tree) {
   for (const sub of task.subtasks) console.log(taskLine(sub, '    '))
 }
 
-const USAGE = `task.mjs — gestion de docs/tasks/ (source de vérité du backlog Roadmaped)
+const USAGE = `task.mjs — gestion de docs/tasks/ (source de vérité du backlog Roadmapped)
 
 Usage : node scripts/task.mjs <commande> [arguments]
         (Node >= 22.18 ; sinon : npm run task --prefix dashboard -- <commande>)
@@ -462,7 +462,7 @@ function cmdArchive(id) {
 }
 
 // Garde pre-commit (#100, spec 2026-07-08-process-enforcement) : tout changement du
-// repo = une unité roadmaped. Refuse un commit produit sans tâche in_progress ; laisse
+// repo = une unité roadmapped. Refuse un commit produit sans tâche in_progress ; laisse
 // passer la consignation (backlog seul), les merges, et un repo non initialisé.
 // Appelé par scripts/githooks/pre-commit (core.hooksPath, activé au npm prepare).
 function cmdGuard(flags) {

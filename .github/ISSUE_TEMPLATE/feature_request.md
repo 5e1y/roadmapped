@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Suggest an idea or enhancement for Roadmaped
+about: Suggest an idea or enhancement for Roadmapped
 labels: enhancement
 ---
 

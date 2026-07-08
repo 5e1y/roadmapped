@@ -119,7 +119,7 @@ describe('runAction — Notepad CRUD + sécurité reveal (#86)', () => {
   const paths = () => ({ tasksDir: '/unused', docsDir })
   const run = (method: string, url: string, body: unknown = null) =>
     runAction(paths(), routeApi(method, url, body))
-  beforeEach(() => { docsDir = mkdtempSync(join(tmpdir(), 'roadmaped-notes-')) })
+  beforeEach(() => { docsDir = mkdtempSync(join(tmpdir(), 'roadmapped-notes-')) })
   afterEach(() => rmSync(docsDir, { recursive: true, force: true }))
 
   it('create → read → autosave relu sur disque', () => {
@@ -155,13 +155,13 @@ describe('runAction — Notepad CRUD + sécurité reveal (#86)', () => {
   })
   it('reveal refuse un chemin non absolu (400) et un fichier inexistant dans HOME (404)', () => {
     expect(run('POST', '/api/reveal', { path: 'relatif.txt' }).status).toBe(400)
-    expect(run('POST', '/api/reveal', { path: join(homedir(), '__ne-existe-pas-roadmaped__.xyz') }).status).toBe(404)
+    expect(run('POST', '/api/reveal', { path: join(homedir(), '__ne-existe-pas-roadmapped__.xyz') }).status).toBe(404)
   })
 })
 
 describe('ensureGitignore — idempotent (#87)', () => {
   let dir: string
-  beforeEach(() => { dir = mkdtempSync(join(tmpdir(), 'roadmaped-gi-')) })
+  beforeEach(() => { dir = mkdtempSync(join(tmpdir(), 'roadmapped-gi-')) })
   afterEach(() => rmSync(dir, { recursive: true, force: true }))
 
   it('ajoute la ligne une fois, jamais deux', () => {

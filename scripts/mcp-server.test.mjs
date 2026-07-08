@@ -13,7 +13,7 @@ let tools
 const tool = (name) => tools.find((t) => t.name === name)
 
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), 'roadmaped-mcp-'))
+  dir = mkdtempSync(join(tmpdir(), 'roadmapped-mcp-'))
   writeFileSync(join(dir, '_meta.yaml'), 'nextId: 1\n')
   seedStages(dir)
   addTask(dir, { section: '04-build', team: 'engineering', title: 'Une tâche', refs: ['docs/x.md'] }) // #1

@@ -2,19 +2,19 @@ import { readFileSync, existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { resolve, isAbsolute, dirname } from 'node:path'
 
-export interface RoadmapedConfig {
+export interface RoadmappedConfig {
   tasksDir?: string
   docsDir?: string
 }
 
-export interface RoadmapedPaths {
+export interface RoadmappedPaths {
   /** Chemin absolu du dossier des tâches. */
   tasksDir: string
   /** Chemin absolu du dossier des docs. */
   docsDir: string
 }
 
-const DEFAULTS: Required<RoadmapedConfig> = {
+const DEFAULTS: Required<RoadmappedConfig> = {
   tasksDir: '../docs/tasks',
   docsDir: '../docs',
 }
@@ -26,7 +26,7 @@ export function dashboardRoot(): string {
 }
 
 /** Fonction pure, testable : combine racine + config → chemins absolus. */
-export function resolvePaths(root: string, config: RoadmapedConfig): RoadmapedPaths {
+export function resolvePaths(root: string, config: RoadmappedConfig): RoadmappedPaths {
   const one = (value: string | undefined, fallback: string): string => {
     // Garde de type : un JSON de config avec une valeur non-string (ex. 42)
     // doit retomber sur le défaut, pas crasher le boot de vite/task.mjs.
@@ -39,14 +39,16 @@ export function resolvePaths(root: string, config: RoadmapedConfig): RoadmapedPa
   }
 }
 
-/** Lit roadmaped.config.json à la racine dashboard/ (défauts si absent/illisible). */
-export function loadPaths(): RoadmapedPaths {
+/** Lit roadmapped.config.json à la racine (défauts si absent/illisible).
+ *  Rétrocompat renommage 2026-07 : l'ancien nom à un seul p reste lu s'il est seul. */
+export function loadPaths(): RoadmappedPaths {
   const root = dashboardRoot()
-  const configPath = resolve(root, 'roadmaped.config.json')
-  let config: RoadmapedConfig = {}
-  if (existsSync(configPath)) {
+  const configPath = [resolve(root, 'roadmapped.config.json'), resolve(root, 'roadmaped.config.json')]
+    .find(existsSync)
+  let config: RoadmappedConfig = {}
+  if (configPath) {
     try {
-      config = JSON.parse(readFileSync(configPath, 'utf8')) as RoadmapedConfig
+      config = JSON.parse(readFileSync(configPath, 'utf8')) as RoadmappedConfig
     } catch {
       // config illisible → défauts (l'outil doit démarrer même sans config valide)
       config = {}

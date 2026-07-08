@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { execFileSync, spawnSync, spawn } from 'node:child_process'
 import {
-  mkdtempSync, rmSync, mkdirSync, writeFileSync, readFileSync, cpSync, symlinkSync,
+  mkdtempSync, rmSync, mkdirSync, writeFileSync, readFileSync, cpSync, symlinkSync, renameSync,
 } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve, dirname } from 'node:path'
@@ -34,7 +34,7 @@ const scriptPath = () => join(sandbox, 'scripts', 'task.mjs')
 
 /** Construit un sandbox autonome (script + lib + node_modules + config + 8 stages). */
 function buildSandbox() {
-  sandbox = mkdtempSync(join(tmpdir(), 'roadmaped-cli-'))
+  sandbox = mkdtempSync(join(tmpdir(), 'roadmapped-cli-'))
   mkdirSync(join(sandbox, 'scripts'))
   cpSync(join(repoRoot, 'scripts', 'task.mjs'), join(sandbox, 'scripts', 'task.mjs'))
   cpSync(join(repoRoot, 'src', 'lib'), join(sandbox, 'src', 'lib'), { recursive: true })
@@ -42,7 +42,7 @@ function buildSandbox() {
 
   tasksDir = join(sandbox, 'tasks')
   mkdirSync(tasksDir, { recursive: true })
-  writeFileSync(join(sandbox, 'roadmaped.config.json'), JSON.stringify({ tasksDir }))
+  writeFileSync(join(sandbox, 'roadmapped.config.json'), JSON.stringify({ tasksDir }))
   writeFileSync(join(tasksDir, '_meta.yaml'), 'nextId: 2\n')
   for (const [slug, title] of STAGES) {
     mkdirSync(join(tasksDir, slug), { recursive: true })
@@ -360,6 +360,15 @@ describe('CLI brief — extraits d\'ancre & fraîcheur (#69)', () => {
   })
 })
 
+describe('CLI — rétrocompat config renommage (#110)', () => {
+  it('un repo hôte avec l’ancien roadmaped.config.json (un p) fonctionne toujours', () => {
+    renameSync(join(sandbox, 'roadmapped.config.json'), join(sandbox, 'roadmaped.config.json'))
+    const r = runTask(['show', '1'])
+    expect(r.code).toBe(0)
+    expect(r.stdout).toMatch(/#1/)
+  })
+})
+
 describe('CLI guard — enforcement au commit (#100)', () => {
   // Le sandbox devient un vrai repo git : le guard se teste contre de VRAIS
   // fichiers stagés, et le hook contre de VRAIES tentatives de commit.
@@ -416,7 +425,7 @@ describe('CLI guard — enforcement au commit (#100)', () => {
     expect(runGuard().code).toBe(0)
   })
 
-  it('passe (muet) dans un repo roadmaped non initialisé (_meta.yaml absent)', () => {
+  it('passe (muet) dans un repo roadmapped non initialisé (_meta.yaml absent)', () => {
     initGit()
     stageProductFile()
     rmSync(join(tasksDir, '_meta.yaml'))
