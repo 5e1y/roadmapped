@@ -1,7 +1,7 @@
 id: 9
 code: null
 title: CI GitHub Actions
-status: in_progress
+status: todo
 tags:
   - open-source
   - ci

@@ -1,7 +1,7 @@
 id: 16
 code: null
 title: Positionnement et copy du site
-status: todo
+status: done
 tags:
   - marketing
 size: M
@@ -21,7 +21,15 @@ dependsOn: []
 milestone: null
 source: user
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-verification: null
+completedAt: "2026-07-08"
+commit: b285e78
+outcome: >-
+  docs/site-copy.md créé — copy complète EN, section par section (hero, démo, features, how it
+  works, built-by-using-it, quickstart, privacy, open source, footer). Audience
+  founders/agent-users, promesse « your repo is already your PM tool », differentiators flat
+  files/no SaaS/agent-first. Voix tone-of-voice appliquée à la lettre.
+verification: >-
+  Relecture du livrable : toutes les sections listées dans le detail du ticket présentes, EN,
+  chiffres factuels, superlatifs interdits absents. Livrable éditorial — pas d'artefact runtime à
+  exécuter.
 release: null
