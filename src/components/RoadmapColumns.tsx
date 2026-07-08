@@ -38,7 +38,7 @@ function TaskCard({ task, state, missing }: { task: TaskNode; state: Availabilit
     ? 'border border-neutral-200 bg-accent-tint shadow-[inset_2px_0_0_var(--color-accent)]'
     : 'border border-neutral-200 bg-white hover:z-10 hover:border-neutral-400'
   const dim = state === 'done' || state === 'locked'
-  const titleCls = task.status === 'done' ? 'text-neutral-400 line-through' : dim ? 'text-neutral-400' : 'text-neutral-900'
+  const titleCls = task.status === 'done' ? 'text-neutral-500 line-through' : dim ? 'text-neutral-500' : 'text-neutral-900'
   const subs = task.subtasks.length > 0 ? countTasksDeep(task.subtasks) : null
   return (
     <button type="button" onClick={() => openTask(task.id)} title={task.title}
@@ -46,10 +46,10 @@ function TaskCard({ task, state, missing }: { task: TaskNode; state: Availabilit
       <div className="flex items-start gap-2">
         <span className="mt-0.5">
           {state === 'locked'
-            ? <LockLocked size={11} className="shrink-0 text-neutral-400" ariaLabel="Verrouillée" />
+            ? <LockLocked size={11} className="shrink-0 text-neutral-500" ariaLabel="Verrouillée" />
             : <StatusGlyph status={task.status} />}
         </span>
-        <span className="mt-px shrink-0 font-mono text-xs text-neutral-400">#{task.id}</span>
+        <span className="mt-px shrink-0 font-mono text-xs text-neutral-500">#{task.id}</span>
         <span className={`min-w-0 line-clamp-2 text-sm ${titleCls}`}>
           {task.title}
         </span>
@@ -58,14 +58,14 @@ function TaskCard({ task, state, missing }: { task: TaskNode; state: Availabilit
           + ligne d'état. Les cartes done n'affichent plus de chips (le détail
           vit dans le panneau) — cohérence entre états et avec le Graphe. */}
       {state === 'locked' ? (
-        <span className="text-[11px] text-neutral-400">
+        <span className="text-[11px] text-neutral-500">
           Prérequis manquants{missing.length ? ` (${missing.map((d) => `#${d}`).join(' ')})` : ''}
         </span>
       ) : state === 'available' ? (
         <span className="text-[11px] font-medium text-neutral-700">Disponible</span>
       ) : null}
       {subs && (
-        <span className="font-mono text-[11px] text-neutral-400">{subs.done}/{subs.total} sous-tâches</span>
+        <span className="font-mono text-[11px] text-neutral-500">{subs.done}/{subs.total} sous-tâches</span>
       )}
       {/* Badge team (le QUI) — abrégé, coin bas droit de la carte. Même donnée
           = même rendu que le Backlog : Chip (design.md §2). */}
@@ -102,7 +102,8 @@ function Column({ section, visible, avail }: { section: SectionNode; visible: Ta
         </span>
         <span className="flex shrink-0 items-center gap-1.5">
           {statusFr && !empty && <Chip label={statusFr} />}
-          <span className={`font-mono text-xs ${empty ? 'text-neutral-300' : 'text-neutral-400'}`}>{done}/{total}</span>
+          {/* Compteur porteur de sens même à 0/0 : plancher neutral-500 (audit #108). */}
+          <span className="font-mono text-xs text-neutral-500">{done}/{total}</span>
         </span>
       </div>
       {/* Stage vide = estompé : ni note ni barre, l'espace va aux stages peuplés. */}

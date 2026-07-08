@@ -72,32 +72,32 @@ export function TaskRow({ task }: { task: TaskNode }) {
           className="flex min-w-0 flex-1 items-center gap-2 py-2.5 text-left"
         >
           <StatusGlyph status={task.status} />
-          <span className="shrink-0 font-mono text-xs text-neutral-400">#{task.id}</span>
+          <span className="shrink-0 font-mono text-xs text-neutral-500">#{task.id}</span>
           {/* Une ligne STRICTE (pattern Linear) : le titre tronque (tooltip natif),
               les chips restent ancrés à droite. Familles différenciées (cf.
               Chip.tsx), tags en texte léger plafonnés à 3 (+n), source retiré —
               le détail complet vit dans le panneau. */}
           <span
             title={task.title}
-            className={`min-w-0 truncate ${isDone ? 'text-neutral-400 line-through' : 'text-neutral-900'}`}
+            className={`min-w-0 truncate ${isDone ? 'text-neutral-500 line-through' : 'text-neutral-900'}`}
           >
             {task.title}
           </span>
           <span className="ml-auto flex shrink-0 items-center gap-1.5">
             {/* Liste une-colonne : la date de bouclage passe sur la ligne. */}
             {task.completedAt && (
-              <span className="font-mono text-[11px] text-neutral-400">{task.completedAt}</span>
+              <span className="font-mono text-[11px] text-neutral-500">{task.completedAt}</span>
             )}
             {hasSubs && (
-              <span className="font-mono text-[11px] text-neutral-400">
+              <span className="font-mono text-[11px] text-neutral-500">
                 {subDone}/{task.subtasks.length}
               </span>
             )}
             {task.tags.slice(0, 3).map((t) => (
-              <span key={t} className="text-[11px] text-neutral-400">#{t}</span>
+              <span key={t} className="text-[11px] text-neutral-500">#{t}</span>
             ))}
             {task.tags.length > 3 && (
-              <span className="text-[11px] text-neutral-400" title={task.tags.slice(3).join(', ')}>
+              <span className="text-[11px] text-neutral-500" title={task.tags.slice(3).join(', ')}>
                 +{task.tags.length - 3}
               </span>
             )}

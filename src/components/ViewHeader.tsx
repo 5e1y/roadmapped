@@ -45,7 +45,7 @@ export function ViewHeader({ meta, children }: {
             </button>
           ))}
         </nav>
-        {meta && <div className="min-w-0 truncate font-mono text-xs text-neutral-400">{meta}</div>}
+        {meta && <div className="min-w-0 truncate font-mono text-xs text-neutral-500">{meta}</div>}
       </div>
       {children && <div className="flex shrink-0 items-center gap-2">{children}</div>}
     </header>
@@ -88,7 +88,7 @@ export function FilterMenu({ allLabel, options, selected, onChange, multiple = f
         }`}
       >
         {label}
-        <ChevronDown size={9} className="text-neutral-400" />
+        <ChevronDown size={9} className="text-neutral-500" />
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Positioner sideOffset={4} align="end" className="z-50">
@@ -107,12 +107,12 @@ export function FilterMenu({ allLabel, options, selected, onChange, multiple = f
                   aria-pressed={active}
                   className={`flex w-full items-baseline justify-between gap-2 px-2.5 py-1.5 text-left text-xs hover:bg-neutral-100 ${
                     active ? 'bg-accent-tint font-medium text-neutral-900 shadow-[inset_2px_0_0_var(--color-accent)]'
-                    : o.count === 0 ? 'text-neutral-300' : 'text-neutral-600'
+                    : o.count === 0 ? 'text-neutral-500' : 'text-neutral-600'
                   }`}
                 >
                   <span className="min-w-0 truncate">{o.label}</span>
                   {o.count !== undefined && (
-                    <span className="shrink-0 font-mono text-[11px] text-neutral-400">{o.count}</span>
+                    <span className="shrink-0 font-mono text-[11px] text-neutral-500">{o.count}</span>
                   )}
                 </Popover.Close>
               )
@@ -121,7 +121,7 @@ export function FilterMenu({ allLabel, options, selected, onChange, multiple = f
               <Popover.Close
                 render={<button type="button" />}
                 onClick={() => onChange([])}
-                className="mt-1 flex w-full border-t border-neutral-100 px-2.5 py-1.5 text-left text-xs text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700"
+                className="mt-1 flex w-full border-t border-neutral-100 px-2.5 py-1.5 text-left text-xs text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700"
               >
                 Effacer le filtre
               </Popover.Close>

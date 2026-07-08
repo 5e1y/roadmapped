@@ -10,7 +10,7 @@ export function Chevron() {
   // ⚠️ trinil-react 1.3.9 inverse ChevronLeft/ChevronRight (le path de
   // « Right » pointe à gauche) : on importe ChevronLeft pour pointer à DROITE
   // fermé. À simplifier quand la lib sera corrigée (signalé à Rémi).
-  return <ChevronLeft size={11} className="chev shrink-0 text-neutral-400" />
+  return <ChevronLeft size={11} className="chev shrink-0 text-neutral-500" />
 }
 
 /**
@@ -38,7 +38,7 @@ export function StatusGlyph({ status }: { status: TaskNode['status'] }) {
           <path d="M5 1.25 A3.75 3.75 0 0 0 5 8.75 Z" fill="currentColor" />
         </>
       ) : (
-        <circle cx="5" cy="5" r="3.75" fill="none" stroke="#a3a3a3" strokeWidth="1" />
+        <circle cx="5" cy="5" r="3.75" fill="none" stroke="#737373" strokeWidth="1" />
       )}
     </svg>
   )

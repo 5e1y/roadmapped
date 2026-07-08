@@ -39,7 +39,9 @@ export function TeamsRadar({ counts, selected, onSelect }: {
   const rOf = (team: Team) => ((counts.get(team) ?? 0) / max) * R
   const poly = TEAMS.map((t, i) => vertex(i, rOf(t)).join(',')).join(' ')
   return (
-    <div className="relative aspect-square w-full" role="img" aria-label="Charge par team">
+    // role="group" (pas "img" : il rendait présentationnels les 8 boutons
+    // aria-pressed enfants — 4.1.2, audit #107). Le SVG reste aria-hidden.
+    <div className="relative aspect-square w-full" role="group" aria-label="Charge par team">
       <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="absolute inset-[15%] h-[70%] w-[70%] overflow-visible" aria-hidden="true">
         {Array.from({ length: RINGS }, (_, k) => (
           <polygon key={k} points={ringPath(((k + 1) / RINGS) * R)} fill="none" stroke="#d4d4d4" strokeWidth={1} vectorEffect="non-scaling-stroke" />
@@ -80,9 +82,9 @@ export function TeamsRadar({ counts, selected, onSelect }: {
                 : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400 hover:text-neutral-900'
             }`}
           >
-            <Icon size={12} className={active ? 'text-accent' : 'text-neutral-400'} />
+            <Icon size={12} className={active ? 'text-accent' : 'text-neutral-500'} />
             {t}
-            <span className={`font-mono text-[11px] ${active ? 'text-accent' : 'text-neutral-400'}`}>
+            <span className={`font-mono text-[11px] ${active ? 'text-accent' : 'text-neutral-500'}`}>
               {counts.get(t) ?? 0}
             </span>
           </button>

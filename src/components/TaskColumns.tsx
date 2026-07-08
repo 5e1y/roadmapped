@@ -27,14 +27,14 @@ export function TaskList({ open, done, filtered }: {
   const visible = showAll ? open : open.slice(0, PREVIEW)
   const hidden = open.length - visible.length
   const empty = (label: string) => (
-    <p className="border border-dashed border-neutral-300 px-4 py-8 text-center text-xs text-neutral-400">
+    <p className="border border-dashed border-neutral-300 px-4 py-8 text-center text-xs text-neutral-500">
       {label}{filtered ? ' avec ces filtres' : ''}.
     </p>
   )
   return (
     <div className="flex flex-col gap-8">
       <section>
-        <h2 className="mb-2 flex items-baseline justify-between px-1 text-xs font-medium text-neutral-400">
+        <h2 className="mb-2 flex items-baseline justify-between px-1 text-xs font-medium text-neutral-500">
           <span>À faire — par stage puis ancienneté</span>
           <span className="font-mono text-[11px]">{open.length}</span>
         </h2>
@@ -54,7 +54,7 @@ export function TaskList({ open, done, filtered }: {
               <button
                 type="button"
                 onClick={() => setShowAll(false)}
-                className="w-full px-4 py-2.5 text-center text-xs text-neutral-400 hover:bg-neutral-50 hover:text-neutral-700"
+                className="w-full px-4 py-2.5 text-center text-xs text-neutral-500 hover:bg-neutral-50 hover:text-neutral-700"
               >
                 Réduire
               </button>
@@ -63,7 +63,7 @@ export function TaskList({ open, done, filtered }: {
         )}
       </section>
       <section>
-        <h2 className="mb-2 flex items-baseline justify-between px-1 text-xs font-medium text-neutral-400">
+        <h2 className="mb-2 flex items-baseline justify-between px-1 text-xs font-medium text-neutral-500">
           <span>Terminées — dernière bouclée en premier</span>
           <span className="font-mono text-[11px]">{done.length}</span>
         </h2>
@@ -142,7 +142,7 @@ export function MiniZone({ quicks, reload }: { quicks: TaskNode[]; reload: () =>
 
   return (
     <section>
-      <h2 className="mb-2 flex items-baseline justify-between px-1 text-xs font-medium text-neutral-400">
+      <h2 className="mb-2 flex items-baseline justify-between px-1 text-xs font-medium text-neutral-500">
         <span>Mini — changements éclair, terminés d'un clic sur le glyphe</span>
         <span className="font-mono text-[11px]">{quicks.length}</span>
       </h2>
@@ -151,7 +151,7 @@ export function MiniZone({ quicks, reload }: { quicks: TaskNode[]; reload: () =>
             Titre en peau ghost canonique (ghostCls) : invisible au repos, hover gris,
             focus bordure + fond blanc — le :focus-visible global reste actif. */}
         <div className="flex items-center gap-2 px-4 py-1.5">
-          <Plus size={11} className="shrink-0 text-neutral-400" />
+          <Plus size={11} className="shrink-0 text-neutral-500" />
           <GhostInput
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -159,7 +159,7 @@ export function MiniZone({ quicks, reload }: { quicks: TaskNode[]; reload: () =>
             placeholder="Nouveau mini — titre puis Entrée"
             aria-label="Nouveau mini"
             disabled={busy}
-            className="min-w-0 flex-1 text-sm placeholder:text-neutral-400"
+            className="min-w-0 flex-1 text-sm placeholder:text-neutral-500"
           />
           <div className="w-32 shrink-0">
             <Select
@@ -193,7 +193,7 @@ export function MiniZone({ quicks, reload }: { quicks: TaskNode[]; reload: () =>
                 onClick={() => openTask(t.id)}
                 className="flex min-w-0 flex-1 items-center gap-2 py-1.5 text-left"
               >
-                <span className="shrink-0 font-mono text-xs text-neutral-400">#{t.id}</span>
+                <span className="shrink-0 font-mono text-xs text-neutral-500">#{t.id}</span>
                 <span title={t.title} className="min-w-0 truncate text-sm text-neutral-900">{t.title}</span>
                 <span className="ml-auto shrink-0"><Chip label={TEAM_ABBR[t.team]} /></span>
               </button>
