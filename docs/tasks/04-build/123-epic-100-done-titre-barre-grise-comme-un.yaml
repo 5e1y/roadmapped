@@ -1,0 +1,24 @@
+id: 151
+kind: quick
+code: null
+title: >-
+  Epic 100% done : titre barré + grisé (comme une task done) — sinon confusion avec les epics à
+  faire/en cours
+status: todo
+tags:
+  - ux
+  - bug
+size: null
+team: design
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: hierarchie-regroupement
+source: ai
+createdAt: "2026-07-08T15:37:56"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

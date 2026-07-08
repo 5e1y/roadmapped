@@ -1,0 +1,31 @@
+id: 150
+code: null
+title: >-
+  Tag-graph optis : clic pastille = filtre, séparateur full-width, radar ancré en haut (visu nodal
+  dessous)
+status: todo
+tags:
+  - ux
+size: S
+team: design
+detail: >-
+  Retours Rémi sur le tag-graph (#146). (1) Clic sur la PASTILLE (le <circle> SVG dans TagGraph.tsx)
+  doit activer/désactiver le filtre comme le label — aujourd'hui seul le <button> label a onClick ;
+  rendre la pastille cliquable (onClick + curseur pointeur + hitbox, même toggle
+  onSelect(active?'':tag)). (2) Séparateur radar↔tag-graph FULL-WIDTH bord à bord : Backlog.tsx
+  flanc, retirer le mx-4 du <div border-t> (actuellement marginé, pas bord à bord). (3) Ancrer le
+  radar EN HAUT du flanc + le visu nodal en dessous : retirer le my-auto (centrage vertical) du
+  wrapper interne du flanc pour un ancrage haut naturel (le scroll interne reste). Fichiers :
+  src/components/TagGraph.tsx, src/components/Backlog.tsx. À faire par moi (mécanique), APRÈS #148
+  (collision src/).
+refs: []
+links: []
+dependsOn: []
+epic: vues-dashboard
+source: ai
+createdAt: "2026-07-08T15:37:51"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
