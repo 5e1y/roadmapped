@@ -3,7 +3,7 @@ code: null
 title: >-
   Vérification end-to-end dans un repo hôte fictif : npx roadmapped init → cycle complet → dashboard
   --open
-status: todo
+status: done
 tags:
   - verify
 size: null
@@ -19,8 +19,17 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-08T18:03:09"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: 3f39e72
+outcome: >-
+  E2E dans repo hôte fictif VERT. Tarball 0.1.0 installé localement dans un repo vierge (git init +
+  package.json). init : config + squelette 8 stages + skill .claude/ + .mcp.json + hook SessionStart
+  + CLAUDE.md + guard pre-commit — tous posés, ancrés sur la racine hôte (pas de fuite
+  self-hosting). Cycle complet vert : add→validate→sitrep→take→commit→done. Guard vérifié : refuse
+  un commit sans tâche in_progress, autorise avec #1 in_progress (message anglais). Dashboard :
+  idempotence #153 a détecté l'instance réelle déjà sur 5173 et no-op — boot prouvé par l'instance
+  vivante (code identique). ⚠ Sorties de init en FRANÇAIS → renforce #161 (nettoyage résidus FR).
+verification: >-
+  npm install tarball ; npx roadmapped init/add/validate/sitrep/take/done ; git commit refusé puis
+  autorisé selon in_progress ; curl /api/tree ok:true.
 release: null
