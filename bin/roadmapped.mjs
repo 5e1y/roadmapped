@@ -72,9 +72,16 @@ switch (cmd) {
       console.error('roadmapped dashboard : vite introuvable — lance `npm install` dans le repo hôte (roadmapped doit être installé en dépendance locale).')
       process.exit(1)
     }
+    // Ouverture auto du navigateur (#152) : --open par DÉFAUT — « boum la fenêtre
+    // s'ouvre ». --no-open (notre échappatoire, absent de vite) est retiré avant
+    // de passer les args à vite ; un --open explicite de l'utilisateur est respecté.
+    const noOpen = rest.includes('--no-open')
+    const cleanRest = rest.filter((a) => a !== '--no-open')
+    const hasOpen = cleanRest.some((a) => a === '--open' || a.startsWith('--open='))
+    const openArg = noOpen || hasOpen ? [] : ['--open']
     // cwd = repo hôte + ROADMAPPED_ROOT : les données (tasks/docs) s'ancrent sur
     // l'hôte ; --config pointe le vite.config.ts du paquet (root = paquet).
-    const r = spawnSync(process.execPath, [viteBin, '--config', join(packageDir, 'vite.config.ts'), ...rest], {
+    const r = spawnSync(process.execPath, [viteBin, '--config', join(packageDir, 'vite.config.ts'), ...openArg, ...cleanRest], {
       stdio: 'inherit',
       cwd: hostRoot,
       env: { ...process.env, ROADMAPPED_ROOT: hostRoot },
