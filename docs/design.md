@@ -1,98 +1,101 @@
-# design.md — la source de vérité visuelle de Roadmapped
+# design.md — Roadmapped's visual source of truth
 
-**Statut** : actif (#111) · **Nourri par** : docs/audit-a11y-2026-07.md (#107-109)
-**Appliqué par** : #113 (BaseUI), #114 (uniformité), #115 (a11y), #116 (Tailwind)
+**Status**: active (#111) · **Fed by**: docs/audit-a11y-2026-07.md (#107-109)
+**Enforced by**: #113 (BaseUI), #114 (uniformity), #115 (a11y), #116 (Tailwind)
 
-Un Design.md, pas un design system : ce document tranche chaque token, chaque composant
-canonique et chaque règle. Tout écart constaté dans le code est un bug, pas une variante.
-(Deviendra un système si l'app grossit — YAGNI aujourd'hui.)
+A Design.md, not a design system: this document settles every token, every canonical
+component, and every rule. Any deviation found in the code is a bug, not a variant.
+(It will become a system if the app grows — YAGNI today.)
 
 ## 1. Tokens
 
-### Couleurs — monochrome + UN accent
+### Colors — monochrome + ONE accent
 
-La doctrine (décision Rémi #36, index.css) : **l'unique couleur est le bleu d'accent**,
-réservé aux éléments actifs et aux points d'attention. Sa rareté le rend repérable.
-Tout le reste est neutre. **Aucune couleur sémantique** (pas d'ambre, pas de rouge) —
-l'erreur et le destructif s'expriment en registre monochrome appuyé (voir §3).
+The doctrine (Rémi's decision #36, index.css): **the only color is the accent blue**,
+reserved for active elements and points of attention. Its rarity makes it spottable.
+Everything else is neutral. **No semantic colors** (no amber, no red) — error and
+destructive states are expressed through an emphatic monochrome register (see §3).
 
-| Token | Valeur | Rôle |
+| Token | Value | Role |
 |---|---|---|
-| `--color-accent` | #2563eb | Actif, sélection, in_progress (5.17:1 sur blanc — conforme) |
-| `--color-accent-tint` | #eef3fd | Fond de sélection opaque (+ filet gauche accent) |
-| page | #fafafa (neutral-50) | LE fond de page, hérité du body, **jamais redéclaré** |
-| carte | #ffffff | Surfaces « carte » : flancs de liste, cartes, panneaux, popups |
-| filet | #e5e5e5 (neutral-200) | Bordures de séparation NON interactives |
-| encre | #171717 (neutral-900) | Texte principal |
+| `--color-accent` | #2563eb | Active, selection, in_progress (5.17:1 on white — compliant) |
+| `--color-accent-tint` | #eef3fd | Opaque selection background (+ left accent rule) |
+| page | #fafafa (neutral-50) | THE page background, inherited from the body, **never redeclared** |
+| card | #ffffff | "Card" surfaces: list sides, cards, panels, popups |
+| rule | #e5e5e5 (neutral-200) | NON-interactive separator borders |
+| ink | #171717 (neutral-900) | Primary text |
 
-### Échelle de gris — la règle de contraste (audit #108)
+### Gray scale — the contrast rule (audit #108)
 
-Décision systémique, pas au cas par cas :
+A systemic decision, not case by case:
 
-- **`neutral-500` (#737373) est le PLANCHER** de tout texte et de tout contrôle porteur de
-  sens sur fond blanc/page (4.74:1 / 4.54:1). `text-neutral-400` et `text-neutral-300`
-  sur du contenu informatif = non conforme (2.58:1 / 1.48:1), à promouvoir.
-- Sur fond gris (`neutral-100`/`200`) : plancher **`neutral-600`** (#525252).
-- `neutral-300`/`400` restent permis UNIQUEMENT pour le purement décoratif (grille du
-  radar, filets) — jamais pour du texte, une icône porteuse de sens, ou un contrôle.
-- États `disabled` : exempts WCAG, rester sur le rendu actuel.
-- Micro-texte : rien sous 10px ; 10px existant à remonter à 11px (audit §3).
+- **`neutral-500` (#737373) is the FLOOR** for all text and all meaning-bearing controls
+  on a white/page background (4.74:1 / 4.54:1). `text-neutral-400` and `text-neutral-300`
+  on informative content = non-compliant (2.58:1 / 1.48:1), to be promoted.
+- On a gray background (`neutral-100`/`200`): floor **`neutral-600`** (#525252).
+- `neutral-300`/`400` stay allowed ONLY for the purely decorative (radar grid, rules) —
+  never for text, a meaning-bearing icon, or a control.
+- `disabled` states: exempt from WCAG, keep the current rendering.
+- Micro-text: nothing below 10px; existing 10px to be bumped to 11px (audit §3).
 
-### Arrondis — deux rayons, une règle
+### Corner radii — two radii, one rule
 
-- **`rounded` (4px)** : tout contrôle dans le corps des vues et des panneaux (inputs,
-  boutons, boutons-icône).
-- **`rounded-md` (6px)** : réservé aux contrôles du header h-12 (recherche, « + tâche »,
-  tabs, filtres) et aux cartes flottantes (zoom graphe, radar).
-- **Carré (aucun arrondi)** : surfaces (cartes, accordéons, popups, banners, toasts),
-  chips, et lignes de liste (gabarit « ligne de backlog »).
-- `rounded-full` : barres de progression uniquement.
+- **`rounded` (4px)**: any control within the body of views and panels (inputs,
+  buttons, icon buttons).
+- **`rounded-md` (6px)**: reserved for the h-12 header controls (search, "+ task",
+  tabs, filters) and floating cards (graph zoom, radar).
+- **Square (no radius)**: surfaces (cards, accordions, popups, banners, toasts),
+  chips, and list rows (the "backlog row" template).
+- `rounded-full`: progress bars only.
 
-### Espacements — gabarits canoniques
+### Spacing — canonical templates
 
-- Zone de contenu centrée : `mx-auto max-w-3xl px-6 py-8` (états loading/erreur compris —
-  même gabarit que le contenu de leur vue).
-- Flanc gauche fixe : `w-[420px]` + `py-2`, lignes internes `px-4`.
-- Micro-labels : **deux niveaux seulement** — `text-xs font-medium` pour les en-têtes de
-  liste de vue, `text-[11px] font-medium` pour les labels de champ de panneau. Encre :
+- Centered content area: `mx-auto max-w-3xl px-6 py-8` (loading/error states included —
+  same template as their view's content).
+- Fixed left side: `w-[420px]` + `py-2`, inner rows `px-4`.
+- Micro-labels: **two levels only** — `text-xs font-medium` for view list headers,
+  `text-[11px] font-medium` for panel field labels. Ink:
   `text-neutral-500` (post-promotion).
 
-## 2. Composants canoniques — Base UI partout, zéro élément fait main
+## 2. Canonical components — Base UI everywhere, zero handmade element
 
-Tous vivent dans `src/components/ui.tsx`. Interdiction des variantes en dur dans les vues.
+Most live in `src/components/ui.tsx` (the exceptions, still canonical: `Chip` in
+`src/components/Chip.tsx`, re-exported through `ui.tsx`; `FilterMenu` in
+`src/components/ViewHeader.tsx`). In-line variants inside views are forbidden.
 
-| Besoin | Composant canonique | Notes |
+| Need | Canonical component | Notes |
 |---|---|---|
-| Dropdown/select | `Select` (Base UI) — peaux `fieldCls` / `ghost` / `compact` | Le `<select>` natif est interdit (dernier îlot : MiniZone → #113) |
-| Ajout d'une relation | `AddCombobox` (Base UI) | Fix focus post-ajout : #115 |
-| Tags multi + croix | `TagsCombobox` / `MultiCombobox` (Base UI Creatable) | Croix ChipRemove : pattern Base UI conforme (tabIndex=-1 + ←/→ Backspace) — ne pas « réparer » |
-| Text field visible | `fieldCls` | Bordure : garder neutral-300 + différencier par `bg-neutral-50` (option B de l'audit, moins brutale que border-500) |
-| Text field camouflé | `ghostCls` / `GhostInput` | LE pattern ghost (§3) — tout champ « invisible au repos » l'utilise, y compris le titre du quick-add mini |
-| Erreur | `ErrorBanner` (+ `Toast` pour l'éphémère) | role=alert, bord gauche neutral-900 — DocsView et MiniZone s'y rallient (#113) |
-| Popover/filtres | `FilterMenu` (Base UI Popover) | Ne jamais utiliser `Popover.Close disabled` (rend l'option inerte) |
-| Chip de métadonnée | `Chip` | Y compris le badge team des cartes Roadmap (même donnée = même rendu que le Backlog) |
-| Boutons | Primaire panneau : `rounded border-neutral-900 bg-neutral-900 px-2.5 py-1 text-xs text-white hover:bg-neutral-700` · Secondaire : `actionBtn` (hover `bg-neutral-100`) · Header : mêmes couleurs en `rounded-md` | Le hover « inversé » (clair→noir plein) est interdit ; « Supprimer » = secondaire (registre destructif global : non — YAGNI, monochrome assumé) |
+| Dropdown/select | `Select` (Base UI) — skins `fieldCls` / `ghost` / `compact` | The native `<select>` is forbidden (last holdout: MiniZone → #113) |
+| Adding a relation | `AddCombobox` (Base UI) | Post-add focus fix: #115 |
+| Multi tags + cross | `TagsCombobox` / `MultiCombobox` (Base UI Creatable) | ChipRemove cross: compliant Base UI pattern (tabIndex=-1 + ←/→ Backspace) — do not "fix" it |
+| Visible text field | `fieldCls` | Border: keep neutral-300 + differentiate via `bg-neutral-50` (audit's option B, less brutal than border-500) |
+| Camouflaged text field | `ghostCls` / `GhostInput` | THE ghost pattern (§3) — every field "invisible at rest" uses it, including the mini quick-add title |
+| Error | `ErrorBanner` (+ `Toast` for the ephemeral) | role=alert, left border neutral-900 — DocsView and MiniZone fall in line (#113) |
+| Popover/filters | `FilterMenu` (Base UI Popover) | Never use `Popover.Close disabled` (it makes the option inert) |
+| Metadata chip | `Chip` | Including the team badge on Roadmap cards (same data = same rendering as the Backlog) |
+| Buttons | Panel primary: `rounded border-neutral-900 bg-neutral-900 px-2.5 py-1 text-xs text-white hover:bg-neutral-700` · Secondary: `actionBtn` (hover `bg-neutral-100`) · Header: same colors in `rounded-md` | The "inverted" hover (light→solid black) is forbidden; "Delete" = secondary (global destructive register: no — YAGNI, monochrome by design) |
 
-## 3. Règles
+## 3. Rules
 
-1. **Tri-couche stricte** : page #fafafa (body, jamais redéclarée par une vue) / carte
-   #ffffff / filets #e5e5e5. Une vue ne pose JAMAIS `bg-white` sur sa racine — le
-   ViewHeader doit être identique dans les 4 tabs. Aucun hex de fond en dur dans les
-   className (le `bg-[#fafafa]` sticky de RoadmapColumns → utilitaire/var).
-2. **Langage « actif/sélectionné » universel** : `bg-accent-tint` + filet gauche
-   `shadow-[inset_2px_0_0_var(--color-accent)]`. Le gris `bg-neutral-100` est réservé au
-   hover — jamais à la sélection (déviant unique : DocsTree → #113).
-3. **Pattern ghost input** (décision Rémi, actée) : les champs éditables sont des inputs
-   PERMANENTS camouflés (`ghostCls`) — invisible au repos, hover `bg-neutral-100`, focus
-   bordure + fond blanc. **Jamais** de swap lecture→input, jamais d'étape crayon.
-4. **Focus** : visible partout (le `:focus-visible` global fait foi ; interdiction de le
-   neutraliser par `focus:outline-none`/inline sans remplacement). Un contrôle révélé au
-   hover se révèle AUSSI au focus (`focus-visible:opacity-100`). Après une action qui
-   démonte l'élément focalisé (suppression, ajout, sortie d'édition), le focus est
-   REPLACÉ explicitement (ligne suivante, input du combobox, conteneur du panneau) —
-   jamais abandonné sur body.
-5. **Clavier** : tout interactif est un `<button>` (ou géré Base UI). Un `role="button"`
-   répond à Entrée ET Espace. Pas de zone cliquable souris-seulement porteuse d'une
-   action non redondante.
-6. **Monochrome** : toute couleur hors accent/neutres est un bug (l'ambre et le rouge du
-   Notepad → sortis en #113).
+1. **Strict three-layer**: page #fafafa (body, never redeclared by a view) / card
+   #ffffff / rules #e5e5e5. A view NEVER sets `bg-white` on its root — the
+   ViewHeader must be identical across all 4 tabs. No hardcoded background hex in the
+   className (RoadmapColumns' sticky `bg-[#fafafa]` → utility/var).
+2. **Universal "active/selected" language**: `bg-accent-tint` + left rule
+   `shadow-[inset_2px_0_0_var(--color-accent)]`. Gray `bg-neutral-100` is reserved for
+   hover — never for selection (single deviant: DocsTree → #113).
+3. **Ghost input pattern** (Rémi's decision, settled): editable fields are PERMANENT
+   camouflaged inputs (`ghostCls`) — invisible at rest, hover `bg-neutral-100`, focus
+   border + white background. **Never** a read→input swap, never a pencil step.
+4. **Focus**: visible everywhere (the global `:focus-visible` is authoritative;
+   neutralizing it via `focus:outline-none`/inline without a replacement is forbidden). A
+   control revealed on hover ALSO reveals on focus (`focus-visible:opacity-100`). After an
+   action that unmounts the focused element (delete, add, exit edit), focus is explicitly
+   REPLACED (next row, combobox input, panel container) — never abandoned on body.
+5. **Keyboard**: everything interactive is a `<button>` (or handled by Base UI). A
+   `role="button"` responds to Enter AND Space. No mouse-only clickable zone carrying a
+   non-redundant action.
+6. **Monochrome**: any color outside accent/neutrals is a bug (the Notepad's amber and red
+   → removed in #113).
+</content>
+</invoke>
