@@ -3,7 +3,7 @@ code: null
 title: >-
   Tag-graph optis : clic pastille = filtre, séparateur full-width, radar ancré en haut (visu nodal
   dessous)
-status: todo
+status: done
 tags:
   - ux
 size: S
@@ -29,8 +29,21 @@ dependsOn: []
 epic: vues-dashboard
 source: ai
 createdAt: "2026-07-08T15:37:51"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+startedAt: "2026-07-08T15:57:25"
+completedAt: "2026-07-08"
+commit: be4d532
+outcome: >-
+  4 retours Rémi sur le tag-graph, une passe. (1) Pastille (<circle> SVG) cliquable : onClick +
+  cursor pointer → même toggle onSelect(active?'':tag) que le label. (2) Séparateur radar↔tag-graph
+  full-width bord à bord : mx-4 retiré du <div border-t>. (3) Flanc ancré EN HAUT : my-auto retiré
+  du wrapper interne (radar puis nodal, scroll interne conservé). (4) Sémantique : tagGraph compte
+  désormais TOUS les tickets (todo+in_progress+done), actifs ET archivés (le filtre
+  if(status!=='done') retiré ; Backlog passe tree.sections + tree.archive) → carte des THÈMES du
+  projet entier, distinct du radar teams qui reste sur la charge ouverte. openTags→themeTags.
+  aria-label/wording « ouverts »→« du projet ». Tests tagGraph réécrits (done comptés).
+verification: >-
+  tsc clean ; vitest 378/378 (tagGraph 11/11, 3 tests réécrits pour done-inclus) ; boot HTTP 200
+  zéro erreur. Changements ciblés vérifiés au code (circle onClick, border-t sans mx, pas de
+  my-auto, tagGraph sans filtre statut + archive passée). Rendu fin (pastille cliquable, séparateur,
+  ancrage, poids des nœuds avec done) à valider à l'œil par Rémi.
 release: null
