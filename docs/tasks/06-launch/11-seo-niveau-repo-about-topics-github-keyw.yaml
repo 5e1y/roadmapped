@@ -1,7 +1,7 @@
 id: 168
 code: null
 title: "SEO niveau repo : About/topics GitHub, keywords README, découvrabilité"
-status: todo
+status: done
 tags:
   - seo
 size: null
@@ -17,8 +17,14 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-08T18:03:14"
-completedAt: null
-commit: null
-outcome: null
+completedAt: "2026-07-08"
+commit: 9d92b15
+outcome: >-
+  docs/repo-metadata.md : checklist de découvrabilité à appliquer au publish (#13) — About GitHub
+  (~120c, factuel), 14 topics lowercase-hyphenés (project-management, ai-agents, claude,
+  claude-code, local-first, flat-file, yaml, cli, etc.), champ website roadmapped.work. Alignés sur
+  package.json keywords. Constat : le README couvre déjà naturellement les phrases à forte valeur
+  (pas de bourrage — GitHub ne le récompense pas, le guide de voix l'interdit). L'About+topics
+  nécessitent le remote public → part de #13.
 verification: null
 release: null
