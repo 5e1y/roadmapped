@@ -1,31 +1,36 @@
-import { useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
 import { usePersistentStrings, usePersistentStringFlag } from '../state/uiPersist'
-import { computeAvailability, missingPrereqs, reverseDependents, allEpics, epicProgress, type Availability } from '../lib/roadmap'
+import {
+  computeAvailability, missingPrereqs, reverseDependents, allEpics, epicProgress,
+  graphLayout, graphNeighborhood,
+  type Availability, type GraphInput, type GraphPoint,
+} from '../lib/roadmap'
 import { LockLocked } from 'trinil-react'
 import { Chevron, EpicGlyph, KindGlyph } from './glyphs'
 import { Chip } from './Chip'
 import { epicStatusOf } from './EpicRow'
 import { TEAM_ABBR } from '../lib/tasks'
-import type { TaskNode } from '../lib/tasks'
+import type { TaskTree, TaskNode } from '../lib/tasks'
 import { useShowDone } from './RoadmapView'
+import { useZoomPan, ZOOM_STEP } from './useZoomPan'
 
-const COL_W = 280, COL_GAP = 32, ROW_H = 96, CARD_W = 248, CARD_H = 72, PAD = 24, HEADER_H = 40
+const CARD_W = 248, CARD_H = 72
 /** Hauteur d'une ligne membre dans un nœud-epic déplié (px-3 py-1 + text-sm). */
 const MEMBER_H = 28
-
-const xOf = (col: number) => PAD + col * (COL_W + COL_GAP)
-const yOf = (row: number) => PAD + HEADER_H + row * ROW_H
+/** Estimation de hauteur d'une carte tâche : socle (padding + titre + footer chips)… */
+const TASK_BASE_H = 66
+/** …+ une ligne de texte par info (état « Disponible »/« Prérequis », « bloque n »). */
+const TASK_LINE_H = 22
 
 /**
  * Nœud du graphe (#135) : une tâche à plat OU un EPIC — les tâches portant un
  * epic n'ont plus de carte propre, elles vivent dans le nœud-groupe de leur
  * epic. Le nœud-epic est UN SEUL nœud pour tout l'epic (l'unité du graphe est
- * la dépendance, pas le stage) : il est ancré dans la colonne du stage le plus
- * amont de ses membres, ses arêtes = l'union des dépendances externes de ses
- * membres. Le dépliage (persisté par slug) révèle les membres EN PLACE, en
- * lignes compactes dans le nœud — la topologie des arêtes ne bouge pas.
+ * la dépendance, pas le stage) : ses arêtes = l'union des dépendances externes
+ * de ses membres. Le dépliage (persisté par slug) révèle les membres EN PLACE,
+ * en lignes compactes dans le nœud.
  */
 type GNode =
   | { key: string; kind: 'task'; task: TaskNode }
@@ -46,40 +51,72 @@ export function hiddenPrereqNote(hidden: HiddenPrereq[]): string {
     .join(' · ')
 }
 
-interface PlacedNode {
+/**
+ * Path SVG d'une arête : la polyligne dagre, chaque sommet interne adouci par
+ * un quart de courbe (Q) de rayon fixe — coins nets mais pas anguleux,
+ * cohérent avec l'esthétique « filets » de design.md. Pur, testé à part.
+ */
+export function roundedEdgePath(points: GraphPoint[], radius = 8): string {
+  if (points.length === 0) return ''
+  const f = (n: number) => Math.round(n * 100) / 100
+  let d = `M ${f(points[0].x)} ${f(points[0].y)}`
+  for (let i = 1; i < points.length - 1; i++) {
+    const prev = points[i - 1], cur = points[i], next = points[i + 1]
+    const inLen = Math.hypot(cur.x - prev.x, cur.y - prev.y)
+    const outLen = Math.hypot(next.x - cur.x, next.y - cur.y)
+    if (inLen === 0 || outLen === 0) continue
+    const rIn = Math.min(radius, inLen / 2), rOut = Math.min(radius, outLen / 2)
+    const a = { x: cur.x - ((cur.x - prev.x) / inLen) * rIn, y: cur.y - ((cur.y - prev.y) / inLen) * rIn }
+    const b = { x: cur.x + ((next.x - cur.x) / outLen) * rOut, y: cur.y + ((next.y - cur.y) / outLen) * rOut }
+    d += ` L ${f(a.x)} ${f(a.y)} Q ${f(cur.x)} ${f(cur.y)} ${f(b.x)} ${f(b.y)}`
+  }
+  if (points.length > 1) {
+    const last = points[points.length - 1]
+    d += ` L ${f(last.x)} ${f(last.y)}`
+  }
+  return d
+}
+
+interface GraphNodeModel {
   node: GNode
-  col: number
-  row: number
-  /** Hauteur réelle estimée (nœud-epic déplié plus haut qu'une carte). */
+  /** Hauteur estimée passée à dagre (nœud-epic déplié plus haut qu'une carte). */
   h: number
   state: Availability
   missing: number[]
   /** Prérequis manquants sans carte propre, avec leur localisation (#138). */
   hidden: HiddenPrereq[]
   blocksCount: number
+  /** Le stage n'est PLUS le layout (graph-v2) : simple métadonnée, chip sur la
+      carte. Null pour un nœud-epic (ses membres peuvent traverser des stages). */
+  stage: string | null
 }
 
-/** Vue achievement : colonnes = sections du backlog, nœuds par couche de dépendance. */
-export function RoadmapGraph() {
-  const { tree } = useTree()
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const [scale, setScale] = useState(1)
-  const [showDone] = useShowDone()
-  // Épics dépliés (partagé avec les cartes EpicGraphNode) : la hauteur d'un nœud
-  // déplié participe au layout, le composant racine doit donc s'y abonner.
-  const [expandedEpics] = usePersistentStrings('graph:epics')
-  if (!tree) return null
+interface GraphModel {
+  nodes: GraphNodeModel[]
+  /** Arêtes entre unités du graphe (deps des membres remappées, dédupliquées). */
+  edges: Array<{ from: string; to: string }>
+  /** Entrée du layout — identité STABLE (useMemo) : la clé du mémo de graphLayout. */
+  input: GraphInput
+  avail: Map<number, Availability>
+}
 
+const taskHeight = (state: Availability, blocksCount: number): number =>
+  Math.max(CARD_H, TASK_BASE_H + (state !== 'done' ? TASK_LINE_H : 0) + (blocksCount > 0 ? TASK_LINE_H : 0))
+
+const epicHeight = (n: Extract<GNode, { kind: 'epic' }>, expandedEpics: string[]): number =>
+  expandedEpics.includes(n.slug) ? CARD_H + 1 + n.tasks.length * MEMBER_H + 4 : CARD_H
+
+/**
+ * Sélection des nœuds + arêtes (logique conservée de la v1) : quick exclus,
+ * done masqués sauf s'ils sont prérequis transitifs d'un ticket visible,
+ * membres d'epic fusionnés en nœuds-groupe. Le PLACEMENT, lui, est parti dans
+ * graphLayout (dagre) — plus aucune colonne par stage ici.
+ */
+function buildGraphModel(tree: TaskTree, showDone: boolean, expandedEpics: string[]): GraphModel {
   const sections = tree.sections.filter((s) => s.status !== 'abandoned')
-  if (sections.every((s) => s.tasks.length === 0)) {
-    return (
-      <div className="px-6 py-8 text-sm text-neutral-500">
-        Aucune tâche à afficher — le graphe se construit à partir des tâches et de leurs dépendances.
-      </div>
-    )
-  }
   const avail = computeAvailability(tree)
-  const colOf = new Map(sections.map((s, i) => [s.key, i]))
+  // « Build Stage » → chip « Build » : la métadonnée reste courte sur la carte.
+  const stageChip = new Map(sections.map((s) => [s.key, s.title.replace(/\s*Stage$/i, '')]))
   // Tâches candidates = premier niveau des sections actives (quick exclus).
   let taskEntries = sections.flatMap((s) => s.tasks.filter((t) => t.kind !== 'quick').map((t) => ({ task: t, sectionKey: s.key })))
   if (!showDone) {
@@ -101,232 +138,263 @@ export function RoadmapGraph() {
 
   // ── Fusion des membres d'epic en nœuds-groupe ────────────────────────────
   const epicTitles = new Map(allEpics(tree).map((e) => [e.slug, e.title]))
-  const nodes: GNode[] = []
-  const colOfKey = new Map<string, number>()
+  const gnodes: GNode[] = []
   /** id de tâche visible → clé du nœud qui la porte (elle-même, ou son epic). */
   const nodeKeyOfTask = new Map<number, string>()
   const epicNodes = new Map<string, Extract<GNode, { kind: 'epic' }>>()
-  /** Colonnes candidates d'ancrage par epic : min des NON-terminées / max de toutes. */
-  const epicCols = new Map<string, { openMin: number | null; allMax: number }>()
+  const stageOfKey = new Map<string, string>()
   for (const { task, sectionKey } of taskEntries) {
-    const col = colOf.get(sectionKey)!
     if (task.epic === null) {
       const key = `t:${task.id}`
-      nodes.push({ key, kind: 'task', task })
-      colOfKey.set(key, col)
+      gnodes.push({ key, kind: 'task', task })
       nodeKeyOfTask.set(task.id, key)
+      const chip = stageChip.get(sectionKey)
+      if (chip) stageOfKey.set(key, chip)
     } else {
       const key = `e:${task.epic}`
       let en = epicNodes.get(task.epic)
       if (!en) {
         en = { key, kind: 'epic', slug: task.epic, title: epicTitles.get(task.epic) ?? task.epic, tasks: [] }
         epicNodes.set(task.epic, en)
-        nodes.push(en)
+        gnodes.push(en)
       }
       en.tasks.push(task)
       nodeKeyOfTask.set(task.id, key)
-      const c = epicCols.get(task.epic) ?? { openMin: null, allMax: col }
-      c.allMax = Math.max(c.allMax, col)
-      if (task.status !== 'done') c.openMin = c.openMin === null ? col : Math.min(c.openMin, col)
-      epicCols.set(task.epic, c)
     }
-  }
-  // Ancrage (#140-B, même règle que le mode Colonnes / epicAnchorStage) : la
-  // colonne du ticket NON TERMINÉ le plus amont ; un epic 100 % done (visible
-  // via le toggle « terminées » ou comme dépendance) est ancré à son dernier stage.
-  for (const [slug, en] of epicNodes) {
-    const c = epicCols.get(slug)!
-    colOfKey.set(en.key, c.openMin ?? c.allMax)
   }
 
   // Dépendances au niveau NŒUD : deps des membres remappées vers les clés de
   // nœud, internes exclues, dédupliquées. (Deux epics entremêlés peuvent créer
-  // un cycle au niveau nœud — le calcul de profondeur est défensif.)
-  const depsOf = new Map<string, Set<string>>()
-  for (const n of nodes) {
-    const deps = new Set<string>()
+  // un cycle au niveau nœud — graphLayout le casse défensivement.)
+  const edges: Array<{ from: string; to: string }> = []
+  const seenEdges = new Set<string>()
+  for (const n of gnodes) {
     const members = n.kind === 'task' ? [n.task] : n.tasks
     for (const m of members) {
       for (const d of m.dependsOn) {
         const k = nodeKeyOfTask.get(d)
-        if (k && k !== n.key) deps.add(k)
-      }
-    }
-    depsOf.set(n.key, deps)
-  }
-
-  // Couches topologiques au niveau nœud (même logique que topoLayers, mais sur
-  // les clés de nœud — cycle et clé inconnue traités défensivement).
-  const depthCache = new Map<string, number>()
-  const depthOf = (key: string, stack: Set<string>): number => {
-    if (depthCache.has(key)) return depthCache.get(key)!
-    if (stack.has(key)) return 0
-    stack.add(key)
-    const deps = [...(depsOf.get(key) ?? [])]
-    const d = deps.length === 0 ? 0 : 1 + Math.max(...deps.map((k) => depthOf(k, stack)))
-    stack.delete(key)
-    depthCache.set(key, d)
-    return d
-  }
-  const layerOf = new Map(nodes.map((n) => [n.key, depthOf(n.key, new Set())]))
-
-  const standaloneIds = new Set(nodes.flatMap((n) => (n.kind === 'task' ? [n.task.id] : [])))
-  const hOfNode = (n: GNode): number =>
-    n.kind === 'epic' && expandedEpics.includes(n.slug)
-      ? CARD_H + 1 + n.tasks.length * MEMBER_H + 4
-      : CARD_H
-
-  // Rangée par colonne : la couche topo est un PLANCHER (une dépendante reste
-  // sous sa prérequise) ; un nœud haut (epic déplié) réserve plusieurs rangées.
-  const placed: PlacedNode[] = []
-  const minId = (n: GNode) => (n.kind === 'task' ? n.task.id : Math.min(...n.tasks.map((t) => t.id)))
-  for (let col = 0; col < sections.length; col++) {
-    const colNodes = nodes
-      .filter((n) => colOfKey.get(n.key) === col)
-      .sort((a, b) => (layerOf.get(a.key)! - layerOf.get(b.key)!) || (minId(a) - minId(b)))
-    let nextRow = 0
-    for (const n of colNodes) {
-      const row = Math.max(layerOf.get(n.key) ?? 0, nextRow)
-      const h = hOfNode(n)
-      nextRow = row + Math.max(1, Math.ceil((h + (ROW_H - CARD_H)) / ROW_H))
-      if (n.kind === 'task') {
-        const t = n.task
-        // Prérequis non faits (source partagée avec le mode Colonnes). TOUS les
-        // #id sont cités (#138) ; ceux sans carte propre (rangés dans un nœud-epic
-        // ou hors vue) portent leur localisation, restituée en tooltip.
-        const allMissing = missingPrereqs(t, avail)
-        const missing = allMissing.filter((d) => standaloneIds.has(d))
-        const hidden = allMissing.filter((d) => !standaloneIds.has(d)).map((d): HiddenPrereq => {
-          const key = nodeKeyOfTask.get(d)
-          const slug = key?.startsWith('e:') ? key.slice(2) : null
-          return { id: d, epicTitle: slug ? (epicTitles.get(slug) ?? slug) : null }
-        })
-        placed.push({
-          node: n, col, row, h,
-          state: avail.get(t.id) ?? 'available', missing, hidden,
-          blocksCount: t.kind === 'milestone' ? reverseDependents(tree, t.id).length : 0,
-        })
-      } else {
-        placed.push({ node: n, col, row, h, state: 'available', missing: [], hidden: [], blocksCount: 0 })
-      }
-    }
-  }
-  const posByKey = new Map(placed.map((p) => [p.node.key, p]))
-
-  const width = xOf(Math.max(1, sections.length) - 1) + CARD_W + PAD
-  const height = Math.max(...placed.map((p) => yOf(p.row) + p.h), yOf(0) + CARD_H) + PAD
-
-  // Routage orthogonal : les segments verticaux inter-colonnes passent dans la
-  // gouttière adjacente à la source. Les arêtes s'ancrent sur l'EN-TÊTE du
-  // nœud (hauteur carte), déplié ou non — la topologie visuelle est stable.
-  const edges: string[] = []
-  const seenEdges = new Set<string>()
-  for (const p of placed) {
-    for (const depKey of depsOf.get(p.node.key) ?? []) {
-      const src = posByKey.get(depKey)
-      if (!src) continue
-      const sig = `${depKey}->${p.node.key}`
-      if (seenEdges.has(sig)) continue
-      seenEdges.add(sig)
-      const scy = yOf(src.row) + CARD_H / 2
-      const tcy = yOf(p.row) + CARD_H / 2
-      if (src.col === p.col) {
-        const cx = xOf(src.col) + CARD_W / 2
-        edges.push(`M ${cx} ${yOf(src.row) + src.h} L ${cx} ${yOf(p.row)}`)
-      } else {
-        const forward = src.col < p.col
-        const sx = xOf(src.col) + (forward ? CARD_W : 0)
-        const tx = xOf(p.col) + (forward ? 0 : CARD_W)
-        // Vertical dans la gouttière collée à la source, pas au milieu du saut.
-        const gutterX = forward ? sx + COL_GAP / 2 : sx - COL_GAP / 2
-        edges.push(`M ${sx} ${scy} L ${gutterX} ${scy} L ${gutterX} ${tcy} L ${tx} ${tcy}`)
+        if (!k || k === n.key) continue
+        const sig = `${k}->${n.key}`
+        if (seenEdges.has(sig)) continue
+        seenEdges.add(sig)
+        edges.push({ from: k, to: n.key })
       }
     }
   }
 
-  const clamp = (n: number) => Math.min(2, Math.max(0.3, n))
-  const zoomBy = (f: number) => setScale((s) => clamp(s * f))
-  const fitWidth = () => {
-    const cw = scrollRef.current?.clientWidth
-    if (cw) setScale(clamp((cw - 16) / width))
+  const standaloneIds = new Set(gnodes.flatMap((n) => (n.kind === 'task' ? [n.task.id] : [])))
+  const nodes: GraphNodeModel[] = gnodes.map((n) => {
+    if (n.kind === 'epic') {
+      return { node: n, h: epicHeight(n, expandedEpics), state: 'available' as const, missing: [], hidden: [], blocksCount: 0, stage: null }
+    }
+    const t = n.task
+    const state = avail.get(t.id) ?? 'available'
+    // Prérequis non faits (source partagée avec le mode Colonnes). TOUS les
+    // #id sont cités (#138) ; ceux sans carte propre (rangés dans un nœud-epic
+    // ou hors vue) portent leur localisation, restituée en tooltip.
+    const allMissing = missingPrereqs(t, avail)
+    const missing = allMissing.filter((d) => standaloneIds.has(d))
+    const hidden = allMissing.filter((d) => !standaloneIds.has(d)).map((d): HiddenPrereq => {
+      const key = nodeKeyOfTask.get(d)
+      const slug = key?.startsWith('e:') ? key.slice(2) : null
+      return { id: d, epicTitle: slug ? (epicTitles.get(slug) ?? slug) : null }
+    })
+    const blocksCount = t.kind === 'milestone' ? reverseDependents(tree, t.id).length : 0
+    return { node: n, h: taskHeight(state, blocksCount), state, missing, hidden, blocksCount, stage: stageOfKey.get(n.key) ?? null }
+  })
+
+  const input: GraphInput = {
+    nodes: nodes.map((m) => ({ id: m.node.key, width: CARD_W, height: m.h })),
+    edges,
   }
+  return { nodes, edges, input, avail }
+}
+
+/** Ton d'une arête sous surlignage : sur le chemin amont/aval, hors chemin, neutre. */
+type EdgeTone = 'default' | 'strong' | 'dim'
+
+const EDGE_STROKE: Record<EdgeTone, string> = { default: '#737373', strong: '#171717', dim: '#e5e5e5' }
+const EDGE_MARKER: Record<EdgeTone, string> = { default: 'url(#rm-arrow)', strong: 'url(#rm-arrow-strong)', dim: 'url(#rm-arrow-dim)' }
+
+/** Vue achievement : layout FLUX-DE-DÉPENDANCES (dagre, prérequis → dépendant). */
+export function RoadmapGraph() {
+  const { tree } = useTree()
+  if (!tree) return null
+  const sections = tree.sections.filter((s) => s.status !== 'abandoned')
+  if (sections.every((s) => s.tasks.length === 0)) {
+    return (
+      <div className="px-6 py-8 text-sm text-neutral-500">
+        Aucune tâche à afficher — le graphe se construit à partir des tâches et de leurs dépendances.
+      </div>
+    )
+  }
+  return <GraphCanvas tree={tree} />
+}
+
+function GraphCanvas({ tree }: { tree: TaskTree }) {
+  const [showDone] = useShowDone()
+  // Épics dépliés (partagé avec les cartes EpicGraphNode) : la hauteur d'un nœud
+  // déplié participe au layout, le composant racine doit donc s'y abonner.
+  const [expandedEpics] = usePersistentStrings('graph:epics')
+  // Le modèle (nœuds + arêtes + GraphInput) n'est reconstruit qu'à une écriture
+  // ou un toggle — jamais au hover/zoom/pan. graphLayout est de plus mémoïsé
+  // par identité d'input (WeakMap) : dagre ne tourne qu'une fois par modèle.
+  const model = useMemo(() => buildGraphModel(tree, showDone, expandedEpics), [tree, showDone, expandedEpics])
+  const layout = graphLayout(model.input)
+  const zp = useZoomPan(layout.width, layout.height)
+  // Surlignage amont/aval : SURVOL SEUL, transitoire (décision verrouillée
+  // 2026-07-08 : pas de sticky — le clic reste réservé à openTask).
+  const [focusKey, setFocusKey] = useState<string | null>(null)
+  const hood = useMemo(
+    () => (focusKey && model.nodes.some((m) => m.node.key === focusKey) ? graphNeighborhood(model.edges, focusKey) : null),
+    [model, focusKey],
+  )
+  if (model.nodes.length === 0) {
+    return (
+      <div className="px-6 py-8 text-sm text-neutral-500">
+        Aucune tâche à afficher — le graphe se construit à partir des tâches et de leurs dépendances.
+      </div>
+    )
+  }
+  const { scale, tx, ty } = zp.transform
+
+  const inHood = (key: string): boolean =>
+    hood === null || key === focusKey || hood.ancestors.has(key) || hood.descendants.has(key)
+  // Une arête est « sur le chemin » si elle relie deux nœuds de la fermeture
+  // dans le bon sens (amont vers le focus, ou focus vers l'aval) — une arête
+  // directe ancêtre→descendant qui contourne le focus reste atténuée.
+  const edgeTone = (from: string, to: string): EdgeTone => {
+    if (hood === null || focusKey === null) return 'default'
+    const upstream = hood.ancestors.has(from) && (to === focusKey || hood.ancestors.has(to))
+    const downstream = (from === focusKey || hood.descendants.has(from)) && hood.descendants.has(to)
+    return upstream || downstream ? 'strong' : 'dim'
+  }
+  const hoverProps = (key: string) => ({
+    onHoverChange: (on: boolean) => setFocusKey((cur) => (on ? key : cur === key ? null : cur)),
+  })
 
   return (
     <div className="relative h-full w-full">
       {/* Contrôles de zoom (épinglés, ne défilent pas avec le graphe) */}
       <div className="absolute right-3 top-3 z-10 flex items-center overflow-hidden rounded-md border border-neutral-300 bg-white shadow-sm">
-        <button type="button" onClick={() => zoomBy(1 / 1.2)} aria-label="Dézoomer"
+        <button type="button" onClick={() => zp.zoomBy(1 / ZOOM_STEP)} aria-label="Dézoomer"
           className="px-2.5 py-1 text-sm text-neutral-600 hover:bg-neutral-100">−</button>
-        <button type="button" onClick={fitWidth}
-          className="border-x border-neutral-200 px-2.5 py-1 text-xs text-neutral-600 hover:bg-neutral-100">Ajuster</button>
-        <button type="button" onClick={() => zoomBy(1.2)} aria-label="Zoomer"
-          className="px-2.5 py-1 text-sm text-neutral-600 hover:bg-neutral-100">+</button>
+        <button type="button" onClick={zp.fit}
+          className="border-l border-neutral-200 px-2.5 py-1 text-xs text-neutral-600 hover:bg-neutral-100">Ajuster</button>
+        <button type="button" onClick={zp.reset} aria-label="Réinitialiser le zoom à 100 %"
+          className="border-l border-neutral-200 px-2.5 py-1 text-xs text-neutral-600 hover:bg-neutral-100">100 %</button>
+        <button type="button" onClick={() => zp.zoomBy(ZOOM_STEP)} aria-label="Zoomer"
+          className="border-l border-neutral-200 px-2.5 py-1 text-sm text-neutral-600 hover:bg-neutral-100">+</button>
       </div>
 
-      <div ref={scrollRef} className="absolute inset-0 overflow-auto">
-        {/* Boîte de layout à la taille mise à l'échelle (bornes de scroll correctes) */}
-        <div style={{ width: width * scale, height: height * scale }}>
-          <div className="relative" style={{ width, height, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
-            {/* Bandes de colonnes (fond) + labels de stages — vides estompés. */}
-            {sections.map((s, i) => (
-              <div key={s.key} className="absolute top-0 border-l border-neutral-100"
-                style={{ left: xOf(i) - COL_GAP / 2, width: COL_W + COL_GAP, height }}>
-                {/* Même hiérarchie d'encre que le titre de stage du mode Colonnes :
-                    neutral-900 quand le stage est peuplé, estompé quand il est vide. */}
-                <div
-                  className={`truncate px-3 pt-3 text-xs font-semibold ${s.tasks.length === 0 ? 'text-neutral-300' : 'text-neutral-900'}`}
-                  title={s.title}
-                >
-                  {s.title}
-                </div>
-              </div>
-            ))}
+      {/* Viewport : overflow-hidden, drag = pan (le pointerdown sur une carte
+          est laissé aux boutons), molette = zoom vers le curseur (natif, dans
+          le hook), clavier = flèches pan / + − zoom / 0 reset. */}
+      <div
+        ref={zp.viewportRef}
+        tabIndex={0}
+        role="application"
+        aria-label="Graphe des dépendances — glisser pour déplacer, molette ou + et − pour zoomer"
+        className={`absolute inset-0 select-none overflow-hidden ${zp.panning ? 'cursor-grabbing' : 'cursor-grab'}`}
+        style={{ touchAction: 'none' }}
+        onPointerDown={(e) => { if (!(e.target as Element).closest('button')) zp.handlers.onPointerDown(e) }}
+        onPointerMove={zp.handlers.onPointerMove}
+        onPointerUp={zp.handlers.onPointerUp}
+        onPointerCancel={zp.handlers.onPointerCancel}
+        onKeyDown={zp.handlers.onKeyDown}
+      >
+        <div
+          className="relative"
+          style={{ width: layout.width, height: layout.height, transform: `translate(${tx}px, ${ty}px) scale(${scale})`, transformOrigin: '0 0' }}
+        >
+          {/* Arêtes (derrière les cartes), tête de flèche = direction. Le chemin
+              amont/aval survolé passe en trait plein #171717, le reste s'atténue. */}
+          <svg className="pointer-events-none absolute inset-0" width={layout.width} height={layout.height}>
+            <defs>
+              <marker id="rm-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M0 0 L8 4 L0 8 z" fill="#737373" />
+              </marker>
+              <marker id="rm-arrow-strong" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M0 0 L8 4 L0 8 z" fill="#171717" />
+              </marker>
+              <marker id="rm-arrow-dim" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M0 0 L8 4 L0 8 z" fill="#e5e5e5" />
+              </marker>
+            </defs>
+            {model.edges.map(({ from, to }) => {
+              const pts = layout.edges.get(`${from}->${to}`)?.points
+              if (!pts || pts.length < 2) return null
+              const tone = edgeTone(from, to)
+              return (
+                <path
+                  key={`${from}->${to}`}
+                  d={roundedEdgePath(pts)}
+                  fill="none"
+                  stroke={EDGE_STROKE[tone]}
+                  strokeWidth={tone === 'strong' ? 1.25 : 1}
+                  strokeDasharray={tone === 'strong' ? undefined : '3 3'}
+                  markerEnd={EDGE_MARKER[tone]}
+                />
+              )
+            })}
+          </svg>
 
-            {/* Arêtes (derrière les cartes), avec tête de flèche = direction */}
-            <svg className="pointer-events-none absolute inset-0" width={width} height={height}>
-              <defs>
-                <marker id="rm-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                  <path d="M0 0 L8 4 L0 8 z" fill="#737373" />
-                </marker>
-              </defs>
-              {edges.map((d, i) => (
-                <path key={i} d={d} fill="none" stroke="#737373" strokeWidth={1} strokeDasharray="3 3" markerEnd="url(#rm-arrow)" />
-              ))}
-            </svg>
-
-            {/* Nœuds */}
-            {placed.map((p) =>
-              p.node.kind === 'task' ? (
-                <GraphCard key={p.node.key} placed={p} task={p.node.task} />
-              ) : (
-                <EpicGraphNode key={p.node.key} placed={p} epic={p.node} avail={avail} />
-              ),
-            )}
-          </div>
+          {/* Nœuds */}
+          {model.nodes.map((m) => {
+            const pos = layout.nodes.get(m.node.key)
+            if (!pos) return null
+            const dimmed = hood !== null && !inHood(m.node.key)
+            const focused = focusKey === m.node.key
+            return m.node.kind === 'task' ? (
+              <GraphCard key={m.node.key} model={m} task={m.node.task} pos={pos} dimmed={dimmed} focused={focused} {...hoverProps(m.node.key)} />
+            ) : (
+              <EpicGraphNode key={m.node.key} epic={m.node} pos={pos} avail={model.avail} dimmed={dimmed} focused={focused} {...hoverProps(m.node.key)} />
+            )
+          })}
         </div>
       </div>
     </div>
   )
 }
 
-function GraphCard({ placed, task }: { placed: PlacedNode; task: TaskNode }) {
-  const { state } = placed
+/** Voile d'atténuation hors-voisinage : le fond des cartes reste OPAQUE (pas
+    d'opacity sur le conteneur, sinon les arêtes transparaissent) — on pose un
+    voile blanc par-dessus l'encre, monochrome et sans nouvelle couleur. */
+function DimVeil() {
+  return <span aria-hidden className="pointer-events-none absolute inset-0 bg-white/70" />
+}
+
+interface NodeChrome {
+  pos: { x: number; y: number; w: number; h: number }
+  dimmed: boolean
+  focused: boolean
+  /** Survol/focus clavier → surlignage amont/aval transitoire dans le parent. */
+  onHoverChange: (on: boolean) => void
+}
+
+function GraphCard({ model, task, pos, dimmed, focused, onHoverChange }: NodeChrome & { model: GraphNodeModel; task: TaskNode }) {
+  const { state } = model
   const { openTask, top } = usePanel()
-  // Fond blanc TOUJOURS opaque (pas d'opacity sur le conteneur, sinon les arêtes
-  // transparaissent) ; l'état estompé s'exprime par la bordure et l'encre.
-  // Tâche ouverte dans le panneau → bordure accent (#36).
+  // Fond blanc TOUJOURS opaque ; l'état estompé s'exprime par la bordure et
+  // l'encre. Tâche ouverte dans le panneau → bordure accent (#36).
   const isOpenInPanel = top?.type === 'task' && top.id === task.id
-  // Sélection = langage du Backlog (fond + filet gauche) ; disponibles sans
-  // contour fort ; hover ≠ sélection (la carte ouverte reste accent sous la souris).
+  // Sélection = langage du Backlog (fond + filet gauche) ; nœud focalisé
+  // (survol) → contour neutral-900 ; hover ≠ sélection.
   const skin = isOpenInPanel
     ? 'border border-neutral-200 bg-accent-tint shadow-[inset_2px_0_0_var(--color-accent)]'
-    : 'border border-neutral-200 bg-white hover:border-neutral-400'
+    : focused
+      ? 'border border-neutral-900 bg-white'
+      : 'border border-neutral-200 bg-white hover:border-neutral-400'
   const dim = state === 'done' || state === 'locked'
   const titleCls = task.status === 'done' ? 'text-neutral-500 line-through' : dim ? 'text-neutral-500' : 'text-neutral-900'
   return (
     <button type="button" onClick={() => openTask(task.id)} title={task.title}
+      onPointerEnter={() => onHoverChange(true)}
+      onPointerLeave={() => onHoverChange(false)}
+      onFocus={(e) => { if (e.currentTarget.matches(':focus-visible')) onHoverChange(true) }}
+      onBlur={() => onHoverChange(false)}
       className={`absolute flex flex-col gap-1.5 px-3 py-2.5 text-left ${skin}`}
-      style={{ left: xOf(placed.col), top: yOf(placed.row), width: CARD_W, minHeight: CARD_H }}>
+      style={{ left: pos.x, top: pos.y, width: pos.w, minHeight: pos.h }}>
       <div className="flex items-center gap-2">
         {state === 'locked'
           ? <LockLocked size={11} className="shrink-0 text-neutral-500" ariaLabel="Verrouillée" />
@@ -341,23 +409,28 @@ function GraphCard({ placed, task }: { placed: PlacedNode; task: TaskNode }) {
         // (dans un epic replié, hors vue) sont localisés dans le tooltip.
         <span
           className="text-[11px] text-neutral-500"
-          title={placed.hidden.length > 0 ? hiddenPrereqNote(placed.hidden) : undefined}
+          title={model.hidden.length > 0 ? hiddenPrereqNote(model.hidden) : undefined}
         >
           Prérequis manquants
-          {placed.missing.length + placed.hidden.length > 0
-            ? ` (${[...placed.missing, ...placed.hidden.map((h) => h.id)].map((d) => `#${d}`).join(' ')})`
+          {model.missing.length + model.hidden.length > 0
+            ? ` (${[...model.missing, ...model.hidden.map((h) => h.id)].map((d) => `#${d}`).join(' ')})`
             : ''}
         </span>
       ) : state === 'available' ? (
         <span className="text-[11px] font-medium text-neutral-700">Disponible</span>
-      ) : null /* done : contenu identique aux autres états, sans chips (cohérence) */}
+      ) : null /* done : contenu identique aux autres états, sans lignes (cohérence) */}
       {/* Jalon (#133) : le poids du verrou, même donnée que le panneau (« Bloque »). */}
-      {task.kind === 'milestone' && placed.blocksCount > 0 && (
-        <span className="text-[11px] text-neutral-500">bloque {placed.blocksCount}</span>
+      {task.kind === 'milestone' && model.blocksCount > 0 && (
+        <span className="text-[11px] text-neutral-500">bloque {model.blocksCount}</span>
       )}
-      {/* Badge team (le QUI) — abrégé, coin bas droit. Même donnée = même rendu
-          que le Backlog : Chip (design.md §2). */}
-      <span className="absolute bottom-1 right-2"><Chip label={TEAM_ABBR[task.team]} /></span>
+      {/* Footer chips : le stage devenu métadonnée (graph-v2 — le layout est le
+          flux de dépendances) + la team (le QUI). Même rendu que le Backlog :
+          Chip (design.md §2). */}
+      <span className="mt-auto flex items-center justify-between gap-2 pt-0.5">
+        {model.stage !== null ? <Chip label={model.stage} /> : <span />}
+        <Chip label={TEAM_ABBR[task.team]} />
+      </span>
+      {dimmed && <DimVeil />}
     </button>
   )
 }
@@ -366,13 +439,13 @@ function GraphCard({ placed, task }: { placed: PlacedNode; task: TaskNode }) {
  * Nœud-EPIC du graphe (#135) : en-tête au gabarit d'une carte (chevron + carré
  * EpicGlyph + titre font-medium + n tâches + complétion GLOBALE), déplié EN
  * PLACE — les membres deviennent des lignes compactes cliquables (→ panneau)
- * DANS le nœud, les arêtes restent ancrées sur l'en-tête. Pas de <button>
- * imbriqué : l'en-tête est LE trigger (aria-expanded), chaque membre est un
- * bouton frère. `data-panel-open` reproduit l'attribut Base UI pour que la
- * rotation `.chev` (index.css) s'applique à l'identique.
+ * DANS le nœud. Le dépliage change la hauteur du nœud, donc le layout dagre
+ * (reconstruit, mémoïsé par input). Pas de <button> imbriqué : l'en-tête est
+ * LE trigger (aria-expanded), chaque membre est un bouton frère.
+ * `data-panel-open` reproduit l'attribut Base UI pour que la rotation `.chev`
+ * (index.css) s'applique à l'identique.
  */
-function EpicGraphNode({ placed, epic, avail }: {
-  placed: PlacedNode
+function EpicGraphNode({ epic, pos, avail, dimmed, focused, onHoverChange }: NodeChrome & {
   epic: Extract<GNode, { kind: 'epic' }>
   avail: Map<number, Availability>
 }) {
@@ -385,8 +458,12 @@ function EpicGraphNode({ placed, epic, avail }: {
   const pct = progress.total === 0 ? 0 : Math.round((progress.done / progress.total) * 100)
   return (
     <div
-      className="absolute border border-neutral-200 bg-white hover:border-neutral-400"
-      style={{ left: xOf(placed.col), top: yOf(placed.row), width: CARD_W }}
+      className={`absolute border bg-white ${focused ? 'border-neutral-900' : 'border-neutral-200 hover:border-neutral-400'}`}
+      style={{ left: pos.x, top: pos.y, width: pos.w }}
+      onPointerEnter={() => onHoverChange(true)}
+      onPointerLeave={() => onHoverChange(false)}
+      onFocus={(e) => { if (e.target.matches(':focus-visible')) onHoverChange(true) }}
+      onBlur={() => onHoverChange(false)}
     >
       <button
         type="button"
@@ -446,6 +523,7 @@ function EpicGraphNode({ placed, epic, avail }: {
           })}
         </div>
       )}
+      {dimmed && <DimVeil />}
     </div>
   )
 }
