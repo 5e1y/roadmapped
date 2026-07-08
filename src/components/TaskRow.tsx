@@ -1,8 +1,11 @@
 import { Collapsible } from '@base-ui/react/collapsible'
+import { LockLocked } from 'trinil-react'
 import { Chip } from './Chip'
 import { Chevron, StatusGlyph } from './glyphs'
 import { usePanel } from '../state/PanelContext'
+import { useOptionalTree } from '../state/TreeContext'
 import { usePersistentFlag } from '../state/uiPersist'
+import { computeAvailability } from '../lib/roadmap'
 import { TEAM_ABBR } from '../lib/tasks'
 import type { TaskNode } from '../lib/tasks'
 
@@ -40,6 +43,10 @@ export function agentBrief(task: TaskNode): string {
 
 export function TaskRow({ task }: { task: TaskNode }) {
   const { openTask, top } = usePanel()
+  const tree = useOptionalTree()
+  // Même source d'état que la Roadmap : computeAvailability (mémoïsé par tree,
+  // aucun recalcul maison). 'locked' = prérequis non faits → cadenas au lieu du glyphe.
+  const locked = tree ? computeAvailability(tree).get(task.id) === 'locked' : false
   // Dépliage des sous-tâches persisté (survit à la navigation et au rechargement).
   const [open, setOpen] = usePersistentFlag('backlog:tasks', task.id)
   const isDone = task.status === 'done'
@@ -71,7 +78,9 @@ export function TaskRow({ task }: { task: TaskNode }) {
           onClick={() => openTask(task.id)}
           className="flex min-w-0 flex-1 items-center gap-2 py-2.5 text-left"
         >
-          <StatusGlyph status={task.status} />
+          {locked
+            ? <LockLocked size={11} className="shrink-0 text-neutral-500" ariaLabel="Verrouillée" />
+            : <StatusGlyph status={task.status} />}
           <span className="shrink-0 font-mono text-xs text-neutral-500">#{task.id}</span>
           {/* Une ligne STRICTE (pattern Linear) : le titre tronque (tooltip natif),
               les chips restent ancrés à droite. Familles différenciées (cf.

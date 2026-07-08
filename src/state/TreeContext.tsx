@@ -64,3 +64,9 @@ export function useTree(): TreeState {
   if (!ctx) throw new Error('useTree doit être utilisé dans <TreeProvider>')
   return ctx
 }
+
+/** Variante non-jetante pour les feuilles (TaskRow) rendues aussi hors provider
+    (tests unitaires) : renvoie le tree si présent, sinon null. */
+export function useOptionalTree(): TaskTree | null {
+  return useContext(TreeContext)?.tree ?? null
+}

@@ -1,12 +1,12 @@
 import { useRef, useState, type ReactNode, type RefObject } from 'react'
 import { Toast } from '@base-ui/react/toast'
-import { Check, Cross, Warning } from 'trinil-react'
+import { Check, Cross, Warning, LockLocked } from 'trinil-react'
 import { Collapsible } from '@base-ui/react/collapsible'
 import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
 import { agentBrief } from './TaskRow'
 import { findTaskInTree } from '../lib/findTaskInTree'
-import { reverseDependents, depState, activeTasks, archivedTasks } from '../lib/roadmap'
+import { reverseDependents, depState, activeTasks, archivedTasks, computeAvailability } from '../lib/roadmap'
 import { StatusGlyph } from './glyphs'
 import { Chip } from './Chip'
 import {
@@ -328,6 +328,9 @@ function TaskPanelBody({ id }: { id: number }) {
 
   const archived = task.file.includes('_archive/')
   const editable = !archived
+  // Même source d'état que la Roadmap : computeAvailability (aucun recalcul
+  // maison). 'locked' = prérequis non faits → cadenas au lieu du glyphe.
+  const locked = computeAvailability(tree).get(id) === 'locked'
   const blocks = reverseDependents(tree, id).map((t) => t.id)
   const depBadge = (depId: number) => DEP_STATE_FR[depState(tree, depId)]
   const subBadge = (subId: number) => {
@@ -447,7 +450,9 @@ function TaskPanelBody({ id }: { id: number }) {
       {/* En-tête : glyphe + id + statut (ghost select permanent) + badge archive. */}
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center gap-1.5">
-          <StatusGlyph status={task.status} />
+          {locked
+            ? <LockLocked size={11} className="shrink-0 text-neutral-500" ariaLabel="Verrouillée" />
+            : <StatusGlyph status={task.status} />}
           <span className="font-mono text-xs text-neutral-500">#{task.id}</span>
           <div className="w-32">
             <Select
