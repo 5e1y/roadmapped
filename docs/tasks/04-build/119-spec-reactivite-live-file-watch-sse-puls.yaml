@@ -3,7 +3,7 @@ code: null
 title: >-
   Spec — réactivité live : file-watch + SSE, pulse in-progress, badges NEW non-lus, console
   action-tracking
-status: in_progress
+status: todo
 tags:
   - spec
   - fable

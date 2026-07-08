@@ -1,0 +1,38 @@
+id: 154
+code: null
+title: >-
+  Supprimer l'archivage — le statut « done » suffit, retrait complet de la fonction archive (app +
+  CLI + MCP + skill)
+status: in_progress
+tags:
+  - data-model
+  - fable
+size: L
+team: engineering
+detail: >-
+  Décision Rémi : plus besoin d'archivage, une tâche « done » (colonne Terminées du Backlog) suffit.
+  RETRAIT COMPLET du concept archive à travers la stack : (1) schéma/lecture — src/lib/tasks.ts
+  (tree.archive, parsePath _archive, synthèse section archive), taskWrites.ts (archiveTask, parsing
+  _archive dans walk/loadFiles), roadmap.ts (archivedTasks, archive dans globalProgress, depState
+  'archived', computeAvailability : une dep n'est done que si status===done — retirer la règle « dep
+  archivée = done de fait »), render.ts (lastLogged/auditCommits qui parcourent l'archive). (2) CLI
+  — retirer la commande archive + cmdArchive de scripts/task.mjs (aide comprise). (3) MCP — retirer
+  le tool archive de scripts/mcp-server.mjs. (4) Dashboard — retirer la vue/section archive du
+  Backlog (SectionAccordion en mode archive) et tout rendu tree.archive. (5) validate.ts — retirer
+  la tolérance archive. (6) skill + guide — retirer les mentions d'archivage (SKILL.md commande
+  archive, references, guide.md). (7) tests — retirer/ajuster tous les tests archive. Migration
+  NULLE (0 tâche archivée aujourd'hui, _archive/ vide). Vérifier non-régression dogfooding (validate
+  + build + suite verte). Confié à Fable 5. À FAIRE EN PREMIER (avant #A2 anglais et le re-snapshot
+  homepage).
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-08T16:21:53"
+startedAt: "2026-07-08T16:22:30"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

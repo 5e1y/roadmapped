@@ -1,0 +1,33 @@
+id: 156
+code: null
+title: >-
+  Homepage : retirer l'epic du tree démo (placement colonnes/graphe correct) + re-snapshot de la
+  dernière app
+status: todo
+tags:
+  - marketing
+  - fable
+size: M
+team: marketing
+detail: >-
+  Deux corrections sur la démo homepage (#148). (1) BUG placement : le tree démo (src/demo/tree.ts)
+  met tous les tickets dans un epic « homepage » → la logique de regroupement (#135) les colle en UN
+  seul epic-nœud dans la colonne « Build », donc les tickets ne s'affichent PAS à leur stage correct
+  (vue Colonnes) ni à leur place causale (vue Graphe). Correctif : RETIRER l'epic des tickets du
+  tree démo (epic: null partout) pour qu'ils s'affichent individuellement à leur stage/dans le
+  graphe de deps. (2) RE-SNAPSHOT : régénérer le bundle démo (npm run build:demo) et recopier
+  dist-demo/ → roadmapped-site/demo/ pour que la homepage reflète la DERNIÈRE version de l'app (elle
+  a évolué depuis #148 : tag-graph optis #150, epic done #151, dashboard --open, SUPPRESSION
+  ARCHIVAGE #154, FULL ANGLAIS #155). Push le repo site (Cloudflare redéploie). Confié à Fable 5. À
+  FAIRE EN DERNIER (après #154 et #155, pour capturer l'app à jour dans le snapshot).
+refs: []
+links: []
+dependsOn: []
+epic: site
+source: ai
+createdAt: "2026-07-08T16:22:22"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

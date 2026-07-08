@@ -1,0 +1,33 @@
+id: 155
+code: null
+title: "App en full anglais (langue unique) : dashboard UI + CLI + skill + docs"
+status: todo
+tags:
+  - i18n
+  - fable
+size: L
+team: engineering
+detail: >-
+  Décision Rémi : tout en anglais, langue UNIQUE (pas d'i18n, pas de bascule). Périmètre TOTAL : (1)
+  Dashboard UI — tous les libellés visibles des composants React (boutons « Terminer »→ Finish,
+  colonnes « À faire/Terminées », panneau, placeholders, messages d'erreur/vides, aria-labels,
+  statuts FR→EN, « il y a X » relativeTime → English relative time). (2) CLI — sorties de
+  scripts/task.mjs (messages, erreurs autoportantes, sitrep, aide/USAGE, render.ts). (3) MCP —
+  descriptions des tools (scripts/mcp-server.mjs). (4) Skill — skills/roadmapped/SKILL.md +
+  references/*.md (boussole, cycle, commandes, interdits, routeur) en anglais, en gardant la densité
+  token-economy. (5) Docs — docs/guide.md et autres docs de référence produit (site-copy/README déjà
+  EN). Garder la cohérence du vocabulaire (stage/team/epic/quick/milestone déjà EN). NE PAS traduire
+  les slugs internes ni le contenu historique des tâches déjà consignées (docs/tasks/*.yaml — leurs
+  libellés FR restent, c'est de l'archive de contenu). Vérifier tsc + suite + validate + build
+  verts. Confié à Fable 5. APRÈS #154 (archivage retiré = moins de surface à traduire).
+refs: []
+links: []
+dependsOn: []
+epic: full-english
+source: ai
+createdAt: "2026-07-08T16:22:07"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
