@@ -1,7 +1,7 @@
 id: 169
 code: null
 title: "Passe de peaufinage du skill : SKILL.md + references (clarté, exemples, cas limites, refs mortes)"
-status: in_progress
+status: done
 tags:
   - skill
 size: null
@@ -18,8 +18,14 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-08T18:03:14"
-completedAt: null
-commit: null
-outcome: null
+completedAt: "2026-07-08"
+commit: 9dcdf5a
+outcome: >-
+  Audit du skill : SKILL.md + 4 references vérifiés. RÉSULTAT : déjà très solide — zéro ref morte
+  (la mention 'archive' de formats.md renvoie correctement au #154), zéro français, commandes
+  documentées cohérentes avec le CLI, backward-compat milestone/epic exacte. UN ajout à forte valeur
+  : documenté les 2 mécaniques du guard qui font trébucher (start AVANT de committer ; commit
+  'consigne' log-only après done — exempté par le guard car ne touche que docs/tasks/). Vérifié
+  contre la logique réelle du guard (task.mjs cmdGuard L519). Copie ~/.claude resync.
 verification: null
 release: null
