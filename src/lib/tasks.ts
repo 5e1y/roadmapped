@@ -81,6 +81,9 @@ export interface TaskNode {
   /** Posé au passage todo→in_progress (#82). Null sur les tâches d'avant le champ :
       les lecteurs d'âge retombent sur createdAt. */
   startedAt: string | null
+  /** Bumpé à CHAQUE écriture (#147, Live 4) — source des badges NEW/non-lu. Optionnel :
+      absent/null sur les YAML d'avant le champ → les lecteurs retombent sur createdAt. */
+  updatedAt?: string | null
   completedAt: string | null
   commit: string | null
   /** Ce que la tâche a livré, en une phrase orientée utilisateur — matière à changelog. */
@@ -191,6 +194,7 @@ function toTaskNode(raw: any, file: string): TaskNode {
     source: raw.source,
     createdAt: raw.createdAt,
     startedAt: raw.startedAt ?? null,
+    updatedAt: raw.updatedAt ?? null,
     completedAt: raw.completedAt ?? null,
     commit: raw.commit ?? null,
     outcome: raw.outcome ?? null,

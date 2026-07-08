@@ -203,6 +203,25 @@ describe('kind quick (mini-tickets)', () => {
   })
 })
 
+describe('updatedAt (#147 Live 4)', () => {
+  const DATETIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/
+  it('addTask écrit updatedAt et toute écriture le re-date (bump)', () => {
+    const res = add({ title: 'Live ticket' })
+    expect(res.ok).toBe(true)
+    if (!res.ok) return
+    expect(res.task!.updatedAt).toMatch(DATETIME)
+    const file = join(dir, SEC, '01-live-ticket.yaml')
+    expect(readFileSync(file, 'utf8')).toContain('updatedAt:')
+    // Force une vieille valeur puis patch → doit être re-daté (preuve du bump, sans
+    // dépendre du timing seconde-à-seconde).
+    writeFileSync(file, readFileSync(file, 'utf8').replace(/updatedAt:.*/, 'updatedAt: 2020-01-01T00:00:00'))
+    updateTask(dir, 1, { detail: 'edited' })
+    const after = readFileSync(file, 'utf8')
+    expect(after).not.toContain('2020-01-01T00:00:00')
+    expect(after).toMatch(/updatedAt: "?\d{4}-/)
+  })
+})
+
 describe('outcome (updateTask)', () => {
   it('se modifie et se vide via updateTask ; absent du YAML = null', () => {
     add()
