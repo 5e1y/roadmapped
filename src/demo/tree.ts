@@ -19,20 +19,15 @@ const section = (title: string, note: string): string =>
 export const DEMO_FILES: TaskFileMap = {
   'docs/tasks/_meta.yaml': 'nextId: 18\n',
 
-  'docs/tasks/_epics.yaml': `epics:
-  - slug: "homepage"
-    title: "The homepage you are reading"
-`,
-
-  // ------------------------------------------------------------ stages (8, canoniques)
-  'docs/tasks/01-idea/_section.yaml': section('Idea Stage', "L'idée initiale, sa validation, le problème/la cible."),
-  'docs/tasks/02-initial/_section.yaml': section('Initial Stage', "Nom, repo, structure juridique — l'existence du projet."),
-  'docs/tasks/03-identity/_section.yaml': section('Identity Stage', 'Marque, domaine, présence sociale, positionnement.'),
-  'docs/tasks/04-build/_section.yaml': section('Build Stage', 'Construire le produit ET ses fondations business (site, emails, comptabilité).'),
-  'docs/tasks/05-gtm/_section.yaml': section('GTM Stage', 'Go-to-market : contenu, outbound, acquisition payante.'),
-  'docs/tasks/06-launch/_section.yaml': section('Launch Stage', 'Lancer : produit, site, moteur de contenu, qualification.'),
-  'docs/tasks/07-scale/_section.yaml': section('Scale Stage', 'Monitoring, SEO, communauté, deals, billing, support.'),
-  'docs/tasks/08-mature/_section.yaml': section('Mature Stage', 'Referral, legal & compliance, intégrations avancées.'),
+  // ------------------------------------------------------------ stages (8, canonical)
+  'docs/tasks/01-idea/_section.yaml': section('Idea Stage', 'The initial idea, its validation, the problem/target.'),
+  'docs/tasks/02-initial/_section.yaml': section('Initial Stage', 'Name, repo, legal structure — the project exists.'),
+  'docs/tasks/03-identity/_section.yaml': section('Identity Stage', 'Brand, domain, social presence, positioning.'),
+  'docs/tasks/04-build/_section.yaml': section('Build Stage', 'Build the product AND its business foundations (site, emails, accounting).'),
+  'docs/tasks/05-gtm/_section.yaml': section('GTM Stage', 'Go-to-market: content, outbound, paid acquisition.'),
+  'docs/tasks/06-launch/_section.yaml': section('Launch Stage', 'Launch: product, site, content engine, qualification.'),
+  'docs/tasks/07-scale/_section.yaml': section('Scale Stage', 'Monitoring, SEO, community, deals, billing, support.'),
+  'docs/tasks/08-mature/_section.yaml': section('Mature Stage', 'Referral, legal & compliance, advanced integrations.'),
 
   // ------------------------------------------------------------ 01-idea
   'docs/tasks/01-idea/01-the-demo-should-be-the-product.yaml': `id: 1
@@ -46,7 +41,7 @@ detail: "Options considered for the hero: a video (goes stale), screenshots (lie
 refs: []
 links: []
 dependsOn: []
-epic: "homepage"
+epic: null
 source: "user"
 createdAt: "2026-06-12T09:14:31"
 startedAt: "2026-06-12T09:30:02"
@@ -70,7 +65,7 @@ detail: null
 refs: []
 links: []
 dependsOn: []
-epic: "homepage"
+epic: null
 source: "user"
 createdAt: "2026-06-12T11:02:47"
 completedAt: "2026-06-12"
@@ -95,7 +90,7 @@ refs:
 links: []
 dependsOn:
   - 1
-epic: "homepage"
+epic: null
 source: "user"
 createdAt: "2026-06-14T10:05:12"
 startedAt: "2026-06-14T10:21:44"
@@ -120,7 +115,7 @@ refs:
 links: []
 dependsOn:
   - 1
-epic: "homepage"
+epic: null
 source: "ai"
 createdAt: "2026-06-14T14:40:09"
 startedAt: "2026-06-15T09:02:18"
@@ -145,7 +140,7 @@ refs:
 links: []
 dependsOn:
   - 1
-epic: "homepage"
+epic: null
 source: "ai"
 createdAt: "2026-06-17T08:55:33"
 startedAt: "2026-06-17T09:10:20"
@@ -169,7 +164,7 @@ refs:
 links: []
 dependsOn:
   - 5
-epic: "homepage"
+epic: null
 source: "ai"
 createdAt: "2026-06-18T10:12:05"
 startedAt: "2026-06-18T11:00:41"
@@ -193,7 +188,7 @@ refs:
 links: []
 dependsOn:
   - 5
-epic: "homepage"
+epic: null
 source: "ai"
 createdAt: "2026-06-19T15:22:58"
 startedAt: "2026-06-20T09:31:12"
@@ -221,7 +216,7 @@ dependsOn:
   - 5
   - 6
   - 7
-epic: "homepage"
+epic: null
 source: "ai"
 createdAt: "2026-07-02T09:47:26"
 startedAt: "2026-07-02T10:15:03"
@@ -247,7 +242,7 @@ links:
   - 8
 dependsOn:
   - 9
-epic: "homepage"
+epic: null
 source: "user"
 createdAt: "2026-07-05T08:30:14"
 startedAt: "2026-07-07T09:02:55"
@@ -271,7 +266,7 @@ detail: null
 refs: []
 links: []
 dependsOn: []
-epic: "homepage"
+epic: null
 source: "ai"
 createdAt: "2026-07-06T16:08:42"
 completedAt: "2026-07-06"
@@ -294,7 +289,7 @@ refs: []
 links: []
 dependsOn:
   - 10
-epic: "homepage"
+epic: null
 source: "user"
 createdAt: "2026-07-06T11:20:37"
 startedAt: null
@@ -318,7 +313,7 @@ links: []
 dependsOn:
   - 12
   - 15
-epic: "homepage"
+epic: null
 source: "user"
 createdAt: "2026-07-06T11:23:51"
 startedAt: null
@@ -344,7 +339,7 @@ links: []
 dependsOn:
   - 3
   - 4
-epic: "homepage"
+epic: null
 source: "ai"
 createdAt: "2026-06-28T09:12:44"
 startedAt: "2026-06-28T09:40:31"
@@ -369,7 +364,7 @@ links: []
 dependsOn:
   - 10
   - 14
-epic: "homepage"
+epic: null
 source: "user"
 createdAt: "2026-07-05T08:35:29"
 startedAt: null
@@ -392,7 +387,7 @@ refs: []
 links: []
 dependsOn:
   - 15
-epic: "homepage"
+epic: null
 source: "user"
 createdAt: "2026-07-06T11:31:08"
 startedAt: null
@@ -415,7 +410,7 @@ refs: []
 links: []
 dependsOn:
   - 15
-epic: "homepage"
+epic: null
 source: "user"
 createdAt: "2026-07-06T11:34:26"
 startedAt: null
@@ -439,7 +434,7 @@ refs: []
 links:
   - 10
 dependsOn: []
-epic: "homepage"
+epic: null
 source: "ai"
 createdAt: "2026-06-22T09:18:40"
 startedAt: "2026-06-22T09:44:07"
