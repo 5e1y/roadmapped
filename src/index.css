@@ -78,6 +78,25 @@ body {
 }
 
 /*
+ * Pulse live (#147, Live 3) : le glyphe d'un ticket in_progress « respire » —
+ * l'accent bleu attire l'œil sur le travail en cours, et avec la réactivité
+ * live il devient vivant (un ticket que l'agent démarre se met à pulser sans
+ * recharger). Opacité seule, subtile ; coupée sous prefers-reduced-motion.
+ */
+@keyframes rm-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.pulse-live {
+  animation: rm-pulse 1.8s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pulse-live {
+    animation: none;
+  }
+}
+
+/*
  * Mode Colonnes de la Roadmap : barre de défilement horizontale toujours
  * visible (fine, monochrome) = affordance de scroll pour la dernière colonne
  * quand les jalons débordent de la largeur de l'écran.
