@@ -4,7 +4,7 @@ code: null
 title: >-
   Planning : ribambelle de tickets autonomes (publish-readiness, homepage/SEO/mobile, skill, design
   system)
-status: todo
+status: done
 tags: []
 size: null
 team: engineering
@@ -15,8 +15,12 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-08T18:03:45"
-completedAt: null
-commit: null
-outcome: null
+completedAt: "2026-07-08"
+commit: 30c3990
+outcome: >-
+  13 tickets créés (#159-#171) couvrant : publish-readiness (métadonnées package.json,
+  lang/viewport, résidus FR, publish dry-run, vérif repo fictif), homepage/SEO/mobile (landing
+  statique, surface SEO, OG image, finir site-copy, SEO repo), skill polish, design system
+  (design.md EN, cohérence DS). Session autonome pendant absence de Rémi.
 verification: null
 release: null
