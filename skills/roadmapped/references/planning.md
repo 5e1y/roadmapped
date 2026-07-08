@@ -1,4 +1,4 @@
-# Roadmaped — d'une idée à des tâches prêtes à exécuter
+# Roadmapped — d'une idée à des tâches prêtes à exécuter
 
 Le cycle de vie d'une feature, avant exécution : **Idée → Spec → Tâches**. Chaque étape a son gate. Le dashboard rend tout visible (backlog, roadmap, docs) — il n'y a AUCUN autre fichier de suivi à tenir.
 
@@ -16,7 +16,7 @@ Le cycle de vie d'une feature, avant exécution : **Idée → Spec → Tâches**
 
 ## 2. Spec → Tâches (l'ex-writing-plans)
 
-Un « plan » Roadmaped = des tâches chaînées. La granularité : **une tâche = un livrable testable indépendamment**, qu'un exécuteur sans contexte peut prendre via `brief <id>` + la spec en `refs`.
+Un « plan » Roadmapped = des tâches chaînées. La granularité : **une tâche = un livrable testable indépendamment**, qu'un exécuteur sans contexte peut prendre via `brief <id>` + la spec en `refs`.
 
 **Chaque tâche choisit un stage (le QUAND) et une team (le QUI).** Le stage (`--section`, un des 8 fixes idea→mature) place la tâche dans la séquence de lancement produit — les stages SONT les jalons, pas besoin de section ou jalon dédié à créer. La team (`--team`, enum fixe) dit quelle équipe métier la porte. Les deux sont requis à la création (`add`), aucune tâche active n'en est dispensée.
 

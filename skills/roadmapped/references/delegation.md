@@ -1,4 +1,4 @@
-# Roadmaped — exécution, délégation à des subagents, garde-fous
+# Roadmapped — exécution, délégation à des subagents, garde-fous
 
 ## 3. Exécution
 
