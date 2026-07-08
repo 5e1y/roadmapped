@@ -4,6 +4,7 @@ import { usePanel } from '../state/PanelContext'
 import { computeAvailability, missingPrereqs, topoLayers, type Availability } from '../lib/roadmap'
 import { LockLocked } from 'trinil-react'
 import { StatusGlyph } from './glyphs'
+import { Chip } from './Chip'
 import { TEAM_ABBR } from '../lib/tasks'
 import type { TaskNode } from '../lib/tasks'
 import { useShowDone } from './RoadmapView'
@@ -203,8 +204,9 @@ function GraphCard({ placed, onOpen }: { placed: Placed; onOpen: () => void }) {
       ) : state === 'available' ? (
         <span className="text-[11px] font-medium text-neutral-700">Disponible</span>
       ) : null /* done : contenu identique aux autres états, sans chips (cohérence) */}
-      {/* Badge team (le QUI) — abrégé, coin bas droit. */}
-      <span className="absolute bottom-1 right-2 text-[10px] text-neutral-300">{TEAM_ABBR[task.team]}</span>
+      {/* Badge team (le QUI) — abrégé, coin bas droit. Même donnée = même rendu
+          que le Backlog : Chip (design.md §2). */}
+      <span className="absolute bottom-1 right-2"><Chip label={TEAM_ABBR[task.team]} /></span>
     </button>
   )
 }

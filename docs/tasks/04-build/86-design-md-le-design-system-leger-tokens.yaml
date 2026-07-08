@@ -1,7 +1,7 @@
 id: 111
 code: null
 title: "design.md — le design system léger : tokens, composants BaseUI canoniques, règles"
-status: todo
+status: done
 tags:
   - design
   - docs
@@ -31,8 +31,16 @@ dependsOn:
 milestone: null
 source: user
 createdAt: "2026-07-08T01:57:01"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: b08d5ec
+outcome: >-
+  docs/design.md créé : tokens (accent + tri-couche + échelle de gris avec plancher neutral-500/600,
+  règle des deux arrondis, gabarits d'espacement), 9 composants canoniques Base UI mappés sur ui.tsx
+  (bordure de champ : option bg-neutral-50 retenue plutôt que border-500), 6 règles (tri-couche
+  stricte, langage actif universel accent-tint+filet, pattern ghost acté, focus replacé après
+  action, clavier, monochrome sans registre destructif — YAGNI). Zéro « à décider »
+verification: >-
+  Relu contre la synthèse de l'audit : chacun des 6 points de la synthèse a sa décision dans le doc
+  ; chaque règle cite sa source (#36, #107-109) ; les 4 tâches d'exécution (#113-116) peuvent le
+  référencer tel quel
 release: null

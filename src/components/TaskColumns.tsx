@@ -3,8 +3,11 @@ import { Plus } from 'trinil-react'
 import { TaskRow } from './TaskRow'
 import { Chip } from './Chip'
 import { StatusGlyph } from './glyphs'
+import { ErrorBanner, GhostInput, Select, type SelectItem } from './ui'
 import { usePanel } from '../state/PanelContext'
 import { TEAMS, TEAM_ABBR, type Team, type TaskNode } from '../lib/tasks'
+
+const TEAM_ITEMS: SelectItem[] = TEAMS.map((t) => ({ value: t, label: t }))
 
 const PREVIEW = 12
 
@@ -144,27 +147,30 @@ export function MiniZone({ quicks, reload }: { quicks: TaskNode[]; reload: () =>
         <span className="font-mono text-[11px]">{quicks.length}</span>
       </h2>
       <div className="divide-y divide-neutral-100 border border-neutral-200 bg-white">
-        {/* Création inline : titre puis Entrée — la team en select compact. */}
+        {/* Création inline : titre puis Entrée — la team en Select compact (Base UI).
+            Titre en peau ghost canonique (ghostCls) : invisible au repos, hover gris,
+            focus bordure + fond blanc — le :focus-visible global reste actif. */}
         <div className="flex items-center gap-2 px-4 py-1.5">
           <Plus size={11} className="shrink-0 text-neutral-400" />
-          <input
+          <GhostInput
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') void create() }}
             placeholder="Nouveau mini — titre puis Entrée"
             aria-label="Nouveau mini"
             disabled={busy}
-            className="min-w-0 flex-1 bg-transparent py-1 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none"
+            className="min-w-0 flex-1 text-sm placeholder:text-neutral-400"
           />
-          <select
-            value={team}
-            onChange={(e) => setTeam(e.target.value as Team)}
-            aria-label="Team du mini"
-            disabled={busy}
-            className="shrink-0 rounded-md border border-neutral-200 bg-white px-1.5 py-0.5 text-[11px] text-neutral-600 focus:border-neutral-900 focus:outline-none"
-          >
-            {TEAMS.map((t) => <option key={t} value={t}>{t}</option>)}
-          </select>
+          <div className="w-32 shrink-0">
+            <Select
+              defaultValue={team}
+              onValueChange={(v) => setTeam(v as Team)}
+              items={TEAM_ITEMS}
+              aria-label="Team du mini"
+              disabled={busy}
+              compact
+            />
+          </div>
         </div>
         {quicks.map((t) => {
           const isOpenInPanel = top?.type === 'task' && top.id === t.id
@@ -195,8 +201,11 @@ export function MiniZone({ quicks, reload }: { quicks: TaskNode[]; reload: () =>
           )
         })}
       </div>
+      {/* Registre d'erreur canonique (ErrorBanner, role=alert) — plus de paragraphe nu. */}
       {error && (
-        <p className="mt-1 px-1 font-mono text-[11px] text-neutral-800">⚠ {error}</p>
+        <div className="mt-1">
+          <ErrorBanner errors={[error]} />
+        </div>
       )}
     </section>
   )

@@ -2,6 +2,7 @@ import { useEffect, useState, type MouseEvent } from 'react'
 import { renderMarkdown } from './Markdown'
 import { ViewHeader } from './ViewHeader'
 import { DocsTree } from './DocsTree'
+import { ErrorBanner } from './ui'
 import { useDocsTree } from '../state/useDocsTree'
 
 /**
@@ -100,10 +101,11 @@ export function DocsView({ path, onSelectDoc }: { path: string | null; onSelectD
           <div className="shrink-0 px-2 pb-1.5 text-[10px] font-medium text-neutral-400">Fichiers</div>
           <div className="min-h-0 flex-1 overflow-y-auto">
             {docs.loading && !docs.tree && <p className="px-2 text-xs text-neutral-400">Chargement…</p>}
+            {/* Registre d'erreur canonique (ErrorBanner, role=alert) — plus de boîte ad hoc. */}
             {docs.loadError && (
-              <p className="mx-2 border border-neutral-400 bg-neutral-100 px-2 py-1.5 text-xs text-neutral-700">
-                ⚠ Chargement impossible : {docs.loadError}
-              </p>
+              <div className="mx-2">
+                <ErrorBanner errors={[`Chargement impossible : ${docs.loadError}`]} />
+              </div>
             )}
             {docs.tree && docs.tree.length === 0 && <p className="px-2 text-xs text-neutral-400">Aucun document .md.</p>}
             {docs.tree && docs.tree.length > 0 && (

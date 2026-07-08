@@ -1,7 +1,7 @@
 id: 108
 code: null
 title: Audit a11y 2 — contraste WCAG AA (textes, chips, croix, ghost inputs)
-status: todo
+status: done
 tags:
   - design
   - a11y
@@ -26,8 +26,17 @@ dependsOn: []
 milestone: null
 source: user
 createdAt: "2026-07-08T01:56:30"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: 75c4103
+outcome: >-
+  Section « Contraste » de docs/audit-a11y-2026-07.md : 17 familles mesurées, 7 bloquantes. Problème
+  structurel : text-neutral-400 (#a1a1a1, ~86 occurrences, la couleur la plus utilisée) = 2.58:1,
+  strate neutral-300 = 1.48:1 y compris sur contrôles interactifs, pire cas neutral-200 à 1.26:1
+  (titre section vide du graphe). Fix systémique retenu pour design.md : promotion neutral-400→500
+  (4.74:1), neutral-300→500 pour l'interactif, neutral-500→600 sur fond gris. Croix de tags à 1.48:1
+  confirmées (l'intuition de Rémi était juste)
+verification: >-
+  Tous les ratios CALCULÉS (formule WCAG relative luminance depuis les oklch Tailwind v4 converties,
+  script node de l'agent) — aucun estimé ; paires exactes citées dans le rapport (ex. #a1a1a1 sur
+  #ffffff = 2.58:1) ; propositions vérifiées passantes (#737373 = 4.74:1)
 release: null

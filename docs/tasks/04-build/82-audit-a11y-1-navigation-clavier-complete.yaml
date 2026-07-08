@@ -1,7 +1,7 @@
 id: 107
 code: null
 title: Audit a11y 1 — navigation clavier complète du dashboard
-status: todo
+status: done
 tags:
   - design
   - a11y
@@ -28,8 +28,18 @@ dependsOn: []
 milestone: null
 source: user
 createdAt: "2026-07-08T01:56:24"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: 75c4103
+outcome: >-
+  Section « Clavier » de docs/audit-a11y-2026-07.md : 13 findings (0 bloquant, 6 gênants, 7
+  mineurs). Verdict sain : vrais boutons partout, focus-visible global efficace, croix de tags Base
+  UI ChipRemove CONFORMES (pattern tabIndex=-1 + flèches/Backspace vérifié dans le source @base-ui
+  1.6.0). Motif dominant : focus perdu après action (blurOnEnter, remontage AddCombobox, lignes
+  supprimées, sortie d'édition). Pièges relevés : croix de note invisible au focus, radar role=img
+  masquant 8 boutons aux SR, FilterMenu disabled inerte (composant mort)
+verification: >-
+  Audit par agent dédié en lecture seule sur tout src/components + App.tsx, comportements Base UI
+  vérifiés dans node_modules/@base-ui/react (ComboboxChipRemove.js, useFocusableWhenDisabled.js
+  cités) ; chaque finding porte fichier:ligne + extrait de code ; rapport relu et structuré par
+  sévérité
 release: null

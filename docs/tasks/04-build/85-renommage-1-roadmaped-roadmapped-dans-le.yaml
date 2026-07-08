@@ -1,7 +1,7 @@
 id: 110
 code: null
 title: Renommage 1 — roadmaped → Roadmapped dans le code, la config et les docs
-status: todo
+status: done
 tags:
   - marketing
   - rename
@@ -28,8 +28,16 @@ dependsOn: []
 milestone: null
 source: user
 createdAt: "2026-07-08T01:56:46"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: 63813c8
+outcome: >-
+  roadmaped → roadmapped partout dans le vivant : package.json, .mcp.json (clé serveur), serverInfo
+  MCP, config git mv roadmapped.config.json AVEC rétrocompat de lecture de l'ancien nom (paths.ts, +
+  test dédié), UI (App/ViewHeader/TaskPanel/index.html), USAGE CLI, hook guard,
+  README/CONTRIBUTING/guide/comms-plan/tone-of-voice/templates GitHub, lockfile régénéré ;
+  historique (specs datées, docs/tasks, audit) intact volontairement
+verification: >-
+  225 tests verts dont le nouveau test rétrocompat (sandbox renommé en ancien nom → CLI fonctionne)
+  ; build vert ; serveur MCP relancé sur stdio répond serverInfo name=roadmapped ; grep roadmaped
+  sur le périmètre vivant → zéro hit hors mention volontaire de rétrocompat
 release: null

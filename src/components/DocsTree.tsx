@@ -45,7 +45,7 @@ function DocsTreeFolder({
     <Collapsible.Root open={open} onOpenChange={setOpen}>
       {/* Le padding vit dans le Trigger : toute la ligne (hauteur comprise) déplie le dossier. */}
       <Collapsible.Trigger
-        className="flex w-full items-center gap-1.5 rounded-md py-1.5 pr-2 text-left text-sm text-neutral-600 hover:bg-neutral-100"
+        className="flex w-full items-center gap-1.5 py-1.5 pr-2 text-left text-sm text-neutral-600 hover:bg-neutral-100"
         style={{ paddingLeft: BASE_PADDING_PX + depth * INDENT_PX }}
       >
         <Chevron />
@@ -71,8 +71,10 @@ function DocsTreeFile({
       type="button"
       onClick={() => onSelectDoc(node.path)}
       aria-current={active ? 'page' : undefined}
-      className={`flex w-full items-baseline gap-2 rounded-md py-1.5 pr-2 text-left text-sm transition-colors ${
-        active ? 'bg-neutral-100 text-neutral-900' : 'text-neutral-600 hover:bg-neutral-100'
+      className={`flex w-full items-baseline gap-2 py-1.5 pr-2 text-left text-sm transition-colors ${
+        // Langage « actif » universel (design.md §3.2) : accent-tint + filet gauche —
+        // le gris neutral-100 est réservé au hover. Lignes de liste carrées.
+        active ? 'bg-accent-tint text-neutral-900 shadow-[inset_2px_0_0_var(--color-accent)]' : 'text-neutral-600 hover:bg-neutral-100'
       }`}
       style={{ paddingLeft: BASE_PADDING_PX + depth * INDENT_PX + INDENT_PX }}
       title={node.name}

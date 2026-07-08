@@ -9,6 +9,7 @@ import { CreateTaskPanel, SectionPanel } from './components/SectionPanel'
 import { RoadmapView } from './components/RoadmapView'
 import { DocsView } from './components/DocsView'
 import { NotepadView } from './components/NotepadView'
+import { OPEN_DOC_EVENT } from './lib/events'
 
 function MainView({ view, docPath, onSelectDoc }: {
   view: View
@@ -80,8 +81,8 @@ function Shell() {
       setDocPath(path)
       setView('docs')
     }
-    window.addEventListener('roadmapped:open-doc', onOpenDoc)
-    return () => window.removeEventListener('roadmapped:open-doc', onOpenDoc)
+    window.addEventListener(OPEN_DOC_EVENT, onOpenDoc)
+    return () => window.removeEventListener(OPEN_DOC_EVENT, onOpenDoc)
   }, [])
 
   // Titre d'onglet = vue courante (ou nom du doc ouvert).

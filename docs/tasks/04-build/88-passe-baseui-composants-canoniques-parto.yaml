@@ -1,7 +1,7 @@
 id: 113
 code: null
 title: Passe BaseUI — composants canoniques partout, zéro élément en dur
-status: todo
+status: in_progress
 tags:
   - design
   - baseui
