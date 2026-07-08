@@ -1,0 +1,22 @@
+id: 139
+code: null
+title: >-
+  Implémenter la distribution : paquet npm + bin roadmapped + fix racine-paquet/racine-hôte (spec
+  #12, finding #123)
+status: todo
+tags:
+  - fable
+size: L
+team: engineering
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: distribution
+source: ai
+createdAt: "2026-07-08T12:25:17"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
