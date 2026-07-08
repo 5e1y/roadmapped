@@ -1,0 +1,24 @@
+id: 175
+kind: quick
+code: null
+title: >-
+  Contraste : titre de colonne vide RoadmapColumns:166 (neutral-300→500) + placeholder tiret no-tags
+  ui.tsx:388 (neutral-400→500)
+status: in_progress
+tags:
+  - a11y
+size: null
+team: design
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-08T18:27:47"
+startedAt: "2026-07-08T18:27:47"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

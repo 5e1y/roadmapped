@@ -1,0 +1,24 @@
+id: 174
+kind: quick
+code: null
+title: >-
+  a11y — MultiCombobox : aucun indicateur de focus à la frappe (focus: sur wrapper au lieu de
+  focus-within), ui.tsx:584
+status: in_progress
+tags:
+  - a11y
+size: null
+team: design
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-08T18:27:46"
+startedAt: "2026-07-08T18:27:46"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
