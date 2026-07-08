@@ -1,0 +1,28 @@
+id: 130
+code: null
+title: >-
+  Cadenas de verrouillage : afficher le cercle de progression en cadenas partout où la tâche est
+  bloquée par des dépendances (backlog + task bar, pas juste la roadmap)
+status: todo
+tags:
+  - ux
+size: S
+team: design
+detail: >-
+  Aujourd'hui le petit cercle de progression passe en cadenas pour les tâches verrouillées par des
+  dépendances uniquement dans la roadmap. Rendre l'indicateur cohérent : afficher le cadenas PARTOUT
+  où ce cercle apparaît — lignes du backlog, task bar / panneau de tâche. L'état « locked » est déjà
+  calculé (computeAvailability : available/locked/done) ; il faut le threader jusqu'à ces vues et
+  réutiliser le même glyphe cadenas que la roadmap. Pas de nouvelle décision visuelle : même cercle,
+  même cadenas, juste rendu partout.
+refs: []
+links: []
+dependsOn: []
+milestone: null
+source: ai
+createdAt: "2026-07-08T09:30:34"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
