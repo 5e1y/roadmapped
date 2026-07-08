@@ -39,14 +39,14 @@ export interface Stage {
  * `docs/tasks/` contient EXACTEMENT ces 8 dossiers (validation stricte).
  */
 export const STAGES: Stage[] = [
-  { slug: '01-idea', title: 'Idea Stage', note: "L'idée initiale, sa validation, le problème/la cible." },
-  { slug: '02-initial', title: 'Initial Stage', note: "Nom, repo, structure juridique — l'existence du projet." },
-  { slug: '03-identity', title: 'Identity Stage', note: 'Marque, domaine, présence sociale, positionnement.' },
-  { slug: '04-build', title: 'Build Stage', note: 'Construire le produit ET ses fondations business (site, emails, comptabilité).' },
-  { slug: '05-gtm', title: 'GTM Stage', note: 'Go-to-market : contenu, outbound, acquisition payante.' },
-  { slug: '06-launch', title: 'Launch Stage', note: 'Lancer : produit, site, moteur de contenu, qualification.' },
-  { slug: '07-scale', title: 'Scale Stage', note: 'Monitoring, SEO, communauté, deals, billing, support.' },
-  { slug: '08-mature', title: 'Mature Stage', note: 'Referral, legal & compliance, intégrations avancées.' },
+  { slug: '01-idea', title: 'Idea Stage', note: 'The initial idea, its validation, the problem/the audience.' },
+  { slug: '02-initial', title: 'Initial Stage', note: "Name, repo, legal structure — the project's existence." },
+  { slug: '03-identity', title: 'Identity Stage', note: 'Brand, domain, social presence, positioning.' },
+  { slug: '04-build', title: 'Build Stage', note: 'Build the product AND its business foundations (site, emails, accounting).' },
+  { slug: '05-gtm', title: 'GTM Stage', note: 'Go-to-market: content, outbound, paid acquisition.' },
+  { slug: '06-launch', title: 'Launch Stage', note: 'Launch: product, site, content engine, qualification.' },
+  { slug: '07-scale', title: 'Scale Stage', note: 'Monitoring, SEO, community, deals, billing, support.' },
+  { slug: '08-mature', title: 'Mature Stage', note: 'Referral, legal & compliance, advanced integrations.' },
 ]
 
 export interface TaskNode {
@@ -100,11 +100,11 @@ export interface SectionNode {
   tasks: TaskNode[]
 }
 
-/** Libellés FR des statuts de section non-« open » (UI française, source unique). */
-export const SECTION_STATUS_FR: Record<Exclude<SectionNode['status'], 'open'>, string> = {
-  done: 'terminée',
-  dormant: 'en veille',
-  abandoned: 'abandonnée',
+/** Libellés des statuts de section non-« open » (UI, source unique). */
+export const SECTION_STATUS_LABEL: Record<Exclude<SectionNode['status'], 'open'>, string> = {
+  done: 'done',
+  dormant: 'dormant',
+  abandoned: 'abandoned',
 }
 
 /**

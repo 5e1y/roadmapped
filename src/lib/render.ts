@@ -12,7 +12,7 @@ import type { TaskTree, TaskNode } from './tasks'
 import type { FoundTask } from './taskWrites'
 
 export const GLYPH: Record<string, string> = { todo: '[ ]', in_progress: '[~]', done: '[x]' }
-export const STATUS_FR: Record<string, string> = { todo: 'à faire', in_progress: 'en cours', done: 'faite' }
+export const STATUS_LABEL: Record<string, string> = { todo: 'todo', in_progress: 'in progress', done: 'done' }
 
 /** git best-effort : hors dépôt ou commande en échec → null (jamais d'exception/bruit). */
 export function git(args: string): string | null {
@@ -31,8 +31,8 @@ export function taskLine(t: TaskNode, indent = '  '): string {
 /** Lien titré « #id titre (statut) » — l'app porte le contexte, l'agent ne navigue plus. */
 export function refLine(tree: TaskTree, id: number): string {
   const hit = findTask(tree, id)
-  if (!hit) return `#${id} (inconnu)`
-  const st = STATUS_FR[hit.task.status] ?? hit.task.status
+  if (!hit) return `#${id} (unknown)`
+  const st = STATUS_LABEL[hit.task.status] ?? hit.task.status
   return `#${id} ${hit.task.title} (${st})`
 }
 
@@ -45,13 +45,13 @@ export function renderRef(ref: string, createdAt: string): string {
   const { path, anchor } = parseRef(ref)
   const exists = existsSync(path)
   const lastCommit = exists ? git(`log -1 --format=%cs -- "${path}"`) : null
-  const flag = lastCommit && lastCommit > createdAt ? ' ⚠ modifié depuis la création du ticket' : ''
+  const flag = lastCommit && lastCommit > createdAt ? ' ⚠ modified since the ticket was created' : ''
   const head = `  ${ref}${flag}`
   if (!anchor || !exists) return head
   const line = locateLine(readFileSync(path, 'utf8'), anchor)
   if (line === null) {
-    const what = anchor.kind === 'symbol' ? `symbole "${anchor.value}"` : `ligne ${anchor.value}`
-    return `${head}\n    ⚠ ancre introuvable (${what}) — lire le fichier`
+    const what = anchor.kind === 'symbol' ? `symbol "${anchor.value}"` : `line ${anchor.value}`
+    return `${head}\n    ⚠ anchor not found (${what}) — read the file`
   }
   const snip = snippet(readFileSync(path, 'utf8'), line).split('\n').map((l) => `    ${l}`).join('\n')
   return `${head}\n${snip}`
@@ -73,9 +73,9 @@ export function briefText(tree: TaskTree, hit: FoundTask): string {
   out.push(meta.join(' · '))
   if (t.detail) out.push(`detail: ${t.detail.trim()}`)
   if (t.refs.length) { out.push('refs:'); for (const r of t.refs) out.push(renderRef(r, t.createdAt)) }
-  if (t.dependsOn.length) { out.push('dépend de:'); for (const d of t.dependsOn) out.push(`  ${refLine(tree, d)}`) }
-  if (t.links.length) { out.push('liées:'); for (const l of t.links) out.push(`  ${refLine(tree, l)}`) }
-  if (t.subtasks.length) { out.push('sous-tâches:'); for (const s of t.subtasks) out.push(`  ${refLine(tree, s.id)}`) }
+  if (t.dependsOn.length) { out.push('depends on:'); for (const d of t.dependsOn) out.push(`  ${refLine(tree, d)}`) }
+  if (t.links.length) { out.push('linked:'); for (const l of t.links) out.push(`  ${refLine(tree, l)}`) }
+  if (t.subtasks.length) { out.push('subtasks:'); for (const s of t.subtasks) out.push(`  ${refLine(tree, s.id)}`) }
   out.push(
     t.kind === 'quick'
       ? `done ${t.id} --commit <sha> --outcome "…"`
@@ -153,14 +153,14 @@ export function auditCommits(tree: TaskTree): CommitAudit[] | null {
 }
 
 export function auditText(audit: CommitAudit[] | null): string {
-  if (audit === null) return 'audit commit↔tâche — indisponible (hors dépôt git)'
-  if (audit.length === 0) return 'audit commit↔tâche — aucun commit depuis la dernière tâche consignée ✔'
+  if (audit === null) return 'commit↔task audit — unavailable (not a git repo)'
+  if (audit.length === 0) return 'commit↔task audit — no commits since the last logged task ✔'
   const orphans = audit.filter((c) => c.status === 'orphan')
   const dangling = audit.filter((c) => c.status === 'dangling')
   const ok = audit.length - orphans.length - dangling.length
-  const lines = [`audit commit↔tâche — ${audit.length} commit(s) · ✔ ${ok} lié(s) · ⚠ ${orphans.length} orphelin(s) · ⚠ ${dangling.length} référence(s) morte(s)`]
-  for (const c of orphans) lines.push(`  orphelin  ${c.sha} ${c.subject}`)
-  for (const c of dangling) lines.push(`  ref morte ${c.sha} ${c.subject}  (#${c.ref} inconnu)`)
+  const lines = [`commit↔task audit — ${audit.length} commit(s) · ✔ ${ok} linked · ⚠ ${orphans.length} orphan(s) · ⚠ ${dangling.length} dead reference(s)`]
+  for (const c of orphans) lines.push(`  orphan    ${c.sha} ${c.subject}`)
+  for (const c of dangling) lines.push(`  dead ref  ${c.sha} ${c.subject}  (#${c.ref} unknown)`)
   return lines.join('\n')
 }
 
@@ -192,7 +192,7 @@ export function sitrepText(tree: TaskTree, errors: string[], unlogged?: Unlogged
   const capped = (items: TaskNode[], render: (t: TaskNode) => string, n = 8) => {
     if (items.length === 0) return ''
     const shown = items.slice(0, n).map(render).join(' · ')
-    return `: ${shown}${items.length > n ? ` (+${items.length - n} autres)` : ''}`
+    return `: ${shown}${items.length > n ? ` (+${items.length - n} more)` : ''}`
   }
   const dayOf = (iso: string) => iso.slice(0, 10) // datetime → date pour l'âge
   const doneToday = active.filter((t) => t.completedAt && dayOf(t.completedAt) === today)
@@ -204,20 +204,20 @@ export function sitrepText(tree: TaskTree, errors: string[], unlogged?: Unlogged
 
   const lines = [
     `sitrep — ${today}`,
-    `avancement: ${prog.done}/${prog.total} (${pct}%)`,
-    `done aujourd'hui (${doneToday.length})${capped(doneToday, brief)}`,
-    `in_progress (${inProgress.length})${capped(inProgress, (t) => `${brief(t)} (${daysBetween(dayOf(t.startedAt ?? t.createdAt), today)}j)`)}`,
-    `prochaines: ${queue.length ? queue.map(brief).join(' · ') : '— (file vide)'}`,
-    `validate: ${errors.length === 0 ? 'OK' : `${errors.length} erreur(s)`}`,
+    `progress: ${prog.done}/${prog.total} (${pct}%)`,
+    `done today (${doneToday.length})${capped(doneToday, brief)}`,
+    `in_progress (${inProgress.length})${capped(inProgress, (t) => `${brief(t)} (${daysBetween(dayOf(t.startedAt ?? t.createdAt), today)}d)`)}`,
+    `next: ${queue.length ? queue.map(brief).join(' · ') : '— (queue empty)'}`,
+    `validate: ${errors.length === 0 ? 'OK' : `${errors.length} error(s)`}`,
   ]
   const stale = inProgress.filter((t) => daysBetween(dayOf(t.startedAt ?? t.createdAt), today) >= 7)
-  if (stale.length) lines.push(`⚠ ${stale.length} in_progress ancienne(s) (≥7j) : ${stale.map((t) => `#${t.id}`).join(' ')}`)
+  if (stale.length) lines.push(`⚠ ${stale.length} stale in_progress (≥7d): ${stale.map((t) => `#${t.id}`).join(' ')}`)
   const debt = active.filter((t) => t.status !== 'done' && t.tags.includes('debt'))
-  if (debt.length) lines.push(`⚠ ${debt.length} dette(s) ouverte(s) (#debt) : ${debt.map((t) => `#${t.id}`).join(' ')}`)
+  if (debt.length) lines.push(`⚠ ${debt.length} open debt item(s) (#debt): ${debt.map((t) => `#${t.id}`).join(' ')}`)
   // Dérive hors ticket (#101) : muet si une in_progress existe — committer en cours de tâche est normal.
   if (unlogged && unlogged.count > 0 && inProgress.length === 0) {
-    lines.push(`⚠ ${unlogged.count} commit(s) non consigné(s) depuis #${unlogged.sinceId} — chaque changement a son ticket (quick)`)
+    lines.push(`⚠ ${unlogged.count} unlogged commit(s) since #${unlogged.sinceId} — every change gets its ticket (quick)`)
   }
-  if (errors.length) lines.push('⚠ validate rouge — lance `validate`')
+  if (errors.length) lines.push('⚠ validate failing — run `validate`')
   return lines.join('\n')
 }

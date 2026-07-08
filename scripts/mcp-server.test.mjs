@@ -51,7 +51,7 @@ describe('MCP — tools de lecture (#91)', () => {
   it('brief d’un id absent → isError (message autoportant)', () => {
     const r = tool('brief').handler({ id: 999 })
     expect(r.isError).toBe(true)
-    expect(r.content[0].text).toMatch(/Aucune tâche #999/)
+    expect(r.content[0].text).toMatch(/No task #999/)
   })
 
   it('next sert la file disponible (texte)', () => {
@@ -71,7 +71,7 @@ describe('MCP — tools de lecture (#91)', () => {
 
   it('take démarre la prochaine dispo et renvoie son brief', () => {
     const r = tool('take').handler({})
-    expect(r.content[0].text).toMatch(/#1 démarrée/)
+    expect(r.content[0].text).toMatch(/#1 started/)
     expect(tool('show').handler({ id: 1 }).structuredContent.status).toBe('in_progress')
   })
 })

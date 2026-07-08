@@ -47,7 +47,7 @@ interface HiddenPrereq {
     manquants » (#138) : dit OÙ vit chaque #id au lieu d'un « +n hors graphe » muet. */
 export function hiddenPrereqNote(hidden: HiddenPrereq[]): string {
   return hidden
-    .map((h) => `#${h.id} — ${h.epicTitle ? `dans l'epic « ${h.epicTitle} »` : 'hors vue (masquée)'}`)
+    .map((h) => `#${h.id} — ${h.epicTitle ? `in epic “${h.epicTitle}”` : 'out of view (hidden)'}`)
     .join(' · ')
 }
 
@@ -224,7 +224,7 @@ export function RoadmapGraph() {
   if (sections.every((s) => s.tasks.length === 0)) {
     return (
       <div className="px-6 py-8 text-sm text-neutral-500">
-        Aucune tâche à afficher — le graphe se construit à partir des tâches et de leurs dépendances.
+        Nothing to display — the graph is built from tasks and their dependencies.
       </div>
     )
   }
@@ -252,7 +252,7 @@ function GraphCanvas({ tree }: { tree: TaskTree }) {
   if (model.nodes.length === 0) {
     return (
       <div className="px-6 py-8 text-sm text-neutral-500">
-        Aucune tâche à afficher — le graphe se construit à partir des tâches et de leurs dépendances.
+        Nothing to display — the graph is built from tasks and their dependencies.
       </div>
     )
   }
@@ -277,13 +277,13 @@ function GraphCanvas({ tree }: { tree: TaskTree }) {
     <div className="relative h-full w-full">
       {/* Contrôles de zoom (épinglés, ne défilent pas avec le graphe) */}
       <div className="absolute right-3 top-3 z-10 flex items-center overflow-hidden rounded-md border border-neutral-300 bg-white shadow-sm">
-        <button type="button" onClick={() => zp.zoomBy(1 / ZOOM_STEP)} aria-label="Dézoomer"
+        <button type="button" onClick={() => zp.zoomBy(1 / ZOOM_STEP)} aria-label="Zoom out"
           className="px-2.5 py-1 text-sm text-neutral-600 hover:bg-neutral-100">−</button>
         <button type="button" onClick={zp.fit}
-          className="border-l border-neutral-200 px-2.5 py-1 text-xs text-neutral-600 hover:bg-neutral-100">Ajuster</button>
-        <button type="button" onClick={zp.reset} aria-label="Réinitialiser le zoom à 100 %"
+          className="border-l border-neutral-200 px-2.5 py-1 text-xs text-neutral-600 hover:bg-neutral-100">Fit</button>
+        <button type="button" onClick={zp.reset} aria-label="Reset zoom to 100%"
           className="border-l border-neutral-200 px-2.5 py-1 text-xs text-neutral-600 hover:bg-neutral-100">100 %</button>
-        <button type="button" onClick={() => zp.zoomBy(ZOOM_STEP)} aria-label="Zoomer"
+        <button type="button" onClick={() => zp.zoomBy(ZOOM_STEP)} aria-label="Zoom in"
           className="border-l border-neutral-200 px-2.5 py-1 text-sm text-neutral-600 hover:bg-neutral-100">+</button>
       </div>
 
@@ -294,7 +294,7 @@ function GraphCanvas({ tree }: { tree: TaskTree }) {
         ref={zp.viewportRef}
         tabIndex={0}
         role="application"
-        aria-label="Graphe des dépendances — glisser pour déplacer, molette ou + et − pour zoomer"
+        aria-label="Dependency graph — drag to pan, scroll wheel or + and − to zoom"
         className={`absolute inset-0 select-none overflow-hidden ${zp.panning ? 'cursor-grabbing' : 'cursor-grab'}`}
         style={{ touchAction: 'none' }}
         onPointerDown={(e) => { if (!(e.target as Element).closest('button')) zp.handlers.onPointerDown(e) }}
@@ -397,7 +397,7 @@ function GraphCard({ model, task, pos, dimmed, focused, onHoverChange }: NodeChr
       style={{ left: pos.x, top: pos.y, width: pos.w, minHeight: pos.h }}>
       <div className="flex items-center gap-2">
         {state === 'locked'
-          ? <LockLocked size={11} className="shrink-0 text-neutral-500" ariaLabel="Verrouillée" />
+          ? <LockLocked size={11} className="shrink-0 text-neutral-500" ariaLabel="Locked" />
           : <KindGlyph task={task} />}
         <span className="shrink-0 font-mono text-xs text-neutral-500">#{task.id}</span>
         <span className={`min-w-0 truncate text-sm ${titleCls}`}>
@@ -411,17 +411,17 @@ function GraphCard({ model, task, pos, dimmed, focused, onHoverChange }: NodeChr
           className="text-[11px] text-neutral-500"
           title={model.hidden.length > 0 ? hiddenPrereqNote(model.hidden) : undefined}
         >
-          Prérequis manquants
+          Missing prerequisites
           {model.missing.length + model.hidden.length > 0
             ? ` (${[...model.missing, ...model.hidden.map((h) => h.id)].map((d) => `#${d}`).join(' ')})`
             : ''}
         </span>
       ) : state === 'available' ? (
-        <span className="text-[11px] font-medium text-neutral-700">Disponible</span>
+        <span className="text-[11px] font-medium text-neutral-700">Available</span>
       ) : null /* done : contenu identique aux autres états, sans lignes (cohérence) */}
-      {/* Jalon (#133) : le poids du verrou, même donnée que le panneau (« Bloque »). */}
+      {/* Jalon (#133) : le poids du verrou, même donnée que le panneau (« Blocks »). */}
       {task.kind === 'milestone' && model.blocksCount > 0 && (
-        <span className="text-[11px] text-neutral-500">bloque {model.blocksCount}</span>
+        <span className="text-[11px] text-neutral-500">blocks {model.blocksCount}</span>
       )}
       {/* Footer chips : le stage devenu métadonnée (graph-v2 — le layout est le
           flux de dépendances) + la team (le QUI). Même rendu que le Backlog :
@@ -481,7 +481,7 @@ function EpicGraphNode({ epic, pos, avail, dimmed, focused, onHoverChange }: Nod
         </div>
         <div className="flex items-center gap-1.5 pl-[26px]">
           <span className="text-[11px] text-neutral-500">
-            {epic.tasks.length} tâche{epic.tasks.length === 1 ? '' : 's'}{partial ? ' ici' : ''}
+            {epic.tasks.length} task{epic.tasks.length === 1 ? '' : 's'}{partial ? ' here' : ''}
           </span>
           <span className="ml-auto flex items-center gap-1.5">
             <span aria-hidden className="inline-block h-1 w-14 overflow-hidden rounded-full bg-neutral-200">
@@ -489,11 +489,11 @@ function EpicGraphNode({ epic, pos, avail, dimmed, focused, onHoverChange }: Nod
             </span>
             <span
               className="font-mono text-[11px] text-neutral-500"
-              title={`Complétion globale de l'epic : ${progress.done}/${progress.total}`}
+              title={`Epic overall completion: ${progress.done}/${progress.total}`}
             >
               {progress.done}/{progress.total}
             </span>
-            <span className="sr-only">, {progress.done} sur {progress.total} tâches terminées</span>
+            <span className="sr-only">, {progress.done} of {progress.total} tasks done</span>
           </span>
         </div>
       </button>
@@ -512,7 +512,7 @@ function EpicGraphNode({ epic, pos, avail, dimmed, focused, onHoverChange }: Nod
                 style={{ height: MEMBER_H }}
               >
                 {st === 'locked'
-                  ? <LockLocked size={11} className="shrink-0 text-neutral-500" ariaLabel="Verrouillée" />
+                  ? <LockLocked size={11} className="shrink-0 text-neutral-500" ariaLabel="Locked" />
                   : <KindGlyph task={t} />}
                 <span className="shrink-0 font-mono text-xs text-neutral-500">#{t.id}</span>
                 <span className={`min-w-0 truncate text-sm ${t.status === 'done' ? 'text-neutral-500 line-through' : 'text-neutral-900'}`}>

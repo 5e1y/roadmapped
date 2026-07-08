@@ -1,7 +1,7 @@
 id: 155
 code: null
 title: "App en full anglais (langue unique) : dashboard UI + CLI + skill + docs"
-status: todo
+status: in_progress
 tags:
   - i18n
   - fable
@@ -26,6 +26,7 @@ dependsOn: []
 epic: full-english
 source: ai
 createdAt: "2026-07-08T16:22:07"
+startedAt: "2026-07-08T16:54:01"
 completedAt: null
 commit: null
 outcome: null

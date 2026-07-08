@@ -26,18 +26,18 @@ export function TagGraph({ graph, selected, onSelect }: {
   if (placed.length === 0 && !ghost) return null
 
   return (
-    <div role="group" aria-label="Thèmes du projet (tags)" className="w-full">
+    <div role="group" aria-label="Project themes (tags)" className="w-full">
       {ghost && (
         <div className="flex items-center gap-2 px-4 pb-1 text-xs text-neutral-500">
           <span>
-            filtre tag <span className="font-mono text-neutral-700">#{selected}</span> — plus aucun ticket
+            tag filter <span className="font-mono text-neutral-700">#{selected}</span> — no tickets left
           </span>
           <button
             type="button"
             onClick={() => onSelect('')}
             className="rounded-md border border-neutral-200 bg-white px-1.5 py-0.5 text-neutral-700 hover:border-neutral-400 hover:text-neutral-900"
           >
-            retirer
+            clear
           </button>
         </div>
       )}

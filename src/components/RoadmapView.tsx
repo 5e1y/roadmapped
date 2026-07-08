@@ -25,14 +25,14 @@ export function RoadmapView() {
   const [showDone, setShowDone] = useShowDone()
 
   if (loading && !tree) {
-    return <div className="mx-auto max-w-3xl px-6 py-8 text-sm text-neutral-500">Chargement…</div>
+    return <div className="mx-auto max-w-3xl px-6 py-8 text-sm text-neutral-500">Loading…</div>
   }
   // Mêmes garde-fous que le Backlog : la Roadmap ne doit jamais être un écran
   // vide muet quand le serveur est injoignable ou la source invalide.
   if (loadError) {
     return (
       <div className="mx-auto max-w-3xl px-6 py-8">
-        <h1 className="text-lg font-semibold tracking-tight">Serveur injoignable</h1>
+        <h1 className="text-lg font-semibold tracking-tight">Server unreachable</h1>
         <p className="mt-1 font-mono text-xs text-neutral-500">{loadError}</p>
       </div>
     )
@@ -41,9 +41,9 @@ export function RoadmapView() {
     return (
       <div className="mx-auto max-w-3xl px-6 py-8">
         <h1 className="text-lg font-semibold tracking-tight">
-          {errors.length} erreur{errors.length > 1 ? 's' : ''} de validation dans docs/tasks/
+          {errors.length} validation error{errors.length > 1 ? 's' : ''} in docs/tasks/
         </h1>
-        <p className="mt-1 text-sm text-neutral-500">La roadmap sera rendue quand la source sera saine — détail dans le Backlog.</p>
+        <p className="mt-1 text-sm text-neutral-500">The roadmap will render once the source is healthy — details in the Backlog.</p>
       </div>
     )
   }
@@ -56,13 +56,13 @@ export function RoadmapView() {
           type="button"
           onClick={() => setShowDone(!showDone)}
           aria-pressed={showDone}
-          title={showDone ? 'Masquer les tickets terminés' : 'Afficher les tickets terminés'}
+          title={showDone ? 'Hide done tickets' : 'Show done tickets'}
           className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs transition-colors ${
             showDone ? 'border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100' : 'border-neutral-300 bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
           }`}
         >
           {showDone ? <EyeOpen size={12} /> : <EyeClosed size={12} />}
-          terminées
+          done
         </button>
         <div className="flex overflow-hidden rounded-md border border-neutral-300">
           {(['columns', 'graph'] as const).map((m) => (
@@ -71,7 +71,7 @@ export function RoadmapView() {
               className={`px-3 py-1 text-xs transition-colors ${
                 mode === m ? 'bg-neutral-900 text-white' : 'bg-white text-neutral-600 hover:bg-neutral-100'
               }`}>
-              {m === 'columns' ? 'Colonnes' : 'Graphe'}
+              {m === 'columns' ? 'Columns' : 'Graph'}
             </button>
           ))}
         </div>

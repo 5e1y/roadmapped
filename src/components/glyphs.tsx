@@ -24,7 +24,7 @@ export function Chevron() {
  * cours, plein = atteint), la FORME seule dit « ceci verrouille d'autres tâches ».
  */
 export function MilestoneGlyph({ status }: { status: TaskNode['status'] }) {
-  const label = { todo: 'jalon à atteindre', in_progress: 'jalon en cours', done: 'jalon atteint' }[status]
+  const label = { todo: 'milestone to reach', in_progress: 'milestone in progress', done: 'milestone reached' }[status]
   return (
     <svg
       className={`shrink-0 ${status === 'in_progress' ? 'text-accent' : 'text-neutral-900'}`}
@@ -55,7 +55,7 @@ export function MilestoneGlyph({ status }: { status: TaskNode['status'] }) {
  * en cours, plein = tout terminé. La forme seule dit « ceci est un groupe ».
  */
 export function EpicGlyph({ status }: { status: TaskNode['status'] }) {
-  const label = { todo: 'epic à commencer', in_progress: 'epic en cours', done: 'epic terminé' }[status]
+  const label = { todo: 'epic not started', in_progress: 'epic in progress', done: 'epic done' }[status]
   return (
     <svg
       className={`shrink-0 ${status === 'in_progress' ? 'text-accent' : 'text-neutral-900'}`}
@@ -88,7 +88,7 @@ export function KindGlyph({ task }: { task: Pick<TaskNode, 'kind' | 'status'> })
 }
 
 export function StatusGlyph({ status }: { status: TaskNode['status'] }) {
-  const label = { todo: 'à faire', in_progress: 'en cours', done: 'faite' }[status]
+  const label = { todo: 'todo', in_progress: 'in progress', done: 'done' }[status]
   return (
     <svg
       className={`shrink-0 ${status === 'in_progress' ? 'text-accent' : 'text-neutral-900'}`}

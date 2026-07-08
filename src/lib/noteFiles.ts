@@ -3,10 +3,11 @@
 // « Copier pour l'agent » (chemins nus, prêts pour un terminal), insertion sur ligne
 // dédiée au drop, extraction des chemins depuis un DataTransfer. Tout est pur (sans DOM).
 
-/** Ligne pièce jointe : `[fichier: <chemin ou nom>]` (espaces tolérés autour). */
-const FILE_LINE_RE = /^\s*\[fichier:\s*(\S(?:.*\S)?)\s*\]\s*$/
+/** Attachment line: `[file: <path or name>]` (surrounding spaces tolerated).
+    Reads the legacy `[fichier: …]` prefix too (notes written before #155). */
+const FILE_LINE_RE = /^\s*\[(?:file|fichier):\s*(\S(?:.*\S)?)\s*\]\s*$/
 
-export const fileLineOf = (path: string): string => `[fichier: ${path}]`
+export const fileLineOf = (path: string): string => `[file: ${path}]`
 
 /** Chemin (ou simple nom, cas fallback navigateur) porté par une ligne `[fichier: …]`, sinon null. */
 export function parseFileLine(line: string): string | null {

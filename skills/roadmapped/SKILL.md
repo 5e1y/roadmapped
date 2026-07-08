@@ -1,63 +1,63 @@
 ---
 name: roadmapped
-description: Gestion de projet Roadmapped — utiliser AVANT de modifier tout fichier de ce repo, quel que soit le cadrage — feature, feedback, rework, fix post-done, « ASAP » compris — et dès qu'il faut créer, planifier, exécuter ou consigner du travail (tâches, specs, roadmaps, documentation), quand l'utilisateur dit « on enchaîne sur la roadmap », « crée les tâches », « répare ça », ou à la PREMIÈRE utilisation dans un repo (phase de setup obligatoire).
+description: Roadmapped project management — use BEFORE modifying any file in this repo, whatever the framing — feature, feedback, rework, post-done fix, "ASAP" included — and whenever work must be created, planned, executed, or logged (tasks, specs, roadmaps, documentation), when the user says "let's work through the roadmap", "create the tasks", "fix this", or on the FIRST use in a repo (mandatory setup phase).
 ---
 
-# Roadmapped — le projet piloté par fichiers
+# Roadmapped — the file-driven project
 
-## Boussole
+## Compass
 
-Des fichiers YAML/markdown plats sous `docs/tasks/` sont la SEULE source de vérité (pas de plan parallèle). 8 stages fixes et immuables (`01-idea` → `08-mature` = les jalons, une colonne du dashboard chacun). Toute tâche active porte une `team` obligatoire (enum fixe). Le CLI `npx roadmapped <commande>` — ou les tools MCP roadmapped s'ils sont chargés (même noyau, mêmes garanties) — est ta SEULE interface d'écriture — jamais d'édition manuelle d'un YAML que le CLI couvre. (Dans le repo Roadmapped lui-même, `node scripts/task.mjs <commande>` reste équivalent.)
+Flat YAML/markdown files under `docs/tasks/` are the ONLY source of truth (no parallel plan). 8 fixed, immutable stages (`01-idea` → `08-mature` = the milestones, one dashboard column each). Every active task carries a mandatory `team` (fixed enum). The `npx roadmapped <command>` CLI — or the roadmapped MCP tools if loaded (same core, same guarantees) — is your ONLY write interface — never hand-edit a YAML the CLI covers. (In the Roadmapped repo itself, `node scripts/task.mjs <command>` remains equivalent.)
 
-## Échelle de décision — stop au premier barreau qui tient
+## Decision ladder — stop at the first rung that holds
 
-**Tout changement du repo = une unité roadmapped, sans exception.** Le `done` est une frontière, pas un couvercle : un retour, un rework, un fix de revue → chacun son `quick`. « ASAP » n'est jamais une raison de sauter le `quick` — le `quick` EST le chemin rapide (~2 commandes). Seul l'échange sans artefact (question, explication, statut) reste conversationnel.
+**Every repo change = one roadmapped unit, no exceptions.** `done` is a boundary, not a lid: feedback, a rework, a review fix → each gets its own `quick`. "ASAP" is never a reason to skip the `quick` — the `quick` IS the fast path (~2 commands). Only artefact-free exchange (question, explanation, status) stays conversational.
 
-1. Ce changement mérite-t-il seulement d'exister ? Sinon ne crée rien.
-2. Un `quick` suffit-il (fix isolé, taille S, pas de decisions à trancher) ? → `quick`, done avec `--outcome` seul.
-3. Sinon une tâche seule suffit-elle ? → `add`, cycle normal.
-4. Sinon (multi-tâches, choix d'archi à trancher) : spec d'abord, PUIS les tâches (`references/planning.md`).
+1. Does this change even deserve to exist? If not, create nothing.
+2. Does a `quick` suffice (isolated fix, size S, no decisions to make)? → `quick`, done with `--outcome` alone.
+3. Otherwise, does a single task suffice? → `add`, normal cycle.
+4. Otherwise (multi-task, architecture calls to make): spec first, THEN the tasks (`references/planning.md`).
 
-## Le cycle
+## The cycle
 
-`sitrep` (l'état du monde en 1 appel — LE 1er geste de session) → `take [--team t]` (prend + démarre + brief en 1 appel) → travailler (`detail` + `refs`) → vérifier l'artefact RÉEL (pas juste le typecheck) → `done <id> --outcome "…" --verification "…"` (le `--commit` est auto-rempli au HEAD ; un `quick` : `--outcome` seul suffit).
+`sitrep` (the state of the world in 1 call — THE 1st move of a session) → `take [--team t]` (claims + starts + briefs in 1 call) → work (`detail` + `refs`) → verify the REAL artefact (not just the typecheck) → `done <id> --outcome "…" --verification "…"` (`--commit` auto-fills to HEAD; for a `quick`: `--outcome` alone suffices).
 
-## Dette assumée = un `quick` taggé `debt`
+## Accepted debt = a `quick` tagged `debt`
 
-Un raccourci délibéré (plafond connu, upgrade path) se trace en `quick "<le plafond>" --team <t> --tags debt` — l'équivalent requêtable d'un commentaire `ponytail:`. `list --tag debt` sort le ledger ; `sitrep` alerte sur la dette ouverte.
+A deliberate shortcut (known ceiling, upgrade path) gets logged as `quick "<the ceiling>" --team <t> --tags debt` — the queryable equivalent of a `ponytail:` comment. `list --tag debt` prints the ledger; `sitrep` flags open debt.
 
-## Les commandes (une ligne chacune)
+## Commands (one line each)
 
-- `sitrep` — done du jour, in_progress, 3 prochaines, validate, alertes en ≤30 lignes. Ouvre la session.
-- `take [--team t] [--json]` — next + start + brief, LA commande d'ouverture de travail.
-- `brief <id>` — contexte d'exécution dense (deps/liées titrées, refs + extraits d'ancre & drapeau de fraîcheur, rappel `done`).
-- `next [--count N] [--team t] [--json]` — la file de travail à CONSOMMER telle quelle.
-- `quick "<titre>" --team <t> [--stage s] [--tags a,b] [--start] [--json]` — mini-ticket, cérémonie minimale.
-- `add --section <stage> --title <t> --team <t> [--detail d] [--refs a,b] [--depends-on 1,2] [--epic slug] [--kind task|quick|milestone] [--blocks 1,2] [--json]` — créer une tâche (`--epic` = regroupement transverse ; `--kind milestone` + `--blocks` = jalon qui verrouille les tâches citées via leurs dependsOn).
+- `sitrep` — today's done, in_progress, next 3, validate, alerts in ≤30 lines. Opens the session.
+- `take [--team t] [--json]` — next + start + brief, THE command to open work.
+- `brief <id>` — dense execution context (titled deps/related, refs + anchor excerpts & staleness flag, `done` reminder).
+- `next [--count N] [--team t] [--json]` — the work queue to CONSUME as-is.
+- `quick "<title>" --team <t> [--stage s] [--tags a,b] [--start] [--json]` — mini-ticket, minimal ceremony.
+- `add --section <stage> --title <t> --team <t> [--detail d] [--refs a,b] [--depends-on 1,2] [--epic slug] [--kind task|quick|milestone] [--blocks 1,2] [--json]` — create a task (`--epic` = cross-stage grouping; `--kind milestone` + `--blocks` = a milestone that locks the cited tasks via their dependsOn).
 - `start <id>` — todo → in_progress.
-- `done <id> [--commit sha] [--outcome o] [--verification v] [--release r] [--suggest-refs]` — consigner (commit auto=HEAD ; `--suggest-refs` propose les refs du diff, à confirmer).
-- `update <id> [--champ valeur ...]` — patch générique (`"null"` pour vider un champ).
-- `list [--section s] [--status s] [--team t] [--tag t] [--json]` — lister.
-- `show <id> [--json]` — détail complet d'une tâche.
-- `validate` — revalide tout `docs/tasks/` (obligatoire après toute édition manuelle).
-- `roadmap [--json]` — avancement global + vue par epic, disponible/verrouillé (le `sitrep` porte aussi la ligne `avancement: x/y`).
+- `done <id> [--commit sha] [--outcome o] [--verification v] [--release r] [--suggest-refs]` — log completion (commit auto=HEAD; `--suggest-refs` suggests refs from the diff, to confirm).
+- `update <id> [--field value ...]` — generic patch (`"null"` to clear a field).
+- `list [--section s] [--status s] [--team t] [--tag t] [--json]` — list.
+- `show <id> [--json]` — full detail of a task.
+- `validate` — revalidates all of `docs/tasks/` (mandatory after any manual edit).
+- `roadmap [--json]` — overall progress + per-epic view, available/locked (`sitrep` also carries the `progress: x/y` line).
 
-Ancrer une ref (opt-in) : `fichier#symbole` (robuste, résolu par grep au serve) ou `fichier:ligne` (fragile) → `brief` en joint l'extrait. Une ref nue reste une ligne.
+Anchoring a ref (opt-in): `file#symbol` (robust, resolved by grep at serve time) or `file:line` (fragile) → `brief` attaches the excerpt. A bare ref stays a line.
 
-## Règle d'or anti-token
+## Golden anti-token rule
 
-Pour `sitrep`/`take`/`brief`/`next`/`quick`/`add`/`start`/`done` : n'ouvre AUCUNE référence — le CLI est autoportant (`--help` et les messages d'erreur guident). Consomme la file servie par `next`/`take` telle quelle, ne RECALCULE jamais la priorité en relisant le backlog.
+For `sitrep`/`take`/`brief`/`next`/`quick`/`add`/`start`/`done`: open NO reference — the CLI is self-contained (`--help` and error messages guide you). Consume the queue served by `next`/`take` as-is, never RECOMPUTE priority by re-reading the backlog.
 
-## Interdits
+## Forbidden
 
-- ❌ Committer sans unité roadmapped — le hook `guard` refuse ; `--no-verify` = dérive consciente, à dire à l'utilisateur.
-- ❌ Éditer un YAML à la main quand le CLI couvre l'opération, ou toucher `_meta.yaml`/réutiliser un id.
-- ❌ Démarrer une tâche verrouillée ou contourner une dépendance sans accord explicite.
-- ❌ `done` sans `--outcome` honnête (et `--verification` réellement exécutée pour un `task`) — jamais « ça devrait marcher ».
-- ❌ Créer un 9e stage, renommer un stage, ou écrire un statut/size hors enum.
-- ❌ Coder du non-trivial (barreau 4) sans spec approuvée d'abord.
-- ❌ Créer un fichier de plan markdown parallèle — un plan, ce sont des tâches chaînées par `dependsOn`.
+- ❌ Committing without a roadmapped unit — the `guard` hook refuses; `--no-verify` = a conscious drift, to be disclosed to the user.
+- ❌ Hand-editing a YAML when the CLI covers the operation, or touching `_meta.yaml`/reusing an id.
+- ❌ Starting a locked task or bypassing a dependency without explicit agreement.
+- ❌ `done` without an honest `--outcome` (and `--verification` actually run for a `task`) — never "should work".
+- ❌ Creating a 9th stage, renaming a stage, or writing a status/size outside the enum.
+- ❌ Coding anything non-trivial (rung 4) without an approved spec first.
+- ❌ Creating a parallel markdown plan file — a plan IS tasks chained by `dependsOn`.
 
-## Routeur — n'ouvre une référence QUE sur ce déclencheur précis
+## Router — open a reference ONLY on this exact trigger
 
-Décomposer une spec / planifier → `references/planning.md` · premier setup d'un repo (`docs/tasks/_meta.yaml` absent) → `references/setup.md` · éditer un YAML à la main (sous-tâches, cas non couverts) → `references/formats.md` · déléguer à des subagents → `references/delegation.md`.
+Breaking down a spec / planning → `references/planning.md` · first setup of a repo (`docs/tasks/_meta.yaml` missing) → `references/setup.md` · hand-editing a YAML (subtasks, uncovered cases) → `references/formats.md` · delegating to subagents → `references/delegation.md`.

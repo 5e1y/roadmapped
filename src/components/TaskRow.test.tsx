@@ -49,7 +49,7 @@ describe('TaskRow', () => {
 
   it('un jalon (kind milestone) porte le glyphe diamant, pas le cercle (#133)', () => {
     render(<PanelProvider><TaskRow task={{ ...task, kind: 'milestone' }} /></PanelProvider>)
-    expect(screen.getByRole('img', { name: 'jalon à atteindre' })).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: 'milestone to reach' })).toBeInTheDocument()
   })
 
   it('ouvre le panneau détail au clic sur le corps de la ligne', () => {

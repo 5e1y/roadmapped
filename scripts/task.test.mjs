@@ -132,7 +132,7 @@ describe('CLI add — team obligatoire (enum fixe)', () => {
   it('rejette --zone comme flag inconnu', () => {
     const r = runTask(['add', '--section', SEC, '--title', 'X', '--team', 'engineering', '--zone', 'store'])
     expect(r.code).not.toBe(0)
-    expect(r.stderr).toMatch(/inconnu.*--zone/)
+    expect(r.stderr).toMatch(/Unknown flag.*--zone/)
   })
 })
 
@@ -142,8 +142,8 @@ describe('CLI take / brief — liens titrés, contexte en 1 appel (#65)', () => 
     runTask(['add', '--section', SEC, '--title', 'Cible liée', '--team', 'design'])
     const r = runTask(['brief', '1'])
     expect(r.code).toBe(0)
-    expect(r.stdout).toMatch(/liées:/)
-    expect(r.stdout).toMatch(/#2 Cible liée \(à faire\)/)
+    expect(r.stdout).toMatch(/linked:/)
+    expect(r.stdout).toMatch(/#2 Cible liée \(todo\)/)
   })
 
   it('brief liste refs une par ligne et rappelle la consigne done', () => {
@@ -157,7 +157,7 @@ describe('CLI take / brief — liens titrés, contexte en 1 appel (#65)', () => 
   it('take démarre la prochaine dispo et sort le brief précédé de « #id démarrée »', () => {
     const r = runTask(['take'])
     expect(r.code).toBe(0)
-    expect(r.stdout).toMatch(/#1 démarrée/)
+    expect(r.stdout).toMatch(/#1 started/)
     expect(r.stdout).toMatch(/stage: 04-build/)
     // la tâche est réellement passée in_progress
     expect(readTask().status).toBe('in_progress')
@@ -166,13 +166,13 @@ describe('CLI take / brief — liens titrés, contexte en 1 appel (#65)', () => 
   it('take sans rien de dispo → message court', () => {
     const r = runTask(['take', '--team', 'legal']) // aucune tâche legal
     expect(r.code).toBe(0)
-    expect(r.stdout).toMatch(/Aucune tâche disponible/)
+    expect(r.stdout).toMatch(/No task available/)
   })
 
   it('show affiche les liées titrées (même helper que brief)', () => {
     runTask(['add', '--section', SEC, '--title', 'Autre cible', '--team', 'design'])
     const r = runTask(['show', '1'])
-    expect(r.stdout).toMatch(/liées:.*#2 Autre cible \(à faire\)/)
+    expect(r.stdout).toMatch(/linked:.*#2 Autre cible \(todo\)/)
   })
 })
 
@@ -203,15 +203,15 @@ describe('CLI erreurs autoportantes — usage exact de la commande fautive (#65)
   it('un flag inconnu sur list imprime l\'usage de list (pas le USAGE global)', () => {
     const r = runTask(['list', '--wat', 'x'])
     expect(r.code).not.toBe(0)
-    expect(r.stderr).toMatch(/Flag inconnu : --wat/)
-    expect(r.stderr).toMatch(/Usage : list/)
-    expect(r.stderr).not.toMatch(/source de vérité du backlog/) // pas le USAGE global
+    expect(r.stderr).toMatch(/Unknown flag: --wat/)
+    expect(r.stderr).toMatch(/Usage: list/)
+    expect(r.stderr).not.toMatch(/source of truth/) // pas le USAGE global
   })
 
   it('un flag inconnu sur take imprime l\'usage de take', () => {
     const r = runTask(['take', '--nope'])
     expect(r.code).not.toBe(0)
-    expect(r.stderr).toMatch(/Usage : take/)
+    expect(r.stderr).toMatch(/Usage: take/)
   })
 })
 
@@ -219,8 +219,8 @@ describe('CLI quick — mini-tickets (#66)', () => {
   it('cycle complet en 2 commandes : quick --start puis done --outcome (sans verification) → OK', () => {
     const created = runTask(['quick', 'fix chevron', '--team', 'design', '--start'])
     expect(created.code).toBe(0)
-    expect(created.stdout).toMatch(/#2 créée \(quick\)/)
-    expect(created.stdout).toMatch(/#2 démarrée/)
+    expect(created.stdout).toMatch(/#2 created \(quick\)/)
+    expect(created.stdout).toMatch(/#2 started/)
     const done = runTask(['done', '2', '--outcome', 'chevron redressé'])
     expect(done.code).toBe(0)
     // Stage par défaut = 1er stage open : dans ce sandbox les 8 sont open → 01-idea.
@@ -234,7 +234,7 @@ describe('CLI quick — mini-tickets (#66)', () => {
   it('quick sans stage → atterrit dans le premier stage open (01-idea ici)', () => {
     const r = runTask(['quick', 'petit truc', '--team', 'design'])
     expect(r.code).toBe(0)
-    expect(r.stdout).toMatch(/#2 créée \(quick\)/)
+    expect(r.stdout).toMatch(/#2 created \(quick\)/)
     const t = load(readFileSync(join(tasksDir, '01-idea', '01-petit-truc.yaml'), 'utf8'))
     expect(t.kind).toBe('quick')
   })
@@ -343,7 +343,7 @@ describe('CLI sitrep — l\'état du monde en ≤30 lignes (#70)', () => {
   it('signale la dette ouverte (#debt) en alerte', () => {
     runTask(['quick', 'Dette ouverte', '--team', 'engineering', '--tags', 'debt']) // #2 todo
     const r = runTask(['sitrep'])
-    expect(r.stdout).toMatch(/dette\(s\) ouverte\(s\).*#2/)
+    expect(r.stdout).toMatch(/open debt item\(s\).*#2/)
   })
 })
 
@@ -361,7 +361,7 @@ describe('CLI brief — extraits d\'ancre & fraîcheur (#69)', () => {
     runTask(['update', '1', '--refs', 'src/lib/refExtract.ts#symboleAbsent'])
     const r = runTask(['brief', '1'])
     expect(r.code).toBe(0)
-    expect(r.stdout).toMatch(/ancre introuvable \(symbole "symboleAbsent"\)/)
+    expect(r.stdout).toMatch(/anchor not found \(symbol "symboleAbsent"\)/)
   })
 })
 
@@ -398,7 +398,7 @@ describe('CLI guard — enforcement au commit (#100)', () => {
     const r = runGuard()
     expect(r.code).toBe(1)
     expect(r.stderr).toMatch(/produit\.txt/)
-    expect(r.stderr).toMatch(/quick "<titre>" --team/)
+    expect(r.stderr).toMatch(/quick "<title>" --team/)
     expect(r.stderr).toMatch(/--no-verify/)
   })
 
@@ -461,7 +461,7 @@ describe('CLI epic & jalons (#133)', () => {
   it('--milestone reste un alias déprécié de --epic (warning stderr, valeur appliquée)', () => {
     const r = runTask(['update', '1', '--milestone', 'socle'])
     expect(r.code).toBe(0)
-    expect(r.stderr).toMatch(/déprécié/)
+    expect(r.stderr).toMatch(/deprecated/)
     expect(readTask().epic).toBe('socle')
   })
 
@@ -474,7 +474,7 @@ describe('CLI epic & jalons (#133)', () => {
   it("add --kind milestone --blocks 1 crée le jalon ET l'ajoute aux dependsOn de #1", () => {
     const r = runTask(['add', '--section', SEC, '--title', 'Socle prêt', '--team', 'engineering', '--kind', 'milestone', '--blocks', '1'])
     expect(r.code).toBe(0)
-    expect(r.stdout).toMatch(/#2 bloque désormais : #1/)
+    expect(r.stdout).toMatch(/#2 now blocks: #1/)
     const jalon = load(readFileSync(join(tasksDir, SEC, '02-socle-pret.yaml'), 'utf8'))
     expect(jalon.kind).toBe('milestone')
     expect(readTask().dependsOn).toEqual([2]) // #1 dépend désormais du jalon #2
@@ -490,14 +490,14 @@ describe('CLI epic & jalons (#133)', () => {
   it('add --kind hors enum → erreur autoportante', () => {
     const r = runTask(['add', '--section', SEC, '--title', 'X', '--team', 'engineering', '--kind', 'mega'])
     expect(r.code).not.toBe(0)
-    expect(r.stderr).toMatch(/--kind invalide/)
+    expect(r.stderr).toMatch(/--kind invalid/)
   })
 
   it("roadmap affiche l'avancement global puis les epics auto-découverts", () => {
     runUpdate('--epic', 'socle')
     const r = runTask(['roadmap'])
     expect(r.code).toBe(0)
-    expect(r.stdout).toMatch(/avancement global : 0\/1 \(0%\)/)
+    expect(r.stdout).toMatch(/overall progress: 0\/1 \(0%\)/)
     expect(r.stdout).toMatch(/socle {2}0\/1/)
     expect(r.stdout).toMatch(/#1 Tâche/)
   })
@@ -505,6 +505,6 @@ describe('CLI epic & jalons (#133)', () => {
   it('sitrep porte la ligne avancement (globalProgress)', () => {
     const r = runTask(['sitrep'])
     expect(r.code).toBe(0)
-    expect(r.stdout).toMatch(/avancement: 0\/1 \(0%\)/)
+    expect(r.stdout).toMatch(/progress: 0\/1 \(0%\)/)
   })
 })

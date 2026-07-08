@@ -138,7 +138,7 @@ export function NotepadView() {
   /** Clic sur une ligne fichier → Finder via /api/reveal (#86). Erreurs en pied de page. */
   const reveal = useCallback(async (path: string) => {
     if (!path.startsWith('/')) {
-      flashMsg('chemin absolu inconnu — complète-le à la main, ou glisse le fichier depuis un terminal', 5000)
+      flashMsg('unknown absolute path — fill it in by hand, or drag the file from a terminal', 5000)
       return
     }
     try {
@@ -147,7 +147,7 @@ export function NotepadView() {
         body: JSON.stringify({ path }),
       }))
     } catch (e) {
-      flashMsg(`reveal impossible : ${e instanceof Error ? e.message : String(e)}`, 5000)
+      flashMsg(`reveal failed: ${e instanceof Error ? e.message : String(e)}`, 5000)
     }
   }, [flashMsg])
 
@@ -155,9 +155,9 @@ export function NotepadView() {
   const copyForAgent = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(cleanForAgent(contentRef.current))
-      flashMsg('copié pour l\'agent — chemins nus, prêt à coller', 2500)
+      flashMsg('copied for the agent — bare paths, ready to paste', 2500)
     } catch {
-      flashMsg('presse-papier inaccessible', 2500)
+      flashMsg('clipboard unavailable', 2500)
     }
   }, [flashMsg])
 
@@ -183,7 +183,7 @@ export function NotepadView() {
     setContent(next)
     if (names.length > 0) {
       // Navigateur pur : le Finder ne livre que le NOM (sandbox). Fallback gracieux.
-      flashMsg('chemin absolu masqué par le navigateur — glisse le fichier depuis un terminal, ou complète le chemin', 6000)
+      flashMsg('absolute path hidden by the browser — drag the file from a terminal, or fill in the path', 6000)
     }
     requestAnimationFrame(() => { ta.focus(); ta.setSelectionRange(caret, caret) })
   }
@@ -226,7 +226,7 @@ export function NotepadView() {
           l'ambre était la seule couleur hors palette du dashboard. */}
       {!warned && (
         <div className="flex items-center justify-between gap-3 border-b border-neutral-200 bg-neutral-50 px-4 py-1.5 text-xs text-neutral-800">
-          <span>Notes locales, non versionnées, non sauvegardées par git (docs/notes/).</span>
+          <span>Local notes — not versioned, not saved by git (docs/notes/).</span>
           <button type="button" onClick={dismissWarning} className="shrink-0 font-medium text-neutral-900 hover:text-neutral-700">OK</button>
         </div>
       )}
@@ -239,7 +239,7 @@ export function NotepadView() {
             className="flex items-center gap-2 border-b border-neutral-100 px-4 py-2 text-left text-sm text-neutral-500 hover:bg-neutral-100 hover:text-neutral-800"
           >
             <span className="text-base leading-none text-neutral-500">+</span>
-            Nouvelle note
+            New note
           </button>
           <div className="min-h-0 flex-1 overflow-y-auto">
             {notes.map((n) => (
@@ -258,10 +258,10 @@ export function NotepadView() {
                 <button
                   type="button"
                   onClick={() => {
-                    if (window.confirm(`Supprimer la note « ${n.title || n.slug} » ?`)) void removeNote(n.slug)
+                    if (window.confirm(`Delete note "${n.title || n.slug}"?`)) void removeNote(n.slug)
                   }}
-                  title="Supprimer la note"
-                  aria-label={`Supprimer la note ${n.title || n.slug}`}
+                  title="Delete note"
+                  aria-label={`Delete note ${n.title || n.slug}`}
                   className="shrink-0 text-neutral-500 opacity-0 hover:text-neutral-700 focus-visible:opacity-100 group-hover:opacity-100"
                 >✕</button>
               </div>
@@ -275,7 +275,7 @@ export function NotepadView() {
             type="button" onClick={createNote}
             className="min-h-0 flex-1 cursor-text text-sm text-neutral-500 hover:text-neutral-700"
           >
-            Clique ici pour écrire une note
+            Click here to write a note
           </button>
         ) : (
           <div className="flex min-h-0 flex-1 flex-col">
@@ -330,7 +330,7 @@ export function NotepadView() {
                 }}
                 onDragLeave={() => setDragging(false)}
                 onDrop={onDrop}
-                placeholder="Écris ton idée. La première ligne devient le titre."
+                placeholder="Write your idea. The first line becomes the title."
                 spellCheck={false}
                 // Le :focus-visible global (index.css, hors @layer) bat toute classe
                 // utilitaire Tailwind (layered) → outline tué en inline, qui gagne toujours.
@@ -339,17 +339,17 @@ export function NotepadView() {
               />
             </div>
             <div className="flex w-full shrink-0 items-center justify-between px-[max(1.5rem,calc((100%-48rem)/2))] py-1.5 font-mono text-[11px] text-neutral-500">
-              <span>{content.length} car. · ≈{tokens} tokens</span>
+              <span>{content.length} chars · ≈{tokens} tokens</span>
               <span className="flex items-center gap-4">
                 <span data-notepad-flash>
-                  {flash ?? (status === 'saving' ? 'enregistrement…' : status === 'saved' ? 'enregistré' : '')}
+                  {flash ?? (status === 'saving' ? 'saving…' : status === 'saved' ? 'saved' : '')}
                 </span>
                 <button
                   type="button"
                   onClick={() => void copyForAgent()}
-                  title="Copie la note nettoyée — lignes [fichier: …] converties en chemins nus (⇧⌘C)"
+                  title="Copy the cleaned note — [file: …] lines converted to bare paths (⇧⌘C)"
                   className="shrink-0 text-neutral-500 hover:text-neutral-800"
-                >copier pour l'agent&nbsp;&nbsp;⇧⌘C</button>
+                >copy for the agent&nbsp;&nbsp;⇧⌘C</button>
               </span>
             </div>
           </div>

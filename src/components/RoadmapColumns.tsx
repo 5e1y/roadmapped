@@ -7,7 +7,7 @@ import { EditPen, LockLocked } from 'trinil-react'
 import { Chevron, EpicGlyph, KindGlyph } from './glyphs'
 import { Chip } from './Chip'
 import { groupByEpicAnchored, epicAnchorStage, epicStatusOf, type EpicListItem } from './EpicRow'
-import { countTasksDeep, SECTION_STATUS_FR, TEAM_ABBR } from '../lib/tasks'
+import { countTasksDeep, SECTION_STATUS_LABEL, TEAM_ABBR } from '../lib/tasks'
 import type { SectionNode, TaskNode, TaskTree } from '../lib/tasks'
 import { useShowDone } from './RoadmapView'
 
@@ -49,7 +49,7 @@ function TaskCard({ task, state, missing, blocksCount = 0 }: { task: TaskNode; s
       <div className="flex items-start gap-2">
         <span className="flex h-5 shrink-0 items-center">
           {state === 'locked'
-            ? <LockLocked size={11} className="shrink-0 text-neutral-500" ariaLabel="Verrouillée" />
+            ? <LockLocked size={11} className="shrink-0 text-neutral-500" ariaLabel="Locked" />
             : <KindGlyph task={task} />}
         </span>
         <span className="shrink-0 font-mono text-xs leading-5 text-neutral-500">#{task.id}</span>
@@ -62,17 +62,17 @@ function TaskCard({ task, state, missing, blocksCount = 0 }: { task: TaskNode; s
           vit dans le panneau) — cohérence entre états et avec le Graphe. */}
       {state === 'locked' ? (
         <span className="text-[11px] text-neutral-500">
-          Prérequis manquants{missing.length ? ` (${missing.map((d) => `#${d}`).join(' ')})` : ''}
+          Missing prerequisites{missing.length ? ` (${missing.map((d) => `#${d}`).join(' ')})` : ''}
         </span>
       ) : state === 'available' ? (
-        <span className="text-[11px] font-medium text-neutral-700">Disponible</span>
+        <span className="text-[11px] font-medium text-neutral-700">Available</span>
       ) : null}
       {subs && (
-        <span className="font-mono text-[11px] text-neutral-500">{subs.done}/{subs.total} sous-tâches</span>
+        <span className="font-mono text-[11px] text-neutral-500">{subs.done}/{subs.total} subtasks</span>
       )}
       {/* Jalon (#133) : le poids du verrou — combien de tâches ce diamant retient. */}
       {task.kind === 'milestone' && blocksCount > 0 && (
-        <span className="text-[11px] text-neutral-500">bloque {blocksCount}</span>
+        <span className="text-[11px] text-neutral-500">blocks {blocksCount}</span>
       )}
       {/* Badge team (le QUI) — abrégé, coin bas droit de la carte. Même donnée
           = même rendu que le Backlog : Chip (design.md §2). */}
@@ -113,7 +113,7 @@ function EpicCardGroup({ item, tree, avail, blocksOf }: {
         </div>
         <div className="flex items-center gap-1.5 pl-[26px]">
           <span className="text-[11px] text-neutral-500">
-            {item.tasks.length} tâche{item.tasks.length === 1 ? '' : 's'}{partial ? ' ici' : ''}
+            {item.tasks.length} task{item.tasks.length === 1 ? '' : 's'}{partial ? ' here' : ''}
           </span>
           <span className="ml-auto flex items-center gap-1.5">
             <span aria-hidden className="h-1 w-14 overflow-hidden rounded-full bg-neutral-200">
@@ -121,11 +121,11 @@ function EpicCardGroup({ item, tree, avail, blocksOf }: {
             </span>
             <span
               className="font-mono text-[11px] text-neutral-500"
-              title={`Complétion globale de l'epic : ${progress.done}/${progress.total}`}
+              title={`Epic overall completion: ${progress.done}/${progress.total}`}
             >
               {progress.done}/{progress.total}
             </span>
-            <span className="sr-only">, {progress.done} sur {progress.total} tâches terminées</span>
+            <span className="sr-only">, {progress.done} of {progress.total} tasks done</span>
           </span>
         </div>
       </Collapsible.Trigger>
@@ -154,7 +154,7 @@ function Column({ section, items, avail, blocksOf, tree }: { section: SectionNod
   // (les done masqués ne changent pas la progression affichée).
   const { done, total } = countTasksDeep(section.tasks)
   const empty = section.tasks.length === 0
-  const statusFr = section.status !== 'open' ? SECTION_STATUS_FR[section.status] : null
+  const statusLabel = section.status !== 'open' ? SECTION_STATUS_LABEL[section.status] : null
   return (
     // min-w-0 : un enfant de grille a min-width:auto par défaut → sans ça, un contenu
     // plus large que la piste (280px) déborde sur la colonne voisine (#97).
@@ -174,14 +174,14 @@ function Column({ section, items, avail, blocksOf, tree }: { section: SectionNod
               actives. Révélé au survol ET au focus (design.md §3.4). */}
           <button
             type="button"
-            aria-label={`Éditer la section ${section.title}`}
-            title="Éditer la section"
+            aria-label={`Edit section ${section.title}`}
+            title="Edit section"
             onClick={() => openSection(section.key)}
             className="rounded p-1 text-neutral-500 opacity-0 transition-opacity hover:bg-neutral-200 hover:text-neutral-700 focus-visible:opacity-100 group-hover:opacity-100"
           >
             <EditPen size={12} />
           </button>
-          {statusFr && !empty && <Chip label={statusFr} />}
+          {statusLabel && !empty && <Chip label={statusLabel} />}
           {/* Compteur porteur de sens même à 0/0 : plancher neutral-500 (audit #108). */}
           <span className="font-mono text-xs text-neutral-500">{done}/{total}</span>
         </span>
@@ -276,7 +276,7 @@ export function GlobalProgress() {
   const { done, total } = globalProgress(tree)
   const pct = total === 0 ? 0 : Math.round((done / total) * 100)
   return (
-    <span className="flex items-center gap-2" title={`Avancement global : ${done}/${total} tâches (${pct}%)`}>
+    <span className="flex items-center gap-2" title={`Overall progress: ${done}/${total} tasks (${pct}%)`}>
       <span className="h-1 w-24 overflow-hidden rounded-full bg-neutral-200">
         <span className="block h-full bg-accent" style={{ width: `${pct}%` }} />
       </span>

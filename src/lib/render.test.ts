@@ -30,10 +30,10 @@ describe('taskLine', () => {
 
 describe('refLine', () => {
   it('titre + statut FR inline', () => {
-    expect(refLine(tree([task(1, { status: 'done', title: 'Faite' })]), 1)).toBe('#1 Faite (faite)')
+    expect(refLine(tree([task(1, { status: 'done', title: 'Faite' })]), 1)).toBe('#1 Faite (done)')
   })
-  it('id inconnu → marqué (inconnu)', () => {
-    expect(refLine(tree([]), 42)).toBe('#42 (inconnu)')
+  it('id inconnu → marqué (unknown)', () => {
+    expect(refLine(tree([]), 42)).toBe('#42 (unknown)')
   })
 })
 
@@ -42,7 +42,7 @@ describe('sitrepText', () => {
     const out = sitrepText(tree([task(1, { status: 'in_progress' }), task(2)]), [])
     expect(out).toMatch(/^sitrep — \d{4}-\d{2}-\d{2}/)
     expect(out).toMatch(/in_progress \(1\)/)
-    expect(out).toMatch(/prochaines: #2 T2/)
+    expect(out).toMatch(/next: #2 T2/)
     expect(out).toMatch(/validate: OK/)
     expect(out.split('\n').length).toBeLessThanOrEqual(30)
   })
@@ -50,27 +50,27 @@ describe('sitrepText', () => {
   // #133 : l'avancement global visible en ouverture de session, sans ouvrir le dashboard.
   it('porte la ligne avancement (done/total + pourcentage, globalProgress)', () => {
     const out = sitrepText(tree([task(1, { status: 'done' }), task(2), task(3), task(4)]), [])
-    expect(out).toMatch(/avancement: 1\/4 \(25%\)/)
+    expect(out).toMatch(/progress: 1\/4 \(25%\)/)
   })
   it('avancement 0/0 sur un backlog vide (pas de division par zéro)', () => {
-    expect(sitrepText(tree([]), [])).toMatch(/avancement: 0\/0 \(0%\)/)
+    expect(sitrepText(tree([]), [])).toMatch(/progress: 0\/0 \(0%\)/)
   })
   it('validate rouge + dette ouverte remontent en alertes', () => {
     const out = sitrepText(tree([task(3, { tags: ['debt'] })]), ['boom'])
-    expect(out).toMatch(/validate: 1 erreur/)
-    expect(out).toMatch(/dette\(s\) ouverte\(s\).*#3/)
-    expect(out).toMatch(/validate rouge/)
+    expect(out).toMatch(/validate: 1 error/)
+    expect(out).toMatch(/open debt item\(s\).*#3/)
+    expect(out).toMatch(/validate failing/)
   })
 
   // #101 : la dérive « commits sans ticket » devient visible en ouverture de session.
   it('signale les commits non consignés quand aucune tâche n’est in_progress', () => {
     const out = sitrepText(tree([task(1)]), [], { count: 3, sinceId: 42 })
-    expect(out).toMatch(/⚠ 3 commit\(s\) non consigné\(s\) depuis #42/)
+    expect(out).toMatch(/⚠ 3 unlogged commit\(s\) since #42/)
   })
   it('muet si une in_progress existe (travail en cours = commits normaux), si null ou si 0', () => {
-    expect(sitrepText(tree([task(1, { status: 'in_progress' })]), [], { count: 3, sinceId: 42 })).not.toMatch(/non consigné/)
-    expect(sitrepText(tree([task(1)]), [], null)).not.toMatch(/non consigné/)
-    expect(sitrepText(tree([task(1)]), [], { count: 0, sinceId: 42 })).not.toMatch(/non consigné/)
+    expect(sitrepText(tree([task(1, { status: 'in_progress' })]), [], { count: 3, sinceId: 42 })).not.toMatch(/unlogged/)
+    expect(sitrepText(tree([task(1)]), [], null)).not.toMatch(/unlogged/)
+    expect(sitrepText(tree([task(1)]), [], { count: 0, sinceId: 42 })).not.toMatch(/unlogged/)
   })
 })
 
@@ -102,10 +102,10 @@ describe('stalePassepartout (#105)', () => {
 describe('auditText (#104)', () => {
   const c = (over: Partial<CommitAudit>): CommitAudit => ({ sha: 'abc123', subject: 'x', ref: null, status: 'orphan', ...over })
   it('indisponible hors dépôt (null)', () => {
-    expect(auditText(null)).toMatch(/indisponible/)
+    expect(auditText(null)).toMatch(/unavailable/)
   })
   it('aucun commit → coche verte', () => {
-    expect(auditText([])).toMatch(/aucun commit.*✔/)
+    expect(auditText([])).toMatch(/no commits.*✔/)
   })
   it('compte lié/orphelin/mort et détaille les problèmes', () => {
     const out = auditText([
@@ -113,9 +113,9 @@ describe('auditText (#104)', () => {
       c({ sha: 'bbb', subject: 'chore: bidouille', ref: null, status: 'orphan' }),
       c({ sha: 'ccc', subject: 'feat: y (#999)', ref: 999, status: 'dangling' }),
     ])
-    expect(out).toMatch(/✔ 1 lié.*⚠ 1 orphelin.*⚠ 1 référence/)
-    expect(out).toMatch(/orphelin  bbb chore: bidouille/)
-    expect(out).toMatch(/ref morte ccc feat: y \(#999\)  \(#999 inconnu\)/)
+    expect(out).toMatch(/✔ 1 linked.*⚠ 1 orphan.*⚠ 1 dead reference/)
+    expect(out).toMatch(/orphan    bbb chore: bidouille/)
+    expect(out).toMatch(/dead ref  ccc feat: y \(#999\)  \(#999 unknown\)/)
     expect(out).not.toMatch(/aaa/) // les commits liés ne polluent pas la sortie
   })
 })

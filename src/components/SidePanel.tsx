@@ -95,7 +95,7 @@ export function SidePanel({
             <button
               type="button"
               onClick={back}
-              aria-label="Retour"
+              aria-label="Back"
               className="rounded p-1 text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-700"
             >
               <ArrowLeft size={14} />
@@ -106,7 +106,7 @@ export function SidePanel({
         <button
           type="button"
           onClick={onClose}
-          aria-label="Fermer le panneau"
+          aria-label="Close panel"
           className="rounded p-1 text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-700"
         >
           <Cross size={13} />
