@@ -62,6 +62,18 @@ describe('sitrepText', () => {
     expect(out).toMatch(/validate failing/)
   })
 
+  it('signale les tâches done avec un feedback non résolu (#149)', () => {
+    const withOpen = task(1, { status: 'done', completedAt: '2026-07-07', feedback: [{ date: '2026-07-09T10:00:00', author: 'remi', text: 'revoir', resolved: false }] })
+    const out = sitrepText(tree([withOpen]), [])
+    expect(out).toMatch(/done task\(s\) with open feedback/)
+    expect(out).toContain('#1')
+  })
+
+  it('ne signale pas un feedback déjà résolu (#149)', () => {
+    const resolved = task(2, { status: 'done', completedAt: '2026-07-07', feedback: [{ date: '2026-07-09T10:00:00', author: 'remi', text: 'ok', resolved: true }] })
+    expect(sitrepText(tree([resolved]), [])).not.toMatch(/open feedback/)
+  })
+
   // #101 : la dérive « commits sans ticket » devient visible en ouverture de session.
   it('signale les commits non consignés quand aucune tâche n’est in_progress', () => {
     const out = sitrepText(tree([task(1)]), [], { count: 3, sinceId: 42 })
