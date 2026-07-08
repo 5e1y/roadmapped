@@ -18,7 +18,7 @@ import { ListToolsRequestSchema, CallToolRequestSchema } from '@modelcontextprot
 import { loadPaths } from '../src/lib/paths.ts'
 import {
   treeWithErrors, readTree, findTask,
-  addTask, startTask, doneTask, updateTask, archiveTask,
+  addTask, startTask, doneTask, updateTask,
 } from '../src/lib/taskWrites.ts'
 import { computeAvailability, activeTasks, nextQueue, globalProgress, epicProgress, allEpics } from '../src/lib/roadmap.ts'
 import { briefText, sitrepText, taskLine, refLine, git, unloggedCommits } from '../src/lib/render.ts'
@@ -53,7 +53,7 @@ const S = {
 /** Rendu texte détaillé d'une tâche (équivalent de `show` du CLI). */
 function showText(hit, tree) {
   const t = hit.task
-  const L = [taskLine(t, ''), `  section: ${hit.sectionKey}${hit.archived ? ' (archive)' : ''}`, `  fichier: ${t.file}`]
+  const L = [taskLine(t, ''), `  section: ${hit.sectionKey}`, `  fichier: ${t.file}`]
   if (t.detail) L.push(`  detail: ${t.detail.trim()}`)
   if (t.refs.length) L.push(`  refs: ${t.refs.join(' · ')}`)
   if (t.dependsOn.length) L.push(`  dépend de: ${t.dependsOn.map((d) => refLine(tree, d)).join(' · ')}`)
@@ -131,7 +131,7 @@ export function makeTools(ROOT) {
   },
   {
     name: 'list',
-    description: 'Liste le backlog, filtrable par section/status/team/tag, archive incluse en option.',
+    description: 'Liste le backlog, filtrable par section/status/team/tag.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -139,13 +139,12 @@ export function makeTools(ROOT) {
         status: { type: 'string', enum: ['todo', 'in_progress', 'done'] },
         team: S.team,
         tag: { type: 'string', description: 'ne garde que les tâches portant ce tag (ex: debt)' },
-        archive: { type: 'boolean', description: 'inclure les stages archivés' },
       },
       additionalProperties: false,
     },
     handler: (a = {}) => {
       const tree = readTree(ROOT)
-      let sections = a.archive ? [...tree.sections, ...tree.archive] : tree.sections
+      let sections = tree.sections
       if (a.section) sections = sections.filter((s) => s.key === a.section)
       const keep = (pred) => { sections = sections.map((s) => ({ ...s, tasks: s.tasks.filter(pred) })).filter((s) => s.tasks.length) }
       if (a.status) keep((t) => t.status === a.status)
@@ -194,7 +193,7 @@ export function makeTools(ROOT) {
   },
   {
     name: 'validate',
-    description: 'Valide tout docs/tasks/ (schéma + unicité des ids + nextId, archive comprise).',
+    description: 'Valide tout docs/tasks/ (schéma + unicité des ids + nextId).',
     inputSchema: S.none,
     handler: () => {
       const { errors } = treeWithErrors(ROOT)
@@ -239,7 +238,6 @@ export function makeTools(ROOT) {
         for (const id of blocks) {
           const hit = findTask(tree, id)
           if (!hit) return fromRes({ ok: false, errors: [`blocks : aucune tâche #${id}.`] }, '')
-          if (hit.archived) return fromRes({ ok: false, errors: [`blocks : #${id} est archivée — elle ne peut plus être verrouillée.`] }, '')
         }
       }
       const res = addTask(ROOT, {
@@ -353,12 +351,6 @@ export function makeTools(ROOT) {
       if (a.dependsOn !== undefined) patch.dependsOn = splitList(a.dependsOn).map(Number)
       return fromRes(updateTask(ROOT, a.id, patch), `#${a.id} mise à jour.`)
     },
-  },
-  {
-    name: 'archive',
-    description: 'Déplace une tâche done vers _archive/<stage>/ (avec son dossier jumeau de sous-tâches).',
-    inputSchema: S.id,
-    handler: ({ id }) => fromRes(archiveTask(ROOT, id), `#${id} archivée → _archive/.`),
   },
   ]
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { computeAvailability, missingPrereqs, graphLayout, graphNeighborhood, epicProgress, globalProgress, allEpics, activeTasks, archivedTasks, slugify, reverseDependents, depState, nextQueue, type GraphInput } from './roadmap'
+import { computeAvailability, missingPrereqs, graphLayout, graphNeighborhood, epicProgress, globalProgress, allEpics, activeTasks, slugify, reverseDependents, depState, nextQueue, type GraphInput } from './roadmap'
 import type { TaskTree, TaskNode, SectionNode } from './tasks'
 
 /** Fabrique une tâche minimale ; les champs non pertinents prennent des défauts. */
@@ -11,9 +11,9 @@ function task(id: number, status: TaskNode['status'], dependsOn: number[] = [], 
     file: `docs/tasks/01-x/${id}.yaml`, subtasks: [],
   }
 }
-function tree(active: TaskNode[], archived: TaskNode[] = [], epics: TaskTree['epics'] = []): TaskTree {
+function tree(active: TaskNode[], epics: TaskTree['epics'] = []): TaskTree {
   const sec = (key: string, tasks: TaskNode[]): SectionNode => ({ key, title: key, status: 'open', note: null, tasks })
-  return { nextId: 999, sections: [sec('01-x', active)], archive: archived.length ? [sec('09-old', archived)] : [], epics }
+  return { nextId: 999, sections: [sec('01-x', active)], epics }
 }
 
 describe('computeAvailability', () => {
@@ -30,13 +30,9 @@ describe('computeAvailability', () => {
     const av = computeAvailability(tree([task(1, 'done'), task(2, 'done', [1]), task(3, 'todo', [1]), task(4, 'todo', [2, 3])]))
     expect(av.get(4)).toBe('locked') // C (#3) pas done
   })
-  it('une dépendance ARCHIVÉE compte comme done', () => {
-    const av = computeAvailability(tree([task(2, 'todo', [1])], [task(1, 'done')]))
-    expect(av.get(2)).toBe('available')
-  })
-  it('dépendance vers un id inconnu ignorée défensivement (non bloquante)', () => {
+  it("une dépendance n'est done QUE si sa tâche existe avec status done — id inconnu = verrouillée (#154)", () => {
     const av = computeAvailability(tree([task(2, 'todo', [999])]))
-    expect(av.get(2)).toBe('available')
+    expect(av.get(2)).toBe('locked')
   })
 })
 
@@ -54,11 +50,11 @@ describe('missingPrereqs', () => {
     const t2 = t.sections[0].tasks.find((x) => x.id === 2)!
     expect(missingPrereqs(t2, av)).toEqual([])
   })
-  it('une dep archivée/inconnue (absente de la map) est done de fait, non listée', () => {
+  it('une dep inconnue (absente de la map) est manquante — cohérent avec computeAvailability (#154)', () => {
     const t = tree([task(2, 'todo', [999])])
     const av = computeAvailability(t)
     const t2 = t.sections[0].tasks.find((x) => x.id === 2)!
-    expect(missingPrereqs(t2, av)).toEqual([])
+    expect(missingPrereqs(t2, av)).toEqual([999])
   })
 })
 
@@ -178,10 +174,6 @@ describe('globalProgress', () => {
     const t = tree([task(1, 'done'), task(2, 'todo'), task(3, 'in_progress')])
     expect(globalProgress(t)).toEqual({ done: 1, total: 3 })
   })
-  it("l'archive compte done de fait (total ET done)", () => {
-    const t = tree([task(1, 'todo')], [task(2, 'done'), task(3, 'done')])
-    expect(globalProgress(t)).toEqual({ done: 2, total: 3 })
-  })
   it('exclut les stages abandoned et dormant', () => {
     const sec = (key: string, status: SectionNode['status'], tasks: TaskNode[]): SectionNode =>
       ({ key, title: key, status, note: null, tasks })
@@ -192,7 +184,7 @@ describe('globalProgress', () => {
         sec('02-y', 'dormant', [task(3, 'todo')]),
         sec('03-z', 'abandoned', [task(4, 'todo')]),
       ],
-      archive: [], epics: [],
+      epics: [],
     }
     expect(globalProgress(t)).toEqual({ done: 1, total: 2 })
   })
@@ -209,7 +201,6 @@ describe('allEpics', () => {
   it('déclarés (ordre du fichier) puis auto-découverts (alphabétique, titre = slug)', () => {
     const t = tree(
       [task(1, 'todo', [], 'zebre'), task(2, 'todo', [], 'socle'), task(3, 'todo', [], 'alpha')],
-      [],
       [{ slug: 'socle', title: 'Socle' }],
     )
     expect(allEpics(t)).toEqual([
@@ -248,10 +239,6 @@ describe('reverseDependents', () => {
 })
 
 describe('depState', () => {
-  it('dep archivée → archived', () => {
-    const t = tree([task(2, 'todo', [1])], [task(1, 'done')])
-    expect(depState(t, 1)).toBe('archived')
-  })
   it('dep done', () => {
     const t = tree([task(1, 'done')])
     expect(depState(t, 1)).toBe('done')
@@ -264,23 +251,9 @@ describe('depState', () => {
     const t = tree([task(1, 'todo'), task(2, 'todo', [1])])
     expect(depState(t, 2)).toBe('locked')
   })
-  it('id inconnu → archived (défensif, dep validée pointe toujours vers un id connu)', () => {
+  it('id inconnu → locked (défensif, cohérent avec computeAvailability, #154)', () => {
     const t = tree([task(1, 'done')])
-    expect(depState(t, 999)).toBe('archived')
-  })
-})
-
-describe('archivedTasks', () => {
-  it('aplati les tâches archivées (sous-tâches comprises)', () => {
-    const tree = {
-      nextId: 10, epics: [],
-      sections: [],
-      archive: [{
-        key: '_archive/01-x', title: 'X', status: 'done' as const, note: null,
-        tasks: [{ ...task(1, "done"), subtasks: [{ ...task(2, "done"), subtasks: [] }] }],
-      }],
-    }
-    expect(archivedTasks(tree as never).map((t) => t.id)).toEqual([1, 2])
+    expect(depState(t, 999)).toBe('locked')
   })
 })
 
@@ -288,7 +261,7 @@ describe('nextQueue', () => {
   const sec = (key: string, tasks: TaskNode[]): SectionNode =>
     ({ key, title: key, status: 'open', note: null, tasks })
   const multi = (sections: Array<[string, TaskNode[]]>): TaskTree =>
-    ({ nextId: 999, sections: sections.map(([k, t]) => sec(k, t)), archive: [], epics: [] })
+    ({ nextId: 999, sections: sections.map(([k, t]) => sec(k, t)), epics: [] })
 
   it('trie par stage PUIS par ancienneté (id) — une tâche d’un stage tôt passe avant, même plus récente', () => {
     const t = multi([
@@ -310,7 +283,7 @@ describe('nextQueue', () => {
   })
   it('ignore les sections non ouvertes (dormant)', () => {
     const dormant: SectionNode = { key: '03-identity', title: 'x', status: 'dormant', note: null, tasks: [task(9, 'todo')] }
-    const t: TaskTree = { nextId: 999, sections: [dormant, sec('04-build', [task(4, 'todo')])], archive: [], epics: [] }
+    const t: TaskTree = { nextId: 999, sections: [dormant, sec('04-build', [task(4, 'todo')])], epics: [] }
     expect(nextQueue(t).map((x) => x.id)).toEqual([4])
   })
 })

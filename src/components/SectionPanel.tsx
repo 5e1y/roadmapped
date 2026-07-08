@@ -9,7 +9,7 @@ import {
 } from './ui'
 import { relItemOf } from './TaskPanel'
 import { STAGES, TEAMS, SECTION_STATUS_FR } from '../lib/tasks'
-import { activeTasks, archivedTasks } from '../lib/roadmap'
+import { activeTasks } from '../lib/roadmap'
 import type { SectionNode } from '../lib/tasks'
 
 // Statuts de section en français (#28) — même source que le Backlog/Colonnes
@@ -50,10 +50,10 @@ export function CreateTaskPanel({ section }: { section: string }) {
   const [errors, setErrors] = useState<string[]>([])
   const [busy, setBusy] = useState(false)
 
-  const allTags = tree ? [...new Set([...activeTasks(tree), ...archivedTasks(tree)].flatMap((t) => t.tags))] : []
+  const allTags = tree ? [...new Set(activeTasks(tree).flatMap((t) => t.tags))] : []
   // Items avec aperçu (#125) : glyphe, #id, titre, stage, team — relItemOf.
-  // Les OUVERTES d'abord (candidates naturelles), les faites/archivées ensuite.
-  const pool = tree ? [...activeTasks(tree), ...archivedTasks(tree)] : []
+  // Les OUVERTES d'abord (candidates naturelles), les faites ensuite.
+  const pool = tree ? activeTasks(tree) : []
   const relItems = [...pool.filter((t) => t.status !== 'done'), ...pool.filter((t) => t.status === 'done')].map(relItemOf)
 
   const create = async () => {
@@ -188,10 +188,9 @@ function SectionPanelBody({ dir }: { dir: string }) {
   // Erreurs / ✓ suivis PAR zone (même pattern que TaskPanel).
   const [errors, setErrors] = useState<Record<string, string[]>>({})
   const [savedField, setSavedField] = useState<string | null>(null)
-  const section = tree?.sections.find((s) => s.key === dir) ?? tree?.archive.find((s) => s.key === dir)
-  const isArchive = !tree?.sections.some((s) => s.key === dir) && !!tree?.archive.some((s) => s.key === dir)
+  const section = tree?.sections.find((s) => s.key === dir)
   if (!section) return <p className="text-sm text-neutral-500">Section introuvable.</p>
-  const sectionPath = `docs/tasks/${isArchive ? '_archive/' : ''}${dir}`
+  const sectionPath = `docs/tasks/${dir}`
 
   const flash = (field: string) => {
     setSavedField(field)

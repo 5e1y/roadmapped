@@ -6,7 +6,7 @@
 import { execSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { findTask } from './taskWrites.ts'
-import { activeTasks, archivedTasks, nextQueue, globalProgress } from './roadmap.ts'
+import { activeTasks, nextQueue, globalProgress } from './roadmap.ts'
 import { parseRef, locateLine, snippet } from './refExtract.ts'
 import type { TaskTree, TaskNode } from './tasks'
 import type { FoundTask } from './taskWrites'
@@ -33,7 +33,7 @@ export function refLine(tree: TaskTree, id: number): string {
   const hit = findTask(tree, id)
   if (!hit) return `#${id} (inconnu)`
   const st = STATUS_FR[hit.task.status] ?? hit.task.status
-  return `#${id} ${hit.task.title} (${hit.archived ? `${st}, archivée` : st})`
+  return `#${id} ${hit.task.title} (${st})`
 }
 
 /**
@@ -109,7 +109,7 @@ const daysBetween = (isoA: string, isoB: string) =>
  * consignés » en silence. On descend la liste triée jusqu'au 1er sha résolvable.
  */
 function lastLogged(tree: TaskTree): { commit: string; id: number } | null {
-  const candidates = [...activeTasks(tree), ...archivedTasks(tree)]
+  const candidates = activeTasks(tree)
     .filter((t) => t.commit && t.completedAt)
     // completedAt desc, id desc en bris d'égalité (dates au jour : les ids sont monotones)
     .sort((a, b) => (b.completedAt! > a.completedAt! ? 1 : b.completedAt! < a.completedAt! ? -1 : b.id - a.id))
@@ -140,7 +140,7 @@ export function auditCommits(tree: TaskTree): CommitAudit[] | null {
   const out = git(`log ${anchor ? `${anchor.commit}..HEAD` : 'HEAD'} --format=%h%x09%s`)
   if (out === null) return null
   if (out === '') return []
-  const ids = new Set([...activeTasks(tree), ...archivedTasks(tree)].map((t) => t.id))
+  const ids = new Set(activeTasks(tree).map((t) => t.id))
   return out.split('\n').map((line) => {
     const tab = line.indexOf('\t')
     const sha = line.slice(0, tab)
@@ -195,7 +195,7 @@ export function sitrepText(tree: TaskTree, errors: string[], unlogged?: Unlogged
     return `: ${shown}${items.length > n ? ` (+${items.length - n} autres)` : ''}`
   }
   const dayOf = (iso: string) => iso.slice(0, 10) // datetime → date pour l'âge
-  const doneToday = [...active, ...archivedTasks(tree)].filter((t) => t.completedAt && dayOf(t.completedAt) === today)
+  const doneToday = active.filter((t) => t.completedAt && dayOf(t.completedAt) === today)
   const inProgress = active.filter((t) => t.status === 'in_progress')
   const queue = nextQueue(tree).slice(0, 3)
   // Avancement global (#133) : le CLI/agent voit la progression sans ouvrir le dashboard.

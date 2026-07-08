@@ -37,7 +37,7 @@ type GNode =
   | { key: string; kind: 'epic'; slug: string; title: string; tasks: TaskNode[] }
 
 /** Prérequis manquant SANS carte propre (#138) : rangé dans un nœud-epic (titre
-    connu) ou réellement hors vue (archivé / done masqué / quick) — epicTitle null. */
+    connu) ou réellement hors vue (done masqué / quick) — epicTitle null. */
 interface HiddenPrereq {
   id: number
   epicTitle: string | null
@@ -47,7 +47,7 @@ interface HiddenPrereq {
     manquants » (#138) : dit OÙ vit chaque #id au lieu d'un « +n hors graphe » muet. */
 export function hiddenPrereqNote(hidden: HiddenPrereq[]): string {
   return hidden
-    .map((h) => `#${h.id} — ${h.epicTitle ? `dans l'epic « ${h.epicTitle} »` : 'hors vue (archivée ou masquée)'}`)
+    .map((h) => `#${h.id} — ${h.epicTitle ? `dans l'epic « ${h.epicTitle} »` : 'hors vue (masquée)'}`)
     .join(' · ')
 }
 

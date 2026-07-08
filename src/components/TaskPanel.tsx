@@ -6,7 +6,7 @@ import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
 import { agentBrief } from './TaskRow'
 import { findTaskInTree } from '../lib/findTaskInTree'
-import { reverseDependents, depState, activeTasks, archivedTasks, computeAvailability, allEpics, slugify } from '../lib/roadmap'
+import { reverseDependents, depState, activeTasks, computeAvailability, allEpics, slugify } from '../lib/roadmap'
 import { KindGlyph } from './glyphs'
 import { relativeTime, absoluteDate } from '../lib/relativeTime'
 import { Chip } from './Chip'
@@ -35,7 +35,7 @@ const STATUS_FR: Record<TaskNode['status'], string> = {
   todo: 'à faire', in_progress: 'en cours', done: 'faite',
 }
 const DEP_STATE_FR = {
-  done: 'faite', available: 'disponible', locked: 'verrouillée', archived: 'archivée',
+  done: 'faite', available: 'disponible', locked: 'verrouillée',
 } as const
 
 // Choisir « faite » dans ce Select n'écrit jamais directement : il ouvre le
@@ -100,26 +100,23 @@ function SectionLabel({ children }: { children: ReactNode }) {
 
 /**
  * Item de relation AVEC APERÇU (#125) pour les combobox « dépend de » / « bloque » /
- * liens : #id, titre, statut (glyphe), stage (dérivé du dossier du fichier YAML,
- * archives comprises) et team abrégée. `label` reste le texte de recherche du
- * filtre intégré Base UI ; `preview` porte le rendu riche (RelOption, ui.tsx).
+ * liens : #id, titre, statut (glyphe), stage (dérivé du dossier du fichier YAML)
+ * et team abrégée. `label` reste le texte de recherche du filtre intégré
+ * Base UI ; `preview` porte le rendu riche (RelOption, ui.tsx).
  */
 export function relItemOf(t: TaskNode): SelectItem {
-  const archived = t.file.includes('_archive/')
-  // "docs/tasks/04-build/…" → [2] ; "docs/tasks/_archive/04-build/…" → [3].
-  const dir = t.file.split('/')[archived ? 3 : 2] ?? ''
+  // "docs/tasks/04-build/…" → [2].
+  const dir = t.file.split('/')[2] ?? ''
   return {
     value: String(t.id),
-    label: `#${t.id} ${t.title}${archived ? ' (archivée)' : ''}`,
+    label: `#${t.id} ${t.title}`,
     preview: {
       id: t.id,
       title: t.title,
       status: t.status,
       kind: t.kind,
-      // L'archive ancienne peut ne pas porter de team (non revalidée) — vide toléré.
       team: TEAM_ABBR[t.team] ?? (t.team ? String(t.team) : ''),
       stage: dir.replace(/^\d+-/, ''),
-      archived,
     },
   }
 }
@@ -325,8 +322,6 @@ function TaskPanelBody({ id }: { id: number }) {
   const task = tree ? findTaskInTree(tree, id) : null
   if (!tree || !task) return <p className="text-sm text-neutral-500">Tâche introuvable (rechargez).</p>
 
-  const archived = task.file.includes('_archive/')
-  const editable = !archived
   // Même source d'état que la Roadmap : computeAvailability (aucun recalcul
   // maison). 'locked' = prérequis non faits → cadenas au lieu du glyphe.
   const locked = computeAvailability(tree).get(id) === 'locked'
@@ -336,16 +331,16 @@ function TaskPanelBody({ id }: { id: number }) {
     const sub = task.subtasks.find((s) => s.id === subId)
     return sub ? STATUS_FR[sub.status] : ''
   }
-  // Vocabulaire de tags du projet (actives + archive) — suggestions du Creatable.
-  const allTags = [...new Set([...activeTasks(tree), ...archivedTasks(tree)].flatMap((t) => t.tags))]
+  // Vocabulaire de tags du projet — suggestions du Creatable.
+  const allTags = [...new Set(activeTasks(tree).flatMap((t) => t.tags))]
   // Epics du projet (déclarés + auto-découverts) — suggestions du champ Epic (#133).
   const epicSlugs = allEpics(tree).map((e) => e.slug)
-  // Tâches proposables en relation : actives + ARCHIVÉES (soi-même exclu),
-  // moins celles déjà liées (l'AddCombobox ne fait qu'AJOUTER). Items avec
-  // aperçu (#125) : glyphe, #id, titre, stage, team — relItemOf. Les OUVERTES
-  // d'abord (candidates naturelles), les faites/archivées ensuite.
+  // Tâches proposables en relation (soi-même exclu), moins celles déjà liées
+  // (l'AddCombobox ne fait qu'AJOUTER). Items avec aperçu (#125) : glyphe,
+  // #id, titre, stage, team — relItemOf. Les OUVERTES d'abord (candidates
+  // naturelles), les faites ensuite.
   const relItems = (already: number[]): SelectItem[] => {
-    const pool = [...activeTasks(tree), ...archivedTasks(tree)]
+    const pool = activeTasks(tree)
       .filter((t) => t.id !== id && !already.includes(t.id))
     return [...pool.filter((t) => t.status !== 'done'), ...pool.filter((t) => t.status === 'done')]
       .map(relItemOf)
@@ -426,7 +421,6 @@ function TaskPanelBody({ id }: { id: number }) {
     const ok = await runAction(`/api/tasks/${id}`, patchInit({ status: 'done', ...fields }), 'La tâche n’a pas pu être terminée.', false)
     if (ok) setDoneOpen(false)
   }
-  const archive = () => void runAction(`/api/tasks/${id}/archive`, { method: 'POST' }, 'La tâche n’a pas été archivée.', true)
   const remove = () => {
     if (!window.confirm(`Supprimer définitivement la tâche #${id} ? (l'id ne sera jamais réutilisé)`)) return
     void runAction(`/api/tasks/${id}`, { method: 'DELETE' }, 'La tâche n’a pas été supprimée.', true)
@@ -450,7 +444,7 @@ function TaskPanelBody({ id }: { id: number }) {
     <div className="flex min-h-full flex-col gap-5">
       <ErrorBanner errors={actionErrors} />
 
-      {/* En-tête : glyphe + id + statut (ghost select permanent) + badge archive. */}
+      {/* En-tête : glyphe + id + statut (ghost select permanent). */}
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center gap-1.5">
           {locked
@@ -463,7 +457,6 @@ function TaskPanelBody({ id }: { id: number }) {
               aria-label="Statut"
               defaultValue={task.status}
               items={STATUS_ITEMS}
-              disabled={!editable}
               onValueChange={(v) => {
                 // Verrou done guidé : « faite » ouvre le mini-formulaire, jamais
                 // de PATCH direct vers done. (Le Select non contrôlé affiche déjà
@@ -473,7 +466,6 @@ function TaskPanelBody({ id }: { id: number }) {
               }}
             />
           </div>
-          {archived && <Chip label="archivée" />}
           {/* Jalon (#133) : « bloque N » = dépendants inverses — le poids du verrou, visible. */}
           {task.kind === 'milestone' && blocks.length > 0 && (
             <Chip label={`bloque ${blocks.length}`} />
@@ -486,7 +478,6 @@ function TaskPanelBody({ id }: { id: number }) {
         <GhostAutoTextArea
           key={`title-${task.title}`}
           defaultValue={task.title}
-          disabled={!editable}
           aria-label="Titre"
           onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur() } }}
           onBlur={(e) => {
@@ -504,7 +495,6 @@ function TaskPanelBody({ id }: { id: number }) {
         <TagsCombobox
           tags={task.tags}
           suggestions={allTags}
-          disabled={!editable}
           onSave={(next) => void save('tags', changed(task.tags, next), { tags: next })}
         />
         <FieldError errs={errors.tags} />
@@ -517,19 +507,14 @@ function TaskPanelBody({ id }: { id: number }) {
           calé à droite. Le done guidé (#27) se déplie sous la barre, inchangé. */}
       <div className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center gap-2">
-          {editable && task.status === 'todo' && (
+          {task.status === 'todo' && (
             <button type="button" onClick={start} disabled={pending} className={primaryBtn}>
               {pending ? 'Démarrage…' : 'Démarrer'}
             </button>
           )}
-          {editable && task.status === 'in_progress' && (
+          {task.status === 'in_progress' && (
             <button type="button" onClick={() => setDoneOpen((o) => !o)} className={primaryBtn}>
               {doneOpen ? 'Fermer' : 'Terminer…'}
-            </button>
-          )}
-          {editable && task.status === 'done' && (
-            <button type="button" onClick={archive} disabled={pending} className={primaryBtn}>
-              {pending ? 'Archivage…' : 'Archiver'}
             </button>
           )}
           <button
@@ -552,13 +537,11 @@ function TaskPanelBody({ id }: { id: number }) {
             Supprimer
           </button>
         </div>
-        {editable && (
-          <Collapsible.Root open={doneOpen} onOpenChange={setDoneOpen}>
-            <Collapsible.Panel>
-              <DoneForm task={task} busy={pending} onCancel={() => setDoneOpen(false)} onSubmit={finishDone} />
-            </Collapsible.Panel>
-          </Collapsible.Root>
-        )}
+        <Collapsible.Root open={doneOpen} onOpenChange={setDoneOpen}>
+          <Collapsible.Panel>
+            <DoneForm task={task} busy={pending} onCancel={() => setDoneOpen(false)} onSubmit={finishDone} />
+          </Collapsible.Panel>
+        </Collapsible.Root>
       </div>
 
       {/* Métadonnées : champs ghost permanents, étiquetés. */}
@@ -570,7 +553,6 @@ function TaskPanelBody({ id }: { id: number }) {
             aria-label="Taille"
             defaultValue={task.size ?? ''}
             items={SIZE_ITEMS}
-            disabled={!editable}
             onValueChange={(v) => void save('size', changed(task.size, v || null), { size: v || null })}
           />
         </div>
@@ -582,7 +564,6 @@ function TaskPanelBody({ id }: { id: number }) {
             aria-label="Team"
             defaultValue={task.team}
             items={TEAM_ITEMS}
-            disabled={!editable}
             onValueChange={(v) => void save('team', changed(task.team, v), { team: v })}
           />
         </div>
@@ -591,7 +572,6 @@ function TaskPanelBody({ id }: { id: number }) {
           <GhostInput
             key={`code-${task.code ?? ''}`}
             defaultValue={task.code ?? ''}
-            disabled={!editable}
             placeholder="—"
             aria-label="Code"
             onKeyDown={blurOnEnter}
@@ -614,7 +594,6 @@ function TaskPanelBody({ id }: { id: number }) {
           key={`epic-${task.epic ?? ''}`}
           value={task.epic}
           suggestions={epicSlugs}
-          disabled={!editable}
           toSlug={slugify}
           onSave={(next) => void save('epic', changed(task.epic, next), { epic: next })}
         />
@@ -627,7 +606,7 @@ function TaskPanelBody({ id }: { id: number }) {
           <SectionLabel>Détail</SectionLabel>
           <SavedTick show={savedIn('detail')} />
         </div>
-        {detailEditing && editable ? (
+        {detailEditing ? (
           <GhostAutoTextArea
             autoFocus
             defaultValue={task.detail ?? ''}
@@ -656,20 +635,20 @@ function TaskPanelBody({ id }: { id: number }) {
         ) : (
           <div
             ref={detailReadRef}
-            role={editable ? 'button' : undefined}
-            tabIndex={editable ? 0 : undefined}
-            title={editable ? 'Cliquer pour éditer' : undefined}
+            role="button"
+            tabIndex={0}
+            title="Cliquer pour éditer"
             // Nom accessible COURT (sinon tout le markdown devient le nom du bouton).
-            aria-label={editable ? 'Modifier le détail' : undefined}
-            onClick={editable ? (e) => { if (!(e.target as HTMLElement).closest('a')) openDetailEditor({ x: e.clientX, y: e.clientY }) } : undefined}
+            aria-label="Modifier le détail"
+            onClick={(e) => { if (!(e.target as HTMLElement).closest('a')) openDetailEditor({ x: e.clientX, y: e.clientY }) }}
             // Un role="button" répond à Entrée ET Espace (design.md §3.5).
-            onKeyDown={editable ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDetailEditor() } } : undefined}
-            className={`border border-transparent px-1.5 py-1 ${editable ? 'cursor-text transition-colors hover:bg-neutral-100' : ''}`}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDetailEditor() } }}
+            className="cursor-text border border-transparent px-1.5 py-1 transition-colors hover:bg-neutral-100"
           >
             {task.detail ? (
               <Markdown source={task.detail} className="doc-prose--panel" />
             ) : (
-              <p className="text-xs text-neutral-500">Aucun détail.{editable && ' Cliquer pour ajouter.'}</p>
+              <p className="text-xs text-neutral-500">Aucun détail. Cliquer pour ajouter.</p>
             )}
           </div>
         )}
@@ -677,95 +656,83 @@ function TaskPanelBody({ id }: { id: number }) {
       </div>
 
       {/* Dépend de : lignes navigables (✕ au survol) + ajout ghost permanent. */}
-      {(editable || task.dependsOn.length > 0) && (
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2">
-            <SectionLabel>Dépend de</SectionLabel>
-            <SavedTick show={savedIn('dependsOn')} />
-          </div>
-          <div ref={depsListRef} tabIndex={-1} className="flex flex-col">
-            {task.dependsOn.map((d) => (
-              <RelationRow
-                key={d} tree={tree} id={d} badge={depBadge(d)}
-                onRemove={editable ? () => removeAndRefocus('dependsOn', { dependsOn: task.dependsOn.filter((x) => x !== d) }, depsListRef) : undefined}
-              />
-            ))}
-            {editable && (
-              <AddCombobox
-                items={relItems(task.dependsOn)}
-                placeholder="+ ajouter une dépendance"
-                aria-label="Ajouter une dépendance"
-                onAdd={(v) => void save('dependsOn', true, { dependsOn: [...task.dependsOn, Number(v)] })}
-              />
-            )}
-          </div>
-          <FieldError errs={errors.dependsOn} />
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center gap-2">
+          <SectionLabel>Dépend de</SectionLabel>
+          <SavedTick show={savedIn('dependsOn')} />
         </div>
-      )}
+        <div ref={depsListRef} tabIndex={-1} className="flex flex-col">
+          {task.dependsOn.map((d) => (
+            <RelationRow
+              key={d} tree={tree} id={d} badge={depBadge(d)}
+              onRemove={() => removeAndRefocus('dependsOn', { dependsOn: task.dependsOn.filter((x) => x !== d) }, depsListRef)}
+            />
+          ))}
+          <AddCombobox
+            items={relItems(task.dependsOn)}
+            placeholder="+ ajouter une dépendance"
+            aria-label="Ajouter une dépendance"
+            onAdd={(v) => void save('dependsOn', true, { dependsOn: [...task.dependsOn, Number(v)] })}
+          />
+        </div>
+        <FieldError errs={errors.dependsOn} />
+      </div>
 
       <RelationList label="Bloque" tree={tree} ids={blocks} />
       <RelationList label="Sous-tâches" tree={tree} ids={task.subtasks.map((s) => s.id)} badgeOf={subBadge} />
 
       {/* Liens : même patron que Dépend de. */}
-      {(editable || task.links.length > 0) && (
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2">
-            <SectionLabel>Liens</SectionLabel>
-            <SavedTick show={savedIn('links')} />
-          </div>
-          <div ref={linksListRef} tabIndex={-1} className="flex flex-col">
-            {task.links.map((l) => (
-              <RelationRow
-                key={l} tree={tree} id={l}
-                onRemove={editable ? () => removeAndRefocus('links', { links: task.links.filter((x) => x !== l) }, linksListRef) : undefined}
-              />
-            ))}
-            {editable && (
-              <AddCombobox
-                items={relItems(task.links)}
-                placeholder="+ ajouter un lien"
-                aria-label="Ajouter un lien"
-                onAdd={(v) => void save('links', true, { links: [...task.links, Number(v)] })}
-              />
-            )}
-          </div>
-          <FieldError errs={errors.links} />
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center gap-2">
+          <SectionLabel>Liens</SectionLabel>
+          <SavedTick show={savedIn('links')} />
         </div>
-      )}
+        <div ref={linksListRef} tabIndex={-1} className="flex flex-col">
+          {task.links.map((l) => (
+            <RelationRow
+              key={l} tree={tree} id={l}
+              onRemove={() => removeAndRefocus('links', { links: task.links.filter((x) => x !== l) }, linksListRef)}
+            />
+          ))}
+          <AddCombobox
+            items={relItems(task.links)}
+            placeholder="+ ajouter un lien"
+            aria-label="Ajouter un lien"
+            onAdd={(v) => void save('links', true, { links: [...task.links, Number(v)] })}
+          />
+        </div>
+        <FieldError errs={errors.links} />
+      </div>
 
       {/* Références : lignes (✕ au survol) + input d'ajout ghost (Entrée = ajouter). */}
-      {(editable || task.refs.length > 0) && (
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2">
-            <SectionLabel>Références</SectionLabel>
-            <SavedTick show={savedIn('refs')} />
-          </div>
-          <div ref={refsListRef} tabIndex={-1} className="flex flex-col gap-0.5">
-            {task.refs.map((r) => (
-              <RefLine
-                key={r} refPath={r}
-                onRemove={editable ? () => removeAndRefocus('refs', { refs: task.refs.filter((x) => x !== r) }, refsListRef) : undefined}
-              />
-            ))}
-            {editable && (
-              <GhostInput
-                key={`refs-${task.refs.length}`}
-                placeholder="+ ajouter une référence (chemin, Entrée)"
-                aria-label="Ajouter une référence"
-                onKeyDown={(e) => {
-                  if (e.key !== 'Enter') return
-                  const v = e.currentTarget.value.trim()
-                  if (!v) return
-                  e.currentTarget.value = ''
-                  if (!task.refs.includes(v)) void save('refs', true, { refs: [...task.refs, v] })
-                }}
-                className="font-mono text-xs"
-              />
-            )}
-          </div>
-          <FieldError errs={errors.refs} />
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center gap-2">
+          <SectionLabel>Références</SectionLabel>
+          <SavedTick show={savedIn('refs')} />
         </div>
-      )}
+        <div ref={refsListRef} tabIndex={-1} className="flex flex-col gap-0.5">
+          {task.refs.map((r) => (
+            <RefLine
+              key={r} refPath={r}
+              onRemove={() => removeAndRefocus('refs', { refs: task.refs.filter((x) => x !== r) }, refsListRef)}
+            />
+          ))}
+          <GhostInput
+            key={`refs-${task.refs.length}`}
+            placeholder="+ ajouter une référence (chemin, Entrée)"
+            aria-label="Ajouter une référence"
+            onKeyDown={(e) => {
+              if (e.key !== 'Enter') return
+              const v = e.currentTarget.value.trim()
+              if (!v) return
+              e.currentTarget.value = ''
+              if (!task.refs.includes(v)) void save('refs', true, { refs: [...task.refs, v] })
+            }}
+            className="font-mono text-xs"
+          />
+        </div>
+        <FieldError errs={errors.refs} />
+      </div>
 
       {/* Consignation : inputs ghost permanents (corrections rares mais directes). */}
       <div className="flex flex-col gap-1 border border-neutral-200 bg-neutral-50 px-2 py-2">
@@ -789,7 +756,6 @@ function TaskPanelBody({ id }: { id: number }) {
               <GhostAutoTextArea
                 key={`${field}-${value ?? ''}`}
                 defaultValue={value ?? ''}
-                disabled={!editable}
                 placeholder="—"
                 aria-label={label}
                 onKeyDown={(e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') e.currentTarget.blur() }}
@@ -800,7 +766,6 @@ function TaskPanelBody({ id }: { id: number }) {
               <GhostInput
                 key={`${field}-${value ?? ''}`}
                 defaultValue={value ?? ''}
-                disabled={!editable}
                 placeholder="—"
                 aria-label={label}
                 onKeyDown={blurOnEnter}

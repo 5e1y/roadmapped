@@ -107,7 +107,7 @@ describe('buildTaskTree', () => {
     expect(tree.sections[0].tasks[0].subtasks[0].id).toBe(2)
   })
 
-  it("parse _archive/ dans tree.archive, séparé des sections actives", () => {
+  it("ignore un dossier _archive/ hérité (concept retiré #154) — rien ne fuit dans les sections", () => {
     const files = {
       '/docs/tasks/_meta.yaml': 'nextId: 3\n',
       '/docs/tasks/01-x/_section.yaml': 'title: "X"\nstatus: open\n',
@@ -117,6 +117,8 @@ describe('buildTaskTree', () => {
         'source: ai', 'createdAt: "2026-07-07"', 'completedAt: null', 'commit: null',
         'verification: null', 'release: null',
       ].join('\n'),
+      // Résidu d'un ancien _archive/ : plus jamais parsé (aucun _section.yaml au
+      // premier niveau du bucket "_archive" → section sans meta, sautée).
       '/docs/tasks/_archive/05-y/_section.yaml': 'title: "Y livrée"\nstatus: done\n',
       '/docs/tasks/_archive/05-y/01-old.yaml': [
         'id: 2', 'code: null', 'title: "Archivée"', 'status: done', 'tags: []',
@@ -126,42 +128,9 @@ describe('buildTaskTree', () => {
       ].join('\n'),
     }
     const tree = buildTaskTree(files)
-    // L'archive ne fuit pas dans les sections actives…
     expect(tree.sections).toHaveLength(1)
     expect(tree.sections[0].key).toBe('01-x')
-    // …mais elle est bien parsée, avec la même structure de section
-    expect(tree.archive).toHaveLength(1)
-    expect(tree.archive[0].key).toBe('05-y')
-    expect(tree.archive[0].title).toBe('Y livrée')
-    expect(tree.archive[0].tasks).toHaveLength(1)
-    expect(tree.archive[0].tasks[0].id).toBe(2)
-    expect(tree.archive[0].tasks[0].file).toBe('docs/tasks/_archive/05-y/01-old.yaml')
-  })
-
-  it("synthétise la section d'une archive sans _section.yaml (section d'origine encore active)", () => {
-    const files = {
-      '/docs/tasks/_meta.yaml': 'nextId: 3\n',
-      '/docs/tasks/05-modale/_section.yaml': 'title: "Modale nouveautés"\nstatus: open\n',
-      '/docs/tasks/05-modale/04-restant.yaml': [
-        'id: 1', 'code: null', 'title: "Restante"', 'status: todo', 'tags: []',
-        'size: null', 'zone: null', 'detail: null', 'refs: []', 'links: []',
-        'source: ai', 'createdAt: "2026-07-07"', 'completedAt: null', 'commit: null',
-        'verification: null', 'release: null',
-      ].join('\n'),
-      // PAS de _archive/05-modale/_section.yaml : seules les tâches livrées ont bougé
-      '/docs/tasks/_archive/05-modale/01-livree.yaml': [
-        'id: 2', 'code: null', 'title: "Livrée"', 'status: done', 'tags: []',
-        'size: null', 'zone: null', 'detail: null', 'refs: []', 'links: []',
-        'source: ai', 'createdAt: "2026-06-01"', 'completedAt: "2026-06-20"',
-        'commit: abc1234', 'verification: "ok"', 'release: null',
-      ].join('\n'),
-    }
-    const tree = buildTaskTree(files)
-    // La tâche archivée ne doit PAS disparaître silencieusement
-    expect(tree.archive).toHaveLength(1)
-    expect(tree.archive[0].title).toBe('Modale nouveautés') // titre emprunté à la section active
-    expect(tree.archive[0].status).toBe('done')
-    expect(tree.archive[0].tasks.map((t) => t.id)).toEqual([2])
+    expect(tree.sections[0].tasks.map((t) => t.id)).toEqual([1])
   })
 })
 

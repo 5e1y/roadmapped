@@ -16,7 +16,7 @@ describe('demo tree (#148)', () => {
     expect(errors).toEqual([])
   })
 
-  it('raconte une histoire complète : statuts variés, jalon, archive, epic', () => {
+  it('raconte une histoire complète : statuts variés, jalon, v1 rejetée, epic', () => {
     const tree = demoTree()
     const all = tree.sections.flatMap((s) => s.tasks)
 
@@ -27,9 +27,10 @@ describe('demo tree (#148)', () => {
     // Un jalon (rendu diamant dans le graphe) et des dépendances (des arêtes).
     expect(all.some((t) => t.kind === 'milestone')).toBe(true)
     expect(all.some((t) => t.dependsOn.length > 0)).toBe(true)
-    // La v1 rejetée vit dans l'archive (quatrième mur : l'archive est le changelog).
-    expect(tree.archive.length).toBeGreaterThan(0)
-    expect(countTasksDeep(tree.archive.flatMap((s) => s.tasks)).total).toBeGreaterThan(0)
+    // La v1 rejetée (#8) reste dans le backlog, done (quatrième mur : le backlog est le changelog).
+    const v1 = all.find((t) => t.id === 8)
+    expect(v1?.status).toBe('done')
+    expect(countTasksDeep(all).done).toBeGreaterThan(0)
     // L'epic déclaré existe et des tâches le portent.
     expect(tree.epics.some((e) => e.slug === 'homepage')).toBe(true)
     expect(all.filter((t) => t.epic === 'homepage').length).toBeGreaterThan(5)

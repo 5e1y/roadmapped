@@ -67,7 +67,7 @@ export function SidePanel({
   }, [back])
 
   // Mémorise le déclencheur à l'ouverture, le restaure à la fermeture — sauf s'il
-  // a été démonté entre-temps (tâche supprimée/archivée : isConnected, #118).
+  // a été démonté entre-temps (tâche supprimée : isConnected, #118).
   useEffect(() => {
     const trigger = document.activeElement as HTMLElement | null
     return () => { if (trigger?.isConnected) trigger.focus?.() }

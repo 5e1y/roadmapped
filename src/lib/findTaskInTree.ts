@@ -1,6 +1,6 @@
 import type { TaskTree, TaskNode } from './tasks'
 
-/** Recherche pure d'une tâche par id dans l'arbre (actives + archive), sous-tâches comprises. */
+/** Recherche pure d'une tâche par id dans l'arbre, sous-tâches comprises. */
 export function findTaskInTree(tree: TaskTree, id: number): TaskNode | null {
   const search = (tasks: TaskNode[]): TaskNode | null => {
     for (const t of tasks) {
@@ -11,10 +11,6 @@ export function findTaskInTree(tree: TaskTree, id: number): TaskNode | null {
     return null
   }
   for (const s of tree.sections) {
-    const hit = search(s.tasks)
-    if (hit) return hit
-  }
-  for (const s of tree.archive) {
     const hit = search(s.tasks)
     if (hit) return hit
   }

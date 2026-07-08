@@ -49,8 +49,8 @@ data through the same validator — never a second, parallel schema hiding somew
 states are derived from the dependency graph on every read; your git history is the audit log.
 
 Roadmapped's own backlog is managed by Roadmapped, mostly by a Claude agent that records every
-task it ships. The `_archive` folder is the changelog. If you want to know whether the workflow
-holds up, read the archive.
+task it ships. The done tasks are the changelog. If you want to know whether the workflow
+holds up, read the backlog.
 
 > **Naming** — the brand is **Roadmapped** (two p's, renamed 2026-07). The GitHub repository
 > is `Roadmapped`. Host repos still using the legacy `roadmaped.config.json` (one p) keep

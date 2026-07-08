@@ -7,11 +7,11 @@ describe('hiddenPrereqNote (#138 — prérequis sans carte propre localisés)', 
       .toBe("#12 — dans l'epic « Checkout »")
   })
 
-  it('distingue le vraiment hors vue (archivé/masqué) de l’epic replié', () => {
+  it('distingue le vraiment hors vue (masqué) de l’epic replié', () => {
     expect(hiddenPrereqNote([
       { id: 12, epicTitle: 'Checkout' },
       { id: 14, epicTitle: null },
-    ])).toBe("#12 — dans l'epic « Checkout » · #14 — hors vue (archivée ou masquée)")
+    ])).toBe("#12 — dans l'epic « Checkout » · #14 — hors vue (masquée)")
   })
 
   it('liste vide → chaîne vide (aucun tooltip)', () => {
