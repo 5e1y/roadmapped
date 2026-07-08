@@ -1,5 +1,7 @@
 import type { Plugin, Connect } from 'vite'
 import type { ServerResponse, IncomingMessage } from 'node:http'
+import { watch, readdirSync } from 'node:fs'
+import { join } from 'node:path'
 import { loadPaths, type RoadmappedPaths } from '../lib/paths'
 import {
   treeWithErrors, addTask, updateTask, deleteTask,
@@ -200,17 +202,65 @@ function readJsonBody(req: IncomingMessage): Promise<any> {
 
 export function roadmappedApi(): Plugin {
   const paths = loadPaths()
+  // Live reactivity (#147) : les clients SSE abonnés à /api/events. Le watcher pousse
+  // un signal léger « quelque chose a changé » ; le client resync via /api/tree.
+  const clients = new Set<ServerResponse>()
+  let debounce: ReturnType<typeof setTimeout> | null = null
+  const pending = new Set<string>()
+  const broadcast = () => {
+    const data = JSON.stringify({ paths: [...pending] })
+    pending.clear()
+    for (const res of clients) res.write(`event: change\ndata: ${data}\n\n`)
+  }
+  const schedule = (file: string) => {
+    pending.add(file)
+    if (debounce) clearTimeout(debounce)
+    debounce = setTimeout(broadcast, 80) // coalesce la salve d'events fs d'une écriture
+  }
   return {
     name: 'roadmapped-api',
     configureServer(server) {
       // Notepad (#87) : au boot, docs/notes/ existe et est gitignoré. repoRoot = cwd du
       // serveur de dev. Best-effort — jamais bloquant si le FS refuse.
       try { ensureNotesSetup(paths.docsDir, process.cwd()) } catch { /* non bloquant */ }
+      // File-watch (#147) : fs.watch natif récursif sur tasksDir/docsDir. Toute écriture
+      // (agent, CLI, autre onglet) déclenche un signal SSE débouncé.
+      // ponytail: recursive:true couvre macOS/Windows ; sous Linux il jette
+      // (ERR_FEATURE_UNAVAILABLE) → on retombe sur un watch des sous-dossiers immédiats
+      // (les 8 stages), suffisant pour tasksDir. Upgrade Linux profond = chokidar.
+      for (const dir of [paths.tasksDir, paths.docsDir]) {
+        try {
+          watch(dir, { recursive: true }, (_e, f) => { if (f) schedule(String(f)) })
+        } catch {
+          try {
+            watch(dir, (_e, f) => { if (f) schedule(String(f)) })
+            for (const sub of readdirSync(dir, { withFileTypes: true })) {
+              if (sub.isDirectory()) {
+                try { watch(join(dir, sub.name), (_e, f) => { if (f) schedule(String(f)) }) } catch { /* skip */ }
+              }
+            }
+          } catch { /* dir absent : rien à surveiller */ }
+        }
+      }
       server.middlewares.use(async (req: Connect.IncomingMessage, res: ServerResponse, next) => {
         const url = new URL(req.url ?? '/', 'http://localhost')
         if (!url.pathname.startsWith('/api/')) return next()
 
         const method = req.method ?? 'GET'
+
+        // SSE (#147) : connexion longue, hors du cycle runAction/JSON.
+        if (url.pathname === '/api/events' && method === 'GET') {
+          res.writeHead(200, {
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache',
+            Connection: 'keep-alive',
+          })
+          res.write(': connected\n\n')
+          clients.add(res)
+          const keepAlive = setInterval(() => res.write(': keep-alive\n\n'), 25000)
+          req.on('close', () => { clearInterval(keepAlive); clients.delete(res) })
+          return
+        }
         const body =
           method === 'POST' || method === 'PATCH' || method === 'PUT'
             ? await readJsonBody(req)

@@ -6,7 +6,7 @@ export interface TreeState {
   errors: string[]
   loading: boolean
   loadError: string | null
-  reload: () => Promise<void>
+  reload: (opts?: { silent?: boolean }) => Promise<void>
 }
 
 const TreeContext = createContext<TreeState | null>(null)
@@ -17,8 +17,10 @@ export function TreeProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
 
-  const reload = useCallback(async () => {
-    setLoading(true)
+  const reload = useCallback(async (opts?: { silent?: boolean }) => {
+    // Live reactivity (#147) : un resync live (SSE) est SILENCIEUX — pas de bascule
+    // `loading` qui ferait clignoter les vues à chaque écriture de l'agent.
+    if (!opts?.silent) setLoading(true)
     setLoadError(null)
     try {
       const r = await fetch('/api/tree')
@@ -50,6 +52,17 @@ export function TreeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     void reload()
+  }, [reload])
+
+  // Live reactivity (#147) : s'abonner au flux SSE du serveur ; à chaque signal
+  // `change` (une écriture sur docs/tasks ou docs), resync silencieux. Garde :
+  // pas d'EventSource sous jsdom (tests) ni sur le build démo statique.
+  useEffect(() => {
+    if (typeof EventSource === 'undefined') return
+    if ((window as unknown as { __ROADMAPPED_STATIC__?: boolean }).__ROADMAPPED_STATIC__) return
+    const es = new EventSource('/api/events')
+    es.addEventListener('change', () => { void reload({ silent: true }) })
+    return () => es.close()
   }, [reload])
 
   return (

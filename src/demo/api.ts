@@ -34,6 +34,10 @@ function json(status: number, payload: unknown): Response {
 }
 
 export function installDemoApi(): void {
+  // Live reactivity (#147) : la démo est un build statique sans serveur SSE.
+  // Ce drapeau dit à TreeContext de NE PAS ouvrir /api/events (sinon EventSource
+  // retenterait en boucle sur l'hôte statique).
+  ;(window as unknown as { __ROADMAPPED_STATIC__?: boolean }).__ROADMAPPED_STATIC__ = true
   const notes = new Map<string, MemNote>([
     [DEMO_NOTE.slug, { slug: DEMO_NOTE.slug, content: DEMO_NOTE.content, modified: Date.now() }],
   ])
