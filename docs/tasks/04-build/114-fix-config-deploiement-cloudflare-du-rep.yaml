@@ -13,11 +13,11 @@ detail: null
 refs: []
 links: []
 dependsOn: []
-milestone: null
+epic: null
 source: ai
 createdAt: "2026-07-08T12:28:51"
 completedAt: "2026-07-08"
-commit: 8cf2d9e
+commit: null
 outcome: >-
   wrangler.jsonc ajouté au repo site (5e1y/roadmapped-site, commit 8cf2d9e sur main, poussé) : nomme
   explicitement le Worker « roadmapped-site » (name + assets.directory="." + compatibility_date +
