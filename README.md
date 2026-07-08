@@ -9,6 +9,10 @@ in the right format. No database, no SaaS, no account.
 
 ![Roadmapped dashboard — Backlog view](./docs/assets/dashboard.png)
 
+> **Naming** — the brand is **Roadmapped** (two p's, renamed 2026-07). The future GitHub
+> repository must be created as `Roadmapped`. Host repos still using the legacy
+> `roadmaped.config.json` (one p) keep working — the old filename is read as a fallback.
+
 ## Quickstart
 
 ```bash
