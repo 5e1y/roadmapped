@@ -1,0 +1,33 @@
+id: 133
+code: null
+title: "Implémenter — epic, jalons & progression (spec #131)"
+status: in_progress
+tags:
+  - data-model
+  - fable
+size: L
+team: engineering
+detail: >-
+  Implémenter la spec docs/specs/2026-07-08-hierarchie-regroupement.md (décisions verrouillées).
+  Périmètre : (1) renommer le champ milestone→epic dans le schéma (tasks.ts) avec parse rétrocompat
+  epic ?? milestone, FIELD_ORDER/dumpTask, validate (slug optionnel) ; (2)
+  milestoneProgress→epicProgress + types Roadmap/Milestone→Epic, lecture _roadmaps.yaml→_epics.yaml
+  rétrocompat ; (3) CLI --milestone→--epic (alias déprécié) ; (4) kind:'milestone' additif + add
+  --kind milestone + helper --blocks ; (5) globalProgress + ligne d'avancement dans sitrep ; (6)
+  rendu diamant + « bloque N » (TaskRow/TaskPanel/roadmap) ; (7) regroupement par epic dans le
+  dashboard (toggle ViewHeader, bloc Sans epic, champ epic éditable) ; (8) skill
+  references/formats.md ; (9) tests. Verrou jalon = via dependsOn (computeAvailability inchangé).
+  Confié à Fable 5.
+refs: []
+links:
+  - 131
+  - 6
+dependsOn: []
+milestone: null
+source: ai
+createdAt: "2026-07-08T11:18:55"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
