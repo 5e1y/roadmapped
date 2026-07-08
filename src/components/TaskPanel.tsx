@@ -1,4 +1,4 @@
-import { useRef, useState, type ReactNode, type RefObject } from 'react'
+import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'react'
 import { Toast } from '@base-ui/react/toast'
 import { Cross, LockLocked } from 'trinil-react'
 import { Collapsible } from '@base-ui/react/collapsible'
@@ -18,6 +18,7 @@ import {
 import { Markdown } from './Markdown'
 import { TEAMS, TEAM_ABBR } from '../lib/tasks'
 import { OPEN_DOC_EVENT } from '../lib/events'
+import { markTaskSeen } from '../state/seenTasks'
 import type { TaskNode, TaskTree } from '../lib/tasks'
 
 /**
@@ -320,6 +321,11 @@ function TaskPanelBody({ id }: { id: number }) {
   const refsListRef = useRef<HTMLDivElement>(null)
 
   const task = tree ? findTaskInTree(tree, id) : null
+  // Badge NEW effacé à la lecture (#147, Live 5) : afficher un ticket dans le
+  // panneau = l'avoir vu. Re-déclenché si son empreinte (updatedAt) change.
+  useEffect(() => {
+    if (task) markTaskSeen(task)
+  }, [task?.id, task?.updatedAt]) // eslint-disable-line react-hooks/exhaustive-deps
   if (!tree || !task) return <p className="text-sm text-neutral-500">Task not found (reload).</p>
 
   // Même source d'état que la Roadmap : computeAvailability (aucun recalcul

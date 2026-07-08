@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import type { TaskTree } from '../lib/tasks'
 import { diffTrees, type TreeDiff } from '../lib/treeDiff'
+import { seedSeenBaseline } from './seenTasks'
 
 export interface TreeState {
   tree: TaskTree | null
@@ -59,6 +60,7 @@ export function TreeProvider({ children }: { children: ReactNode }) {
         }
       }
       prevTreeRef.current = data.tree
+      seedSeenBaseline(data.tree) // #147 Live 5 : baseline « tout vu » au 1er run (idempotent)
       setTree(data.tree)
       setErrors(data.errors ?? [])
     } catch (e) {
