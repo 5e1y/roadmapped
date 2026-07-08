@@ -3,7 +3,7 @@ code: null
 title: >-
   Menus « dépend de » / « bloque » : aperçu et contexte des tâches (filtre + mini-carte façon
   backlog/roadmap)
-status: todo
+status: in_progress
 tags:
   - ux
   - panel
@@ -17,7 +17,7 @@ detail: >-
 refs: []
 links: []
 dependsOn: []
-epic: polish-ui
+milestone: null
 source: ai
 createdAt: "2026-07-08T09:28:24"
 completedAt: null
