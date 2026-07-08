@@ -7,7 +7,7 @@ function task(id: number, over: Partial<TaskNode> = {}): TaskNode {
   return {
     id, kind: 'task', code: null, title: `T${id}`, status: 'todo', tags: [], size: null,
     team: 'engineering', detail: null, refs: [], links: [], dependsOn: [], milestone: null,
-    source: 'ai', createdAt: '2026-07-07', completedAt: null, commit: null, outcome: null,
+    source: 'ai', createdAt: '2026-07-07', startedAt: null, completedAt: null, commit: null, outcome: null,
     verification: null, release: null, file: `docs/tasks/04-build/${id}.yaml`, subtasks: [], ...over,
   }
 }
@@ -73,6 +73,10 @@ describe('stalePassepartout (#105)', () => {
   it('une in_progress ancienne (≥7j) → signalée avec âge', () => {
     const out = stalePassepartout(tree([task(1, { status: 'in_progress', createdAt: '2026-06-01' })]), today)
     expect(out).toEqual([{ id: 1, title: 'T1', ageDays: 37 }])
+  })
+  it('âge depuis startedAt, pas createdAt (#82) : créée il y a longtemps mais démarrée aujourd’hui → non ancienne', () => {
+    const out = stalePassepartout(tree([task(1, { status: 'in_progress', createdAt: '2026-06-01', startedAt: today })]), today)
+    expect(out).toEqual([])
   })
   it('une fraîche couvre même si une ancienne traîne → []', () => {
     const out = stalePassepartout(tree([

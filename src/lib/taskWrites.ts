@@ -10,7 +10,7 @@ import type { TaskTree, TaskNode, TaskFileMap } from './tasks'
 
 export const FIELD_ORDER = [
   'id', 'kind', 'code', 'title', 'status', 'tags', 'size', 'team', 'detail',
-  'refs', 'links', 'dependsOn', 'milestone', 'source', 'createdAt', 'completedAt', 'commit',
+  'refs', 'links', 'dependsOn', 'milestone', 'source', 'createdAt', 'startedAt', 'completedAt', 'commit',
   'outcome', 'verification', 'release',
 ]
 
@@ -167,6 +167,12 @@ function dumpTask(raw: Record<string, unknown>): string {
     // par FIELD_ORDER quand présent.
     if (key === 'kind') {
       if (raw.kind === 'quick') ordered.kind = 'quick'
+      continue
+    }
+    // startedAt ADDITIF (comme kind) : écrit seulement quand posé, sinon les YAML
+    // d'avant le champ (#82) prendraient tous un "startedAt: null" au prochain dump.
+    if (key === 'startedAt') {
+      if (raw.startedAt) ordered.startedAt = raw.startedAt
       continue
     }
     ordered[key] = raw[key] ?? null
@@ -371,6 +377,7 @@ export function startTask(tasksDir: string, id: number): MutationResult {
   return withLock(tasksDir, () =>
     patchActive(tasksDir, id, (raw) => {
       raw.status = 'in_progress'
+      if (!raw.startedAt) raw.startedAt = now() // #82 — posé une seule fois, pas ré-écrasé au re-start
     }),
   )
 }

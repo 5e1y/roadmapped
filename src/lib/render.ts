@@ -92,8 +92,8 @@ const daysBetween = (isoA: string, isoB: string) =>
 
 /**
  * L'état du monde en ≤30 lignes (#70). Pur (tree + erreurs de validation en entrée) :
- * le CLI et le serveur MCP le partagent. L'âge in_progress se compte depuis createdAt
- * (proxy — pas de startedAt, cf. dette #82).
+ * le CLI et le serveur MCP le partagent. L'âge in_progress se compte depuis startedAt
+ * (#82), avec fallback createdAt pour les tâches d'avant le champ.
  */
 /**
  * Commits plus récents que la dernière livraison consignée (#101) — le signal de la
@@ -158,7 +158,7 @@ export function auditText(audit: CommitAudit[] | null): string {
  * Passe-partout « in_progress éternelle » (#105) : si AUCUNE in_progress fraîche ne couvre
  * le commit — toutes ≥ thresholdDays d'âge — retourne ces tâches anciennes (id/titre/âge)
  * pour alerte guard ; [] si une fraîche existe ou aucune in_progress.
- * ponytail: âge = proxy createdAt (pas de startedAt, dette #82) — upgrade quand startedAt existe.
+ * Âge mesuré depuis startedAt (#82), fallback createdAt pour les tâches d'avant le champ.
  */
 export function stalePassepartout(
   tree: TaskTree,
@@ -170,7 +170,7 @@ export function stalePassepartout(
   const aged = inProgress.map((t) => ({
     id: t.id,
     title: t.title,
-    ageDays: Math.floor((Date.parse(todayIso) - Date.parse(t.createdAt.slice(0, 10))) / 86_400_000),
+    ageDays: Math.floor((Date.parse(todayIso) - Date.parse((t.startedAt ?? t.createdAt).slice(0, 10))) / 86_400_000),
   }))
   return aged.some((a) => a.ageDays < thresholdDays) ? [] : aged
 }
@@ -192,11 +192,11 @@ export function sitrepText(tree: TaskTree, errors: string[], unlogged?: Unlogged
   const lines = [
     `sitrep — ${today}`,
     `done aujourd'hui (${doneToday.length})${capped(doneToday, brief)}`,
-    `in_progress (${inProgress.length})${capped(inProgress, (t) => `${brief(t)} (${daysBetween(dayOf(t.createdAt), today)}j)`)}`,
+    `in_progress (${inProgress.length})${capped(inProgress, (t) => `${brief(t)} (${daysBetween(dayOf(t.startedAt ?? t.createdAt), today)}j)`)}`,
     `prochaines: ${queue.length ? queue.map(brief).join(' · ') : '— (file vide)'}`,
     `validate: ${errors.length === 0 ? 'OK' : `${errors.length} erreur(s)`}`,
   ]
-  const stale = inProgress.filter((t) => daysBetween(dayOf(t.createdAt), today) >= 7)
+  const stale = inProgress.filter((t) => daysBetween(dayOf(t.startedAt ?? t.createdAt), today) >= 7)
   if (stale.length) lines.push(`⚠ ${stale.length} in_progress ancienne(s) (≥7j) : ${stale.map((t) => `#${t.id}`).join(' ')}`)
   const debt = active.filter((t) => t.status !== 'done' && t.tags.includes('debt'))
   if (debt.length) lines.push(`⚠ ${debt.length} dette(s) ouverte(s) (#debt) : ${debt.map((t) => `#${t.id}`).join(' ')}`)

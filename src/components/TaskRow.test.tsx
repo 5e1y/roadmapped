@@ -15,7 +15,7 @@ const task: TaskNode = {
   tags: ['bug', 'security'], size: 'S', team: 'engineering',
   detail: 'Détail complet ici', refs: ['useDocumentStore.ts:809'], links: [],
   dependsOn: [], milestone: null,
-  source: 'ai', createdAt: '2026-06-24', completedAt: null, commit: null,
+  source: 'ai', createdAt: '2026-06-24', startedAt: null, completedAt: null, commit: null,
   outcome: null, verification: null, release: null,
   file: 'docs/tasks/01-solidite/01-addimage.yaml', subtasks: [],
 }

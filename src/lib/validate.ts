@@ -41,6 +41,9 @@ function validateTask(task: TaskNode, path: string, errors: string[]) {
   else if (!DATE_OR_DATETIME.test(task.createdAt)) {
     errors.push(`${path}: createdAt format invalide (attendu YYYY-MM-DD ou YYYY-MM-DDTHH:MM:SS)`)
   }
+  if (task.startedAt && !DATE_OR_DATETIME.test(task.startedAt)) {
+    errors.push(`${path}: startedAt format invalide (attendu YYYY-MM-DD ou YYYY-MM-DDTHH:MM:SS)`)
+  }
   if (task.completedAt && !DATE_OR_DATETIME.test(task.completedAt)) {
     errors.push(`${path}: completedAt format invalide (attendu YYYY-MM-DD ou YYYY-MM-DDTHH:MM:SS)`)
   }
