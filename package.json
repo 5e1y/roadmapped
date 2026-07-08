@@ -1,6 +1,29 @@
 {
   "name": "roadmapped",
   "version": "0.1.0",
+  "description": "Project management as flat files in your repo — YAML tasks, a computed roadmap, driven by your AI agent through a CLI and a Claude skill. No database, no SaaS, no account.",
+  "keywords": [
+    "project-management",
+    "ai-agents",
+    "claude",
+    "local-first",
+    "flat-file",
+    "yaml",
+    "cli",
+    "roadmap",
+    "backlog",
+    "open-source"
+  ],
+  "homepage": "https://roadmapped.work",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/remicourtillon/Roadmapped.git"
+  },
+  "bugs": {
+    "url": "https://github.com/remicourtillon/Roadmapped/issues"
+  },
+  "author": "Rémi Courtillon",
+  "license": "MIT",
   "type": "module",
   "bin": {
     "roadmapped": "bin/roadmapped.mjs"
