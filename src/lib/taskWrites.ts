@@ -10,7 +10,7 @@ import type { TaskTree, TaskNode, TaskFileMap } from './tasks'
 
 export const FIELD_ORDER = [
   'id', 'kind', 'code', 'title', 'status', 'tags', 'size', 'team', 'detail',
-  'refs', 'links', 'dependsOn', 'epic', 'source', 'createdAt', 'startedAt', 'completedAt', 'commit',
+  'refs', 'links', 'dependsOn', 'epic', 'source', 'createdAt', 'startedAt', 'updatedAt', 'completedAt', 'commit',
   'outcome', 'verification', 'release',
 ]
 
@@ -169,6 +169,12 @@ function dumpTask(raw: Record<string, unknown>): string {
     // d'avant le champ (#82) prendraient tous un "startedAt: null" au prochain dump.
     if (key === 'startedAt') {
       if (raw.startedAt) ordered.startedAt = raw.startedAt
+      continue
+    }
+    // updatedAt ADDITIF (#147, Live 4) : écrit seulement quand posé — les YAML
+    // d'avant le champ ne prennent pas "updatedAt: null" au prochain dump.
+    if (key === 'updatedAt') {
+      if (raw.updatedAt) ordered.updatedAt = raw.updatedAt
       continue
     }
     // epic (#133, ex-milestone) : un YAML d'avant le renommage porte encore
@@ -343,6 +349,7 @@ function addTaskImpl(tasksDir: string, input: AddTaskInput): MutationResult {
     epic: str(input.epic),
     source: input.source ?? 'ai',
     createdAt: now(),
+    updatedAt: now(),
     completedAt: null,
     commit: null,
     outcome: null,
@@ -372,6 +379,7 @@ function patchActive(
   const prevContent = readFileSync(absPath, 'utf8')
   const raw = yaml.load(prevContent) as Record<string, unknown>
   mutate(raw)
+  raw.updatedAt = now() // #147 Live 4 : toute écriture date le ticket (source des badges NEW)
   return commitWrites(tasksDir, [{ absPath, content: dumpTask(raw), prevContent }])
 }
 
