@@ -16,7 +16,7 @@ describe('demo tree (#148)', () => {
     expect(errors).toEqual([])
   })
 
-  it('raconte une histoire complète : statuts variés, jalon, v1 rejetée, epic', () => {
+  it('raconte une histoire complète : statuts variés, jalon, v1 rejetée, tickets à plat', () => {
     const tree = demoTree()
     const all = tree.sections.flatMap((s) => s.tasks)
 
@@ -31,8 +31,9 @@ describe('demo tree (#148)', () => {
     const v1 = all.find((t) => t.id === 8)
     expect(v1?.status).toBe('done')
     expect(countTasksDeep(all).done).toBeGreaterThan(0)
-    // L'epic déclaré existe et des tâches le portent.
-    expect(tree.epics.some((e) => e.slug === 'homepage')).toBe(true)
-    expect(all.filter((t) => t.epic === 'homepage').length).toBeGreaterThan(5)
+    // Pas d'epic (#156) : les tickets s'affichent à plat, à leur stage / dans le
+    // graphe causal — un epic unique les collait tous en un nœud « Build ».
+    expect(all.every((t) => t.epic === null)).toBe(true)
+    expect(tree.epics).toEqual([])
   })
 })
