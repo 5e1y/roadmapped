@@ -1,7 +1,7 @@
 id: 20
 code: null
 title: Préparer les contenus d'annonce
-status: in_progress
+status: done
 tags:
   - marketing
 size: M
@@ -21,8 +21,19 @@ dependsOn:
 milestone: null
 source: user
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: f168c87
+outcome: >-
+  docs/announce-content.md créé (Fable) : contenus prêts-à-publier par canal — Show HN (titre 72c +
+  1er commentaire archi/dogfooding), Product Hunt (tagline + description + 2 commentaires maker),
+  LinkedIn FR (récit founder « l'outil me gère ») + EN J+1 (formulation distincte), thread X 9
+  tweets, Reddit r/ClaudeAI + r/SideProject + r/opensource (un post par sub, ton adapté),
+  Discord/Anthropic. Chaque canal sa formulation, voix tone-of-voice à la lettre. Ledger de chiffres
+  RÉELS en tête (239 tests, 131/111 tâches, 8 stages, MIT…) avec commandes de re-vérif J0.
+  Garde-fous : placeholders [GITHUB] (URL repo inconnue), durées bannies (git = 2 jours seulement),
+  claim tokens non-vérifiable retiré.
+verification: >-
+  Doc relu intégralement (garde-fou qualité) : voix conforme, chiffres cohérents avec le repo,
+  aucune URL inventée, aucune durée, chutes sèches en place. Contenus exacts par canal = définition
+  de fini du ticket, atteinte. Livrable éditorial (pas d'artefact runtime).
 release: null
