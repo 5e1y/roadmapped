@@ -4,7 +4,7 @@ Objectif : quand Roadmapped vient d'être installé, l'agent prend en main le pr
 
 ## 0. Détection et chemins
 
-Vérifier `roadmapped.config.json` à la racine du dossier Roadmapped : `tasksDir`/`docsDir` doivent pointer vers le bon endroit du repo hôte (défauts `../docs/tasks`, `../docs`). L'ajuster AVANT toute commande, sinon le CLI travaillera au mauvais endroit.
+La racine hôte = le repo courant : le CLI remonte depuis le cwd jusqu'au premier dossier portant `roadmapped.config.json` (ou `.git`), et y résout `tasksDir`/`docsDir` (défauts `docs/tasks`, `docs`, relatifs à cette racine). Vérifier que la config pointe au bon endroit AVANT toute commande, sinon le CLI travaillera au mauvais endroit.
 
 Setup requis si `docs/tasks/_meta.yaml` n'existe pas. S'il existe, le repo est déjà initialisé — ne refais JAMAIS le setup (tu écraserais l'état réel).
 
@@ -30,16 +30,16 @@ Présenter en prose compacte, et attendre l'accord avant d'écrire :
 
 ## 3. Initialisation (écriture, dans cet ordre)
 
-1. `mkdir -p docs/tasks && echo "nextId: 1" > docs/tasks/_meta.yaml`
-2. Créer les 8 stages canoniques, immuables : pour chacun, `mkdir docs/tasks/NN-slug` + `_section.yaml` avec le `title` canonique exact et la `note` d'esprit du stage par défaut (tableau `references/formats.md`). Ce n'est PAS une proposition à l'utilisateur — les 8 stages sont toujours les mêmes, dans le même ordre.
-3. `node scripts/task.mjs validate` → doit passer AVANT d'ajouter la moindre tâche (les 8 stages présents et vides valident déjà).
+1. `npx roadmapped init` — pose TOUTE la plomberie en un geste, idempotent : `roadmapped.config.json`, le squelette `docs/tasks/` (`_meta.yaml` nextId: 1 + les 8 stages canoniques avec leurs `_section.yaml`), le skill dans `.claude/skills/roadmapped/`, l'entrée MCP dans `.mcp.json`, le hook guard (chaîné à un pre-commit existant, jamais écrasé). Il ne touche JAMAIS un `docs/tasks/` déjà peuplé ni une config existante.
+2. Les 8 stages sont posés par `init`, immuables, toujours les mêmes, dans le même ordre — ce n'est PAS une proposition à l'utilisateur (leurs titres/notes canoniques : tableau `references/formats.md`).
+3. `npx roadmapped validate` → doit passer AVANT d'ajouter la moindre tâche (les 8 stages présents et vides valident déjà).
 4. Créer les tâches **via le CLI uniquement** (`add --section <stage> --team <team> ...`), dans l'ordre des dépendances (un `--depends-on` ne peut citer qu'un id déjà créé). `--team` est requis à chaque `add` — pas de tâche sans team. Poser `--refs`, `--tags`, `--size`, `--depends-on` dès la création. `--source user` pour ce qui vient des écrits de l'utilisateur, `ai` pour ce que tu déduis.
 5. Appliquer le sort convenu des anciens fichiers.
-6. `validate` final + `node scripts/task.mjs roadmap` et `list` pour montrer le résultat à l'utilisateur.
+6. `validate` final + `npx roadmapped roadmap` et `list` pour montrer le résultat à l'utilisateur.
 
 ## 4. Vérification de fin de setup
 
 - `validate` → OK sans erreur (8 stages actifs, toute tâche active a une team).
 - `next` → renvoie une vraie première tâche sensée (c'est le test d'usage : « par quoi je commence ? »).
-- Dashboard : proposer à l'utilisateur `npm run dev` pour voir son backlog et sa roadmap.
+- Dashboard : proposer à l'utilisateur `npx roadmapped dashboard` (dans le repo Roadmapped lui-même : `npm run dev`) pour voir son backlog et sa roadmap.
 - Résumer : N tâches réparties sur les 8 stages (= jalons), par team, N dépendances, ce qui a été importé d'où, ce qui a été laissé de côté et pourquoi.

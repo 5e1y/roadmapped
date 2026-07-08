@@ -538,7 +538,7 @@ function cmdGuard(flags) {
         '✋ guard : commit refusé — aucune tâche in_progress ne couvre ce travail.',
         `Fichiers hors consignation : ${offenders.join(', ')}`,
         'Le chemin rapide (~2 commandes), puis recommitte :',
-        '  node scripts/task.mjs quick "<titre>" --team <team> --start',
+        '  npx roadmapped quick "<titre>" --team <team> --start',
         '(Échappatoire consciente : git commit --no-verify — la dérive restera visible au sitrep.)',
       ].join('\n'),
     )
