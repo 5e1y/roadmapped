@@ -1,10 +1,11 @@
 id: 6
 code: null
 title: Spec — progression globale et milestones bloquants
-status: todo
+status: done
 tags:
   - spec
   - data-model
+  - fable
 size: M
 team: engineering
 detail: >-
@@ -29,7 +30,19 @@ dependsOn: []
 milestone: null
 source: user
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-verification: null
+completedAt: "2026-07-08"
+commit: 762ac6f
+outcome: >-
+  Spec docs/specs/2026-07-08-progress-milestones.md écrite par un subagent Fable 5 (brainstorm
+  demandé par Rémi). Progression : % en compte simple done/total (archive=done, stages abandoned
+  exclus) via globalProgress, affiché header Roadmap + sitrep. Milestones : 3 sémantiques de verrou
+  comparées, RECO = (iii) pas de nouveau verrou — une milestone = tâche kind:'milestone' (additif
+  comme kind:quick) dont les autres dépendent via dependsOn, computeAvailability inchangé, + rendu
+  diamant « bloque N » + sucre CLI. 8 tâches chaînées (implémentation prévue Fable 5).
+verification: >-
+  Spec relue (248 l.), complète, ancrée à roadmap.ts/validate.ts/tasks.ts/formats.md. DÉCISION EN
+  ATTENTE DE RÉMI (cœur du ticket) : sémantique du verrou milestone — reco (iii) dependsOn +
+  marqueur kind:'milestone' ; alternatives (i) verrouille stages postérieurs / (ii) tout le backlog.
+  Aussi à confirmer : % compte simple vs pondéré size ; sort du champ legacy
+  milestone/_roadmaps.yaml.
 release: null

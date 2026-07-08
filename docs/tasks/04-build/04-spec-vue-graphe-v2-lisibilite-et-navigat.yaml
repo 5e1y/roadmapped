@@ -1,7 +1,7 @@
 id: 4
 code: null
 title: Spec — vue Graphe v2 (lisibilité et navigation)
-status: todo
+status: done
 tags:
   - ux
   - spec
@@ -24,7 +24,18 @@ dependsOn: []
 milestone: null
 source: user
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-verification: null
+completedAt: "2026-07-08"
+commit: 4a97ef3
+outcome: >-
+  Spec docs/specs/2026-07-08-graph-v2.md écrite (cadrage : lib de layout + rendu SVG maison). Layout
+  par dagre (@dagrejs/dagre, ~28 KB gzip), rankdir LR, sections en nœuds composés (clusters) ; rendu
+  SVG monochrome existant conservé via un adaptateur pur mémoïsé dans roadmap.ts (dagre ne fournit
+  que des coordonnées) ; zoom/pan par hook maison useZoomPan (zoom-vers-curseur + drag) ; surlignage
+  amont/aval par fermeture transitive graphNeighborhood ; ancre visuelle milestone-blocked qui
+  référence #6 sans l'implémenter. 8 tâches.
+verification: >-
+  Spec relue (260 l.), complète, ancrée à RoadmapGraph.tsx/roadmap.ts. Points ouverts : geste du
+  surlignage sticky (alt+clic vs zone dédiée vs survol seul, car le clic ouvre déjà le panneau) ;
+  valider le mode composé dagre sur vraies données (bordure sections sans chevauchement) sinon repli
+  groupement post-layout.
 release: null

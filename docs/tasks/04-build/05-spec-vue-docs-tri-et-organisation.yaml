@@ -1,7 +1,7 @@
 id: 5
 code: null
 title: "Spec — vue Docs : tri et organisation"
-status: todo
+status: done
 tags:
   - ux
   - spec
@@ -24,7 +24,17 @@ dependsOn: []
 milestone: null
 source: user
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-verification: null
+completedAt: "2026-07-08"
+commit: 26b49b1
+outcome: >-
+  Spec docs/specs/2026-07-08-docs-v2.md écrite (cadrage : périmètre riche). Serveur fin (modifiedAt
+  sur DocNode, extraction des #id validés contre les vraies tâches, index backlinks corpus) +
+  organisation 100% client dans un lib pur docsOrganize.ts (tri récent/alpha, regroupement
+  folders/catégories, filtre par nom, épinglage). Préférences persistées via uiPersist
+  (docs:sort/group/pinned), backlinks bidirectionnels doc↔tâche câblés en nav cross-vue (setView +
+  openTask). 8 tâches, cœur testable = docs.ts + docsOrganize.ts purs.
+verification: >-
+  Spec relue (209 l.), complète, ancrée à DocsTree/DocsView/docs.ts. Points ouverts : taxonomie
+  categorize() (quels noms → guides/audits/autres) ; doc épinglé en doublon vs déplacé ; mtime
+  imparfait après git clone (fallback git log différé ?).
 release: null

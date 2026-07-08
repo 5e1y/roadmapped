@@ -1,7 +1,7 @@
 id: 3
 code: null
 title: Spec — création de tâche fluide
-status: todo
+status: done
 tags:
   - ux
   - spec
@@ -23,7 +23,17 @@ dependsOn: []
 milestone: null
 source: user
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-verification: null
+completedAt: "2026-07-08"
+commit: 5b0ed76
+outcome: >-
+  Spec docs/specs/2026-07-08-task-creation.md écrite (cadrage Rémi : création INLINE dans la
+  section). Composant unique InlineAddTask (peau ghost, pas de select dans la ligne), défauts
+  intelligents (section courante, size null, source user, kind task), team par défaut = filtre solo
+  sinon engineering (éditable ensuite au panneau), rafale Entrée/Échap avec refocus isConnected,
+  réutilise addTask (zéro logique disque neuve). Découpage en 8 tâches chaînées. Ancrée aux fichiers
+  réels (Backlog/SectionAccordion/MiniZone/ui.tsx/TaskPanel).
+verification: >-
+  Spec relue intégralement (202 l.) — complète, non tronquée, exacte sur le code existant (numéros
+  de ligne vérifiés). Livrable éditorial. Point ouvert à trancher : backlog plat regroupé par
+  section (une ligne inline par bloc) vs ligne unique sur section par défaut.
 release: null

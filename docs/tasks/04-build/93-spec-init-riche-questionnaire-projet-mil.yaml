@@ -3,7 +3,7 @@ code: null
 title: >-
   Spec — init riche : questionnaire projet, milestones, 1ère vague de tickets, migration des docs
   existants, CLAUDE.md
-status: todo
+status: done
 tags:
   - spec
   - open-source
@@ -29,8 +29,19 @@ dependsOn: []
 milestone: null
 source: ai
 createdAt: "2026-07-08T09:27:46"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: b953bea
+outcome: >-
+  Spec docs/specs/2026-07-08-init-onboarding.md écrite (cadrage : init complète + migration auto).
+  Diagnostic des 3 manques de setup.md actuel (pas de questionnaire, migration floue, aucun
+  CLAUDE.md). Spécifie : déroulé conversationnel du questionnaire (nature/teams/jalons),
+  transformation réponses→milestones+1ère vague de tickets, heuristique DÉTERMINISTE de migration
+  des docs existants (globs de détection ROADMAP/TODO/specs, règles de parsing, tables de mapping
+  stage/team, câblage dependsOn), contenu du CLAUDE.md généré, et articulation avec #12 (install) et
+  #122 (ouverture auto). Plan d'exécution net car implémentation prévue sur subagent Fable 5 (tag
+  fable).
+verification: >-
+  Spec relue (287 l.), complète, ancrée à references/setup.md et formats.md. Reste : implémentation
+  à confier à Fable 5. Dépendance : la frontière install/init suppose #12 tranché (éviter la
+  double-écriture de config).
 release: null
