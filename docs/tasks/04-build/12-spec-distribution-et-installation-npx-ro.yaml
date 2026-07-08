@@ -10,7 +10,9 @@ team: engineering
 detail: >-
   Brainstorm avec Rémi sur le mécanisme d'installation dans un repo hôte, différé depuis la phase 4
   de la spec V2. Trancher : paquet npm « roadmaped » avec un bin init qui copie dashboard + scripts
-  + skill dans le repo hôte ? template GitHub ? simple git clone documenté ? Couvrir : emplacement
+  + skill dans le repo hôte ? template GitHub ? simple git clone documenté ? Candidat proposé par
+  Rémi : on n'installe QUE le skill, et le skill lui-même pose Roadmapped dans le repo lors de
+  l'init (skill-driven install) — à évaluer face aux autres options. Couvrir : emplacement
   d'installation (dossier roadmaped/ vs racine), génération de roadmaped.config.json, copie du skill
   vers .claude/skills/roadmaped/ du repo hôte, stratégie de mise à jour (upgrade sans écraser les
   données), et l'impact sur les chemins du CLI documentés dans le skill. Livrable :
@@ -27,5 +29,6 @@ source: user
 createdAt: "2026-07-07"
 completedAt: null
 commit: null
+outcome: null
 verification: null
 release: null

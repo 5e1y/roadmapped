@@ -1,0 +1,29 @@
+id: 123
+code: null
+title: >-
+  Valider Roadmapped dans un repo hôte réel où le code vit hors du dossier tasks (usage final ≠
+  self-hosting)
+status: todo
+tags:
+  - correctness
+  - onboarding
+size: M
+team: engineering
+detail: >-
+  Aujourd'hui on ne dogfood QUE le repo de Roadmapped sur lui-même : app + CLI + docs/tasks/ à la
+  racine. L'usage final est différent — un repo hôte avec SON code, où Roadmapped n'est qu'un
+  sous-ensemble (dossier tasks + config + skill). Vérifier de bout en bout dans un repo tiers : CLI
+  (ROOT/tasksDir configuré), guard (relRoot déjà géré ?), dashboard (chemins docs/assets), audit
+  commit↔tâche, hook pre-commit, sitrep. Lister les hypothèses « repo == racine » qui cassent,
+  corriger. Findings → tâches de fix. Indépendant, testable maintenant.
+refs: []
+links: []
+dependsOn: []
+milestone: null
+source: ai
+createdAt: "2026-07-08T09:28:13"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

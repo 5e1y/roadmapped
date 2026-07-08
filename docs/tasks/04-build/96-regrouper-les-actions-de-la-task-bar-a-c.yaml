@@ -1,0 +1,24 @@
+id: 124
+code: null
+title: Regrouper les actions de la task bar à côté de « Démarrer »
+status: todo
+tags:
+  - ux
+  - panel
+size: M
+team: design
+detail: >-
+  Rassembler les actions d'une tâche (démarrer, terminer, archiver, supprimer, copier…) en fin de
+  barre d'action, à côté de « Démarrer », au lieu d'être dispersées. Vérifier le recoupement avec
+  #28 (Panneau v2 — SectionPanel aligné) avant d'exécuter.
+refs: []
+links: []
+dependsOn: []
+milestone: null
+source: ai
+createdAt: "2026-07-08T09:28:18"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
