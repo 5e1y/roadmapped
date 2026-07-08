@@ -112,10 +112,12 @@ export function NotepadView() {
     <div className="flex h-full flex-col bg-white">
       <ViewHeader meta={slug ?? undefined} />
 
+      {/* Bandeau d'avertissement en registre monochrome (modèle ErrorBanner, design.md §3.6) —
+          l'ambre était la seule couleur hors palette du dashboard. */}
       {!warned && (
-        <div className="flex items-center justify-between gap-3 border-b border-amber-200 bg-amber-50 px-4 py-1.5 text-xs text-amber-800">
+        <div className="flex items-center justify-between gap-3 border-b border-neutral-200 bg-neutral-50 px-4 py-1.5 text-xs text-neutral-800">
           <span>Notes locales, non versionnées, non sauvegardées par git (docs/notes/).</span>
-          <button type="button" onClick={dismissWarning} className="shrink-0 text-amber-600 hover:text-amber-900">OK</button>
+          <button type="button" onClick={dismissWarning} className="shrink-0 font-medium text-neutral-900 hover:text-neutral-700">OK</button>
         </div>
       )}
 
@@ -143,7 +145,7 @@ export function NotepadView() {
                 <span className="shrink-0 font-mono text-[10px] text-neutral-400">{relDate(n.modified)}</span>
                 <button
                   type="button" onClick={() => removeNote(n.slug)} title="Supprimer la note"
-                  className="shrink-0 text-neutral-300 opacity-0 hover:text-red-600 group-hover:opacity-100"
+                  className="shrink-0 text-neutral-300 opacity-0 hover:text-neutral-700 group-hover:opacity-100"
                 >✕</button>
               </div>
             ))}

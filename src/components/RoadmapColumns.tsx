@@ -67,8 +67,9 @@ function TaskCard({ task, state, missing }: { task: TaskNode; state: Availabilit
       {subs && (
         <span className="font-mono text-[11px] text-neutral-400">{subs.done}/{subs.total} sous-tâches</span>
       )}
-      {/* Badge team (le QUI) — abrégé, coin bas droit de la carte. */}
-      <span className="absolute bottom-1.5 right-2 text-[10px] text-neutral-300">{TEAM_ABBR[task.team]}</span>
+      {/* Badge team (le QUI) — abrégé, coin bas droit de la carte. Même donnée
+          = même rendu que le Backlog : Chip (design.md §2). */}
+      <span className="absolute bottom-1.5 right-2"><Chip label={TEAM_ABBR[task.team]} /></span>
     </button>
   )
 }

@@ -1,7 +1,7 @@
 id: 112
 code: null
 title: Renommage 2 — skill roadmaped → roadmapped + resync installation
-status: todo
+status: done
 tags:
   - marketing
   - rename
@@ -24,8 +24,14 @@ dependsOn:
 milestone: null
 source: user
 createdAt: "2026-07-08T01:57:06"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: 7f48efa
+outcome: >-
+  git mv skills/roadmaped → skills/roadmapped, frontmatter name: roadmapped, occurrences renommées
+  dans SKILL.md + les 4 references ; ancienne installation ~/.claude/skills/roadmaped supprimée,
+  ~/.claude/skills/roadmapped installée (copie du repo)
+verification: >-
+  grep roadmaped dans skills/ → zéro hit ; frontmatter relu name: roadmapped ; diff -r repo vs
+  installé vide ; le skill « roadmapped » apparaîtra au prochain /reload-skills (l'ancien nom
+  disparu du disque)
 release: null
