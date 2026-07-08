@@ -70,3 +70,10 @@ export function useTree(): TreeState {
 export function useOptionalTree(): TaskTree | null {
   return useContext(TreeContext)?.tree ?? null
 }
+
+/** Variante non-jetante COMPLÈTE (tree + reload) — pour les feuilles qui
+    écrivent (renommage d'epic, #140) tout en restant montables hors provider
+    dans les tests : null hors provider. */
+export function useOptionalTreeState(): TreeState | null {
+  return useContext(TreeContext)
+}

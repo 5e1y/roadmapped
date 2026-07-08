@@ -3,7 +3,7 @@ import { Plus } from 'trinil-react'
 import { TaskRow } from './TaskRow'
 import { Chip } from './Chip'
 import { StatusGlyph } from './glyphs'
-import { EpicRow, groupByEpic, type EpicListItem } from './EpicRow'
+import { EpicRow, splitBacklogItems, type EpicListItem } from './EpicRow'
 import { ErrorBanner, GhostInput, Select, type SelectItem } from './ui'
 import { usePanel } from '../state/PanelContext'
 import { allEpics, epicProgress } from '../lib/roadmap'
@@ -36,8 +36,9 @@ function ListItemRow({ item, tree }: { item: EpicListItem; tree: TaskTree }) {
  *
  * Epics (#135) : les tâches portant un epic ne sont PLUS à plat — elles vivent
  * dans une ligne-groupe repliée par défaut (EpicRow), ancrée à la position de
- * sa première membre. Un epic à cheval sur les deux listes apparaît dans
- * chacune avec ses membres locaux et sa complétion GLOBALE.
+ * sa première membre. Dé-dup (#140-B) : un epic ne vit que d'UN côté — côté
+ * « À faire » tant qu'il n'est pas 100 % terminé (ses tâches done sont rendues
+ * DANS le groupe), côté « Terminées » seulement quand tout est bouclé.
  */
 export function TaskList({ open, done, tree, filtered }: {
   open: TaskNode[]
@@ -48,9 +49,14 @@ export function TaskList({ open, done, tree, filtered }: {
 }) {
   const [showAll, setShowAll] = useState(false)
   const epics = allEpics(tree)
+  // Complétion GLOBALE (epicProgress, sous-tâches comprises) : c'est elle qui
+  // décide du côté, pas le sous-ensemble filtré affiché.
+  const isComplete = (slug: string) => {
+    const p = epicProgress(tree, slug)
+    return p.total > 0 && p.done === p.total
+  }
   // Le seuil « voir plus » compte des LIGNES (un epic replié = une ligne).
-  const openItems = groupByEpic(open, epics)
-  const doneItems = groupByEpic(done, epics)
+  const { open: openItems, done: doneItems } = splitBacklogItems(open, done, epics, isComplete)
   const visible = showAll ? openItems : openItems.slice(0, PREVIEW)
   const hidden = openItems.length - visible.length
   const keyOf = (i: EpicListItem) => (i.type === 'epic' ? `epic:${i.slug}` : `task:${i.task.id}`)

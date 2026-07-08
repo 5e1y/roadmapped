@@ -1,7 +1,10 @@
+import { useState } from 'react'
 import { Collapsible } from '@base-ui/react/collapsible'
 import { Chevron, EpicGlyph } from './glyphs'
 import { TaskRow } from './TaskRow'
+import { ErrorBanner, GhostInput, blurOnEnter } from './ui'
 import { usePersistentStringFlag } from '../state/uiPersist'
+import { useOptionalTreeState } from '../state/TreeContext'
 import type { TaskNode, Epic } from '../lib/tasks'
 
 /**
@@ -11,6 +14,11 @@ import type { TaskNode, Epic } from '../lib/tasks'
  * membres, indentés comme les sous-tâches d'une TaskRow. Les tâches sans epic
  * restent des lignes normales au même niveau. Remplace le toggle « par epic »
  * (#133, rendu à plat rejeté).
+ *
+ * Dé-duplication (#140) : un epic n'apparaît qu'UNE fois par vue — côté ouvert
+ * tant qu'il n'est pas 100 % terminé (ses membres done vivent DANS le groupe),
+ * côté « Terminées » seulement quand tout est bouclé (splitBacklogItems) ; en
+ * Roadmap, dans UN seul stage (epicAnchorStage + groupByEpicAnchored).
  */
 
 /** Item d'une liste mixte : tâche à plat OU groupe-epic portant ses membres. */
@@ -48,6 +56,91 @@ export function groupByEpic(tasks: TaskNode[], epics: Epic[]): EpicListItem[] {
 }
 
 /**
+ * Dé-dup du Backlog (#140-B) : un epic ne vit que d'UN côté.
+ * - ≥ 1 tâche non-done (globalement, `isComplete`) → il vit côté OUVERT, avec
+ *   TOUTES ses tâches dedans (les done du contexte y sont absorbées, rendues
+ *   comme done dans le groupe) — jamais répété côté « Terminées ».
+ * - 100 % done → il ne vit que côté « Terminées ».
+ * Cas filtre : si un epic incomplet n'a QUE des done visibles (recherche/team),
+ * son groupe est ajouté en fin de liste ouverte — jamais côté terminé.
+ */
+export function splitBacklogItems(
+  open: TaskNode[],
+  done: TaskNode[],
+  epics: Epic[],
+  isComplete: (slug: string) => boolean,
+): { open: EpicListItem[]; done: EpicListItem[] } {
+  const titleOf = new Map(epics.map((e) => [e.slug, e.title]))
+  // Membres done des epics INCOMPLETS : à absorber côté ouvert.
+  const doneOf = new Map<string, TaskNode[]>()
+  for (const t of done) {
+    if (t.epic === null || isComplete(t.epic)) continue
+    const arr = doneOf.get(t.epic)
+    if (arr) arr.push(t)
+    else doneOf.set(t.epic, [t])
+  }
+  const openItems = groupByEpic(open, epics)
+  for (const item of openItems) {
+    if (item.type !== 'epic') continue
+    const extra = doneOf.get(item.slug)
+    if (extra) {
+      item.tasks = [...item.tasks, ...extra]
+      doneOf.delete(item.slug)
+    }
+  }
+  // Epics incomplets sans membre ouvert VISIBLE (filtres) : groupe en queue.
+  for (const [slug, tasks] of doneOf) {
+    openItems.push({ type: 'epic', slug, title: titleOf.get(slug) ?? slug, tasks })
+  }
+  const doneItems = groupByEpic(done.filter((t) => t.epic === null || isComplete(t.epic)), epics)
+  return { open: openItems, done: doneItems }
+}
+
+/**
+ * Stage d'ANCRAGE d'un epic (#140-B, Roadmap) : le stage (clé `NN-slug`) de son
+ * ticket NON TERMINÉ le plus AMONT (index NN le plus petit — une tâche Build
+ * ancre avant une tâche Launch) ; un epic 100 % done est ancré au stage de son
+ * dernier ticket (index le plus grand : là où il s'est terminé). Null sans membre.
+ */
+export function epicAnchorStage(members: Array<{ stage: string; task: TaskNode }>): string | null {
+  if (members.length === 0) return null
+  const idx = (s: string) => parseInt(s, 10) || 0
+  const notDone = members.filter((m) => m.task.status !== 'done')
+  if (notDone.length > 0) {
+    return notDone.reduce((a, b) => (idx(b.stage) < idx(a.stage) ? b : a)).stage
+  }
+  return members.reduce((a, b) => (idx(b.stage) >= idx(a.stage) ? b : a)).stage
+}
+
+/**
+ * Regroupement ANCRÉ (#140-B, colonnes de stage) : dans une liste donnée, seuls
+ * les epics `anchoredHere` produisent un groupe — à la position de leur première
+ * membre locale, avec les membres COMPLETS fournis par `membersOf` (même ceux
+ * d'autres stages). Les membres d'un epic ancré AILLEURS sont omis (ils sont
+ * rendus dans la colonne d'ancrage) ; les tâches sans epic restent à plat.
+ */
+export function groupByEpicAnchored(
+  tasks: TaskNode[],
+  epics: Epic[],
+  anchoredHere: (slug: string) => boolean,
+  membersOf: (slug: string) => TaskNode[],
+): EpicListItem[] {
+  const titleOf = new Map(epics.map((e) => [e.slug, e.title]))
+  const seen = new Set<string>()
+  const items: EpicListItem[] = []
+  for (const t of tasks) {
+    if (t.epic === null) {
+      items.push({ type: 'task', task: t })
+      continue
+    }
+    if (!anchoredHere(t.epic) || seen.has(t.epic)) continue
+    seen.add(t.epic)
+    items.push({ type: 'epic', slug: t.epic, title: titleOf.get(t.epic) ?? t.epic, tasks: membersOf(t.epic) })
+  }
+  return items
+}
+
+/**
  * État d'encre du groupe, même langage que StatusGlyph : plein = tout terminé,
  * demi accent = entamé (au moins une done OU une membre in_progress), vide sinon.
  * La progression est GLOBALE (epicProgress) même si la liste locale est partielle.
@@ -62,12 +155,85 @@ export function epicStatusOf(progress: { done: number; total: number }, tasks: T
 const plural = (n: number, s: string) => `${n} ${s}${n === 1 ? '' : 's'}`
 
 /**
+ * Titre d'epic ÉDITABLE (#140-A) : input ghost permanent (jamais de swap
+ * lecture→input, décision Rémi) camouflé en texte — hover gris, focus bordure.
+ * Au blur/Entrée, si le titre a changé, upsert {slug, title} dans _epics.yaml
+ * via PUT /api/epics (réécriture complète : les déclarés existants + celui-ci) —
+ * un epic découvert (titre = slug) qu'on renomme devient déclaré. Le slug
+ * (identité portée par les tâches) ne change JAMAIS ici. Non contrôlé
+ * (defaultValue) : le reload remonte l'input via key={title} au niveau parent.
+ */
+function EpicTitleInput({ slug, title, onError }: {
+  slug: string
+  title: string
+  onError: (msg: string | null) => void
+}) {
+  const treeState = useOptionalTreeState()
+  // Largeur au contenu (ch) : le nom seul est la zone d'édition, le reste de
+  // la ligne reste le trigger du dépliage.
+  const [len, setLen] = useState(title.length)
+  const [busy, setBusy] = useState(false)
+
+  const save = async (el: HTMLInputElement) => {
+    const next = el.value.trim()
+    const revert = () => { el.value = title; setLen(title.length) }
+    if (next === '' ) { revert(); return }
+    if (next === title || treeState === null) return
+    setBusy(true)
+    onError(null)
+    try {
+      const declared = treeState.tree?.epics ?? []
+      const upserted = declared.some((e) => e.slug === slug)
+        ? declared.map((e) => (e.slug === slug ? { slug, title: next } : e))
+        : [...declared, { slug, title: next }]
+      const r = await fetch('/api/epics', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ epics: upserted }),
+      })
+      const data = (await r.json()) as { ok: boolean; errors?: string[] }
+      if (data.ok) await treeState.reload()
+      else { revert(); onError((data.errors ?? ['Erreur inconnue.']).join(' · ')) }
+    } catch {
+      revert()
+      onError('Échec réseau — le nom de l’epic n’a pas été enregistré.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    // relative : peint AU-DESSUS du trigger plein-rang (positionné) — le clic
+    // sur le nom édite, le clic partout ailleurs déplie.
+    <span className="relative min-w-0" style={{ width: `calc(${Math.max(len, 2)}ch + 1.25rem)` }}>
+      <GhostInput
+        key={title}
+        defaultValue={title}
+        aria-label={`Renommer l'epic ${slug}`}
+        title="Renommer l'epic (le slug ne change pas)"
+        disabled={busy}
+        onChange={(e) => setLen(e.target.value.length)}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') { e.currentTarget.value = title; setLen(title.length); e.currentTarget.blur(); return }
+          blurOnEnter(e)
+        }}
+        onBlur={(e) => void save(e.currentTarget)}
+        className="truncate py-0.5 text-sm font-medium"
+      />
+    </span>
+  )
+}
+
+/**
  * Ligne-groupe d'un epic dans une liste de type Backlog. Anatomie d'une
  * TaskRow (px-4, text-sm, hover neutral-50) mais lue UN CRAN parente :
  * chevron TOUJOURS présent, carré EpicGlyph, titre en font-medium, compte de
  * tâches, complétion done/total en mono (registre du badge sous-tâches).
- * Toute la ligne est LE trigger (aria-expanded via Base UI) ; repliée par
- * défaut, l'ouverture est persistée par slug (`persistKey`).
+ * Le trigger (aria-expanded via Base UI) est un calque plein-rang : toute la
+ * ligne déplie SAUF le nom, input ghost posé au-dessus qui renomme (#140-A).
+ * Repliée par défaut, l'ouverture est persistée par slug (`persistKey`).
+ * La ligne est `relative` : ancre du trigger ET des spans absolus (sr-only) —
+ * sans ça ils s'échappent du scroller et gonflent le scroll de la page (#141).
  */
 export function EpicRow({ slug, title, tasks, progress, persistKey }: {
   slug: string
@@ -79,22 +245,30 @@ export function EpicRow({ slug, title, tasks, progress, persistKey }: {
   persistKey: string
 }) {
   const [open, setOpen] = usePersistentStringFlag(persistKey, slug)
+  const [renameError, setRenameError] = useState<string | null>(null)
   const partial = tasks.length < progress.total
+  // Compte LOCAL (ce que ce dépliage révèle) — « ici » quand l'epic a aussi des
+  // tâches ailleurs (autre liste, autre stage).
+  const countLabel = `${plural(tasks.length, 'tâche')}${partial ? ' ici' : ''}`
   return (
     <Collapsible.Root open={open} onOpenChange={setOpen}>
-      <Collapsible.Trigger
-        className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm hover:bg-neutral-50"
-        title={title}
+      {/* data-panel-open reproduit l'attribut Base UI (posé sur le trigger) sur
+          la LIGNE pour que la rotation .chev (index.css) s'applique — le
+          chevron ne vit plus dans le trigger. */}
+      <div
+        data-panel-open={open ? '' : undefined}
+        className="relative flex w-full items-center gap-2 px-4 py-[5px] text-sm hover:bg-neutral-50"
       >
+        <Collapsible.Trigger
+          aria-label={`${title} — ${countLabel}, ${progress.done} sur ${progress.total} tâches terminées`}
+          className="absolute inset-0 h-full w-full"
+        />
         <Chevron />
         <EpicGlyph status={epicStatusOf(progress, tasks)} />
-        <span className="min-w-0 truncate font-medium text-neutral-900">{title}</span>
-        {/* Compte LOCAL (ce que ce dépliage révèle) — « ici » quand l'epic a
-            aussi des tâches ailleurs (autre liste, autre stage). */}
-        <span className="shrink-0 text-[11px] text-neutral-500">
-          {plural(tasks.length, 'tâche')}{partial ? ' ici' : ''}
-        </span>
-        <span className="ml-auto flex shrink-0 items-center gap-1.5">
+        <EpicTitleInput slug={slug} title={title} onError={setRenameError} />
+        {/* aria-hidden : la même info vit dans le nom accessible du trigger. */}
+        <span aria-hidden className="shrink-0 text-[11px] text-neutral-500">{countLabel}</span>
+        <span aria-hidden className="ml-auto flex shrink-0 items-center gap-1.5">
           <EpicProgressBar done={progress.done} total={progress.total} />
           <span
             className="font-mono text-[11px] text-neutral-500"
@@ -102,9 +276,13 @@ export function EpicRow({ slug, title, tasks, progress, persistKey }: {
           >
             {progress.done}/{progress.total}
           </span>
-          <span className="sr-only">, {progress.done} sur {progress.total} tâches terminées</span>
         </span>
-      </Collapsible.Trigger>
+      </div>
+      {renameError && (
+        <div className="px-4 py-1.5">
+          <ErrorBanner errors={[renameError]} />
+        </div>
+      )}
       <Collapsible.Panel>
         {/* Même langage d'imbrication que les sous-tâches d'une TaskRow. */}
         <div className="ml-9 divide-y divide-neutral-100 border-l border-neutral-200">
