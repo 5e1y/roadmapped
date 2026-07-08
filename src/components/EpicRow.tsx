@@ -163,10 +163,12 @@ const plural = (n: number, s: string) => `${n} ${s}${n === 1 ? '' : 's'}`
  * (identité portée par les tâches) ne change JAMAIS ici. Non contrôlé
  * (defaultValue) : le reload remonte l'input via key={title} au niveau parent.
  */
-function EpicTitleInput({ slug, title, onError }: {
+function EpicTitleInput({ slug, title, onError, done = false }: {
   slug: string
   title: string
   onError: (msg: string | null) => void
+  /** Epic 100 % terminé → titre barré + grisé (#151). */
+  done?: boolean
 }) {
   const treeState = useOptionalTreeState()
   // Largeur au contenu (ch) : le nom seul est la zone d'édition, le reste de
@@ -218,7 +220,7 @@ function EpicTitleInput({ slug, title, onError }: {
           blurOnEnter(e)
         }}
         onBlur={(e) => void save(e.currentTarget)}
-        className="truncate py-0.5 text-sm font-medium"
+        className={`truncate py-0.5 text-sm font-medium ${done ? 'text-neutral-500 line-through' : ''}`}
       />
     </span>
   )
@@ -250,6 +252,9 @@ export function EpicRow({ slug, title, tasks, progress, persistKey }: {
   // Compte LOCAL (ce que ce dépliage révèle) — « ici » quand l'epic a aussi des
   // tâches ailleurs (autre liste, autre stage).
   const countLabel = `${plural(tasks.length, 'tâche')}${partial ? ' ici' : ''}`
+  // Epic 100 % terminé (#151) : titre barré + grisé comme une tâche done, sinon
+  // confusion visuelle avec les epics à faire / en cours.
+  const status = epicStatusOf(progress, tasks)
   return (
     <Collapsible.Root open={open} onOpenChange={setOpen}>
       {/* data-panel-open reproduit l'attribut Base UI (posé sur le trigger) sur
@@ -264,8 +269,8 @@ export function EpicRow({ slug, title, tasks, progress, persistKey }: {
           className="absolute inset-0 h-full w-full"
         />
         <Chevron />
-        <EpicGlyph status={epicStatusOf(progress, tasks)} />
-        <EpicTitleInput slug={slug} title={title} onError={setRenameError} />
+        <EpicGlyph status={status} />
+        <EpicTitleInput slug={slug} title={title} onError={setRenameError} done={status === 'done'} />
         {/* aria-hidden : la même info vit dans le nom accessible du trigger. */}
         <span aria-hidden className="shrink-0 text-[11px] text-neutral-500">{countLabel}</span>
         <span aria-hidden className="ml-auto flex shrink-0 items-center gap-1.5">
