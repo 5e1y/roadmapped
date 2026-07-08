@@ -35,7 +35,11 @@
     "skills",
     "index.html",
     "vite.config.ts",
-    "tsconfig.json"
+    "tsconfig.json",
+    "!**/*.test.ts",
+    "!**/*.test.tsx",
+    "!**/*.test.mjs",
+    "!src/lib/stageFixtures.ts"
   ],
   "engines": {
     "node": ">=22.18"
