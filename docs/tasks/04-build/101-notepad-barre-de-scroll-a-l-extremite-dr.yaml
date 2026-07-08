@@ -2,7 +2,7 @@ id: 129
 kind: quick
 code: null
 title: "Notepad : barre de scroll à l'extrémité droite de l'écran (actuellement collée au texte)"
-status: todo
+status: done
 tags:
   - ux
 size: null
@@ -14,8 +14,14 @@ dependsOn: []
 milestone: null
 source: ai
 createdAt: "2026-07-08T09:28:38"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: 22baf9f
+outcome: >-
+  NotepadView : le conteneur scrollable de l'éditeur passe pleine largeur (barre de défilement au
+  bord droit de l'écran) ; le texte reste borné à 48rem et centré via un padding horizontal
+  px-[max(1.5rem,calc((100%-48rem)/2))] au lieu d'un max-width sur l'élément qui scrolle. Footer
+  compteur aligné pareil. Focus, saisie, autosave et typo inchangés. Un seul fichier touché.
+verification: >-
+  tsc clean, 233 tests verts, app boote (HTTP 200). Position de la scrollbar — à valider à l'œil par
+  Rémi.
 release: null
