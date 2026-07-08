@@ -3,7 +3,7 @@ code: null
 title: >-
   Epic UX raffiné : éditer le nom d'un epic + dé-dupliquer l'affichage (état ouvert unique jusqu'à
   complétion ; stage ancré au ticket non-terminé le plus amont, pas par colonne)
-status: in_progress
+status: done
 tags:
   - ux
   - fable
@@ -13,12 +13,29 @@ detail: null
 refs: []
 links: []
 dependsOn: []
-epic: hierarchie-regroupement
+milestone: null
 source: ai
 createdAt: "2026-07-08T12:26:54"
-startedAt: "2026-07-08T12:29:45"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: 6fb8c04
+outcome: >-
+  Epic UX raffiné (Fable). (A) RENOMMAGE : le titre de l'epic-row du Backlog est un input ghost
+  permanent (clic sur le nom = éditer, clic ailleurs = déplier) ; blur/Entrée upsert {slug,title}
+  dans _epics.yaml via le PUT /api/epics existant (saveEpics) — le SLUG (porté par les tâches) ne
+  change jamais, un epic découvert devient déclaré, fichier créé au 1er renommage, Échap annule,
+  erreur réseau → revert+ErrorBanner. Zéro back touché. Renommage dans le Backlog seul
+  (Colonnes/Graphe affichent le titre à jour sans l'éditer). (B) DÉ-DUPLICATION (helpers purs
+  testés) : splitBacklogItems → un epic non-100%-done vit UNIQUEMENT côté « À faire » (ses tâches
+  done absorbées/barrées dans le groupe), 100% done → uniquement « Terminées », jamais les deux ;
+  epicAnchorStage → stage du ticket non-terminé le plus AMONT (index STAGES min ; 100% done →
+  dernier ticket) ; groupByEpicAnchored → un epic ne produit un groupe que dans sa colonne
+  d'ancrage, membres cross-stage inclus, omis des autres colonnes. Appliqué Backlog + Roadmap
+  Colonnes + Graphe.
+verification: >-
+  tsc clean ; 290 tests (9 nouveaux : splitBacklogItems×3, epicAnchorStage×3, groupByEpicAnchored×2
+  + EpicRow adaptés) ; build OK ; boot HTTP 200. QA visuel sur captures (vraies données) : colonnes
+  → chaque epic une seule fois ancré à Build, zéro doublon inter-colonnes (after-04) ; renommage → «
+  hierarchie-regroupement » devient « Hiérarchie & regroupement », persisté _epics.yaml + propagé
+  Roadmap, slug intact, Échap n'écrit rien (after-10) ; dé-dup open∩done et scroll confirmés
+  headless par Fable. _epics.yaml de test supprimé (docs/tasks intact).
 release: null
