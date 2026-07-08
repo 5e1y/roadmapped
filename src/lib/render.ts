@@ -154,6 +154,27 @@ export function auditText(audit: CommitAudit[] | null): string {
   return lines.join('\n')
 }
 
+/**
+ * Passe-partout « in_progress éternelle » (#105) : si AUCUNE in_progress fraîche ne couvre
+ * le commit — toutes ≥ thresholdDays d'âge — retourne ces tâches anciennes (id/titre/âge)
+ * pour alerte guard ; [] si une fraîche existe ou aucune in_progress.
+ * ponytail: âge = proxy createdAt (pas de startedAt, dette #82) — upgrade quand startedAt existe.
+ */
+export function stalePassepartout(
+  tree: TaskTree,
+  todayIso: string,
+  thresholdDays = 7,
+): { id: number; title: string; ageDays: number }[] {
+  const inProgress = activeTasks(tree).filter((t) => t.status === 'in_progress')
+  if (inProgress.length === 0) return []
+  const aged = inProgress.map((t) => ({
+    id: t.id,
+    title: t.title,
+    ageDays: Math.floor((Date.parse(todayIso) - Date.parse(t.createdAt.slice(0, 10))) / 86_400_000),
+  }))
+  return aged.some((a) => a.ageDays < thresholdDays) ? [] : aged
+}
+
 export function sitrepText(tree: TaskTree, errors: string[], unlogged?: UnloggedCommits | null): string {
   const active = activeTasks(tree)
   const today = todayStr()

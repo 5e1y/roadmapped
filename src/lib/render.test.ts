@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { taskLine, refLine, sitrepText, auditText } from './render'
+import { taskLine, refLine, sitrepText, auditText, stalePassepartout } from './render'
 import type { CommitAudit } from './render'
 import type { TaskTree, TaskNode, SectionNode } from './tasks'
 
@@ -59,6 +59,27 @@ describe('sitrepText', () => {
     expect(sitrepText(tree([task(1, { status: 'in_progress' })]), [], { count: 3, sinceId: 42 })).not.toMatch(/non consigné/)
     expect(sitrepText(tree([task(1)]), [], null)).not.toMatch(/non consigné/)
     expect(sitrepText(tree([task(1)]), [], { count: 0, sinceId: 42 })).not.toMatch(/non consigné/)
+  })
+})
+
+describe('stalePassepartout (#105)', () => {
+  const today = '2026-07-08'
+  it('aucune in_progress → []', () => {
+    expect(stalePassepartout(tree([task(1)]), today)).toEqual([])
+  })
+  it('une in_progress fraîche → [] (couverture légitime)', () => {
+    expect(stalePassepartout(tree([task(1, { status: 'in_progress', createdAt: today })]), today)).toEqual([])
+  })
+  it('une in_progress ancienne (≥7j) → signalée avec âge', () => {
+    const out = stalePassepartout(tree([task(1, { status: 'in_progress', createdAt: '2026-06-01' })]), today)
+    expect(out).toEqual([{ id: 1, title: 'T1', ageDays: 37 }])
+  })
+  it('une fraîche couvre même si une ancienne traîne → []', () => {
+    const out = stalePassepartout(tree([
+      task(1, { status: 'in_progress', createdAt: '2026-06-01' }),
+      task(2, { status: 'in_progress', createdAt: today }),
+    ]), today)
+    expect(out).toEqual([])
   })
 })
 

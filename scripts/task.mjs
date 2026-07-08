@@ -23,7 +23,7 @@ import {
 } from '../src/lib/taskWrites.ts'
 import { computeAvailability, activeTasks, nextQueue } from '../src/lib/roadmap.ts'
 // Rendu partagé (#90) : CLI et serveur MCP consomment le MÊME code (src/lib/render.ts).
-import { git, taskLine, refLine, briefText, sitrepText, unloggedCommits, auditCommits, auditText } from '../src/lib/render.ts'
+import { git, taskLine, refLine, briefText, sitrepText, unloggedCommits, auditCommits, auditText, stalePassepartout, todayStr } from '../src/lib/render.ts'
 import { TEAMS } from '../src/lib/tasks.ts'
 
 const { tasksDir: ROOT } = loadPaths()
@@ -482,17 +482,32 @@ function cmdGuard(flags) {
     ? staged
     : staged.filter((f) => f !== relRoot && !f.startsWith(`${relRoot}/`))
   if (offenders.length === 0) return
-  if (activeTasks(readTree(ROOT)).some((t) => t.status === 'in_progress')) return
-  console.error(
-    [
-      '✋ guard : commit refusé — aucune tâche in_progress ne couvre ce travail.',
-      `Fichiers hors consignation : ${offenders.join(', ')}`,
-      'Le chemin rapide (~2 commandes), puis recommitte :',
-      '  node scripts/task.mjs quick "<titre>" --team <team> --start',
-      '(Échappatoire consciente : git commit --no-verify — la dérive restera visible au sitrep.)',
-    ].join('\n'),
-  )
-  process.exit(1)
+  const tree = readTree(ROOT)
+  const inProgress = activeTasks(tree).filter((t) => t.status === 'in_progress')
+  if (inProgress.length === 0) {
+    console.error(
+      [
+        '✋ guard : commit refusé — aucune tâche in_progress ne couvre ce travail.',
+        `Fichiers hors consignation : ${offenders.join(', ')}`,
+        'Le chemin rapide (~2 commandes), puis recommitte :',
+        '  node scripts/task.mjs quick "<titre>" --team <team> --start',
+        '(Échappatoire consciente : git commit --no-verify — la dérive restera visible au sitrep.)',
+      ].join('\n'),
+    )
+    process.exit(1)
+  }
+  // #105 : la couverture existe, mais si la SEULE in_progress est ancienne c'est le
+  // passe-partout « in_progress éternelle » — on nomme la tâche créditée (non bloquant).
+  const stale = stalePassepartout(tree, todayStr(), Number(process.env.ROADMAPED_GUARD_STALE_DAYS ?? 7))
+  if (stale.length) {
+    console.error(
+      [
+        '⚠ guard : commit crédité à une in_progress ancienne — passe-partout probable.',
+        `  ${stale.map((s) => `#${s.id} «${s.title}» (${s.ageDays}j)`).join(', ')}`,
+        '  Travail fini → done ; sinon un quick dédié. (Non bloquant — inutile de --no-verify.)',
+      ].join('\n'),
+    )
+  }
 }
 
 function cmdSitrep(flags) {
