@@ -23,7 +23,7 @@ refs:
   - src/lib/findTaskInTree.ts
 links: []
 dependsOn: []
-milestone: null
+epic: panneau-v2
 source: ai
 createdAt: "2026-07-07"
 completedAt: "2026-07-07"

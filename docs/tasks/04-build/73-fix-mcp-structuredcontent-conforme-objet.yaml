@@ -24,7 +24,7 @@ refs:
   - scripts/mcp-server.mjs
 links: []
 dependsOn: []
-milestone: null
+epic: mcp-server
 source: user
 createdAt: "2026-07-08T01:12:44"
 completedAt: "2026-07-08"

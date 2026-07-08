@@ -24,7 +24,7 @@ refs:
 links: []
 dependsOn:
   - 40
-milestone: null
+epic: stages-teams
 source: ai
 createdAt: "2026-07-07"
 completedAt: "2026-07-07"

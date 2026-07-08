@@ -25,7 +25,7 @@ refs:
   - src/components/SidePanel.tsx
 links: []
 dependsOn: []
-milestone: null
+epic: panneau-v2
 source: ai
 createdAt: "2026-07-07"
 completedAt: "2026-07-07"

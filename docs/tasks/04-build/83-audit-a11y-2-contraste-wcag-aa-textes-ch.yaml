@@ -23,7 +23,7 @@ refs:
   - src/components/ui.tsx
 links: []
 dependsOn: []
-milestone: null
+epic: a11y
 source: user
 createdAt: "2026-07-08T01:56:30"
 completedAt: "2026-07-08"

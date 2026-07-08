@@ -26,7 +26,7 @@ links:
   - 12
   - 14
 dependsOn: []
-milestone: null
+epic: distribution
 source: ai
 createdAt: "2026-07-08T09:27:46"
 completedAt: "2026-07-08"

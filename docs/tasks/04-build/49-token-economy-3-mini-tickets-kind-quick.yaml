@@ -25,7 +25,7 @@ refs:
 links: []
 dependsOn:
   - 65
-milestone: null
+epic: token-economy
 source: user
 createdAt: "2026-07-07"
 completedAt: "2026-07-07"

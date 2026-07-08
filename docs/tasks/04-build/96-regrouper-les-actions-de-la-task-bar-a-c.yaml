@@ -14,7 +14,7 @@ detail: >-
 refs: []
 links: []
 dependsOn: []
-milestone: null
+epic: polish-ui
 source: ai
 createdAt: "2026-07-08T09:28:18"
 completedAt: null

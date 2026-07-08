@@ -10,7 +10,7 @@ detail: null
 refs: []
 links: []
 dependsOn: []
-milestone: null
+epic: polish-ui
 source: ai
 createdAt: "2026-07-08T09:15:43"
 completedAt: "2026-07-08"
