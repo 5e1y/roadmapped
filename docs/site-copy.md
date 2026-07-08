@@ -1,7 +1,8 @@
 # Site copy — Roadmapped landing
 
-**Status: realized. Shipped as `site/index.html` (self-contained, mobile-first, SEO,
-OG image). This doc is the copy source of truth; the built page is the render.
+**Status: copy source of truth for the marketing site. The site itself lives in a
+separate repo (`roadmapped-site`, deployed via Cloudflare Pages) — this doc is the copy
+it renders, not a page in this repo.
 Language: EN. Voice: [docs/tone-of-voice.md](./tone-of-voice.md), applied to the letter.**
 
 Audience: solo founders and developers who run their work through an AI agent
