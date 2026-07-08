@@ -1,5 +1,6 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import type { TaskTree } from '../lib/tasks'
+import { diffTrees, type TreeDiff } from '../lib/treeDiff'
 
 export interface TreeState {
   tree: TaskTree | null
@@ -7,6 +8,9 @@ export interface TreeState {
   loading: boolean
   loadError: string | null
   reload: (opts?: { silent?: boolean }) => Promise<void>
+  /** Diff du dernier resync (#147, Live 2). `seq` monotone : change à chaque resync
+      porteur d'un diff non vide — les couches UX (console, toasts) réagissent dessus. */
+  lastChange: { seq: number; diff: TreeDiff } | null
 }
 
 const TreeContext = createContext<TreeState | null>(null)
@@ -16,6 +20,9 @@ export function TreeProvider({ children }: { children: ReactNode }) {
   const [errors, setErrors] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
+  const [lastChange, setLastChange] = useState<{ seq: number; diff: TreeDiff } | null>(null)
+  const prevTreeRef = useRef<TaskTree | null>(null)
+  const seqRef = useRef(0)
 
   const reload = useCallback(async (opts?: { silent?: boolean }) => {
     // Live reactivity (#147) : un resync live (SSE) est SILENCIEUX — pas de bascule
@@ -41,6 +48,17 @@ export function TreeProvider({ children }: { children: ReactNode }) {
         setLoadError('Réponse API invalide : tree manquant')
         return
       }
+      // Diff prev/next (#147, Live 2) : compare au dernier tree appliqué. Le montage
+      // initial (prev null) ne produit pas de diff — pas d'événements « au démarrage ».
+      const prev = prevTreeRef.current
+      if (prev) {
+        const diff = diffTrees(prev, data.tree)
+        if (diff.statusChanges.length || diff.appeared.length || diff.removed.length || diff.edited.length) {
+          seqRef.current += 1
+          setLastChange({ seq: seqRef.current, diff })
+        }
+      }
+      prevTreeRef.current = data.tree
       setTree(data.tree)
       setErrors(data.errors ?? [])
     } catch (e) {
@@ -66,7 +84,7 @@ export function TreeProvider({ children }: { children: ReactNode }) {
   }, [reload])
 
   return (
-    <TreeContext.Provider value={{ tree, errors, loading, loadError, reload }}>
+    <TreeContext.Provider value={{ tree, errors, loading, loadError, reload, lastChange }}>
       {children}
     </TreeContext.Provider>
   )
