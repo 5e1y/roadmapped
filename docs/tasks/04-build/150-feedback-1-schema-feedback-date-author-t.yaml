@@ -1,7 +1,7 @@
 id: 191
 code: null
 title: Feedback 1 — schéma feedback[] {date,author,text,resolved} + validation + migration
-status: todo
+status: done
 tags:
   - feedback
   - data-model
@@ -17,8 +17,16 @@ dependsOn: []
 epic: feedback-mode
 source: ai
 createdAt: "2026-07-09T00:24:07"
-completedAt: null
-commit: null
-outcome: null
+startedAt: "2026-07-09T00:48:26"
+updatedAt: "2026-07-09T00:51:09"
+completedAt: "2026-07-09"
+commit: ff1f048
+outcome: >-
+  Champ feedback[] {date,author,text,resolved} sur TaskNode (interface FeedbackItem ; optionnel →
+  zéro churn de tests, parse normalise en []). Validé dans validate.ts (chaque item : date au
+  format, text non vide, author string, resolved booléen). Dump ADDITIF (FIELD_ORDER après release ;
+  écrit seulement si non vide → aucun YAML sans retour ne prend feedback:[]). Vérif : test
+  round-trip (absent quand vide, un feedback survit à un update via le dump additif), tsc clean, 384
+  tests.
 verification: null
 release: null
