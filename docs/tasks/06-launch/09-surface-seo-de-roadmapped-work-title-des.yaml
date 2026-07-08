@@ -3,7 +3,7 @@ code: null
 title: >-
   Surface SEO de roadmapped.work : title/description/OG/Twitter/canonical + JSON-LD
   SoftwareApplication + robots.txt + sitemap.xml + llms.txt
-status: todo
+status: done
 tags:
   - seo
   - homepage
@@ -21,8 +21,13 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-08T18:03:11"
-completedAt: null
-commit: null
-outcome: null
+completedAt: "2026-07-08"
+commit: ea33888
+outcome: >-
+  Surface SEO : dans index.html — title ciblé, meta description, canonical, OG
+  (title/desc/url/image/dimensions), Twitter summary_large_image, JSON-LD SoftwareApplication
+  (license MIT, offer gratuit), theme-color, favicon SVG. Fichiers racine site/ : robots.txt (allow,
+  disallow /demo/, sitemap), sitemap.xml (home, lastmod 2026-07-08), llms.txt (résumé structuré
+  agent-first + key facts + liens). og:image pointe og-image.png (créé en #166).
 verification: null
 release: null
