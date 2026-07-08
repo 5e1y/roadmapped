@@ -1,7 +1,7 @@
 id: 185
 code: null
 title: "Live 1 — socle : file-watch (fs.watch natif) + SSE /api/events + resync TreeContext"
-status: todo
+status: done
 tags:
   - live
 size: null
@@ -16,8 +16,16 @@ dependsOn: []
 epic: live-reactivity
 source: ai
 createdAt: "2026-07-09T00:23:50"
-completedAt: null
-commit: null
-outcome: null
+startedAt: "2026-07-09T00:24:49"
+completedAt: "2026-07-09"
+commit: cc34b7e
+outcome: >-
+  Socle live opérationnel. Serveur (api.ts) : fs.watch récursif natif sur tasksDir+docsDir, débounce
+  80ms, endpoint SSE GET /api/events (clients enregistrés, keep-alive 25s, cleanup à la fermeture),
+  broadcast 'event: change' {paths}. Repli Linux non-récursif (sous-dossiers immédiats) noté en
+  ponytail. Client (TreeContext) : reload({silent}) sans bascule loading + abonnement EventSource →
+  resync silencieux ; gardes jsdom (pas d'EventSource) et démo (flag __ROADMAPPED_STATIC__ posé par
+  installDemoApi). Vérif LIVE : vite boot port 5188, curl -N /api/events → ': connected' puis
+  'event: change' au touch d'un YAML (1 event, salve coalescée). tsc clean, 373 tests.
 verification: null
 release: null
