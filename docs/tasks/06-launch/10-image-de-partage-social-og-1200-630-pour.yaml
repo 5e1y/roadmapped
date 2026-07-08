@@ -1,7 +1,7 @@
 id: 166
 code: null
 title: Image de partage social OG (1200×630) pour la landing et les posts
-status: todo
+status: done
 tags:
   - seo
   - design
@@ -17,8 +17,13 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-08T18:03:12"
-completedAt: null
-commit: null
-outcome: null
+completedAt: "2026-07-08"
+commit: f179dbe
+outcome: >-
+  site/og-image.png (1200×630) généré via headless Chrome depuis site/og-image.html (template
+  reproductible, versionné). Design DS : fond sombre #0e0e0e, wordmark+glyphe, accroche avec accent
+  bleu sur 'project management tool.', tagline (flat YAML · agent-first · no SaaS · MIT) + snippet
+  'npx roadmapped init', halo d'accent discret. Référencé par og:image/twitter:image de la landing.
+  Régénérer : chrome --headless=new --window-size=1200,630 --screenshot.
 verification: null
 release: null
