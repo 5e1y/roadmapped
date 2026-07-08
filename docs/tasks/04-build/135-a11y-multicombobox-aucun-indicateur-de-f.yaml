@@ -4,7 +4,7 @@ code: null
 title: >-
   a11y — MultiCombobox : aucun indicateur de focus à la frappe (focus: sur wrapper au lieu de
   focus-within), ui.tsx:584
-status: in_progress
+status: done
 tags:
   - a11y
 size: null
@@ -17,8 +17,13 @@ epic: null
 source: ai
 createdAt: "2026-07-08T18:27:46"
 startedAt: "2026-07-08T18:27:46"
-completedAt: null
-commit: null
-outcome: null
+completedAt: "2026-07-08"
+commit: 292bf10
+outcome: >-
+  MultiCombobox (ui.tsx:584) : ajout focus-within:border-neutral-900 focus-within:bg-white sur le
+  wrapper Combobox.Chips. Le focus: du fieldCls ne se déclenchait jamais (le wrapper n'est pas
+  focusable ; l'input interne a focus:outline-none) → aucun ring à la frappe. Miroir du pattern
+  éprouvé de TagsCombobox (focus-within). Vérif : tsc clean, 373 tests verts. NOTE: aussi remonté
+  ui.tsx:388 (tiret no-tags) neutral-400→500 dans le commit #175.
 verification: null
 release: null
