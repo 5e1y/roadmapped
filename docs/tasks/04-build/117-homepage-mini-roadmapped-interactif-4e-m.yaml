@@ -3,7 +3,7 @@ code: null
 title: >-
   Homepage : mini-Roadmapped interactif (4e mur) — flux fictif = les tickets qui ont construit la
   homepage
-status: in_progress
+status: done
 tags:
   - marketing
   - fable
@@ -28,8 +28,28 @@ epic: site
 source: ai
 createdAt: "2026-07-08T15:02:02"
 startedAt: "2026-07-08T15:02:21"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: 3a44ebd
+outcome: >-
+  Homepage mini-Roadmapped interactif poussé sur le repo site (5e1y/roadmapped-site, main 3a44ebd —
+  Cloudflare redéploie). Remplace la démo animée terminal par une miniature du vrai dashboard qui
+  affiche docs/tasks/05-site/ : les 7 tickets fictifs-mais-vrais qui ont construit la homepage
+  elle-même (#1 Spec the homepage demo → #2 Copy → #3 Columns view → #4 Dependency graph view → #5
+  Task panel on click → #6 Agent pane left → #7 Deploy to Cloudflare) — casse le 4e mur, chaque
+  record dans la voix (« you're looking at the deployment »). Volet agent gauche « claude — the
+  terminal next door » rejoue en boucle take→in_progress→done→deploy→« backlog empty. Suspiciously.
+  ». Toggle Columns/Graph (DAG 7 nœuds/9 arêtes codé en dur), panneau simplifié au clic. Vanilla,
+  zéro dep, zéro build, palette design.md (monochrome + accent, glyphes par forme ET couleur),
+  light+dark, responsive (mobile : graphe scrolle dans son conteneur, volet agent sous le board),
+  a11y, état final lisible sans JS. demo.js supprimé, dashboard.js ajouté. RESTE : placeholders
+  github.com/OWNER/roadmapped à remplacer avant lancement (#13, documenté README).
+verification: >-
+  QA visuel sur captures Fable (desktop light/dark colonnes+graphe+panneau, mobile, no-JS) :
+  mini-dashboard conforme, volet agent + boucle, toggle, panneau #7 (status done, depends_on
+  #2/#4/#6, record wrangler, commit) — confirmés. 17/17 checks headless Fable (toggle aria, clic
+  carte/nœud → panneau focus géré + Escape, sync statut avec la boucle, reduced-motion inerte,
+  mobile sans scroll-x de page, sans JS 7 cartes done + transcript lisibles, zéro erreur console).
+  grep : zéro ressource externe (hormis SVG-ns + roadmapped.work + placeholder GitHub). Push vérifié
+  (8cf2d9e..3a44ebd). Repo SÉPARÉ du repo outil. Rendu live à valider par Rémi après redéploiement
+  Cloudflare.
 release: null
