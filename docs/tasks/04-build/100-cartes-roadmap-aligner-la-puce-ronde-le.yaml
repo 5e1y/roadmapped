@@ -2,7 +2,7 @@ id: 128
 kind: quick
 code: null
 title: "Cartes roadmap : aligner la puce ronde, le # et la première ligne du titre"
-status: todo
+status: done
 tags:
   - ux
 size: null
@@ -14,8 +14,11 @@ dependsOn: []
 milestone: null
 source: ai
 createdAt: "2026-07-08T09:28:35"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: bda7b4a
+outcome: >-
+  RoadmapColumns : la puce (dans une boîte flex h-5 items-center), le #id (leading-5, fudge mt-px
+  retiré) et la première ligne du titre (text-sm, leading 20px) partagent désormais la même ligne de
+  base. items-start conservé (compatible line-clamp-2). Un seul fichier touché.
+verification: tsc clean, 233 tests verts, app boote (HTTP 200). Alignement visuel — à valider à l'œil par Rémi.
 release: null
