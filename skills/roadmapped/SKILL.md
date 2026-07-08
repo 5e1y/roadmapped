@@ -33,7 +33,7 @@ Un raccourci délibéré (plafond connu, upgrade path) se trace en `quick "<le p
 - `brief <id>` — contexte d'exécution dense (deps/liées titrées, refs + extraits d'ancre & drapeau de fraîcheur, rappel `done`).
 - `next [--count N] [--team t] [--json]` — la file de travail à CONSOMMER telle quelle.
 - `quick "<titre>" --team <t> [--stage s] [--tags a,b] [--start] [--json]` — mini-ticket, cérémonie minimale.
-- `add --section <stage> --title <t> --team <t> [--detail d] [--refs a,b] [--depends-on 1,2] [--json]` — créer une tâche.
+- `add --section <stage> --title <t> --team <t> [--detail d] [--refs a,b] [--depends-on 1,2] [--epic slug] [--kind task|quick|milestone] [--blocks 1,2] [--json]` — créer une tâche (`--epic` = regroupement transverse ; `--kind milestone` + `--blocks` = jalon qui verrouille les tâches citées via leurs dependsOn).
 - `start <id>` — todo → in_progress.
 - `done <id> [--commit sha] [--outcome o] [--verification v] [--release r] [--suggest-refs]` — consigner (commit auto=HEAD ; `--suggest-refs` propose les refs du diff, à confirmer).
 - `update <id> [--champ valeur ...]` — patch générique (`"null"` pour vider un champ).
@@ -41,7 +41,7 @@ Un raccourci délibéré (plafond connu, upgrade path) se trace en `quick "<le p
 - `list [--section s] [--status s] [--team t] [--tag t] [--archive] [--json]` — lister.
 - `show <id> [--json]` — détail complet d'une tâche.
 - `validate` — revalide tout `docs/tasks/` (obligatoire après toute édition manuelle).
-- `roadmap [--json]` — vue jalons/progression, disponible/verrouillé.
+- `roadmap [--json]` — avancement global + vue par epic, disponible/verrouillé (le `sitrep` porte aussi la ligne `avancement: x/y`).
 
 Ancrer une ref (opt-in) : `fichier#symbole` (robuste, résolu par grep au serve) ou `fichier:ligne` (fragile) → `brief` en joint l'extrait. Une ref nue reste une ligne.
 

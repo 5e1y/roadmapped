@@ -1,4 +1,5 @@
-import type { TaskTree, TaskNode, SectionNode } from './tasks'
+import type { TaskTree, TaskNode, SectionNode, Epic } from './tasks'
+import { countTasksDeep } from './tasks.ts'
 
 export type Availability = 'done' | 'available' | 'locked'
 
@@ -118,10 +119,47 @@ export function topoLayers(tasks: TaskNode[]): TaskNode[][] {
   return layers.map((l) => l ?? [])
 }
 
-/** Progression d'un jalon : tâches actives portant ce slug (les archivées vivent dans le Backlog). */
-export function milestoneProgress(tree: TaskTree, slug: string): { done: number; total: number } {
-  const tasks = flatten(tree.sections).filter((t) => t.milestone === slug)
+/** Progression d'un epic : tâches actives portant ce slug (les archivées vivent dans le Backlog). */
+export function epicProgress(tree: TaskTree, slug: string): { done: number; total: number } {
+  const tasks = flatten(tree.sections).filter((t) => t.epic === slug)
   return { total: tasks.length, done: tasks.filter((t) => t.status === 'done').length }
+}
+
+/**
+ * Progression GLOBALE du lancement : done/total, où l'archive compte done de fait
+ * (c'est l'historique livré) et les stages abandonnés/en veille sont exclus (leur
+ * travail n'est pas « à faire »). Compte simple de tâches, sous-tâches comprises
+ * (pas de pondération par size — décision ferme #133, YAGNI).
+ */
+export function globalProgress(tree: TaskTree): { done: number; total: number } {
+  let done = 0
+  let total = 0
+  for (const s of tree.sections) {
+    if (s.status === 'abandoned' || s.status === 'dormant') continue
+    const c = countTasksDeep(s.tasks)
+    done += c.done
+    total += c.total
+  }
+  for (const s of tree.archive) {
+    const c = countTasksDeep(s.tasks)
+    done += c.total // archivée = livrée, quel que soit le status stocké
+    total += c.total
+  }
+  return { done, total }
+}
+
+/**
+ * TOUS les epics du projet : les déclarés (_epics.yaml, ordre préservé, titre
+ * lisible) puis les auto-découverts sur les tâches actives (ordre alphabétique,
+ * titre = slug). Source unique du regroupement (dashboard, CLI `roadmap`, panneau).
+ */
+export function allEpics(tree: TaskTree): Epic[] {
+  const declared = tree.epics.filter((e) => e.slug !== '')
+  const seen = new Set(declared.map((e) => e.slug))
+  const discovered = [...new Set(
+    flatten(tree.sections).map((t) => t.epic).filter((e): e is string => e !== null && !seen.has(e)),
+  )].sort()
+  return [...declared, ...discovered.map((slug) => ({ slug, title: slug }))]
 }
 
 /** Slug depuis un titre : ASCII minuscule, tirets, 40 car. max. Fallback "roadmap". */

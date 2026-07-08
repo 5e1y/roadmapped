@@ -6,7 +6,7 @@
 import { execSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { findTask } from './taskWrites.ts'
-import { activeTasks, archivedTasks, nextQueue } from './roadmap.ts'
+import { activeTasks, archivedTasks, nextQueue, globalProgress } from './roadmap.ts'
 import { parseRef, locateLine, snippet } from './refExtract.ts'
 import type { TaskTree, TaskNode } from './tasks'
 import type { FoundTask } from './taskWrites'
@@ -24,7 +24,7 @@ export function git(args: string): string | null {
 }
 
 export function taskLine(t: TaskNode, indent = '  '): string {
-  const chips = [t.code, t.size, t.team, t.kind === 'quick' ? 'quick' : null, ...t.tags].filter(Boolean).join(' ')
+  const chips = [t.code, t.size, t.team, t.kind !== 'task' ? t.kind : null, ...t.tags].filter(Boolean).join(' ')
   return `${indent}${GLYPH[t.status]} #${String(t.id).padEnd(4)}${t.title}${chips ? `  (${chips})` : ''}`
 }
 
@@ -66,7 +66,8 @@ export function briefText(tree: TaskTree, hit: FoundTask): string {
   const t = hit.task
   const out = [`#${t.id} ${t.title}`]
   const meta = [`stage: ${hit.sectionKey}`, `team: ${t.team}`]
-  if (t.kind === 'quick') meta.push('kind: quick')
+  if (t.kind !== 'task') meta.push(`kind: ${t.kind}`)
+  if (t.epic) meta.push(`epic: ${t.epic}`)
   if (t.size) meta.push(`size: ${t.size}`)
   if (t.tags.length) meta.push(`tags: ${t.tags.join(', ')}`)
   out.push(meta.join(' · '))
@@ -188,9 +189,13 @@ export function sitrepText(tree: TaskTree, errors: string[], unlogged?: Unlogged
   const doneToday = [...active, ...archivedTasks(tree)].filter((t) => t.completedAt && dayOf(t.completedAt) === today)
   const inProgress = active.filter((t) => t.status === 'in_progress')
   const queue = nextQueue(tree).slice(0, 3)
+  // Avancement global (#133) : le CLI/agent voit la progression sans ouvrir le dashboard.
+  const prog = globalProgress(tree)
+  const pct = prog.total === 0 ? 0 : Math.round((prog.done / prog.total) * 100)
 
   const lines = [
     `sitrep — ${today}`,
+    `avancement: ${prog.done}/${prog.total} (${pct}%)`,
     `done aujourd'hui (${doneToday.length})${capped(doneToday, brief)}`,
     `in_progress (${inProgress.length})${capped(inProgress, (t) => `${brief(t)} (${daysBetween(dayOf(t.startedAt ?? t.createdAt), today)}j)`)}`,
     `prochaines: ${queue.length ? queue.map(brief).join(' · ') : '— (file vide)'}`,

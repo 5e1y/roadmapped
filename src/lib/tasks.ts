@@ -50,11 +50,13 @@ export const STAGES: Stage[] = [
 export interface TaskNode {
   id: number
   /**
-   * Nature du ticket : 'task' (défaut, cérémonie complète) ou 'quick' (mini-ticket :
-   * titre+team+stage suffisent, outcome requis mais verification facultative au done).
+   * Nature du ticket : 'task' (défaut, cérémonie complète), 'quick' (mini-ticket :
+   * titre+team+stage suffisent, outcome requis mais verification facultative au done)
+   * ou 'milestone' (JALON : une tâche-cible que d'autres verrouillent via dependsOn —
+   * aucune sémantique de lock nouvelle, computeAvailability suffit ; rendu diamant).
    * ADDITIF : absent d'un YAML = 'task' (rétrocompat totale, aucun YAML existant ne change).
    */
-  kind: 'task' | 'quick'
+  kind: 'task' | 'quick' | 'milestone'
   code: string | null
   title: string
   status: 'todo' | 'in_progress' | 'done'
@@ -66,7 +68,12 @@ export interface TaskNode {
   refs: string[]
   links: number[]
   dependsOn: number[]
-  milestone: string | null
+  /**
+   * Epic (ex-`milestone`, renommé #133) : LE regroupement transverse aux stages —
+   * slug partagé par toutes les tâches d'un même projet/thème. Simple tag : aucune
+   * déclaration obligatoire (un `_epics.yaml` optionnel donne titre/ordre).
+   */
+  epic: string | null
   source: 'user' | 'ai'
   createdAt: string
   /** Posé au passage todo→in_progress (#82). Null sur les tâches d'avant le champ :
@@ -98,15 +105,14 @@ export const SECTION_STATUS_FR: Record<Exclude<SectionNode['status'], 'open'>, s
   abandoned: 'abandonnée',
 }
 
-export interface Milestone {
+/**
+ * Epic déclaré (ex-interfaces `Roadmap`/`Milestone`, fusionnées #133) : la
+ * déclaration OPTIONNELLE d'un epic dans `_epics.yaml` (titre lisible, ordre).
+ * Un epic non déclaré mais porté par des tâches existe quand même (auto-découverte).
+ */
+export interface Epic {
   slug: string
   title: string
-}
-
-export interface Roadmap {
-  slug: string
-  title: string
-  milestones: Milestone[]
 }
 
 export interface TaskTree {
@@ -115,8 +121,9 @@ export interface TaskTree {
   sections: SectionNode[]
   /** Sections archivées (docs/tasks/_archive/NN-*) — l'historique livré du projet. */
   archive: SectionNode[]
-  /** Roadmaps déclarées dans _roadmaps.yaml (racine de tasksDir). Vide si le fichier est absent. */
-  roadmaps: Roadmap[]
+  /** Epics déclarés dans _epics.yaml (racine de tasksDir ; rétrocompat lecture de
+      l'ancien _roadmaps.yaml, jalons aplatis). Vide si aucun fichier. */
+  epics: Epic[]
 }
 
 /**
@@ -185,7 +192,8 @@ function toTaskNode(raw: any, file: string): TaskNode {
     refs: raw.refs ?? [],
     links: raw.links ?? [],
     dependsOn: raw.dependsOn ?? [],
-    milestone: raw.milestone ?? null,
+    // Rétrocompat #133 : un ancien YAML qui porte encore `milestone:` est lu comme epic.
+    epic: raw.epic ?? raw.milestone ?? null,
     source: raw.source,
     createdAt: raw.createdAt,
     startedAt: raw.startedAt ?? null,
@@ -231,22 +239,40 @@ function assembleSections(buckets: Map<string, Bucket>): SectionNode[] {
   return sections
 }
 
-function parseRoadmaps(content: string): Roadmap[] {
+/** `_epics.yaml` : liste PLATE d'epics déclarés ({ epics: [{ slug, title }] }). */
+function parseEpics(content: string): Epic[] {
+  const raw = yaml.load(content) as { epics?: unknown } | null
+  const list = Array.isArray(raw?.epics) ? raw!.epics : []
+  return (list as any[]).map((e) => ({
+    slug: typeof e?.slug === 'string' ? e.slug : '',
+    title: typeof e?.title === 'string' ? e.title : '',
+  }))
+}
+
+/**
+ * Rétrocompat lecture #133 : l'ancien `_roadmaps.yaml` (roadmaps → milestones) est
+ * lu comme des epics — les jalons de toutes les roadmaps, APLATIS dans l'ordre de
+ * déclaration (c'étaient eux que les tâches référençaient via l'ex-champ milestone).
+ */
+function parseLegacyRoadmaps(content: string): Epic[] {
   const raw = yaml.load(content) as { roadmaps?: unknown } | null
   const list = Array.isArray(raw?.roadmaps) ? raw!.roadmaps : []
-  return (list as any[]).map((r) => ({
-    slug: typeof r?.slug === 'string' ? r.slug : '',
-    title: typeof r?.title === 'string' ? r.title : '',
-    milestones: (Array.isArray(r?.milestones) ? r.milestones : []).map((m: any) => ({
-      slug: typeof m?.slug === 'string' ? m.slug : '',
-      title: typeof m?.title === 'string' ? m.title : '',
-    })),
-  }))
+  const epics: Epic[] = []
+  for (const r of list as any[]) {
+    for (const m of Array.isArray(r?.milestones) ? r.milestones : []) {
+      epics.push({
+        slug: typeof m?.slug === 'string' ? m.slug : '',
+        title: typeof m?.title === 'string' ? m.title : '',
+      })
+    }
+  }
+  return epics
 }
 
 export function buildTaskTree(files: TaskFileMap): TaskTree {
   let nextId = 0
-  let roadmaps: Roadmap[] = []
+  let epics: Epic[] = []
+  let legacyEpics: Epic[] = []
   const active = new Map<string, Bucket>()
   const archived = new Map<string, Bucket>()
 
@@ -258,8 +284,12 @@ export function buildTaskTree(files: TaskFileMap): TaskTree {
       nextId = (yaml.load(content) as any).nextId
       continue
     }
+    if (parsed.sectionDir === '_epics.yaml') {
+      epics = parseEpics(content)
+      continue
+    }
     if (parsed.sectionDir === '_roadmaps.yaml') {
-      roadmaps = parseRoadmaps(content)
+      legacyEpics = parseLegacyRoadmaps(content)
       continue
     }
 
@@ -315,7 +345,8 @@ export function buildTaskTree(files: TaskFileMap): TaskTree {
     nextId,
     sections: assembleSections(active),
     archive: assembleSections(archived),
-    roadmaps,
+    // _epics.yaml prime ; l'ancien _roadmaps.yaml ne sert que s'il est seul (rétrocompat).
+    epics: epics.length > 0 ? epics : legacyEpics,
   }
 }
 

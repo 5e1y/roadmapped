@@ -64,11 +64,14 @@ describe('routeApi — percent-encoding malformé', () => {
   })
 })
 
-describe('routeApi — roadmaps (phase 2)', () => {
-  it('PUT /api/roadmaps → putRoadmaps avec body', () => {
-    expect(routeApi('PUT', '/api/roadmaps', { roadmaps: [] })).toEqual({
-      type: 'putRoadmaps', body: { roadmaps: [] },
+describe('routeApi — epics (#133, ex-roadmaps)', () => {
+  it('PUT /api/epics → putEpics avec body', () => {
+    expect(routeApi('PUT', '/api/epics', { epics: [] })).toEqual({
+      type: 'putEpics', body: { epics: [] },
     })
+  })
+  it("l'ancienne route PUT /api/roadmaps n'existe plus (404)", () => {
+    expect(routeApi('PUT', '/api/roadmaps', { roadmaps: [] }).type).toBe('notFound')
   })
 })
 

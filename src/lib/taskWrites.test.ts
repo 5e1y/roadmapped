@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import {
   addTask, updateTask, startTask, doneTask, archiveTask, deleteTask,
-  updateSection, readTree, findTask, saveRoadmaps, withLock,
+  updateSection, readTree, findTask, saveEpics, withLock,
 } from './taskWrites'
 import { seedStages } from './stageFixtures'
 import type { TaskTree } from './tasks'
@@ -314,14 +314,7 @@ describe('updateTask — estampillage completedAt', () => {
   })
 })
 
-function seedRoadmaps(): void {
-  writeFileSync(
-    join(dir, '_roadmaps.yaml'),
-    'roadmaps:\n  - slug: launch\n    title: "Lancement"\n    milestones:\n      - { slug: socle, title: "Socle" }\n',
-  )
-}
-
-describe('addTask/updateTask — dependsOn & milestone (phase 2)', () => {
+describe('addTask/updateTask — dependsOn & epic', () => {
   it('addTask accepte dependsOn vers une tâche existante et le sérialise après links', () => {
     add({ title: 'Base' }) // #1
     const res = add({ title: 'Dépendante', dependsOn: [1] })
@@ -342,80 +335,141 @@ describe('addTask/updateTask — dependsOn & milestone (phase 2)', () => {
     expect(existsSync(join(dir, SEC, '01-x.yaml'))).toBe(false)
   })
 
-  it('updateTask pose puis vide dependsOn ; pose un milestone déclaré', () => {
-    seedRoadmaps()
+  it('updateTask pose puis vide dependsOn ; pose un epic (aucune déclaration exigée)', () => {
     add({ title: 'A' }) // #1
     add({ title: 'B' }) // #2
-    expect(updateTask(dir, 2, { dependsOn: [1], milestone: 'socle' }).ok).toBe(true)
+    expect(updateTask(dir, 2, { dependsOn: [1], epic: 'socle' }).ok).toBe(true)
     const set = sectionOf(readTree(dir)).tasks.find((t) => t.id === 2)!
     expect(set.dependsOn).toEqual([1])
-    expect(set.milestone).toBe('socle')
+    expect(set.epic).toBe('socle')
     expect(updateTask(dir, 2, { dependsOn: [] }).ok).toBe(true)
     expect(sectionOf(readTree(dir)).tasks.find((t) => t.id === 2)!.dependsOn).toEqual([])
   })
 
-  it('updateTask rejette un milestone non déclaré (rollback)', () => {
+  it('updateTask rejette un epic non-slug (rollback)', () => {
     add({ title: 'A' }) // #1
-    const res = updateTask(dir, 1, { milestone: 'fantome' })
+    const res = updateTask(dir, 1, { epic: 'Pas Un Slug' })
     expect(res.ok).toBe(false)
+  })
+
+  it('addTask sérialise epic (jamais milestone) entre dependsOn et source', () => {
+    const res = add({ title: 'Groupée', epic: 'refonte-graphe' })
+    expect(res.ok).toBe(true)
+    if (!res.ok) return
+    expect(res.task!.epic).toBe('refonte-graphe')
+    const yamlText = readFileSync(join(dir, SEC, '01-groupee.yaml'), 'utf8')
+    expect(yamlText).toContain('epic: refonte-graphe')
+    expect(yamlText).not.toContain('milestone')
+    expect(yamlText.indexOf('dependsOn:')).toBeLessThan(yamlText.indexOf('epic:'))
+    expect(yamlText.indexOf('epic:')).toBeLessThan(yamlText.indexOf('source:'))
+  })
+
+  it('rétrocompat : un YAML legacy avec milestone migre vers epic au prochain patch (valeur préservée)', () => {
+    // Fichier écrit À LA MAIN au format d'avant #133.
+    writeFileSync(
+      join(dir, SEC, '01-legacy.yaml'),
+      [
+        'id: 1', 'title: "Legacy"', 'status: todo', 'tags: []', 'size: null',
+        'team: engineering', 'detail: null', 'refs: []', 'links: []', 'dependsOn: []',
+        'milestone: socle', 'source: ai', 'createdAt: "2026-07-07"', 'completedAt: null',
+        'commit: null', 'outcome: null', 'verification: null', 'release: null', '',
+      ].join('\n'),
+    )
+    writeFileSync(join(dir, '_meta.yaml'), 'nextId: 2\n')
+    // Lecture : milestone est lu comme epic.
+    expect(sectionOf(readTree(dir)).tasks[0].epic).toBe('socle')
+    // Patch quelconque → le dump réécrit epic (valeur préservée) et supprime milestone.
+    expect(updateTask(dir, 1, { detail: 'migrée' }).ok).toBe(true)
+    const yamlText = readFileSync(join(dir, SEC, '01-legacy.yaml'), 'utf8')
+    expect(yamlText).toContain('epic: socle')
+    expect(yamlText).not.toContain('milestone')
+  })
+
+  it('rétrocompat : vider l\'epic d\'un YAML legacy ne ressuscite PAS la valeur milestone', () => {
+    writeFileSync(
+      join(dir, SEC, '01-legacy.yaml'),
+      'id: 1\ntitle: "Legacy"\nstatus: todo\nteam: engineering\nmilestone: socle\nsource: ai\ncreatedAt: "2026-07-07"\n',
+    )
+    writeFileSync(join(dir, '_meta.yaml'), 'nextId: 2\n')
+    expect(updateTask(dir, 1, { epic: null }).ok).toBe(true)
+    expect(sectionOf(readTree(dir)).tasks[0].epic).toBeNull()
+    expect(readFileSync(join(dir, SEC, '01-legacy.yaml'), 'utf8')).toContain('epic: null')
   })
 })
 
-describe('saveRoadmaps', () => {
-  it('crée _roadmaps.yaml et le relit dans tree.roadmaps', () => {
-    const res = saveRoadmaps(dir, {
-      roadmaps: [{ slug: 'launch', title: 'Lancement', milestones: [{ slug: 'socle', title: 'Socle' }] }],
-    })
+describe('kind milestone (jalons, #133)', () => {
+  it('addTask kind: milestone écrit "kind: milestone" juste après id', () => {
+    const res = add({ title: 'Socle prêt', kind: 'milestone' })
     expect(res.ok).toBe(true)
     if (!res.ok) return
-    expect(existsSync(join(dir, '_roadmaps.yaml'))).toBe(true)
-    expect(res.tree.roadmaps[0].slug).toBe('launch')
-    expect(res.tree.roadmaps[0].milestones[0].slug).toBe('socle')
+    expect(res.task!.kind).toBe('milestone')
+    const yamlText = readFileSync(join(dir, SEC, '01-socle-pret.yaml'), 'utf8')
+    expect(yamlText).toContain('kind: milestone')
+    expect(yamlText.indexOf('kind:')).toBeGreaterThan(yamlText.indexOf('id:'))
+    expect(yamlText.indexOf('kind:')).toBeLessThan(yamlText.indexOf('title:'))
   })
 
-  it('rollback si un jalon référencé par une tâche disparaît de la réécriture', () => {
-    saveRoadmaps(dir, { roadmaps: [{ slug: 'l', title: 'L', milestones: [{ slug: 'socle', title: 'S' }] }] })
-    add({ title: 'T', milestone: 'socle' }) // #1 sur "socle"
-    // réécriture SANS "socle" → #1 pointe vers un jalon non déclaré → invalide → rollback
-    const res = saveRoadmaps(dir, { roadmaps: [{ slug: 'l', title: 'L', milestones: [] }] })
-    expect(res.ok).toBe(false)
-    // le fichier d'origine (avec "socle") a survécu
-    expect(readFileSync(join(dir, '_roadmaps.yaml'), 'utf8')).toContain('socle')
+  it('dumpTask n\'écrit kind QUE si ≠ task : une task normale reste sans champ kind', () => {
+    add({ title: 'Normale' })
+    updateTask(dir, 1, { detail: 'patchée' })
+    expect(readFileSync(join(dir, SEC, '01-normale.yaml'), 'utf8')).not.toContain('kind:')
   })
 
-  it('rejette un body sans tableau roadmaps ({} ou clé mal orthographiée) SANS toucher le fichier', () => {
-    saveRoadmaps(dir, { roadmaps: [{ slug: 'l', title: 'L', milestones: [{ slug: 'socle', title: 'S' }] }] })
-    for (const body of [{}, { roadmaps: 'oops' }, { roadmap: [] }]) {
-      const res = saveRoadmaps(dir, body as any)
+  it('un jalon non-done verrouille ses dépendants via dependsOn (aucune logique nouvelle)', () => {
+    add({ title: 'Jalon', kind: 'milestone' }) // #1
+    add({ title: 'Dépendante', dependsOn: [1] }) // #2
+    // Le verrou est porté par computeAvailability (testé dans roadmap.test.ts) —
+    // ici on vérifie juste que la donnée persiste comme pour toute dépendance.
+    const t2 = sectionOf(readTree(dir)).tasks.find((t) => t.id === 2)!
+    expect(t2.dependsOn).toEqual([1])
+  })
+
+  it('doneTask sur un jalon sans refs → AUCUN warning (un jalon est un marqueur, pas du travail)', () => {
+    add({ title: 'Jalon', kind: 'milestone' })
+    const res = doneTask(dir, 1, { outcome: 'atteint' })
+    expect(res.ok).toBe(true)
+    if (!res.ok) return
+    expect(res.warnings ?? []).toEqual([])
+  })
+})
+
+describe('saveEpics', () => {
+  it('crée _epics.yaml et le relit dans tree.epics', () => {
+    const res = saveEpics(dir, { epics: [{ slug: 'socle', title: 'Socle' }] })
+    expect(res.ok).toBe(true)
+    if (!res.ok) return
+    expect(existsSync(join(dir, '_epics.yaml'))).toBe(true)
+    expect(res.tree.epics).toEqual([{ slug: 'socle', title: 'Socle' }])
+  })
+
+  it('rejette un body sans tableau epics ({} ou clé mal orthographiée) SANS toucher le fichier', () => {
+    saveEpics(dir, { epics: [{ slug: 'socle', title: 'Socle' }] })
+    for (const body of [{}, { epics: 'oops' }, { epic: [] }]) {
+      const res = saveEpics(dir, body as any)
       expect(res.ok).toBe(false)
       if (res.ok) return
       expect(res.errors.length).toBeGreaterThan(0)
     }
     // le fichier existant est intact (pas écrasé par une liste vide)
-    expect(readFileSync(join(dir, '_roadmaps.yaml'), 'utf8')).toContain('socle')
+    expect(readFileSync(join(dir, '_epics.yaml'), 'utf8')).toContain('socle')
   })
 
-  it('rejette une roadmap ou un jalon sans slug/title string non vide', () => {
-    expect(saveRoadmaps(dir, { roadmaps: [{ title: 'Sans slug', milestones: [] }] }).ok).toBe(false)
-    expect(saveRoadmaps(dir, { roadmaps: [{ slug: 'x', milestones: [] }] }).ok).toBe(false)
-    expect(saveRoadmaps(dir, { roadmaps: [{ slug: 'x', title: 'X', milestones: [{ title: 'Sans slug' }] }] }).ok).toBe(false)
-    expect(saveRoadmaps(dir, { roadmaps: [{ slug: 'x', title: 'X', milestones: [{ slug: 'm' }] }] }).ok).toBe(false)
-    expect(saveRoadmaps(dir, { roadmaps: [{ slug: 'x', title: 'X', milestones: 'oops' }] }).ok).toBe(false)
-    expect(existsSync(join(dir, '_roadmaps.yaml'))).toBe(false) // rien n'a été écrit
+  it('rejette un epic sans slug/title string non vide', () => {
+    expect(saveEpics(dir, { epics: [{ title: 'Sans slug' }] }).ok).toBe(false)
+    expect(saveEpics(dir, { epics: [{ slug: 'x' }] }).ok).toBe(false)
+    expect(existsSync(join(dir, '_epics.yaml'))).toBe(false) // rien n'a été écrit
   })
 
-  it('rejette les slugs dupliqués dans la requête (roadmaps et jalons)', () => {
-    const dupRoadmap = saveRoadmaps(dir, {
-      roadmaps: [
-        { slug: 'x', title: 'X', milestones: [] },
-        { slug: 'x', title: 'X bis', milestones: [] },
-      ],
-    })
-    expect(dupRoadmap.ok).toBe(false)
-    const dupMilestone = saveRoadmaps(dir, {
-      roadmaps: [{ slug: 'x', title: 'X', milestones: [{ slug: 'm', title: 'M' }, { slug: 'm', title: 'M bis' }] }],
-    })
-    expect(dupMilestone.ok).toBe(false)
-    expect(existsSync(join(dir, '_roadmaps.yaml'))).toBe(false)
+  it('rejette les slugs dupliqués dans la requête', () => {
+    const res = saveEpics(dir, { epics: [{ slug: 'x', title: 'X' }, { slug: 'x', title: 'X bis' }] })
+    expect(res.ok).toBe(false)
+    expect(existsSync(join(dir, '_epics.yaml'))).toBe(false)
+  })
+
+  it('retirer un epic déclaré encore porté par une tâche reste OK (aucune exigence de déclaration)', () => {
+    saveEpics(dir, { epics: [{ slug: 'socle', title: 'Socle' }] })
+    add({ title: 'T', epic: 'socle' }) // #1 sur "socle"
+    const res = saveEpics(dir, { epics: [] })
+    expect(res.ok).toBe(true) // l'epic devient simplement auto-découvert
   })
 })

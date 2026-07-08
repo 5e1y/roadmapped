@@ -21,7 +21,7 @@ import {
   treeWithErrors, readTree, findTask,
   addTask, startTask, doneTask, updateTask, archiveTask,
 } from '../src/lib/taskWrites.ts'
-import { computeAvailability, activeTasks, nextQueue } from '../src/lib/roadmap.ts'
+import { computeAvailability, activeTasks, nextQueue, globalProgress, epicProgress, allEpics } from '../src/lib/roadmap.ts'
 // Rendu partagé (#90) : CLI et serveur MCP consomment le MÊME code (src/lib/render.ts).
 import { git, taskLine, refLine, briefText, sitrepText, unloggedCommits, auditCommits, auditText, stalePassepartout, todayStr } from '../src/lib/render.ts'
 import { TEAMS } from '../src/lib/tasks.ts'
@@ -133,8 +133,9 @@ Lecture
                             LA file de travail : les N prochaines todo DISPONIBLES
                             (deps done), ordre stage PUIS ancienneté — calculé par
                             l'app, à CONSOMMER tel quel (jamais recalculer)
-  roadmap [--json]          vue par roadmap/jalon (docs/tasks/_roadmaps.yaml) :
-                            progression + état de chaque tâche (done/disponible/verrouillé)
+  roadmap [--json]          avancement global + vue par epic (champ epic, _epics.yaml
+                            optionnel) : progression + état de chaque tâche
+                            (done/disponible/verrouillé)
   validate                  valide tout docs/tasks/ (schéma + unicité des ids
                             + nextId, archive comprise) ; exit 1 si erreur
   guard                     garde pre-commit : refuse un commit produit sans tâche
@@ -145,8 +146,12 @@ Lecture
 Écriture (id alloué depuis _meta.yaml ; validation après CHAQUE écriture, rollback si erreur)
   add --section <stage> --title <t> --team <team> [--detail <d>] [--tags a,b]
       [--size S|M|L] [--code <c>] [--refs a,b] [--links 1,2]
-      [--depends-on 1,2] [--milestone <slug>] [--source ai|user] [--json]
-                            --team est REQUIS (enum fixe ci-dessus)
+      [--depends-on 1,2] [--epic <slug>] [--kind task|quick|milestone]
+      [--blocks 1,2] [--source ai|user] [--json]
+                            --team est REQUIS (enum fixe ci-dessus) ;
+                            --kind milestone = JALON (verrou via dependsOn, rendu diamant) ;
+                            --blocks 1,2 = ajoute la nouvelle tâche aux dependsOn
+                            des tâches citées (l'inverse ergonomique de --depends-on)
   quick "<titre>" --team <t> [--stage <s>] [--tags a,b] [--start] [--json]
                             mini-ticket : titre+team suffisent (stage défaut = 1er open) ;
                             au done, --outcome requis mais --verification facultative
@@ -156,9 +161,10 @@ Lecture
                             (--outcome : ce qui a été livré, en une phrase — le changelog)
   update <id> [--title] [--detail] [--status] [--tags] [--refs] [--links]
       [--size] [--team] [--code] [--source] [--commit] [--outcome] [--verification] [--release]
-      [--depends-on 1,2] [--milestone <slug>]
+      [--depends-on 1,2] [--epic <slug>]
                             patch générique ("null" = remettre un champ à null ;
-                            --depends-on null / --milestone null pour vider)
+                            --depends-on null / --epic null pour vider ;
+                            --milestone reste accepté comme alias déprécié de --epic)
   archive <id>              déplace une tâche done vers _archive/<section>/ (+ jumeau)
 
 Conventions
@@ -183,9 +189,22 @@ const CMD_USAGE = {
   guard: 'Usage : guard  (hook pre-commit — exit 1 si des fichiers produit sont stagés sans tâche in_progress)',
   done: 'Usage : done <id> [--commit <sha>] [--outcome <o>] [--verification <v>] [--release <r>] [--suggest-refs]',
   roadmap: 'Usage : roadmap [--json]',
-  add: 'Usage : add --section <stage> --title <t> --team <team> [--detail <d>] [--tags a,b] [--size S|M|L]\n        [--code <c>] [--refs a,b] [--links 1,2] [--depends-on 1,2] [--milestone <slug>] [--source ai|user] [--json]',
+  add: 'Usage : add --section <stage> --title <t> --team <team> [--detail <d>] [--tags a,b] [--size S|M|L]\n        [--code <c>] [--refs a,b] [--links 1,2] [--depends-on 1,2] [--epic <slug>]\n        [--kind task|quick|milestone] [--blocks 1,2] [--source ai|user] [--json]',
   quick: 'Usage : quick "<titre>" --team <t> [--stage <s>] [--tags a,b] [--start] [--json]',
-  update: 'Usage : update <id> [--title ...] [--detail ...] [--status ...] [--team ...] [--tags a,b] [--refs a,b]\n        [--links 1,2] [--depends-on 1,2] [--milestone <slug>] [--size ...] [--code ...] [--outcome ...] …',
+  update: 'Usage : update <id> [--title ...] [--detail ...] [--status ...] [--team ...] [--tags a,b] [--refs a,b]\n        [--links 1,2] [--depends-on 1,2] [--epic <slug>] [--size ...] [--code ...] [--outcome ...] …',
+}
+
+/**
+ * Valeur d'epic depuis les flags : --epic prime ; --milestone reste accepté comme
+ * ALIAS DÉPRÉCIÉ (#133 — à retirer à une version majeure), avec avertissement stderr.
+ */
+function epicFromFlags(flags) {
+  if (typeof flags.epic === 'string') return flags.epic
+  if (typeof flags.milestone === 'string') {
+    console.error('⚠ --milestone est déprécié (renommé --epic, #133) — alias appliqué.')
+    return flags.milestone
+  }
+  return undefined
 }
 
 // ---------------------------------------------------------------- commandes
@@ -331,14 +350,31 @@ function assertTeam(value, usage) {
 function cmdAdd(flags) {
   rejectUnknownFlags(flags, [
     'section', 'title', 'team', 'detail', 'tags', 'size', 'code', 'refs', 'links',
-    'depends-on', 'milestone', 'source', 'json',
+    'depends-on', 'epic', 'milestone', 'kind', 'blocks', 'source', 'json',
   ], CMD_USAGE.add)
   requireFlags(flags, ['section', 'title', 'team'], CMD_USAGE.add)
   assertTeam(flags.team, CMD_USAGE.add)
+  if (typeof flags.kind === 'string' && !['task', 'quick', 'milestone'].includes(flags.kind)) {
+    fail(`--kind invalide : "${flags.kind}" (attendu task, quick ou milestone).`, CMD_USAGE.add)
+  }
+  // --blocks 1,2 (sucre jalon, #133) : la nouvelle tâche est AJOUTÉE aux dependsOn
+  // des tâches citées — l'inverse ergonomique de --depends-on. Ids vérifiés AVANT
+  // toute écriture (pas de jalon créé puis chaînage à moitié appliqué).
+  const blocks = typeof flags.blocks === 'string' ? parseDeps(flags.blocks, CMD_USAGE.add) : []
+  if (blocks.length > 0) {
+    const tree = readTree(ROOT)
+    for (const id of blocks) {
+      const hit = findTask(tree, id)
+      if (!hit) fail(`--blocks : aucune tâche #${id}.`, CMD_USAGE.add)
+      if (hit.archived) fail(`--blocks : #${id} est archivée — elle ne peut plus être verrouillée.`, CMD_USAGE.add)
+    }
+  }
+  const epic = epicFromFlags(flags)
   const res = addTask(ROOT, {
     section: flags.section,
     title: flags.title,
     team: flags.team,
+    kind: typeof flags.kind === 'string' ? flags.kind : 'task',
     detail: typeof flags.detail === 'string' ? flags.detail : null,
     tags: typeof flags.tags === 'string' ? splitList(flags.tags) : [],
     size: typeof flags.size === 'string' ? flags.size : null,
@@ -346,10 +382,21 @@ function cmdAdd(flags) {
     refs: typeof flags.refs === 'string' ? splitList(flags.refs) : [],
     links: typeof flags.links === 'string' ? splitList(flags.links).map(Number) : [],
     dependsOn: typeof flags['depends-on'] === 'string' ? parseDeps(flags['depends-on'], CMD_USAGE.add) : [],
-    milestone: typeof flags.milestone === 'string' ? nullable(flags.milestone) : null,
+    epic: typeof epic === 'string' ? nullable(epic) : null,
     source: typeof flags.source === 'string' ? flags.source : 'ai',
   })
   report(res, flags.json ? null : `#${res.ok ? res.task?.id ?? '?' : ''} créée → ${res.ok ? res.task?.file ?? '?' : ''}`)
+  // Chaînage --blocks APRÈS la création (l'id du jalon existe désormais).
+  if (res.ok && blocks.length > 0) {
+    const newId = res.task.id
+    for (const id of blocks) {
+      const tree = readTree(ROOT)
+      const t = findTask(tree, id).task
+      if (t.dependsOn.includes(newId)) continue
+      report(updateTask(ROOT, id, { dependsOn: [...t.dependsOn, newId] }), null)
+    }
+    if (!flags.json) console.log(`#${newId} bloque désormais : ${blocks.map((b) => `#${b}`).join(' ')}`)
+  }
   if (flags.json && res.ok) console.log(JSON.stringify(res.task, null, 2))
 }
 
@@ -439,7 +486,7 @@ function cmdDone(id, flags) {
 function cmdUpdate(id, flags) {
   const stringFields = ['title', 'detail', 'status', 'size', 'team', 'code', 'source', 'commit', 'outcome', 'verification', 'release', 'completedAt']
   const listFields = ['tags', 'refs', 'links']
-  rejectUnknownFlags(flags, [...stringFields, ...listFields, 'depends-on', 'milestone'], CMD_USAGE.update)
+  rejectUnknownFlags(flags, [...stringFields, ...listFields, 'depends-on', 'epic', 'milestone'], CMD_USAGE.update)
   if (Object.keys(flags).length === 0) {
     fail('update : aucun champ à modifier.', CMD_USAGE.update)
   }
@@ -456,7 +503,8 @@ function cmdUpdate(id, flags) {
     patch[f] = f === 'links' ? splitList(flags[f]).map(Number) : splitList(flags[f])
   }
   if (typeof flags['depends-on'] === 'string') patch.dependsOn = parseDeps(flags['depends-on'], CMD_USAGE.update)
-  if (typeof flags.milestone === 'string') patch.milestone = nullable(flags.milestone)
+  const epic = epicFromFlags(flags)
+  if (typeof epic === 'string') patch.epic = nullable(epic)
   report(updateTask(ROOT, id, patch), `#${id} mise à jour.`)
 }
 
@@ -530,43 +578,38 @@ function cmdRoadmap(flags) {
   const avail = computeAvailability(tree)
   const active = activeTasks(tree)
   const missingOf = (t) => t.dependsOn.filter((d) => avail.get(d) === 'available' || avail.get(d) === 'locked')
-  const model = tree.roadmaps.map((r) => ({
-    slug: r.slug,
-    title: r.title,
-    milestones: r.milestones.map((m) => {
-      const tasks = active.filter((t) => t.milestone === m.slug)
-      return {
-        slug: m.slug,
-        title: m.title,
-        done: tasks.filter((t) => t.status === 'done').length,
-        total: tasks.length,
-        tasks: tasks.map((t) => ({
-          id: t.id, title: t.title, team: t.team, state: avail.get(t.id) ?? 'available', missing: missingOf(t),
-        })),
-      }
-    }),
+  const progress = globalProgress(tree)
+  const pct = progress.total === 0 ? 0 : Math.round((progress.done / progress.total) * 100)
+  // Epics = déclarés (_epics.yaml) PUIS auto-découverts sur les tâches (allEpics).
+  const model = allEpics(tree).map((e) => ({
+    slug: e.slug,
+    title: e.title,
+    ...epicProgress(tree, e.slug),
+    tasks: active.filter((t) => t.epic === e.slug).map((t) => ({
+      id: t.id, title: t.title, team: t.team, kind: t.kind,
+      state: avail.get(t.id) ?? 'available', missing: missingOf(t),
+    })),
   }))
-  const unassigned = active.filter((t) => t.milestone === null)
+  const unassigned = active.filter((t) => t.epic === null)
 
   if (flags.json) {
-    console.log(JSON.stringify({ roadmaps: model, unassigned: unassigned.length }, null, 2))
+    console.log(JSON.stringify({ progress, epics: model, unassigned: unassigned.length }, null, 2))
     return
   }
+  console.log(`avancement global : ${progress.done}/${progress.total} (${pct}%)`)
   if (model.length === 0) {
-    console.log('Aucune roadmap (docs/tasks/_roadmaps.yaml absent).')
+    console.log('Aucun epic (aucune tâche ne porte le champ epic ; _epics.yaml absent).')
     return
   }
-  for (const r of model) {
-    console.log(`${r.slug} — ${r.title}`)
-    for (const m of r.milestones) {
-      console.log(`  ${m.slug} — ${m.title}  ${m.done}/${m.total}`)
-      for (const t of m.tasks) {
-        const tag = t.state === 'done' ? '[x]' : t.state === 'available' ? '[~] (disponible)' : `[ ] (verrouillé: ${t.missing.map((d) => `#${d}`).join(' ')})`
-        console.log(`    ${tag} #${t.id} ${t.title}${t.team ? `  (${t.team})` : ''}`)
-      }
+  for (const e of model) {
+    console.log(`\n${e.slug}${e.title !== e.slug ? ` — ${e.title}` : ''}  ${e.done}/${e.total}`)
+    for (const t of e.tasks) {
+      const tag = t.state === 'done' ? '[x]' : t.state === 'available' ? '[~] (disponible)' : `[ ] (verrouillé: ${t.missing.map((d) => `#${d}`).join(' ')})`
+      const chips = [t.team, t.kind !== 'task' ? t.kind : null].filter(Boolean).join(' ')
+      console.log(`  ${tag} #${t.id} ${t.title}${chips ? `  (${chips})` : ''}`)
     }
   }
-  if (unassigned.length > 0) console.log(`\n(sans jalon) ${unassigned.length} tâche(s) active(s) non affectée(s)`)
+  if (unassigned.length > 0) console.log(`\n(sans epic) ${unassigned.length} tâche(s) active(s) non affectée(s)`)
 }
 
 // ---------------------------------------------------------------- dispatch

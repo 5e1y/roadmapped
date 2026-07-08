@@ -10,7 +10,7 @@ import type { TaskTree, TaskNode, TaskFileMap } from './tasks'
 
 export const FIELD_ORDER = [
   'id', 'kind', 'code', 'title', 'status', 'tags', 'size', 'team', 'detail',
-  'refs', 'links', 'dependsOn', 'milestone', 'source', 'createdAt', 'startedAt', 'completedAt', 'commit',
+  'refs', 'links', 'dependsOn', 'epic', 'source', 'createdAt', 'startedAt', 'completedAt', 'commit',
   'outcome', 'verification', 'release',
 ]
 
@@ -161,18 +161,27 @@ export function withLock<T>(tasksDir: string, fn: () => T): T {
 function dumpTask(raw: Record<string, unknown>): string {
   const ordered: Record<string, unknown> = {}
   for (const key of FIELD_ORDER) {
-    // kind est ADDITIF : on ne l'écrit QUE pour un quick. Un task (le défaut) reste
-    // sans champ kind — sinon `kind ?? null` forcerait "kind: null" sur tous les
-    // YAML existants (violation de la rétrocompat). Position (après id) garantie
-    // par FIELD_ORDER quand présent.
+    // kind est ADDITIF : on ne l'écrit QUE si ≠ task (quick ou milestone). Un task
+    // (le défaut) reste sans champ kind — sinon `kind ?? null` forcerait "kind: null"
+    // sur tous les YAML existants (violation de la rétrocompat). Position (après id)
+    // garantie par FIELD_ORDER quand présent.
     if (key === 'kind') {
-      if (raw.kind === 'quick') ordered.kind = 'quick'
+      if (raw.kind === 'quick' || raw.kind === 'milestone') ordered.kind = raw.kind
       continue
     }
     // startedAt ADDITIF (comme kind) : écrit seulement quand posé, sinon les YAML
     // d'avant le champ (#82) prendraient tous un "startedAt: null" au prochain dump.
     if (key === 'startedAt') {
       if (raw.startedAt) ordered.startedAt = raw.startedAt
+      continue
+    }
+    // epic (#133, ex-milestone) : un YAML d'avant le renommage porte encore
+    // `milestone:` — sa valeur migre vers epic au prochain dump (jamais perdue),
+    // et le champ milestone disparaît (absent de FIELD_ORDER).
+    if (key === 'epic') {
+      // `!== undefined` (pas ??) : un patch { epic: null } doit VIDER le champ,
+      // pas ressusciter la valeur milestone héritée du fichier.
+      ordered.epic = raw.epic !== undefined ? raw.epic : (raw.milestone ?? null)
       continue
     }
     ordered[key] = raw[key] ?? null
@@ -269,8 +278,8 @@ export interface AddTaskInput {
   title: string
   /** Équipe métier (enum fixe, REQUISE). Validée après écriture par validate.ts. */
   team: string
-  /** 'quick' pour un mini-ticket ; absent/'task' = ticket normal (kind omis du YAML). */
-  kind?: 'task' | 'quick'
+  /** 'quick' (mini-ticket) ou 'milestone' (jalon) ; absent/'task' = ticket normal (kind omis du YAML). */
+  kind?: 'task' | 'quick' | 'milestone'
   detail?: string | null
   tags?: string[]
   size?: string | null
@@ -278,7 +287,7 @@ export interface AddTaskInput {
   refs?: string[]
   links?: number[]
   dependsOn?: number[]
-  milestone?: string | null
+  epic?: string | null
   source?: 'user' | 'ai'
 }
 
@@ -321,8 +330,8 @@ function addTaskImpl(tasksDir: string, input: AddTaskInput): MutationResult {
     typeof v === 'string' && v !== '' ? v : null
   const raw = {
     id: nextId,
-    // 'task' par défaut : dumpTask omet alors le champ (rétrocompat). Seul 'quick' est écrit.
-    kind: input.kind === 'quick' ? 'quick' : 'task',
+    // 'task' par défaut : dumpTask omet alors le champ (rétrocompat). Seuls quick/milestone sont écrits.
+    kind: input.kind === 'quick' || input.kind === 'milestone' ? input.kind : 'task',
     code: str(input.code),
     title: input.title,
     status: 'todo',
@@ -335,7 +344,7 @@ function addTaskImpl(tasksDir: string, input: AddTaskInput): MutationResult {
     refs: input.refs ?? [],
     links: input.links ?? [],
     dependsOn: input.dependsOn ?? [],
-    milestone: str(input.milestone),
+    epic: str(input.epic),
     source: input.source ?? 'ai',
     createdAt: now(),
     completedAt: null,
@@ -409,7 +418,8 @@ function doneTaskImpl(
   const warnings: string[] = []
   // Anti-exploration (spec §4) : une task livrée sans refs = le prochain lecteur
   // explorera. Discipline rendue visible, pas punitive → warning, jamais un échec.
-  if (t.kind !== 'quick' && t.refs.length === 0) {
+  // Les quick ET les jalons (kind milestone : un marqueur, pas du travail) sont exemptés.
+  if (t.kind === 'task' && t.refs.length === 0) {
     warnings.push(`#${id} terminée sans refs — ticket sans refs = le prochain lecteur explorera. Ajoute des refs (fichiers/specs) pour ancrer le contexte.`)
   }
   const res = patchActive(tasksDir, id, (raw) => {
@@ -431,7 +441,7 @@ export interface UpdateTaskPatch {
   size?: string | null
   team?: string | null
   code?: string | null
-  milestone?: string | null
+  epic?: string | null
   source?: string
   commit?: string | null
   outcome?: string | null
@@ -450,7 +460,7 @@ export function updateTask(tasksDir: string, id: number, patch: UpdateTaskPatch)
 
 function updateTaskImpl(tasksDir: string, id: number, patch: UpdateTaskPatch): MutationResult {
   const stringFields: (keyof UpdateTaskPatch)[] = [
-    'title', 'detail', 'status', 'size', 'team', 'code', 'milestone', 'source',
+    'title', 'detail', 'status', 'size', 'team', 'code', 'epic', 'source',
     'commit', 'outcome', 'verification', 'release', 'completedAt',
   ]
   const listFields: (keyof UpdateTaskPatch)[] = ['tags', 'refs', 'links', 'dependsOn']
@@ -609,56 +619,43 @@ function updateSectionImpl(
   ])
 }
 
-// ---------------------------------------------------------------- roadmaps
+// ---------------------------------------------------------------- epics
 
-export interface SaveRoadmapsInput {
-  roadmaps?: Array<{ slug?: unknown; title?: unknown; milestones?: unknown }>
+export interface SaveEpicsInput {
+  epics?: Array<{ slug?: unknown; title?: unknown }>
 }
 
 /**
- * Réécrit ENTIÈREMENT _roadmaps.yaml (racine de tasksDir). Pas de merge partiel :
- * l'appelant fournit la liste complète des roadmaps. Un body malformé ({} sans
- * "roadmaps", élément sans slug/title string non vide, milestones non-tableau,
- * slugs dupliqués dans la requête) est REJETÉ avant toute écriture — jamais de
- * coercion silencieuse vers une liste vide qui écraserait le fichier. Ensuite
- * commitWrites → validation totale (jalons déclarés vs tâches) + rollback.
+ * Réécrit ENTIÈREMENT _epics.yaml (racine de tasksDir) — la déclaration OPTIONNELLE
+ * des epics (titre lisible, ordre). Pas de merge partiel : l'appelant fournit la
+ * liste complète. Un body malformé ({} sans "epics", élément sans slug/title string
+ * non vide, slugs dupliqués dans la requête) est REJETÉ avant toute écriture —
+ * jamais de coercion silencieuse vers une liste vide qui écraserait le fichier.
+ * Ensuite commitWrites → validation totale + rollback.
  */
-export function saveRoadmaps(tasksDir: string, input: SaveRoadmapsInput): MutationResult {
-  return withLock(tasksDir, () => saveRoadmapsImpl(tasksDir, input))
+export function saveEpics(tasksDir: string, input: SaveEpicsInput): MutationResult {
+  return withLock(tasksDir, () => saveEpicsImpl(tasksDir, input))
 }
 
-function saveRoadmapsImpl(tasksDir: string, input: SaveRoadmapsInput): MutationResult {
-  if (!Array.isArray(input?.roadmaps)) {
-    return { ok: false, errors: ['Body invalide : "roadmaps" doit être un tableau (réécriture complète).'] }
+function saveEpicsImpl(tasksDir: string, input: SaveEpicsInput): MutationResult {
+  if (!Array.isArray(input?.epics)) {
+    return { ok: false, errors: ['Body invalide : "epics" doit être un tableau (réécriture complète).'] }
   }
   const errors: string[] = []
-  const roadmapSlugs = new Set<string>()
-  const milestoneSlugs = new Set<string>()
+  const slugs = new Set<string>()
   const nonEmpty = (v: unknown): v is string => typeof v === 'string' && v.trim() !== ''
-  const clean: Array<{ slug: string; title: string; milestones: Array<{ slug: string; title: string }> }> = []
-  input.roadmaps.forEach((r, i) => {
-    if (!nonEmpty(r?.slug)) errors.push(`roadmaps[${i}] : slug requis (string non vide).`)
-    else if (roadmapSlugs.has(r.slug)) errors.push(`roadmaps[${i}] : slug "${r.slug}" dupliqué dans la requête.`)
-    else roadmapSlugs.add(r.slug)
-    if (!nonEmpty(r?.title)) errors.push(`roadmaps[${i}] : title requis (string non vide).`)
-    if (!Array.isArray(r?.milestones)) {
-      errors.push(`roadmaps[${i}] : "milestones" doit être un tableau.`)
-      return
-    }
-    const milestones: Array<{ slug: string; title: string }> = []
-    r.milestones.forEach((m: { slug?: unknown; title?: unknown }, j: number) => {
-      if (!nonEmpty(m?.slug)) errors.push(`roadmaps[${i}].milestones[${j}] : slug requis (string non vide).`)
-      else if (milestoneSlugs.has(m.slug)) errors.push(`roadmaps[${i}].milestones[${j}] : slug de jalon "${m.slug}" dupliqué dans la requête.`)
-      else milestoneSlugs.add(m.slug)
-      if (!nonEmpty(m?.title)) errors.push(`roadmaps[${i}].milestones[${j}] : title requis (string non vide).`)
-      if (nonEmpty(m?.slug) && nonEmpty(m?.title)) milestones.push({ slug: m.slug as string, title: m.title as string })
-    })
-    if (nonEmpty(r?.slug) && nonEmpty(r?.title)) clean.push({ slug: r.slug as string, title: r.title as string, milestones })
+  const clean: Array<{ slug: string; title: string }> = []
+  input.epics.forEach((e, i) => {
+    if (!nonEmpty(e?.slug)) errors.push(`epics[${i}] : slug requis (string non vide).`)
+    else if (slugs.has(e.slug)) errors.push(`epics[${i}] : slug "${e.slug}" dupliqué dans la requête.`)
+    else slugs.add(e.slug)
+    if (!nonEmpty(e?.title)) errors.push(`epics[${i}] : title requis (string non vide).`)
+    if (nonEmpty(e?.slug) && nonEmpty(e?.title)) clean.push({ slug: e.slug as string, title: e.title as string })
   })
   if (errors.length > 0) return { ok: false, errors }
 
-  const abs = join(tasksDir, '_roadmaps.yaml')
+  const abs = join(tasksDir, '_epics.yaml')
   const prevContent = existsSync(abs) ? readFileSync(abs, 'utf8') : null
-  const content = yaml.dump({ roadmaps: clean }, { lineWidth: 100, quotingType: '"' })
+  const content = yaml.dump({ epics: clean }, { lineWidth: 100, quotingType: '"' })
   return commitWrites(tasksDir, [{ absPath: abs, content, prevContent }])
 }

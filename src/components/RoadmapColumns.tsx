@@ -1,8 +1,8 @@
 import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
-import { computeAvailability, missingPrereqs, type Availability } from '../lib/roadmap'
+import { computeAvailability, missingPrereqs, reverseDependents, globalProgress, type Availability } from '../lib/roadmap'
 import { LockLocked } from 'trinil-react'
-import { StatusGlyph } from './glyphs'
+import { KindGlyph } from './glyphs'
 import { Chip } from './Chip'
 import { countTasksDeep, SECTION_STATUS_FR, TEAM_ABBR } from '../lib/tasks'
 import type { SectionNode, TaskNode } from '../lib/tasks'
@@ -24,7 +24,7 @@ function ProgressBar({ done, total }: { done: number; total: number }) {
  *  - available : bordure pleine marquée + mention « Disponible » ;
  *  - locked    : carte estompée + « Prérequis manquants (#…) ».
  */
-function TaskCard({ task, state, missing }: { task: TaskNode; state: Availability; missing: number[] }) {
+function TaskCard({ task, state, missing, blocksCount = 0 }: { task: TaskNode; state: Availability; missing: number[]; blocksCount?: number }) {
   const { openTask, top } = usePanel()
   // Même convention visuelle que GraphCard : fond blanc opaque, l'état estompé
   // s'exprime par la bordure et l'encre (pas d'opacity), la disponibilité par la
@@ -47,7 +47,7 @@ function TaskCard({ task, state, missing }: { task: TaskNode; state: Availabilit
         <span className="flex h-5 shrink-0 items-center">
           {state === 'locked'
             ? <LockLocked size={11} className="shrink-0 text-neutral-500" ariaLabel="Verrouillée" />
-            : <StatusGlyph status={task.status} />}
+            : <KindGlyph task={task} />}
         </span>
         <span className="shrink-0 font-mono text-xs leading-5 text-neutral-500">#{task.id}</span>
         <span className={`min-w-0 line-clamp-2 text-sm ${titleCls}`}>
@@ -67,6 +67,10 @@ function TaskCard({ task, state, missing }: { task: TaskNode; state: Availabilit
       {subs && (
         <span className="font-mono text-[11px] text-neutral-500">{subs.done}/{subs.total} sous-tâches</span>
       )}
+      {/* Jalon (#133) : le poids du verrou — combien de tâches ce diamant retient. */}
+      {task.kind === 'milestone' && blocksCount > 0 && (
+        <span className="text-[11px] text-neutral-500">bloque {blocksCount}</span>
+      )}
       {/* Badge team (le QUI) — abrégé, coin bas droit de la carte. Même donnée
           = même rendu que le Backlog : Chip (design.md §2). */}
       <span className="absolute bottom-1.5 right-2"><Chip label={TEAM_ABBR[task.team]} /></span>
@@ -81,7 +85,7 @@ function TaskCard({ task, state, missing }: { task: TaskNode; state: Availabilit
  * colonnes, quelle que soit la longueur des notes. Les rangées vides gardent
  * un placeholder pour ne pas décaler les suivantes.
  */
-function Column({ section, visible, avail }: { section: SectionNode; visible: TaskNode[]; avail: Map<number, Availability> }) {
+function Column({ section, visible, avail, blocksOf }: { section: SectionNode; visible: TaskNode[]; avail: Map<number, Availability>; blocksOf: (t: TaskNode) => number }) {
   // Compteurs et barre = RÉEL (section.tasks) ; les cartes rendues = visible
   // (les done masqués ne changent pas la progression affichée).
   const { done, total } = countTasksDeep(section.tasks)
@@ -118,7 +122,7 @@ function Column({ section, visible, avail }: { section: SectionNode; visible: Ta
           pour que leur bordure ne soit pas mangée par la carte suivante. */}
       <div className="flex min-w-0 flex-col pt-1.5">
         {visible.map((t) => (
-          <TaskCard key={t.id} task={t} state={avail.get(t.id) ?? 'available'} missing={missingPrereqs(t, avail)} />
+          <TaskCard key={t.id} task={t} state={avail.get(t.id) ?? 'available'} missing={missingPrereqs(t, avail)} blocksCount={blocksOf(t)} />
         ))}
       </div>
     </div>
@@ -135,6 +139,8 @@ export function RoadmapColumns() {
   const sections = tree.sections.filter((s) => s.status !== 'abandoned')
   const visibleOf = (s: SectionNode) => (showDone ? s.tasks : s.tasks.filter((t) => t.status !== 'done'))
   const avail = computeAvailability(tree)
+  // « bloque N » des jalons : dépendants inverses, calculé une fois par carte jalon.
+  const blocksOf = (t: TaskNode) => (t.kind === 'milestone' ? reverseDependents(tree, t.id).length : 0)
 
   // Largeurs par colonne : un stage vide (ou vidé par le filtre) est resserré —
   // le chemin Idea→Mature reste entièrement visible sans voler l'espace.
@@ -145,7 +151,26 @@ export function RoadmapColumns() {
       className="roadmap-cols-scroll grid h-full grid-flow-col grid-rows-[auto_auto_auto_1fr] gap-x-4 gap-y-1.5 overflow-x-auto px-6 pb-6"
       style={{ gridTemplateColumns: template }}
     >
-      {sections.map((s) => <Column key={s.key} section={s} visible={visibleOf(s)} avail={avail} />)}
+      {sections.map((s) => <Column key={s.key} section={s} visible={visibleOf(s)} avail={avail} blocksOf={blocksOf} />)}
     </div>
+  )
+}
+
+/**
+ * Avancement global du lancement (#133) — servi au header de la vue Roadmap :
+ * compteur x/y + barre fine, même langage que les barres de colonne.
+ */
+export function GlobalProgress() {
+  const { tree } = useTree()
+  if (!tree) return null
+  const { done, total } = globalProgress(tree)
+  const pct = total === 0 ? 0 : Math.round((done / total) * 100)
+  return (
+    <span className="flex items-center gap-2" title={`Avancement global : ${done}/${total} tâches (${pct}%)`}>
+      <span className="h-1 w-24 overflow-hidden rounded-full bg-neutral-200">
+        <span className="block h-full bg-accent" style={{ width: `${pct}%` }} />
+      </span>
+      <span className="font-mono text-xs text-neutral-500">{done}/{total} · {pct}%</span>
+    </span>
   )
 }

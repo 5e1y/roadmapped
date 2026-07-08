@@ -1,5 +1,5 @@
 import yaml from 'js-yaml'
-import type { SectionNode, TaskNode, TaskFileMap, Roadmap } from './tasks'
+import type { SectionNode, TaskNode, TaskFileMap, Epic } from './tasks'
 import { STAGES, TEAMS } from './tasks.ts'
 
 const TASK_STATUSES = ['todo', 'in_progress', 'done']
@@ -7,6 +7,8 @@ const SECTION_STATUSES = ['open', 'done', 'dormant', 'abandoned']
 const SIZES = ['S', 'M', 'L', null]
 /** createdAt/completedAt : date seule (héritage) ou datetime local à la seconde (#84). */
 const DATE_OR_DATETIME = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2})?$/
+/** Slug d'epic : minuscules/chiffres/tirets, comme les ids de section (#133). */
+const EPIC_SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/
 
 /** Titre canonique attendu pour chaque slug de stage (source unique : STAGES). */
 const CANONICAL_TITLE = new Map(STAGES.map((s) => [s.slug, s.title]))
@@ -16,9 +18,9 @@ function validateTask(task: TaskNode, path: string, errors: string[]) {
   if (!task.title) errors.push(`${path}: title manquant`)
   if (!TASK_STATUSES.includes(task.status)) errors.push(`${path}: status invalide (${task.status})`)
   if (!SIZES.includes(task.size)) errors.push(`${path}: size invalide (${task.size})`)
-  // kind : 'task' | 'quick' (toTaskNode met 'task' par défaut ; une valeur brute
-  // invalide remonte telle quelle et est rejetée ici).
-  if (!['task', 'quick'].includes(task.kind)) errors.push(`${path}: kind invalide (${task.kind}) — attendu task ou quick`)
+  // kind : 'task' | 'quick' | 'milestone' (toTaskNode met 'task' par défaut ; une
+  // valeur brute invalide remonte telle quelle et est rejetée ici).
+  if (!['task', 'quick', 'milestone'].includes(task.kind)) errors.push(`${path}: kind invalide (${task.kind}) — attendu task, quick ou milestone`)
   // Garde-fou : un quick reste un mini-ticket. Size L = trop gros = c'est un ticket.
   if (task.kind === 'quick' && task.size === 'L') {
     errors.push(`${path}: un quick ne peut pas être en size L (si c'est gros, c'est un ticket, pas un quick)`)
@@ -49,6 +51,11 @@ function validateTask(task: TaskNode, path: string, errors: string[]) {
   }
   if (task.outcome !== null && typeof task.outcome !== 'string') {
     errors.push(`${path}: outcome doit être une string ou null`)
+  }
+  // epic (#133) : simple tag partagé — optionnel, AUCUNE déclaration exigée, mais
+  // la forme est un slug (cohérence des regroupements, pas de « Refonte Graphe » vs « refonte-graphe »).
+  if (task.epic !== null && (typeof task.epic !== 'string' || !EPIC_SLUG.test(task.epic))) {
+    errors.push(`${path}: epic invalide (${task.epic}) — attendu un slug (minuscules/chiffres/tirets) ou null`)
   }
   for (const sub of task.subtasks) {
     validateTask(sub, `${path}/${sub.id}`, errors)
@@ -91,7 +98,7 @@ export function validateTaskTree(tree: {
   nextId: number
   sections: SectionNode[]
   archive?: SectionNode[]
-  roadmaps?: Roadmap[]
+  epics?: Epic[]
 }): string[] {
   const errors: string[] = []
   const seenIds = new Map<number, string>()
@@ -139,35 +146,27 @@ export function validateTaskTree(tree: {
     errors.push(`_meta.yaml: nextId (${tree.nextId}) <= id max observé (${maxId}) — collision future garantie`)
   }
 
-  // ---- Invariants roadmap (phase 2) ----
+  // ---- Invariants deps & epics ----
   const archive = tree.archive ?? []
-  const roadmaps = tree.roadmaps ?? []
+  const epics = tree.epics ?? []
   const active = flattenTasks(tree.sections)
   const knownIds = new Set<number>()
   for (const t of [...active, ...flattenTasks(archive)]) knownIds.add(t.id)
 
-  // slugs de jalons uniques globalement + slugs de roadmaps uniques
-  const milestoneSlugs = new Set<string>()
-  const roadmapSlugs = new Set<string>()
-  for (const r of roadmaps) {
-    if (!r.slug) errors.push('_roadmaps.yaml: une roadmap sans slug')
-    else if (roadmapSlugs.has(r.slug)) errors.push(`_roadmaps.yaml: slug de roadmap "${r.slug}" dupliqué`)
-    else roadmapSlugs.add(r.slug)
-    for (const m of r.milestones) {
-      if (!m.slug) errors.push(`_roadmaps.yaml: jalon sans slug (roadmap "${r.slug}")`)
-      else if (milestoneSlugs.has(m.slug)) errors.push(`_roadmaps.yaml: slug de jalon "${m.slug}" dupliqué (unicité globale requise)`)
-      else milestoneSlugs.add(m.slug)
-    }
+  // epics déclarés (_epics.yaml, optionnel) : slug requis et unique. Aucune
+  // exigence inverse — une tâche peut porter un epic non déclaré (auto-découverte).
+  const epicSlugs = new Set<string>()
+  for (const e of epics) {
+    if (!e.slug) errors.push('_epics.yaml: un epic sans slug')
+    else if (epicSlugs.has(e.slug)) errors.push(`_epics.yaml: slug d'epic "${e.slug}" dupliqué`)
+    else epicSlugs.add(e.slug)
   }
 
-  // deps + milestone par tâche active
+  // deps par tâche active (l'epic est validé par tâche dans validateTask)
   for (const t of active) {
     for (const dep of t.dependsOn) {
       if (dep === t.id) errors.push(`#${t.id}: auto-dépendance interdite`)
       else if (!knownIds.has(dep)) errors.push(`#${t.id}: dépendance #${dep} inexistante`)
-    }
-    if (t.milestone !== null && !milestoneSlugs.has(t.milestone)) {
-      errors.push(`#${t.id}: jalon "${t.milestone}" non déclaré dans _roadmaps.yaml`)
     }
   }
 
@@ -198,7 +197,8 @@ export function validateIdUniquenessAcrossFiles(files: TaskFileMap): string[] {
       continue
     }
     if (filename === '_section.yaml') continue
-    if (filename === '_roadmaps.yaml') continue
+    if (filename === '_epics.yaml') continue
+    if (filename === '_roadmaps.yaml') continue // legacy (rétrocompat lecture #133)
     const raw = yaml.load(content) as { id?: unknown }
     if (typeof raw?.id !== 'number') continue
     if (seenIds.has(raw.id)) {

@@ -108,16 +108,9 @@ describe('validateIdUniquenessAcrossFiles', () => {
   })
 })
 
-describe('validateTaskTree — roadmap (phase 2)', () => {
+describe('validateTaskTree — deps & epics', () => {
   const meta = '/docs/tasks/_meta.yaml'
   const sec = '/docs/tasks/01-x/_section.yaml'
-  const roadmaps = [
-    'roadmaps:',
-    '  - slug: launch',
-    '    title: "Lancement"',
-    '    milestones:',
-    '      - { slug: socle, title: "Socle" }',
-  ].join('\n')
   const task = (id: number, extra = '') =>
     `id: ${id}\ntitle: "T${id}"\nstatus: todo\nsource: ai\ncreatedAt: "2026-07-07"\n${extra}`
 
@@ -148,31 +141,38 @@ describe('validateTaskTree — roadmap (phase 2)', () => {
     expect(errs.some((e) => e.includes('cyclique') && e.includes('#1') && e.includes('#2'))).toBe(true)
   })
 
-  it('signale un milestone non déclaré', () => {
+  it('accepte un epic NON déclaré (simple tag partagé, aucune déclaration exigée)', () => {
     const files = {
       [meta]: 'nextId: 2\n', [sec]: 'title: "X"\nstatus: open\n',
-      '/docs/tasks/_roadmaps.yaml': roadmaps,
-      '/docs/tasks/01-x/01-t.yaml': task(1, 'milestone: fantome\n'),
+      '/docs/tasks/01-x/01-t.yaml': task(1, 'epic: refonte-graphe\nteam: engineering\n'),
     }
-    expect(validateTaskTree(buildTaskTree(files)).some((e) => e.includes('fantome') && e.includes('non déclaré'))).toBe(true)
+    expect(validateTaskTree(buildTaskTree(files)).some((e) => e.includes('epic'))).toBe(false)
   })
 
-  it('accepte un milestone déclaré', () => {
+  it('rejette un epic qui n\'est pas un slug (majuscules/espaces)', () => {
     const files = {
       [meta]: 'nextId: 2\n', [sec]: 'title: "X"\nstatus: open\n',
-      '/docs/tasks/_roadmaps.yaml': roadmaps,
-      '/docs/tasks/01-x/01-t.yaml': task(1, 'milestone: socle\n'),
+      '/docs/tasks/01-x/01-t.yaml': task(1, 'epic: "Refonte du Graphe"\n'),
     }
-    expect(validateTaskTree(buildTaskTree(files)).some((e) => e.includes('non déclaré'))).toBe(false)
+    expect(validateTaskTree(buildTaskTree(files)).some((e) => e.includes('epic invalide'))).toBe(true)
   })
 
-  it('signale un slug de jalon dupliqué (unicité globale)', () => {
+  it('rétrocompat : un ancien champ milestone est lu comme epic et validé comme tel', () => {
     const files = {
       [meta]: 'nextId: 2\n', [sec]: 'title: "X"\nstatus: open\n',
-      '/docs/tasks/_roadmaps.yaml': [
-        'roadmaps:',
-        '  - { slug: a, title: "A", milestones: [ { slug: dup, title: "D" } ] }',
-        '  - { slug: b, title: "B", milestones: [ { slug: dup, title: "D2" } ] }',
+      '/docs/tasks/01-x/01-t.yaml': task(1, 'milestone: socle\nteam: engineering\n'),
+    }
+    // slug valide → aucune erreur epic ; aucune exigence de déclaration
+    expect(validateTaskTree(buildTaskTree(files)).some((e) => e.includes('epic'))).toBe(false)
+  })
+
+  it("signale un slug d'epic dupliqué dans _epics.yaml", () => {
+    const files = {
+      [meta]: 'nextId: 2\n', [sec]: 'title: "X"\nstatus: open\n',
+      '/docs/tasks/_epics.yaml': [
+        'epics:',
+        '  - { slug: dup, title: "D" }',
+        '  - { slug: dup, title: "D2" }',
       ].join('\n'),
     }
     expect(validateTaskTree(buildTaskTree(files)).some((e) => e.includes('dup') && e.includes('dupliqué'))).toBe(true)
@@ -219,6 +219,14 @@ describe('validateTaskTree — kind quick (mini-tickets)', () => {
       '/docs/tasks/04-build/01-t.yaml': base(1, 'kind: mega\n'),
     }
     expect(validateTaskTree(buildTaskTree(files)).some((e) => e.includes('kind'))).toBe(true)
+  })
+
+  it('accepte kind: milestone (jalon, #133)', () => {
+    const files = {
+      [meta]: 'nextId: 2\n', ...stageSectionFiles(),
+      '/docs/tasks/04-build/01-t.yaml': base(1, 'kind: milestone\n'),
+    }
+    expect(validateTaskTree(buildTaskTree(files))).toEqual([])
   })
 
   it('rejette un quick en size L (garde-fou : si c\'est gros, c\'est un ticket)', () => {

@@ -3,7 +3,7 @@ import { EyeClosed, EyeOpen } from 'trinil-react'
 import { useTree } from '../state/TreeContext'
 import { usePersistentFlag } from '../state/uiPersist'
 import { ViewHeader } from './ViewHeader'
-import { RoadmapColumns } from './RoadmapColumns'
+import { RoadmapColumns, GlobalProgress } from './RoadmapColumns'
 import { RoadmapGraph } from './RoadmapGraph'
 
 /**
@@ -50,7 +50,8 @@ export function RoadmapView() {
 
   return (
     <div className="flex h-full flex-col">
-      <ViewHeader>
+      {/* Avancement global (#133) : x/y + barre fine dans le header de la vue. */}
+      <ViewHeader meta={<GlobalProgress />}>
         <button
           type="button"
           onClick={() => setShowDone(!showDone)}

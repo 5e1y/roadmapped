@@ -20,7 +20,7 @@ import {
   treeWithErrors, readTree, findTask,
   addTask, startTask, doneTask, updateTask, archiveTask,
 } from '../src/lib/taskWrites.ts'
-import { computeAvailability, activeTasks, nextQueue } from '../src/lib/roadmap.ts'
+import { computeAvailability, activeTasks, nextQueue, globalProgress, epicProgress, allEpics } from '../src/lib/roadmap.ts'
 import { briefText, sitrepText, taskLine, refLine, git, unloggedCommits } from '../src/lib/render.ts'
 import { TEAMS } from '../src/lib/tasks.ts'
 
@@ -162,24 +162,33 @@ export function makeTools(ROOT) {
   },
   {
     name: 'roadmap',
-    description: 'Vue jalons/progression : chaque tâche done/disponible/verrouillée (deps manquantes).',
+    description: 'Avancement global + vue par epic : progression et état de chaque tâche (done/disponible/verrouillée, deps manquantes).',
     inputSchema: S.none,
     handler: () => {
       const tree = readTree(ROOT)
       const avail = computeAvailability(tree)
       const active = activeTasks(tree)
       const missingOf = (t) => t.dependsOn.filter((d) => avail.get(d) === 'available' || avail.get(d) === 'locked')
-      const model = active.map((t) => ({
-        id: t.id, title: t.title, team: t.team, milestone: t.milestone,
-        state: avail.get(t.id) ?? 'available', missing: missingOf(t),
-      }))
-      if (tree.roadmaps.length === 0) {
-        return ok(`Aucune roadmap déclarée (_roadmaps.yaml absent). ${active.length} tâches actives.`)
+      const progress = globalProgress(tree)
+      const pct = progress.total === 0 ? 0 : Math.round((progress.done / progress.total) * 100)
+      const lines = [`avancement global : ${progress.done}/${progress.total} (${pct}%)`]
+      const epics = allEpics(tree)
+      if (epics.length === 0) {
+        lines.push(`Aucun epic (aucune tâche ne porte le champ epic). ${active.length} tâches actives.`)
+        return ok(lines.join('\n'))
       }
-      const lines = model.map((m) => {
-        const tag = m.state === 'done' ? '[x]' : m.state === 'available' ? '[~] (disponible)' : `[ ] (verrouillé: ${m.missing.map((d) => `#${d}`).join(' ')})`
-        return `${tag} #${m.id} ${m.title} (${m.team})`
-      })
+      const taskTag = (state, missing) =>
+        state === 'done' ? '[x]' : state === 'available' ? '[~] (disponible)' : `[ ] (verrouillé: ${missing.map((d) => `#${d}`).join(' ')})`
+      for (const e of epics) {
+        const p = epicProgress(tree, e.slug)
+        lines.push(`\n${e.slug}${e.title !== e.slug ? ` — ${e.title}` : ''}  ${p.done}/${p.total}`)
+        for (const t of active.filter((x) => x.epic === e.slug)) {
+          const chips = [t.team, t.kind !== 'task' ? t.kind : null].filter(Boolean).join(' ')
+          lines.push(`  ${taskTag(avail.get(t.id) ?? 'available', missingOf(t))} #${t.id} ${t.title}${chips ? ` (${chips})` : ''}`)
+        }
+      }
+      const unassigned = active.filter((t) => t.epic === null).length
+      if (unassigned > 0) lines.push(`\n(sans epic) ${unassigned} tâche(s) active(s) non affectée(s)`)
       return ok(lines.join('\n'))
     },
   },
@@ -200,30 +209,34 @@ export function makeTools(ROOT) {
   // (team hors enum, cycle, section absente) revient en isError avec le message du noyau.
   {
     name: 'add',
-    description: 'Crée une tâche. team REQUISE (enum fixe). Pour un mini-ticket, préférer quick.',
+    description: 'Crée une tâche. team REQUISE (enum fixe). Pour un mini-ticket, préférer quick ; kind milestone = JALON (verrou via dependsOn).',
     inputSchema: {
       type: 'object',
       properties: {
         section: { type: 'string', description: 'slug de stage (01-idea … 08-mature)' },
         title: { type: 'string' },
         team: S.team,
+        kind: { type: 'string', enum: ['task', 'quick', 'milestone'], description: 'défaut task ; milestone = jalon (rendu diamant, cible de dependsOn)' },
         detail: { type: 'string' },
         tags: { type: 'array', items: { type: 'string' } },
         size: { type: 'string', enum: ['S', 'M', 'L'] },
         refs: { type: 'array', items: { type: 'string' } },
         links: { type: 'array', items: { type: 'number' } },
         dependsOn: { type: 'array', items: { type: 'number' } },
-        milestone: { type: 'string' },
+        epic: { type: 'string', description: 'slug du regroupement transverse (epic)' },
+        milestone: { type: 'string', description: 'DÉPRÉCIÉ — alias de epic (#133)' },
         source: { type: 'string', enum: ['ai', 'user'] },
       },
       required: ['section', 'title', 'team'], additionalProperties: false,
     },
     handler: (a) => {
       const res = addTask(ROOT, {
-        section: a.section, title: a.title, team: a.team,
+        section: a.section, title: a.title, team: a.team, kind: a.kind ?? 'task',
         detail: a.detail ?? null, tags: splitList(a.tags), size: a.size ?? null,
         refs: splitList(a.refs), links: splitList(a.links).map(Number),
-        dependsOn: splitList(a.dependsOn).map(Number), milestone: a.milestone ?? null,
+        dependsOn: splitList(a.dependsOn).map(Number),
+        // --milestone déprécié : alias lu tant qu'il existe (rétrocompat #133).
+        epic: a.epic ?? a.milestone ?? null,
         source: a.source ?? 'ai',
       })
       return fromRes(res, res.ok ? `#${res.task.id} créée → ${res.task.file}` : '', res.ok ? res.task : undefined)
@@ -292,7 +305,7 @@ export function makeTools(ROOT) {
   },
   {
     name: 'update',
-    description: 'Patch générique d\'une tâche (champs string, listes, dependsOn, milestone). Envoyer [] pour vider une liste.',
+    description: 'Patch générique d\'une tâche (champs string, listes, dependsOn, epic). Envoyer [] pour vider une liste.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -300,7 +313,8 @@ export function makeTools(ROOT) {
         title: { type: 'string' }, detail: { type: 'string' }, status: { type: 'string', enum: ['todo', 'in_progress', 'done'] },
         size: { type: 'string' }, team: S.team, code: { type: 'string' }, source: { type: 'string', enum: ['ai', 'user'] },
         commit: { type: 'string' }, outcome: { type: 'string' }, verification: { type: 'string' }, release: { type: 'string' },
-        milestone: { type: 'string' },
+        epic: { type: 'string', description: 'slug du regroupement transverse (epic)' },
+        milestone: { type: 'string', description: 'DÉPRÉCIÉ — alias de epic (#133)' },
         tags: { type: 'array', items: { type: 'string' } }, refs: { type: 'array', items: { type: 'string' } },
         links: { type: 'array', items: { type: 'number' } }, dependsOn: { type: 'array', items: { type: 'number' } },
       },
@@ -308,9 +322,11 @@ export function makeTools(ROOT) {
     },
     handler: (a) => {
       const patch = {}
-      for (const f of ['title', 'detail', 'status', 'size', 'team', 'code', 'source', 'commit', 'outcome', 'verification', 'release', 'milestone']) {
+      for (const f of ['title', 'detail', 'status', 'size', 'team', 'code', 'source', 'commit', 'outcome', 'verification', 'release', 'epic']) {
         if (a[f] !== undefined) patch[f] = a[f]
       }
+      // --milestone déprécié : alias de epic tant qu'il existe (rétrocompat #133).
+      if (a.milestone !== undefined && a.epic === undefined) patch.epic = a.milestone
       if (a.tags !== undefined) patch.tags = splitList(a.tags)
       if (a.refs !== undefined) patch.refs = splitList(a.refs)
       if (a.links !== undefined) patch.links = splitList(a.links).map(Number)

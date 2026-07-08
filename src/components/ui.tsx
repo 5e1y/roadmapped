@@ -379,6 +379,105 @@ export function TagsCombobox({ tags, suggestions, disabled = false, onSave }: {
 }
 
 /**
+ * Epic en Combobox « Creatable » SIMPLE (#133) — un seul slug, peau ghost :
+ * suggestions = les epics existants du projet (déclarés + auto-découverts) ; une
+ * saisie inconnue propose « Créer "xxx" » (slugifiée à l'enregistrement) ; le ✕
+ * (visible quand un epic est posé) retire l'epic. Non contrôlé côté valeur : le
+ * parent remonte le composant via key après reload (pattern des autres champs).
+ */
+export function EpicCombobox({ value, suggestions, disabled = false, onSave, toSlug }: {
+  value: string | null
+  suggestions: string[]
+  disabled?: boolean
+  onSave: (next: string | null) => void
+  /** Slugifieur partagé (lib/roadmap slugify) — injecté pour garder ui.tsx sans dépendance lib. */
+  toSlug: (input: string) => string
+}) {
+  const [query, setQuery] = useState(value ?? '')
+  const known = [...new Set([...suggestions, ...(value ? [value] : [])])].sort()
+  const trimmed = query.trim()
+  const exactExists = trimmed !== '' && known.includes(toSlug(trimmed))
+  // L'item « créer » garde la SAISIE BRUTE (le filtre intégré matche ce qu'on tape) ;
+  // la slugification n'arrive qu'à l'enregistrement.
+  const items: string[] = trimmed !== '' && !exactExists ? [...known, trimmed] : known
+
+  if (disabled) {
+    return (
+      <div className="px-1.5 py-1 font-mono text-sm text-neutral-500">{value ?? '—'}</div>
+    )
+  }
+
+  return (
+    <div className="group flex items-center">
+      <Combobox.Root
+        items={items}
+        inputValue={query}
+        onInputValueChange={setQuery}
+        onValueChange={(v: string | null) => {
+          if (v === null) return
+          const slug = known.includes(v) ? v : toSlug(v)
+          setQuery(slug)
+          if (slug !== value) onSave(slug)
+        }}
+      >
+        <Combobox.Input
+          aria-label="Epic"
+          placeholder="—"
+          onBlur={() => {
+            // Champ vidé puis quitté = retirer l'epic (parité avec les inputs ghost) ;
+            // sinon on restaure la valeur courante (une saisie non validée ne PATCHe pas).
+            if (trimmed === '' && value !== null) onSave(null)
+            else setQuery(value ?? '')
+          }}
+          className={`${ghostCls} font-mono text-sm placeholder:text-neutral-500`}
+        />
+        <Combobox.Portal>
+          <Combobox.Positioner sideOffset={4} className="z-50">
+            <Combobox.Popup className="max-h-56 min-w-[var(--anchor-width)] overflow-y-auto border border-neutral-200 bg-white py-1 shadow-sm">
+              <Combobox.Empty className="px-2.5 py-1.5 text-sm text-neutral-500">Aucun epic.</Combobox.Empty>
+              <Combobox.List>
+                {(item: string) => (
+                  <Combobox.Item
+                    key={item}
+                    value={item}
+                    className="flex cursor-default items-center gap-2 px-2.5 py-1.5 text-sm text-neutral-900 data-[highlighted]:bg-neutral-100"
+                  >
+                    {known.includes(item) ? (
+                      <>
+                        <Combobox.ItemIndicator className="shrink-0 text-neutral-900">
+                          <Check size={10} />
+                        </Combobox.ItemIndicator>
+                        <span className="font-mono">{item}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Plus size={10} className="shrink-0 text-neutral-500" />
+                        <span>Créer « {toSlug(item)} »</span>
+                      </>
+                    )}
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>
+      {value !== null && (
+        <button
+          type="button"
+          aria-label="Retirer l'epic"
+          title="Retirer l'epic"
+          onClick={() => onSave(null)}
+          className="shrink-0 rounded p-1 text-neutral-500 opacity-0 transition-opacity hover:bg-neutral-200 hover:text-neutral-700 focus-visible:opacity-100 group-hover:opacity-100"
+        >
+          <Cross size={9} />
+        </button>
+      )}
+    </div>
+  )
+}
+
+/**
  * Multi-sélection filtrable à chips (Base UI Combobox multiple). Items = { value, label }
  * (value = id en string). value/onValueChange manipulent des number[] pour coller au schéma dependsOn.
  */
