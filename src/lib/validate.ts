@@ -47,6 +47,20 @@ function validateTask(task: TaskNode, path: string, errors: string[]) {
   if (task.updatedAt && !DATE_OR_DATETIME.test(task.updatedAt)) {
     errors.push(`${path}: updatedAt format invalide (attendu YYYY-MM-DD ou YYYY-MM-DDTHH:MM:SS)`)
   }
+  // Feedback (#149) : liste optionnelle d'items {date, author, text, resolved}.
+  if (task.feedback !== undefined) {
+    if (!Array.isArray(task.feedback)) {
+      errors.push(`${path}: feedback doit être une liste`)
+    } else {
+      task.feedback.forEach((f, i) => {
+        if (typeof f !== 'object' || f === null) { errors.push(`${path}: feedback[${i}] invalide`); return }
+        if (!f.date || !DATE_OR_DATETIME.test(f.date)) errors.push(`${path}: feedback[${i}].date format invalide`)
+        if (typeof f.text !== 'string' || f.text.trim() === '') errors.push(`${path}: feedback[${i}].text requis`)
+        if (typeof f.author !== 'string') errors.push(`${path}: feedback[${i}].author requis (string)`)
+        if (typeof f.resolved !== 'boolean') errors.push(`${path}: feedback[${i}].resolved doit être un booléen`)
+      })
+    }
+  }
   if (task.completedAt && !DATE_OR_DATETIME.test(task.completedAt)) {
     errors.push(`${path}: completedAt format invalide (attendu YYYY-MM-DD ou YYYY-MM-DDTHH:MM:SS)`)
   }

@@ -11,7 +11,7 @@ import type { TaskTree, TaskNode, TaskFileMap } from './tasks'
 export const FIELD_ORDER = [
   'id', 'kind', 'code', 'title', 'status', 'tags', 'size', 'team', 'detail',
   'refs', 'links', 'dependsOn', 'epic', 'source', 'createdAt', 'startedAt', 'updatedAt', 'completedAt', 'commit',
-  'outcome', 'verification', 'release',
+  'outcome', 'verification', 'release', 'feedback',
 ]
 
 export interface FoundTask { task: TaskNode; sectionKey: string }
@@ -175,6 +175,12 @@ function dumpTask(raw: Record<string, unknown>): string {
     // d'avant le champ ne prennent pas "updatedAt: null" au prochain dump.
     if (key === 'updatedAt') {
       if (raw.updatedAt) ordered.updatedAt = raw.updatedAt
+      continue
+    }
+    // feedback ADDITIF (#149) : écrit seulement si non vide — aucun YAML sans
+    // retour ne prend "feedback: []" au prochain dump.
+    if (key === 'feedback') {
+      if (Array.isArray(raw.feedback) && raw.feedback.length > 0) ordered.feedback = raw.feedback
       continue
     }
     // epic (#133, ex-milestone) : un YAML d'avant le renommage porte encore

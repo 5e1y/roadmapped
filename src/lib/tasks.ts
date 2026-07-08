@@ -49,6 +49,17 @@ export const STAGES: Stage[] = [
   { slug: '08-mature', title: 'Mature Stage', note: 'Referral, legal & compliance, advanced integrations.' },
 ]
 
+/**
+ * Un retour attaché à une tâche (#149, mode feedback) : capturé SANS créer de
+ * ticket. `resolved` bascule à la clôture (done --resolve-feedback) ou d'une main.
+ */
+export interface FeedbackItem {
+  date: string
+  author: string
+  text: string
+  resolved: boolean
+}
+
 export interface TaskNode {
   id: number
   /**
@@ -90,6 +101,8 @@ export interface TaskNode {
   outcome: string | null
   verification: string | null
   release: string | null
+  /** Journal de retours (#149) — additif : absent/[] sur les YAML sans feedback. */
+  feedback?: FeedbackItem[]
   /** Chemin repo-relatif du fichier YAML source (ex: "docs/tasks/01-solidite/01-addimage.yaml"). */
   file: string
   subtasks: TaskNode[]
@@ -200,6 +213,7 @@ function toTaskNode(raw: any, file: string): TaskNode {
     outcome: raw.outcome ?? null,
     verification: raw.verification ?? null,
     release: raw.release ?? null,
+    feedback: Array.isArray(raw.feedback) ? raw.feedback : [],
     file,
     subtasks: [],
   }

@@ -222,6 +222,25 @@ describe('updatedAt (#147 Live 4)', () => {
   })
 })
 
+describe('feedback[] (#149)', () => {
+  it('additif : absent quand vide, et un feedback survit à un update sans rapport (round-trip dump)', () => {
+    add({ title: 'Feedback task' })
+    const file = join(dir, SEC, '01-feedback-task.yaml')
+    expect(readFileSync(file, 'utf8')).not.toContain('feedback:')
+    // Injecte un retour dans le YAML, relit via le parser.
+    writeFileSync(file, readFileSync(file, 'utf8') +
+      '\nfeedback:\n  - date: "2026-07-09T10:00:00"\n    author: remi\n    text: "revoir le wording"\n    resolved: false\n')
+    let t = findTask(readTree(dir), 1)!.task
+    expect(t.feedback).toHaveLength(1)
+    expect(t.feedback![0].text).toBe('revoir le wording')
+    // Un update sans rapport préserve le feedback (dump additif le réécrit).
+    updateTask(dir, 1, { detail: 'x' })
+    t = findTask(readTree(dir), 1)!.task
+    expect(t.feedback).toHaveLength(1)
+    expect(readFileSync(file, 'utf8')).toContain('feedback:')
+  })
+})
+
 describe('outcome (updateTask)', () => {
   it('se modifie et se vide via updateTask ; absent du YAML = null', () => {
     add()
