@@ -18,7 +18,7 @@ import { ListToolsRequestSchema, CallToolRequestSchema } from '@modelcontextprot
 import { loadPaths } from '../src/lib/paths.ts'
 import {
   treeWithErrors, readTree, findTask,
-  addTask, startTask, doneTask, updateTask,
+  addTask, startTask, doneTask, updateTask, addFeedback,
 } from '../src/lib/taskWrites.ts'
 import { computeAvailability, activeTasks, nextQueue, globalProgress, epicProgress, allEpics } from '../src/lib/roadmap.ts'
 import { briefText, sitrepText, taskLine, refLine, git, unloggedCommits } from '../src/lib/render.ts'
@@ -305,6 +305,7 @@ export function makeTools(ROOT) {
         outcome: { type: 'string' },
         verification: { type: 'string' },
         release: { type: 'string' },
+        resolveFeedback: { description: "Resolve feedback at close (#149): 'all' or 1-based positions [1,3]." },
       },
       required: ['id'], additionalProperties: false,
     },
@@ -312,13 +313,31 @@ export function makeTools(ROOT) {
       // Autofill HEAD (#71): the agent no longer reads git.
       let commit = typeof a.commit === 'string' ? a.commit : undefined
       if (commit === undefined) { const head = git('rev-parse --short HEAD'); if (head) commit = head }
-      const res = doneTask(ROOT, a.id, { commit, outcome: a.outcome, verification: a.verification, release: a.release })
+      const res = doneTask(ROOT, a.id, { commit, outcome: a.outcome, verification: a.verification, release: a.release, resolveFeedback: a.resolveFeedback })
       if (!res.ok) return fromRes(res)
       const tree = readTree(ROOT)
       const hit = findTask(tree, a.id)
       const suffix = res.warnings?.length ? `\n⚠ ${res.warnings.join('\n⚠ ')}` : ''
       // warnings ALSO in structured: the client may hide the text (#95).
       return ok(`#${a.id} done.${commit ? ` commit=${commit}.` : ''}${suffix}`, { task: hit.task, warnings: res.warnings ?? [] })
+    },
+  },
+  {
+    name: 'feedback',
+    description: 'Capture a note on a task WITHOUT a new ticket (#149). Same scope → reopen (take/start) + re-done; new scope → a quick.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        id: { type: 'number' },
+        text: { type: 'string' },
+        author: { type: 'string', description: 'default: user' },
+      },
+      required: ['id', 'text'], additionalProperties: false,
+    },
+    handler: (a) => {
+      const res = addFeedback(ROOT, a.id, { text: a.text, author: a.author })
+      if (!res.ok) return fromRes(res)
+      return ok(`feedback added to #${a.id}. Same scope → reopen (take/start ${a.id}) then re-done; new scope → a quick.`, { task: res.task })
     },
   },
   {
