@@ -1,0 +1,39 @@
+id: 135
+code: null
+title: >-
+  Epic = groupe visuel expandable (partout : Backlog, Roadmap colonnes ET graphe) — pas un tag
+  filtrable
+status: in_progress
+tags:
+  - ux
+  - data-model
+  - fable
+size: L
+team: design
+detail: >-
+  Refonte VISUELLE de l'epic (le back champ epic reste inchangé). Aujourd'hui l'epic est un tag
+  filtrable (toggle « par epic » → blocs plats) — NON. Vision Rémi : un epic est un GROUPE. Partout
+  où des tasks sont listées, une task appartenant à un epic ne s'affiche plus à plat : on affiche
+  l'EPIC (replié par défaut), on le déplie pour révéler ses tasks. Un epic se rend comme un
+  composant SIMILAIRE à une task-row mais avec des indicateurs clairs : (1) c'est un groupe, (2) il
+  contient N tasks, (3) son taux de complétion done/total (comme un jalon). Périmètre : (a) Backlog
+  (liste) — rows epic expandables inline, tasks sans epic en rows normales ; remplace le
+  toggle/blocs actuels ; (b) Roadmap colonnes — idem, l'epic est un item de groupe dépliable dans la
+  colonne ; (c) Roadmap GRAPHE — un epic est un NŒUD représentant le groupe (avec complétion),
+  dépliable pour révéler ses task-nodes membres (le plus dur — si trop gros, livrer Backlog+colonnes
+  d'abord et signaler le graphe). État déplié/replié persisté (uiPersist). Réutiliser
+  epicProgress/allEpics, le pattern Collapsible de TaskRow (sous-tâches), les tokens monochromes.
+  Confié à Fable 5.
+refs: []
+links:
+  - 133
+  - 131
+dependsOn: []
+milestone: null
+source: ai
+createdAt: "2026-07-08T12:04:24"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
