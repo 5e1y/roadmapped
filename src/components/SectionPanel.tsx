@@ -1,17 +1,23 @@
 import { useState, type KeyboardEvent } from 'react'
-import { Check } from 'trinil-react'
+import { Toast } from '@base-ui/react/toast'
 import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
-import { Select, TextInput, TextArea, ErrorBanner, MultiCombobox, TagsCombobox } from './ui'
-import { STAGES, TEAMS } from '../lib/tasks'
+import {
+  Select, TextInput, TextArea, ErrorBanner, MultiCombobox, TagsCombobox,
+  GhostAutoTextArea, SavedTick, FieldError, ToastViewport, primaryBtn, actionBtn,
+  type SelectItem,
+} from './ui'
+import { relItemOf } from './TaskPanel'
+import { STAGES, TEAMS, SECTION_STATUS_FR } from '../lib/tasks'
 import { activeTasks, archivedTasks } from '../lib/roadmap'
 import type { SectionNode } from '../lib/tasks'
 
-const SECTION_STATUS_ITEMS: { value: SectionNode['status']; label: string }[] = [
-  { value: 'open', label: 'open' },
-  { value: 'done', label: 'done' },
-  { value: 'dormant', label: 'dormant' },
-  { value: 'abandoned', label: 'abandoned' },
+// Statuts de section en français (#28) — même source que le Backlog/Colonnes
+// (SECTION_STATUS_FR), complétée du seul statut « open ».
+const SECTION_STATUS_ITEMS: SelectItem[] = [
+  { value: 'open', label: 'ouverte' },
+  ...(Object.entries(SECTION_STATUS_FR) as [SectionNode['status'], string][])
+    .map(([value, label]) => ({ value, label })),
 ]
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
@@ -45,12 +51,10 @@ export function CreateTaskPanel({ section }: { section: string }) {
   const [busy, setBusy] = useState(false)
 
   const allTags = tree ? [...new Set([...activeTasks(tree), ...archivedTasks(tree)].flatMap((t) => t.tags))] : []
-  const relItems = tree
-    ? [
-        ...activeTasks(tree).map((t) => ({ value: String(t.id), label: `#${t.id} ${t.title}` })),
-        ...archivedTasks(tree).map((t) => ({ value: String(t.id), label: `#${t.id} ${t.title} (archivée)` })),
-      ]
-    : []
+  // Items avec aperçu (#125) : glyphe, #id, titre, stage, team — relItemOf.
+  // Les OUVERTES d'abord (candidates naturelles), les faites/archivées ensuite.
+  const pool = tree ? [...activeTasks(tree), ...archivedTasks(tree)] : []
+  const relItems = [...pool.filter((t) => t.status !== 'done'), ...pool.filter((t) => t.status === 'done')].map(relItemOf)
 
   const create = async () => {
     if (busy) return
@@ -150,12 +154,10 @@ export function CreateTaskPanel({ section }: { section: string }) {
           placeholder={'docs/specs/....md\nsrc/lib/....ts'} onChange={(e) => setRefs(e.target.value)} />
       </Field>
       <div className="flex gap-2">
-        <button type="button" onClick={create} disabled={busy}
-          className="rounded border border-neutral-900 bg-neutral-900 px-2.5 py-1 text-xs text-white hover:bg-neutral-700 disabled:opacity-50">
+        <button type="button" onClick={create} disabled={busy} className={primaryBtn}>
           {busy ? 'Création…' : 'Créer la tâche'}
         </button>
-        <button type="button" onClick={close}
-          className="rounded border border-neutral-300 px-2.5 py-1 text-xs text-neutral-700 hover:bg-neutral-100">
+        <button type="button" onClick={close} className={actionBtn}>
           Annuler
         </button>
       </div>
@@ -163,63 +165,107 @@ export function CreateTaskPanel({ section }: { section: string }) {
   )
 }
 
-/** Édition d'une section existante : titre / statut / note. */
+/**
+ * Édition d'une section (#28) : même grammaire visuelle que TaskPanel —
+ * « lecture d'abord », champs GHOST montés en permanence (statut en Select
+ * ghost, note en textarea ghost auto-grow), ✓ « enregistré » et erreur de
+ * validation SOUS la zone concernée, Toast pour l'erreur réseau, chemin
+ * technique relégué en pied. Le titre d'un stage est canonique (validation
+ * stricte côté serveur) — lecture seule, même typo que le titre de tâche.
+ */
 export function SectionPanel({ dir }: { dir: string }) {
-  const { tree, reload } = useTree()
-  const [errors, setErrors] = useState<string[]>([])
-  const [saved, setSaved] = useState(false)
-  const section = tree?.sections.find((s) => s.key === dir) ?? tree?.archive.find((s) => s.key === dir)
-  if (!section) return <p className="text-sm text-neutral-500">Section introuvable.</p>
+  return (
+    <Toast.Provider>
+      <SectionPanelBody dir={dir} />
+      <ToastViewport />
+    </Toast.Provider>
+  )
+}
 
-  const save = async (patch: Record<string, unknown>) => {
-    const r = await fetch(`/api/sections/${encodeURIComponent(dir)}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(patch),
-    })
-    const data = (await r.json()) as { ok: boolean; errors?: string[] }
-    if (data.ok) {
-      setErrors([])
-      setSaved(true)
-      window.setTimeout(() => setSaved(false), 1500)
-      await reload()
-    } else setErrors(data.errors ?? [])
+function SectionPanelBody({ dir }: { dir: string }) {
+  const { tree, reload } = useTree()
+  const toast = Toast.useToastManager()
+  // Erreurs / ✓ suivis PAR zone (même pattern que TaskPanel).
+  const [errors, setErrors] = useState<Record<string, string[]>>({})
+  const [savedField, setSavedField] = useState<string | null>(null)
+  const section = tree?.sections.find((s) => s.key === dir) ?? tree?.archive.find((s) => s.key === dir)
+  const isArchive = !tree?.sections.some((s) => s.key === dir) && !!tree?.archive.some((s) => s.key === dir)
+  if (!section) return <p className="text-sm text-neutral-500">Section introuvable.</p>
+  const sectionPath = `docs/tasks/${isArchive ? '_archive/' : ''}${dir}`
+
+  const flash = (field: string) => {
+    setSavedField(field)
+    window.setTimeout(() => setSavedField((s) => (s === field ? null : s)), 1500)
+  }
+
+  /** PATCH d'une zone : ✓ au succès, erreur de validation sous la zone, Toast réseau. */
+  const save = async (field: string, patch: Record<string, unknown>) => {
+    try {
+      const r = await fetch(`/api/sections/${encodeURIComponent(dir)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(patch),
+      })
+      const data = (await r.json()) as { ok: boolean; errors?: string[] }
+      if (data.ok) {
+        setErrors((p) => { const n = { ...p }; delete n[field]; return n })
+        flash(field)
+        await reload()
+      } else setErrors((p) => ({ ...p, [field]: data.errors ?? ['Erreur inconnue.'] }))
+    } catch {
+      toast.add({ title: 'Erreur réseau', description: 'La modification n’a pas été enregistrée.', priority: 'high' })
+    }
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <ErrorBanner errors={errors} />
-      <div className="flex items-center justify-between gap-2">
-        <div className="min-w-0 truncate font-mono text-xs text-neutral-500">{dir}</div>
-        {saved && (
-          <span className="flex shrink-0 items-center gap-1 text-[11px] text-neutral-500">
-            <Check size={10} />
-            Enregistré
-          </span>
-        )}
+    <div className="flex min-h-full flex-col gap-5">
+      {/* En-tête : statut (ghost select, FR) puis titre — miroir de TaskPanel. */}
+      <div className="flex flex-col gap-1.5">
+        <div className="flex items-center gap-1.5">
+          <div className="w-32">
+            <Select
+              ghost
+              aria-label="Statut de la section"
+              defaultValue={section.status}
+              items={SECTION_STATUS_ITEMS}
+              onValueChange={(v) => { if (v !== section.status) void save('status', { status: v }) }}
+            />
+          </div>
+          <SavedTick show={savedField === 'status'} />
+        </div>
+        <FieldError errs={errors.status} />
+        {/* Titre canonique (lecture seule) — même typo que le titre de tâche,
+            même retrait px-1.5 que les champs ghost. */}
+        <h3 className="px-1.5 py-1 text-base font-semibold leading-snug tracking-tight text-neutral-900">
+          {section.title}
+        </h3>
       </div>
-      {/* Le titre d'un stage est canonique (validation stricte) — lecture seule. */}
+
+      {/* Note : textarea ghost permanente (jamais de swap), sauvegarde au blur. */}
       <div className="flex flex-col gap-1">
-        <span className="text-[11px] font-medium text-neutral-500">Titre</span>
-        <p className="px-1 text-sm text-neutral-900">{section.title}</p>
-      </div>
-      <label className="flex flex-col gap-1">
-        <span className="text-[11px] font-medium text-neutral-500">Statut</span>
-        <Select
-          aria-label="Statut de la section"
-          defaultValue={section.status}
-          items={SECTION_STATUS_ITEMS}
-          onValueChange={(v) => { if (v !== section.status) void save({ status: v }) }}
-        />
-      </label>
-      <label className="flex flex-col gap-1">
-        <span className="text-[11px] font-medium text-neutral-500">Note</span>
-        <TextArea defaultValue={section.note ?? ''}
+        <div className="flex items-center gap-2">
+          <div className="px-1.5 text-[11px] font-medium text-neutral-500">Note</div>
+          <SavedTick show={savedField === 'note'} />
+        </div>
+        <GhostAutoTextArea
+          key={`note-${section.note ?? ''}`}
+          defaultValue={section.note ?? ''}
+          placeholder="Aucune note. Cliquer pour ajouter."
+          aria-label="Note"
+          onKeyDown={(e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') e.currentTarget.blur() }}
           onBlur={(e) => {
             const v = e.target.value === '' ? null : e.target.value
-            if ((section.note ?? null) !== v) void save({ note: v })
-          }} />
-      </label>
+            if ((section.note ?? null) !== v) void save('note', { note: v })
+          }}
+          className="text-sm leading-relaxed placeholder:text-neutral-500"
+        />
+        <FieldError errs={errors.note} />
+      </div>
+
+      {/* Pied : le chemin technique, relégué ici (audit UX — même place que TaskPanel). */}
+      <div className="mt-auto border-t border-neutral-200 pt-3">
+        <div className="truncate font-mono text-[11px] text-neutral-500" title={sectionPath}>{sectionPath}</div>
+      </div>
     </div>
   )
 }

@@ -31,6 +31,21 @@ type GNode =
   | { key: string; kind: 'task'; task: TaskNode }
   | { key: string; kind: 'epic'; slug: string; title: string; tasks: TaskNode[] }
 
+/** Prérequis manquant SANS carte propre (#138) : rangé dans un nœud-epic (titre
+    connu) ou réellement hors vue (archivé / done masqué / quick) — epicTitle null. */
+interface HiddenPrereq {
+  id: number
+  epicTitle: string | null
+}
+
+/** Détail lisible des prérequis sans carte propre — tooltip du libellé « Prérequis
+    manquants » (#138) : dit OÙ vit chaque #id au lieu d'un « +n hors graphe » muet. */
+export function hiddenPrereqNote(hidden: HiddenPrereq[]): string {
+  return hidden
+    .map((h) => `#${h.id} — ${h.epicTitle ? `dans l'epic « ${h.epicTitle} »` : 'hors vue (archivée ou masquée)'}`)
+    .join(' · ')
+}
+
 interface PlacedNode {
   node: GNode
   col: number
@@ -39,7 +54,8 @@ interface PlacedNode {
   h: number
   state: Availability
   missing: number[]
-  missingHidden: number
+  /** Prérequis manquants sans carte propre, avec leur localisation (#138). */
+  hidden: HiddenPrereq[]
   blocksCount: number
 }
 
@@ -175,19 +191,23 @@ export function RoadmapGraph() {
       nextRow = row + Math.max(1, Math.ceil((h + (ROW_H - CARD_H)) / ROW_H))
       if (n.kind === 'task') {
         const t = n.task
-        // Prérequis non faits (source partagée avec le mode Colonnes). Seuls les
-        // #id ayant leur PROPRE carte sont cités — un prérequis rangé dans un
-        // epic ou hors-vue compte dans « +n hors graphe ».
+        // Prérequis non faits (source partagée avec le mode Colonnes). TOUS les
+        // #id sont cités (#138) ; ceux sans carte propre (rangés dans un nœud-epic
+        // ou hors vue) portent leur localisation, restituée en tooltip.
         const allMissing = missingPrereqs(t, avail)
         const missing = allMissing.filter((d) => standaloneIds.has(d))
+        const hidden = allMissing.filter((d) => !standaloneIds.has(d)).map((d): HiddenPrereq => {
+          const key = nodeKeyOfTask.get(d)
+          const slug = key?.startsWith('e:') ? key.slice(2) : null
+          return { id: d, epicTitle: slug ? (epicTitles.get(slug) ?? slug) : null }
+        })
         placed.push({
           node: n, col, row, h,
-          state: avail.get(t.id) ?? 'available', missing,
-          missingHidden: allMissing.length - missing.length,
+          state: avail.get(t.id) ?? 'available', missing, hidden,
           blocksCount: t.kind === 'milestone' ? reverseDependents(tree, t.id).length : 0,
         })
       } else {
-        placed.push({ node: n, col, row, h, state: 'available', missing: [], missingHidden: 0, blocksCount: 0 })
+        placed.push({ node: n, col, row, h, state: 'available', missing: [], hidden: [], blocksCount: 0 })
       }
     }
   }
@@ -317,9 +337,16 @@ function GraphCard({ placed, task }: { placed: PlacedNode; task: TaskNode }) {
         </span>
       </div>
       {state === 'locked' ? (
-        <span className="text-[11px] text-neutral-500">
-          Prérequis manquants{placed.missing.length ? ` (${placed.missing.map((d) => `#${d}`).join(' ')})` : ''}
-          {placed.missingHidden > 0 ? ` (+${placed.missingHidden} hors graphe)` : ''}
+        // #138 : tous les prérequis sont cités par #id — ceux sans carte propre
+        // (dans un epic replié, hors vue) sont localisés dans le tooltip.
+        <span
+          className="text-[11px] text-neutral-500"
+          title={placed.hidden.length > 0 ? hiddenPrereqNote(placed.hidden) : undefined}
+        >
+          Prérequis manquants
+          {placed.missing.length + placed.hidden.length > 0
+            ? ` (${[...placed.missing, ...placed.hidden.map((h) => h.id)].map((d) => `#${d}`).join(' ')})`
+            : ''}
         </span>
       ) : state === 'available' ? (
         <span className="text-[11px] font-medium text-neutral-700">Disponible</span>

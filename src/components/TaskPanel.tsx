@@ -1,6 +1,6 @@
 import { useRef, useState, type ReactNode, type RefObject } from 'react'
 import { Toast } from '@base-ui/react/toast'
-import { Check, Cross, Warning, LockLocked } from 'trinil-react'
+import { Cross, LockLocked } from 'trinil-react'
 import { Collapsible } from '@base-ui/react/collapsible'
 import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
@@ -12,10 +12,11 @@ import { relativeTime, absoluteDate } from '../lib/relativeTime'
 import { Chip } from './Chip'
 import {
   ErrorBanner, Select, TextInput, AutoTextArea, GhostInput, GhostAutoTextArea,
-  AddCombobox, TagsCombobox, EpicCombobox, ToastViewport, blurOnEnter, type SelectItem,
+  AddCombobox, TagsCombobox, EpicCombobox, ToastViewport, blurOnEnter,
+  SavedTick, FieldError, primaryBtn, actionBtn, type SelectItem,
 } from './ui'
 import { Markdown } from './Markdown'
-import { TEAMS } from '../lib/tasks'
+import { TEAMS, TEAM_ABBR } from '../lib/tasks'
 import { OPEN_DOC_EVENT } from '../lib/events'
 import type { TaskNode, TaskTree } from '../lib/tasks'
 
@@ -97,30 +98,30 @@ function SectionLabel({ children }: { children: ReactNode }) {
   return <div className="px-1.5 text-[11px] font-medium text-neutral-500">{children}</div>
 }
 
-function CheckIcon() {
-  return <Check size={10} />
-}
-
-/** ✓ fugace « enregistré » posé sur la zone sauvée (spec §Feedback). */
-function SavedTick({ show }: { show: boolean }) {
-  if (!show) return null
-  return (
-    <span className="flex shrink-0 items-center gap-1 text-[11px] text-neutral-500">
-      <CheckIcon />
-      enregistré
-    </span>
-  )
-}
-
-/** Erreur de VALIDATION affichée SOUS la zone fautive (⚠ + texte). Monochrome. */
-function FieldError({ errs }: { errs?: string[] }) {
-  if (!errs || errs.length === 0) return null
-  return (
-    <div className="flex items-start gap-1.5 px-1.5 text-[11px] text-neutral-800">
-      <Warning size={11} className="mt-px shrink-0" />
-      <span className="font-mono">{errs.join(' · ')}</span>
-    </div>
-  )
+/**
+ * Item de relation AVEC APERÇU (#125) pour les combobox « dépend de » / « bloque » /
+ * liens : #id, titre, statut (glyphe), stage (dérivé du dossier du fichier YAML,
+ * archives comprises) et team abrégée. `label` reste le texte de recherche du
+ * filtre intégré Base UI ; `preview` porte le rendu riche (RelOption, ui.tsx).
+ */
+export function relItemOf(t: TaskNode): SelectItem {
+  const archived = t.file.includes('_archive/')
+  // "docs/tasks/04-build/…" → [2] ; "docs/tasks/_archive/04-build/…" → [3].
+  const dir = t.file.split('/')[archived ? 3 : 2] ?? ''
+  return {
+    value: String(t.id),
+    label: `#${t.id} ${t.title}${archived ? ' (archivée)' : ''}`,
+    preview: {
+      id: t.id,
+      title: t.title,
+      status: t.status,
+      kind: t.kind,
+      // L'archive ancienne peut ne pas porter de team (non revalidée) — vide toléré.
+      team: TEAM_ABBR[t.team] ?? (t.team ? String(t.team) : ''),
+      stage: dir.replace(/^\d+-/, ''),
+      archived,
+    },
+  }
 }
 
 /** ✕ discret, révélé au survol de sa ligne (retrait d'une dépendance, d'un lien, d'une ref). */
@@ -221,9 +222,6 @@ function RefLine({ refPath, onRemove }: { refPath: string; onRemove?: () => void
   )
 }
 
-const actionBtn =
-  'rounded border border-neutral-300 px-2.5 py-1 text-[11px] text-neutral-700 transition-colors hover:bg-neutral-100 disabled:opacity-50'
-
 /**
  * Mini-formulaire du done guidé (#27, spec §Structure 2). outcome REQUIS (le
  * bouton « Done ✓ » est disabled tant qu'il est vide) ; vérification, commit,
@@ -277,7 +275,7 @@ function DoneForm({ task, busy, onCancel, onSubmit }: {
             commit: commit.trim() || null,
             release: release.trim() || null,
           })}
-          className="rounded border border-neutral-900 bg-neutral-900 px-2.5 py-1 text-xs text-white transition-colors hover:bg-neutral-700 disabled:cursor-not-allowed disabled:border-neutral-300 disabled:bg-neutral-300"
+          className={primaryBtn}
         >
           {busy ? 'Enregistrement…' : 'Done ✓'}
         </button>
@@ -343,13 +341,15 @@ function TaskPanelBody({ id }: { id: number }) {
   // Epics du projet (déclarés + auto-découverts) — suggestions du champ Epic (#133).
   const epicSlugs = allEpics(tree).map((e) => e.slug)
   // Tâches proposables en relation : actives + ARCHIVÉES (soi-même exclu),
-  // moins celles déjà liées (l'AddCombobox ne fait qu'AJOUTER).
-  const relItems = (already: number[]): SelectItem[] => [
-    ...activeTasks(tree).filter((t) => t.id !== id && !already.includes(t.id))
-      .map((t) => ({ value: String(t.id), label: `#${t.id} ${t.title}` })),
-    ...archivedTasks(tree).filter((t) => t.id !== id && !already.includes(t.id))
-      .map((t) => ({ value: String(t.id), label: `#${t.id} ${t.title} (archivée)` })),
-  ]
+  // moins celles déjà liées (l'AddCombobox ne fait qu'AJOUTER). Items avec
+  // aperçu (#125) : glyphe, #id, titre, stage, team — relItemOf. Les OUVERTES
+  // d'abord (candidates naturelles), les faites/archivées ensuite.
+  const relItems = (already: number[]): SelectItem[] => {
+    const pool = [...activeTasks(tree), ...archivedTasks(tree)]
+      .filter((t) => t.id !== id && !already.includes(t.id))
+    return [...pool.filter((t) => t.status !== 'done'), ...pool.filter((t) => t.status === 'done')]
+      .map(relItemOf)
+  }
 
   // --------------------------------------------------------------- sauvegarde
   const flash = (field: string) => {
@@ -511,33 +511,55 @@ function TaskPanelBody({ id }: { id: number }) {
         <div className="px-1.5"><SavedTick show={savedIn('tags')} /></div>
       </div>
 
-      {/* #27 — action de cycle de vie. */}
-      {editable && (
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2">
-            {task.status === 'todo' && (
-              <button type="button" onClick={start} disabled={pending} className={actionBtn}>
-                {pending ? 'Démarrage…' : 'Démarrer'}
-              </button>
-            )}
-            {task.status === 'in_progress' && (
-              <button type="button" onClick={() => setDoneOpen((o) => !o)} className={actionBtn}>
-                {doneOpen ? 'Fermer' : 'Terminer…'}
-              </button>
-            )}
-            {task.status === 'done' && (
-              <button type="button" onClick={archive} disabled={pending} className={actionBtn}>
-                {pending ? 'Archivage…' : 'Archiver'}
-              </button>
-            )}
-          </div>
+      {/* #124 — LA barre d'actions : toutes les actions de la tâche, regroupées.
+          Primaire (noir plein) = l'action de cycle de vie (#27) ; secondaires
+          (actionBtn) = brief agent et Supprimer — le destructif ferme la barre,
+          calé à droite. Le done guidé (#27) se déplie sous la barre, inchangé. */}
+      <div className="flex flex-col gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {editable && task.status === 'todo' && (
+            <button type="button" onClick={start} disabled={pending} className={primaryBtn}>
+              {pending ? 'Démarrage…' : 'Démarrer'}
+            </button>
+          )}
+          {editable && task.status === 'in_progress' && (
+            <button type="button" onClick={() => setDoneOpen((o) => !o)} className={primaryBtn}>
+              {doneOpen ? 'Fermer' : 'Terminer…'}
+            </button>
+          )}
+          {editable && task.status === 'done' && (
+            <button type="button" onClick={archive} disabled={pending} className={primaryBtn}>
+              {pending ? 'Archivage…' : 'Archiver'}
+            </button>
+          )}
+          <button
+            type="button"
+            className={actionBtn}
+            onClick={async () => {
+              try {
+                await navigator.clipboard.writeText(agentBrief(task))
+                setCopied(true)
+                setTimeout(() => setCopied(false), 1500)
+              } catch {
+                // clipboard indisponible (contexte non sécurisé) — copie manuelle.
+                window.prompt('Copie manuelle du brief :', agentBrief(task))
+              }
+            }}
+          >
+            {copied ? 'Copié' : 'Copier le brief agent'}
+          </button>
+          <button type="button" onClick={remove} disabled={pending} className={`ml-auto ${actionBtn}`}>
+            Supprimer
+          </button>
+        </div>
+        {editable && (
           <Collapsible.Root open={doneOpen} onOpenChange={setDoneOpen}>
             <Collapsible.Panel>
               <DoneForm task={task} busy={pending} onCancel={() => setDoneOpen(false)} onSubmit={finishDone} />
             </Collapsible.Panel>
           </Collapsible.Root>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Métadonnées : champs ghost permanents, étiquetés. */}
       <div className="grid grid-cols-3 gap-2">
@@ -789,30 +811,6 @@ function TaskPanelBody({ id }: { id: number }) {
             <FieldError errs={errors[field]} />
           </label>
         ))}
-      </div>
-
-      <div className="flex items-center gap-2">
-        {/* Registre secondaire actionBtn (design.md §2 Boutons) — le hover
-            « inversé » clair→noir plein est interdit. */}
-        <button
-          type="button"
-          className={actionBtn}
-          onClick={async () => {
-            try {
-              await navigator.clipboard.writeText(agentBrief(task))
-              setCopied(true)
-              setTimeout(() => setCopied(false), 1500)
-            } catch {
-              // clipboard indisponible (contexte non sécurisé) — copie manuelle.
-              window.prompt('Copie manuelle du brief :', agentBrief(task))
-            }
-          }}
-        >
-          {copied ? 'Copié' : 'Copier le brief agent'}
-        </button>
-        <button type="button" onClick={remove} disabled={pending} className={actionBtn}>
-          Supprimer
-        </button>
       </div>
 
       {/* Pied : le chemin technique, relégué ici (audit UX). */}
