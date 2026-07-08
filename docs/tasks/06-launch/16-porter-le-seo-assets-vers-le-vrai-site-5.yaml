@@ -1,0 +1,30 @@
+id: 198
+code: null
+title: Porter le SEO + assets vers le vrai site (5e1y/roadmapped-site)
+status: todo
+tags:
+  - seo
+  - homepage
+size: null
+team: marketing
+detail: >-
+  Porter vers le repo externe roadmapped-site ce qui avait été fait à tort dans site/ (supprimé
+  #197), récupérable dans l'historique git (commits ea33888 landing+SEO, f179dbe OG image) : balises
+  meta/OG/Twitter/canonical + JSON-LD SoftwareApplication, robots.txt, sitemap.xml, llms.txt, l'OG
+  image 1200×630 (+ son template og-image.html reproductible). PUIS se poser vraiment sur le SEO du
+  site existant : audit des balises actuelles, mobile, perf, cohérence copy avec docs/site-copy.md.
+  Nécessite l'accès à roadmapped-site (Rémi le clone à côté ou donne le chemin).
+refs:
+  - docs/site-copy.md
+  - docs/repo-metadata.md
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-09T01:42:47"
+updatedAt: "2026-07-09T01:42:47"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
