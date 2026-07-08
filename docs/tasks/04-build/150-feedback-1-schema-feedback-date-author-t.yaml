@@ -1,0 +1,24 @@
+id: 191
+code: null
+title: Feedback 1 — schéma feedback[] {date,author,text,resolved} + validation + migration
+status: todo
+tags:
+  - feedback
+  - data-model
+size: null
+team: engineering
+detail: null
+refs:
+  - docs/specs/2026-07-08-feedback-mode.md
+  - src/lib/validate.ts
+  - src/lib/tasks.ts
+links: []
+dependsOn: []
+epic: feedback-mode
+source: ai
+createdAt: "2026-07-09T00:24:07"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

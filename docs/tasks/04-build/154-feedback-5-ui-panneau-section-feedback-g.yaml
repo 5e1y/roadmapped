@@ -1,0 +1,22 @@
+id: 195
+code: null
+title: "Feedback 5 — UI panneau : section Feedback (ghost input) + badge open sur la ligne"
+status: todo
+tags:
+  - feedback
+size: null
+team: design
+detail: null
+refs:
+  - src/components/TaskPanel.tsx
+links: []
+dependsOn:
+  - 191
+epic: feedback-mode
+source: ai
+createdAt: "2026-07-09T00:24:09"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

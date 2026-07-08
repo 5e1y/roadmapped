@@ -1,0 +1,22 @@
+id: 193
+code: null
+title: "Feedback 3 — sitrep : alerte 'N done tasks with open feedback'"
+status: todo
+tags:
+  - feedback
+size: null
+team: engineering
+detail: null
+refs:
+  - scripts/task.mjs
+links: []
+dependsOn:
+  - 191
+epic: feedback-mode
+source: ai
+createdAt: "2026-07-09T00:24:08"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
