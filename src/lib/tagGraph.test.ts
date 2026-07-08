@@ -16,28 +16,35 @@ function task(over: Partial<TaskNode>): TaskNode {
 }
 
 describe('tagGraph', () => {
-  it('compte les tags des tickets ouverts et ignore les done', () => {
+  it('compte les tags de TOUS les tickets, done inclus (#150 : carte des thèmes)', () => {
     const g = tagGraph([
       task({ id: 1, tags: ['ux', 'fable'] }),
       task({ id: 2, status: 'in_progress', tags: ['fable'] }),
       task({ id: 3, status: 'done', tags: ['ux', 'debt'] }),
     ])
+    // ux compté 2× (id1 todo + id3 done), fable 2×, debt 1× (le done n'est plus ignoré).
     expect(g.nodes).toEqual([
       { tag: 'fable', count: 2 },
-      { tag: 'ux', count: 1 },
+      { tag: 'ux', count: 2 },
+      { tag: 'debt', count: 1 },
     ])
-    expect(g.edges).toEqual([{ a: 'fable', b: 'ux', weight: 1 }])
+    // id1 → fable-ux ; id3 → debt-ux. Poids égaux → tri alpha (debt avant fable).
+    expect(g.edges).toEqual([
+      { a: 'debt', b: 'ux', weight: 1 },
+      { a: 'fable', b: 'ux', weight: 1 },
+    ])
   })
 
-  it('inclut les sous-tâches ouvertes (même règle de charge que le radar)', () => {
+  it('inclut les sous-tâches, done comprises', () => {
     const g = tagGraph([
       task({ id: 1, status: 'done', tags: ['spec'], subtasks: [
         task({ id: 2, tags: ['spec', 'data-model'] }),
       ] }),
     ])
+    // spec compté 2× (parent done + sous-tâche), data-model 1×.
     expect(g.nodes).toEqual([
+      { tag: 'spec', count: 2 },
       { tag: 'data-model', count: 1 },
-      { tag: 'spec', count: 1 },
     ])
     expect(g.edges).toEqual([{ a: 'data-model', b: 'spec', weight: 1 }])
   })
@@ -68,8 +75,8 @@ describe('tagGraph', () => {
     expect(g.edges).toEqual([{ a: 'a', b: 'b', weight: 2 }]) // a–c écartée
   })
 
-  it('sans tags ouverts : graphe vide', () => {
-    expect(tagGraph([task({ id: 1 }), task({ id: 2, status: 'done', tags: ['x'] })]))
+  it('sans aucun tag : graphe vide (un done SANS tag ne crée rien)', () => {
+    expect(tagGraph([task({ id: 1 }), task({ id: 2, status: 'done' })]))
       .toEqual({ nodes: [], edges: [] })
   })
 })

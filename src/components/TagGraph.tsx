@@ -26,11 +26,11 @@ export function TagGraph({ graph, selected, onSelect }: {
   if (placed.length === 0 && !ghost) return null
 
   return (
-    <div role="group" aria-label="Thèmes des tickets ouverts (tags)" className="w-full">
+    <div role="group" aria-label="Thèmes du projet (tags)" className="w-full">
       {ghost && (
         <div className="flex items-center gap-2 px-4 pb-1 text-xs text-neutral-500">
           <span>
-            filtre tag <span className="font-mono text-neutral-700">#{selected}</span> — plus aucun ticket ouvert
+            filtre tag <span className="font-mono text-neutral-700">#{selected}</span> — plus aucun ticket
           </span>
           <button
             type="button"
@@ -76,6 +76,10 @@ export function TagGraph({ graph, selected, onSelect }: {
                   strokeOpacity={dimmed ? 0.3 : 1}
                   strokeWidth={1.5}
                   vectorEffect="non-scaling-stroke"
+                  /* Pastille cliquable aussi (#150) : même toggle que le label.
+                     Rayon de hit élargi pour une cible confortable. */
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => onSelect(active ? '' : p.tag)}
                 />
               )
             })}
