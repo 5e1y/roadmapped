@@ -1,6 +1,6 @@
-# Contributing to Roadmaped
+# Contributing to Roadmapped
 
-Thanks for your interest in improving Roadmaped. This document covers the dev setup, the project's philosophy, and how to submit changes.
+Thanks for your interest in improving Roadmapped. This document covers the dev setup, the project's philosophy, and how to submit changes.
 
 ## Dev setup
 
@@ -21,10 +21,10 @@ Run `npm run test` and `npm run build` before opening a pull request — CI runs
 
 ## Project philosophy
 
-Roadmaped has no database. Understanding these principles will make your contributions fit naturally into the codebase:
+Roadmapped has no database. Understanding these principles will make your contributions fit naturally into the codebase:
 
 - **Flat files are the only source of truth.** Everything the dashboard displays — backlog sections, tasks, specs — lives in plain YAML/markdown files under `docs/`. The app is a read/write view over those files, not a store of its own.
-- **Every write is validated, then rolled back if invalid.** Any mutation (via the CLI or the dashboard) is applied, validated against the expected schema, and reverted if the result would be invalid. The repo should never be left in a broken state by a Roadmaped operation.
+- **Every write is validated, then rolled back if invalid.** Any mutation (via the CLI or the dashboard) is applied, validated against the expected schema, and reverted if the result would be invalid. The repo should never be left in a broken state by a Roadmapped operation.
 - **IDs are never reused.** Once a task ID has been assigned, it is retired for good, even if the item is later deleted. This keeps history and references stable over time.
 
 ## Contribution process

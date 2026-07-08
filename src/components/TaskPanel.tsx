@@ -204,7 +204,7 @@ function RefLine({ refPath, onRemove }: { refPath: string; onRemove?: () => void
           onClick={() => {
             // L'état vue/doc vit dans App (événement documenté là-bas). docPath est
             // relatif à docsDir — on retire le préfixe docs/ de la ref repo-relative.
-            window.dispatchEvent(new CustomEvent('roadmaped:open-doc', { detail: refPath.replace(/^docs\//, '') }))
+            window.dispatchEvent(new CustomEvent('roadmapped:open-doc', { detail: refPath.replace(/^docs\//, '') }))
             close()
           }}
           className="min-w-0 flex-1 truncate px-1.5 py-0.5 text-left font-mono text-xs text-neutral-800 underline decoration-neutral-300 underline-offset-2 hover:decoration-neutral-800"

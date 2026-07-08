@@ -1,6 +1,6 @@
 import type { Plugin, Connect } from 'vite'
 import type { ServerResponse, IncomingMessage } from 'node:http'
-import { loadPaths, type RoadmapedPaths } from '../lib/paths'
+import { loadPaths, type RoadmappedPaths } from '../lib/paths'
 import {
   treeWithErrors, addTask, updateTask, archiveTask, deleteTask,
   updateSection, saveRoadmaps, type MutationResult,
@@ -135,7 +135,7 @@ function fromNote(res: NoteResult): ApiResponse {
 }
 
 /** Exécute une action contre tasksDir/docsDir. Isole les exceptions en 500. */
-export function runAction(paths: RoadmapedPaths, action: ApiAction): ApiResponse {
+export function runAction(paths: RoadmappedPaths, action: ApiAction): ApiResponse {
   const { tasksDir, docsDir } = paths
   try {
     switch (action.type) {
@@ -203,10 +203,10 @@ function readJsonBody(req: IncomingMessage): Promise<any> {
   })
 }
 
-export function roadmapedApi(): Plugin {
+export function roadmappedApi(): Plugin {
   const paths = loadPaths()
   return {
-    name: 'roadmaped-api',
+    name: 'roadmapped-api',
     configureServer(server) {
       // Notepad (#87) : au boot, docs/notes/ existe et est gitignoré. repoRoot = cwd du
       // serveur de dev. Best-effort — jamais bloquant si le FS refuse.

@@ -29,7 +29,7 @@ export function ViewHeader({ meta, children }: {
   return (
     <header className="flex h-12 shrink-0 items-center justify-between gap-4 border-b border-neutral-200 px-4">
       <div className="flex min-w-0 items-center gap-4">
-        <span className="shrink-0 text-sm font-semibold tracking-tight text-neutral-900">Roadmaped</span>
+        <span className="shrink-0 text-sm font-semibold tracking-tight text-neutral-900">Roadmapped</span>
         <nav className="flex shrink-0 overflow-hidden rounded-md border border-neutral-300">
           {NAV.map((item) => (
             <button

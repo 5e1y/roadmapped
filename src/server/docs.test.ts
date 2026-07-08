@@ -27,7 +27,7 @@ function seed(): void {
 }
 
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), 'roadmaped-docs-'))
+  dir = mkdtempSync(join(tmpdir(), 'roadmapped-docs-'))
   seed()
 })
 afterEach(() => rmSync(dir, { recursive: true, force: true }))

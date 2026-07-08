@@ -22,7 +22,7 @@ What you expected to happen instead.
 
 - OS:
 - Node version:
-- Roadmaped version:
+- Roadmapped version:
 
 ## Additional context
 

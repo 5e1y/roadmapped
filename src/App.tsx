@@ -80,8 +80,8 @@ function Shell() {
       setDocPath(path)
       setView('docs')
     }
-    window.addEventListener('roadmaped:open-doc', onOpenDoc)
-    return () => window.removeEventListener('roadmaped:open-doc', onOpenDoc)
+    window.addEventListener('roadmapped:open-doc', onOpenDoc)
+    return () => window.removeEventListener('roadmapped:open-doc', onOpenDoc)
   }, [])
 
   // Titre d'onglet = vue courante (ou nom du doc ouvert).
@@ -92,7 +92,7 @@ function Shell() {
       : view === 'docs' ? 'Docs'
       : view === 'notepad' ? 'Notepad'
       : 'Backlog'
-    document.title = `${name} · Roadmaped`
+    document.title = `${name} · Roadmapped`
   }, [view, docPath])
 
   return (

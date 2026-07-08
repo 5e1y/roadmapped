@@ -1,4 +1,4 @@
-# Plan de communication — lancement open source de Roadmaped
+# Plan de communication — lancement open source de Roadmapped
 
 **Statut : DRAFT — proposition Fable à relire par Rémi (tâche #19).**
 Les choix éditoriaux (ton, canaux prioritaires, objectifs chiffrés) sont des propositions
@@ -33,7 +33,7 @@ agent IA est le premier utilisateur ».
 
 | Canal | Angle | Langue | Quand |
 |---|---|---|---|
-| **Show HN** (Hacker News) | Local-first, no-SaaS, flat files ; le README technique fait le travail. Titre proposé : « Show HN: Roadmaped – project management as flat files in your repo, built for AI agents ». Premier commentaire : architecture (validation+rollback, ids immuables, états calculés), et l'histoire du dogfooding. | EN | J0 matin (16h-17h CET = matin US) |
+| **Show HN** (Hacker News) | Local-first, no-SaaS, flat files ; le README technique fait le travail. Titre proposé : « Show HN: Roadmapped – project management as flat files in your repo, built for AI agents ». Premier commentaire : architecture (validation+rollback, ids immuables, états calculés), et l'histoire du dogfooding. | EN | J0 matin (16h-17h CET = matin US) |
 | **Product Hunt** | Fiche produit : tagline « Your repo is your project manager », galerie = captures des 3 vues + GIF du cycle agent (next → start → done). | EN | J0 (00h01 PT) |
 | **LinkedIn** (compte Rémi) | Récit founder FR : « j'ai lancé un outil open source en le pilotant avec lui-même » — le méta-récit, les leçons, le lien repo. Version EN en commentaire ou post séparé J+1. | FR puis EN | J0 midi |
 | **Reddit r/ClaudeAI** | Le skill Claude : démo du cycle agent complet, setup en premier commentaire. | EN | J0 |
@@ -63,7 +63,7 @@ sur le marketplace (#15) · captures/GIF frais du dashboard poli · ce plan appr
   conversation fait le ranking).
 - Critique technique fondée → remercier, convertir en tâche backlog, répondre avec l'id
   de la tâche créée (la transparence EST le produit).
-- Demande de feature → « c'est trackable dans Roadmaped » + lien vers le backlog public.
+- Demande de feature → « c'est trackable dans Roadmapped » + lien vers le backlog public.
 - Jamais de défensive ; ton factuel, montrer le fichier/le commit plutôt qu'affirmer.
 - Rémi porte les réponses founder (LinkedIn, HN) ; les réponses techniques peuvent être
   préparées en draft par l'agent.
