@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { computeAvailability, missingPrereqs, topoLayers, epicProgress, globalProgress, allEpics, activeTasks, archivedTasks, slugify, reverseDependents, depState, nextQueue } from './roadmap'
+import { computeAvailability, missingPrereqs, graphLayout, graphNeighborhood, epicProgress, globalProgress, allEpics, activeTasks, archivedTasks, slugify, reverseDependents, depState, nextQueue, type GraphInput } from './roadmap'
 import type { TaskTree, TaskNode, SectionNode } from './tasks'
 
 /** Fabrique une tâche minimale ; les champs non pertinents prennent des défauts. */
@@ -62,31 +62,103 @@ describe('missingPrereqs', () => {
   })
 })
 
-describe('topoLayers', () => {
-  it('chaîne 1→2→3 : trois couches', () => {
-    const tasks = [task(3, 'todo', [2]), task(1, 'todo'), task(2, 'todo', [1])]
-    const layers = topoLayers(tasks)
-    expect(layers[0].map((t) => t.id)).toEqual([1])
-    expect(layers[1].map((t) => t.id)).toEqual([2])
-    expect(layers[2].map((t) => t.id)).toEqual([3])
+describe('graphLayout (dagre, flux-de-dépendances)', () => {
+  const node = (id: string) => ({ id, width: 100, height: 50 })
+  const input = (ids: string[], edges: Array<[string, string]>): GraphInput => ({
+    nodes: ids.map(node),
+    edges: edges.map(([from, to]) => ({ from, to })),
   })
-  it('deps hors de l’ensemble ignorées pour le calcul de couche', () => {
-    // #2 dépend de #1 (absent de l’ensemble) → #2 en couche 0
-    const layers = topoLayers([task(2, 'todo', [1])])
-    expect(layers[0].map((t) => t.id)).toEqual([2])
+
+  it('chaîne a→b→c : le prérequis est à GAUCHE du dépendant (rankdir LR)', () => {
+    const l = graphLayout(input(['a', 'b', 'c'], [['a', 'b'], ['b', 'c']]))
+    const [a, b, c] = [l.nodes.get('a')!, l.nodes.get('b')!, l.nodes.get('c')!]
+    expect(a.x + a.w).toBeLessThanOrEqual(b.x)
+    expect(b.x + b.w).toBeLessThanOrEqual(c.x)
   })
-  it('cycle 1↔2 : termine sans boucle infinie, aucune tâche perdue', () => {
-    // Défensif : la validation interdit les cycles, mais topoLayers ne doit pas diverger.
-    const tasks = [task(1, 'todo', [2]), task(2, 'todo', [1])]
-    const layers = topoLayers(tasks)
-    expect(layers.flat().length).toBe(tasks.length)
-    expect(layers.flat().map((t) => t.id).sort()).toEqual([1, 2])
+
+  it('positions en coin haut-gauche, dans les bornes du layout', () => {
+    const l = graphLayout(input(['a', 'b'], [['a', 'b']]))
+    for (const p of l.nodes.values()) {
+      expect(p.x).toBeGreaterThanOrEqual(0)
+      expect(p.y).toBeGreaterThanOrEqual(0)
+      expect(p.x + p.w).toBeLessThanOrEqual(l.width)
+      expect(p.y + p.h).toBeLessThanOrEqual(l.height)
+    }
   })
-  it('self-dépendance 1→1 : termine, la tâche reste présente', () => {
-    const tasks = [task(1, 'todo', [1])]
-    const layers = topoLayers(tasks)
-    expect(layers.flat().length).toBe(tasks.length)
-    expect(layers[0].map((t) => t.id)).toEqual([1])
+
+  it('toutes les arêtes valides sont routées (points présents), clé `from->to`', () => {
+    const l = graphLayout(input(['a', 'b', 'c', 'd'], [['a', 'b'], ['a', 'c'], ['b', 'd'], ['c', 'd']]))
+    expect(l.edges.size).toBe(4)
+    for (const e of l.edges.values()) expect(e.points.length).toBeGreaterThanOrEqual(2)
+    expect(l.edges.has('a->b')).toBe(true)
+  })
+
+  it('défensif : self-loop et arête vers un nœud absent ignorées, sans planter', () => {
+    const l = graphLayout(input(['a', 'b'], [['a', 'a'], ['a', 'zz'], ['a', 'b']]))
+    expect(l.edges.size).toBe(1)
+    expect(l.nodes.size).toBe(2)
+  })
+
+  it('défensif : un cycle a↔b (epics entremêlés) termine et place tout le monde', () => {
+    const l = graphLayout(input(['a', 'b'], [['a', 'b'], ['b', 'a']]))
+    expect(l.nodes.size).toBe(2)
+  })
+
+  it('mémoïsé par identité d’input : même objet → même layout (pas de recalcul au hover)', () => {
+    const i = input(['a', 'b'], [['a', 'b']])
+    expect(graphLayout(i)).toBe(graphLayout(i))
+    // Un input NEUF (même contenu) est un nouveau calcul — la clé est l'identité.
+    expect(graphLayout(input(['a', 'b'], [['a', 'b']]))).not.toBe(graphLayout(i))
+  })
+
+  it('tient un DAG de 60 nœuds : aucun chevauchement de cartes, deps toujours à gauche', () => {
+    const ids = Array.from({ length: 60 }, (_, i) => `n${i}`)
+    // DAG dense déterministe : chaque nœud dépend de 1 à 3 prédécesseurs.
+    const edges: Array<[string, string]> = []
+    for (let i = 1; i < 60; i++) {
+      for (let k = 1; k <= (i % 3) + 1; k++) {
+        const from = i - k * ((i % 5) + 1)
+        if (from >= 0) edges.push([`n${from}`, `n${i}`])
+      }
+    }
+    const l = graphLayout(input(ids, edges))
+    const boxes = [...l.nodes.values()]
+    expect(boxes.length).toBe(60)
+    for (let i = 0; i < boxes.length; i++) {
+      for (let j = i + 1; j < boxes.length; j++) {
+        const a = boxes[i], b = boxes[j]
+        const overlap = a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h
+        expect(overlap).toBe(false)
+      }
+    }
+    for (const [from, to] of edges) {
+      expect(l.nodes.get(from)!.x).toBeLessThan(l.nodes.get(to)!.x)
+    }
+  })
+})
+
+describe('graphNeighborhood', () => {
+  const E = (pairs: Array<[string, string]>) => pairs.map(([from, to]) => ({ from, to }))
+
+  it('fermeture transitive amont ET aval, nœud lui-même exclu', () => {
+    // a → b → c → d, plus e → c (deuxième prérequis)
+    const edges = E([['a', 'b'], ['b', 'c'], ['c', 'd'], ['e', 'c']])
+    const { ancestors, descendants } = graphNeighborhood(edges, 'c')
+    expect([...ancestors].sort()).toEqual(['a', 'b', 'e'])
+    expect([...descendants].sort()).toEqual(['d'])
+    expect(ancestors.has('c')).toBe(false)
+  })
+
+  it('nœud isolé ou inconnu → ensembles vides', () => {
+    const { ancestors, descendants } = graphNeighborhood(E([['a', 'b']]), 'zz')
+    expect(ancestors.size).toBe(0)
+    expect(descendants.size).toBe(0)
+  })
+
+  it('défensif : un cycle ne diverge pas', () => {
+    const { ancestors, descendants } = graphNeighborhood(E([['a', 'b'], ['b', 'a']]), 'a')
+    expect([...ancestors]).toEqual(['b'])
+    expect([...descendants]).toEqual(['b'])
   })
 })
 

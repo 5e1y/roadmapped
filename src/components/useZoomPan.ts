@@ -1,0 +1,181 @@
+import { useCallback, useEffect, useRef, useState } from 'react'
+
+/**
+ * Zoom/pan maison de la Vue Graphe (graph-v2) — pas de dépendance. Remplace le
+ * `scale`+scroll natif : molette = zoom VERS LE CURSEUR, drag = pan, `fit` =
+ * ajuster le contenu au viewport, `reset` = 100 %. La géométrie (zoomAt,
+ * fitTransform, clampPan) est en fonctions PURES exportées, testées à part.
+ *
+ * Transform appliqué sur la boîte de layout :
+ *   `translate(${tx}px, ${ty}px) scale(${scale})`, `transform-origin: 0 0`.
+ */
+export interface ZoomPanTransform {
+  scale: number
+  tx: number
+  ty: number
+}
+
+export const ZOOM_MIN = 0.2
+export const ZOOM_MAX = 2.5
+/** Bande de contenu qui doit toujours rester visible dans le viewport (px). */
+const KEEP_VISIBLE = 48
+/** Pas de pan clavier (px viewport). */
+const KEY_PAN = 48
+export const ZOOM_STEP = 1.2
+
+export const clampScale = (s: number): number => Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, s))
+
+const clampBetween = (v: number, lo: number, hi: number): number =>
+  lo > hi ? (lo + hi) / 2 : Math.min(hi, Math.max(lo, v))
+
+/**
+ * Zoom autour d'une ANCRE en coordonnées viewport : le point du contenu situé
+ * sous l'ancre reste fixe à l'écran (formule d'ancrage classique).
+ */
+export function zoomAt(t: ZoomPanTransform, anchor: { x: number; y: number }, factor: number): ZoomPanTransform {
+  const scale = clampScale(t.scale * factor)
+  const k = scale / t.scale
+  return { scale, tx: anchor.x - (anchor.x - t.tx) * k, ty: anchor.y - (anchor.y - t.ty) * k }
+}
+
+/**
+ * « Ajuster » : scale = min des deux axes (jamais > 100 % — ajuster ne doit pas
+ * grossir un petit graphe), contenu centré dans le viewport.
+ */
+export function fitTransform(contentW: number, contentH: number, vpW: number, vpH: number): ZoomPanTransform {
+  if (contentW <= 0 || contentH <= 0 || vpW <= 0 || vpH <= 0) return { scale: 1, tx: 0, ty: 0 }
+  const scale = clampScale(Math.min(vpW / contentW, vpH / contentH, 1))
+  return {
+    scale,
+    tx: Math.max(0, (vpW - contentW * scale) / 2),
+    ty: Math.max(0, (vpH - contentH * scale) / 2),
+  }
+}
+
+/** Borne la translation : le contenu garde au moins KEEP_VISIBLE px à l'écran. */
+export function clampPan(t: ZoomPanTransform, contentW: number, contentH: number, vpW: number, vpH: number): ZoomPanTransform {
+  if (vpW <= 0 || vpH <= 0) return t
+  return {
+    scale: t.scale,
+    tx: clampBetween(t.tx, KEEP_VISIBLE - contentW * t.scale, vpW - KEEP_VISIBLE),
+    ty: clampBetween(t.ty, KEEP_VISIBLE - contentH * t.scale, vpH - KEEP_VISIBLE),
+  }
+}
+
+export interface ZoomPan {
+  /** À poser sur le viewport (overflow-hidden). Le hook y attache la molette. */
+  viewportRef: React.RefObject<HTMLDivElement>
+  transform: ZoomPanTransform
+  /** Drag en cours (curseur grabbing). */
+  panning: boolean
+  /** Handlers à étaler sur le viewport (le composant filtre le pointerdown). */
+  handlers: {
+    onPointerDown: (e: React.PointerEvent<HTMLDivElement>) => void
+    onPointerMove: (e: React.PointerEvent<HTMLDivElement>) => void
+    onPointerUp: (e: React.PointerEvent<HTMLDivElement>) => void
+    onPointerCancel: (e: React.PointerEvent<HTMLDivElement>) => void
+    onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => void
+  }
+  /** Zoom par facteur, ancré au centre du viewport (boutons + / −). */
+  zoomBy: (factor: number) => void
+  fit: () => void
+  reset: () => void
+}
+
+export function useZoomPan(contentW: number, contentH: number): ZoomPan {
+  const viewportRef = useRef<HTMLDivElement>(null)
+  const [transform, setTransform] = useState<ZoomPanTransform>({ scale: 1, tx: 0, ty: 0 })
+  const [panning, setPanning] = useState(false)
+  // Dimensions du contenu lues à l'exécution (pas de re-création des handlers).
+  const content = useRef({ w: contentW, h: contentH })
+  content.current = { w: contentW, h: contentH }
+  const drag = useRef<{ pointerId: number; x: number; y: number } | null>(null)
+
+  const apply = useCallback((fn: (prev: ZoomPanTransform) => ZoomPanTransform) => {
+    setTransform((prev) => {
+      const el = viewportRef.current
+      const next = fn(prev)
+      return el ? clampPan(next, content.current.w, content.current.h, el.clientWidth, el.clientHeight) : next
+    })
+  }, [])
+
+  // Molette = zoom vers le curseur. Listener NATIF non-passif : React attache
+  // `onWheel` en passif à la racine, preventDefault y serait ignoré (et la page
+  // scrollerait sous le graphe).
+  useEffect(() => {
+    const el = viewportRef.current
+    if (!el) return
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault()
+      const rect = el.getBoundingClientRect()
+      const anchor = { x: e.clientX - rect.left, y: e.clientY - rect.top }
+      apply((prev) => zoomAt(prev, anchor, Math.exp(-e.deltaY * 0.0015)))
+    }
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => el.removeEventListener('wheel', onWheel)
+  }, [apply])
+
+  const onPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.button !== 0) return
+    drag.current = { pointerId: e.pointerId, x: e.clientX, y: e.clientY }
+    e.currentTarget.setPointerCapture(e.pointerId)
+    setPanning(true)
+  }, [])
+
+  const onPointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    const d = drag.current
+    if (!d || e.pointerId !== d.pointerId) return
+    const dx = e.clientX - d.x
+    const dy = e.clientY - d.y
+    d.x = e.clientX
+    d.y = e.clientY
+    apply((prev) => ({ ...prev, tx: prev.tx + dx, ty: prev.ty + dy }))
+  }, [apply])
+
+  const endDrag = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (drag.current?.pointerId !== e.pointerId) return
+    drag.current = null
+    setPanning(false)
+  }, [])
+
+  const zoomBy = useCallback((factor: number) => {
+    const el = viewportRef.current
+    const anchor = el ? { x: el.clientWidth / 2, y: el.clientHeight / 2 } : { x: 0, y: 0 }
+    apply((prev) => zoomAt(prev, anchor, factor))
+  }, [apply])
+
+  const fit = useCallback(() => {
+    const el = viewportRef.current
+    if (!el) return
+    setTransform(fitTransform(content.current.w, content.current.h, el.clientWidth, el.clientHeight))
+  }, [])
+
+  const reset = useCallback(() => setTransform({ scale: 1, tx: 0, ty: 0 }), [])
+
+  // A11y : le viewport est focusable (tabIndex=0 côté composant) — flèches =
+  // pan, + / − = zoom, 0 = réinitialiser (politique a11y du repo).
+  const onKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+    const pan: Record<string, [number, number]> = {
+      ArrowLeft: [KEY_PAN, 0], ArrowRight: [-KEY_PAN, 0], ArrowUp: [0, KEY_PAN], ArrowDown: [0, -KEY_PAN],
+    }
+    if (e.key in pan) {
+      const [dx, dy] = pan[e.key]
+      apply((prev) => ({ ...prev, tx: prev.tx + dx, ty: prev.ty + dy }))
+    } else if (e.key === '+' || e.key === '=') {
+      zoomBy(ZOOM_STEP)
+    } else if (e.key === '-') {
+      zoomBy(1 / ZOOM_STEP)
+    } else if (e.key === '0') {
+      reset()
+    } else {
+      return
+    }
+    e.preventDefault()
+  }, [apply, zoomBy, reset])
+
+  return {
+    viewportRef, transform, panning,
+    handlers: { onPointerDown, onPointerMove, onPointerUp: endDrag, onPointerCancel: endDrag, onKeyDown },
+    zoomBy, fit, reset,
+  }
+}
