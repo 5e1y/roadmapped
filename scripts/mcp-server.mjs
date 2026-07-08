@@ -225,11 +225,23 @@ export function makeTools(ROOT) {
         dependsOn: { type: 'array', items: { type: 'number' } },
         epic: { type: 'string', description: 'slug du regroupement transverse (epic)' },
         milestone: { type: 'string', description: 'DÉPRÉCIÉ — alias de epic (#133)' },
+        blocks: { type: 'array', items: { type: 'number' }, description: 'ids que la nouvelle tâche VERROUILLE : elle est ajoutée à leur dependsOn (sucre jalon, inverse de dependsOn)' },
         source: { type: 'string', enum: ['ai', 'user'] },
       },
       required: ['section', 'title', 'team'], additionalProperties: false,
     },
     handler: (a) => {
+      // --blocks : ids vérifiés AVANT toute écriture (pas de jalon créé puis chaînage
+      // à moitié appliqué), en miroir du CLI (#137).
+      const blocks = splitList(a.blocks).map(Number)
+      if (blocks.length > 0) {
+        const tree = readTree(ROOT)
+        for (const id of blocks) {
+          const hit = findTask(tree, id)
+          if (!hit) return fromRes({ ok: false, errors: [`blocks : aucune tâche #${id}.`] }, '')
+          if (hit.archived) return fromRes({ ok: false, errors: [`blocks : #${id} est archivée — elle ne peut plus être verrouillée.`] }, '')
+        }
+      }
       const res = addTask(ROOT, {
         section: a.section, title: a.title, team: a.team, kind: a.kind ?? 'task',
         detail: a.detail ?? null, tags: splitList(a.tags), size: a.size ?? null,
@@ -239,6 +251,14 @@ export function makeTools(ROOT) {
         epic: a.epic ?? a.milestone ?? null,
         source: a.source ?? 'ai',
       })
+      // Chaînage APRÈS création (l'id du jalon existe désormais), en miroir du CLI.
+      if (res.ok && blocks.length > 0) {
+        const newId = res.task.id
+        for (const id of blocks) {
+          const t = findTask(readTree(ROOT), id).task
+          if (!t.dependsOn.includes(newId)) updateTask(ROOT, id, { dependsOn: [...t.dependsOn, newId] })
+        }
+      }
       return fromRes(res, res.ok ? `#${res.task.id} créée → ${res.task.file}` : '', res.ok ? res.task : undefined)
     },
   },
