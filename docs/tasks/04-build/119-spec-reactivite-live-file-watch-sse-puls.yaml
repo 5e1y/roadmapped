@@ -1,0 +1,38 @@
+id: 147
+code: null
+title: >-
+  Spec — réactivité live : file-watch + SSE, pulse in-progress, badges NEW non-lus, console
+  action-tracking
+status: in_progress
+tags:
+  - spec
+  - fable
+size: M
+team: engineering
+detail: >-
+  L'app ne se met pas à jour en direct : il faut cmd+R pour voir les changements DANS les données
+  (tickets modifiés par l'agent). Spécifier la réactivité live et sa couche UX. À couvrir/trancher :
+  (1) SOCLE — file-watch serveur (fs.watch natif vs chokidar) sur docs/tasks + docs, débounce,
+  endpoint SSE /api/events (transport SSE recommandé vs WS/polling — argumenter), abonnement
+  TreeContext (reload() au signal vs push du tree), diff prev/next côté client comme source des
+  couches UX ; (2) PULSE — indicateur bleu pulsé sur les tickets in_progress ; (3) NEW/non-lu — set
+  d'ids vus (localStorage/uiPersist), badge NEW/point bleu sur les tickets apparus depuis la
+  dernière visite, effacé à la lecture ; (4) CONSOLE ACTION-TRACKING — panneau/console horodatée
+  retraçant chaque action agent+utilisateur (créé/démarré/terminé/édité/archivé, tickets ET doc) ;
+  trancher la SOURCE (diff de tree live-only, lazy vs journal persisté serveur pour l'historique
+  hors-session) ; toasts « task finished! » live. Livrable :
+  docs/specs/2026-07-08-live-reactivity.md + un DÉCOUPAGE en sous-tickets ordonnés (dependsOn),
+  chacun avec sa DIFFICULTÉ et le TIER D'AGENT suggéré (Sonnet mécanique / Fable socle) pour
+  l'économie de tokens. Confié à Fable 5. Zéro code avant approbation.
+refs: []
+links: []
+dependsOn: []
+epic: live-reactivity
+source: ai
+createdAt: "2026-07-08T15:11:14"
+startedAt: "2026-07-08T15:11:19"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
