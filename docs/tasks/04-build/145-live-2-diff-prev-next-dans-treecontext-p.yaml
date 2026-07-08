@@ -16,13 +16,12 @@ epic: live-reactivity
 source: ai
 createdAt: "2026-07-09T00:23:51"
 completedAt: "2026-07-09"
-commit: 7c27c39
+commit: 2acb028
 outcome: >-
   src/lib/treeDiff.ts : diffTrees(prev,next) pur → {statusChanges, appeared, removed, edited}
   (flatten récursif subtasks, signature hors-subtasks, status-change prioritaire sur edited).
-  TreeContext expose lastChange {seq, diff} : calculé à chaque resync SSE vs prevTreeRef, seq
-  monotone incrémenté seulement si diff non vide, aucun événement au montage initial (prev null).
-  Vérif : 5 tests unitaires treeDiff (status/appeared/removed/edited/subtasks/identique), tsc clean,
-  378 tests.
+  TreeContext expose lastChange {seq, diff} calculé à chaque resync SSE vs prevTreeRef, seq monotone
+  si diff non vide, aucun événement au montage initial. Vérif : 5 tests treeDiff, tsc clean, 378
+  tests.
 verification: null
 release: null
