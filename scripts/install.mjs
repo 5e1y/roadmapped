@@ -225,6 +225,7 @@ export function runInit({ hostRoot = findHostRoot(), packageDir = packageRoot(),
   ensureSessionHook(hostRoot, sitrepCommand, log)
   installGuardHook(hostRoot, guardCommand, log)
   log('init terminé. Prochaine étape : le skill roadmapped (phase de setup) remplit le backlog.')
+  log('▶ Dashboard : npx roadmapped dashboard   (ouvre le navigateur ; pas « npm run dev », qui lance TON projet)')
 }
 
 export function runUpgrade({ hostRoot = findHostRoot(), packageDir = packageRoot(), log = console.log } = {}) {
