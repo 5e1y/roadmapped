@@ -1,7 +1,7 @@
 id: 170
 code: null
 title: design.md → anglais + rafraîchissement (cohérence produit anglophone)
-status: in_progress
+status: done
 tags:
   - i18n
   - design-system
@@ -19,8 +19,14 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-08T18:03:15"
-completedAt: null
-commit: null
-outcome: null
+completedAt: "2026-07-08"
+commit: 5f636b1
+outcome: >-
+  docs/design.md entièrement traduit en anglais (tokens hex/classes/composants/paths/refs préservés
+  exacts, structure markdown + tables + 6 règles + ratios WCAG intacts, voix terse conservée). Seuls
+  accents restants : 'Rémi' (nom propre, x2). Refresh : corrigé l'inexactitude 'all live in ui.tsx'
+  → FilterMenu vit dans ViewHeader.tsx, Chip dans Chip.tsx (ré-exporté via ui.tsx). Autres
+  composants canoniques (Select, AddCombobox, TagsCombobox, MultiCombobox, ErrorBanner, GhostInput,
+  fieldCls, ghostCls) confirmés dans ui.tsx.
 verification: null
 release: null
