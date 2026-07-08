@@ -1,19 +1,19 @@
 #!/usr/bin/env node
-// Dispatcher du paquet roadmapped — seul point d'entrée publié (spec
-// 2026-07-08-distribution, §2). Trois familles de verbes :
-//   init / upgrade  → plomberie d'installation dans le repo hôte (scripts/install.mjs)
-//   dashboard       → Vite (dev) depuis le PAQUET, données ancrées sur le repo HÔTE
-//   tout le reste   → proxy transparent vers scripts/task.mjs (CLI portable :
-//                     `npx roadmapped done 42` marche dans n'importe quel repo)
+// Dispatcher for the roadmapped package — the only published entry point (spec
+// 2026-07-08-distribution, §2). Three families of verbs:
+//   init / upgrade  → install plumbing in the host repo (scripts/install.mjs)
+//   dashboard       → Vite (dev) from the PACKAGE, data anchored to the HOST repo
+//   everything else → transparent proxy to scripts/task.mjs (portable CLI:
+//                     `npx roadmapped done 42` works in any repo)
 //
-// AUCUN import statique de .ts ici : on vérifie d'abord la version de Node
-// (strip-types natif requis — décision verrouillée : on ship les .ts bruts),
-// pour échouer avec un message clair plutôt qu'un SyntaxError cryptique.
+// NO static .ts import here: we first check the Node version (native strip-types
+// required — locked decision: we ship the raw .ts), so it fails with a clear
+// message rather than a cryptic SyntaxError.
 
 const [major = 0, minor = 0] = process.versions.node.split('.').map(Number)
 if (major < 22 || (major === 22 && minor < 18)) {
   console.error(
-    `roadmapped requiert Node >= 22.18 (imports TypeScript natifs, strip-types) — version détectée : ${process.versions.node}.`,
+    `roadmapped requires Node >= 22.18 (native TypeScript imports, strip-types) — detected version: ${process.versions.node}.`,
   )
   process.exit(1)
 }
@@ -23,31 +23,31 @@ const { fileURLToPath, pathToFileURL } = await import('node:url')
 const { dirname, join, resolve } = await import('node:path')
 const { createRequire } = await import('node:module')
 
-// Racine du PAQUET (où vit ce bin) — PAS le repo hôte (= cwd remonté, cf. paths.ts).
+// Root of the PACKAGE (where this bin lives) — NOT the host repo (= cwd walked up, cf. paths.ts).
 const packageDir = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const [cmd, ...rest] = process.argv.slice(2)
 
 const importPkg = (rel) => import(pathToFileURL(join(packageDir, rel)).href)
 
-// Node refuse de stripper les types sous node_modules : on enregistre le loader
-// amaro AVANT tout import de .ts (voir scripts/register-ts.mjs). Les sous-processus
-// (proxy task.mjs) reçoivent le même loader via --import.
+// Node refuses to strip types under node_modules: we register the amaro loader
+// BEFORE any .ts import (see scripts/register-ts.mjs). The subprocesses (task.mjs
+// proxy) get the same loader via --import.
 const registerTs = join(packageDir, 'scripts', 'register-ts.mjs')
 await import(pathToFileURL(registerTs).href)
 const nodeTs = (script, args) => [
   '--import', registerTs, join(packageDir, 'scripts', script), ...args,
 ]
 
-const USAGE = `Usage : roadmapped <commande>
+const USAGE = `Usage: roadmapped <command>
 
-Plomberie (repo hôte) :
-  init       installe Roadmapped dans le repo courant (config, squelette 8 stages,
-             skill .claude/, entrée .mcp.json, hook guard chaîné) — idempotent
-  upgrade    met à jour les fichiers de l'outil (skill, MCP, hook) —
-             ne touche JAMAIS docs/tasks/ ni roadmapped.config.json
-  dashboard  lance le dashboard (Vite dev + API d'écriture) sur le repo courant
+Plumbing (host repo):
+  init       install Roadmapped in the current repo (config, 8-stage skeleton,
+             .claude/ skill, .mcp.json entry, chained guard hook) — idempotent
+  upgrade    update the tool's files (skill, MCP, hook) —
+             NEVER touches docs/tasks/ or roadmapped.config.json
+  dashboard  launch the dashboard (Vite dev + write API) on the current repo
 
-Toute autre commande est proxifiée vers le CLI de gestion des tâches :`
+Any other command is proxied to the task management CLI:`
 
 switch (cmd) {
   case 'init':
@@ -58,44 +58,44 @@ switch (cmd) {
   }
 
   case 'dashboard': {
-    // Idempotent (#153) : si NOTRE dashboard répond déjà sur le port par défaut,
-    // ne pas relancer une 2e instance — no-op + URL. On sonde /api/tree et on
-    // vérifie la forme { ok: … } : un autre serveur (le projet de l'hôte) sur le
-    // même port ne matche pas, on laisse alors vite démarrer (et auto-incrémenter).
-    // ponytail: sonde le port 5173 seul (le foyer du dashboard) ; s'il a migré sur
-    // 5174 à un lancement précédent, la détection le rate — plafond assumé.
+    // Idempotent (#153): if OUR dashboard already responds on the default port,
+    // don't launch a 2nd instance — no-op + URL. We probe /api/tree and check the
+    // shape { ok: … }: another server (the host's project) on the same port won't
+    // match, in which case we let vite start (and auto-increment).
+    // ponytail: probes port 5173 only (the dashboard's home); if it migrated to
+    // 5174 on a previous launch, detection misses it — accepted ceiling.
     const DASH_PORT = 5173
     try {
       const res = await fetch(`http://localhost:${DASH_PORT}/api/tree`, { signal: AbortSignal.timeout(500) })
       const body = res.ok ? await res.json().catch(() => null) : null
       if (body && typeof body.ok === 'boolean') {
-        console.log(`roadmapped dashboard : déjà ouvert → http://localhost:${DASH_PORT}/`)
+        console.log(`roadmapped dashboard: already open → http://localhost:${DASH_PORT}/`)
         process.exit(0)
       }
-    } catch { /* rien n'écoute (ou autre appli) → on démarre normalement */ }
+    } catch { /* nothing listening (or another app) → we start normally */ }
     const { findHostRoot } = await importPkg('src/lib/paths.ts')
     const envRoot = process.env.ROADMAPPED_ROOT
     const hostRoot = envRoot && envRoot.trim() !== '' ? resolve(envRoot) : findHostRoot()
     let viteBin
     try {
-      // 'vite/bin/vite.js' n'est pas un subpath exporté : on résout package.json
-      // (exporté, lui) puis le champ bin — robuste au hoisting npm/pnpm.
+      // 'vite/bin/vite.js' is not an exported subpath: we resolve package.json
+      // (which is exported) then the bin field — robust to npm/pnpm hoisting.
       const vitePkg = createRequire(join(packageDir, 'package.json')).resolve('vite/package.json')
       const { bin } = JSON.parse((await import('node:fs')).readFileSync(vitePkg, 'utf8'))
       viteBin = join(dirname(vitePkg), typeof bin === 'string' ? bin : bin.vite)
     } catch {
-      console.error('roadmapped dashboard : vite introuvable — lance `npm install` dans le repo hôte (roadmapped doit être installé en dépendance locale).')
+      console.error('roadmapped dashboard: vite not found — run `npm install` in the host repo (roadmapped must be installed as a local dependency).')
       process.exit(1)
     }
-    // Ouverture auto du navigateur (#152) : --open par DÉFAUT — « boum la fenêtre
-    // s'ouvre ». --no-open (notre échappatoire, absent de vite) est retiré avant
-    // de passer les args à vite ; un --open explicite de l'utilisateur est respecté.
+    // Auto-open the browser (#152): --open by DEFAULT — "boom, the window opens".
+    // --no-open (our escape hatch, absent from vite) is stripped before passing the
+    // args to vite; an explicit --open from the user is respected.
     const noOpen = rest.includes('--no-open')
     const cleanRest = rest.filter((a) => a !== '--no-open')
     const hasOpen = cleanRest.some((a) => a === '--open' || a.startsWith('--open='))
     const openArg = noOpen || hasOpen ? [] : ['--open']
-    // cwd = repo hôte + ROADMAPPED_ROOT : les données (tasks/docs) s'ancrent sur
-    // l'hôte ; --config pointe le vite.config.ts du paquet (root = paquet).
+    // cwd = host repo + ROADMAPPED_ROOT: the data (tasks/docs) is anchored to the
+    // host; --config points at the package's vite.config.ts (root = package).
     const r = spawnSync(process.execPath, [viteBin, '--config', join(packageDir, 'vite.config.ts'), ...openArg, ...cleanRest], {
       stdio: 'inherit',
       cwd: hostRoot,
@@ -108,14 +108,14 @@ switch (cmd) {
   case 'help':
   case '--help': {
     console.log(USAGE)
-    // Puis l'usage du CLI de tâches lui-même (source unique : task.mjs).
+    // Then the task CLI's own usage (single source: task.mjs).
     const r = spawnSync(process.execPath, nodeTs('task.mjs', cmd ? [cmd] : []), { stdio: 'inherit' })
     process.exit(r.status ?? 0)
   }
 
   default: {
-    // Proxy transparent : `roadmapped <verbe>` = `node <paquet>/scripts/task.mjs <verbe>`.
-    // Le cwd est conservé — task.mjs ancre ses données sur le repo hôte via loadPaths().
+    // Transparent proxy: `roadmapped <verb>` = `node <package>/scripts/task.mjs <verb>`.
+    // The cwd is preserved — task.mjs anchors its data to the host repo via loadPaths().
     const r = spawnSync(process.execPath, nodeTs('task.mjs', [cmd, ...rest]), { stdio: 'inherit' })
     process.exit(r.status ?? 1)
   }
