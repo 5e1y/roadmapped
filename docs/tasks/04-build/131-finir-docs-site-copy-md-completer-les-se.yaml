@@ -1,7 +1,7 @@
 id: 167
 code: null
 title: "Finir docs/site-copy.md : compléter les sections restantes (proposal section-by-section)"
-status: todo
+status: done
 tags:
   - marketing
   - homepage
@@ -19,8 +19,12 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-08T18:03:13"
-completedAt: null
-commit: null
-outcome: null
+completedAt: "2026-07-08"
+commit: 3fe3edd
+outcome: >-
+  docs/site-copy.md : toutes les sections étaient déjà présentes (hero→footer). Vrai gap =
+  incohérences avec la landing livrée : Quickstart mis à jour (npm install/run dev → npx roadmapped
+  init/dashboard/--help), card Features (scripts/task.mjs → npx roadmapped), statut 'proposal' →
+  'realized' pointant site/index.html comme render, ce doc restant la source de vérité de la copy.
 verification: null
 release: null
