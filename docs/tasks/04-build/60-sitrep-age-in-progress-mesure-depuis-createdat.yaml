@@ -2,7 +2,7 @@ id: 82
 kind: quick
 code: null
 title: "sitrep : âge in_progress mesuré depuis createdAt (pas startedAt)"
-status: todo
+status: done
 tags:
   - debt
 size: null
@@ -19,8 +19,18 @@ dependsOn: []
 milestone: null
 source: ai
 createdAt: "2026-07-08"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: cb02194
+outcome: >-
+  Champ startedAt ajouté au schéma (string | null), posé au passage todo→in_progress dans startTask
+  (une seule fois, idempotent au re-start), datetime local à la seconde comme createdAt. Additif au
+  dump (comme kind) : les YAML d'avant le champ ne prennent PAS de startedAt:null. Validé au format
+  (DATE_OR_DATETIME) s'il est présent. sitrep (âge in_progress + alerte ≥7j) et le guard
+  (stalePassepartout, #105) mesurent désormais depuis startedAt ?? createdAt — fallback createdAt
+  pour les tâches anciennes. Ledger de dette #debt vidé.
+verification: >-
+  npx tsc --noEmit clean ; 233/233 tests verts (dont nouveau test de précédence startedAt sur
+  createdAt dans stalePassepartout + les 4 fabriques mises à jour). Réel : node scripts/task.mjs
+  start 82 a écrit startedAt: "2026-07-08T09:21:11" dans le seul YAML de #82 (pas de diff de masse)
+  ; sitrep affiche #82 (0j) en lisant startedAt ; validate OK sur 109 tâches.
 release: null
