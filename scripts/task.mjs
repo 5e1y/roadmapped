@@ -23,7 +23,7 @@ import {
 } from '../src/lib/taskWrites.ts'
 import { computeAvailability, activeTasks, nextQueue } from '../src/lib/roadmap.ts'
 // Rendu partagé (#90) : CLI et serveur MCP consomment le MÊME code (src/lib/render.ts).
-import { git, taskLine, refLine, briefText, sitrepText, unloggedCommits } from '../src/lib/render.ts'
+import { git, taskLine, refLine, briefText, sitrepText, unloggedCommits, auditCommits, auditText } from '../src/lib/render.ts'
 import { TEAMS } from '../src/lib/tasks.ts'
 
 const { tasksDir: ROOT } = loadPaths()
@@ -139,6 +139,8 @@ Lecture
                             + nextId, archive comprise) ; exit 1 si erreur
   guard                     garde pre-commit : refuse un commit produit sans tâche
                             in_progress (consignation/merge exemptés ; --no-verify assumé)
+  audit [--json]            parse la convention #id des commits depuis la dernière tâche
+                            consignée ; sort orphelins (sans #id) + références mortes
 
 Écriture (id alloué depuis _meta.yaml ; validation après CHAQUE écriture, rollback si erreur)
   add --section <stage> --title <t> --team <team> [--detail <d>] [--tags a,b]
@@ -177,6 +179,7 @@ const CMD_USAGE = {
   take: 'Usage : take [--team <t>] [--json]',
   brief: 'Usage : brief <id>',
   sitrep: 'Usage : sitrep',
+  audit: 'Usage : audit [--json]  (parse la convention #id des commits depuis la dernière tâche consignée ; sort orphelins + références mortes)',
   guard: 'Usage : guard  (hook pre-commit — exit 1 si des fichiers produit sont stagés sans tâche in_progress)',
   done: 'Usage : done <id> [--commit <sha>] [--outcome <o>] [--verification <v>] [--release <r>] [--suggest-refs]',
   roadmap: 'Usage : roadmap [--json]',
@@ -498,6 +501,14 @@ function cmdSitrep(flags) {
   console.log(sitrepText(tree, errors, unloggedCommits(tree)))
 }
 
+function cmdAudit(flags) {
+  rejectUnknownFlags(flags, ['json'], CMD_USAGE.audit)
+  const tree = readTree(ROOT)
+  const audit = auditCommits(tree)
+  if (flags.json) return console.log(JSON.stringify(audit, null, 2))
+  console.log(auditText(audit))
+}
+
 function cmdRoadmap(flags) {
   rejectUnknownFlags(flags, ['json'], CMD_USAGE.roadmap)
   const tree = readTree(ROOT)
@@ -572,6 +583,9 @@ switch (cmd) {
     break
   case 'sitrep':
     cmdSitrep(flags)
+    break
+  case 'audit':
+    cmdAudit(flags)
     break
   case 'guard':
     cmdGuard(flags)
