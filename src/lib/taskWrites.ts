@@ -6,7 +6,7 @@ import { join, relative, dirname } from 'node:path'
 import yaml from 'js-yaml'
 import { buildTaskTree } from './tasks.ts'
 import { validateTaskTree, validateIdUniquenessAcrossFiles } from './validate.ts'
-import type { TaskTree, TaskNode, TaskFileMap } from './tasks'
+import type { TaskTree, TaskNode, TaskFileMap, FeedbackItem } from './tasks'
 
 export const FIELD_ORDER = [
   'id', 'kind', 'code', 'title', 'status', 'tags', 'size', 'team', 'detail',
@@ -484,6 +484,8 @@ export interface UpdateTaskPatch {
   refs?: string[]
   links?: number[]
   dependsOn?: number[]
+  /** Remplacement complet du journal de feedback (#149) — l'UI lit/modifie/renvoie. */
+  feedback?: FeedbackItem[]
 }
 
 export function updateTask(tasksDir: string, id: number, patch: UpdateTaskPatch): MutationResult {
@@ -504,6 +506,8 @@ function updateTaskImpl(tasksDir: string, id: number, patch: UpdateTaskPatch): M
     for (const f of listFields) {
       if (patch[f] !== undefined) raw[f] = patch[f]
     }
+    // Journal de feedback (#149) : remplacement complet (l'UI renvoie le tableau modifié).
+    if (patch.feedback !== undefined) raw.feedback = patch.feedback
     // Parité avec doneTask : un passage à done date la complétion (le journal
     // de livraison), un retour en arrière la retire — sauf si l'appelant a
     // fourni completedAt explicitement.
