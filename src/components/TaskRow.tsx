@@ -5,6 +5,7 @@ import { Chevron, KindGlyph } from './glyphs'
 import { usePanel } from '../state/PanelContext'
 import { useOptionalTree } from '../state/TreeContext'
 import { usePersistentFlag } from '../state/uiPersist'
+import { useSeenTasks } from '../state/seenTasks'
 import { computeAvailability, reverseDependents } from '../lib/roadmap'
 import { relativeTime, absoluteDate } from '../lib/relativeTime'
 import { TEAM_ABBR } from '../lib/tasks'
@@ -44,6 +45,7 @@ export function agentBrief(task: TaskNode): string {
 
 export function TaskRow({ task }: { task: TaskNode }) {
   const { openTask, top } = usePanel()
+  const { isNew } = useSeenTasks()
   const tree = useOptionalTree()
   // Même source d'état que la Roadmap : computeAvailability (mémoïsé par tree,
   // aucun recalcul maison). 'locked' = prérequis non faits → cadenas au lieu du glyphe.
@@ -84,6 +86,15 @@ export function TaskRow({ task }: { task: TaskNode }) {
           {locked
             ? <LockLocked size={11} className="shrink-0 text-neutral-500" ariaLabel="Locked" />
             : <KindGlyph task={task} />}
+          {/* Badge NEW/non-lu (#147, Live 5) : point accent sur un ticket apparu ou
+              changé depuis la dernière lecture ; retiré à l'ouverture du panneau. */}
+          {isNew(task) && (
+            <span
+              className="size-1.5 shrink-0 rounded-full bg-accent"
+              role="status"
+              aria-label="New or updated since you last viewed it"
+            />
+          )}
           <span className="shrink-0 font-mono text-xs text-neutral-500">#{task.id}</span>
           {/* Une ligne STRICTE (pattern Linear) : le titre tronque (tooltip natif),
               les chips restent ancrés à droite. Familles différenciées (cf.

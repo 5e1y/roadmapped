@@ -47,6 +47,11 @@ export function setPersistentStrings(key: string, next: string[]): void {
   listeners.get(key)?.forEach((fn) => fn())
 }
 
+/** Lecture non-réactive de la clé (hors composant) — snapshot stable. */
+export function readPersistentStrings(key: string): string[] {
+  return snapshot(key)
+}
+
 /** Ajoute une valeur à la clé (no-op si déjà présente) — utilisable hors composant. */
 export function addPersistentString(key: string, value: string): void {
   const cur = snapshot(key)
