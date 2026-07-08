@@ -64,6 +64,9 @@ function Shell() {
   })
 
   useEffect(() => { try { localStorage.setItem('nav:view', view) } catch { /* ignore */ } }, [view])
+  // #138 — hygiène one-shot : la clé du toggle « grouper par epic » (retiré en
+  // #135) n'est plus ni lue ni écrite, mais traîne dans les localStorage existants.
+  useEffect(() => { try { localStorage.removeItem('backlog:groupByEpic') } catch { /* ignore */ } }, [])
   useEffect(() => {
     try {
       if (docPath) localStorage.setItem('nav:doc', docPath)

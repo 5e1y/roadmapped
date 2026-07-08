@@ -3,7 +3,7 @@ import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
 import { usePersistentStringFlag } from '../state/uiPersist'
 import { computeAvailability, missingPrereqs, reverseDependents, globalProgress, allEpics, epicProgress, type Availability } from '../lib/roadmap'
-import { LockLocked } from 'trinil-react'
+import { EditPen, LockLocked } from 'trinil-react'
 import { Chevron, EpicGlyph, KindGlyph } from './glyphs'
 import { Chip } from './Chip'
 import { groupByEpicAnchored, epicAnchorStage, epicStatusOf, type EpicListItem } from './EpicRow'
@@ -149,6 +149,7 @@ function EpicCardGroup({ item, tree, avail, blocksOf }: {
  * un placeholder pour ne pas décaler les suivantes.
  */
 function Column({ section, items, avail, blocksOf, tree }: { section: SectionNode; items: EpicListItem[]; avail: Map<number, Availability>; blocksOf: (t: TaskNode) => number; tree: TaskTree }) {
+  const { openSection } = usePanel()
   // Compteurs et barre = RÉEL (section.tasks) ; les cartes rendues = visible
   // (les done masqués ne changent pas la progression affichée).
   const { done, total } = countTasksDeep(section.tasks)
@@ -160,7 +161,7 @@ function Column({ section, items, avail, blocksOf, tree }: { section: SectionNod
     <div className="grid row-span-4 min-w-0 grid-rows-subgrid">
       {/* Rangée titre collante : le contexte (titre + compteur) survit au scroll
           vertical. Le pt-8 du conteneur vit ici pour que rien ne dépasse au-dessus. */}
-      <div className="sticky top-0 z-20 flex items-baseline justify-between gap-2 bg-neutral-50 pb-0.5 pt-8">
+      <div className="group sticky top-0 z-20 flex items-baseline justify-between gap-2 bg-neutral-50 pb-0.5 pt-8">
         <span
           className={`min-w-0 truncate text-sm font-semibold tracking-tight ${empty ? 'text-neutral-300' : 'text-neutral-900'}`}
           title={section.title}
@@ -168,6 +169,18 @@ function Column({ section, items, avail, blocksOf, tree }: { section: SectionNod
           {section.title}
         </span>
         <span className="flex shrink-0 items-center gap-1.5">
+          {/* Entrée du panneau de section (#28) : LE point d'accès à l'édition
+              statut/note depuis que le Backlog n'accordéonne plus les sections
+              actives. Révélé au survol ET au focus (design.md §3.4). */}
+          <button
+            type="button"
+            aria-label={`Éditer la section ${section.title}`}
+            title="Éditer la section"
+            onClick={() => openSection(section.key)}
+            className="rounded p-1 text-neutral-500 opacity-0 transition-opacity hover:bg-neutral-200 hover:text-neutral-700 focus-visible:opacity-100 group-hover:opacity-100"
+          >
+            <EditPen size={12} />
+          </button>
           {statusFr && !empty && <Chip label={statusFr} />}
           {/* Compteur porteur de sens même à 0/0 : plancher neutral-500 (audit #108). */}
           <span className="font-mono text-xs text-neutral-500">{done}/{total}</span>

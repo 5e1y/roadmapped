@@ -4,6 +4,8 @@ import { Combobox } from '@base-ui/react/combobox'
 import { Toast } from '@base-ui/react/toast'
 import { useEffect, useRef, useState, type ComponentProps, type KeyboardEvent } from 'react'
 import { Check, ChevronDown, Cross, Plus, Warning } from 'trinil-react'
+import { KindGlyph } from './glyphs'
+import { Chip } from './Chip'
 
 /**
  * Mini-kit de primitives Base UI stylées monochrome — source unique des
@@ -23,6 +25,39 @@ export const fieldCls =
  */
 export const ghostCls =
   'w-full rounded border border-transparent bg-transparent px-1.5 py-1 text-neutral-900 transition-colors hover:bg-neutral-100 focus:border-neutral-300 focus:bg-white focus:outline-none disabled:text-neutral-500 disabled:hover:bg-transparent'
+
+/**
+ * Boutons canoniques des panneaux (design.md §2) — source unique :
+ * primaire = L'action principale (démarrer/terminer/archiver, créer, done) ;
+ * secondaire (actionBtn) = tout le reste, « Supprimer » compris (registre
+ * destructif global : non — monochrome assumé).
+ */
+export const primaryBtn =
+  'rounded border border-neutral-900 bg-neutral-900 px-2.5 py-1 text-xs text-white transition-colors hover:bg-neutral-700 disabled:cursor-not-allowed disabled:border-neutral-300 disabled:bg-neutral-300'
+export const actionBtn =
+  'rounded border border-neutral-300 px-2.5 py-1 text-[11px] text-neutral-700 transition-colors hover:bg-neutral-100 disabled:opacity-50'
+
+/** ✓ fugace « enregistré » posé sur la zone sauvée (spec §Feedback des panneaux). */
+export function SavedTick({ show }: { show: boolean }) {
+  if (!show) return null
+  return (
+    <span className="flex shrink-0 items-center gap-1 text-[11px] text-neutral-500">
+      <Check size={10} />
+      enregistré
+    </span>
+  )
+}
+
+/** Erreur de VALIDATION affichée SOUS la zone fautive (⚠ + texte). Monochrome. */
+export function FieldError({ errs }: { errs?: string[] }) {
+  if (!errs || errs.length === 0) return null
+  return (
+    <div className="flex items-start gap-1.5 px-1.5 text-[11px] text-neutral-800">
+      <Warning size={11} className="mt-px shrink-0" />
+      <span className="font-mono">{errs.join(' · ')}</span>
+    </div>
+  )
+}
 
 /**
  * Enter = valider (blur déclenche la sauvegarde des champs "au blur"), puis le
@@ -149,9 +184,57 @@ export function ToastViewport() {
   )
 }
 
+/**
+ * Aperçu d'une tâche dans les listes déroulantes de relations (#125) : de quoi
+ * choisir sans ouvrir la tâche — glyphe de statut, #id, titre, stage, team.
+ * Données PRÉ-DIGÉRÉES par l'appelant (team déjà abrégée, stage déjà court) :
+ * ui.tsx reste sans dépendance lib (même contrat que le toSlug d'EpicCombobox).
+ */
+export interface RelPreview {
+  id: number
+  title: string
+  status: 'todo' | 'in_progress' | 'done'
+  kind: 'task' | 'quick' | 'milestone'
+  /** Team abrégée (TEAM_ABBR côté appelant) — vide si inconnue (archive ancienne). */
+  team: string
+  /** Stage court (« build », « gtm »…) dérivé du dossier de la tâche. */
+  stage: string
+  archived?: boolean
+}
+
 export interface SelectItem {
   value: string
+  /** Texte de recherche ET rendu de repli (chips, items sans aperçu). */
   label: string
+  /** Si présent, l'item se rend en ligne riche façon backlog (#125). */
+  preview?: RelPreview
+}
+
+/**
+ * Corps d'un item de relation : ligne compacte façon backlog — glyphe (statut),
+ * #id, titre (barré si faite), puis stage + team ancrés à droite. Sans aperçu,
+ * repli sur le label brut (items génériques).
+ */
+function RelOption({ item }: { item: SelectItem }) {
+  const p = item.preview
+  if (!p) return <span className="min-w-0 flex-1 truncate">{item.label}</span>
+  return (
+    <span className="flex min-w-0 flex-1 items-center gap-2">
+      <KindGlyph task={{ kind: p.kind, status: p.status }} />
+      <span className="shrink-0 font-mono text-xs text-neutral-500">#{p.id}</span>
+      <span
+        title={p.title}
+        className={`min-w-0 truncate ${p.status === 'done' ? 'text-neutral-500 line-through' : 'text-neutral-900'}`}
+      >
+        {p.title}
+      </span>
+      <span className="ml-auto flex shrink-0 items-center gap-1.5">
+        {p.archived && <span className="text-[11px] text-neutral-500">archivée</span>}
+        {p.stage && <span className="font-mono text-[11px] text-neutral-500">{p.stage}</span>}
+        {p.team && <Chip label={p.team} />}
+      </span>
+    </span>
+  )
 }
 
 export function Select({
@@ -249,16 +332,18 @@ export function AddCombobox({ items, placeholder, onAdd, 'aria-label': ariaLabel
       />
       <Combobox.Portal>
         <Combobox.Positioner sideOffset={4} className="z-50">
-          <Combobox.Popup className="max-h-64 min-w-[var(--anchor-width)] overflow-y-auto border border-neutral-200 bg-white py-1 shadow-sm">
+          {/* Largeur = celle du champ (pas min-) : les lignes riches (#125)
+              tronquent leur titre au lieu de dilater le popup à l'écran. */}
+          <Combobox.Popup className="max-h-64 w-[var(--anchor-width)] overflow-y-auto border border-neutral-200 bg-white py-1 shadow-sm">
             <Combobox.Empty className="px-2.5 py-1.5 text-sm text-neutral-500">Aucune tâche.</Combobox.Empty>
             <Combobox.List>
               {(item: SelectItem) => (
                 <Combobox.Item
                   key={item.value}
                   value={item}
-                  className="cursor-default truncate px-2.5 py-1.5 text-sm text-neutral-900 data-[highlighted]:bg-neutral-100"
+                  className="flex cursor-default items-center px-2.5 py-1.5 text-sm text-neutral-900 data-[highlighted]:bg-neutral-100"
                 >
-                  {item.label}
+                  <RelOption item={item} />
                 </Combobox.Item>
               )}
             </Combobox.List>
@@ -518,17 +603,19 @@ export function MultiCombobox({
       </Combobox.Chips>
       <Combobox.Portal>
         <Combobox.Positioner sideOffset={4} className="z-50">
-          <Combobox.Popup className="max-h-64 min-w-[var(--anchor-width)] overflow-y-auto border border-neutral-200 bg-white py-1 shadow-sm">
+          {/* Largeur = celle du champ (pas min-) : les lignes riches (#125)
+              tronquent leur titre au lieu de dilater le popup à l'écran. */}
+          <Combobox.Popup className="max-h-64 w-[var(--anchor-width)] overflow-y-auto border border-neutral-200 bg-white py-1 shadow-sm">
             <Combobox.Empty className="px-2.5 py-1.5 text-sm text-neutral-500">Aucune tâche.</Combobox.Empty>
             <Combobox.List>
               {(item: SelectItem) => (
                 <Combobox.Item
                   key={item.value}
                   value={item}
-                  className="flex cursor-default items-center justify-between gap-2 px-2.5 py-1.5 text-sm text-neutral-900 data-[highlighted]:bg-neutral-100"
+                  className="flex cursor-default items-center gap-2 px-2.5 py-1.5 text-sm text-neutral-900 data-[highlighted]:bg-neutral-100"
                 >
-                  <span className="truncate">{item.label}</span>
-                  <Combobox.ItemIndicator className="text-neutral-900">
+                  <RelOption item={item} />
+                  <Combobox.ItemIndicator className="shrink-0 text-neutral-900">
                     <Check size={10} />
                   </Combobox.ItemIndicator>
                 </Combobox.Item>
