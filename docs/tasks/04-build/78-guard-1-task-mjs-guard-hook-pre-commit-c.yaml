@@ -24,7 +24,7 @@ refs:
   - docs/process-enforcement-gap.md
 links: []
 dependsOn: []
-milestone: null
+epic: process-enforcement
 source: user
 createdAt: "2026-07-08T01:36:52"
 completedAt: "2026-07-08"

@@ -26,7 +26,7 @@ refs:
   - docs/specs/2026-07-07-roadmaped-v2-design.md
 links: []
 dependsOn: []
-milestone: null
+epic: design-system
 source: user
 createdAt: "2026-07-07"
 completedAt: "2026-07-07"

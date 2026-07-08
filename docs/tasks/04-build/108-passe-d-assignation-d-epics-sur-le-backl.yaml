@@ -1,0 +1,27 @@
+id: 136
+code: null
+title: Passe d'assignation d'epics sur le backlog (rétro-tri des tâches existantes en projets)
+status: in_progress
+tags:
+  - data-model
+size: M
+team: engineering
+detail: >-
+  Assigner un champ epic aux tâches existantes (in_progress + done + todo) par projet transverse,
+  pour que le système d'epic soit réel/démontrable. Via le CLI update --epic (pas le MCP, périmé en
+  session). One-off/standalone laissés sans epic (choix Rémi). Disjoint du chantier design Fable
+  #135 (src/) — édition YAML seule, verrou global.
+refs: []
+links:
+  - 133
+  - 135
+dependsOn: []
+epic: hierarchie-regroupement
+source: ai
+createdAt: "2026-07-08T12:09:31"
+startedAt: "2026-07-08T12:09:38"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

@@ -19,7 +19,7 @@ refs:
   - src/lib/refExtract.ts
 links: []
 dependsOn: []
-milestone: null
+epic: mcp-server
 source: ai
 createdAt: "2026-07-08"
 completedAt: "2026-07-08"

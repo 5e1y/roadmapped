@@ -11,7 +11,7 @@ detail: null
 refs: []
 links: []
 dependsOn: []
-milestone: null
+epic: notepad
 source: ai
 createdAt: "2026-07-08T01:31:25"
 completedAt: "2026-07-08"

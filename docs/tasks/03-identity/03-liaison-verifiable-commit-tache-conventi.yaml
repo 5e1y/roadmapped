@@ -14,7 +14,7 @@ detail: null
 refs: []
 links: []
 dependsOn: []
-milestone: null
+epic: process-enforcement
 source: ai
 createdAt: "2026-07-08T01:46:24"
 completedAt: "2026-07-08"

@@ -12,7 +12,7 @@ refs:
   - docs/process-enforcement-gap.md
 links: []
 dependsOn: []
-milestone: null
+epic: process-enforcement
 source: ai
 createdAt: "2026-07-08T01:10:18"
 completedAt: "2026-07-08"

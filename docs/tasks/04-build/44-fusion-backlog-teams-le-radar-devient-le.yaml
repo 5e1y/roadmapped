@@ -25,7 +25,7 @@ refs:
 links: []
 dependsOn:
   - 60
-milestone: null
+epic: vues-dashboard
 source: user
 createdAt: "2026-07-07"
 completedAt: "2026-07-07"

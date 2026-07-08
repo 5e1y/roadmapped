@@ -24,7 +24,7 @@ refs: []
 links:
   - 6
 dependsOn: []
-milestone: null
+epic: hierarchie-regroupement
 source: ai
 createdAt: "2026-07-08T10:51:11"
 completedAt: "2026-07-08"

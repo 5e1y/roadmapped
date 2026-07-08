@@ -15,7 +15,7 @@ detail: null
 refs: []
 links: []
 dependsOn: []
-milestone: null
+epic: a11y
 source: ai
 createdAt: "2026-07-08T02:44:27"
 completedAt: "2026-07-08"

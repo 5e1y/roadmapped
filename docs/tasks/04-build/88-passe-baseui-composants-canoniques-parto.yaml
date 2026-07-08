@@ -24,7 +24,7 @@ refs:
 links: []
 dependsOn:
   - 111
-milestone: null
+epic: design-system
 source: user
 createdAt: "2026-07-08T01:57:19"
 completedAt: "2026-07-08"
