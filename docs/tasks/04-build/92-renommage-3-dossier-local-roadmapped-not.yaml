@@ -1,7 +1,7 @@
 id: 117
 code: null
 title: Renommage 3 — dossier local Roadmapped + note repo GitHub futur
-status: in_progress
+status: done
 tags:
   - marketing
   - rename
@@ -25,8 +25,17 @@ dependsOn:
 milestone: null
 source: user
 createdAt: "2026-07-08T01:57:44"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: 3dd82d6
+outcome: >-
+  Dossier renommé ~/Documents/Roadmaped → ~/Documents/Roadmapped avec symlink transitionnel à
+  l'ancien chemin (la session courante et le serveur MCP continuent de fonctionner) ; mémoire Claude
+  dupliquée vers le slug du nouveau chemin (~/.claude/projects/-...-Roadmapped) ; note de nommage
+  dans le README (futur repo GitHub = Roadmapped, rétrocompat config documentée). Aucun remote
+  GitHub à renommer (vérifié : git remote vide). Reste à Rémi : rouvrir Claude Code dans
+  ~/Documents/Roadmapped puis rm du symlink ~/Documents/Roadmaped
+verification: >-
+  Post-mv observé : ls montre Roadmapped réel + symlink Roadmaped→Roadmapped ; git status propre,
+  task.mjs validate OK (107 tâches), core.hooksPath intact (scripts/githooks, relatif — voyage avec
+  le dossier, npm install non requis) ; les deux dossiers projects présents dans ~/.claude
 release: null
