@@ -1,0 +1,35 @@
+id: 153
+code: null
+title: >-
+  Auto-ouverture du dashboard au démarrage de session : consigne CLAUDE.md écrite par l'init + verbe
+  dashboard idempotent
+status: todo
+tags:
+  - onboarding
+size: S
+team: engineering
+detail: >-
+  Rémi : à chaque ouverture de session, ouvrir le dashboard s'il n'est pas déjà ouvert ; OK de
+  passer par l'agent (une fois au démarrage, dans le flux IA déjà actif via le hook sitrep #122),
+  consigne écrite dans CLAUDE.md par l'init du skill. (1) VERBE DASHBOARD IDEMPOTENT
+  (bin/roadmapped.mjs, dépend de #152) : avant de spawn Vite, détecter si une instance tourne déjà
+  (port configuré occupé) → si oui, no-op + afficher l'URL existante au lieu de relancer/incrémenter
+  le port. Ainsi « lance le dashboard » est sûr à répéter à chaque session. (2) INIT ÉCRIT CLAUDE.md
+  (scripts/install.mjs, nouveau ensureClaudeMd, pattern marqueurs idempotent comme installGuardHook
+  — PRÉSERVE le CLAUDE.md existant de l'utilisateur, bloc entre « >>> roadmapped >>> » / « <<<
+  roadmapped <<< », remis à jour au ré-init/upgrade) : consigne « Au démarrage de session, si le
+  dashboard Roadmapped n'est pas déjà ouvert, lance `npx roadmapped dashboard` (idempotent, no-op
+  s'il tourne déjà). » Câbler ensureClaudeMd dans runInit ET runUpgrade. (3) test ensureClaudeMd
+  (création, idempotence, préservation contenu voisin). Morceau concret de #121 (init riche
+  CLAUDE.md) — que l'impl de #121 englobera. À faire par moi, APRÈS #148 + #152.
+refs: []
+links: []
+dependsOn: []
+epic: distribution
+source: ai
+createdAt: "2026-07-08T15:43:30"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
