@@ -1,11 +1,19 @@
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { Fragment, useEffect, useRef, useState, useCallback } from 'react'
 import { ViewHeader } from './ViewHeader'
 import { relativeTime, absoluteDate } from '../lib/relativeTime'
+import { parseFileLine, fileLineOf, cleanForAgent, insertOnOwnLines, extractDropPaths } from '../lib/noteFiles'
 
 // Notepad (#88) — incubateur d'idées local. Liste à gauche (gabarit ligne de backlog :
 // pas de bords arrondis), éditeur ghost écriture-d'abord centré à droite. À l'ouverture,
 // on est projeté directement dans une note en édition. Autosave (blur + debounce 800ms),
 // titre = 1re ligne (le serveur renomme au fil de l'eau, #86). Notes gitignorées (#87).
+//
+// Pièces jointes en LIENS (#89) : drop d'un fichier → ligne `[fichier: /chemin/absolu]`
+// (jamais de copie, jamais d'upload — du texte). Clic sur la ligne → POST /api/reveal
+// (#86) ouvre le Finder. « Copier pour l'agent » (⇧⌘C) → note nettoyée, chemins nus.
+// Rendu : la note reste une textarea nue (édition/autosave intacts) ; un BACKDROP aux
+// métriques identiques (technique « highlighted textarea ») souligne les lignes fichier
+// et porte l'affordance (souligné neutre, accent + tint au survol, curseur pointeur).
 
 interface NoteMeta { slug: string; title: string; modified: number }
 
@@ -18,17 +26,28 @@ const fetchNotes = async (): Promise<NoteMeta[]> => {
   try { return (await jsonOk(await fetch('/api/notes'))).notes ?? [] } catch { return [] }
 }
 
+// Métriques PARTAGÉES textarea ⇄ backdrop : le moindre écart (fonte, corps, interligne,
+// padding, règles de coupe) désynchronise les rectangles de survol des lignes fichier.
+// Le texte est borné à 48rem et centré via un padding qui absorbe l'espace libre (#101).
+const EDITOR_METRICS =
+  'px-[max(1.5rem,calc((100%-48rem)/2))] py-8 text-[2rem] leading-relaxed whitespace-pre-wrap [overflow-wrap:break-word]'
+
 export function NotepadView() {
   const [notes, setNotes] = useState<NoteMeta[]>([])
   const [slug, setSlug] = useState<string | null>(null)
   const [content, setContent] = useState('')
   const [status, setStatus] = useState<'idle' | 'saving' | 'saved'>('idle')
+  const [flash, setFlash] = useState<string | null>(null)
+  const [hoverLine, setHoverLine] = useState<number | null>(null)
+  const [dragging, setDragging] = useState(false)
   const [warned, setWarned] = useState(() => {
     try { return localStorage.getItem('notepad:warned') === '1' } catch { return false }
   })
   const slugRef = useRef<string | null>(null)
   const contentRef = useRef('')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const backdropRef = useRef<HTMLDivElement>(null)
+  const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   slugRef.current = slug
   contentRef.current = content
 
@@ -106,7 +125,96 @@ export function NotepadView() {
     try { localStorage.setItem('notepad:warned', '1') } catch { /* ignore */ }
   }
 
+  // ————— Pièces jointes en liens (#89) —————
+
+  /** Message éphémère dans le pied de page (droite), à la place du statut de sauvegarde. */
+  const flashMsg = useCallback((text: string, ms = 3000) => {
+    setFlash(text)
+    if (flashTimer.current) clearTimeout(flashTimer.current)
+    flashTimer.current = setTimeout(() => setFlash(null), ms)
+  }, [])
+  useEffect(() => () => { if (flashTimer.current) clearTimeout(flashTimer.current) }, [])
+
+  /** Clic sur une ligne fichier → Finder via /api/reveal (#86). Erreurs en pied de page. */
+  const reveal = useCallback(async (path: string) => {
+    if (!path.startsWith('/')) {
+      flashMsg('chemin absolu inconnu — complète-le à la main, ou glisse le fichier depuis un terminal', 5000)
+      return
+    }
+    try {
+      await jsonOk(await fetch('/api/reveal', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path }),
+      }))
+    } catch (e) {
+      flashMsg(`reveal impossible : ${e instanceof Error ? e.message : String(e)}`, 5000)
+    }
+  }, [flashMsg])
+
+  /** « Copier pour l'agent » (⇧⌘C) : note nettoyée, lignes fichier → chemins nus. */
+  const copyForAgent = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(cleanForAgent(contentRef.current))
+      flashMsg('copié pour l\'agent — chemins nus, prêt à coller', 2500)
+    } catch {
+      flashMsg('presse-papier inaccessible', 2500)
+    }
+  }, [flashMsg])
+
+  const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // ⇧⌘C uniquement — le ⌘C brut (copie telle qu'écrite) reste natif, intouché.
+    if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'c') {
+      e.preventDefault()
+      void copyForAgent()
+    }
+  }
+
+  /** Drop d'un fichier → ligne(s) `[fichier: …]` au caret. JAMAIS de copie du fichier. */
+  const onDrop = (e: React.DragEvent<HTMLTextAreaElement>) => {
+    setDragging(false)
+    const { paths, names } = extractDropPaths(e.dataTransfer)
+    if (paths.length === 0 && names.length === 0) return // drop de texte ordinaire → natif
+    e.preventDefault()
+    const ta = e.currentTarget
+    const pos = ta.selectionStart ?? contentRef.current.length
+    const { content: next, caret } = insertOnOwnLines(
+      contentRef.current, pos, [...paths, ...names].map(fileLineOf),
+    )
+    setContent(next)
+    if (names.length > 0) {
+      // Navigateur pur : le Finder ne livre que le NOM (sandbox). Fallback gracieux.
+      flashMsg('chemin absolu masqué par le navigateur — glisse le fichier depuis un terminal, ou complète le chemin', 6000)
+    }
+    requestAnimationFrame(() => { ta.focus(); ta.setSelectionRange(caret, caret) })
+  }
+
+  /** Ligne fichier du backdrop sous le pointeur (rectangles réels, wrapping compris). */
+  const fileSpanAt = (x: number, y: number): HTMLElement | null => {
+    const root = backdropRef.current
+    if (!root) return null
+    for (const el of Array.from(root.querySelectorAll<HTMLElement>('[data-filepath]'))) {
+      for (const r of Array.from(el.getClientRects())) {
+        if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return el
+      }
+    }
+    return null
+  }
+
+  const onEditorMouseMove = (e: React.MouseEvent<HTMLTextAreaElement>) => {
+    const span = fileSpanAt(e.clientX, e.clientY)
+    setHoverLine(span ? Number(span.dataset.fileline) : null)
+    e.currentTarget.style.cursor = span ? 'pointer' : ''
+  }
+
+  const onEditorClick = (e: React.MouseEvent<HTMLTextAreaElement>) => {
+    const ta = e.currentTarget
+    if (ta.selectionStart !== ta.selectionEnd) return // sélection en cours, pas un clic
+    const path = fileSpanAt(e.clientX, e.clientY)?.dataset.filepath
+    if (path) void reveal(path)
+  }
+
   const tokens = Math.ceil(content.length / 4)
+  const lines = content.split('\n')
 
   return (
     // Tri-couche (design.md §3.1) : la racine hérite du #fafafa du body ;
@@ -171,25 +279,78 @@ export function NotepadView() {
           </button>
         ) : (
           <div className="flex min-h-0 flex-1 flex-col">
-            <textarea
-              ref={textareaRef}
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              onBlur={save}
-              placeholder="Écris ton idée. La première ligne devient le titre."
-              spellCheck={false}
-              // Le :focus-visible global (index.css, hors @layer) bat toute classe
-              // utilitaire Tailwind (layered) → outline tué en inline, qui gagne toujours.
-              style={{ outline: 'none', boxShadow: 'none' }}
-              // Le conteneur scrollable est pleine largeur → la barre de défilement se cale
-              // au bord droit de l'écran ; le texte reste borné à 48rem (max-w-3xl) et centré
-              // via un padding horizontal qui absorbe l'espace libre (au lieu d'un max-width
-              // sur l'élément qui scrolle, qui collait la barre au texte).
-              className="min-h-0 w-full flex-1 resize-none border-0 bg-transparent px-[max(1.5rem,calc((100%-48rem)/2))] py-8 text-[2rem] leading-relaxed text-neutral-800 placeholder:text-neutral-500"
-            />
+            {/* Éditeur = textarea nue + backdrop d'affordance (#89). Le tint au drag
+                signale la cible de drop (accent-tint, le registre « actif » du dashboard). */}
+            <div className={`relative min-h-0 w-full flex-1 ${dragging ? 'bg-accent-tint' : ''}`}>
+              <div
+                ref={backdropRef}
+                aria-hidden="true"
+                // Texte transparent : seules les DÉCORATIONS des lignes fichier
+                // (text-decoration-color explicite, fond) sont visibles sous la textarea.
+                className={`pointer-events-none absolute inset-0 select-none overflow-hidden text-transparent ${EDITOR_METRICS}`}
+              >
+                {lines.map((l, i) => {
+                  const p = parseFileLine(l)
+                  return (
+                    <Fragment key={i}>
+                      {p !== null ? (
+                        <span
+                          data-fileline={i}
+                          data-filepath={p}
+                          className={`underline decoration-1 underline-offset-4 ${
+                            hoverLine === i ? 'bg-accent-tint decoration-accent' : 'decoration-neutral-300'
+                          }`}
+                        >{l}</span>
+                      ) : l}
+                      {i < lines.length - 1 ? '\n' : ''}
+                    </Fragment>
+                  )
+                })}
+                {/* Force le rendu d'une éventuelle dernière ligne vide (parité de
+                    hauteur avec la textarea, sinon le scroll sync se décale). */}
+                {'\u200B'}
+              </div>
+              <textarea
+                ref={textareaRef}
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                onBlur={save}
+                onKeyDown={onKeyDown}
+                onClick={onEditorClick}
+                onMouseMove={onEditorMouseMove}
+                onMouseLeave={(e) => { setHoverLine(null); e.currentTarget.style.cursor = '' }}
+                onScroll={(e) => {
+                  const b = backdropRef.current
+                  if (b) { b.scrollTop = e.currentTarget.scrollTop; b.scrollLeft = e.currentTarget.scrollLeft }
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault()
+                  e.dataTransfer.dropEffect = 'link' // un LIEN, jamais une copie (#89)
+                  setDragging(true)
+                }}
+                onDragLeave={() => setDragging(false)}
+                onDrop={onDrop}
+                placeholder="Écris ton idée. La première ligne devient le titre."
+                spellCheck={false}
+                // Le :focus-visible global (index.css, hors @layer) bat toute classe
+                // utilitaire Tailwind (layered) → outline tué en inline, qui gagne toujours.
+                style={{ outline: 'none', boxShadow: 'none' }}
+                className={`absolute inset-0 h-full w-full resize-none border-0 bg-transparent text-neutral-800 placeholder:text-neutral-500 ${EDITOR_METRICS}`}
+              />
+            </div>
             <div className="flex w-full shrink-0 items-center justify-between px-[max(1.5rem,calc((100%-48rem)/2))] py-1.5 font-mono text-[11px] text-neutral-500">
               <span>{content.length} car. · ≈{tokens} tokens</span>
-              <span>{status === 'saving' ? 'enregistrement…' : status === 'saved' ? 'enregistré' : ''}</span>
+              <span className="flex items-center gap-4">
+                <span data-notepad-flash>
+                  {flash ?? (status === 'saving' ? 'enregistrement…' : status === 'saved' ? 'enregistré' : '')}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => void copyForAgent()}
+                  title="Copie la note nettoyée — lignes [fichier: …] converties en chemins nus (⇧⌘C)"
+                  className="shrink-0 text-neutral-500 hover:text-neutral-800"
+                >copier pour l'agent&nbsp;&nbsp;⇧⌘C</button>
+              </span>
             </div>
           </div>
         )}
