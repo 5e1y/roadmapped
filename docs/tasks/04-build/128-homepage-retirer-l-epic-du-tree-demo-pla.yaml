@@ -3,7 +3,7 @@ code: null
 title: >-
   Homepage : retirer l'epic du tree démo (placement colonnes/graphe correct) + re-snapshot de la
   dernière app
-status: todo
+status: done
 tags:
   - marketing
   - fable
@@ -26,8 +26,23 @@ dependsOn: []
 epic: site
 source: ai
 createdAt: "2026-07-08T16:22:22"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+startedAt: "2026-07-08T17:38:58"
+completedAt: "2026-07-08"
+commit: 9bc44d8
+outcome: >-
+  Deux corrections homepage. (1) BUG placement (#135) : le tree démo (src/demo/tree.ts) mettait tous
+  les tickets sous epic « homepage » → un nœud epic unique en colonne Build et une seule unité dans
+  le graphe. Corrigé : epic:null sur les 17 tickets + déclaration _epics.yaml retirée → chaque
+  ticket s'affiche à son stage (Idea 1/1, Initial 1/1, Identity 2/2, Build 6/7, GTM…) en colonnes ET
+  à sa place causale dans le graphe de deps. Notes de section démo traduites en anglais. Test tree
+  démo mis à jour (assert epic → tickets à plat, tree.epics vide). (2) RE-SNAPSHOT : npm run
+  build:demo régénéré depuis l'app à jour (full anglais #155 + archivage retiré #154) et copié dans
+  roadmapped-site/demo/. Site poussé (5e1y/roadmapped-site main 966e6b8) → Cloudflare redéploie.
+verification: >-
+  Suite complète 373/373 (tree.test démo mis à jour) ; tsc clean ; build:demo reproductible. QA
+  VISUEL headless (playwright-core, snapshot servi) : vue Colonnes montre les tickets répartis à
+  leurs stages corrects (#10 Build, #12/#13 GTM — plus de nœud epic unique), UI 100% anglaise
+  (Backlog/Roadmap/Docs/Notepad, Columns/Graph, done, Available, Missing prerequisites, notes de
+  stage EN). Les 2 objectifs #156 confirmés. Push site vérifié f022cfd..966e6b8. Rendu live à
+  valider par Rémi après redéploiement Cloudflare.
 release: null
