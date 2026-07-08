@@ -8,7 +8,7 @@ import { join, resolve, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { load } from 'js-yaml'
 import {
-  ensureConfig, ensureSkeleton, ensureDevDependency, mergeMcpEntry, installGuardHook, ensureSessionHook, runInit, runUpgrade,
+  ensureConfig, ensureSkeleton, ensureDevDependency, mergeMcpEntry, installGuardHook, ensureSessionHook, ensureClaudeMd, runInit, runUpgrade,
 } from './install.mjs'
 
 // Tout se joue dans un repo HÔTE jetable — jamais le repo réel. On teste :
@@ -76,6 +76,34 @@ describe('ensureSessionHook (#122)', () => {
     writeFileSync(join(host, '.claude', 'settings.json'), '{ pas du json')
     expect(ensureSessionHook(host, cmd, silent)).toBe(false)
     expect(readFileSync(join(host, '.claude', 'settings.json'), 'utf8')).toBe('{ pas du json')
+  })
+})
+
+describe('ensureClaudeMd (#153)', () => {
+  const read = () => readFileSync(join(host, 'CLAUDE.md'), 'utf8')
+
+  it('crée CLAUDE.md avec le bloc roadmapped (consigne dashboard)', () => {
+    ensureClaudeMd(host, silent)
+    const md = read()
+    expect(md).toContain('<!-- >>> roadmapped >>> -->')
+    expect(md).toContain('npx roadmapped dashboard')
+    expect(md).toContain('<!-- <<< roadmapped <<< -->')
+  })
+
+  it('idempotent : relancer ne duplique pas le bloc', () => {
+    ensureClaudeMd(host, silent)
+    ensureClaudeMd(host, silent)
+    const md = read()
+    expect(md.match(/>>> roadmapped >>>/g)).toHaveLength(1)
+  })
+
+  it('préserve un CLAUDE.md existant, ajoute le bloc à la suite', () => {
+    writeFileSync(join(host, 'CLAUDE.md'), '# Mon projet\n\nRègles maison.\n')
+    ensureClaudeMd(host, silent)
+    const md = read()
+    expect(md).toContain('# Mon projet') // contenu utilisateur intact
+    expect(md).toContain('Règles maison.')
+    expect(md).toContain('<!-- >>> roadmapped >>> -->') // + bloc ajouté
   })
 })
 
