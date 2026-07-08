@@ -3,7 +3,7 @@ code: null
 title: >-
   Spec — réactivité live : file-watch + SSE, pulse in-progress, badges NEW non-lus, console
   action-tracking
-status: todo
+status: done
 tags:
   - spec
 size: M
@@ -30,8 +30,16 @@ epic: live-reactivity
 source: ai
 createdAt: "2026-07-08T15:11:14"
 startedAt: "2026-07-08T15:11:19"
-completedAt: null
-commit: null
-outcome: null
+completedAt: "2026-07-08"
+commit: 137a109
+outcome: >-
+  docs/specs/2026-07-08-live-reactivity.md rédigé (DRAFT, attend relecture Rémi). Décisions
+  tranchées : SOCLE = fs.watch natif (pas chokidar) + débounce 80ms + SSE /api/events (argumenté vs
+  WS/polling) + signal léger → reload() existant de TreeContext + diff prev/next client comme
+  primitive des couches UX ; PULSE = CSS pur + reduced-motion ; NEW = set vu dans uiPersist +
+  updatedAt (prérequis schéma) ; CONSOLE = diff live-only v1, PAS de journal serveur (git log EST
+  l'audit persistant — YAGNI) + toast sur →done. Découpage en 6 sous-tickets chaînés (dependsOn)
+  avec difficulté, SANS tiering Fable (annulé). Points laissés à Rémi balisés 'À confirmer'.
+  Sous-tickets d'implémentation à créer à l'approbation (zéro code avant).
 verification: null
 release: null
