@@ -1,7 +1,7 @@
 id: 133
 code: null
 title: "Implémenter — epic, jalons & progression (spec #131)"
-status: in_progress
+status: done
 tags:
   - data-model
   - fable
@@ -26,8 +26,26 @@ dependsOn: []
 milestone: null
 source: ai
 createdAt: "2026-07-08T11:18:55"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: d549cf5
+outcome: >-
+  Spec #131 implémentée intégralement par Fable 5 (26 fichiers). Champ milestone→epic (parse
+  rétrocompat epic ?? milestone, migration lazy au dump sans résurrection sur {epic:null}, validate
+  slug optionnel). kind:'milestone' additif = jalon (verrou via dependsOn, computeAvailability
+  inchangé ; MilestoneGlyph diamant 3 états + badge « bloque N » dans
+  TaskRow/TaskPanel/RoadmapColumns/RoadmapGraph ; cadenas #130 prioritaire si le jalon est lui-même
+  verrouillé). epicProgress + globalProgress (ligne « avancement: x/y (pct%) » dans sitrep + header
+  Roadmap). Backlog : toggle « par epic » persisté (défaut par stage), blocs par epic + « Sans epic
+  ». EpicCombobox (nouvelle primitive ui.tsx, saisie slugifiée). _roadmaps.yaml→_epics.yaml
+  (rétrocompat lecture). CLI --epic (alias --milestone déprécié avec warning) + --kind milestone +
+  --blocks ; MCP idem ; skill formats.md/SKILL.md à jour. Non fait (volontaire, optionnel dans la
+  spec) : coloration des cartes roadmap par epic.
+verification: >-
+  Vérif INDÉPENDANTE (pas seulement celle de Fable) : npx tsc --noEmit clean ; npx vitest run
+  274/274 verts (13 fichiers, +35 vs avant) ; npm run build vert ; node scripts/task.mjs validate OK
+  sur 123 tâches réelles (rétrocompat des 119 milestone:null confirmée) ; sitrep affiche «
+  avancement: 111/123 (90%) » ; roadmap affiche l'avancement global + « Aucun epic » (correct) ; npm
+  run dev boote HTTP 200, /api/tree valide, zéro erreur. Rendu visuel fin (diamant, combobox,
+  regroupement) à valider à l'œil par Rémi ; EpicCombobox = seul comportement Base UI réellement
+  neuf, sans test d'interaction DOM (couvert typecheck/build).
 release: null
