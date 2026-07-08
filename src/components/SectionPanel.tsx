@@ -17,7 +17,7 @@ const SECTION_STATUS_ITEMS: { value: SectionNode['status']; label: string }[] = 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="flex flex-col gap-1">
-      <span className="text-[11px] font-medium text-neutral-400">{label}</span>
+      <span className="text-[11px] font-medium text-neutral-500">{label}</span>
       {children}
     </label>
   )
@@ -169,7 +169,7 @@ export function SectionPanel({ dir }: { dir: string }) {
   const [errors, setErrors] = useState<string[]>([])
   const [saved, setSaved] = useState(false)
   const section = tree?.sections.find((s) => s.key === dir) ?? tree?.archive.find((s) => s.key === dir)
-  if (!section) return <p className="text-sm text-neutral-400">Section introuvable.</p>
+  if (!section) return <p className="text-sm text-neutral-500">Section introuvable.</p>
 
   const save = async (patch: Record<string, unknown>) => {
     const r = await fetch(`/api/sections/${encodeURIComponent(dir)}`, {
@@ -190,7 +190,7 @@ export function SectionPanel({ dir }: { dir: string }) {
     <div className="flex flex-col gap-4">
       <ErrorBanner errors={errors} />
       <div className="flex items-center justify-between gap-2">
-        <div className="min-w-0 truncate font-mono text-xs text-neutral-400">{dir}</div>
+        <div className="min-w-0 truncate font-mono text-xs text-neutral-500">{dir}</div>
         {saved && (
           <span className="flex shrink-0 items-center gap-1 text-[11px] text-neutral-500">
             <Check size={10} />
@@ -200,11 +200,11 @@ export function SectionPanel({ dir }: { dir: string }) {
       </div>
       {/* Le titre d'un stage est canonique (validation stricte) — lecture seule. */}
       <div className="flex flex-col gap-1">
-        <span className="text-[11px] font-medium text-neutral-400">Titre</span>
+        <span className="text-[11px] font-medium text-neutral-500">Titre</span>
         <p className="px-1 text-sm text-neutral-900">{section.title}</p>
       </div>
       <label className="flex flex-col gap-1">
-        <span className="text-[11px] font-medium text-neutral-400">Statut</span>
+        <span className="text-[11px] font-medium text-neutral-500">Statut</span>
         <Select
           aria-label="Statut de la section"
           defaultValue={section.status}
@@ -213,7 +213,7 @@ export function SectionPanel({ dir }: { dir: string }) {
         />
       </label>
       <label className="flex flex-col gap-1">
-        <span className="text-[11px] font-medium text-neutral-400">Note</span>
+        <span className="text-[11px] font-medium text-neutral-500">Note</span>
         <TextArea defaultValue={section.note ?? ''}
           onBlur={(e) => {
             const v = e.target.value === '' ? null : e.target.value

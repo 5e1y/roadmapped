@@ -40,13 +40,13 @@ export function SectionAccordion({
               {section.title}
             </span>
             {section.status !== 'open' && <Chip label={SECTION_STATUS_FR[section.status]} />}
-            <span className="shrink-0 font-mono text-xs text-neutral-400">{done}/{total}</span>
+            <span className="shrink-0 font-mono text-xs text-neutral-500">{done}/{total}</span>
           </Accordion.Trigger>
           {!dimmed && (
             <div className="flex shrink-0 items-center gap-1 self-stretch pr-3">
               <button type="button" aria-label="Éditer la section"
                 onClick={(e) => { e.stopPropagation(); openSection(section.key) }}
-                className="rounded p-1 text-neutral-400 hover:bg-neutral-200 hover:text-neutral-700">
+                className="rounded p-1 text-neutral-500 hover:bg-neutral-200 hover:text-neutral-700">
                 <EditPen size={13} />
               </button>
               <button type="button"
@@ -66,10 +66,10 @@ export function SectionAccordion({
         )}
         {section.tasks.length === 0 ? (
           dimmed ? (
-            <p className="px-4 py-2.5 text-xs text-neutral-400">Aucune tâche.</p>
+            <p className="px-4 py-2.5 text-xs text-neutral-500">Aucune tâche.</p>
           ) : (
             <div className="flex items-center justify-between gap-2 px-4 py-2.5">
-              <span className="text-xs text-neutral-400">Aucune tâche.</span>
+              <span className="text-xs text-neutral-500">Aucune tâche.</span>
               <button type="button" onClick={() => openCreateTask(section.key)}
                 className="rounded px-2 py-1 text-[11px] text-neutral-500 hover:bg-neutral-200 hover:text-neutral-800">
                 + première tâche

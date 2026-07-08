@@ -1,4 +1,4 @@
-import { useRef, useState, type ReactNode } from 'react'
+import { useRef, useState, type ReactNode, type RefObject } from 'react'
 import { Toast } from '@base-ui/react/toast'
 import { Check, Cross, Warning } from 'trinil-react'
 import { Collapsible } from '@base-ui/react/collapsible'
@@ -93,7 +93,7 @@ function caretOffsetFromClick(container: HTMLElement, x: number, y: number, raw:
 }
 
 function SectionLabel({ children }: { children: ReactNode }) {
-  return <div className="px-1.5 text-[11px] font-medium text-neutral-400">{children}</div>
+  return <div className="px-1.5 text-[11px] font-medium text-neutral-500">{children}</div>
 }
 
 function CheckIcon() {
@@ -130,7 +130,7 @@ function RemoveButton({ label, onClick }: { label: string; onClick: () => void }
       aria-label={label}
       title={label}
       onClick={(e) => { e.stopPropagation(); onClick() }}
-      className="shrink-0 rounded p-1 text-neutral-300 opacity-0 transition-opacity hover:bg-neutral-200 hover:text-neutral-700 focus-visible:opacity-100 group-hover:opacity-100"
+      className="shrink-0 rounded p-1 text-neutral-500 opacity-0 transition-opacity hover:bg-neutral-200 hover:text-neutral-700 focus-visible:opacity-100 group-hover:opacity-100"
     >
       <Cross size={9} />
     </button>
@@ -148,7 +148,7 @@ function RelationRow({ tree, id, badge, onRemove }: {
   const t = findTaskInTree(tree, id)
   if (!t) {
     // Ne devrait pas arriver (deps validées) — on reste lisible plutôt que de planter.
-    return <div className="px-1.5 py-1 font-mono text-xs text-neutral-400">#{id}</div>
+    return <div className="px-1.5 py-1 font-mono text-xs text-neutral-500">#{id}</div>
   }
   return (
     <div className="group flex items-center">
@@ -158,14 +158,14 @@ function RelationRow({ tree, id, badge, onRemove }: {
         className="flex min-w-0 flex-1 items-center gap-2 px-1.5 py-1 text-left text-sm hover:bg-neutral-100"
       >
         <StatusGlyph status={t.status} />
-        <span className="shrink-0 font-mono text-xs text-neutral-400">#{t.id}</span>
+        <span className="shrink-0 font-mono text-xs text-neutral-500">#{t.id}</span>
         <span
           title={t.title}
-          className={`min-w-0 truncate ${t.status === 'done' ? 'text-neutral-400 line-through' : 'text-neutral-800'}`}
+          className={`min-w-0 truncate ${t.status === 'done' ? 'text-neutral-500 line-through' : 'text-neutral-800'}`}
         >
           {t.title}
         </span>
-        {badge && <span className="ml-auto shrink-0 text-[11px] text-neutral-400">{badge}</span>}
+        {badge && <span className="ml-auto shrink-0 text-[11px] text-neutral-500">{badge}</span>}
       </button>
       {onRemove && <RemoveButton label={`Retirer #${id}`} onClick={onRemove} />}
     </div>
@@ -208,7 +208,7 @@ function RefLine({ refPath, onRemove }: { refPath: string; onRemove?: () => void
             window.dispatchEvent(new CustomEvent(OPEN_DOC_EVENT, { detail: refPath.replace(/^docs\//, '') }))
             close()
           }}
-          className="min-w-0 flex-1 truncate px-1.5 py-0.5 text-left font-mono text-xs text-neutral-800 underline decoration-neutral-300 underline-offset-2 hover:decoration-neutral-800"
+          className="min-w-0 flex-1 truncate px-1.5 py-0.5 text-left font-mono text-xs text-neutral-800 underline decoration-neutral-500 underline-offset-2 hover:decoration-neutral-800"
         >
           {refPath}
         </button>
@@ -244,7 +244,7 @@ function DoneForm({ task, busy, onCancel, onSubmit }: {
   return (
     <div className="mt-2 flex flex-col gap-2.5 border border-neutral-200 bg-neutral-50 p-3">
       <label className="flex flex-col gap-1">
-        <span className="text-[11px] font-medium text-neutral-400">Outcome — ce qui a été livré (requis)</span>
+        <span className="text-[11px] font-medium text-neutral-500">Outcome — ce qui a été livré (requis)</span>
         <AutoTextArea
           autoFocus
           value={outcome}
@@ -253,16 +253,16 @@ function DoneForm({ task, busy, onCancel, onSubmit }: {
         />
       </label>
       <label className="flex flex-col gap-1">
-        <span className="text-[11px] font-medium text-neutral-400">Vérification (optionnel)</span>
+        <span className="text-[11px] font-medium text-neutral-500">Vérification (optionnel)</span>
         <TextInput value={verification} onChange={(e) => setVerification(e.target.value)} placeholder="Comment l'artefact a été vérifié." />
       </label>
       <div className="grid grid-cols-2 gap-2">
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] font-medium text-neutral-400">Commit (optionnel)</span>
+          <span className="text-[11px] font-medium text-neutral-500">Commit (optionnel)</span>
           <TextInput value={commit} onChange={(e) => setCommit(e.target.value)} placeholder="sha" />
         </label>
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] font-medium text-neutral-400">Release (optionnel)</span>
+          <span className="text-[11px] font-medium text-neutral-500">Release (optionnel)</span>
           <TextInput value={release} onChange={(e) => setRelease(e.target.value)} placeholder="v0.1.0" />
         </label>
       </div>
@@ -317,9 +317,14 @@ function TaskPanelBody({ id }: { id: number }) {
   const detailMinHeight = useRef<number>(0)
   /** Position de caret à poser dans la textarea au focus (mappée depuis le clic). */
   const detailCaret = useRef<number | null>(null)
+  // Conteneurs des listes supprimables (deps/liens/refs) : cibles de refocus
+  // après le retrait d'une ligne (design.md §3.4 — focus jamais abandonné).
+  const depsListRef = useRef<HTMLDivElement>(null)
+  const linksListRef = useRef<HTMLDivElement>(null)
+  const refsListRef = useRef<HTMLDivElement>(null)
 
   const task = tree ? findTaskInTree(tree, id) : null
-  if (!tree || !task) return <p className="text-sm text-neutral-400">Tâche introuvable (rechargez).</p>
+  if (!tree || !task) return <p className="text-sm text-neutral-500">Tâche introuvable (rechargez).</p>
 
   const archived = task.file.includes('_archive/')
   const editable = !archived
@@ -370,6 +375,23 @@ function TaskPanelBody({ id }: { id: number }) {
     }
   }
 
+  /**
+   * Retrait d'une ligne supprimable : après le PATCH, la ligne (et son ✕
+   * potentiellement focalisé) a disparu au reload — le focus est REPLACÉ sur
+   * le conteneur de la liste (audit #107). rAF : on attend le commit React ;
+   * si l'utilisateur a déjà focalisé autre chose (clic souris), on ne vole rien.
+   */
+  const removeAndRefocus = (field: string, patch: Record<string, unknown>, listRef: RefObject<HTMLDivElement | null>) =>
+    void save(field, true, patch).then((ok) => {
+      if (!ok) return
+      requestAnimationFrame(() => {
+        const el = document.activeElement
+        if ((el === document.body || !(el instanceof HTMLElement) || !el.isConnected) && listRef.current?.isConnected) {
+          listRef.current.focus()
+        }
+      })
+    })
+
   // --------------------------------------------------------------- actions cycle de vie
   const runAction = async (
     url: string, init: RequestInit, netMsg: string, closeOnSuccess: boolean,
@@ -416,7 +438,7 @@ function TaskPanelBody({ id }: { id: number }) {
     setDetailEditing(true)
   }
 
-  const titleCls = task.status === 'done' ? 'text-neutral-400 line-through' : 'text-neutral-900'
+  const titleCls = task.status === 'done' ? 'text-neutral-500 line-through' : 'text-neutral-900'
 
   return (
     <div className="flex min-h-full flex-col gap-5">
@@ -426,7 +448,7 @@ function TaskPanelBody({ id }: { id: number }) {
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center gap-1.5">
           <StatusGlyph status={task.status} />
-          <span className="font-mono text-xs text-neutral-400">#{task.id}</span>
+          <span className="font-mono text-xs text-neutral-500">#{task.id}</span>
           <div className="w-32">
             <Select
               ghost
@@ -566,7 +588,16 @@ function TaskPanelBody({ id }: { id: number }) {
             onKeyDown={(e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') e.currentTarget.blur() }}
             onBlur={(e) => {
               const v = e.target.value || null
-              void save('detail', changed(task.detail, v), { detail: v }).then((ok) => { if (ok) setDetailEditing(false) })
+              void save('detail', changed(task.detail, v), { detail: v }).then((ok) => {
+                if (!ok) return
+                setDetailEditing(false)
+                // La textarea est démontée : le focus est REPLACÉ sur la zone de
+                // lecture (audit #107) — sauf si le blur vient d'un clic qui a
+                // déjà posé le focus ailleurs (on ne vole pas ce focus-là).
+                requestAnimationFrame(() => {
+                  if (document.activeElement === document.body) detailReadRef.current?.focus()
+                })
+              })
             }}
             className="text-sm leading-relaxed"
           />
@@ -576,14 +607,17 @@ function TaskPanelBody({ id }: { id: number }) {
             role={editable ? 'button' : undefined}
             tabIndex={editable ? 0 : undefined}
             title={editable ? 'Cliquer pour éditer' : undefined}
+            // Nom accessible COURT (sinon tout le markdown devient le nom du bouton).
+            aria-label={editable ? 'Modifier le détail' : undefined}
             onClick={editable ? (e) => { if (!(e.target as HTMLElement).closest('a')) openDetailEditor({ x: e.clientX, y: e.clientY }) } : undefined}
-            onKeyDown={editable ? (e) => { if (e.key === 'Enter') { e.preventDefault(); openDetailEditor() } } : undefined}
+            // Un role="button" répond à Entrée ET Espace (design.md §3.5).
+            onKeyDown={editable ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDetailEditor() } } : undefined}
             className={`border border-transparent px-1.5 py-1 ${editable ? 'cursor-text transition-colors hover:bg-neutral-100' : ''}`}
           >
             {task.detail ? (
               <Markdown source={task.detail} className="doc-prose--panel" />
             ) : (
-              <p className="text-xs text-neutral-400">Aucun détail.{editable && ' Cliquer pour ajouter.'}</p>
+              <p className="text-xs text-neutral-500">Aucun détail.{editable && ' Cliquer pour ajouter.'}</p>
             )}
           </div>
         )}
@@ -597,11 +631,11 @@ function TaskPanelBody({ id }: { id: number }) {
             <SectionLabel>Dépend de</SectionLabel>
             <SavedTick show={savedIn('dependsOn')} />
           </div>
-          <div className="flex flex-col">
+          <div ref={depsListRef} tabIndex={-1} className="flex flex-col">
             {task.dependsOn.map((d) => (
               <RelationRow
                 key={d} tree={tree} id={d} badge={depBadge(d)}
-                onRemove={editable ? () => void save('dependsOn', true, { dependsOn: task.dependsOn.filter((x) => x !== d) }) : undefined}
+                onRemove={editable ? () => removeAndRefocus('dependsOn', { dependsOn: task.dependsOn.filter((x) => x !== d) }, depsListRef) : undefined}
               />
             ))}
             {editable && (
@@ -627,11 +661,11 @@ function TaskPanelBody({ id }: { id: number }) {
             <SectionLabel>Liens</SectionLabel>
             <SavedTick show={savedIn('links')} />
           </div>
-          <div className="flex flex-col">
+          <div ref={linksListRef} tabIndex={-1} className="flex flex-col">
             {task.links.map((l) => (
               <RelationRow
                 key={l} tree={tree} id={l}
-                onRemove={editable ? () => void save('links', true, { links: task.links.filter((x) => x !== l) }) : undefined}
+                onRemove={editable ? () => removeAndRefocus('links', { links: task.links.filter((x) => x !== l) }, linksListRef) : undefined}
               />
             ))}
             {editable && (
@@ -654,11 +688,11 @@ function TaskPanelBody({ id }: { id: number }) {
             <SectionLabel>Références</SectionLabel>
             <SavedTick show={savedIn('refs')} />
           </div>
-          <div className="flex flex-col gap-0.5">
+          <div ref={refsListRef} tabIndex={-1} className="flex flex-col gap-0.5">
             {task.refs.map((r) => (
               <RefLine
                 key={r} refPath={r}
-                onRemove={editable ? () => void save('refs', true, { refs: task.refs.filter((x) => x !== r) }) : undefined}
+                onRemove={editable ? () => removeAndRefocus('refs', { refs: task.refs.filter((x) => x !== r) }, refsListRef) : undefined}
               />
             ))}
             {editable && (
@@ -684,7 +718,7 @@ function TaskPanelBody({ id }: { id: number }) {
       {/* Consignation : inputs ghost permanents (corrections rares mais directes). */}
       <div className="flex flex-col gap-1 border border-neutral-200 bg-neutral-50 px-2 py-2">
         <div className="flex items-center gap-2 px-1.5">
-          <div className="text-[11px] font-medium text-neutral-400">Consignation</div>
+          <div className="text-[11px] font-medium text-neutral-500">Consignation</div>
           <SavedTick show={savedIn('outcome', 'verification', 'commit', 'release')} />
         </div>
         <div className="px-1.5 text-xs text-neutral-500">
@@ -697,7 +731,7 @@ function TaskPanelBody({ id }: { id: number }) {
           { field: 'release', label: 'release', value: task.release, area: false },
         ] as const).map(({ field, label, value, area }) => (
           <label key={field} className="flex flex-col">
-            <span className="px-1.5 text-[11px] text-neutral-400">{label}</span>
+            <span className="px-1.5 text-[11px] text-neutral-500">{label}</span>
             {area ? (
               <GhostAutoTextArea
                 key={`${field}-${value ?? ''}`}
@@ -752,7 +786,7 @@ function TaskPanelBody({ id }: { id: number }) {
 
       {/* Pied : le chemin technique, relégué ici (audit UX). */}
       <div className="mt-auto border-t border-neutral-200 pt-3">
-        <div className="truncate font-mono text-[11px] text-neutral-400" title={task.file}>{task.file}</div>
+        <div className="truncate font-mono text-[11px] text-neutral-500" title={task.file}>{task.file}</div>
       </div>
     </div>
   )

@@ -100,16 +100,16 @@ export function DocsView({ path, onSelectDoc }: { path: string | null; onSelectD
       <ViewHeader meta={path ?? undefined} />
       <div className="flex min-h-0 flex-1">
         <div className="flex w-[420px] shrink-0 flex-col border-r border-neutral-200 bg-white py-2">
-          <div className="shrink-0 px-4 pb-1.5 text-[11px] font-medium text-neutral-400">Fichiers</div>
+          <div className="shrink-0 px-4 pb-1.5 text-[11px] font-medium text-neutral-500">Fichiers</div>
           <div className="min-h-0 flex-1 overflow-y-auto">
-            {docs.loading && !docs.tree && <p className="px-4 text-xs text-neutral-400">Chargement…</p>}
+            {docs.loading && !docs.tree && <p className="px-4 text-xs text-neutral-500">Chargement…</p>}
             {/* Registre d'erreur canonique (ErrorBanner, role=alert) — plus de boîte ad hoc. */}
             {docs.loadError && (
               <div className="mx-4">
                 <ErrorBanner errors={[`Chargement impossible : ${docs.loadError}`]} />
               </div>
             )}
-            {docs.tree && docs.tree.length === 0 && <p className="px-4 text-xs text-neutral-400">Aucun document .md.</p>}
+            {docs.tree && docs.tree.length === 0 && <p className="px-4 text-xs text-neutral-500">Aucun document .md.</p>}
             {docs.tree && docs.tree.length > 0 && (
               <DocsTree nodes={docs.tree} docPath={path} onSelectDoc={onSelectDoc} />
             )}
@@ -122,7 +122,7 @@ export function DocsView({ path, onSelectDoc }: { path: string | null; onSelectD
 
   if (!path) {
     return shell(
-      <div className="flex h-full items-center justify-center text-sm text-neutral-400">
+      <div className="flex h-full items-center justify-center text-sm text-neutral-500">
         Sélectionne un document
       </div>,
     )
@@ -130,14 +130,14 @@ export function DocsView({ path, onSelectDoc }: { path: string | null; onSelectD
 
   if (loading) {
     // Même gabarit que le contenu : la zone de lecture ne se déplace pas au chargement.
-    return shell(<div className="mx-auto max-w-3xl px-6 py-8 text-sm text-neutral-400">Chargement…</div>)
+    return shell(<div className="mx-auto max-w-3xl px-6 py-8 text-sm text-neutral-500">Chargement…</div>)
   }
 
   if (error) {
     return shell(
       <div className="flex h-full flex-col items-center justify-center gap-2 px-6 text-center">
         <p className="text-sm text-neutral-500">Impossible de charger ce document.</p>
-        <p className="text-xs text-neutral-400">{error}</p>
+        <p className="text-xs text-neutral-500">{error}</p>
       </div>,
     )
   }

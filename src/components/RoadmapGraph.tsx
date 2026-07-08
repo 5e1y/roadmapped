@@ -152,11 +152,11 @@ export function RoadmapGraph() {
             <svg className="pointer-events-none absolute inset-0" width={width} height={height}>
               <defs>
                 <marker id="rm-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                  <path d="M0 0 L8 4 L0 8 z" fill="#a3a3a3" />
+                  <path d="M0 0 L8 4 L0 8 z" fill="#737373" />
                 </marker>
               </defs>
               {edges.map((d, i) => (
-                <path key={i} d={d} fill="none" stroke="#a3a3a3" strokeWidth={1} strokeDasharray="3 3" markerEnd="url(#rm-arrow)" />
+                <path key={i} d={d} fill="none" stroke="#737373" strokeWidth={1} strokeDasharray="3 3" markerEnd="url(#rm-arrow)" />
               ))}
             </svg>
 
@@ -184,22 +184,22 @@ function GraphCard({ placed, onOpen }: { placed: Placed; onOpen: () => void }) {
     ? 'border border-neutral-200 bg-accent-tint shadow-[inset_2px_0_0_var(--color-accent)]'
     : 'border border-neutral-200 bg-white hover:border-neutral-400'
   const dim = state === 'done' || state === 'locked'
-  const titleCls = task.status === 'done' ? 'text-neutral-400 line-through' : dim ? 'text-neutral-400' : 'text-neutral-900'
+  const titleCls = task.status === 'done' ? 'text-neutral-500 line-through' : dim ? 'text-neutral-500' : 'text-neutral-900'
   return (
     <button type="button" onClick={onOpen} title={task.title}
       className={`absolute flex flex-col gap-1.5 px-3 py-2.5 text-left ${skin}`}
       style={{ left: xOf(placed.col), top: yOf(placed.row), width: CARD_W, minHeight: CARD_H }}>
       <div className="flex items-center gap-2">
         {state === 'locked'
-          ? <LockLocked size={11} className="shrink-0 text-neutral-400" ariaLabel="Verrouillée" />
+          ? <LockLocked size={11} className="shrink-0 text-neutral-500" ariaLabel="Verrouillée" />
           : <StatusGlyph status={task.status} />}
-        <span className="shrink-0 font-mono text-xs text-neutral-400">#{task.id}</span>
+        <span className="shrink-0 font-mono text-xs text-neutral-500">#{task.id}</span>
         <span className={`min-w-0 truncate text-sm ${titleCls}`}>
           {task.title}
         </span>
       </div>
       {state === 'locked' ? (
-        <span className="text-[11px] text-neutral-400">
+        <span className="text-[11px] text-neutral-500">
           Prérequis manquants{placed.missing.length ? ` (${placed.missing.map((d) => `#${d}`).join(' ')})` : ''}
           {placed.missingHidden > 0 ? ` (+${placed.missingHidden} hors graphe)` : ''}
         </span>

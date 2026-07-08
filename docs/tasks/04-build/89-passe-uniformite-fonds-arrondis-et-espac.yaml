@@ -1,7 +1,7 @@
 id: 114
 code: null
 title: Passe uniformité — fonds, arrondis et espacements alignés sur design.md
-status: in_progress
+status: done
 tags:
   - design
 size: S
@@ -21,8 +21,18 @@ dependsOn:
 milestone: null
 source: user
 createdAt: "2026-07-08T01:57:24"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: 85ea032
+outcome: >-
+  Tri-couche appliqué : bg-white retiré des racines Docs/Notepad (le ViewHeader est identique dans
+  les 4 tabs), flancs 420px en surface carte bg-white, hex sticky de RoadmapColumns thémé
+  bg-neutral-50 ; Select compact passé rounded (usage corps unique vérifié) ; gabarits centrés
+  mx-auto max-w-3xl px-6 py-8 partout, états loading ET erreur compris ; flancs unifiés py-2 +
+  lignes px-4 (DocsTree compensé BASE_PADDING 8→16) ; micro-labels à deux niveaux (10px→11px) ;
+  encre du titre de stage du graphe alignée sur le mode Colonnes ; boutons primaires à deux
+  métriques, hover inversé du pied de TaskPanel remplacé par actionBtn
+verification: >-
+  Agent délégué + revue de diff orchestrateur (12 fichiers, écarts justifiés : blocs erreur alignés
+  car design.md l'exige, Annuler harmonisé avec sa rangée) ; 225 tests + build verts ; bascule
+  inter-tabs sans rupture de fond garantie par le retrait des bg-white racine
 release: null

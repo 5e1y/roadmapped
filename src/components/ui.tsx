@@ -10,8 +10,10 @@ import { Check, ChevronDown, Cross, Plus, Warning } from 'trinil-react'
  * champs de formulaire du dashboard (panneaux tâche/section/création).
  */
 
+// Bordure neutral-300 conservée (design.md §2, option douce de l'audit #108) :
+// le champ se différencie du fond par bg-neutral-50 au repos, blanc au focus.
 export const fieldCls =
-  'w-full rounded border border-neutral-300 px-2 py-1.5 text-sm text-neutral-900 focus:border-neutral-900 focus:outline-none disabled:bg-neutral-50 disabled:text-neutral-400'
+  'w-full rounded border border-neutral-300 bg-neutral-50 px-2 py-1.5 text-sm text-neutral-900 transition-colors focus:border-neutral-900 focus:bg-white focus:outline-none disabled:bg-neutral-50 disabled:text-neutral-400'
 
 /**
  * Peau « ghost » (décision Rémi 2026-07-07) : l'élément éditable est un input
@@ -22,9 +24,20 @@ export const fieldCls =
 export const ghostCls =
   'w-full rounded border border-transparent bg-transparent px-1.5 py-1 text-neutral-900 transition-colors hover:bg-neutral-100 focus:border-neutral-300 focus:bg-white focus:outline-none disabled:text-neutral-500 disabled:hover:bg-transparent'
 
-/** Enter = valider (blur déclenche la sauvegarde des champs "au blur"). */
+/**
+ * Enter = valider (blur déclenche la sauvegarde des champs "au blur"), puis le
+ * focus est RESTITUÉ au champ (design.md §3.4 : jamais abandonné sur body).
+ * Pas de boucle possible : le refocus ne re-déclenche pas de blur, et les
+ * handlers onBlur ne PATCHent que si la valeur a changé (cf. save/changed).
+ * Limite connue : si la valeur a changé, le reload remonte le champ (pattern
+ * key={valeur}) et le focus repart — le refocus ne tient que pour l'Enter
+ * « sans modification » ; l'isConnected évite de focaliser un nœud démonté.
+ */
 export const blurOnEnter = (e: KeyboardEvent<HTMLInputElement>) => {
-  if (e.key === 'Enter') e.currentTarget.blur()
+  if (e.key !== 'Enter') return
+  const el = e.currentTarget
+  el.blur()
+  requestAnimationFrame(() => { if (el.isConnected) el.focus() })
 }
 
 /**
@@ -125,7 +138,7 @@ export function ToastViewport() {
             </div>
             <Toast.Close
               aria-label="Fermer"
-              className="shrink-0 rounded p-0.5 text-neutral-400 hover:text-neutral-700"
+              className="shrink-0 rounded p-0.5 text-neutral-500 hover:text-neutral-700"
             >
 <Cross size={10} />
             </Toast.Close>
@@ -172,10 +185,10 @@ export function Select({
     >
       <BaseSelect.Trigger
         aria-label={ariaLabel}
-        className={`${ghost ? `${ghostCls} text-sm` : compact ? 'w-full rounded border border-neutral-300 bg-white px-2.5 py-1 text-xs text-neutral-700 focus:border-neutral-900 focus:outline-none' : fieldCls} flex items-center justify-between gap-2 text-left data-[disabled]:bg-neutral-50 data-[disabled]:text-neutral-400 ${ghost ? 'data-[disabled]:bg-transparent' : ''}`}
+        className={`${ghost ? `${ghostCls} text-sm` : compact ? 'w-full rounded border border-neutral-300 bg-white px-2.5 py-1 text-xs text-neutral-700 focus:border-neutral-900 focus:outline-none' : fieldCls} flex items-center justify-between gap-2 text-left data-[disabled]:bg-neutral-50 data-[disabled]:text-neutral-500 ${ghost ? 'data-[disabled]:bg-transparent' : ''}`}
       >
         <BaseSelect.Value />
-        <BaseSelect.Icon className="shrink-0 text-neutral-400">
+        <BaseSelect.Icon className="shrink-0 text-neutral-500">
 <ChevronDown size={10} />
         </BaseSelect.Icon>
       </BaseSelect.Trigger>
@@ -214,6 +227,12 @@ export function AddCombobox({ items, placeholder, onAdd, 'aria-label': ariaLabel
   'aria-label'?: string
 }) {
   const [epoch, setEpoch] = useState(0)
+  const inputRef = useRef<HTMLInputElement>(null)
+  // Le remontage key={epoch} démonte l'input focalisé (focus perdu sur body,
+  // audit #107) : refocus du nouvel input après chaque ajout — pas au montage.
+  useEffect(() => {
+    if (epoch > 0) inputRef.current?.focus()
+  }, [epoch])
   return (
     <Combobox.Root
       key={epoch}
@@ -223,14 +242,15 @@ export function AddCombobox({ items, placeholder, onAdd, 'aria-label': ariaLabel
       }}
     >
       <Combobox.Input
+        ref={inputRef}
         aria-label={ariaLabel ?? placeholder}
         placeholder={placeholder}
-        className={`${ghostCls} text-sm placeholder:text-neutral-400`}
+        className={`${ghostCls} text-sm placeholder:text-neutral-500`}
       />
       <Combobox.Portal>
         <Combobox.Positioner sideOffset={4} className="z-50">
           <Combobox.Popup className="max-h-64 min-w-[var(--anchor-width)] overflow-y-auto border border-neutral-200 bg-white py-1 shadow-sm">
-            <Combobox.Empty className="px-2.5 py-1.5 text-sm text-neutral-400">Aucune tâche.</Combobox.Empty>
+            <Combobox.Empty className="px-2.5 py-1.5 text-sm text-neutral-500">Aucune tâche.</Combobox.Empty>
             <Combobox.List>
               {(item: SelectItem) => (
                 <Combobox.Item
@@ -313,7 +333,7 @@ export function TagsCombobox({ tags, suggestions, disabled = false, onSave }: {
             className="flex items-center gap-1 text-[12px] text-neutral-500"
           >
             #{item.value}
-            <Combobox.ChipRemove aria-label={`Retirer ${item.value}`} className="shrink-0 rounded text-neutral-300 hover:text-neutral-700">
+            <Combobox.ChipRemove aria-label={`Retirer ${item.value}`} className="shrink-0 rounded text-neutral-500 hover:text-neutral-700">
               <Cross size={8} />
             </Combobox.ChipRemove>
           </Combobox.Chip>
@@ -321,13 +341,13 @@ export function TagsCombobox({ tags, suggestions, disabled = false, onSave }: {
         <Combobox.Input
           aria-label="Tags"
           placeholder={selected.length === 0 ? '+ tag' : '+'}
-          className="min-w-[60px] flex-1 bg-transparent text-[12px] text-neutral-900 placeholder:text-neutral-400 focus:outline-none"
+          className="min-w-[60px] flex-1 bg-transparent text-[12px] text-neutral-900 placeholder:text-neutral-500 focus:outline-none"
         />
       </Combobox.Chips>
       <Combobox.Portal>
         <Combobox.Positioner sideOffset={4} className="z-50">
           <Combobox.Popup className="max-h-56 min-w-[var(--anchor-width)] overflow-y-auto border border-neutral-200 bg-white py-1 shadow-sm">
-            <Combobox.Empty className="px-2.5 py-1.5 text-sm text-neutral-400">Aucun tag.</Combobox.Empty>
+            <Combobox.Empty className="px-2.5 py-1.5 text-sm text-neutral-500">Aucun tag.</Combobox.Empty>
             <Combobox.List>
               {(item: TagItem) => (
                 <Combobox.Item
@@ -386,7 +406,7 @@ export function MultiCombobox({
             className="flex max-w-full items-center gap-1 bg-neutral-100 px-1.5 py-0.5 text-xs text-neutral-700"
           >
             <span className="min-w-0 max-w-[200px] truncate" title={item.label}>{item.label}</span>
-            <Combobox.ChipRemove className="shrink-0 text-neutral-400 hover:text-neutral-700" aria-label={`Retirer ${item.label}`}>
+            <Combobox.ChipRemove className="shrink-0 text-neutral-500 hover:text-neutral-700" aria-label={`Retirer ${item.label}`}>
               <Cross size={8} />
             </Combobox.ChipRemove>
           </Combobox.Chip>
@@ -400,7 +420,7 @@ export function MultiCombobox({
       <Combobox.Portal>
         <Combobox.Positioner sideOffset={4} className="z-50">
           <Combobox.Popup className="max-h-64 min-w-[var(--anchor-width)] overflow-y-auto border border-neutral-200 bg-white py-1 shadow-sm">
-            <Combobox.Empty className="px-2.5 py-1.5 text-sm text-neutral-400">Aucune tâche.</Combobox.Empty>
+            <Combobox.Empty className="px-2.5 py-1.5 text-sm text-neutral-500">Aucune tâche.</Combobox.Empty>
             <Combobox.List>
               {(item: SelectItem) => (
                 <Combobox.Item

@@ -51,13 +51,13 @@ body {
  */
 .roadmap-cols-scroll {
   scrollbar-width: thin;
-  scrollbar-color: #d4d4d4 transparent;
+  scrollbar-color: #737373 transparent;
 }
 .roadmap-cols-scroll::-webkit-scrollbar {
   height: 8px;
 }
 .roadmap-cols-scroll::-webkit-scrollbar-thumb {
-  background: #d4d4d4;
+  background: #737373;
 
 }
 .roadmap-cols-scroll::-webkit-scrollbar-track {

@@ -57,7 +57,7 @@ export function RoadmapView() {
           aria-pressed={showDone}
           title={showDone ? 'Masquer les tickets terminés' : 'Afficher les tickets terminés'}
           className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs transition-colors ${
-            showDone ? 'border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100' : 'border-neutral-300 bg-neutral-100 text-neutral-500 hover:bg-neutral-200'
+            showDone ? 'border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100' : 'border-neutral-300 bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
           }`}
         >
           {showDone ? <EyeOpen size={12} /> : <EyeClosed size={12} />}

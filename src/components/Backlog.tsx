@@ -100,13 +100,13 @@ export function Backlog() {
       {/* Header unifié (modèle Roadmap) : filtres en dropdowns, hauteur = panneau. */}
       <ViewHeader meta={`${plural(open.length, 'ouverte')} · ${plural(done.length, 'terminée')}`}>
         <div className="relative w-56">
-          <Search size={13} className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-neutral-400" />
+          <Search size={13} className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-neutral-500" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Rechercher…"
             aria-label="Rechercher une tâche"
-            className="w-full rounded-md border border-neutral-300 bg-white py-1 pl-7 pr-2 text-xs text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-900 focus:outline-none"
+            className="w-full rounded-md border border-neutral-300 bg-white py-1 pl-7 pr-2 text-xs text-neutral-900 placeholder:text-neutral-500 focus:border-neutral-900 focus:outline-none"
           />
         </div>
         <button
