@@ -1,0 +1,24 @@
+id: 176
+kind: quick
+code: null
+title: >-
+  Décision design : toggle show-done (RoadmapView:61) signale son état par un fond gris —
+  gris-comme-état vs langage accent-tint. À trancher par Rémi
+status: todo
+tags:
+  - debt
+  - design-system
+size: null
+team: design
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-08T18:27:48"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
