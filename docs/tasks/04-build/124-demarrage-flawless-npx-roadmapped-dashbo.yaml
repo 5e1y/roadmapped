@@ -1,0 +1,33 @@
+id: 152
+code: null
+title: >-
+  Démarrage flawless : npx roadmapped dashboard ouvre le navigateur par défaut (--open) +
+  découvrabilité
+status: todo
+tags:
+  - onboarding
+size: S
+team: engineering
+detail: >-
+  Rendre le lancement du dashboard « et boum la fenêtre s'ouvre », sans passer par l'agent (décision
+  : PAS de skill /roadmapped run — brûlerait des tokens à chaque lancement pour une action
+  mécanique, contre la philosophie token-economy ; le CLI dédié suffit et ne se confond pas avec le
+  npm run dev du repo hôte). (1) bin/roadmapped.mjs verbe dashboard (l.77) : injecter --open PAR
+  DÉFAUT dans les args vite (sauf si l'utilisateur passe déjà --open/--no-open) → le navigateur
+  s'ouvre seul au bon port (vite auto-incrémente si occupé). Ajouter --no-open comme échappatoire.
+  (2) Découvrabilité : le hook SessionStart (#122) et/ou la fin de `roadmapped init` affiche « ▶
+  Dashboard : npx roadmapped dashboard » ; vérifier que guide.md §2 et setup.md mentionnent la
+  commande (pas npm run dev, ambigu dans un repo hôte). Fichier : bin/roadmapped.mjs (+
+  éventuellement scripts/install.mjs pour le hint). À faire par moi (mécanique), APRÈS #148 (le
+  dashboard/vite est en jeu dans le build démo).
+refs: []
+links: []
+dependsOn: []
+epic: distribution
+source: ai
+createdAt: "2026-07-08T15:40:06"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
