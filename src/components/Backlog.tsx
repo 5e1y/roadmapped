@@ -76,9 +76,13 @@ export function Backlog() {
   // Sélection du radar = LE filtre team (solo) ; clic vide = tout.
   const radarSelected: Team | '' = teamFilter.length === 1 ? (teamFilter[0] as Team) : ''
   const radarSelect = (t: Team | '') => setTeamFilter(t ? [t] : [])
-  // Graphe des tags (#146) : co-occurrences sur les tickets OUVERTS, sous-
-  // tâches comprises — comme le radar, il montre TOUT, la liste est filtrée.
-  const openTags = tagGraph(tree.sections.filter((s) => s.status !== 'abandoned').flatMap((s) => s.tasks))
+  // Graphe des tags (#146/#150) : carte des THÈMES du projet entier — TOUS les
+  // tickets (done inclus), actifs + archivés, sous-tâches comprises. Distinct du
+  // radar teams (qui, lui, montre la charge ouverte). Le clic filtre la liste.
+  const themeTags = tagGraph([
+    ...tree.sections.filter((s) => s.status !== 'abandoned').flatMap((s) => s.tasks),
+    ...tree.archive.flatMap((s) => s.tasks),
+  ])
   const tagSelected = tagFilter.length === 1 ? tagFilter[0] : ''
   const tagSelect = (t: string) => setTagFilter(t ? [t] : [])
 
@@ -134,17 +138,18 @@ export function Backlog() {
         <div
           className={`${top !== null ? 'hidden 2xl:flex' : 'flex'} relative min-h-0 w-[420px] shrink-0 flex-col overflow-y-auto border-r border-neutral-200 bg-white py-2`}
         >
-          {/* my-auto : centre verticalement quand ça tient, scrolle depuis le
-              haut sinon (jamais de contenu clippé, contrairement à justify-center). */}
-          <div className="my-auto flex w-full shrink-0 flex-col">
+          {/* Ancré EN HAUT (#150) : radar puis visu nodal, dans l'ordre naturel
+              du flux ; le flanc scrolle en interne si ça déborde. */}
+          <div className="flex w-full shrink-0 flex-col">
             <TeamsRadar counts={load} selected={radarSelected} onSelect={radarSelect} />
-            {/* Graphe de liens des tags (#146) — les thèmes du travail ouvert,
-                sous le radar (le « qui » au-dessus, le « quoi » en dessous). */}
-            {(openTags.nodes.length > 0 || tagSelected !== '') && (
+            {/* Graphe de liens des tags (#146/#150) — carte des thèmes du projet,
+                sous le radar (le « qui » au-dessus, le « quoi » en dessous).
+                Séparateur FULL-WIDTH bord à bord (#150). */}
+            {(themeTags.nodes.length > 0 || tagSelected !== '') && (
               <>
-                <div className="mx-4 border-t border-neutral-200" />
+                <div className="border-t border-neutral-200" />
                 <div className="pt-2">
-                  <TagGraph graph={openTags} selected={tagSelected} onSelect={tagSelect} />
+                  <TagGraph graph={themeTags} selected={tagSelected} onSelect={tagSelect} />
                 </div>
               </>
             )}
