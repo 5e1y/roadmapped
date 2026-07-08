@@ -181,9 +181,13 @@ export function NotepadView() {
               // Le :focus-visible global (index.css, hors @layer) bat toute classe
               // utilitaire Tailwind (layered) → outline tué en inline, qui gagne toujours.
               style={{ outline: 'none', boxShadow: 'none' }}
-              className="mx-auto min-h-0 w-full max-w-3xl flex-1 resize-none border-0 bg-transparent px-6 py-8 text-[2rem] leading-relaxed text-neutral-800 placeholder:text-neutral-500"
+              // Le conteneur scrollable est pleine largeur → la barre de défilement se cale
+              // au bord droit de l'écran ; le texte reste borné à 48rem (max-w-3xl) et centré
+              // via un padding horizontal qui absorbe l'espace libre (au lieu d'un max-width
+              // sur l'élément qui scrolle, qui collait la barre au texte).
+              className="min-h-0 w-full flex-1 resize-none border-0 bg-transparent px-[max(1.5rem,calc((100%-48rem)/2))] py-8 text-[2rem] leading-relaxed text-neutral-800 placeholder:text-neutral-500"
             />
-            <div className="mx-auto flex w-full max-w-3xl shrink-0 items-center justify-between px-6 py-1.5 font-mono text-[11px] text-neutral-500">
+            <div className="flex w-full shrink-0 items-center justify-between px-[max(1.5rem,calc((100%-48rem)/2))] py-1.5 font-mono text-[11px] text-neutral-500">
               <span>{content.length} car. · ≈{tokens} tokens</span>
               <span>{status === 'saving' ? 'enregistrement…' : status === 'saved' ? 'enregistré' : ''}</span>
             </div>
