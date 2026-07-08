@@ -3,7 +3,7 @@ code: null
 title: >-
   Démarrage flawless : npx roadmapped dashboard ouvre le navigateur par défaut (--open) +
   découvrabilité
-status: todo
+status: done
 tags:
   - onboarding
 size: S
@@ -26,8 +26,20 @@ dependsOn: []
 epic: distribution
 source: ai
 createdAt: "2026-07-08T15:40:06"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+startedAt: "2026-07-08T16:04:51"
+completedAt: "2026-07-08"
+commit: 9a56947
+outcome: >-
+  Démarrage flawless du dashboard. Verbe `dashboard` (bin/roadmapped.mjs) : --open injecté PAR
+  DÉFAUT dans les args vite → le navigateur s'ouvre seul (vite auto-incrémente le port si occupé).
+  --no-open = échappatoire (notre flag, filtré avant de passer à vite car vite ne le connaît pas) ;
+  un --open/--open=path explicite de l'utilisateur est respecté (pas de doublon). init affiche « ▶
+  Dashboard : npx roadmapped dashboard (ouvre le navigateur ; pas npm run dev, qui lance TON projet)
+  » — découvrabilité + désambiguïsation du npm run dev de l'hôte. Décision : PAS de skill agent
+  /roadmapped run (brûlerait des tokens à chaque lancement, contre la philosophie token-economy).
+  guide.md §2 et setup.md mentionnent déjà la commande.
+verification: >-
+  Réel : node bin/roadmapped.mjs dashboard --no-open → vite boote (port 5174), /api/tree HTTP 200,
+  navigateur NON ouvert (--no-open respecté et filtré). install.test.mjs 25/25 (hint init n'a rien
+  cassé). Parsing --open/--no-open/--open= vérifié au code.
 release: null
