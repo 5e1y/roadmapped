@@ -1,0 +1,26 @@
+id: 161
+code: null
+title: >-
+  Nettoyage résidus FR post-migration : strings USAGE de bin/roadmapped.mjs, commentaires
+  vite.config, design.md → anglais
+status: todo
+tags:
+  - i18n
+size: null
+team: engineering
+detail: >-
+  La migration full-english (#155) n'a pas atteint : les strings USAGE/commentaires de
+  bin/roadmapped.mjs, les commentaires de vite.config.ts, docs/design.md (entièrement FR), les
+  audits docs/audit-*.md. Produit anglophone = docs de référence anglophones. Traduire ce qui est
+  user-facing/canonique (design.md prioritaire) ; les audits historiques peuvent rester.
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-08T18:03:08"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

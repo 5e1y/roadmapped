@@ -1,0 +1,28 @@
+id: 165
+code: null
+title: >-
+  Surface SEO de roadmapped.work : title/description/OG/Twitter/canonical + JSON-LD
+  SoftwareApplication + robots.txt + sitemap.xml + llms.txt
+status: todo
+tags:
+  - seo
+  - homepage
+size: null
+team: marketing
+detail: >-
+  Aucune balise SEO en place. Ajouter à la landing : <title> ciblé, meta description, Open Graph
+  (og:title/description/image/url/type), Twitter card, canonical, JSON-LD SoftwareApplication (nom,
+  description, license MIT, offers gratuit, url). Fichiers racine site : robots.txt (autoriser,
+  pointer sitemap), sitemap.xml, llms.txt (résumé structuré pour les LLM — cohérent avec le
+  positionnement agent-first).
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-08T18:03:11"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

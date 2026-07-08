@@ -1,0 +1,26 @@
+id: 162
+code: null
+title: >-
+  npm publish dry-run : npm pack, vérifier l'allowlist files, rendu README sur npm, zéro secret,
+  dispo du nom 'roadmapped'
+status: todo
+tags:
+  - publish
+size: null
+team: engineering
+detail: >-
+  Préparation de #13 (publish repo). npm pack --dry-run → inspecter le tarball (bin, scripts, src,
+  skills, index.html, vite.config.ts, tsconfig.json). Vérifier : pas de fichier sensible embarqué,
+  README rend bien sur npmjs, version 0.1.0 OK, engines node>=22.18 documenté. Vérifier la dispo du
+  nom 'roadmapped' sur le registre npm. NE PAS publier — juste prouver que c'est prêt.
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-08T18:03:09"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

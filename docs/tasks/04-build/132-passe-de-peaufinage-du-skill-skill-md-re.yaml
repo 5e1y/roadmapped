@@ -1,0 +1,25 @@
+id: 169
+code: null
+title: "Passe de peaufinage du skill : SKILL.md + references (clarté, exemples, cas limites, refs mortes)"
+status: todo
+tags:
+  - skill
+size: null
+team: engineering
+detail: >-
+  Audit du skill source skills/roadmapped/ (SKILL.md + references/*). Vérifier : clarté des
+  consignes, exemples concrets suffisants, cohérence CLI 'npx roadmapped' vs 'node scripts/task.mjs'
+  selon contexte, aucune ref morte, la règle anti-token tient, le router déclenche au bon moment.
+  Objectif : first-run flawless chez l'utilisateur.
+refs:
+  - skills/roadmapped/SKILL.md
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-08T18:03:14"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

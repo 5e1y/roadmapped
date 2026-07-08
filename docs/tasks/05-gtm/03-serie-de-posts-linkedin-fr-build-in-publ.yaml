@@ -1,7 +1,7 @@
 id: 158
 code: null
 title: Série de posts LinkedIn FR (build-in-public) — banque de contenus post-lancement
-status: in_progress
+status: done
 tags:
   - marketing
   - content
@@ -22,8 +22,12 @@ epic: null
 source: ai
 createdAt: "2026-07-08T17:59:22"
 startedAt: "2026-07-08T17:59:33"
-completedAt: null
-commit: null
-outcome: null
+completedAt: "2026-07-08"
+commit: a13c9fc
+outcome: >-
+  docs/linkedin-posts.md créé : 7 posts LinkedIn FR autonomes (build-in-public), chacun un angle
+  distinct (agent citoyen du process, hook git, pas de DB, dogfooding récursif, 3 leçons, anti-fiche
+  produit, méta-post). Applique tone-of-voice.md. Chiffres snapshot 2026-07-08 (145/139, 373 tests)
+  à re-vérifier avant publication. Notes cadence/visuel/EN incluses.
 verification: null
 release: null

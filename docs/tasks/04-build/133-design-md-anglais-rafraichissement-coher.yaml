@@ -1,0 +1,26 @@
+id: 170
+code: null
+title: design.md → anglais + rafraîchissement (cohérence produit anglophone)
+status: todo
+tags:
+  - i18n
+  - design-system
+size: null
+team: design
+detail: >-
+  docs/design.md est entièrement FR alors que le produit est anglophone. Traduire (tokens, règles,
+  composants canoniques) et rafraîchir : vérifier que les 6 règles et les composants canoniques
+  (src/components/ui.tsx) correspondent à l'état réel du code.
+refs:
+  - docs/design.md
+  - src/components/ui.tsx
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-08T18:03:15"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

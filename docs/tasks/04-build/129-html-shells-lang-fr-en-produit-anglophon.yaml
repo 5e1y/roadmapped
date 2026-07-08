@@ -1,0 +1,21 @@
+id: 160
+kind: quick
+code: null
+title: "HTML shells : lang=fr → en (produit anglophone) + viewport meta manquant sur index.html"
+status: todo
+tags:
+  - i18n
+size: null
+team: engineering
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-08T18:03:07"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
