@@ -1,7 +1,7 @@
 id: 19
 code: null
 title: Stratégie de communication
-status: todo
+status: done
 tags:
   - marketing
 size: M
@@ -20,7 +20,17 @@ dependsOn: []
 milestone: null
 source: user
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-verification: null
+completedAt: "2026-07-08"
+commit: acdc0cc
+outcome: >-
+  docs/comms-plan.md finalisé (le draft Fable était déjà solide : positionnement 1 phrase + 3
+  preuves, table canaux/angles/langue/timing Show HN/PH/LinkedIn/Reddit/X/Discord, prérequis J0,
+  objectifs J+7, règles de réponse 48h). Passe #19 : statut DRAFT→plan de travail (voix arrêtée,
+  objectifs chiffrés = cibles à calibrer non-engagements), domaine roadmapped.work (Cloudflare)
+  intégré, prérequis site = Cloudflare Pages + repo branché par Rémi, tagline Product Hunt alignée
+  sur le hero README/site (« your repo is already your PM tool »), refs #11/#134 câblées.
+verification: >-
+  Plan relu en entier, cohérent avec tone-of-voice.md, site-copy.md et README #11. Objectifs
+  chiffrés assumés comme cibles (décision autonome, Rémi absent) — révisables. Livrable éditorial.
+  Contenus exacts par canal = #20 (à faire).
 release: null
