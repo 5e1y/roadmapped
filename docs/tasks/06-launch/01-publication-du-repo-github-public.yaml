@@ -1,7 +1,7 @@
 id: 13
 code: null
 title: Publication du repo GitHub public
-status: todo
+status: done
 tags:
   - open-source
 size: S
@@ -22,8 +22,20 @@ dependsOn:
 epic: lancement
 source: ai
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+startedAt: "2026-07-09T01:45:19"
+updatedAt: "2026-07-09T01:51:42"
+completedAt: "2026-07-09"
+commit: df736e9
+outcome: >-
+  Repo public créé et poussé : https://github.com/5e1y/roadmapped (MIT, description + 14 topics +
+  homepage roadmapped.work, branche défaut main, historique complet = le dogfooding commit par
+  commit). URLs package.json corrigées (5e1y/roadmapped). Flux d'install 'donne le lien à une IA'
+  écrit dans le README et VÉRIFIÉ end-to-end depuis le repo public : (1) install skill (clone+copy →
+  .claude/skills/roadmapped) ✓, (2) reload skills, (3) 'npx --yes github:5e1y/roadmapped init' en
+  12s pose config/8 stages/skill/MCP/hook SessionStart/CLAUDE.md/guard, sorties anglaises ; scaffold
+  validé (validate OK via npx github). Scope 'workflow' du token gh accordé par Rémi pour pousser
+  ci.yml. npm publish différé (install GitHub-only pour l'instant, décision Rémi).
+verification: >-
+  gh repo create --public --push ; git push -u origin main ; repo hôte fictif : clone skill + npx
+  github:5e1y/roadmapped init/validate → tout vert.
 release: null
