@@ -1,0 +1,33 @@
+id: 144
+code: null
+title: "Implémenter graph-v2 : dagre (flux de dépendances) + zoom/pan + surlignage amont/aval (spec #4)"
+status: in_progress
+tags:
+  - ux
+  - fable
+size: L
+team: engineering
+detail: >-
+  Implémenter docs/specs/2026-07-08-graph-v2.md (décision Rémi 2026-07-08 : DAGRE, on abandonne les
+  colonnes-par-stage pour un layout flux-de-dépendances rankdir LR, croisements minimisés).
+  Périmètre : (1) @dagrejs/dagre + adaptateur pur graphLayout dans roadmap.ts (mémo WeakMap,
+  conversion centre→coin, points d'arête) ; (2) hook useZoomPan (zoom-vers-curseur, drag-pan, fit,
+  reset, clamp) — remplace le zoom-boutons-seul actuel ; (3) réécriture RoadmapGraph.tsx sur dagre +
+  arêtes arrondies, RETRAIT du layout topoLayers maison ; (4) surlignage amont/aval par
+  graphNeighborhood (roadmap.ts + test) au SURVOL SEUL transitoire (décision verrouillée #132, pas
+  de sticky), atténuation monochrome. CONTRAINTE : intégrer dagre au modèle nœud-EPIC de #135 (nœuds
+  = epics dépliables + tâches standalone, arêtes = deps entre unités) — PRÉSERVER l'expansion epic,
+  le diamant jalon + « bloque N » (#133), le rendu monochrome. Le stage devient une métadonnée (chip
+  ?), plus le layout. Repli documenté dans la spec si dagre compound déborde. Confié à Fable 5.
+refs: []
+links: []
+dependsOn: []
+epic: graph-v2
+source: ai
+createdAt: "2026-07-08T14:55:21"
+startedAt: "2026-07-08T14:55:36"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
