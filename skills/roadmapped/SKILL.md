@@ -22,6 +22,8 @@ Flat YAML/markdown files under `docs/tasks/` are the ONLY source of truth (no pa
 
 `sitrep` (the state of the world in 1 call — THE 1st move of a session) → `take [--team t]` (claims + starts + briefs in 1 call) → work (`detail` + `refs`) → verify the REAL artefact (not just the typecheck) → `done <id> --outcome "…" --verification "…"` (`--commit` auto-fills to HEAD; for a `quick`: `--outcome` alone suffices).
 
+Two guard mechanics to internalise: (1) a unit must be `in_progress` BEFORE you commit its work — `take`/`start`/`quick --start` first, or the commit is refused. (2) `done` mutates the task YAML, so that YAML is left uncommitted — commit it as a task-log-only follow-up (`chore: consigne — done #<id>`); the guard exempts commits that touch ONLY `docs/tasks/`.
+
 ## Accepted debt = a `quick` tagged `debt`
 
 A deliberate shortcut (known ceiling, upgrade path) gets logged as `quick "<the ceiling>" --team <t> --tags debt` — the queryable equivalent of a `ponytail:` comment. `list --tag debt` prints the ledger; `sitrep` flags open debt.
