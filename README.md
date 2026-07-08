@@ -24,13 +24,20 @@ right format through a CLI and a Claude skill; you review the diff.
 
 ## Quickstart
 
+In any repo you want to manage:
+
 ```bash
-npm install
-npm run dev                  # dashboard on http://localhost:5173
-node scripts/task.mjs --help # the CLI your agent (or you) drives over docs/tasks/
+npx roadmapped init       # scaffold docs/tasks/, the Claude skill, and the git guard
+npx roadmapped dashboard  # open the dashboard in your browser
+npx roadmapped --help     # the CLI your agent (or you) drives over docs/tasks/
 ```
 
-Point your AI agent at the Claude skill (`skills/roadmapped/`) and it takes it from there.
+`init` also drops a Claude skill into `.claude/` and an `.mcp.json` entry, so your AI
+agent can create and record tasks in the right schema from the first prompt.
+
+> **Working on Roadmapped itself?** Clone the repo, then `npm install` and `npm run dev`
+> for the dashboard; the CLI is `node scripts/task.mjs`. Everything below the hood is the
+> same code the published package runs.
 
 ## What's in the folder
 
