@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Roadmapped — project management as flat files in your repo</title>
+  <meta name="description" content="Your repo is already your project management tool. Backlog, roadmap and docs as plain YAML and markdown, driven by your AI agent through a CLI and a Claude skill. No database, no SaaS, no account. MIT, free." />
+  <link rel="canonical" href="https://roadmapped.work/" />
+  <meta name="theme-color" content="#171717" />
+  <meta name="color-scheme" content="light dark" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Roadmapped" />
+  <meta property="og:title" content="Roadmapped — project management as flat files in your repo" />
+  <meta property="og:description" content="Your repo is already your project management tool. Flat YAML files, driven by your AI agent. No database, no SaaS, no account. MIT, free." />
+  <meta property="og:url" content="https://roadmapped.work/" />
+  <meta property="og:image" content="https://roadmapped.work/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Roadmapped — project management as flat files in your repo" />
+  <meta name="twitter:description" content="Your repo is already your project management tool. Flat YAML files, driven by your AI agent. No database, no SaaS, no account. MIT, free." />
+  <meta name="twitter:image" content="https://roadmapped.work/og-image.png" />
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3E%3Crect%20width='16'%20height='16'%20fill='%23171717'/%3E%3Crect%20x='3'%20y='4'%20width='10'%20height='2'%20fill='%23fafafa'/%3E%3Crect%20x='3'%20y='7'%20width='7'%20height='2'%20fill='%233b82f6'/%3E%3Crect%20x='3'%20y='10'%20width='10'%20height='2'%20fill='%23fafafa'/%3E%3C/svg%3E" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Roadmapped",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Cross-platform (Node.js)",
+    "description": "Project management as flat files in your repo. Backlog, roadmap and docs as plain YAML and markdown, driven by your AI agent through a CLI and a Claude skill. No database, no SaaS, no account.",
+    "url": "https://roadmapped.work/",
+    "license": "https://opensource.org/licenses/MIT",
+    "author": { "@type": "Person", "name": "Rémi Courtillon" },
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  }
+  </script>
+
+  <style>
+    :root {
+      --page: #fafafa;
+      --card: #ffffff;
+      --line: #e5e5e5;
+      --ink: #171717;
+      --muted: #737373;
+      --accent: #2563eb;
+      --tint: #eef3fd;
+      --radius: 4px;
+      --max: 62rem;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --page: #0e0e0e;
+        --card: #171717;
+        --line: #2a2a2a;
+        --ink: #ededed;
+        --muted: #9a9a9a;
+        --accent: #5b8bf5;
+        --tint: #16223b;
+      }
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; overflow-x: hidden; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      background: var(--page);
+      color: var(--ink);
+      line-height: 1.55;
+      font-size: 17px;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code, pre { font-family: var(--mono); }
+    .wrap { max-width: var(--max); margin: 0 auto; padding: 0 1.25rem; }
+    .muted { color: var(--muted); }
+
+    /* Header */
+    header {
+      border-bottom: 1px solid var(--line);
+      position: sticky; top: 0;
+      background: color-mix(in srgb, var(--page) 88%, transparent);
+      backdrop-filter: saturate(1.2) blur(8px);
+      z-index: 10;
+    }
+    .nav { display: flex; align-items: center; justify-content: space-between; height: 3.25rem; }
+    .brand { display: flex; align-items: center; gap: .55rem; font-weight: 600; color: var(--ink); }
+    .brand:hover { text-decoration: none; }
+    .glyph { width: 18px; height: 18px; flex: none; border-radius: 3px; }
+    .nav-links { display: flex; align-items: center; gap: 1.1rem; font-size: .95rem; }
+    .nav-links a { color: var(--muted); }
+    .nav-links a:hover { color: var(--ink); text-decoration: none; }
+    @media (max-width: 480px) {
+      .nav-links { gap: .9rem; }
+      .nav-links a[href="#how"] { display: none; }
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex; align-items: center; gap: .5rem;
+      font: inherit; font-weight: 600; font-size: .95rem;
+      padding: .6rem 1rem; border-radius: var(--radius);
+      border: 1px solid var(--ink); background: var(--ink); color: var(--page);
+      cursor: pointer;
+    }
+    .btn:hover { text-decoration: none; opacity: .88; }
+    .btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+    .btn code { font-size: .9em; opacity: .85; }
+
+    /* Sections */
+    section { padding: 3.5rem 0; border-bottom: 1px solid var(--line); }
+    h1 { font-size: clamp(2rem, 6vw, 3.25rem); line-height: 1.08; letter-spacing: -.02em; margin: 0 0 1rem; }
+    h2 { font-size: clamp(1.4rem, 3.5vw, 1.9rem); letter-spacing: -.01em; margin: 0 0 1rem; }
+    h3 { font-size: 1.05rem; margin: 0 0 .4rem; }
+    .lead { font-size: clamp(1.05rem, 2.2vw, 1.25rem); color: var(--muted); max-width: 40rem; margin: 0 0 1.75rem; }
+
+    /* Hero */
+    .hero { padding-top: 4.5rem; border-bottom: 1px solid var(--line); }
+    .cta-row { display: flex; flex-wrap: wrap; align-items: center; gap: .9rem; }
+    .cta-note { font-size: .9rem; color: var(--muted); margin: .8rem 0 0; }
+    .aside { max-width: 40rem; }
+
+    /* Demo */
+    .shot {
+      display: block; width: 100%; height: auto;
+      border: 1px solid var(--line); border-radius: var(--radius);
+      margin: 1.5rem 0 1rem; background: var(--card);
+    }
+    figure { margin: 0; }
+    figcaption { color: var(--muted); font-size: .95rem; max-width: 42rem; }
+
+    /* Feature cards */
+    .cards { display: grid; grid-template-columns: 1fr; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+    @media (min-width: 640px) { .cards { grid-template-columns: 1fr 1fr; } }
+    .card { background: var(--card); padding: 1.4rem; }
+    .card p { margin: 0; color: var(--muted); font-size: .97rem; }
+    .card code { color: var(--ink); background: var(--tint); padding: .05rem .3rem; border-radius: 3px; font-size: .85em; }
+
+    /* Prose blocks */
+    .prose p { max-width: 42rem; color: var(--muted); }
+    .prose p strong, .prose .ink { color: var(--ink); }
+    blockquote {
+      margin: 1.5rem 0 0; padding: .1rem 0 .1rem 1rem;
+      border-left: 2px solid var(--accent); color: var(--ink); font-size: 1.05rem;
+    }
+
+    /* Code block */
+    pre {
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 1rem 1.1rem; font-size: .9rem; line-height: 1.7; color: var(--ink);
+      margin: 1.25rem 0 .75rem;
+      white-space: pre-wrap; overflow-wrap: anywhere; max-width: 100%;
+    }
+    pre .c { color: var(--muted); }
+
+    /* Footer */
+    footer { padding: 2.5rem 0 3rem; }
+    footer p { color: var(--muted); font-size: .92rem; margin: .3rem 0; max-width: 42rem; }
+  </style>
+</head>
+<body>
+
+<header>
+  <nav class="wrap nav" aria-label="Primary">
+    <a class="brand" href="/">
+      <svg class="glyph" viewBox="0 0 16 16" aria-hidden="true"><rect width="16" height="16" fill="#171717"/><rect x="3" y="4" width="10" height="2" fill="#fafafa"/><rect x="3" y="7" width="7" height="2" fill="#3b82f6"/><rect x="3" y="10" width="10" height="2" fill="#fafafa"/></svg>
+      Roadmapped
+    </a>
+    <div class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="/demo/">Demo</a>
+      <a href="https://github.com/remicourtillon/Roadmapped">GitHub</a>
+    </div>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap aside">
+      <h1>Your repo is already your project management tool. We just added the interface.</h1>
+      <p class="lead">Backlog, roadmap and docs as plain YAML and markdown inside your repository — the only source of truth. No database, no SaaS, no account. Your AI agent reads and writes it in the right format; you review the diff.</p>
+      <div class="cta-row">
+        <a class="btn" href="#quickstart">Get started — <code>npm&nbsp;install</code></a>
+        <a class="btn ghost" href="https://github.com/remicourtillon/Roadmapped">View on GitHub →</a>
+      </div>
+      <p class="cta-note">There's no step 2. We checked.</p>
+    </div>
+  </section>
+
+  <section id="demo">
+    <div class="wrap">
+      <figure>
+        <img class="shot" src="./dashboard.png" width="1600" height="1000" alt="The Roadmapped dashboard: a Backlog view with grouped tasks, a team-load radar, and stage columns." loading="lazy" decoding="async" />
+        <figcaption>This is the whole product. An agent picks a task, ships it, and records what it did — commit, outcome, verification. The dashboard is just a nicer way to read the files it wrote. You could read them in your editor. Some people do. <a href="/demo/">Try the live demo →</a></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="wrap">
+      <h2>What's in the folder</h2>
+      <div class="cards">
+        <div class="card">
+          <h3>Backlog that lives in git</h3>
+          <p>Sections and tasks under <code>docs/tasks/</code>. Full CRUD from the dashboard or the CLI. Every task is a YAML file you can diff, review, and blame — because it is one.</p>
+        </div>
+        <div class="card">
+          <h3>Roadmap with no dates to lie about</h3>
+          <p>Your sections become milestones. <code>done</code> / <code>available</code> / <code>locked</code> states are computed from the dependency graph on every read, never stored. Nothing to drift out of sync, because there's no second copy.</p>
+        </div>
+        <div class="card">
+          <h3>Agent-first, by design</h3>
+          <p>A CLI and a Claude skill so your agent creates specs, tasks and dependencies in the correct schema — and records what it ships with more discipline than most of us manage.</p>
+        </div>
+        <div class="card">
+          <h3>Validated writes, honest history</h3>
+          <p>Every write — dashboard or CLI — goes through the same validator. On error, the change rolls back. Ids are never reused. Your git history is the audit log.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="how" class="prose">
+    <div class="wrap">
+      <h2>How it works (it's files)</h2>
+      <p>Everything is flat, hand-editable files: task YAML you can read without us, docs rendered straight from your <code>docs/</code> folder. The dashboard and the CLI read and write the same data through the same validator — never a second, parallel schema hiding somewhere.</p>
+      <blockquote>Yes, it's a folder of YAML files. No, it's not a database. That's kind of the point.</blockquote>
+    </div>
+  </section>
+
+  <section id="built" class="prose">
+    <div class="wrap">
+      <h2>Built by using itself</h2>
+      <p>Roadmapped's own backlog is managed by Roadmapped, mostly by a Claude agent that records every task it ships. The done backlog is the changelog. The commit history is the proof. If you want to know whether the workflow holds up, don't take our word for it — <a href="https://github.com/remicourtillon/Roadmapped/tree/main/docs/tasks">read the backlog</a>.</p>
+    </div>
+  </section>
+
+  <section id="quickstart">
+    <div class="wrap aside">
+      <h2>Quickstart</h2>
+<pre><code>npx roadmapped init       <span class="c"># scaffold docs/tasks/</span>
+npx roadmapped dashboard  <span class="c"># open the dashboard</span>
+npx roadmapped --help     <span class="c"># the CLI your agent drives</span></code></pre>
+      <p class="muted">Point your AI agent at the Claude skill and it takes it from there.</p>
+    </div>
+  </section>
+
+  <section id="privacy" class="prose">
+    <div class="wrap">
+      <h2>Where your data lives</h2>
+      <p>On your machine, in your repo. Not out of principle — we simply don't have a server to send it to. Deleting your account is <code>rm -rf</code>. GDPR compliant by design; the design being that we never had your data.</p>
+    </div>
+  </section>
+
+  <section id="opensource" class="prose">
+    <div class="wrap aside">
+      <h2>Free, and actually free</h2>
+      <p>MIT licensed. No pricing page, no seats, no "contact sales." We don't have a customer success team to schedule an onboarding call — we don't have customers. It's free.</p>
+      <div class="cta-row" style="margin-top:1.5rem">
+        <a class="btn" href="https://github.com/remicourtillon/Roadmapped">Star it on GitHub</a>
+        <a class="btn ghost" href="https://github.com/remicourtillon/Roadmapped/blob/main/docs/guide.md">Read the guide</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p><strong style="color:var(--ink)">Roadmapped</strong> — project management as flat files. MIT © Rémi Courtillon.</p>
+    <p>Made with an AI agent that proofreads this site and thinks it's too salesy.</p>
+  </div>
+</footer>
+
+</body>
+</html>
