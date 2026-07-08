@@ -55,7 +55,9 @@ export function SidePanel({
         el.blur()
         return
       }
-      // 3. Dépile (ferme si la pile est à un cran).
+      // 3. Ne dépile QUE si le focus est dans le panneau (#118) : un Esc frappé
+      //    depuis un champ hors panneau fermait le panneau hors du champ de vision.
+      if (!asideRef.current?.contains(el)) return
       e.preventDefault()
       back()
     }
@@ -64,10 +66,11 @@ export function SidePanel({
     return () => window.removeEventListener('keydown', onKey, true)
   }, [back])
 
-  // Mémorise le déclencheur à l'ouverture, le restaure à la fermeture.
+  // Mémorise le déclencheur à l'ouverture, le restaure à la fermeture — sauf s'il
+  // a été démonté entre-temps (tâche supprimée/archivée : isConnected, #118).
   useEffect(() => {
     const trigger = document.activeElement as HTMLElement | null
-    return () => trigger?.focus?.()
+    return () => { if (trigger?.isConnected) trigger.focus?.() }
   }, [])
 
   // Focus sur le conteneur à l'ouverture ET à chaque changement de sommet de
