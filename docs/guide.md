@@ -848,6 +848,19 @@ needed. This is the core's explicit "golden rule" and the main token-economy lev
 (see `docs/specs/2026-07-07-token-economy.md`): a routine session costs one SKILL.md
 read, not a SKILL.md plus three references.
 
+### Developing the skill itself (dogfooding)
+
+If you edit `skills/roadmapped/` in the repo and also want it loaded in your own
+sessions, **symlink** the installed skill to the repo instead of copying — a copy
+drifts silently the moment you forget to resync:
+
+```bash
+ln -sfn "$(pwd)/skills/roadmapped" ~/.claude/skills/roadmapped
+```
+
+The installed skill then *is* the repo file. There is no sync step and nothing to
+drift.
+
 ### First use in a repo — mandatory setup
 
 If `docs/tasks/_meta.yaml` does **not** exist, the repo is not initialised and the
