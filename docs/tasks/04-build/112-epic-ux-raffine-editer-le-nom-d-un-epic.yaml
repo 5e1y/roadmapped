@@ -1,0 +1,23 @@
+id: 140
+code: null
+title: >-
+  Epic UX raffiné : éditer le nom d'un epic + dé-dupliquer l'affichage (état ouvert unique jusqu'à
+  complétion ; stage ancré au ticket non-terminé le plus amont, pas par colonne)
+status: todo
+tags:
+  - ux
+  - fable
+size: M
+team: design
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: hierarchie-regroupement
+source: ai
+createdAt: "2026-07-08T12:26:54"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
