@@ -1,0 +1,23 @@
+id: 134
+kind: quick
+code: null
+title: >-
+  Re-capturer docs/assets/dashboard.png — obsolète (antérieure aux refontes stages/radar/tabs),
+  affichée dans le README
+status: todo
+tags:
+  - debt
+size: null
+team: design
+detail: null
+refs: []
+links: []
+dependsOn: []
+milestone: null
+source: ai
+createdAt: "2026-07-08T11:24:10"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
