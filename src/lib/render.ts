@@ -101,13 +101,22 @@ const daysBetween = (isoA: string, isoB: string) =>
  * dérive « travail hors ticket ». Best-effort comme git() : null si pas de dépôt, rien
  * de consigné, ou sha disparu (rebase/amend) — jamais de bruit.
  */
-/** Dernière tâche consignée (commit + completedAt) — l'ancre du signal de dérive. */
+/**
+ * Dernière tâche consignée (commit + completedAt) — l'ancre du signal de dérive.
+ * On saute toute ancre dont le sha n'EXISTE PAS dans CE dépôt (#143) : travail
+ * livré dans un autre repo (ex. le site), commit rebasé/amendé disparu, ou valeur
+ * parasite. Sans ce filtre, un sha étranger en tête coupait audit et « commits non
+ * consignés » en silence. On descend la liste triée jusqu'au 1er sha résolvable.
+ */
 function lastLogged(tree: TaskTree): { commit: string; id: number } | null {
-  const last = [...activeTasks(tree), ...archivedTasks(tree)]
+  const candidates = [...activeTasks(tree), ...archivedTasks(tree)]
     .filter((t) => t.commit && t.completedAt)
     // completedAt desc, id desc en bris d'égalité (dates au jour : les ids sont monotones)
-    .sort((a, b) => (b.completedAt! > a.completedAt! ? 1 : b.completedAt! < a.completedAt! ? -1 : b.id - a.id))[0]
-  return last ? { commit: last.commit!, id: last.id } : null
+    .sort((a, b) => (b.completedAt! > a.completedAt! ? 1 : b.completedAt! < a.completedAt! ? -1 : b.id - a.id))
+  for (const t of candidates) {
+    if (git(`rev-parse --verify --quiet ${t.commit}^{commit}`) !== null) return { commit: t.commit!, id: t.id }
+  }
+  return null
 }
 
 export interface UnloggedCommits { count: number; sinceId: number }
