@@ -1,0 +1,23 @@
+id: 138
+kind: quick
+code: null
+title: >-
+  Graphe : un prérequis dans un epic replié affiché « +n hors graphe » au lieu de « #id » ; + clé
+  localStorage backlog:groupByEpic orpheline (inoffensive)
+status: todo
+tags:
+  - debt
+size: null
+team: design
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: hierarchie-regroupement
+source: ai
+createdAt: "2026-07-08T12:23:26"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
