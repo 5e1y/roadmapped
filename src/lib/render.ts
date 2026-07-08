@@ -100,16 +100,58 @@ const daysBetween = (isoA: string, isoB: string) =>
  * dérive « travail hors ticket ». Best-effort comme git() : null si pas de dépôt, rien
  * de consigné, ou sha disparu (rebase/amend) — jamais de bruit.
  */
-export interface UnloggedCommits { count: number; sinceId: number }
-export function unloggedCommits(tree: TaskTree): UnloggedCommits | null {
+/** Dernière tâche consignée (commit + completedAt) — l'ancre du signal de dérive. */
+function lastLogged(tree: TaskTree): { commit: string; id: number } | null {
   const last = [...activeTasks(tree), ...archivedTasks(tree)]
     .filter((t) => t.commit && t.completedAt)
     // completedAt desc, id desc en bris d'égalité (dates au jour : les ids sont monotones)
     .sort((a, b) => (b.completedAt! > a.completedAt! ? 1 : b.completedAt! < a.completedAt! ? -1 : b.id - a.id))[0]
+  return last ? { commit: last.commit!, id: last.id } : null
+}
+
+export interface UnloggedCommits { count: number; sinceId: number }
+export function unloggedCommits(tree: TaskTree): UnloggedCommits | null {
+  const last = lastLogged(tree)
   if (!last) return null
   const out = git(`rev-list --count ${last.commit}..HEAD`)
   const count = out === null ? NaN : Number(out)
   return Number.isInteger(count) ? { count, sinceId: last.id } : null
+}
+
+/**
+ * Audit commit↔tâche (#104) — parse la convention `#id` du sujet de chaque commit depuis
+ * la dernière tâche consignée. `orphan` = aucun `#id` ; `dangling` = `#id` inconnu du
+ * backlog ; `ok` = lié. Best-effort comme git() : null hors dépôt / rien de consigné.
+ * ponytail: match le PREMIER `#id` du sujet — un commit qui en cite deux, cas non couvert.
+ */
+export interface CommitAudit { sha: string; subject: string; ref: number | null; status: 'orphan' | 'dangling' | 'ok' }
+export function auditCommits(tree: TaskTree): CommitAudit[] | null {
+  const anchor = lastLogged(tree)
+  const out = git(`log ${anchor ? `${anchor.commit}..HEAD` : 'HEAD'} --format=%h%x09%s`)
+  if (out === null) return null
+  if (out === '') return []
+  const ids = new Set([...activeTasks(tree), ...archivedTasks(tree)].map((t) => t.id))
+  return out.split('\n').map((line) => {
+    const tab = line.indexOf('\t')
+    const sha = line.slice(0, tab)
+    const subject = line.slice(tab + 1)
+    const m = subject.match(/#(\d+)/)
+    const ref = m ? Number(m[1]) : null
+    const status: CommitAudit['status'] = ref === null ? 'orphan' : ids.has(ref) ? 'ok' : 'dangling'
+    return { sha, subject, ref, status }
+  })
+}
+
+export function auditText(audit: CommitAudit[] | null): string {
+  if (audit === null) return 'audit commit↔tâche — indisponible (hors dépôt git)'
+  if (audit.length === 0) return 'audit commit↔tâche — aucun commit depuis la dernière tâche consignée ✔'
+  const orphans = audit.filter((c) => c.status === 'orphan')
+  const dangling = audit.filter((c) => c.status === 'dangling')
+  const ok = audit.length - orphans.length - dangling.length
+  const lines = [`audit commit↔tâche — ${audit.length} commit(s) · ✔ ${ok} lié(s) · ⚠ ${orphans.length} orphelin(s) · ⚠ ${dangling.length} référence(s) morte(s)`]
+  for (const c of orphans) lines.push(`  orphelin  ${c.sha} ${c.subject}`)
+  for (const c of dangling) lines.push(`  ref morte ${c.sha} ${c.subject}  (#${c.ref} inconnu)`)
+  return lines.join('\n')
 }
 
 export function sitrepText(tree: TaskTree, errors: string[], unlogged?: UnloggedCommits | null): string {

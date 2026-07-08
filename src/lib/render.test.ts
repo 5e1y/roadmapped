@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { taskLine, refLine, sitrepText } from './render'
+import { taskLine, refLine, sitrepText, auditText } from './render'
+import type { CommitAudit } from './render'
 import type { TaskTree, TaskNode, SectionNode } from './tasks'
 
 function task(id: number, over: Partial<TaskNode> = {}): TaskNode {
@@ -58,5 +59,26 @@ describe('sitrepText', () => {
     expect(sitrepText(tree([task(1, { status: 'in_progress' })]), [], { count: 3, sinceId: 42 })).not.toMatch(/non consigné/)
     expect(sitrepText(tree([task(1)]), [], null)).not.toMatch(/non consigné/)
     expect(sitrepText(tree([task(1)]), [], { count: 0, sinceId: 42 })).not.toMatch(/non consigné/)
+  })
+})
+
+describe('auditText (#104)', () => {
+  const c = (over: Partial<CommitAudit>): CommitAudit => ({ sha: 'abc123', subject: 'x', ref: null, status: 'orphan', ...over })
+  it('indisponible hors dépôt (null)', () => {
+    expect(auditText(null)).toMatch(/indisponible/)
+  })
+  it('aucun commit → coche verte', () => {
+    expect(auditText([])).toMatch(/aucun commit.*✔/)
+  })
+  it('compte lié/orphelin/mort et détaille les problèmes', () => {
+    const out = auditText([
+      c({ sha: 'aaa', subject: 'feat: x (#16)', ref: 16, status: 'ok' }),
+      c({ sha: 'bbb', subject: 'chore: bidouille', ref: null, status: 'orphan' }),
+      c({ sha: 'ccc', subject: 'feat: y (#999)', ref: 999, status: 'dangling' }),
+    ])
+    expect(out).toMatch(/✔ 1 lié.*⚠ 1 orphelin.*⚠ 1 référence/)
+    expect(out).toMatch(/orphelin  bbb chore: bidouille/)
+    expect(out).toMatch(/ref morte ccc feat: y \(#999\)  \(#999 inconnu\)/)
+    expect(out).not.toMatch(/aaa/) // les commits liés ne polluent pas la sortie
   })
 })
