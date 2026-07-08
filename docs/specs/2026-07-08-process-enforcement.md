@@ -107,3 +107,11 @@ restent conversationnelles.
 4. Le skill porte la règle, le déclencheur élargi et l'interdit ; le skill installé est
    resynchronisé.
 5. Tests + build verts ; le chantier lui-même est passé intégralement par des tickets.
+
+## Assouplissement ultérieur — mode feedback (#149, 2026-07-09)
+
+La règle « un retour post-`done` = un `quick` » reste le DÉFAUT, mais gagne une exception
+de MÊME PÉRIMÈTRE : itérer sur la finition d'une même chose se fait désormais via un
+journal `feedback[]` sur la tâche + une **réouverture** (`done → in_progress`), au lieu
+d'un ticket-jumeau. Git conserve chaque commit, la tâche porte le récit. Un périmètre
+NOUVEAU reste un `quick`. Détail : `docs/specs/2026-07-08-feedback-mode.md`.
