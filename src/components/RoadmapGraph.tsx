@@ -1,28 +1,57 @@
 import { useRef, useState } from 'react'
 import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
-import { computeAvailability, missingPrereqs, topoLayers, reverseDependents, type Availability } from '../lib/roadmap'
+import { usePersistentStrings, usePersistentStringFlag } from '../state/uiPersist'
+import { computeAvailability, missingPrereqs, reverseDependents, allEpics, epicProgress, type Availability } from '../lib/roadmap'
 import { LockLocked } from 'trinil-react'
-import { KindGlyph } from './glyphs'
+import { Chevron, EpicGlyph, KindGlyph } from './glyphs'
 import { Chip } from './Chip'
+import { epicStatusOf } from './EpicRow'
 import { TEAM_ABBR } from '../lib/tasks'
 import type { TaskNode } from '../lib/tasks'
 import { useShowDone } from './RoadmapView'
 
 const COL_W = 280, COL_GAP = 32, ROW_H = 96, CARD_W = 248, CARD_H = 72, PAD = 24, HEADER_H = 40
+/** Hauteur d'une ligne membre dans un nœud-epic déplié (px-3 py-1 + text-sm). */
+const MEMBER_H = 28
 
 const xOf = (col: number) => PAD + col * (COL_W + COL_GAP)
 const yOf = (row: number) => PAD + HEADER_H + row * ROW_H
 
-interface Placed { task: TaskNode; col: number; row: number; state: Availability; missing: number[]; missingHidden: number; blocksCount: number }
+/**
+ * Nœud du graphe (#135) : une tâche à plat OU un EPIC — les tâches portant un
+ * epic n'ont plus de carte propre, elles vivent dans le nœud-groupe de leur
+ * epic. Le nœud-epic est UN SEUL nœud pour tout l'epic (l'unité du graphe est
+ * la dépendance, pas le stage) : il est ancré dans la colonne du stage le plus
+ * amont de ses membres, ses arêtes = l'union des dépendances externes de ses
+ * membres. Le dépliage (persisté par slug) révèle les membres EN PLACE, en
+ * lignes compactes dans le nœud — la topologie des arêtes ne bouge pas.
+ */
+type GNode =
+  | { key: string; kind: 'task'; task: TaskNode }
+  | { key: string; kind: 'epic'; slug: string; title: string; tasks: TaskNode[] }
 
-/** Vue achievement : colonnes = sections du backlog, cartes par couche de dépendance. */
+interface PlacedNode {
+  node: GNode
+  col: number
+  row: number
+  /** Hauteur réelle estimée (nœud-epic déplié plus haut qu'une carte). */
+  h: number
+  state: Availability
+  missing: number[]
+  missingHidden: number
+  blocksCount: number
+}
+
+/** Vue achievement : colonnes = sections du backlog, nœuds par couche de dépendance. */
 export function RoadmapGraph() {
   const { tree } = useTree()
-  const { openTask } = usePanel()
   const scrollRef = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(1)
   const [showDone] = useShowDone()
+  // Épics dépliés (partagé avec les cartes EpicGraphNode) : la hauteur d'un nœud
+  // déplié participe au layout, le composant racine doit donc s'y abonner.
+  const [expandedEpics] = usePersistentStrings('graph:epics')
   if (!tree) return null
 
   const sections = tree.sections.filter((s) => s.status !== 'abandoned')
@@ -35,13 +64,13 @@ export function RoadmapGraph() {
   }
   const avail = computeAvailability(tree)
   const colOf = new Map(sections.map((s, i) => [s.key, i]))
-  // Nœuds = tâches de premier niveau des sections actives.
-  let nodes = sections.flatMap((s) => s.tasks.filter((t) => t.kind !== 'quick').map((t) => ({ task: t, sectionKey: s.key })))
+  // Tâches candidates = premier niveau des sections actives (quick exclus).
+  let taskEntries = sections.flatMap((s) => s.tasks.filter((t) => t.kind !== 'quick').map((t) => ({ task: t, sectionKey: s.key })))
   if (!showDone) {
     // Done masqués SAUF s'ils sont dépendances (transitives) d'un ticket
     // visible — les arêtes du graphe restent intègres.
-    const byId = new Map(nodes.map((n) => [n.task.id, n.task]))
-    const keep = new Set(nodes.filter((n) => n.task.status !== 'done').map((n) => n.task.id))
+    const byId = new Map(taskEntries.map((n) => [n.task.id, n.task]))
+    const keep = new Set(taskEntries.filter((n) => n.task.status !== 'done').map((n) => n.task.id))
     let grew = true
     while (grew) {
       grew = false
@@ -51,59 +80,129 @@ export function RoadmapGraph() {
         }
       }
     }
-    nodes = nodes.filter((n) => keep.has(n.task.id))
+    taskEntries = taskEntries.filter((n) => keep.has(n.task.id))
   }
-  const nodeIds = new Set(nodes.map((n) => n.task.id))
-  const layerOf = new Map<number, number>()
-  topoLayers(nodes.map((n) => n.task)).forEach((layerTasks, layer) => layerTasks.forEach((t) => layerOf.set(t.id, layer)))
 
-  // Rangée par colonne : la couche topo est un PLANCHER (une dépendante reste
-  // sous sa prérequise), la rangée suivante libre évite toute collision.
-  const placed: Placed[] = []
-  for (const s of sections) {
-    const col = colOf.get(s.key)!
-    // ⚠ Cartes construites depuis NODES (filtrés : quick exclus, done masqués
-    // hors dépendances transitives) — pas depuis s.tasks, sinon les filtres ne
-    // s'appliquent qu'aux arêtes (bug réel corrigé ici).
-    const tasks = nodes
-      .filter((n) => n.sectionKey === s.key)
-      .map((n) => n.task)
-      .sort((a, b) => (layerOf.get(a.id)! - layerOf.get(b.id)!) || a.id - b.id)
-    let nextRow = 0
-    for (const t of tasks) {
-      const row = Math.max(layerOf.get(t.id) ?? 0, nextRow)
-      nextRow = row + 1
-      // Prérequis non faits (source partagée avec le mode Colonnes). On sépare
-      // ceux qui ont une carte dans le graphe (#id cliquable) de ceux hors-vue
-      // (sous-tâche, section en veille…) pour ne pas citer un #id introuvable.
-      const allMissing = missingPrereqs(t, avail)
-      const missing = allMissing.filter((d) => nodeIds.has(d))
-      placed.push({
-        task: t, col, row, state: avail.get(t.id) ?? 'available', missing,
-        missingHidden: allMissing.length - missing.length,
-        // Jalon (#133) : « bloque N » = dépendants inverses (tous, même hors graphe).
-        blocksCount: t.kind === 'milestone' ? reverseDependents(tree, t.id).length : 0,
-      })
+  // ── Fusion des membres d'epic en nœuds-groupe ────────────────────────────
+  const epicTitles = new Map(allEpics(tree).map((e) => [e.slug, e.title]))
+  const nodes: GNode[] = []
+  const colOfKey = new Map<string, number>()
+  /** id de tâche visible → clé du nœud qui la porte (elle-même, ou son epic). */
+  const nodeKeyOfTask = new Map<number, string>()
+  const epicNodes = new Map<string, Extract<GNode, { kind: 'epic' }>>()
+  for (const { task, sectionKey } of taskEntries) {
+    const col = colOf.get(sectionKey)!
+    if (task.epic === null) {
+      const key = `t:${task.id}`
+      nodes.push({ key, kind: 'task', task })
+      colOfKey.set(key, col)
+      nodeKeyOfTask.set(task.id, key)
+    } else {
+      const key = `e:${task.epic}`
+      let en = epicNodes.get(task.epic)
+      if (!en) {
+        en = { key, kind: 'epic', slug: task.epic, title: epicTitles.get(task.epic) ?? task.epic, tasks: [] }
+        epicNodes.set(task.epic, en)
+        nodes.push(en)
+        colOfKey.set(key, col)
+      }
+      en.tasks.push(task)
+      nodeKeyOfTask.set(task.id, key)
+      // Ancrage amont : la colonne du stage le plus tôt parmi les membres.
+      colOfKey.set(key, Math.min(colOfKey.get(key)!, col))
     }
   }
-  const posById = new Map(placed.map((p) => [p.task.id, p]))
 
-  const rowCount = Math.max(1, ...placed.map((p) => p.row + 1))
+  // Dépendances au niveau NŒUD : deps des membres remappées vers les clés de
+  // nœud, internes exclues, dédupliquées. (Deux epics entremêlés peuvent créer
+  // un cycle au niveau nœud — le calcul de profondeur est défensif.)
+  const depsOf = new Map<string, Set<string>>()
+  for (const n of nodes) {
+    const deps = new Set<string>()
+    const members = n.kind === 'task' ? [n.task] : n.tasks
+    for (const m of members) {
+      for (const d of m.dependsOn) {
+        const k = nodeKeyOfTask.get(d)
+        if (k && k !== n.key) deps.add(k)
+      }
+    }
+    depsOf.set(n.key, deps)
+  }
+
+  // Couches topologiques au niveau nœud (même logique que topoLayers, mais sur
+  // les clés de nœud — cycle et clé inconnue traités défensivement).
+  const depthCache = new Map<string, number>()
+  const depthOf = (key: string, stack: Set<string>): number => {
+    if (depthCache.has(key)) return depthCache.get(key)!
+    if (stack.has(key)) return 0
+    stack.add(key)
+    const deps = [...(depsOf.get(key) ?? [])]
+    const d = deps.length === 0 ? 0 : 1 + Math.max(...deps.map((k) => depthOf(k, stack)))
+    stack.delete(key)
+    depthCache.set(key, d)
+    return d
+  }
+  const layerOf = new Map(nodes.map((n) => [n.key, depthOf(n.key, new Set())]))
+
+  const standaloneIds = new Set(nodes.flatMap((n) => (n.kind === 'task' ? [n.task.id] : [])))
+  const hOfNode = (n: GNode): number =>
+    n.kind === 'epic' && expandedEpics.includes(n.slug)
+      ? CARD_H + 1 + n.tasks.length * MEMBER_H + 4
+      : CARD_H
+
+  // Rangée par colonne : la couche topo est un PLANCHER (une dépendante reste
+  // sous sa prérequise) ; un nœud haut (epic déplié) réserve plusieurs rangées.
+  const placed: PlacedNode[] = []
+  const minId = (n: GNode) => (n.kind === 'task' ? n.task.id : Math.min(...n.tasks.map((t) => t.id)))
+  for (let col = 0; col < sections.length; col++) {
+    const colNodes = nodes
+      .filter((n) => colOfKey.get(n.key) === col)
+      .sort((a, b) => (layerOf.get(a.key)! - layerOf.get(b.key)!) || (minId(a) - minId(b)))
+    let nextRow = 0
+    for (const n of colNodes) {
+      const row = Math.max(layerOf.get(n.key) ?? 0, nextRow)
+      const h = hOfNode(n)
+      nextRow = row + Math.max(1, Math.ceil((h + (ROW_H - CARD_H)) / ROW_H))
+      if (n.kind === 'task') {
+        const t = n.task
+        // Prérequis non faits (source partagée avec le mode Colonnes). Seuls les
+        // #id ayant leur PROPRE carte sont cités — un prérequis rangé dans un
+        // epic ou hors-vue compte dans « +n hors graphe ».
+        const allMissing = missingPrereqs(t, avail)
+        const missing = allMissing.filter((d) => standaloneIds.has(d))
+        placed.push({
+          node: n, col, row, h,
+          state: avail.get(t.id) ?? 'available', missing,
+          missingHidden: allMissing.length - missing.length,
+          blocksCount: t.kind === 'milestone' ? reverseDependents(tree, t.id).length : 0,
+        })
+      } else {
+        placed.push({ node: n, col, row, h, state: 'available', missing: [], missingHidden: 0, blocksCount: 0 })
+      }
+    }
+  }
+  const posByKey = new Map(placed.map((p) => [p.node.key, p]))
+
   const width = xOf(Math.max(1, sections.length) - 1) + CARD_W + PAD
-  const height = yOf(rowCount - 1) + CARD_H + PAD
+  const height = Math.max(...placed.map((p) => yOf(p.row) + p.h), yOf(0) + CARD_H) + PAD
 
   // Routage orthogonal : les segments verticaux inter-colonnes passent dans la
-  // gouttière adjacente à la source (pas au centre d'une colonne intermédiaire).
+  // gouttière adjacente à la source. Les arêtes s'ancrent sur l'EN-TÊTE du
+  // nœud (hauteur carte), déplié ou non — la topologie visuelle est stable.
   const edges: string[] = []
+  const seenEdges = new Set<string>()
   for (const p of placed) {
-    for (const depId of p.task.dependsOn) {
-      if (!nodeIds.has(depId)) continue
-      const src = posById.get(depId)!
+    for (const depKey of depsOf.get(p.node.key) ?? []) {
+      const src = posByKey.get(depKey)
+      if (!src) continue
+      const sig = `${depKey}->${p.node.key}`
+      if (seenEdges.has(sig)) continue
+      seenEdges.add(sig)
       const scy = yOf(src.row) + CARD_H / 2
       const tcy = yOf(p.row) + CARD_H / 2
       if (src.col === p.col) {
         const cx = xOf(src.col) + CARD_W / 2
-        edges.push(`M ${cx} ${yOf(src.row) + CARD_H} L ${cx} ${yOf(p.row)}`)
+        edges.push(`M ${cx} ${yOf(src.row) + src.h} L ${cx} ${yOf(p.row)}`)
       } else {
         const forward = src.col < p.col
         const sx = xOf(src.col) + (forward ? CARD_W : 0)
@@ -165,10 +264,14 @@ export function RoadmapGraph() {
               ))}
             </svg>
 
-            {/* Cartes */}
-            {placed.map((p) => (
-              <GraphCard key={p.task.id} placed={p} onOpen={() => openTask(p.task.id)} />
-            ))}
+            {/* Nœuds */}
+            {placed.map((p) =>
+              p.node.kind === 'task' ? (
+                <GraphCard key={p.node.key} placed={p} task={p.node.task} />
+              ) : (
+                <EpicGraphNode key={p.node.key} placed={p} epic={p.node} avail={avail} />
+              ),
+            )}
           </div>
         </div>
       </div>
@@ -176,9 +279,9 @@ export function RoadmapGraph() {
   )
 }
 
-function GraphCard({ placed, onOpen }: { placed: Placed; onOpen: () => void }) {
-  const { task, state } = placed
-  const { top } = usePanel()
+function GraphCard({ placed, task }: { placed: PlacedNode; task: TaskNode }) {
+  const { state } = placed
+  const { openTask, top } = usePanel()
   // Fond blanc TOUJOURS opaque (pas d'opacity sur le conteneur, sinon les arêtes
   // transparaissent) ; l'état estompé s'exprime par la bordure et l'encre.
   // Tâche ouverte dans le panneau → bordure accent (#36).
@@ -191,7 +294,7 @@ function GraphCard({ placed, onOpen }: { placed: Placed; onOpen: () => void }) {
   const dim = state === 'done' || state === 'locked'
   const titleCls = task.status === 'done' ? 'text-neutral-500 line-through' : dim ? 'text-neutral-500' : 'text-neutral-900'
   return (
-    <button type="button" onClick={onOpen} title={task.title}
+    <button type="button" onClick={() => openTask(task.id)} title={task.title}
       className={`absolute flex flex-col gap-1.5 px-3 py-2.5 text-left ${skin}`}
       style={{ left: xOf(placed.col), top: yOf(placed.row), width: CARD_W, minHeight: CARD_H }}>
       <div className="flex items-center gap-2">
@@ -219,5 +322,93 @@ function GraphCard({ placed, onOpen }: { placed: Placed; onOpen: () => void }) {
           que le Backlog : Chip (design.md §2). */}
       <span className="absolute bottom-1 right-2"><Chip label={TEAM_ABBR[task.team]} /></span>
     </button>
+  )
+}
+
+/**
+ * Nœud-EPIC du graphe (#135) : en-tête au gabarit d'une carte (chevron + carré
+ * EpicGlyph + titre font-medium + n tâches + complétion GLOBALE), déplié EN
+ * PLACE — les membres deviennent des lignes compactes cliquables (→ panneau)
+ * DANS le nœud, les arêtes restent ancrées sur l'en-tête. Pas de <button>
+ * imbriqué : l'en-tête est LE trigger (aria-expanded), chaque membre est un
+ * bouton frère. `data-panel-open` reproduit l'attribut Base UI pour que la
+ * rotation `.chev` (index.css) s'applique à l'identique.
+ */
+function EpicGraphNode({ placed, epic, avail }: {
+  placed: PlacedNode
+  epic: Extract<GNode, { kind: 'epic' }>
+  avail: Map<number, Availability>
+}) {
+  const { tree } = useTree()
+  const { openTask, top } = usePanel()
+  const [open, setOpen] = usePersistentStringFlag('graph:epics', epic.slug)
+  if (!tree) return null
+  const progress = epicProgress(tree, epic.slug)
+  const partial = epic.tasks.length < progress.total
+  const pct = progress.total === 0 ? 0 : Math.round((progress.done / progress.total) * 100)
+  return (
+    <div
+      className="absolute border border-neutral-200 bg-white hover:border-neutral-400"
+      style={{ left: xOf(placed.col), top: yOf(placed.row), width: CARD_W }}
+    >
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        aria-expanded={open}
+        data-panel-open={open ? '' : undefined}
+        title={epic.title}
+        className="flex w-full flex-col gap-1.5 px-3 py-2.5 text-left"
+        style={{ minHeight: CARD_H - 2 }}
+      >
+        <div className="flex items-center gap-2">
+          <Chevron />
+          <EpicGlyph status={epicStatusOf(progress, epic.tasks)} />
+          <span className="min-w-0 truncate text-sm font-medium text-neutral-900">{epic.title}</span>
+        </div>
+        <div className="flex items-center gap-1.5 pl-[26px]">
+          <span className="text-[11px] text-neutral-500">
+            {epic.tasks.length} tâche{epic.tasks.length === 1 ? '' : 's'}{partial ? ' ici' : ''}
+          </span>
+          <span className="ml-auto flex items-center gap-1.5">
+            <span aria-hidden className="inline-block h-1 w-14 overflow-hidden rounded-full bg-neutral-200">
+              <span className="block h-full bg-accent" style={{ width: `${pct}%` }} />
+            </span>
+            <span
+              className="font-mono text-[11px] text-neutral-500"
+              title={`Complétion globale de l'epic : ${progress.done}/${progress.total}`}
+            >
+              {progress.done}/{progress.total}
+            </span>
+            <span className="sr-only">, {progress.done} sur {progress.total} tâches terminées</span>
+          </span>
+        </div>
+      </button>
+      {open && (
+        <div className="border-t border-neutral-100 pb-1">
+          {epic.tasks.map((t) => {
+            const st = avail.get(t.id) ?? 'available'
+            const isOpenInPanel = top?.type === 'task' && top.id === t.id
+            return (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => openTask(t.id)}
+                title={t.title}
+                className={`flex w-full items-center gap-2 px-3 py-1 text-left ${isOpenInPanel ? 'bg-accent-tint shadow-[inset_2px_0_0_var(--color-accent)]' : 'hover:bg-neutral-50'}`}
+                style={{ height: MEMBER_H }}
+              >
+                {st === 'locked'
+                  ? <LockLocked size={11} className="shrink-0 text-neutral-500" ariaLabel="Verrouillée" />
+                  : <KindGlyph task={t} />}
+                <span className="shrink-0 font-mono text-xs text-neutral-500">#{t.id}</span>
+                <span className={`min-w-0 truncate text-sm ${t.status === 'done' ? 'text-neutral-500 line-through' : 'text-neutral-900'}`}>
+                  {t.title}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      )}
+    </div>
   )
 }

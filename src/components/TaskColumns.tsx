@@ -3,29 +3,57 @@ import { Plus } from 'trinil-react'
 import { TaskRow } from './TaskRow'
 import { Chip } from './Chip'
 import { StatusGlyph } from './glyphs'
+import { EpicRow, groupByEpic, type EpicListItem } from './EpicRow'
 import { ErrorBanner, GhostInput, Select, type SelectItem } from './ui'
 import { usePanel } from '../state/PanelContext'
-import { TEAMS, TEAM_ABBR, type Team, type TaskNode } from '../lib/tasks'
+import { allEpics, epicProgress } from '../lib/roadmap'
+import { TEAMS, TEAM_ABBR, type Team, type TaskNode, type TaskTree } from '../lib/tasks'
 
 const TEAM_ITEMS: SelectItem[] = TEAMS.map((t) => ({ value: t, label: t }))
 
 const PREVIEW = 12
+
+/** Rend un item de liste mixte : ligne-epic repliable ou TaskRow à plat (#135). */
+function ListItemRow({ item, tree }: { item: EpicListItem; tree: TaskTree }) {
+  return item.type === 'epic' ? (
+    <EpicRow
+      slug={item.slug}
+      title={item.title}
+      tasks={item.tasks}
+      progress={epicProgress(tree, item.slug)}
+      persistKey="backlog:epics"
+    />
+  ) : (
+    <TaskRow task={item.task} />
+  )
+}
 
 /**
  * LA liste de travail (Backlog et vue Teams) — UNE colonne large (décision
  * Rémi) : les 12 prochaines à faire (ordre stage puis ancienneté, calculé par
  * l'appelant) + « voir plus », puis les terminées APRÈS (dernière bouclée en
  * premier). Les lignes portent la date de bouclage.
+ *
+ * Epics (#135) : les tâches portant un epic ne sont PLUS à plat — elles vivent
+ * dans une ligne-groupe repliée par défaut (EpicRow), ancrée à la position de
+ * sa première membre. Un epic à cheval sur les deux listes apparaît dans
+ * chacune avec ses membres locaux et sa complétion GLOBALE.
  */
-export function TaskList({ open, done, filtered }: {
+export function TaskList({ open, done, tree, filtered }: {
   open: TaskNode[]
   done: TaskNode[]
+  tree: TaskTree
   /** Vrai si des filtres sont actifs (adapte le texte des états vides). */
   filtered?: boolean
 }) {
   const [showAll, setShowAll] = useState(false)
-  const visible = showAll ? open : open.slice(0, PREVIEW)
-  const hidden = open.length - visible.length
+  const epics = allEpics(tree)
+  // Le seuil « voir plus » compte des LIGNES (un epic replié = une ligne).
+  const openItems = groupByEpic(open, epics)
+  const doneItems = groupByEpic(done, epics)
+  const visible = showAll ? openItems : openItems.slice(0, PREVIEW)
+  const hidden = openItems.length - visible.length
+  const keyOf = (i: EpicListItem) => (i.type === 'epic' ? `epic:${i.slug}` : `task:${i.task.id}`)
   const empty = (label: string) => (
     <p className="border border-dashed border-neutral-300 px-4 py-8 text-center text-xs text-neutral-500">
       {label}{filtered ? ' avec ces filtres' : ''}.
@@ -40,7 +68,7 @@ export function TaskList({ open, done, filtered }: {
         </h2>
         {open.length === 0 ? empty("Rien d'ouvert") : (
           <div className="divide-y divide-neutral-100 border border-neutral-200 bg-white">
-            {visible.map((t) => <TaskRow key={t.id} task={t} />)}
+            {visible.map((i) => <ListItemRow key={keyOf(i)} item={i} tree={tree} />)}
             {hidden > 0 && (
               <button
                 type="button"
@@ -50,7 +78,7 @@ export function TaskList({ open, done, filtered }: {
                 Voir les {hidden} autres
               </button>
             )}
-            {showAll && open.length > PREVIEW && (
+            {showAll && openItems.length > PREVIEW && (
               <button
                 type="button"
                 onClick={() => setShowAll(false)}
@@ -69,7 +97,7 @@ export function TaskList({ open, done, filtered }: {
         </h2>
         {done.length === 0 ? empty('Rien de terminé') : (
           <div className="divide-y divide-neutral-100 border border-neutral-200 bg-white">
-            {done.map((t) => <TaskRow key={t.id} task={t} />)}
+            {doneItems.map((i) => <ListItemRow key={keyOf(i)} item={i} tree={tree} />)}
           </div>
         )}
       </section>
