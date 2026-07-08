@@ -3,7 +3,7 @@ code: null
 title: >-
   Homepage v2 : embarquer le VRAI dashboard (build démo read-only + iframe plein cadre) + terminal
   agent en fenêtre séparée
-status: todo
+status: in_progress
 tags:
   - marketing
   - fable
@@ -31,6 +31,7 @@ dependsOn: []
 epic: site
 source: ai
 createdAt: "2026-07-08T15:26:29"
+startedAt: "2026-07-08T15:30:46"
 completedAt: null
 commit: null
 outcome: null
