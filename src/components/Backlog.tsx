@@ -8,9 +8,11 @@ import { type TaskNode } from '../lib/tasks'
 import { SectionAccordion } from './SectionAccordion'
 import { TaskList, MiniZone, sortOpen, sortDone } from './TaskColumns'
 
-import { useTeamFilter } from '../state/filters'
+import { useTagFilter, useTeamFilter } from '../state/filters'
 import { ViewHeader } from './ViewHeader'
 import { TeamsRadar } from './TeamsRadar'
+import { TagGraph } from './TagGraph'
+import { tagGraph } from '../lib/tagGraph'
 import { TEAMS, type Team } from '../lib/tasks'
 
 /** Accord singulier/pluriel élémentaire (français). */
@@ -30,6 +32,7 @@ export function Backlog() {
   const { openCreateTask, top } = usePanel()
   const [openArchive, setOpenArchive] = usePersistentStrings('backlog:archive')
   const [teamFilter, setTeamFilter] = useTeamFilter()
+  const [tagFilter, setTagFilter] = useTagFilter()
   const [query, setQuery] = useState('')
 
   if (loading && !tree) {
@@ -73,6 +76,11 @@ export function Backlog() {
   // Sélection du radar = LE filtre team (solo) ; clic vide = tout.
   const radarSelected: Team | '' = teamFilter.length === 1 ? (teamFilter[0] as Team) : ''
   const radarSelect = (t: Team | '') => setTeamFilter(t ? [t] : [])
+  // Graphe des tags (#146) : co-occurrences sur les tickets OUVERTS, sous-
+  // tâches comprises — comme le radar, il montre TOUT, la liste est filtrée.
+  const openTags = tagGraph(tree.sections.filter((s) => s.status !== 'abandoned').flatMap((s) => s.tasks))
+  const tagSelected = tagFilter.length === 1 ? tagFilter[0] : ''
+  const tagSelect = (t: string) => setTagFilter(t ? [t] : [])
 
   const q = query.trim().toLowerCase()
   const stageOf = new Map<number, string>()
@@ -83,6 +91,7 @@ export function Backlog() {
   }
   const matches = (t: TaskNode) =>
     (teamFilter.length === 0 || teamFilter.includes(t.team)) &&
+    (tagFilter.length === 0 || tagFilter.some((tag) => t.tags.includes(tag))) &&
     (q === '' || t.title.toLowerCase().includes(q) || `#${t.id}`.includes(q))
 
   // Ordre canonique (décision Rémi) : stage puis ancienneté — partagé (TaskColumns).
@@ -123,9 +132,23 @@ export function Backlog() {
             S'efface quand le panneau est ouvert et que la place manque (< 2xl).
             Désélectionner = recliquer la team active (souris ET clavier, #118). */}
         <div
-          className={`${top !== null ? 'hidden 2xl:flex' : 'flex'} w-[420px] shrink-0 items-center border-r border-neutral-200 bg-white py-2`}
+          className={`${top !== null ? 'hidden 2xl:flex' : 'flex'} relative min-h-0 w-[420px] shrink-0 flex-col overflow-y-auto border-r border-neutral-200 bg-white py-2`}
         >
-          <TeamsRadar counts={load} selected={radarSelected} onSelect={radarSelect} />
+          {/* my-auto : centre verticalement quand ça tient, scrolle depuis le
+              haut sinon (jamais de contenu clippé, contrairement à justify-center). */}
+          <div className="my-auto flex w-full shrink-0 flex-col">
+            <TeamsRadar counts={load} selected={radarSelected} onSelect={radarSelect} />
+            {/* Graphe de liens des tags (#146) — les thèmes du travail ouvert,
+                sous le radar (le « qui » au-dessus, le « quoi » en dessous). */}
+            {(openTags.nodes.length > 0 || tagSelected !== '') && (
+              <>
+                <div className="mx-4 border-t border-neutral-200" />
+                <div className="pt-2">
+                  <TagGraph graph={openTags} selected={tagSelected} onSelect={tagSelect} />
+                </div>
+              </>
+            )}
+          </div>
         </div>
       {/* relative (#141) : le scroller est le containing block de TOUT absolu
           descendant — sans ça, un span position:absolute (sr-only Tailwind…)
@@ -137,7 +160,7 @@ export function Backlog() {
       {(quicks.length > 0 || !q) && <MiniZone quicks={quicks} reload={reload} />}
       {/* Epics (#135) : lignes-groupe repliables DANS la liste — plus de vue
           alternative « par epic » (#133 rejeté), le groupe est le défaut. */}
-      <TaskList open={open} done={done} tree={tree} filtered={Boolean(q || teamFilter.length)} />
+      <TaskList open={open} done={done} tree={tree} filtered={Boolean(q || teamFilter.length || tagFilter.length)} />
       </div>
 
       {tree.archive.length > 0 && (
