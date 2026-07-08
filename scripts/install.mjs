@@ -114,6 +114,36 @@ export function mergeMcpEntry(hostRoot, serverArgs, log = () => {}) {
   return true
 }
 
+/** Hook SessionStart (#122) : à l'ouverture d'une session Claude dans le repo,
+ *  lance `sitrep` — son état du monde est injecté d'emblée dans le contexte, sans
+ *  compter sur l'agent pour y penser. Merge idempotent dans .claude/settings.json :
+ *  les autres hooks/réglages sont préservés, notre entrée (repérée par la commande
+ *  sitrep) est remise à jour plutôt que dupliquée. Un settings.json illisible est
+ *  laissé intact (étape sautée). */
+export function ensureSessionHook(hostRoot, sitrepCommand, log = () => {}) {
+  const file = join(hostRoot, '.claude', 'settings.json')
+  let json = {}
+  if (existsSync(file)) {
+    try {
+      json = JSON.parse(readFileSync(file, 'utf8'))
+    } catch {
+      log(`session hook : ${file} illisible — étape sautée (fichier laissé intact).`)
+      return false
+    }
+  }
+  const entry = { hooks: [{ type: 'command', command: sitrepCommand }] }
+  json.hooks = json.hooks ?? {}
+  const existing = Array.isArray(json.hooks.SessionStart) ? json.hooks.SessionStart : []
+  // Repère notre entrée par la présence de « task.mjs sitrep » dans une de ses commandes.
+  const isOurs = (g) => (g?.hooks ?? []).some((h) => typeof h?.command === 'string' && h.command.includes('task.mjs sitrep'))
+  const others = existing.filter((g) => !isOurs(g))
+  json.hooks.SessionStart = [...others, entry]
+  mkdirSync(dirname(file), { recursive: true })
+  writeFileSync(file, `${JSON.stringify(json, null, 2)}\n`)
+  log(`session hook : SessionStart → ${sitrepCommand} posé dans ${file}.`)
+  return true
+}
+
 /** Installe le hook guard en CHAÎNANT (décision verrouillée) : un pre-commit
  *  existant (husky, lefthook-shim, hook maison) est PRÉSERVÉ, le guard est ajouté
  *  à la suite entre marqueurs ; core.hooksPath n'est JAMAIS modifié. Le bloc entre
@@ -178,11 +208,12 @@ function packageScripts(hostRoot, packageDir) {
     selfHost,
     mcpArgs: [...tsFlags, `${base}/mcp-server.mjs`],
     guardCommand: ['node', ...tsFlags, `${base}/task.mjs`, 'guard'].join(' '),
+    sitrepCommand: ['node', ...tsFlags, `${base}/task.mjs`, 'sitrep'].join(' '),
   }
 }
 
 export function runInit({ hostRoot = findHostRoot(), packageDir = packageRoot(), log = console.log } = {}) {
-  const { selfHost, mcpArgs, guardCommand } = packageScripts(hostRoot, packageDir)
+  const { selfHost, mcpArgs, guardCommand, sitrepCommand } = packageScripts(hostRoot, packageDir)
   log(`roadmapped init — racine hôte : ${hostRoot}${selfHost ? ' (self-host)' : ''}`)
   ensureConfig(hostRoot, log)
   const { tasksDir } = loadPathsAt(hostRoot)
@@ -191,18 +222,20 @@ export function runInit({ hostRoot = findHostRoot(), packageDir = packageRoot(),
   if (!selfHost) copySkill(packageDir, hostRoot, log)
   else log('skill : self-host — le skill vit déjà dans skills/roadmapped/, pas de copie.')
   mergeMcpEntry(hostRoot, mcpArgs, log)
+  ensureSessionHook(hostRoot, sitrepCommand, log)
   installGuardHook(hostRoot, guardCommand, log)
   log('init terminé. Prochaine étape : le skill roadmapped (phase de setup) remplit le backlog.')
 }
 
 export function runUpgrade({ hostRoot = findHostRoot(), packageDir = packageRoot(), log = console.log } = {}) {
-  const { selfHost, mcpArgs, guardCommand } = packageScripts(hostRoot, packageDir)
+  const { selfHost, mcpArgs, guardCommand, sitrepCommand } = packageScripts(hostRoot, packageDir)
   log(`roadmapped upgrade — racine hôte : ${hostRoot}${selfHost ? ' (self-host)' : ''}`)
   // Frontière nette : fichiers TOOL-OWNED uniquement. docs/tasks/ et la config
   // sont des données utilisateur — jamais touchés par upgrade.
   if (!selfHost) copySkill(packageDir, hostRoot, log)
   else log('skill : self-host — rien à recopier.')
   mergeMcpEntry(hostRoot, mcpArgs, log)
+  ensureSessionHook(hostRoot, sitrepCommand, log)
   installGuardHook(hostRoot, guardCommand, log)
   log('upgrade terminé (docs/tasks/ et roadmapped.config.json non touchés). Pour bumper le paquet : npm install -D roadmapped@latest')
 }

@@ -8,7 +8,7 @@ import { join, resolve, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { load } from 'js-yaml'
 import {
-  ensureConfig, ensureSkeleton, ensureDevDependency, mergeMcpEntry, installGuardHook, runInit, runUpgrade,
+  ensureConfig, ensureSkeleton, ensureDevDependency, mergeMcpEntry, installGuardHook, ensureSessionHook, runInit, runUpgrade,
 } from './install.mjs'
 
 // Tout se joue dans un repo HÔTE jetable — jamais le repo réel. On teste :
@@ -40,6 +40,44 @@ function snapshot(dir, base = dir) {
   }
   return out
 }
+
+describe('ensureSessionHook (#122)', () => {
+  const cmd = 'node scripts/task.mjs sitrep'
+  const read = () => JSON.parse(readFileSync(join(host, '.claude', 'settings.json'), 'utf8'))
+
+  it('pose un hook SessionStart qui lance sitrep (settings.json créé)', () => {
+    ensureSessionHook(host, cmd, silent)
+    const j = read()
+    expect(j.hooks.SessionStart).toHaveLength(1)
+    expect(j.hooks.SessionStart[0].hooks[0]).toEqual({ type: 'command', command: cmd })
+  })
+
+  it('idempotent : relancer ne duplique pas notre entrée', () => {
+    ensureSessionHook(host, cmd, silent)
+    ensureSessionHook(host, cmd, silent)
+    expect(read().hooks.SessionStart).toHaveLength(1)
+  })
+
+  it('préserve les autres hooks SessionStart et les autres réglages', () => {
+    mkdirSync(join(host, '.claude'), { recursive: true })
+    writeFileSync(join(host, '.claude', 'settings.json'), JSON.stringify({
+      model: 'opus',
+      hooks: { SessionStart: [{ hooks: [{ type: 'command', command: 'echo autre' }] }] },
+    }))
+    ensureSessionHook(host, cmd, silent)
+    const j = read()
+    expect(j.model).toBe('opus') // réglage voisin intact
+    expect(j.hooks.SessionStart).toHaveLength(2) // l'autre hook + le nôtre
+    expect(j.hooks.SessionStart.some((g) => g.hooks[0].command === 'echo autre')).toBe(true)
+  })
+
+  it('settings.json illisible → laissé intact, étape sautée', () => {
+    mkdirSync(join(host, '.claude'), { recursive: true })
+    writeFileSync(join(host, '.claude', 'settings.json'), '{ pas du json')
+    expect(ensureSessionHook(host, cmd, silent)).toBe(false)
+    expect(readFileSync(join(host, '.claude', 'settings.json'), 'utf8')).toBe('{ pas du json')
+  })
+})
 
 describe('ensureConfig', () => {
   it('pose roadmapped.config.json avec les défauts hôte (docs/tasks, docs)', () => {
