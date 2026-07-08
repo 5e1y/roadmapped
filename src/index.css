@@ -49,6 +49,18 @@ body {
 }
 
 /*
+ * Curseur d'affordance (#120) : Tailwind v4 (Preflight) ne pose plus
+ * cursor:pointer sur les <button> — ils héritent du curseur flèche. On le
+ * rétablit globalement pour tout ce qui est cliquable (boutons, rôles ARIA
+ * interactifs, label lié, summary), sauf état désactivé.
+ */
+@layer base {
+  :is(button, [role="button"], [role="option"], [role="tab"], [role="switch"], [role="menuitem"], label[for], summary):not(:disabled):not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+}
+
+/*
  * Chevron d'affordance : la rotation est pilotée par l'état RÉEL de Base UI
  * (`data-panel-open` posé par Accordion.Trigger / Collapsible.Trigger quand
  * le panneau est ouvert), pas par un booléen React parallèle.
