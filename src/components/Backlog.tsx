@@ -127,7 +127,11 @@ export function Backlog() {
         >
           <TeamsRadar counts={load} selected={radarSelected} onSelect={radarSelect} />
         </div>
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      {/* relative (#141) : le scroller est le containing block de TOUT absolu
+          descendant — sans ça, un span position:absolute (sr-only Tailwind…)
+          remonte jusqu'à <html>, échappe au clip d'overflow et rend la page
+          entière scrollable dans le vide. */}
+      <div className="relative min-h-0 flex-1 overflow-y-auto">
       <div className="mx-auto max-w-3xl px-6 py-8">
       <div className="flex flex-col gap-8">
       {(quicks.length > 0 || !q) && <MiniZone quicks={quicks} reload={reload} />}

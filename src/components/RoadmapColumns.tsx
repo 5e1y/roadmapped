@@ -6,7 +6,7 @@ import { computeAvailability, missingPrereqs, reverseDependents, globalProgress,
 import { LockLocked } from 'trinil-react'
 import { Chevron, EpicGlyph, KindGlyph } from './glyphs'
 import { Chip } from './Chip'
-import { groupByEpic, epicStatusOf, type EpicListItem } from './EpicRow'
+import { groupByEpicAnchored, epicAnchorStage, epicStatusOf, type EpicListItem } from './EpicRow'
 import { countTasksDeep, SECTION_STATUS_FR, TEAM_ABBR } from '../lib/tasks'
 import type { SectionNode, TaskNode, TaskTree } from '../lib/tasks'
 import { useShowDone } from './RoadmapView'
@@ -84,10 +84,11 @@ function TaskCard({ task, state, missing, blocksCount = 0 }: { task: TaskNode; s
 /**
  * Carte-GROUPE d'un epic dans une colonne de stage (#135) : repliée par défaut,
  * même gabarit qu'une TaskCard mais marquée groupe (chevron + carré EpicGlyph +
- * titre en font-medium). Un epic à cheval sur plusieurs stages apparaît dans
- * CHAQUE colonne où il a des tâches, avec ses membres locaux (« n ici ») et sa
- * complétion GLOBALE (epicProgress) — le dépliage (persisté par slug, partagé
- * entre colonnes) révèle les cartes membres, indentées sous la carte-groupe.
+ * titre en font-medium). Dé-dup (#140-B) : un epic n'apparaît que dans UNE
+ * colonne — son stage d'ancrage (epicAnchorStage : ticket non terminé le plus
+ * amont, ou dernier ticket si 100 % done) — avec TOUS ses membres (« n ici »
+ * si d'autres stages y contribuent) et sa complétion GLOBALE (epicProgress).
+ * Le dépliage (persisté par slug) révèle les cartes membres, indentées.
  */
 function EpicCardGroup({ item, tree, avail, blocksOf }: {
   item: Extract<EpicListItem, { type: 'epic' }>
@@ -147,7 +148,7 @@ function EpicCardGroup({ item, tree, avail, blocksOf }: {
  * colonnes, quelle que soit la longueur des notes. Les rangées vides gardent
  * un placeholder pour ne pas décaler les suivantes.
  */
-function Column({ section, visible, avail, blocksOf, tree }: { section: SectionNode; visible: TaskNode[]; avail: Map<number, Availability>; blocksOf: (t: TaskNode) => number; tree: TaskTree }) {
+function Column({ section, items, avail, blocksOf, tree }: { section: SectionNode; items: EpicListItem[]; avail: Map<number, Availability>; blocksOf: (t: TaskNode) => number; tree: TaskTree }) {
   // Compteurs et barre = RÉEL (section.tasks) ; les cartes rendues = visible
   // (les done masqués ne changent pas la progression affichée).
   const { done, total } = countTasksDeep(section.tasks)
@@ -182,10 +183,12 @@ function Column({ section, visible, avail, blocksOf, tree }: { section: SectionN
       {/* Cartes accolées (gap 0, bordures fusionnées par -mt-px) : liste dense.
           Les cartes à liseré fort (sélection, disponible) passent au-dessus (z-10)
           pour que leur bordure ne soit pas mangée par la carte suivante.
-          Epics (#135) : les tâches à epic vivent dans une carte-groupe repliable,
-          ancrée à la position de leur première membre dans la colonne. */}
+          Epics (#135/#140-B) : les tâches à epic vivent dans une carte-groupe
+          repliable — rendue UNIQUEMENT dans la colonne d'ancrage de l'epic
+          (items calculés par RoadmapColumns), à la position de sa première
+          membre locale. */}
       <div className="flex min-w-0 flex-col pt-1.5">
-        {groupByEpic(visible, allEpics(tree)).map((item) =>
+        {items.map((item) =>
           item.type === 'epic' ? (
             <EpicCardGroup key={`epic:${item.slug}`} item={item} tree={tree} avail={avail} blocksOf={blocksOf} />
           ) : (
@@ -210,6 +213,32 @@ export function RoadmapColumns() {
   // « bloque N » des jalons : dépendants inverses, calculé une fois par carte jalon.
   const blocksOf = (t: TaskNode) => (t.kind === 'milestone' ? reverseDependents(tree, t.id).length : 0)
 
+  // Ancrage unique des epics (#140-B) : un epic ne vit que dans UNE colonne —
+  // le stage de son ticket non terminé le plus amont (ou de son dernier ticket
+  // si tout est done). Membres collectés en ordre canonique (sections NN, puis
+  // ordre de la colonne) — le dépliage montre TOUT l'epic, autres stages compris.
+  const epics = allEpics(tree)
+  const epicMembers = new Map<string, Array<{ stage: string; task: TaskNode }>>()
+  for (const s of sections) {
+    for (const t of s.tasks) {
+      if (t.epic === null) continue
+      const arr = epicMembers.get(t.epic)
+      if (arr) arr.push({ stage: s.key, task: t })
+      else epicMembers.set(t.epic, [{ stage: s.key, task: t }])
+    }
+  }
+  const anchorOf = new Map<string, string>()
+  for (const [slug, members] of epicMembers) {
+    const anchor = epicAnchorStage(members)
+    if (anchor !== null) anchorOf.set(slug, anchor)
+  }
+  // Membres affichés dans le groupe : tout l'epic, filtré par le toggle
+  // « terminées » (la complétion affichée reste GLOBALE via epicProgress).
+  const membersOf = (slug: string) =>
+    (epicMembers.get(slug) ?? []).map((m) => m.task).filter((t) => showDone || t.status !== 'done')
+  const itemsOf = (s: SectionNode) =>
+    groupByEpicAnchored(visibleOf(s), epics, (slug) => anchorOf.get(slug) === s.key, membersOf)
+
   // Largeurs par colonne : un stage vide (ou vidé par le filtre) est resserré —
   // le chemin Idea→Mature reste entièrement visible sans voler l'espace.
   const template = sections.map((s) => (s.tasks.length === 0 ? '180px' : '280px')).join(' ')
@@ -219,7 +248,7 @@ export function RoadmapColumns() {
       className="roadmap-cols-scroll grid h-full grid-flow-col grid-rows-[auto_auto_auto_1fr] gap-x-4 gap-y-1.5 overflow-x-auto px-6 pb-6"
       style={{ gridTemplateColumns: template }}
     >
-      {sections.map((s) => <Column key={s.key} section={s} visible={visibleOf(s)} avail={avail} blocksOf={blocksOf} tree={tree} />)}
+      {sections.map((s) => <Column key={s.key} section={s} items={itemsOf(s)} avail={avail} blocksOf={blocksOf} tree={tree} />)}
     </div>
   )
 }

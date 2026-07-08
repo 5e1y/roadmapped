@@ -90,6 +90,8 @@ export function RoadmapGraph() {
   /** id de tâche visible → clé du nœud qui la porte (elle-même, ou son epic). */
   const nodeKeyOfTask = new Map<number, string>()
   const epicNodes = new Map<string, Extract<GNode, { kind: 'epic' }>>()
+  /** Colonnes candidates d'ancrage par epic : min des NON-terminées / max de toutes. */
+  const epicCols = new Map<string, { openMin: number | null; allMax: number }>()
   for (const { task, sectionKey } of taskEntries) {
     const col = colOf.get(sectionKey)!
     if (task.epic === null) {
@@ -104,13 +106,21 @@ export function RoadmapGraph() {
         en = { key, kind: 'epic', slug: task.epic, title: epicTitles.get(task.epic) ?? task.epic, tasks: [] }
         epicNodes.set(task.epic, en)
         nodes.push(en)
-        colOfKey.set(key, col)
       }
       en.tasks.push(task)
       nodeKeyOfTask.set(task.id, key)
-      // Ancrage amont : la colonne du stage le plus tôt parmi les membres.
-      colOfKey.set(key, Math.min(colOfKey.get(key)!, col))
+      const c = epicCols.get(task.epic) ?? { openMin: null, allMax: col }
+      c.allMax = Math.max(c.allMax, col)
+      if (task.status !== 'done') c.openMin = c.openMin === null ? col : Math.min(c.openMin, col)
+      epicCols.set(task.epic, c)
     }
+  }
+  // Ancrage (#140-B, même règle que le mode Colonnes / epicAnchorStage) : la
+  // colonne du ticket NON TERMINÉ le plus amont ; un epic 100 % done (visible
+  // via le toggle « terminées » ou comme dépendance) est ancré à son dernier stage.
+  for (const [slug, en] of epicNodes) {
+    const c = epicCols.get(slug)!
+    colOfKey.set(en.key, c.openMin ?? c.allMax)
   }
 
   // Dépendances au niveau NŒUD : deps des membres remappées vers les clés de

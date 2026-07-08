@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom/vitest'
 import { describe, it, expect, afterEach } from 'vitest'
 import { render, screen, fireEvent, cleanup } from '@testing-library/react'
-import { EpicRow, groupByEpic, epicStatusOf } from './EpicRow'
+import { EpicRow, groupByEpic, splitBacklogItems, epicAnchorStage, groupByEpicAnchored, epicStatusOf } from './EpicRow'
 import { PanelProvider } from '../state/PanelContext'
 import type { TaskNode, Epic } from '../lib/tasks'
 
@@ -48,6 +48,85 @@ describe('groupByEpic', () => {
   })
 })
 
+describe('splitBacklogItems (dé-dup Backlog, #140-B)', () => {
+  const epics: Epic[] = [{ slug: 'checkout', title: 'Refonte checkout' }]
+  const done = (id: number, over: Partial<TaskNode> = {}) =>
+    t(id, { status: 'done', completedAt: '2026-07-01', ...over })
+
+  it('un epic entamé ne vit que côté ouvert, ses done absorbées dans le groupe', () => {
+    const open = [t(1), t(2, { epic: 'checkout' })]
+    const doneList = [done(3, { epic: 'checkout' }), done(4)]
+    const { open: o, done: d } = splitBacklogItems(open, doneList, epics, () => false)
+    // côté ouvert : tâche 1 à plat + groupe checkout portant 2 (ouverte) ET 3 (done)
+    expect(o.map((i) => i.type)).toEqual(['task', 'epic'])
+    const grp = o[1]
+    if (grp.type !== 'epic') throw new Error('attendu: epic')
+    expect(grp.tasks.map((x) => x.id)).toEqual([2, 3])
+    // côté terminé : l'epic n'apparaît PAS — seule la done sans epic reste
+    expect(d).toHaveLength(1)
+    expect(d[0].type).toBe('task')
+  })
+
+  it('un epic 100 % terminé ne vit que côté « Terminées »', () => {
+    const doneList = [done(3, { epic: 'checkout' }), done(5, { epic: 'checkout' })]
+    const { open: o, done: d } = splitBacklogItems([t(1)], doneList, epics, () => true)
+    expect(o.map((i) => i.type)).toEqual(['task'])
+    expect(d.map((i) => i.type)).toEqual(['epic'])
+    const grp = d[0]
+    if (grp.type !== 'epic') throw new Error('attendu: epic')
+    expect(grp.tasks.map((x) => x.id)).toEqual([3, 5])
+  })
+
+  it('epic incomplet dont seules des done sont visibles (filtres) : groupe en fin de liste ouverte', () => {
+    const { open: o, done: d } = splitBacklogItems([t(1)], [done(3, { epic: 'checkout' })], epics, () => false)
+    expect(o.map((i) => i.type)).toEqual(['task', 'epic'])
+    expect(d).toHaveLength(0)
+  })
+})
+
+describe('epicAnchorStage (ancrage Roadmap, #140-B)', () => {
+  it('ancre au stage du ticket NON terminé le plus amont', () => {
+    const anchor = epicAnchorStage([
+      { stage: '06-launch', task: t(1) },
+      { stage: '04-build', task: t(2, { status: 'done' }) },
+      { stage: '05-gtm', task: t(3, { status: 'in_progress' }) },
+    ])
+    expect(anchor).toBe('05-gtm')
+  })
+
+  it('un epic 100 % done est ancré au stage de son dernier ticket (le plus aval)', () => {
+    const anchor = epicAnchorStage([
+      { stage: '04-build', task: t(1, { status: 'done' }) },
+      { stage: '06-launch', task: t(2, { status: 'done' }) },
+      { stage: '05-gtm', task: t(3, { status: 'done' }) },
+    ])
+    expect(anchor).toBe('06-launch')
+  })
+
+  it('sans membre : null', () => {
+    expect(epicAnchorStage([])).toBeNull()
+  })
+})
+
+describe('groupByEpicAnchored (colonnes, #140-B)', () => {
+  const epics: Epic[] = [{ slug: 'checkout', title: 'Refonte checkout' }]
+
+  it('rend le groupe UNE fois dans la colonne d’ancrage, avec les membres complets', () => {
+    const colTasks = [t(1), t(2, { epic: 'checkout' }), t(3, { epic: 'checkout' })]
+    const members = [t(2, { epic: 'checkout' }), t(3, { epic: 'checkout' }), t(9, { epic: 'checkout', status: 'done' })]
+    const items = groupByEpicAnchored(colTasks, epics, () => true, () => members)
+    expect(items.map((i) => i.type)).toEqual(['task', 'epic'])
+    const grp = items[1]
+    if (grp.type !== 'epic') throw new Error('attendu: epic')
+    expect(grp.tasks.map((x) => x.id)).toEqual([2, 3, 9])
+  })
+
+  it('omet les membres d’un epic ancré ailleurs (rendus dans leur colonne d’ancrage)', () => {
+    const items = groupByEpicAnchored([t(1), t(2, { epic: 'checkout' })], epics, () => false, () => [])
+    expect(items.map((i) => i.type)).toEqual(['task'])
+  })
+})
+
 describe('epicStatusOf', () => {
   it('plein quand tout est terminé, demi dès que c’est entamé, vide sinon', () => {
     expect(epicStatusOf({ done: 3, total: 3 }, [])).toBe('done')
@@ -71,9 +150,11 @@ describe('EpicRow', () => {
       </PanelProvider>,
     )
 
-  it('porte titre, compte local (« ici » car partiel) et complétion globale — repliée par défaut', () => {
+  it('porte titre (input ghost), compte local (« ici » car partiel) et complétion globale — repliée par défaut', () => {
     renderRow('test:epics:a')
-    expect(screen.getByText('Refonte checkout')).toBeInTheDocument()
+    // Le titre est un input ghost permanent (#140-A) — éditable, jamais de swap.
+    expect(screen.getByDisplayValue('Refonte checkout')).toBeInTheDocument()
+    expect(screen.getByLabelText("Renommer l'epic checkout")).toBeInTheDocument()
     expect(screen.getByText('2 tâches ici')).toBeInTheDocument()
     expect(screen.getByText('1/3')).toBeInTheDocument()
     // repliée par défaut : les membres ne sont pas rendus
@@ -90,9 +171,11 @@ describe('EpicRow', () => {
     expect(screen.getByText('Tâche 4')).toBeInTheDocument()
   })
 
-  it('annonce la complétion aux lecteurs d’écran', () => {
+  it('annonce la complétion aux lecteurs d’écran (nom accessible du trigger)', () => {
     renderRow('test:epics:c')
-    expect(screen.getByText(', 1 sur 3 tâches terminées')).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Refonte checkout — 2 tâches ici, 1 sur 3 tâches terminées' }),
+    ).toBeInTheDocument()
   })
 
   it('affiche l’état entamé du groupe (carré demi-plein accent)', () => {
