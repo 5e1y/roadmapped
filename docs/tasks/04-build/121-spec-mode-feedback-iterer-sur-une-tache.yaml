@@ -1,7 +1,7 @@
 id: 149
 code: null
 title: "Spec — mode « feedback » : itérer sur une tâche sans créer des tickets à l'infini"
-status: in_progress
+status: todo
 tags:
   - spec
   - data-model
