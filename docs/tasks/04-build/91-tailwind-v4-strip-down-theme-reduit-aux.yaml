@@ -1,7 +1,7 @@
 id: 116
 code: null
 title: Tailwind v4 strip down — @theme réduit aux tokens de design.md
-status: in_progress
+status: done
 tags:
   - design
   - tailwind
@@ -25,8 +25,18 @@ dependsOn:
 milestone: null
 source: user
 createdAt: "2026-07-08T01:57:37"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: 748f2c6
+outcome: >-
+  @theme verrouillé : --color-*: initial désactive la palette Tailwind par défaut, seuls existent
+  accent, accent-tint, white et neutral-50→900 (valeurs oklch v4 d'origine — zéro dérive de rendu) ;
+  toute classe hors système ne génère plus aucun style (l'écart devient visible au lieu de
+  silencieux). Zéro couleur arbitraire [#hex] dans src/components (purgées par #113-115, vérifié) ;
+  pas de plugin/preset superflu (seul @tailwindcss/vite). Taille CSS dist inchangée : 26 576 octets
+  avant/après — attendu, la purge v4 n'émettait déjà que l'utilisé ; le gain est l'enforcement, pas
+  les octets
+verification: >-
+  Build vert avant/après avec tailles CSS comparées (26576→26576) ; grep du CSS émis : neutral-500
+  présent, aucune trace red/amber ; grep src : zéro classe hors palette, zéro hex arbitraire hors
+  shadow inset var ; 225 tests verts
 release: null
