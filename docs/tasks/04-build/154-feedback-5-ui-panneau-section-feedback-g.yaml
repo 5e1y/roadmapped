@@ -1,7 +1,7 @@
 id: 195
 code: null
 title: "Feedback 5 — UI panneau : section Feedback (ghost input) + badge open sur la ligne"
-status: todo
+status: done
 tags:
   - feedback
 size: null
@@ -15,8 +15,22 @@ dependsOn:
 epic: feedback-mode
 source: ai
 createdAt: "2026-07-09T00:24:09"
-completedAt: null
-commit: null
-outcome: null
+startedAt: "2026-07-09T01:15:58"
+updatedAt: "2026-07-09T01:23:00"
+completedAt: "2026-07-09"
+commit: 0322b22
+outcome: >-
+  UI mode feedback. TaskPanel : section 'Feedback' (au-dessus du Log) — liste des items {text,
+  author·date muté avec tooltip absolu}, filet gauche accent sur ouvert / neutre+barré+glyphe Check
+  sur résolu, bouton Resolve/Reopen par item, GhostInput (pattern ghost) pour ajouter (Enter →
+  append {date:localNow, author:rémi, text, resolved:false}), empty-state, SavedTick/FieldError.
+  Mutations via le helper save() existant (PATCH /api/tasks/:id {feedback:<tableau complet>} →
+  reload) — chemin éprouvé, zéro nouveau fetch. TaskRow : compteur discret 'feedback N' (open,
+  neutral-500) dans le cluster méta, distinct du point NEW. Lib : updateTask accepte feedback[]
+  (remplacement complet). Vérif : tests lib
+  (addFeedback/resolve/reopen/updateTask-replace/round-trip) + composant TaskPanel/TaskRow 8/8
+  (rendu réel jsdom) + tsc clean + 391 tests ; pulse #188 confirmé en capture. Badge ligne non
+  visible en capture car la tâche test était un quick (zone Mini, rendu compact) — logique triviale
+  couverte par tsc+tests.
 verification: null
 release: null
