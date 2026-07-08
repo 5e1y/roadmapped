@@ -63,17 +63,22 @@ export function usePersistentStrings(key: string): [string[], (next: string[]) =
   return [value, set]
 }
 
-/** Booléen d'ouverture persisté par identifiant numérique (ex. sous-tâches d'une ligne). */
-export function usePersistentFlag(key: string, id: number): [boolean, (open: boolean) => void] {
+/** Booléen d'ouverture persisté par valeur chaîne (ex. slug d'epic déplié, #135). */
+export function usePersistentStringFlag(key: string, value: string): [boolean, (open: boolean) => void] {
   const arr = useSyncExternalStore(
     useCallback((fn) => subscribe(key, fn), [key]),
     () => snapshot(key),
   )
   const set = useCallback((next: boolean) => {
     const s = new Set(snapshot(key))
-    if (next) s.add(String(id))
-    else s.delete(String(id))
+    if (next) s.add(value)
+    else s.delete(value)
     setPersistentStrings(key, [...s])
-  }, [key, id])
-  return [arr.includes(String(id)), set]
+  }, [key, value])
+  return [arr.includes(value), set]
+}
+
+/** Booléen d'ouverture persisté par identifiant numérique (ex. sous-tâches d'une ligne). */
+export function usePersistentFlag(key: string, id: number): [boolean, (open: boolean) => void] {
+  return usePersistentStringFlag(key, String(id))
 }

@@ -49,6 +49,37 @@ export function MilestoneGlyph({ status }: { status: TaskNode['status'] }) {
   )
 }
 
+/**
+ * Glyphe d'un EPIC (#135) : le CARRÉ complète la famille (cercle = tâche,
+ * diamant = jalon) — même langage d'encre : vide = rien de fait, demi ACCENT =
+ * en cours, plein = tout terminé. La forme seule dit « ceci est un groupe ».
+ */
+export function EpicGlyph({ status }: { status: TaskNode['status'] }) {
+  const label = { todo: 'epic à commencer', in_progress: 'epic en cours', done: 'epic terminé' }[status]
+  return (
+    <svg
+      className={`shrink-0 ${status === 'in_progress' ? 'text-accent' : 'text-neutral-900'}`}
+      width="10"
+      height="10"
+      viewBox="0 0 10 10"
+      role="img"
+      aria-label={label}
+    >
+      <title>{label}</title>
+      {status === 'done' ? (
+        <rect x="1" y="1" width="8" height="8" fill="currentColor" />
+      ) : status === 'in_progress' ? (
+        <>
+          <rect x="1.5" y="1.5" width="7" height="7" fill="none" stroke="currentColor" strokeWidth="1" />
+          <rect x="1.5" y="1.5" width="3.5" height="7" fill="currentColor" />
+        </>
+      ) : (
+        <rect x="1.5" y="1.5" width="7" height="7" fill="none" stroke="#737373" strokeWidth="1" />
+      )}
+    </svg>
+  )
+}
+
 /** Glyphe d'état selon le kind : diamant pour un jalon, cercle sinon. */
 export function KindGlyph({ task }: { task: Pick<TaskNode, 'kind' | 'status'> }) {
   return task.kind === 'milestone'

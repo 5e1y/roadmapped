@@ -1,11 +1,14 @@
+import { Collapsible } from '@base-ui/react/collapsible'
 import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
-import { computeAvailability, missingPrereqs, reverseDependents, globalProgress, type Availability } from '../lib/roadmap'
+import { usePersistentStringFlag } from '../state/uiPersist'
+import { computeAvailability, missingPrereqs, reverseDependents, globalProgress, allEpics, epicProgress, type Availability } from '../lib/roadmap'
 import { LockLocked } from 'trinil-react'
-import { KindGlyph } from './glyphs'
+import { Chevron, EpicGlyph, KindGlyph } from './glyphs'
 import { Chip } from './Chip'
+import { groupByEpic, epicStatusOf, type EpicListItem } from './EpicRow'
 import { countTasksDeep, SECTION_STATUS_FR, TEAM_ABBR } from '../lib/tasks'
-import type { SectionNode, TaskNode } from '../lib/tasks'
+import type { SectionNode, TaskNode, TaskTree } from '../lib/tasks'
 import { useShowDone } from './RoadmapView'
 
 function ProgressBar({ done, total }: { done: number; total: number }) {
@@ -79,13 +82,72 @@ function TaskCard({ task, state, missing, blocksCount = 0 }: { task: TaskNode; s
 }
 
 /**
+ * Carte-GROUPE d'un epic dans une colonne de stage (#135) : repliée par défaut,
+ * même gabarit qu'une TaskCard mais marquée groupe (chevron + carré EpicGlyph +
+ * titre en font-medium). Un epic à cheval sur plusieurs stages apparaît dans
+ * CHAQUE colonne où il a des tâches, avec ses membres locaux (« n ici ») et sa
+ * complétion GLOBALE (epicProgress) — le dépliage (persisté par slug, partagé
+ * entre colonnes) révèle les cartes membres, indentées sous la carte-groupe.
+ */
+function EpicCardGroup({ item, tree, avail, blocksOf }: {
+  item: Extract<EpicListItem, { type: 'epic' }>
+  tree: TaskTree
+  avail: Map<number, Availability>
+  blocksOf: (t: TaskNode) => number
+}) {
+  const [open, setOpen] = usePersistentStringFlag('roadmap:epics', item.slug)
+  const progress = epicProgress(tree, item.slug)
+  const partial = item.tasks.length < progress.total
+  const pct = progress.total === 0 ? 0 : Math.round((progress.done / progress.total) * 100)
+  return (
+    <Collapsible.Root open={open} onOpenChange={setOpen} className="-mt-px first:mt-0">
+      <Collapsible.Trigger
+        title={item.title}
+        className="relative flex w-full flex-col gap-1.5 border border-neutral-200 bg-white px-3 py-2.5 text-left hover:z-10 hover:border-neutral-400"
+      >
+        <div className="flex items-center gap-2">
+          <Chevron />
+          <EpicGlyph status={epicStatusOf(progress, item.tasks)} />
+          <span className="min-w-0 truncate text-sm font-medium text-neutral-900">{item.title}</span>
+        </div>
+        <div className="flex items-center gap-1.5 pl-[26px]">
+          <span className="text-[11px] text-neutral-500">
+            {item.tasks.length} tâche{item.tasks.length === 1 ? '' : 's'}{partial ? ' ici' : ''}
+          </span>
+          <span className="ml-auto flex items-center gap-1.5">
+            <span aria-hidden className="h-1 w-14 overflow-hidden rounded-full bg-neutral-200">
+              <span className="block h-full bg-accent" style={{ width: `${pct}%` }} />
+            </span>
+            <span
+              className="font-mono text-[11px] text-neutral-500"
+              title={`Complétion globale de l'epic : ${progress.done}/${progress.total}`}
+            >
+              {progress.done}/{progress.total}
+            </span>
+            <span className="sr-only">, {progress.done} sur {progress.total} tâches terminées</span>
+          </span>
+        </div>
+      </Collapsible.Trigger>
+      <Collapsible.Panel>
+        {/* Membres indentés d'un cran sous la carte-groupe (langage sous-tâches). */}
+        <div className="-mt-px ml-3 flex flex-col">
+          {item.tasks.map((t) => (
+            <TaskCard key={t.id} task={t} state={avail.get(t.id) ?? 'available'} missing={missingPrereqs(t, avail)} blocksCount={blocksOf(t)} />
+          ))}
+        </div>
+      </Collapsible.Panel>
+    </Collapsible.Root>
+  )
+}
+
+/**
  * Chaque colonne est une sous-grille alignée sur les 4 rangées partagées du
  * conteneur (titre / note / barre / cartes) : les en-têtes prennent tous la
  * hauteur du plus grand et les barres de progression sont alignées entre
  * colonnes, quelle que soit la longueur des notes. Les rangées vides gardent
  * un placeholder pour ne pas décaler les suivantes.
  */
-function Column({ section, visible, avail, blocksOf }: { section: SectionNode; visible: TaskNode[]; avail: Map<number, Availability>; blocksOf: (t: TaskNode) => number }) {
+function Column({ section, visible, avail, blocksOf, tree }: { section: SectionNode; visible: TaskNode[]; avail: Map<number, Availability>; blocksOf: (t: TaskNode) => number; tree: TaskTree }) {
   // Compteurs et barre = RÉEL (section.tasks) ; les cartes rendues = visible
   // (les done masqués ne changent pas la progression affichée).
   const { done, total } = countTasksDeep(section.tasks)
@@ -119,11 +181,17 @@ function Column({ section, visible, avail, blocksOf }: { section: SectionNode; v
       <div className="self-end">{!empty && <ProgressBar done={done} total={total} />}</div>
       {/* Cartes accolées (gap 0, bordures fusionnées par -mt-px) : liste dense.
           Les cartes à liseré fort (sélection, disponible) passent au-dessus (z-10)
-          pour que leur bordure ne soit pas mangée par la carte suivante. */}
+          pour que leur bordure ne soit pas mangée par la carte suivante.
+          Epics (#135) : les tâches à epic vivent dans une carte-groupe repliable,
+          ancrée à la position de leur première membre dans la colonne. */}
       <div className="flex min-w-0 flex-col pt-1.5">
-        {visible.map((t) => (
-          <TaskCard key={t.id} task={t} state={avail.get(t.id) ?? 'available'} missing={missingPrereqs(t, avail)} blocksCount={blocksOf(t)} />
-        ))}
+        {groupByEpic(visible, allEpics(tree)).map((item) =>
+          item.type === 'epic' ? (
+            <EpicCardGroup key={`epic:${item.slug}`} item={item} tree={tree} avail={avail} blocksOf={blocksOf} />
+          ) : (
+            <TaskCard key={item.task.id} task={item.task} state={avail.get(item.task.id) ?? 'available'} missing={missingPrereqs(item.task, avail)} blocksCount={blocksOf(item.task)} />
+          ),
+        )}
       </div>
     </div>
   )
@@ -151,7 +219,7 @@ export function RoadmapColumns() {
       className="roadmap-cols-scroll grid h-full grid-flow-col grid-rows-[auto_auto_auto_1fr] gap-x-4 gap-y-1.5 overflow-x-auto px-6 pb-6"
       style={{ gridTemplateColumns: template }}
     >
-      {sections.map((s) => <Column key={s.key} section={s} visible={visibleOf(s)} avail={avail} blocksOf={blocksOf} />)}
+      {sections.map((s) => <Column key={s.key} section={s} visible={visibleOf(s)} avail={avail} blocksOf={blocksOf} tree={tree} />)}
     </div>
   )
 }

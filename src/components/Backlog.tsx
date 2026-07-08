@@ -3,11 +3,9 @@ import { Accordion } from '@base-ui/react/accordion'
 import { Search } from 'trinil-react'
 import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
-import { usePersistentStrings, usePersistentFlag } from '../state/uiPersist'
-import { type TaskNode, type TaskTree } from '../lib/tasks'
-import { allEpics, epicProgress } from '../lib/roadmap'
+import { usePersistentStrings } from '../state/uiPersist'
+import { type TaskNode } from '../lib/tasks'
 import { SectionAccordion } from './SectionAccordion'
-import { TaskRow } from './TaskRow'
 import { TaskList, MiniZone, sortOpen, sortDone } from './TaskColumns'
 
 import { useTeamFilter } from '../state/filters'
@@ -17,60 +15,6 @@ import { TEAMS, type Team } from '../lib/tasks'
 
 /** Accord singulier/pluriel élémentaire (français). */
 const plural = (n: number, s: string) => `${n} ${s}${n === 1 ? '' : 's'}`
-
-/**
- * Vue alternative du Backlog (#133) : regroupement par EPIC — un bloc par epic
- * (déclarés d'abord, puis auto-découverts), tâches ouvertes (déjà triées stage
- * puis ancienneté) suivies des terminées ; les tâches sans epic tombent dans un
- * bloc « Sans epic » en queue. Progression par epic en tête de bloc (epicProgress).
- */
-function EpicGroupedList({ tree, open, done, filtered }: {
-  tree: TaskTree
-  open: TaskNode[]
-  done: TaskNode[]
-  filtered?: boolean
-}) {
-  const epics = allEpics(tree)
-  const titleOf = new Map(epics.map((e) => [e.slug, e.title]))
-  const keys: (string | null)[] = [...epics.map((e) => e.slug), null]
-  const groups = keys
-    .map((slug) => ({
-      slug,
-      tasks: [...open.filter((t) => t.epic === slug), ...done.filter((t) => t.epic === slug)],
-    }))
-    .filter((g) => g.tasks.length > 0)
-
-  if (groups.length === 0) {
-    return (
-      <p className="border border-dashed border-neutral-300 px-4 py-8 text-center text-xs text-neutral-500">
-        Rien à afficher{filtered ? ' avec ces filtres' : ''}.
-      </p>
-    )
-  }
-
-  return (
-    <div className="flex flex-col gap-8">
-      {groups.map((g) => {
-        // Progression par epic = tree entier (epicProgress, source unique) ; le
-        // bloc « Sans epic » compte ses propres lignes (pas de slug à requêter).
-        const p = g.slug === null
-          ? { done: g.tasks.filter((t) => t.status === 'done').length, total: g.tasks.length }
-          : epicProgress(tree, g.slug)
-        return (
-          <section key={g.slug ?? '__none'}>
-            <h2 className="mb-2 flex items-baseline justify-between px-1 text-xs font-medium text-neutral-500">
-              <span>{g.slug === null ? 'Sans epic' : (titleOf.get(g.slug) ?? g.slug)}</span>
-              <span className="font-mono text-[11px]">{p.done}/{p.total}</span>
-            </h2>
-            <div className="divide-y divide-neutral-100 border border-neutral-200 bg-white">
-              {g.tasks.map((t) => <TaskRow key={t.id} task={t} />)}
-            </div>
-          </section>
-        )
-      })}
-    </div>
-  )
-}
 
 /**
  * Backlog v2 (décision Rémi) : liste PLATE — les stages vivent dans la
@@ -87,9 +31,6 @@ export function Backlog() {
   const [openArchive, setOpenArchive] = usePersistentStrings('backlog:archive')
   const [teamFilter, setTeamFilter] = useTeamFilter()
   const [query, setQuery] = useState('')
-  // Regroupement par epic (#133) : vue ALTERNATIVE persistée — défaut = par stage
-  // (comportement historique), l'epic est un axe qu'on active explicitement.
-  const [groupByEpic, setGroupByEpic] = usePersistentFlag('backlog:groupByEpic', 1)
 
   if (loading && !tree) {
     return <div className="mx-auto max-w-3xl px-6 py-8 text-sm text-neutral-500">Chargement…</div>
@@ -168,19 +109,6 @@ export function Backlog() {
             className="w-full rounded-md border border-neutral-300 bg-white py-1 pl-7 pr-2 text-xs text-neutral-900 placeholder:text-neutral-500 focus:border-neutral-900 focus:outline-none"
           />
         </div>
-        {/* Toggle « par epic » (#133) — même registre que le toggle « terminées »
-            de la Roadmap : actif = fond appuyé, état persisté. */}
-        <button
-          type="button"
-          onClick={() => setGroupByEpic(!groupByEpic)}
-          aria-pressed={groupByEpic}
-          title={groupByEpic ? 'Revenir au tri par stage' : 'Grouper les tâches par epic'}
-          className={`rounded-md border border-neutral-300 px-2.5 py-1 text-xs transition-colors ${
-            groupByEpic ? 'bg-neutral-900 text-white hover:bg-neutral-700' : 'bg-white text-neutral-600 hover:bg-neutral-100'
-          }`}
-        >
-          par epic
-        </button>
         <button
           type="button"
           onClick={() => openCreateTask(createIn)}
@@ -203,9 +131,9 @@ export function Backlog() {
       <div className="mx-auto max-w-3xl px-6 py-8">
       <div className="flex flex-col gap-8">
       {(quicks.length > 0 || !q) && <MiniZone quicks={quicks} reload={reload} />}
-      {groupByEpic
-        ? <EpicGroupedList tree={tree} open={open} done={done} filtered={Boolean(q || teamFilter.length)} />
-        : <TaskList open={open} done={done} filtered={Boolean(q || teamFilter.length)} />}
+      {/* Epics (#135) : lignes-groupe repliables DANS la liste — plus de vue
+          alternative « par epic » (#133 rejeté), le groupe est le défaut. */}
+      <TaskList open={open} done={done} tree={tree} filtered={Boolean(q || teamFilter.length)} />
       </div>
 
       {tree.archive.length > 0 && (
