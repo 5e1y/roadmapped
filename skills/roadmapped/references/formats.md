@@ -1,4 +1,4 @@
-# Roadmaped — formats canoniques
+# Roadmapped — formats canoniques
 
 Tout écart à ces formats est rejeté par la validation (`task.mjs validate`, relancée automatiquement après chaque écriture CLI/API, avec rollback).
 

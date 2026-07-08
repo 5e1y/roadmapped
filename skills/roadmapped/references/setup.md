@@ -1,10 +1,10 @@
-# Roadmaped — phase de setup (première utilisation dans un repo)
+# Roadmapped — phase de setup (première utilisation dans un repo)
 
-Objectif : quand Roadmaped vient d'être installé, l'agent prend en main le projet — il **récupère tout ce qui existe** (docs, plans, roadmaps en prose, TODO, specs) et le **convertit au format Roadmaped**, avec l'accord de l'utilisateur sur le mapping. À la fin, `docs/tasks/` est la seule source de vérité du travail à faire.
+Objectif : quand Roadmapped vient d'être installé, l'agent prend en main le projet — il **récupère tout ce qui existe** (docs, plans, roadmaps en prose, TODO, specs) et le **convertit au format Roadmapped**, avec l'accord de l'utilisateur sur le mapping. À la fin, `docs/tasks/` est la seule source de vérité du travail à faire.
 
 ## 0. Détection et chemins
 
-Vérifier `roadmaped.config.json` à la racine du dossier Roadmaped : `tasksDir`/`docsDir` doivent pointer vers le bon endroit du repo hôte (défauts `../docs/tasks`, `../docs`). L'ajuster AVANT toute commande, sinon le CLI travaillera au mauvais endroit.
+Vérifier `roadmapped.config.json` à la racine du dossier Roadmapped : `tasksDir`/`docsDir` doivent pointer vers le bon endroit du repo hôte (défauts `../docs/tasks`, `../docs`). L'ajuster AVANT toute commande, sinon le CLI travaillera au mauvais endroit.
 
 Setup requis si `docs/tasks/_meta.yaml` n'existe pas. S'il existe, le repo est déjà initialisé — ne refais JAMAIS le setup (tu écraserais l'état réel).
 
@@ -26,7 +26,7 @@ Présenter en prose compacte, et attendre l'accord avant d'écrire :
 - **Dépendances** : les étapes ordonnées d'un même plan → chaîne `dependsOn` ; ce qui est indépendant reste sans dépendance (parallélisable).
 - **Roadmap** : les 8 stages SONT les jalons (la vue Roadmap = une colonne par stage, dans l'ordre idea→mature, stage vide estompé). Rien à créer ni ordonner : le mapping ci-dessus suffit.
 - **Docs** : pour chaque tâche, le doc existant pertinent à mettre en `refs`. Signaler les chantiers importants SANS doc — la doc à écrire devient une tâche ou une partie du `detail`.
-- **Sort des anciens fichiers** : proposer (au choix de l'utilisateur) de les laisser intacts avec une note d'en-tête « ⚠️ Remplacé par docs/tasks/ (Roadmaped) », ou de les déplacer dans `docs/_imported/`. Ne JAMAIS supprimer sans accord explicite.
+- **Sort des anciens fichiers** : proposer (au choix de l'utilisateur) de les laisser intacts avec une note d'en-tête « ⚠️ Remplacé par docs/tasks/ (Roadmapped) », ou de les déplacer dans `docs/_imported/`. Ne JAMAIS supprimer sans accord explicite.
 
 ## 3. Initialisation (écriture, dans cet ordre)
 
