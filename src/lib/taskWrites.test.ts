@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync, writeFileSync, existsSync, readFileSync, mkdirSync
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import {
-  addTask, updateTask, startTask, doneTask, archiveTask, deleteTask,
+  addTask, updateTask, startTask, doneTask, deleteTask,
   updateSection, readTree, findTask, saveEpics, withLock,
 } from './taskWrites'
 import { seedStages } from './stageFixtures'
@@ -213,52 +213,6 @@ describe('outcome (updateTask)', () => {
     expect(sectionOf(res.tree).tasks[0].outcome).toBe('Livré X')
     const cleared = updateTask(dir, 1, { outcome: null })
     expect(cleared.ok && sectionOf(cleared.tree).tasks[0].outcome === null).toBe(true)
-  })
-})
-
-describe('archiveTask', () => {
-  it('déplace une tâche done vers _archive/<section>/ ; l’id reste réservé', () => {
-    add()
-    doneTask(dir, 1, {})
-    const res = archiveTask(dir, 1)
-    expect(res.ok).toBe(true)
-    expect(existsSync(join(dir, SEC, '01-tache.yaml'))).toBe(false)
-    expect(existsSync(join(dir, '_archive', SEC, '01-tache.yaml'))).toBe(true)
-    // nextId inchangé (id jamais réalloué)
-    expect(readFileSync(join(dir, '_meta.yaml'), 'utf8')).toContain('nextId: 2')
-    const tree = readTree(dir)
-    expect(sectionOf(tree).tasks).toHaveLength(0)
-    expect(findTask(tree, 1)?.archived).toBe(true)
-  })
-
-  it('rollback avec collision de destination : le fichier archivé d’origine survit', () => {
-    // 1er cycle : #1 archivée → _archive/04-build/01-tache.yaml
-    add()
-    doneTask(dir, 1, {})
-    archiveTask(dir, 1)
-    const original = readFileSync(join(dir, '_archive', SEC, '01-tache.yaml'), 'utf8')
-    // 2e tâche de même slug/préfixe dans la même section (le préfixe repart à 01)
-    add()
-    doneTask(dir, 2, {})
-    // provoquer l'échec de la validation POST-écriture (fichier invalide hors trajectoire des ops)
-    writeFileSync(
-      join(dir, SEC, '99-broken.yaml'),
-      'id: 99\ntitle: "B"\nstatus: nimporte\nteam: engineering\nsource: ai\ncreatedAt: "2026-01-01"\n',
-    )
-    const res = archiveTask(dir, 2)
-    expect(res.ok).toBe(false)
-    // rollback : le fichier archivé du 1er cycle est restauré à l'identique…
-    expect(readFileSync(join(dir, '_archive', SEC, '01-tache.yaml'), 'utf8')).toBe(original)
-    // …et la tâche #2 active est remise en place
-    expect(existsSync(join(dir, SEC, '01-tache.yaml'))).toBe(true)
-  })
-
-  it('refuse d’archiver une tâche non done', () => {
-    add()
-    const res = archiveTask(dir, 1)
-    expect(res.ok).toBe(false)
-    if (res.ok) return
-    expect(res.errors[0]).toContain('done')
   })
 })
 

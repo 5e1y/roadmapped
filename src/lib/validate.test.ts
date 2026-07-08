@@ -63,46 +63,42 @@ describe('validateTaskTree', () => {
 })
 
 describe('validateIdUniquenessAcrossFiles', () => {
-  it('détecte une collision entre une tâche active et une tâche archivée (angle mort de buildTaskTree)', () => {
+  it('détecte une collision avec un fichier que buildTaskTree ne parse pas (résidu de dossier, angle mort)', () => {
     const files = {
       '/docs/tasks/_meta.yaml': 'nextId: 2\n',
       '/docs/tasks/01-x/_section.yaml': 'title: "X"\nstatus: open\n',
       '/docs/tasks/01-x/01-task.yaml': 'id: 1\ntitle: "Active"\n',
-      '/docs/tasks/_archive/02-y/_section.yaml': 'title: "Y"\nstatus: done\n',
-      '/docs/tasks/_archive/02-y/01-task.yaml': 'id: 1\ntitle: "Archivée"\n',
+      // Résidu (ex-_archive, dossier sans _section.yaml) : hors arbre, mais son id reste réservé.
+      '/docs/tasks/_archive/02-y/01-task.yaml': 'id: 1\ntitle: "Résidu"\n',
     }
-    // validateTaskTree ne valide que les sections ACTIVES (l'archive, parsée
-    // séparément dans tree.archive, est de l'historique déjà validé) -> seul,
-    // il ne voit jamais la collision active/archive.
+    // validateTaskTree ne voit que les sections parsées → seul, il rate la collision.
     const tree = buildTaskTree(files)
     expect(validateTaskTree(tree).some((e) => e.includes('dupliqué'))).toBe(false)
-    // Le passage sur le fichier brut, lui, la voit.
+    // Le passage sur les fichiers bruts, lui, la voit.
     const errors = validateIdUniquenessAcrossFiles(files)
     expect(errors.some((e) => e.includes('id 1') && e.includes('dupliqué'))).toBe(true)
   })
 
-  it('ne signale rien quand tous les ids sont uniques, actifs et archivés confondus', () => {
+  it('ne signale rien quand tous les ids sont uniques', () => {
     const files = {
       '/docs/tasks/_meta.yaml': 'nextId: 3\n',
       '/docs/tasks/01-x/_section.yaml': 'title: "X"\nstatus: open\n',
       '/docs/tasks/01-x/01-task.yaml': 'id: 1\ntitle: "Active"\n',
-      '/docs/tasks/_archive/02-y/_section.yaml': 'title: "Y"\nstatus: done\n',
-      '/docs/tasks/_archive/02-y/01-task.yaml': 'id: 2\ntitle: "Archivée"\n',
+      '/docs/tasks/01-x/02-task.yaml': 'id: 2\ntitle: "Autre"\n',
     }
     expect(validateIdUniquenessAcrossFiles(files)).toEqual([])
   })
 
-  it('signale un nextId <= id max GLOBAL, y compris quand le max vit dans l’archive', () => {
+  it('signale un nextId <= id max GLOBAL, y compris quand le max vit dans un fichier hors arbre', () => {
     const files = {
       '/docs/tasks/_meta.yaml': 'nextId: 2\n',
       '/docs/tasks/01-x/_section.yaml': 'title: "X"\nstatus: open\n',
       '/docs/tasks/01-x/01-task.yaml': 'id: 1\ntitle: "Active"\n',
-      '/docs/tasks/_archive/02-y/_section.yaml': 'title: "Y"\nstatus: done\n',
-      '/docs/tasks/_archive/02-y/01-task.yaml': 'id: 5\ntitle: "Archivée"\n',
+      '/docs/tasks/_archive/02-y/01-task.yaml': 'id: 5\ntitle: "Résidu"\n',
     }
-    // validateTaskTree (actifs seuls : max=1, nextId=2) ne voit pas le problème de nextId…
+    // validateTaskTree (sections parsées : max=1, nextId=2) ne voit pas le problème de nextId…
     expect(validateTaskTree(buildTaskTree(files)).some((e) => e.includes('nextId'))).toBe(false)
-    // …le passage global, si : id 5 archivé => nextId 2 garantirait une collision.
+    // …le passage global, si : id 5 réservé => nextId 2 garantirait une collision.
     const errors = validateIdUniquenessAcrossFiles(files)
     expect(errors.some((e) => e.includes('nextId') && e.includes('5'))).toBe(true)
   })
@@ -178,15 +174,23 @@ describe('validateTaskTree — deps & epics', () => {
     expect(validateTaskTree(buildTaskTree(files)).some((e) => e.includes('dup') && e.includes('dupliqué'))).toBe(true)
   })
 
-  it('une dépendance vers une tâche ARCHIVÉE est valide (done de fait)', () => {
-    const files = {
+  it('une dépendance vers une tâche done du backlog est valide ; un id hors arbre est inexistant (#154)', () => {
+    const ok = {
       [meta]: 'nextId: 3\n', [sec]: 'title: "X"\nstatus: open\n',
-      '/docs/tasks/01-x/01-t.yaml': task(2, 'dependsOn: [1]\n'),
-      '/docs/tasks/_archive/09-old/_section.yaml': 'title: "Old"\nstatus: done\n',
+      '/docs/tasks/01-x/01-done.yaml':
+        'id: 1\ntitle: "Livrée"\nstatus: done\nteam: engineering\nsource: ai\ncreatedAt: "2026-06-01"\n',
+      '/docs/tasks/01-x/02-t.yaml': task(2, 'dependsOn: [1]\n'),
+    }
+    expect(validateTaskTree(buildTaskTree(ok)).some((e) => e.includes('inexistante'))).toBe(false)
+
+    const ko = {
+      [meta]: 'nextId: 3\n', [sec]: 'title: "X"\nstatus: open\n',
+      '/docs/tasks/01-x/02-t.yaml': task(2, 'dependsOn: [1]\n'),
+      // #1 ne vit que dans un résidu hors arbre (ex-_archive) : la dep est cassée.
       '/docs/tasks/_archive/09-old/01-done.yaml':
         'id: 1\ntitle: "Livrée"\nstatus: done\nsource: ai\ncreatedAt: "2026-06-01"\n',
     }
-    expect(validateTaskTree(buildTaskTree(files)).some((e) => e.includes('inexistante'))).toBe(false)
+    expect(validateTaskTree(buildTaskTree(ko)).some((e) => e.includes('#2') && e.includes('inexistante'))).toBe(true)
   })
 
   it('rétrocompat : arbre sans aucun champ roadmap → zéro nouvelle erreur', () => {
@@ -263,15 +267,6 @@ describe('validateTaskTree — kind quick (mini-tickets)', () => {
     expect(validateTaskTree(buildTaskTree(files))).toEqual([])
   })
 
-  it('un quick done SANS outcome dans l\'ARCHIVE n\'est PAS validé (comme team)', () => {
-    const files = {
-      [meta]: 'nextId: 3\n', ...stageSectionFiles(),
-      '/docs/tasks/_archive/04-build/_section.yaml': 'title: "Build Stage"\nstatus: done\n',
-      '/docs/tasks/_archive/04-build/01-old.yaml':
-        'id: 2\nkind: quick\ntitle: "Vieux quick"\nstatus: done\nsource: ai\ncreatedAt: "2026-06-01"\n',
-    }
-    expect(validateTaskTree(buildTaskTree(files)).some((e) => e.includes('outcome'))).toBe(false)
-  })
 })
 
 describe('validateTaskTree — stages canoniques + team (stages+teams)', () => {

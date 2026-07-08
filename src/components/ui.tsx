@@ -28,7 +28,7 @@ export const ghostCls =
 
 /**
  * Boutons canoniques des panneaux (design.md §2) — source unique :
- * primaire = L'action principale (démarrer/terminer/archiver, créer, done) ;
+ * primaire = L'action principale (démarrer/terminer, créer, done) ;
  * secondaire (actionBtn) = tout le reste, « Supprimer » compris (registre
  * destructif global : non — monochrome assumé).
  */
@@ -195,11 +195,10 @@ export interface RelPreview {
   title: string
   status: 'todo' | 'in_progress' | 'done'
   kind: 'task' | 'quick' | 'milestone'
-  /** Team abrégée (TEAM_ABBR côté appelant) — vide si inconnue (archive ancienne). */
+  /** Team abrégée (TEAM_ABBR côté appelant) — vide si inconnue. */
   team: string
   /** Stage court (« build », « gtm »…) dérivé du dossier de la tâche. */
   stage: string
-  archived?: boolean
 }
 
 export interface SelectItem {
@@ -229,7 +228,6 @@ function RelOption({ item }: { item: SelectItem }) {
         {p.title}
       </span>
       <span className="ml-auto flex shrink-0 items-center gap-1.5">
-        {p.archived && <span className="text-[11px] text-neutral-500">archivée</span>}
         {p.stage && <span className="font-mono text-[11px] text-neutral-500">{p.stage}</span>}
         {p.team && <Chip label={p.team} />}
       </span>

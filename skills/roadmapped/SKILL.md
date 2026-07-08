@@ -37,8 +37,7 @@ Un raccourci délibéré (plafond connu, upgrade path) se trace en `quick "<le p
 - `start <id>` — todo → in_progress.
 - `done <id> [--commit sha] [--outcome o] [--verification v] [--release r] [--suggest-refs]` — consigner (commit auto=HEAD ; `--suggest-refs` propose les refs du diff, à confirmer).
 - `update <id> [--champ valeur ...]` — patch générique (`"null"` pour vider un champ).
-- `archive <id>` — done → `_archive/<stage>/`.
-- `list [--section s] [--status s] [--team t] [--tag t] [--archive] [--json]` — lister.
+- `list [--section s] [--status s] [--team t] [--tag t] [--json]` — lister.
 - `show <id> [--json]` — détail complet d'une tâche.
 - `validate` — revalide tout `docs/tasks/` (obligatoire après toute édition manuelle).
 - `roadmap [--json]` — avancement global + vue par epic, disponible/verrouillé (le `sitrep` porte aussi la ligne `avancement: x/y`).
@@ -52,7 +51,7 @@ Pour `sitrep`/`take`/`brief`/`next`/`quick`/`add`/`start`/`done` : n'ouvre AUCUN
 ## Interdits
 
 - ❌ Committer sans unité roadmapped — le hook `guard` refuse ; `--no-verify` = dérive consciente, à dire à l'utilisateur.
-- ❌ Éditer un YAML à la main quand le CLI couvre l'opération, ou toucher `_meta.yaml`/l'archive/réutiliser un id.
+- ❌ Éditer un YAML à la main quand le CLI couvre l'opération, ou toucher `_meta.yaml`/réutiliser un id.
 - ❌ Démarrer une tâche verrouillée ou contourner une dépendance sans accord explicite.
 - ❌ `done` sans `--outcome` honnête (et `--verification` réellement exécutée pour un `task`) — jamais « ça devrait marcher ».
 - ❌ Créer un 9e stage, renommer un stage, ou écrire un statut/size hors enum.

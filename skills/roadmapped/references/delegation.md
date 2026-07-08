@@ -19,7 +19,7 @@ Pour un chantier multi-tâches, dispatch **un subagent frais par tâche** :
 
 ### Fin de chantier (l'ex-finishing-a-development-branch)
 
-Quand toutes les tâches du chantier sont `done` : (1) relance la suite de tests COMPLÈTE + la vérification d'artefact — tests rouges = pas fini, point ; (2) propose à l'utilisateur exactement : **merger localement / pousser une PR / garder la branche / jeter** (jeter = confirmation explicite, jamais par défaut) ; (3) après merge, `archive` les tâches du chantier — l'archive est le changelog.
+Quand toutes les tâches du chantier sont `done` : (1) relance la suite de tests COMPLÈTE + la vérification d'artefact — tests rouges = pas fini, point ; (2) propose à l'utilisateur exactement : **merger localement / pousser une PR / garder la branche / jeter** (jeter = confirmation explicite, jamais par défaut) ; (3) après merge, vérifie que chaque tâche du chantier est `done` avec `commit`/`outcome` consignés — le backlog done est le changelog.
 
 ## 4. Garde-fous transverses (versions courtes des disciplines superpowers)
 

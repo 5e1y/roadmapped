@@ -23,7 +23,7 @@ export const DEMO_DOC_CONTENT: Record<string, string> = {
 
 Every dashboard demo is a lie of some kind. A video goes stale. Screenshots
 crop out the rough edges. A hand-built imitation drifts from the real thing
-one commit at a time (we know — we built one; it's in the archive as #8).
+one commit at a time (we know — we built one; it's ticket #8, done and rejected).
 
 ## The decision
 
@@ -52,7 +52,7 @@ that re-reads the copy and files tickets about it.
 1. **Direct.** Say the thing. "It's a folder of YAML files."
 2. **Deadpan, never negative.** Dry humor is welcome; punching down is not —
    not even at competitors, not even at databases.
-3. **Disarming transparency.** The archive is public. The rejected v1 of this
+3. **Disarming transparency.** The backlog is public. The rejected v1 of this
    very page is ticket #8, and it stays there.
 4. **Anti-marketing.** No "blazingly fast", no "supercharge", no exclamation
    marks doing the work the product should do.

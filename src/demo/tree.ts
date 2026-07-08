@@ -9,8 +9,8 @@ import { buildTaskTree, type TaskFileMap, type TaskTree } from '../lib/tasks'
  * la VRAIE validation (tree.test.ts). Si le schéma évolue, la démo casse en CI,
  * pas en production chez un visiteur.
  *
- * L'archive contient la v1 rejetée de la homepage. Transparence désarmante :
- * c'est arrivé, c'est consigné, c'est le produit qui fonctionne.
+ * La v1 rejetée de la homepage (#8) reste dans le backlog, done. Transparence
+ * désarmante : c'est arrivé, c'est consigné, c'est le produit qui fonctionne.
  */
 
 const section = (title: string, note: string): string =>
@@ -42,7 +42,7 @@ tags:
   - "site"
 size: "M"
 team: "design"
-detail: "Options considered for the hero: a video (goes stale), screenshots (lie by omission), a hand-built imitation (see the archive). Decision: embed the real dashboard, showing the backlog that built the page. This ticket is in that backlog. You see the problem."
+detail: "Options considered for the hero: a video (goes stale), screenshots (lie by omission), a hand-built imitation (see #8, RIP). Decision: embed the real dashboard, showing the backlog that built the page. This ticket is in that backlog. You see the problem."
 refs: []
 links: []
 dependsOn: []
@@ -240,7 +240,7 @@ tags:
   - "demo"
 size: "L"
 team: "engineering"
-detail: "v1 imitated the dashboard by hand (see the archive — RIP #8). It was almost right, which is the worst kind of wrong. v2 stops pretending: build the actual app with the demo tree baked in, put it in an iframe, full width. If you can read this ticket, it is working."
+detail: "v1 imitated the dashboard by hand (RIP #8). It was almost right, which is the worst kind of wrong. v2 stops pretending: build the actual app with the demo tree baked in, put it in an iframe, full width. If you can read this ticket, it is working."
 refs:
   - "src/demo/main.tsx"
 links:
@@ -426,9 +426,8 @@ verification: null
 release: null
 `,
 
-  // ------------------------------------------------------------ archive : la v1 rejetée
-  'docs/tasks/_archive/04-build/_section.yaml': section('Build Stage', 'Construire le produit ET ses fondations business (site, emails, comptabilité).'),
-  'docs/tasks/_archive/04-build/04-homepage-v1-hand-built-imitation.yaml': `id: 8
+  // La v1 rejetée : done, consignée, jamais cachée — le backlog est le changelog.
+  'docs/tasks/04-build/04-homepage-v1-hand-built-imitation.yaml': `id: 8
 title: "Homepage v1 — a hand-built imitation of the dashboard"
 status: "done"
 tags:
@@ -446,7 +445,7 @@ createdAt: "2026-06-22T09:18:40"
 startedAt: "2026-06-22T09:44:07"
 completedAt: "2026-06-27"
 commit: "9b30f77"
-outcome: "A faithful-ish replica. It was almost right, which is the worst kind of wrong: the graph diverged, the scroll broke, and the agent pane looked like part of the app. Rejected in review, replaced by the real thing (#10). Kept here because the archive is the changelog, including this part."
+outcome: "A faithful-ish replica. It was almost right, which is the worst kind of wrong: the graph diverged, the scroll broke, and the agent pane looked like part of the app. Rejected in review, replaced by the real thing (#10). Kept here because the backlog is the changelog, including this part."
 verification: "rejected — see #10"
 release: null
 `,

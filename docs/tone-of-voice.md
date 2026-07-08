@@ -51,7 +51,7 @@ tout en sachant très bien que c'est du marketing, et en le disant aussi.
 >
 > Ça s'appelle Roadmapped. C'est open source, c'est des fichiers YAML dans votre
 > repo, et c'est piloté par un agent IA qui consigne son travail plus proprement
-> que moi. L'outil s'est construit lui-même en s'utilisant — l'archive du repo en
+> que moi. L'outil s'est construit lui-même en s'utilisant — le backlog du repo en
 > témoigne, commit par commit, avec une honnêteté que je trouve personnellement
 > excessive.
 >
@@ -68,7 +68,7 @@ tout en sachant très bien que c'est du marketing, et en le disant aussi.
 >
 > I built it by using it: the tool's own backlog is managed by the tool, mostly by
 > a Claude agent that records what it ships with more discipline than I've ever
-> had. The archive folder is the changelog. I'm told this is called dogfooding;
+> had. The done backlog is the changelog. I'm told this is called dogfooding;
 > it felt more like being managed by my own side project.
 
 ### Site (microcopy)

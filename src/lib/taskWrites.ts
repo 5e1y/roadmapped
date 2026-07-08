@@ -14,7 +14,7 @@ export const FIELD_ORDER = [
   'outcome', 'verification', 'release',
 ]
 
-export interface FoundTask { task: TaskNode; sectionKey: string; archived: boolean }
+export interface FoundTask { task: TaskNode; sectionKey: string }
 
 export type MutationResult =
   | { ok: true; tree: TaskTree; task?: TaskNode; warnings?: string[] }
@@ -64,20 +64,16 @@ export function treeWithErrors(tasksDir: string): { tree: TaskTree; errors: stri
 }
 
 export function findTask(tree: TaskTree, id: number): FoundTask | null {
-  const search = (tasks: TaskNode[], sectionKey: string, archived: boolean): FoundTask | null => {
+  const search = (tasks: TaskNode[], sectionKey: string): FoundTask | null => {
     for (const t of tasks) {
-      if (t.id === id) return { task: t, sectionKey, archived }
-      const hit = search(t.subtasks, sectionKey, archived)
+      if (t.id === id) return { task: t, sectionKey }
+      const hit = search(t.subtasks, sectionKey)
       if (hit) return hit
     }
     return null
   }
   for (const s of tree.sections) {
-    const hit = search(s.tasks, s.key, false)
-    if (hit) return hit
-  }
-  for (const s of tree.archive) {
-    const hit = search(s.tasks, s.key, true)
+    const hit = search(s.tasks, s.key)
     if (hit) return hit
   }
   return null
@@ -363,7 +359,7 @@ function addTaskImpl(tasksDir: string, input: AddTaskInput): MutationResult {
   return { ok: true, tree: res.tree, task: created }
 }
 
-/** Localise une tâche ACTIVE et lui applique un mutateur, puis commit. */
+/** Localise une tâche et lui applique un mutateur, puis commit. */
 function patchActive(
   tasksDir: string,
   id: number,
@@ -372,9 +368,6 @@ function patchActive(
   const tree = readTree(tasksDir)
   const hit = findTask(tree, id)
   if (!hit) return { ok: false, errors: [`Aucune tâche #${id}.`], notFound: true }
-  if (hit.archived) {
-    return { ok: false, errors: [`#${id} est archivée — édition manuelle uniquement.`] }
-  }
   const absPath = absPathOf(tasksDir, hit.task.file)
   const prevContent = readFileSync(absPath, 'utf8')
   const raw = yaml.load(prevContent) as Record<string, unknown>
@@ -409,7 +402,6 @@ function doneTaskImpl(
   const tree = readTree(tasksDir)
   const hit = findTask(tree, id)
   if (!hit) return { ok: false, errors: [`Aucune tâche #${id}.`], notFound: true }
-  if (hit.archived) return { ok: false, errors: [`#${id} est archivée — édition manuelle uniquement.`] }
   const t = hit.task
   const finalOutcome = typeof opts.outcome === 'string' ? opts.outcome : t.outcome
   if (t.kind === 'quick' && (finalOutcome === null || finalOutcome === undefined || finalOutcome.trim() === '')) {
@@ -472,9 +464,9 @@ function updateTaskImpl(tasksDir: string, id: number, patch: UpdateTaskPatch): M
     for (const f of listFields) {
       if (patch[f] !== undefined) raw[f] = patch[f]
     }
-    // Parité avec doneTask : un passage à done date la complétion (l'archive
-    // est le journal de livraison), un retour en arrière la retire — sauf si
-    // l'appelant a fourni completedAt explicitement.
+    // Parité avec doneTask : un passage à done date la complétion (le journal
+    // de livraison), un retour en arrière la retire — sauf si l'appelant a
+    // fourni completedAt explicitement.
     if (patch.completedAt === undefined && patch.status !== undefined && patch.status !== prevStatus) {
       if (patch.status === 'done' && raw.completedAt == null) raw.completedAt = today()
       else if (patch.status !== 'done') raw.completedAt = null
@@ -482,7 +474,7 @@ function updateTaskImpl(tasksDir: string, id: number, patch: UpdateTaskPatch): M
   })
 }
 
-// ---------------------------------------------------------------- archive / delete
+// ---------------------------------------------------------------- delete
 
 /** Liste récursive des fichiers sous un dossier (chemins absolus). */
 function listFilesRecursive(dir: string): string[] {
@@ -496,56 +488,6 @@ function listFilesRecursive(dir: string): string[] {
   }
   if (existsSync(dir)) walkDir(dir)
   return out
-}
-
-export function archiveTask(tasksDir: string, id: number): MutationResult {
-  return withLock(tasksDir, () => archiveTaskImpl(tasksDir, id))
-}
-
-function archiveTaskImpl(tasksDir: string, id: number): MutationResult {
-  const tree = readTree(tasksDir)
-  const hit = findTask(tree, id)
-  if (!hit) return { ok: false, errors: [`Aucune tâche #${id}.`], notFound: true }
-  if (hit.archived) return { ok: false, errors: [`#${id} est déjà archivée.`] }
-  if (hit.task.status !== 'done') {
-    return { ok: false, errors: [`#${id} doit être done avant d'être archivée.`] }
-  }
-
-  const rel = hit.task.file.replace(/^docs\/tasks\//, '') // ex: 01-x/03-tache.yaml
-  const parts = rel.split('/')
-  const sectionDir = parts[0]
-  const filename = parts[1]
-  const base = filename.replace(/\.yaml$/, '') // ex: 03-tache
-
-  // La destination peut DÉJÀ exister (même préfixe/slug réalloué dans la section
-  // active puis réarchivé) : capturer son contenu réel, sinon un rollback ultérieur
-  // ferait unlinkSync (prevContent: null = création) et détruirait l'archive d'origine.
-  const prevOf = (abs: string): string | null =>
-    existsSync(abs) ? readFileSync(abs, 'utf8') : null
-
-  const srcFile = join(tasksDir, sectionDir, filename)
-  const dstFile = join(tasksDir, '_archive', sectionDir, filename)
-  const ops: Op[] = [
-    { absPath: srcFile, content: null, prevContent: readFileSync(srcFile, 'utf8') },
-    { absPath: dstFile, content: readFileSync(srcFile, 'utf8'), prevContent: prevOf(dstFile) },
-  ]
-
-  // Dossier jumeau de sous-tâches, s'il existe : chaque fichier déplacé en miroir.
-  const twinSrc = join(tasksDir, sectionDir, base)
-  if (existsSync(twinSrc) && statSync(twinSrc).isDirectory()) {
-    for (const abs of listFilesRecursive(twinSrc)) {
-      const relInTwin = relative(twinSrc, abs)
-      const dst = join(tasksDir, '_archive', sectionDir, base, relInTwin)
-      const content = readFileSync(abs, 'utf8')
-      ops.push({ absPath: abs, content: null, prevContent: content })
-      ops.push({ absPath: dst, content, prevContent: prevOf(dst) })
-    }
-  }
-
-  const res = commitWrites(tasksDir, ops)
-  // Nettoyer le dossier jumeau source devenu vide (best-effort, hors validation).
-  if (res.ok && existsSync(twinSrc)) rmSync(twinSrc, { recursive: true, force: true })
-  return res
 }
 
 export function deleteTask(tasksDir: string, id: number): MutationResult {
@@ -567,7 +509,7 @@ function deleteTaskImpl(tasksDir: string, id: number): MutationResult {
 
   // dossier jumeau (uniquement pour une tâche de premier niveau)
   const twin = join(dirname(absFile), base)
-  if (parts.length === (hit.archived ? 3 : 2) && existsSync(twin) && statSync(twin).isDirectory()) {
+  if (parts.length === 2 && existsSync(twin) && statSync(twin).isDirectory()) {
     for (const abs of listFilesRecursive(twin)) {
       ops.push({ absPath: abs, content: null, prevContent: readFileSync(abs, 'utf8') })
     }

@@ -19,7 +19,7 @@ import { join, relative } from 'node:path'
 import { loadPaths } from '../src/lib/paths.ts'
 import {
   treeWithErrors, readTree, findTask,
-  addTask, startTask, doneTask, updateTask, archiveTask,
+  addTask, startTask, doneTask, updateTask,
 } from '../src/lib/taskWrites.ts'
 import { computeAvailability, activeTasks, nextQueue, globalProgress, epicProgress, allEpics } from '../src/lib/roadmap.ts'
 // Rendu partagé (#90) : CLI et serveur MCP consomment le MÊME code (src/lib/render.ts).
@@ -92,9 +92,9 @@ const parseDeps = (v, usage) => {
 // partagés avec le serveur MCP. Ici : le seul affichage propre au CLI (printTask).
 
 function printTask(hit, tree) {
-  const { task, sectionKey, archived } = hit
+  const { task, sectionKey } = hit
   console.log(taskLine(task, ''))
-  console.log(`  section: ${sectionKey}${archived ? ' (archive)' : ''}`)
+  console.log(`  section: ${sectionKey}`)
   console.log(`  fichier: ${task.file}`)
   if (task.detail) console.log(`  detail: ${task.detail.trim().replace(/\n/g, '\n          ')}`)
   if (task.refs.length) console.log(`  refs: ${task.refs.join(' · ')}`)
@@ -125,7 +125,7 @@ Ouverture de session (machine-first : tout le contexte en 1 appel)
                             refs + extraits d'ancre & fraîcheur, rappel done) — remplace show en cascade
 
 Lecture
-  list [--section <key>] [--status todo|in_progress|done] [--team <t>] [--tag <tag>] [--archive] [--json] [--json-full]
+  list [--section <key>] [--status todo|in_progress|done] [--team <t>] [--tag <tag>] [--json] [--json-full]
                             --json = allégé (id,title,status,team,stage,size,kind) ;
                             --json-full = l'objet intégral (nextId + sections complètes)
   show <id> [--json]        détail complet d'une tâche (deps/liées titrées, id global ex: 42)
@@ -137,7 +137,7 @@ Lecture
                             optionnel) : progression + état de chaque tâche
                             (done/disponible/verrouillé)
   validate                  valide tout docs/tasks/ (schéma + unicité des ids
-                            + nextId, archive comprise) ; exit 1 si erreur
+                            + nextId) ; exit 1 si erreur
   guard                     garde pre-commit : refuse un commit produit sans tâche
                             in_progress (consignation/merge exemptés ; --no-verify assumé)
   audit [--json]            parse la convention #id des commits depuis la dernière tâche
@@ -165,12 +165,10 @@ Lecture
                             patch générique ("null" = remettre un champ à null ;
                             --depends-on null / --epic null pour vider ;
                             --milestone reste accepté comme alias déprécié de --epic)
-  archive <id>              déplace une tâche done vers _archive/<section>/ (+ jumeau)
 
 Conventions
   - Ne JAMAIS réutiliser un id (compteur nextId monotone, _meta.yaml).
-  - Archiver une tâche actée = \`task.mjs archive <id>\` (déplace son fichier + le
-    dossier jumeau de sous-tâches vers docs/tasks/_archive/<section>/).
+  - Une tâche done reste dans son stage (colonne Terminées) — c'est le changelog.
   - Sous-tâches : créer à la main un dossier jumeau (04-x/ pour 04-x.yaml),
     ids pris via add --json sur une section temporaire ou édition manuelle
     + validate. Le CLI ne crée que des tâches de premier niveau.
@@ -179,7 +177,7 @@ Conventions
 // Usage COURT par commande : servi tel quel sur une erreur de flag/valeur (message
 // autoportant, 2-3 lignes), au lieu du USAGE global. Coupe court (annexe 2 du coût).
 const CMD_USAGE = {
-  list: 'Usage : list [--section <key>] [--status todo|in_progress|done] [--team <t>] [--tag <tag>] [--archive] [--json] [--json-full]',
+  list: 'Usage : list [--section <key>] [--status todo|in_progress|done] [--team <t>] [--tag <tag>] [--json] [--json-full]',
   show: 'Usage : show <id> [--json]',
   next: 'Usage : next [--count N] [--team <t>] [--json]',
   take: 'Usage : take [--team <t>] [--json]',
@@ -218,15 +216,14 @@ function cmdValidate() {
   }
   const count = (sections) => sections.reduce((n, s) => n + s.tasks.length, 0)
   console.log(
-    `OK — ${tree.sections.length} sections actives (${count(tree.sections)} tâches), ` +
-      `${tree.archive.length} sections archivées (${count(tree.archive)} tâches), nextId=${tree.nextId}.`,
+    `OK — ${tree.sections.length} sections (${count(tree.sections)} tâches), nextId=${tree.nextId}.`,
   )
 }
 
 function cmdList(flags) {
-  rejectUnknownFlags(flags, ['section', 'status', 'team', 'tag', 'archive', 'json', 'json-full'], CMD_USAGE.list)
+  rejectUnknownFlags(flags, ['section', 'status', 'team', 'tag', 'json', 'json-full'], CMD_USAGE.list)
   const tree = readTree(ROOT)
-  let sections = flags.archive ? [...tree.sections, ...tree.archive] : tree.sections
+  let sections = tree.sections
   if (typeof flags.section === 'string') sections = sections.filter((s) => s.key === flags.section)
   const keepTasks = (pred) => {
     sections = sections.map((s) => ({ ...s, tasks: s.tasks.filter(pred) })).filter((s) => s.tasks.length > 0)
@@ -270,7 +267,7 @@ function cmdShow(id, flags) {
   const tree = readTree(ROOT)
   const hit = findTask(tree, id)
   if (!hit) {
-    console.error(`Aucune tâche #${id} (actives et archive confondues).`)
+    console.error(`Aucune tâche #${id}.`)
     process.exit(1)
   }
   if (flags.json) console.log(JSON.stringify(hit, null, 2))
@@ -281,7 +278,7 @@ function cmdBrief(id, flags) {
   rejectUnknownFlags(flags, [], CMD_USAGE.brief)
   const tree = readTree(ROOT)
   const hit = findTask(tree, id)
-  if (!hit) fail(`Aucune tâche #${id} (actives et archive confondues).`, CMD_USAGE.brief)
+  if (!hit) fail(`Aucune tâche #${id}.`, CMD_USAGE.brief)
   console.log(briefText(tree, hit))
 }
 
@@ -366,7 +363,6 @@ function cmdAdd(flags) {
     for (const id of blocks) {
       const hit = findTask(tree, id)
       if (!hit) fail(`--blocks : aucune tâche #${id}.`, CMD_USAGE.add)
-      if (hit.archived) fail(`--blocks : #${id} est archivée — elle ne peut plus être verrouillée.`, CMD_USAGE.add)
     }
   }
   const epic = epicFromFlags(flags)
@@ -506,10 +502,6 @@ function cmdUpdate(id, flags) {
   const epic = epicFromFlags(flags)
   if (typeof epic === 'string') patch.epic = nullable(epic)
   report(updateTask(ROOT, id, patch), `#${id} mise à jour.`)
-}
-
-function cmdArchive(id) {
-  report(archiveTask(ROOT, id), `#${id} archivée → docs/tasks/_archive/…`)
 }
 
 // Garde pre-commit (#100, spec 2026-07-08-process-enforcement) : tout changement du
@@ -668,9 +660,6 @@ switch (cmd) {
     break
   case 'update':
     cmdUpdate(needId(), flags)
-    break
-  case 'archive':
-    cmdArchive(needId())
     break
   case 'roadmap':
     cmdRoadmap(flags)

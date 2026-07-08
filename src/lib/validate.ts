@@ -27,9 +27,7 @@ function validateTask(task: TaskNode, path: string, errors: string[]) {
   }
   // Requis outcome-quick : porté par la VALIDATION (pas seulement doneTask) pour
   // couvrir AUSSI le done du dashboard (PATCH status=done via updateTask, qui ne
-  // passe pas par doneTask). validateTaskTree ne valide que les sections ACTIVES —
-  // l'archive n'est donc pas soumise à cette règle (comme team), un vieux quick
-  // livré sans outcome reste toléré.
+  // passe pas par doneTask).
   if (task.kind === 'quick' && task.status === 'done' && !task.outcome) {
     errors.push(`${path}: un quick terminé exige un outcome (l'outcome tient lieu de vérification)`)
   }
@@ -97,7 +95,6 @@ function detectCycle(adj: Map<number, number[]>): number[] | null {
 export function validateTaskTree(tree: {
   nextId: number
   sections: SectionNode[]
-  archive?: SectionNode[]
   epics?: Epic[]
 }): string[] {
   const errors: string[] = []
@@ -112,9 +109,8 @@ export function validateTaskTree(tree: {
     for (const sub of task.subtasks) collectIds(sub, `${path}/${sub.id}`)
   }
 
-  // Invariant stages STRICT : l'ensemble des sections ACTIVES = exactement les
+  // Invariant stages STRICT : l'ensemble des sections = exactement les
   // 8 slugs canoniques (ni plus, ni moins), et chaque title = titre canonique.
-  // L'archive n'est PAS soumise à cette contrainte (historique).
   const activeSlugs = new Set(tree.sections.map((s) => s.key))
   for (const stage of STAGES) {
     if (!activeSlugs.has(stage.slug)) {
@@ -147,11 +143,9 @@ export function validateTaskTree(tree: {
   }
 
   // ---- Invariants deps & epics ----
-  const archive = tree.archive ?? []
   const epics = tree.epics ?? []
   const active = flattenTasks(tree.sections)
-  const knownIds = new Set<number>()
-  for (const t of [...active, ...flattenTasks(archive)]) knownIds.add(t.id)
+  const knownIds = new Set(active.map((t) => t.id))
 
   // epics déclarés (_epics.yaml, optionnel) : slug requis et unique. Aucune
   // exigence inverse — une tâche peut porter un epic non déclaré (auto-découverte).
@@ -162,7 +156,7 @@ export function validateTaskTree(tree: {
     else epicSlugs.add(e.slug)
   }
 
-  // deps par tâche active (l'epic est validé par tâche dans validateTask)
+  // deps par tâche (l'epic est validé par tâche dans validateTask)
   for (const t of active) {
     for (const dep of t.dependsOn) {
       if (dep === t.id) errors.push(`#${t.id}: auto-dépendance interdite`)
@@ -170,20 +164,18 @@ export function validateTaskTree(tree: {
     }
   }
 
-  // cycle sur le graphe global (active + archive)
+  // cycle sur le graphe global
   const adj = new Map<number, number[]>()
-  for (const t of [...active, ...flattenTasks(archive)]) adj.set(t.id, t.dependsOn)
+  for (const t of active) adj.set(t.id, t.dependsOn)
   const cycle = detectCycle(adj)
   if (cycle) errors.push(`graphe de dépendances cyclique : ${cycle.map((i) => `#${i}`).join(' → ')}`)
 
   return errors
 }
 
-// validateTaskTree ne valide QUE les sections actives (tree.sections) — l'archive
-// est de l'historique déjà validé à l'époque de sa livraison, on ne la re-schématise
-// pas. Mais l'unicité des ids et le contrat nextId sont GLOBAUX (archive comprise :
-// un id archivé reste réservé à vie). Ce passage lit le TaskFileMap brut, sans passer
-// par buildTaskTree, pour vérifier ces deux invariants sur TOUT docs/tasks/.
+// L'unicité des ids et le contrat nextId sont GLOBAUX (un id reste réservé à vie,
+// même après suppression). Ce passage lit le TaskFileMap brut, sans passer par
+// buildTaskTree, pour vérifier ces deux invariants sur TOUT docs/tasks/.
 export function validateIdUniquenessAcrossFiles(files: TaskFileMap): string[] {
   const errors: string[] = []
   const seenIds = new Map<number, string>()
@@ -202,7 +194,7 @@ export function validateIdUniquenessAcrossFiles(files: TaskFileMap): string[] {
     const raw = yaml.load(content) as { id?: unknown }
     if (typeof raw?.id !== 'number') continue
     if (seenIds.has(raw.id)) {
-      errors.push(`id ${raw.id} dupliqué (toutes sections/archives confondues) : ${seenIds.get(raw.id)} et ${path}`)
+      errors.push(`id ${raw.id} dupliqué (toutes sections confondues) : ${seenIds.get(raw.id)} et ${path}`)
     } else {
       seenIds.set(raw.id, path)
     }
@@ -211,7 +203,7 @@ export function validateIdUniquenessAcrossFiles(files: TaskFileMap): string[] {
   const maxId = Math.max(0, ...[...seenIds.keys()])
   if (nextId !== null && nextId <= maxId) {
     errors.push(
-      `_meta.yaml: nextId (${nextId}) <= id max global (${maxId}, archive comprise) — collision garantie à la prochaine création`,
+      `_meta.yaml: nextId (${nextId}) <= id max global (${maxId}) — collision garantie à la prochaine création`,
     )
   }
 

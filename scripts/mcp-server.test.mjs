@@ -22,9 +22,9 @@ beforeEach(() => {
 afterEach(() => rmSync(dir, { recursive: true, force: true }))
 
 describe('MCP — tools de lecture (#91)', () => {
-  it('expose les 14 tools (8 lecture + 6 écriture)', () => {
+  it('expose les 13 tools (8 lecture + 5 écriture)', () => {
     expect(tools.map((t) => t.name).sort()).toEqual(
-      ['add', 'archive', 'brief', 'done', 'list', 'next', 'quick', 'roadmap', 'show', 'sitrep', 'start', 'take', 'update', 'validate'],
+      ['add', 'brief', 'done', 'list', 'next', 'quick', 'roadmap', 'show', 'sitrep', 'start', 'take', 'update', 'validate'],
     )
   })
 
@@ -119,7 +119,7 @@ describe('MCP — tools d’écriture (#92)', () => {
 
 describe('MCP — invariant de sortie (#95)', () => {
   // La spec MCP exige structuredContent = OBJET ; le SDK client rejette array/null (-32602).
-  // Ce test appelle les 14 tools et vérifie l'invariant sur chaque résultat.
+  // Ce test appelle les 13 tools et vérifie l'invariant sur chaque résultat.
   const check = (r) => {
     if ('structuredContent' in r) {
       expect(r.structuredContent, 'structuredContent doit être un objet (pas null/array)').toBeTruthy()
@@ -128,7 +128,7 @@ describe('MCP — invariant de sortie (#95)', () => {
     }
     expect(typeof r.content[0].text).toBe('string')
   }
-  it('les 14 tools renvoient structuredContent objet ou rien, jamais array/null', () => {
+  it('les 13 tools renvoient structuredContent objet ou rien, jamais array/null', () => {
     check(tool('sitrep').handler({}))
     check(tool('brief').handler({ id: 1 }))
     check(tool('show').handler({ id: 1 }))
@@ -142,7 +142,6 @@ describe('MCP — invariant de sortie (#95)', () => {
     check(tool('update').handler({ id: 2, detail: 'd' }))
     check(tool('quick').handler({ title: 'Q', team: 'engineering' }))                 // #3
     check(tool('start').handler({ id: 2 }))
-    check(tool('archive').handler({ id: 1 }))
     check(tool('take').handler({ team: 'legal' }))  // file vide → l'ancien cas structured:null
     check(tool('next').handler({ team: 'legal' }))  // file vide → l'ancien cas structured:[]
   })

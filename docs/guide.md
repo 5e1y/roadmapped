@@ -25,7 +25,6 @@ you can read, diff, edit by hand and commit alongside your code.
 | Stage | `docs/tasks/<NN-stage>/_section.yaml` | One of **8 fixed product-launch stages** — Idea, Initial, Identity, Build, GTM, Launch, Scale, Mature, always in that order. **Stages are the milestones**: the Roadmap view shows one column per stage, dimmed when empty. |
 | Spec | `docs/specs/YYYY-MM-DD-<topic>.md` | The approved design of a feature, written *before* its tasks exist. |
 | Doc | `docs/**/*.md` | Project knowledge. Tasks link to it through `refs`. |
-| Archive | `docs/tasks/_archive/<stage>/` | The journal of delivered tasks. Never edited by hand. |
 
 The 8 stages, in order: `01-idea` (Idea Stage) · `02-initial` (Initial Stage) ·
 `03-identity` (Identity Stage) · `04-build` (Build Stage) · `05-gtm` (GTM Stage) ·
@@ -43,7 +42,7 @@ Three properties follow from this design and are enforced everywhere:
   would break the schema, duplicate an id or create a dependency cycle leaves the
   files untouched.
 - **Ids are never reused.** A monotonic counter in `_meta.yaml` (`nextId`) hands out
-  every id. Deleting or archiving a task never frees its number.
+  every id. Deleting a task never frees its number.
 - **Dependency state is computed, never stored.** Whether a task is *done*,
   *available* or *locked* is derived on the fly from its `status` and its
   `dependsOn` list. You place tasks in their stage and set the dependencies; the
@@ -96,7 +95,7 @@ the **host repo root**:
 
 | Key | Meaning | Default |
 |---|---|---|
-| `tasksDir` | Where the backlog lives (stages, tasks, `_meta.yaml`, archive). | `docs/tasks` |
+| `tasksDir` | Where the backlog lives (stages, tasks, `_meta.yaml`). | `docs/tasks` |
 | `docsDir` | Where the Docs view reads markdown from. | `docs` |
 
 The host root is found by walking up from your shell's working directory to the
@@ -145,8 +144,8 @@ disk:
 | **available** | Todo/in-progress with every prerequisite done. | Solid emphasised border, "Disponible". |
 | **locked** | A prerequisite is not yet done. | Dimmed card, "Prérequis manquants (#…)". |
 
-A dependency on an *archived* task counts as satisfied (it shipped). The set of
-available cards is your "work front" — what can legitimately be started right now.
+The set of available cards is your "work front" — what can legitimately be started
+right now.
 
 ### Docs
 
@@ -158,7 +157,7 @@ relative `.md` links. This guide itself renders here.
 
 Clicking a task opens it on the right for inline editing: title, status, size, team
 (a ghost Select over the 8 fixed values), code, tags, `dependsOn` (chosen from
-existing tasks, archived ones included), `refs`, `links`, and the delivery fields
+existing tasks), `refs`, `links`, and the delivery fields
 `commit`, `outcome`, `verification`, `release`. Every edit goes through the same
 validate-then-rollback path as the CLI, so the panel can never save an invalid state.
 
@@ -278,7 +277,7 @@ prints `⚠ ancre introuvable (…)` instead of a fabricated snippet.
 ### `list` — browse the backlog
 
 ```
-list [--section <key>] [--status todo|in_progress|done] [--team <t>] [--tag <tag>] [--archive] [--json] [--json-full]
+list [--section <key>] [--status todo|in_progress|done] [--team <t>] [--tag <tag>] [--json] [--json-full]
 ```
 
 ```console
@@ -305,7 +304,7 @@ $ node scripts/task.mjs list --team engineering
   ...
 ```
 
-`--archive` folds the delivered stages in; `--status` filters. `--tag <tag>` keeps
+`--status` filters. `--tag <tag>` keeps
 only tasks carrying that tag — this is how the **debt ledger** is queried:
 `list --tag debt` surfaces every deliberate shortcut (a `quick` tagged `debt` whose
 title names the ceiling), the requestable equivalent of a `ponytail:` code comment.
@@ -417,14 +416,14 @@ launch — Product launch
 ### `validate` — check everything
 
 Validates the whole `docs/tasks/` tree: schema, global id uniqueness, `nextId`,
-dependency graph, archive included — plus the two invariants stages+teams added: the
-set of active section folders must be *exactly* the 8 canonical slugs (title included),
-and every active task must carry a `team` from the fixed enum. Exit 1 on any error.
+dependency graph — plus the two invariants stages+teams added: the set of section
+folders must be *exactly* the 8 canonical slugs (title included), and every task
+must carry a `team` from the fixed enum. Exit 1 on any error.
 **Run it after every manual edit.**
 
 ```console
 $ node scripts/task.mjs validate
-OK — 8 sections actives (45 tâches), 0 sections archivées (0 tâches), nextId=52.
+OK — 8 sections (45 tâches), nextId=52.
 ```
 
 ### `add` — create a task
@@ -519,7 +518,7 @@ $ node scripts/task.mjs done 1 --commit a1b2c3d \
 ```
 
 - `--outcome` — **what shipped**, one user-facing sentence. This is changelog
-  material (archive + outcome + release = tomorrow's changelog).
+  material (done tasks + outcome + release = tomorrow's changelog).
 - `--verification` — **what was observed** to prove it works, not "it works".
 - `--commit` — the delivery sha. When omitted, the CLI **auto-fills `HEAD`** (`git
   rev-parse --short HEAD`) so the agent never reads git; outside a repo it stays empty.
@@ -572,20 +571,9 @@ empty-string form `--tags ""` still works and stays valid, but is no longer requ
 > Historical note: before this was fixed, `--tags null` created a tag literally named
 > `null` and `--tags ""` was the only way to empty a list. That gotcha is gone.
 
-### `archive <id>` — move a delivered task out
-
-```console
-$ node scripts/task.mjs archive 2      # not done yet
-Échec :
-  - #2 doit être done avant d'être archivée.
-
-$ node scripts/task.mjs archive 1
-#1 archivée → docs/tasks/_archive/…
-```
-
-Requires `status: done`. Moves the task file (and its twin sub-task folder, if any)
-to `_archive/<stage>/`. Record `commit`/`outcome`/`verification` **before**
-archiving — the archive is your changelog and is never edited afterwards.
+> There is no `archive` command any more: a delivered task simply stays `done` in its
+> stage (the *Terminées* column of the Backlog). The done backlog — with `commit`,
+> `outcome` and `verification` recorded — **is** the changelog.
 
 ### Errors are self-documenting
 
@@ -625,12 +613,12 @@ Restart Claude Code to load it (Node ≥ 22.18 — the server imports `.ts` from
 with native type-stripping, like the CLI). It coexists with the CLI skill; nothing to
 uninstall.
 
-**Tool catalog (14).** Read: `sitrep` (state of the world), `take` (open a session:
+**Tool catalog (13).** Read: `sitrep` (state of the world), `take` (open a session:
 next + start + brief), `brief` (dense execution context), `next` (the work queue),
 `show` (full task detail), `list` (browse, filter by section/status/team/tag), `roadmap`
 (milestone rollup), `validate` (check everything). Write (via `taskWrites`, so validation
 + rollback + lock are inherited): `add`, `quick`, `start`, `done` (auto-fills the HEAD
-commit, surfaces the no-refs warning), `update`, `archive`. A business error (team out of
+commit, surfaces the no-refs warning), `update`. A business error (team out of
 enum, dependency cycle, missing section) comes back as an `isError` result carrying the
 same self-documenting message the CLI prints — the rollback leaves the tree untouched.
 
@@ -698,9 +686,7 @@ docs/tasks/
 ├── 05-gtm/
 ├── 06-launch/
 ├── 07-scale/
-├── 08-mature/
-└── _archive/
-    └── 01-idea/                # mirror of the origin stage, delivered tasks
+└── 08-mature/
 ```
 
 An empty stage (no tasks) still exists as a folder — the dashboard dims it, it is
@@ -733,13 +719,11 @@ The field order below is canonical (the CLI writes it this way).
 | `verification` | string \| null | How the artifact was verified (`done --verification`). |
 | `release` | string \| null | Release version, if applicable. |
 
-Enforced invariants: ids unique globally (archive included); every `dependsOn` id
-exists; no self-dependency; the `dependsOn` graph is acyclic; any `milestone` is
-declared in `_roadmaps.yaml`; a dependency on an archived task counts as satisfied;
-`team` present and in the enum on every active task; `kind` is either `task` or
-`quick`; a `quick` cannot have `size: L`; a `quick` cannot be marked `done` without an
-`outcome` (the archive is not re-validated — tasks archived before the stages+teams
-refactor keep their pre-refactor schema as-is).
+Enforced invariants: ids unique globally; every `dependsOn` id exists; no
+self-dependency; the `dependsOn` graph is acyclic; any `milestone` is declared in
+`_roadmaps.yaml`; `team` present and in the enum on every task; `kind` is either
+`task` or `quick`; a `quick` cannot have `size: L`; a `quick` cannot be marked
+`done` without an `outcome`.
 
 ```yaml
 id: 42
@@ -838,12 +822,12 @@ roadmaps:
 Milestone slugs are globally unique; a task's `milestone` must reference a declared
 slug.
 
-### Archive
+### Delivered tasks
 
-`task.mjs archive <id>` moves the file (and twin folder) to `_archive/<stage>/`. It
-requires `status: done`. `completedAt` is guaranteed (set automatically on `done`),
-but `commit`/`outcome`/`verification` exist only if `done` supplied them — so record
-them before archiving. The archive is never modified by hand.
+A `done` task stays in its stage folder — there is no archive (removed in #154).
+`completedAt` is guaranteed (set automatically on `done`), but
+`commit`/`outcome`/`verification` exist only if `done` supplied them — so record
+them at `done` time. The done backlog **is** the changelog.
 
 ---
 
@@ -934,8 +918,8 @@ Written into the skill's core, run before creating anything:
 4. **Record** — `done <id> --commit <sha> --outcome "…" --verification "…"` for a
    task (`--outcome` alone for a `quick` — it *is* the verification). The outcome says
    what shipped in one user-facing sentence; the verification says what was
-   *observed*, never "it works".
-5. **Archive** — when the user closes a piece of work: `archive <id>`.
+   *observed*, never "it works". The task stays `done` in its stage — the done
+   backlog is the changelog.
 
 For anything beyond a single task — decomposing a spec into a task graph, sizing,
 sequencing with `dependsOn` — `references/planning.md` is the operating manual (①
@@ -949,7 +933,7 @@ proof before claiming success) are in the core's prohibitions below.
 - Do **not** hand-edit a task YAML when the CLI covers the operation.
 - Do **not** start a locked task, or delete a dependency to unblock yourself, without
   the user's agreement.
-- Do **not** touch `_meta.yaml`, reuse an id, or edit the archive.
+- Do **not** touch `_meta.yaml` or reuse an id.
 - Do **not** write a status outside `todo|in_progress|done`, or a size outside
   `S|M|L`.
 - Do **not** `done` without an honest `--outcome`, and for a `task` (not a `quick`) a
@@ -971,9 +955,9 @@ a stage" edit to make: the 8 stages are fixed and created once at setup.
 ## 7. FAQ
 
 **Do ids ever get reused?**
-No. `nextId` in `_meta.yaml` is monotonic. Archiving or deleting a task never frees
-its number. This keeps `dependsOn`, `links` and the archive referentially stable
-forever. Never edit `nextId` by hand.
+No. `nextId` in `_meta.yaml` is monotonic. Deleting a task never frees its number.
+This keeps `dependsOn` and `links` referentially stable forever. Never edit `nextId`
+by hand.
 
 **What happens if a write would be invalid?**
 Every CLI and dashboard write re-validates the *entire* `docs/tasks/` tree after
@@ -984,9 +968,8 @@ cycle, unknown milestone. You cannot end up in a half-written state.
 Yes, for what the CLI does not do (creating a sub-task twin folder) — and then run
 `node scripts/task.mjs validate`. There is no hand-edit for stages: the 8 are created
 once at setup and are immutable. For everything the CLI covers (add, status changes,
-field edits, archiving), use the CLI: it allocates ids correctly and validates for
-you. If you do hand-edit a task, keep the field order canonical and run `validate`
-immediately.
+field edits), use the CLI: it allocates ids correctly and validates for you. If you
+do hand-edit a task, keep the field order canonical and run `validate` immediately.
 
 **Where is the roadmap? The `roadmap` command says there is none.**
 The everyday roadmap is the **dashboard's Roadmap view**, built from the *8 fixed
@@ -1004,7 +987,7 @@ no longer necessary.
 
 **Does `done` create a delivery document?**
 No. The delivery record *is* the `outcome`, `verification`, `commit` and `release`
-fields written onto the task's own YAML. Archived, those fields become your
+fields written onto the task's own YAML. Those fields, on the done tasks, are your
 changelog.
 
 **What stops me starting a locked task?**

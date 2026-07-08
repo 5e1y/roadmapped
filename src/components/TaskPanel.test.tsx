@@ -17,19 +17,17 @@ describe('relItemOf (#125 — aperçu des combobox de relations)', () => {
     expect(item.label).toBe('#12 Brancher le paiement')
     expect(item.preview).toEqual({
       id: 12, title: 'Brancher le paiement', status: 'todo', kind: 'task',
-      team: 'eng', stage: 'build', archived: false,
+      team: 'eng', stage: 'build',
     })
   })
 
-  it('dérive le stage du dossier ARCHIVE et marque archivée (label + preview)', () => {
-    const item = relItemOf({ ...base, status: 'done', file: 'docs/tasks/_archive/05-gtm/12-paiement.yaml' })
-    expect(item.label).toBe('#12 Brancher le paiement (archivée)')
+  it('dérive le stage court du dossier du fichier YAML', () => {
+    const item = relItemOf({ ...base, status: 'done', file: 'docs/tasks/05-gtm/12-paiement.yaml' })
     expect(item.preview?.stage).toBe('gtm')
-    expect(item.preview?.archived).toBe(true)
     expect(item.preview?.status).toBe('done')
   })
 
-  it("tolère une team absente (archive ancienne non revalidée) — team vide, pas de plantage", () => {
+  it('tolère une team absente — team vide, pas de plantage', () => {
     const item = relItemOf({ ...base, team: undefined as unknown as TaskNode['team'] })
     expect(item.preview?.team).toBe('')
   })

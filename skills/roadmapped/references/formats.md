@@ -35,9 +35,7 @@ docs/tasks/
 ├── 05-gtm/
 ├── 06-launch/
 ├── 07-scale/
-├── 08-mature/
-└── _archive/
-    └── 01-idea/                # miroir du stage d'origine, tâches livrées
+└── 08-mature/
 ```
 
 Un stage vide (aucune tâche) reste présent — il s'affiche estompé dans le dashboard,
@@ -72,7 +70,7 @@ verification: null        # COMMENT l'artefact a été vérifié (done --verific
 release: null             # version de release si applicable
 ```
 
-Invariants appliqués : ids uniques globalement (archive comprise) ; chaque id de `dependsOn` existe ; pas d'auto-dépendance ; graphe `dependsOn` acyclique ; `epic` est un slug (minuscules/chiffres/tirets) ou null — AUCUNE déclaration exigée ; une dépendance vers une tâche archivée compte comme satisfaite (done de fait) ; `team` présente et ∈ l'enum sur toute tâche active, sous-tâches comprises (l'archive n'est pas re-validée — les tâches archivées avant le refactor stages+teams gardent leur ancien schéma tel quel).
+Invariants appliqués : ids uniques globalement ; chaque id de `dependsOn` existe ; pas d'auto-dépendance ; graphe `dependsOn` acyclique ; `epic` est un slug (minuscules/chiffres/tirets) ou null — AUCUNE déclaration exigée ; `team` présente et ∈ l'enum sur toute tâche, sous-tâches comprises.
 
 **Rétrocompat `milestone` (#133)** : l'ancien champ `milestone:` d'un YAML est LU comme `epic` et migre automatiquement au prochain dump ; le flag CLI `--milestone` reste un alias déprécié de `--epic`. Ne plus jamais écrire `milestone:` dans un YAML.
 
@@ -92,7 +90,7 @@ note: "L'idée initiale, sa validation, le problème/la cible."   # ou null — 
 
 **La vue Roadmap du dashboard = les 8 stages du backlog** (une colonne par stage, dans l'ordre idea→mature, stage vide estompé). L'état d'une tâche (fait / disponible / verrouillé) est **calculé** depuis `status` + `dependsOn` — jamais stocké. Il n'y a rien à créer : classer chaque tâche dans le bon stage ET poser ses `dependsOn`, c'est construire la roadmap.
 
-**Progression** : `sitrep` affiche une ligne `avancement: x/y (pct%)` (archive comptée done, stages abandoned/dormant exclus) ; `task.mjs roadmap` détaille l'avancement global + par epic. Compte simple de tâches, pas de pondération par size.
+**Progression** : `sitrep` affiche une ligne `avancement: x/y (pct%)` (stages abandoned/dormant exclus) ; `task.mjs roadmap` détaille l'avancement global + par epic. Compte simple de tâches, pas de pondération par size.
 
 ### Epics — le regroupement transverse (champ `epic`)
 
@@ -120,6 +118,6 @@ Markdown libre mais toujours : contexte/objectif, décisions prises (et alternat
 
 Dossier jumeau homonyme du fichier de tâche (voir arborescence). Le CLI ne les crée pas directement : créer la tâche via `add` dans la section (l'id est alloué proprement), puis **`mv`** (pas `git mv` — le fichier vient d'être créé, il est untracked et `git mv` échoue) le fichier dans le dossier jumeau, puis `validate`. Ne JAMAIS consommer `nextId` à la main. Le statut du parent n'est jamais recalculé depuis ses sous-tâches (décision délibérée).
 
-## Archive
+## Tâches livrées
 
-`task.mjs archive <id>` déplace le fichier (+ dossier jumeau) vers `_archive/<section>/`. Exige `status: done` — rien d'autre : `completedAt` est garanti (posé automatiquement au passage à done), mais `commit`/`outcome`/`verification` ne le sont que si le `done` les a fournis. Consigne-les TOUJOURS avant d'archiver. On ne modifie jamais l'archive.
+Une tâche `done` reste dans son stage (colonne Terminées du Backlog) — il n'y a pas d'archivage (#154) : le backlog done, avec `commit`/`outcome`/`verification` consignés, EST le changelog. Consigne-les TOUJOURS au `done`.

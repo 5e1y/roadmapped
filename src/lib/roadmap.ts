@@ -11,21 +11,17 @@ function flatten(sections: SectionNode[]): TaskNode[] {
   return out
 }
 
-/** Toutes les tâches actives (sections actives + sous-tâches), à plat. */
+/** Toutes les tâches du backlog (sections + sous-tâches), à plat. */
 export function activeTasks(tree: TaskTree): TaskNode[] {
   return flatten(tree.sections)
 }
 
-/** Toutes les tâches archivées, à plat (une dep archivée = done de fait). */
-export function archivedTasks(tree: TaskTree): TaskNode[] {
-  return flatten(tree.archive)
-}
-
 /**
- * État de chaque tâche ACTIVE : done / available / locked.
+ * État de chaque tâche : done / available / locked.
  * - done  : status === 'done'
- * - available : status ≠ done ET toutes les deps sont done (une dep archivée = done de fait ;
- *              une dep vers un id inconnu est ignorée défensivement — la validation l'interdit déjà)
+ * - available : status ≠ done ET toutes les deps sont done — une dep n'est done
+ *              QUE si sa tâche existe avec status 'done' (une dep vers un id
+ *              inconnu verrouille donc ; la validation l'interdit de toute façon)
  * - locked : au moins une dep non done
  */
 // Mémo par identité de tree (#130) : computeAvailability est appelé une fois par
@@ -38,13 +34,8 @@ export function computeAvailability(tree: TaskTree): Map<number, Availability> {
   const cached = availabilityCache.get(tree)
   if (cached) return cached
   const active = flatten(tree.sections)
-  const archivedIds = new Set(flatten(tree.archive).map((t) => t.id))
   const activeById = new Map(active.map((t) => [t.id, t]))
-  const isDone = (id: number): boolean => {
-    if (archivedIds.has(id)) return true
-    const t = activeById.get(id)
-    return t ? t.status === 'done' : true
-  }
+  const isDone = (id: number): boolean => activeById.get(id)?.status === 'done'
   const result = new Map<number, Availability>()
   for (const t of active) {
     if (t.status === 'done') result.set(t.id, 'done')
@@ -56,20 +47,18 @@ export function computeAvailability(tree: TaskTree): Map<number, Availability> {
 
 /**
  * Prérequis d'une tâche qui ne sont PAS encore faits, d'après la carte
- * d'availability. Une dep absente de la map (archivée / inconnue) est done de
- * fait — elle n'est jamais listée. Source unique partagée par le Graphe et les
- * Colonnes pour afficher « Prérequis manquants (#…) » de façon cohérente.
+ * d'availability. Cohérent avec computeAvailability : une dep est faite
+ * uniquement si sa tâche existe avec l'état 'done' (une dep vers un id inconnu
+ * est donc manquante). Source unique partagée par le Graphe et les Colonnes
+ * pour afficher « Prérequis manquants (#…) » de façon cohérente.
  */
 export function missingPrereqs(task: TaskNode, avail: Map<number, Availability>): number[] {
-  return task.dependsOn.filter((d) => {
-    const st = avail.get(d)
-    return st !== undefined && st !== 'done'
-  })
+  return task.dependsOn.filter((d) => avail.get(d) !== 'done')
 }
 
 /**
- * Dépendances INVERSES : les tâches ACTIVES (sous-tâches comprises) dont
- * `dependsOn` contient `id`. Triées par id croissant. Alimente le bloc « Bloque »
+ * Dépendances INVERSES : les tâches (sous-tâches comprises) dont `dependsOn`
+ * contient `id`. Triées par id croissant. Alimente le bloc « Bloque »
  * du panneau — entièrement calculé, aucun champ YAML.
  */
 export function reverseDependents(tree: TaskTree, id: number): TaskNode[] {
@@ -80,16 +69,13 @@ export function reverseDependents(tree: TaskTree, id: number): TaskNode[] {
 
 /**
  * État d'affichage d'une dépendance (bloc « Dépend de » du panneau) :
- * - 'archived' : la dep vit dans l'archive (done de fait, mais affichée avec son
- *   badge), OU son id est inconnu — traité comme archivé défensivement : une dep
- *   validée pointe toujours vers un id connu, on n'échoue donc pas l'affichage ;
- * - sinon l'availability calculée de la tâche active : 'done' | 'available' | 'locked'
- *   (réutilise computeAvailability, source unique de l'état des tâches).
+ * l'availability calculée de la tâche — 'done' | 'available' | 'locked'
+ * (réutilise computeAvailability, source unique de l'état des tâches).
+ * Défensif : un id inconnu (la validation l'interdit) s'affiche 'locked',
+ * cohérent avec computeAvailability qui ne le compte jamais done.
  */
-export function depState(tree: TaskTree, id: number): Availability | 'archived' {
-  const archivedIds = new Set(archivedTasks(tree).map((t) => t.id))
-  if (archivedIds.has(id)) return 'archived'
-  return computeAvailability(tree).get(id) ?? 'archived'
+export function depState(tree: TaskTree, id: number): Availability {
+  return computeAvailability(tree).get(id) ?? 'locked'
 }
 
 // ── Vue Graphe : layout flux-de-dépendances (dagre) ─────────────────────────
@@ -193,17 +179,17 @@ export function graphNeighborhood(
   return { ancestors: closure(up), descendants: closure(down) }
 }
 
-/** Progression d'un epic : tâches actives portant ce slug (les archivées vivent dans le Backlog). */
+/** Progression d'un epic : tâches portant ce slug. */
 export function epicProgress(tree: TaskTree, slug: string): { done: number; total: number } {
   const tasks = flatten(tree.sections).filter((t) => t.epic === slug)
   return { total: tasks.length, done: tasks.filter((t) => t.status === 'done').length }
 }
 
 /**
- * Progression GLOBALE du lancement : done/total, où l'archive compte done de fait
- * (c'est l'historique livré) et les stages abandonnés/en veille sont exclus (leur
- * travail n'est pas « à faire »). Compte simple de tâches, sous-tâches comprises
- * (pas de pondération par size — décision ferme #133, YAGNI).
+ * Progression GLOBALE du lancement : done/total sur les stages actifs — les
+ * stages abandonnés/en veille sont exclus (leur travail n'est pas « à faire »).
+ * Compte simple de tâches, sous-tâches comprises (pas de pondération par
+ * size — décision ferme #133, YAGNI).
  */
 export function globalProgress(tree: TaskTree): { done: number; total: number } {
   let done = 0
@@ -212,11 +198,6 @@ export function globalProgress(tree: TaskTree): { done: number; total: number } 
     if (s.status === 'abandoned' || s.status === 'dormant') continue
     const c = countTasksDeep(s.tasks)
     done += c.done
-    total += c.total
-  }
-  for (const s of tree.archive) {
-    const c = countTasksDeep(s.tasks)
-    done += c.total // archivée = livrée, quel que soit le status stocké
     total += c.total
   }
   return { done, total }

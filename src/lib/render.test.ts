@@ -13,7 +13,7 @@ function task(id: number, over: Partial<TaskNode> = {}): TaskNode {
 }
 const tree = (tasks: TaskNode[]): TaskTree => {
   const sec = (key: string, ts: TaskNode[]): SectionNode => ({ key, title: key, status: 'open', note: null, tasks: ts })
-  return { nextId: 99, sections: [sec('04-build', tasks)], archive: [], epics: [] }
+  return { nextId: 99, sections: [sec('04-build', tasks)], epics: [] }
 }
 
 describe('taskLine', () => {

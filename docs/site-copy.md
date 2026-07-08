@@ -115,9 +115,9 @@ the agent recording a task from the CLI.*
 **Body**
 
 > Roadmapped's own backlog is managed by Roadmapped, mostly by a Claude agent
-> that records every task it ships. The `_archive` folder is the changelog. The
+> that records every task it ships. The done backlog is the changelog. The
 > commit history is the proof. If you want to know whether the workflow holds
-> up, don't take our word for it — read the archive.
+> up, don't take our word for it — read the backlog.
 
 ---
 

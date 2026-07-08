@@ -2,7 +2,7 @@ import type { Plugin, Connect } from 'vite'
 import type { ServerResponse, IncomingMessage } from 'node:http'
 import { loadPaths, type RoadmappedPaths } from '../lib/paths'
 import {
-  treeWithErrors, addTask, updateTask, archiveTask, deleteTask,
+  treeWithErrors, addTask, updateTask, deleteTask,
   updateSection, saveEpics, type MutationResult,
 } from '../lib/taskWrites'
 import { buildDocsTree, readDocContent, unsafeDocPath } from './docs'
@@ -15,7 +15,6 @@ export type ApiAction =
   | { type: 'getTree' }
   | { type: 'createTask'; body: any }
   | { type: 'patchTask'; id: number; body: any }
-  | { type: 'archiveTask'; id: number }
   | { type: 'deleteTask'; id: number }
   | { type: 'patchSection'; dir: string; body: any }
   | { type: 'putEpics'; body: any }
@@ -71,9 +70,6 @@ export function routeApi(method: string, rawUrl: string, body: any): ApiAction {
     }
     if (seg.length === 2 && method === 'PATCH') return { type: 'patchTask', id: Number(seg[1]), body }
     if (seg.length === 2 && method === 'DELETE') return { type: 'deleteTask', id: Number(seg[1]) }
-    if (seg.length === 3 && seg[2] === 'archive' && method === 'POST') {
-      return { type: 'archiveTask', id: Number(seg[1]) }
-    }
   }
 
   if (seg[0] === 'sections') {
@@ -148,8 +144,6 @@ export function runAction(paths: RoadmappedPaths, action: ApiAction): ApiRespons
         return fromMutation(addTask(tasksDir, action.body ?? {}))
       case 'patchTask':
         return fromMutation(updateTask(tasksDir, action.id, action.body ?? {}))
-      case 'archiveTask':
-        return fromMutation(archiveTask(tasksDir, action.id))
       case 'deleteTask':
         return fromMutation(deleteTask(tasksDir, action.id))
       case 'patchSection':

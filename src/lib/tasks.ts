@@ -119,10 +119,8 @@ export interface Epic {
 
 export interface TaskTree {
   nextId: number
-  /** Sections actives (docs/tasks/NN-*). */
+  /** Sections (docs/tasks/NN-*) — les 8 stages canoniques. */
   sections: SectionNode[]
-  /** Sections archivées (docs/tasks/_archive/NN-*) — l'historique livré du projet. */
-  archive: SectionNode[]
   /** Epics déclarés dans _epics.yaml (racine de tasksDir ; rétrocompat lecture de
       l'ancien _roadmaps.yaml, jalons aplatis). Vide si aucun fichier. */
   epics: Epic[]
@@ -146,7 +144,6 @@ export function countTasksDeep(tasks: TaskNode[]): { total: number; done: number
 }
 
 interface ParsedPath {
-  archived: boolean
   sectionDir: string
   rest: string[]
   /** Chemin normalisé repo-relatif ("docs/tasks/..."). */
@@ -163,11 +160,7 @@ function parsePath(fullPath: string): ParsedPath | null {
   if (!match) return null
   const file = `docs/tasks/${match[1]}`
   const parts = match[1].split('/')
-  if (parts[0] === '_archive') {
-    if (parts.length < 2) return null
-    return { archived: true, sectionDir: parts[1], rest: parts.slice(2), file }
-  }
-  return { archived: false, sectionDir: parts[0], rest: parts.slice(1), file }
+  return { sectionDir: parts[0], rest: parts.slice(1), file }
 }
 
 function numericPrefix(name: string): number {
@@ -186,9 +179,8 @@ function toTaskNode(raw: any, file: string): TaskNode {
     status: raw.status,
     tags: raw.tags ?? [],
     size: raw.size ?? null,
-    // Frontière de parse : raw est any. Pour une tâche active sans team (ou avec
+    // Frontière de parse : raw est any. Pour une tâche sans team (ou avec
     // une team invalide), la valeur remonte telle quelle et validate.ts la rejette.
-    // L'archive (non revalidée) peut ne pas avoir de team — toléré.
     team: raw.team,
     detail: raw.detail ?? null,
     refs: raw.refs ?? [],
@@ -275,8 +267,7 @@ export function buildTaskTree(files: TaskFileMap): TaskTree {
   let nextId = 0
   let epics: Epic[] = []
   let legacyEpics: Epic[] = []
-  const active = new Map<string, Bucket>()
-  const archived = new Map<string, Bucket>()
+  const buckets = new Map<string, Bucket>()
 
   for (const [path, content] of Object.entries(files)) {
     const parsed = parsePath(path)
@@ -295,7 +286,6 @@ export function buildTaskTree(files: TaskFileMap): TaskTree {
       continue
     }
 
-    const buckets = parsed.archived ? archived : active
     if (!buckets.has(parsed.sectionDir)) {
       buckets.set(parsed.sectionDir, { meta: null, taskFiles: new Map() })
     }
@@ -314,7 +304,6 @@ export function buildTaskTree(files: TaskFileMap): TaskTree {
     const parsed = parsePath(path)
     if (!parsed || parsed.sectionDir === '_meta.yaml') continue
     if (parsed.rest.length !== 2) continue
-    const buckets = parsed.archived ? archived : active
     const bucket = buckets.get(parsed.sectionDir)
     if (!bucket) continue
     const [parentDirName, subFile] = parsed.rest
@@ -328,25 +317,9 @@ export function buildTaskTree(files: TaskFileMap): TaskTree {
     })
   }
 
-  // Cas réel : une section archivée SANS _section.yaml propre (la section
-  // d'origine est encore active, seules ses tâches livrées ont été déplacées
-  // dans _archive/<même-dossier>/). Sans meta, assembleSections la sauterait
-  // et ses tâches disparaîtraient silencieusement — on synthétise : titre
-  // emprunté à la section active homonyme (sinon le nom du dossier), statut done.
-  for (const [dir, bucket] of archived.entries()) {
-    if (!bucket.meta && bucket.taskFiles.size > 0) {
-      bucket.meta = {
-        title: active.get(dir)?.meta?.title ?? dir,
-        status: 'done',
-        note: null,
-      }
-    }
-  }
-
   return {
     nextId,
-    sections: assembleSections(active),
-    archive: assembleSections(archived),
+    sections: assembleSections(buckets),
     // _epics.yaml prime ; l'ancien _roadmaps.yaml ne sert que s'il est seul (rétrocompat).
     epics: epics.length > 0 ? epics : legacyEpics,
   }

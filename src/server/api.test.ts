@@ -22,8 +22,8 @@ describe('routeApi', () => {
     })
   })
 
-  it('POST /api/tasks/:id/archive → archiveTask', () => {
-    expect(routeApi('POST', '/api/tasks/42/archive', null)).toEqual({ type: 'archiveTask', id: 42 })
+  it('POST /api/tasks/:id/archive → notFound (archivage retiré #154)', () => {
+    expect(routeApi('POST', '/api/tasks/42/archive', null)).toEqual({ type: 'notFound' })
   })
 
   it('DELETE /api/tasks/:id → deleteTask', () => {

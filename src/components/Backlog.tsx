@@ -1,11 +1,8 @@
 import { useState } from 'react'
-import { Accordion } from '@base-ui/react/accordion'
 import { Search } from 'trinil-react'
 import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
-import { usePersistentStrings } from '../state/uiPersist'
 import { type TaskNode } from '../lib/tasks'
-import { SectionAccordion } from './SectionAccordion'
 import { TaskList, MiniZone, sortOpen, sortDone } from './TaskColumns'
 
 import { useTagFilter, useTeamFilter } from '../state/filters'
@@ -30,7 +27,6 @@ const plural = (n: number, s: string) => `${n} ${s}${n === 1 ? '' : 's'}`
 export function Backlog() {
   const { tree, errors, loading, loadError, reload } = useTree()
   const { openCreateTask, top } = usePanel()
-  const [openArchive, setOpenArchive] = usePersistentStrings('backlog:archive')
   const [teamFilter, setTeamFilter] = useTeamFilter()
   const [tagFilter, setTagFilter] = useTagFilter()
   const [query, setQuery] = useState('')
@@ -77,12 +73,11 @@ export function Backlog() {
   const radarSelected: Team | '' = teamFilter.length === 1 ? (teamFilter[0] as Team) : ''
   const radarSelect = (t: Team | '') => setTeamFilter(t ? [t] : [])
   // Graphe des tags (#146/#150) : carte des THÈMES du projet entier — TOUS les
-  // tickets (done inclus), actifs + archivés, sous-tâches comprises. Distinct du
-  // radar teams (qui, lui, montre la charge ouverte). Le clic filtre la liste.
-  const themeTags = tagGraph([
-    ...tree.sections.filter((s) => s.status !== 'abandoned').flatMap((s) => s.tasks),
-    ...tree.archive.flatMap((s) => s.tasks),
-  ])
+  // tickets (done inclus), sous-tâches comprises. Distinct du radar teams
+  // (qui, lui, montre la charge ouverte). Le clic filtre la liste.
+  const themeTags = tagGraph(
+    tree.sections.filter((s) => s.status !== 'abandoned').flatMap((s) => s.tasks),
+  )
   const tagSelected = tagFilter.length === 1 ? tagFilter[0] : ''
   const tagSelect = (t: string) => setTagFilter(t ? [t] : [])
 
@@ -167,17 +162,6 @@ export function Backlog() {
           alternative « par epic » (#133 rejeté), le groupe est le défaut. */}
       <TaskList open={open} done={done} tree={tree} filtered={Boolean(q || teamFilter.length || tagFilter.length)} />
       </div>
-
-      {tree.archive.length > 0 && (
-        <section className="mt-14">
-          <h2 className="text-sm font-semibold tracking-tight text-neutral-500">Archive</h2>
-          <Accordion.Root multiple value={openArchive} onValueChange={(v) => setOpenArchive(v as string[])} className="mt-3 flex flex-col gap-3">
-            {tree.archive.map((section) => (
-              <SectionAccordion key={section.key} section={section} dimmed />
-            ))}
-          </Accordion.Root>
-        </section>
-      )}
       </div>
       </div>
       </div>

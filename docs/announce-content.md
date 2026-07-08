@@ -16,8 +16,8 @@ viennent de [docs/comms-plan.md](./comms-plan.md).
 | Tests | **239** (13 fichiers) | `npx vitest run` — « Tests 239 passed » |
 | Stages | **8** (Idea → Mature) | `ls docs/tasks/` (01-idea … 08-mature) |
 | Tâches backlog | **131**, dont **111 done** | `find docs/tasks -name "*.yaml" -not -name "_meta.yaml" \| wc -l` · `grep -rln "status: done" docs/tasks \| wc -l` |
-| Commandes CLI | **14** | `node scripts/task.mjs --help` (sitrep, take, brief, next, quick, add, start, done, update, archive, list, show, validate, roadmap) |
-| Tools MCP | **14** | `scripts/mcp-server.mjs` (mêmes verbes) |
+| Commandes CLI | **15** | `node scripts/task.mjs --help` (sitrep, take, brief, next, quick, add, start, done, update, list, show, validate, roadmap, audit, guard) |
+| Tools MCP | **13** | `scripts/mcp-server.mjs` (mêmes verbes, sans audit/guard) |
 | Dépendances runtime | **7** | `package.json` → `dependencies` |
 | Licence | **MIT** | `LICENSE` |
 | Site | **roadmapped.work** | comms-plan (Cloudflare) |
@@ -67,9 +67,9 @@ that isn't attached to a task. I wrote that hook; it has rejected my commits.
 
 Dogfooding was total. Roadmapped's own backlog is managed by Roadmapped,
 mostly by a Claude agent: 131 tasks as of today, 111 shipped, each recording
-the commit that delivered it. Finished tasks move to an _archive folder that
-doubles as the changelog — it's in the repo, so you can audit whether the
-workflow actually holds up instead of taking my word for it.
+the commit that delivered it. The done backlog doubles as the changelog —
+it's in the repo, so you can audit whether the workflow actually holds up
+instead of taking my word for it.
 
 MIT, local-only, 239 tests, 7 runtime dependencies. Happy to answer anything.
 Substantive critiques get converted into tasks in the public backlog, so you
@@ -284,8 +284,8 @@ agent's.
 
 ```
 Dogfooding was total: Roadmapped's backlog is managed by Roadmapped, mostly
-by a Claude agent. 131 tasks, 111 shipped, each with its commit. The archive
-folder is the changelog. It's all in the repo.
+by a Claude agent. 131 tasks, 111 shipped, each with its commit. The done
+backlog is the changelog. It's all in the repo.
 ```
 
 **Tweet 9**
