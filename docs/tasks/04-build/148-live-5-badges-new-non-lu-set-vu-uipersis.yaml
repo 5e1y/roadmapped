@@ -1,7 +1,7 @@
 id: 189
 code: null
 title: Live 5 — badges NEW/non-lu (set vu uiPersist, effacé à l'ouverture)
-status: todo
+status: done
 tags:
   - live
 size: null
@@ -15,8 +15,16 @@ dependsOn:
 epic: live-reactivity
 source: ai
 createdAt: "2026-07-09T00:23:53"
-completedAt: null
-commit: null
-outcome: null
+startedAt: "2026-07-09T00:40:27"
+updatedAt: "2026-07-09T00:44:24"
+completedAt: "2026-07-09"
+commit: 6f667d4
+outcome: >-
+  Badges NEW/non-lu. Module src/state/seenTasks.ts : set d'empreintes 'id:updatedAt|createdAt'
+  persisté (localStorage, par appareil). seedSeenBaseline(tree) idempotent au 1er run (tout vu →
+  aucun badge au démarrage) posé dans TreeProvider ; markTaskSeen(task) appelé quand TaskPanel
+  affiche la tâche (effacement à la lecture) ; useSeenTasks().isNew(task) réactif dans TaskRow →
+  point accent size-1.5 avant le #id (role=status). uiPersist expose readPersistentStrings. Vérif :
+  4 tests seenTasks (baseline/idempotence/mark-remplace/apparu), tsc clean, 383 tests.
 verification: null
 release: null
