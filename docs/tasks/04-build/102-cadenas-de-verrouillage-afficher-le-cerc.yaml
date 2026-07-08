@@ -3,7 +3,7 @@ code: null
 title: >-
   Cadenas de verrouillage : afficher le cercle de progression en cadenas partout où la tâche est
   bloquée par des dépendances (backlog + task bar, pas juste la roadmap)
-status: todo
+status: done
 tags:
   - ux
 size: S
@@ -21,8 +21,18 @@ dependsOn: []
 milestone: null
 source: ai
 createdAt: "2026-07-08T09:30:34"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: fa44682
+outcome: >-
+  Le cadenas LockLocked s'affiche désormais à la place du StatusGlyph pour les tâches 'locked' dans
+  les lignes du backlog (TaskRow, sous-tâches comprises) ET dans l'en-tête du panneau (TaskPanel) —
+  plus seulement la roadmap. État calculé par computeAvailability partagé (aucun recalcul maison),
+  même pattern que RoadmapColumns ; done/in_progress/todo inchangés. Bonus perf :
+  computeAvailability mémoïsé par identité de tree (WeakMap) — l'appel par ligne de backlog devient
+  O(1) au lieu d'un recalcul complet du graphe (évite le O(n²)). useOptionalTree ajouté (lecture
+  non-jetante) pour garder TaskRow rendable hors TreeProvider.
+verification: >-
+  tsc clean ; 233/233 tests verts (dont TaskRow.test.tsx corrigé via useOptionalTree — cassé
+  transitoirement par l'ajout de useTree, réglé sans wrapper de provider) ; app boote HTTP 200 sans
+  erreur. Rendu du cadenas dans backlog/panneau — à valider à l'œil par Rémi.
 release: null
