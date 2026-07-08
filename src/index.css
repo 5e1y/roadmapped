@@ -8,10 +8,31 @@
  * reste RARE : c'est sa rareté qui le rend repérable.
  */
 @theme {
+  /* Strip down (#116, design.md §1) : la palette par défaut de Tailwind est
+     DÉSACTIVÉE — seuls les tokens ci-dessous existent. Une classe hors
+     système (text-red-600, bg-slate-100…) ne génère AUCUN style : l'écart
+     est visible immédiatement au lieu de passer en silence. */
+  --color-*: initial;
+
   --color-accent: #2563eb;
   /* Tint de sélection OPAQUE (accent ~6% sur blanc) : ne se mélange pas au
      fond gris et ne laisse rien transparaître (arêtes du graphe). */
   --color-accent-tint: #eef3fd;
+
+  /* L'échelle monochrome (valeurs Tailwind v4 d'origine, oklch — zéro dérive
+     de rendu). Plancher informatif : 500 sur fond clair, 600 sur fond gris
+     (design.md §1) ; 300/400 = décoratif et disabled uniquement. */
+  --color-white: #fff;
+  --color-neutral-50: oklch(0.985 0 0);
+  --color-neutral-100: oklch(0.97 0 0);
+  --color-neutral-200: oklch(0.922 0 0);
+  --color-neutral-300: oklch(0.87 0 0);
+  --color-neutral-400: oklch(0.708 0 0);
+  --color-neutral-500: oklch(0.556 0 0);
+  --color-neutral-600: oklch(0.439 0 0);
+  --color-neutral-700: oklch(0.371 0 0);
+  --color-neutral-800: oklch(0.269 0 0);
+  --color-neutral-900: oklch(0.205 0 0);
 }
 
 /*

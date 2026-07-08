@@ -1,7 +1,7 @@
 id: 115
 code: null
 title: Fixes a11y — appliquer les findings clavier + contraste
-status: in_progress
+status: done
 tags:
   - design
   - a11y
@@ -25,8 +25,21 @@ dependsOn:
 milestone: null
 source: user
 createdAt: "2026-07-08T01:57:30"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: a25b305
+outcome: >-
+  Contraste : promotion systémique text-neutral-400→500 (~80 occurrences informatives sur 16
+  composants, placeholders compris dont le titre 32px du Notepad), strate neutral-300
+  interactive→500 (ChipRemove, boutons fantômes, decoration), SVG du graphe et glyphe todo en
+  #737373, fieldCls différencié bg-neutral-50 + focus:bg-white (option douce actée), toggle done en
+  600 sur fond gris, scrollbar 737373. Clavier : croix de note focus-visible + aria-label nominatif
+  + window.confirm, refocus AddCombobox après remontage (useEffect epoch), blurOnEnter restitue le
+  focus (garde isConnected, limite key-remount documentée dans le code), removeAndRefocus sur
+  deps/liens/refs (garde activeElement===body), refocus + touche Espace + aria-label sur le détail,
+  radar role=group. Mineurs restants tracés en dette #118
+verification: >-
+  Agent délégué + revue de diff orchestrateur (20 fichiers ; blurOnEnter vérifié sans boucle —
+  onBlur ne PATCHe que si changed() ; états vides décoratifs et disabled volontairement laissés) ;
+  225 tests + build verts ; grep final : plus aucun neutral-300/400 informatif hors 2 titres vides
+  décoratifs et disabled exempts
 release: null
