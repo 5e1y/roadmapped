@@ -1,0 +1,38 @@
+id: 148
+code: null
+title: >-
+  Homepage v2 : embarquer le VRAI dashboard (build démo read-only + iframe plein cadre) + terminal
+  agent en fenêtre séparée
+status: todo
+tags:
+  - marketing
+  - fable
+size: L
+team: marketing
+detail: >-
+  Refonte de la homepage (#145 rejeté par Rémi : réplique vanilla trop divergente + volet agent
+  fusionné à l'app = trompeur). Nouvelle approche : embarquer LITTÉRALEMENT le vrai dashboard React.
+  (1) BUILD DÉMO dans le repo outil (/Users/rcourtillon/Documents/Roadmapped) : flag VITE_DEMO
+  (entrée démo + variante de TreeContext) qui charge un TREE STATIQUE embarqué (les tickets fictifs
+  docs/tasks/05-site du 4e mur, réutiliser le flux de #145) au lieu de fetch /api/tree, et DÉSACTIVE
+  les mutations (read-only : pas de POST, panneau en lecture). Vérifier le poids du bundle ;
+  alléger/retirer des features SEULEMENT si lourd. (2) Copier le bundle démo dans le repo site
+  (/Users/rcourtillon/Documents/roadmapped-site) et l'EMBARQUER EN GRAND via iframe (plein cadre du
+  hero, pas le petit encart) → graphe/tabs/scroll = ceux de l'app par construction, fini les
+  divergences. (3) TERMINAL AGENT = fenêtre SÉPARÉE à côté de l'app (hors du chrome dashboard),
+  présenté comme « deux fenêtres côte à côte : Claude Code + Roadmapped » = le vrai workflow, ne
+  plus faire croire que l'agent est DANS l'app. Garder le récit 4e mur (les tickets qui ont
+  construit la page). Cohérent design.md, light/dark, responsive, a11y. Contrepartie assumée : le
+  site n'est plus zéro-build (snapshot app copié). Confié à Fable 5. NOTE ORCHESTRATION : APRÈS #146
+  (collision src/ repo outil).
+refs: []
+links: []
+dependsOn: []
+epic: site
+source: ai
+createdAt: "2026-07-08T15:26:29"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
