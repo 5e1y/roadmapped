@@ -6,7 +6,7 @@ import type { TaskTree, TaskNode, SectionNode } from './tasks'
 function task(id: number, status: TaskNode['status'], dependsOn: number[] = [], milestone: string | null = null): TaskNode {
   return {
     id, kind: 'task', code: null, title: `T${id}`, status, tags: [], size: null, team: 'engineering', detail: null,
-    refs: [], links: [], dependsOn, milestone, source: 'ai', createdAt: '2026-07-07',
+    refs: [], links: [], dependsOn, milestone, source: 'ai', createdAt: '2026-07-07', startedAt: null,
     completedAt: null, commit: null, outcome: null, verification: null, release: null,
     file: `docs/tasks/01-x/${id}.yaml`, subtasks: [],
   }

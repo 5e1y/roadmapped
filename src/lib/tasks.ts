@@ -69,6 +69,9 @@ export interface TaskNode {
   milestone: string | null
   source: 'user' | 'ai'
   createdAt: string
+  /** Posé au passage todo→in_progress (#82). Null sur les tâches d'avant le champ :
+      les lecteurs d'âge retombent sur createdAt. */
+  startedAt: string | null
   completedAt: string | null
   commit: string | null
   /** Ce que la tâche a livré, en une phrase orientée utilisateur — matière à changelog. */
@@ -185,6 +188,7 @@ function toTaskNode(raw: any, file: string): TaskNode {
     milestone: raw.milestone ?? null,
     source: raw.source,
     createdAt: raw.createdAt,
+    startedAt: raw.startedAt ?? null,
     completedAt: raw.completedAt ?? null,
     commit: raw.commit ?? null,
     outcome: raw.outcome ?? null,
