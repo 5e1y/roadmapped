@@ -3,7 +3,7 @@ code: null
 title: >-
   Implémenter la distribution : paquet npm + bin roadmapped + fix racine-paquet/racine-hôte (spec
   #12, finding #123)
-status: todo
+status: in_progress
 tags:
   - fable
 size: L
@@ -15,6 +15,7 @@ dependsOn: []
 epic: distribution
 source: ai
 createdAt: "2026-07-08T12:25:17"
+startedAt: "2026-07-08T12:53:14"
 completedAt: null
 commit: null
 outcome: null
