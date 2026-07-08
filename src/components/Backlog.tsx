@@ -121,10 +121,9 @@ export function Backlog() {
       <div className="flex min-h-0 flex-1">
         {/* Flanc radar (fusion vue Teams) : charge par team, sélection = filtre.
             S'efface quand le panneau est ouvert et que la place manque (< 2xl).
-            Clic dans le vide = toutes les teams. */}
+            Désélectionner = recliquer la team active (souris ET clavier, #118). */}
         <div
-          onClick={() => radarSelect('')}
-          className={`${top !== null ? 'hidden 2xl:flex' : 'flex'} w-[420px] shrink-0 cursor-pointer items-center border-r border-neutral-200 bg-white py-2`}
+          className={`${top !== null ? 'hidden 2xl:flex' : 'flex'} w-[420px] shrink-0 items-center border-r border-neutral-200 bg-white py-2`}
         >
           <TeamsRadar counts={load} selected={radarSelected} onSelect={radarSelect} />
         </div>
