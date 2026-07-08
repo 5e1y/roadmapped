@@ -5,7 +5,7 @@ title: >-
   a11y mineurs assumés (audit #107) : Esc global SidePanel hors focus, trigger.isConnected à la
   fermeture, FilterMenu Popover.Close disabled, flanc radar souris-seulement, outline textarea
   Notepad + limite blurOnEnter (key-remount)
-status: todo
+status: done
 tags:
   - debt
   - a11y
@@ -18,8 +18,20 @@ dependsOn: []
 milestone: null
 source: ai
 createdAt: "2026-07-08T02:44:27"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: 72853bf
+outcome: >-
+  3 des 5 mineurs corrigés (choix Rémi) : (1) SidePanel Esc ne dépile que si le focus est dans
+  l'aside (asideRef.contains) — plus de fermeture hors champ de vision ; (2) restauration focus au
+  trigger gardée par isConnected — plus de focus perdu quand la tâche a été supprimée/archivée ; (3)
+  div flanc radar : onClick souris-seulement + cursor-pointer retirés, la désélection passe par le
+  toggle de la team active (souris ET clavier, chemin déjà redondant) — supprime le seul div
+  interactif non-focusable du code. Restent dette acceptée : liseré focus textarea Notepad (choix
+  visuel, caret compense) et FilterMenu disabled (code mort, mine si rebranché). Demande annexe de
+  Rémi (curseurs des éléments interactifs) sortie en ticket séparé.
+verification: >-
+  npx tsc --noEmit clean ; npm run dev boote sans erreur (HTTP 200, build vite propre) ; radarSelect
+  toujours câblé à TeamsRadar.onSelect. Les 3 changements sont des gardes/suppressions revues au
+  code (contains, isConnected, retrait onClick) — pas d'outillage e2e pour piloter les frappes Esc,
+  non exécuté.
 release: null
