@@ -1,7 +1,7 @@
 id: 124
 code: null
 title: Regrouper les actions de la task bar à côté de « Démarrer »
-status: in_progress
+status: done
 tags:
   - ux
   - panel
@@ -17,8 +17,16 @@ dependsOn: []
 milestone: null
 source: ai
 createdAt: "2026-07-08T09:28:18"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: 76df14a
+outcome: >-
+  Actions de tâche regroupées en UNE barre (TaskPanel) : action de cycle de vie
+  (Démarrer/Terminer…/Archiver selon statut) en bouton primaire noir plein (primaryBtn promu
+  canonique dans ui.tsx), « Copier le brief agent » en secondaire, « Supprimer » secondaire isolé à
+  droite (ml-auto, distance de sécurité sans registre coloré). Ancien bloc bas copier/supprimer
+  supprimé. Barre rendue aussi pour une tâche archivée (copier+supprimer). Done guidé + confirmation
+  suppression inchangés.
+verification: >-
+  tsc clean, 326 tests, build OK, boot HTTP 200. QA visuel (capture 01) : une seule barre «
+  Terminer… (noir) · Copier le brief agent · Supprimer (droite) » confirmée.
 release: null
