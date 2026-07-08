@@ -4,7 +4,7 @@ code: null
 title: >-
   Graphe : un prérequis dans un epic replié affiché « +n hors graphe » au lieu de « #id » ; + clé
   localStorage backlog:groupByEpic orpheline (inoffensive)
-status: in_progress
+status: done
 tags:
   - debt
 size: null
@@ -16,8 +16,17 @@ dependsOn: []
 milestone: null
 source: ai
 createdAt: "2026-07-08T12:23:26"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: 76df14a
+outcome: >-
+  Dette graphe + clé orpheline résorbées. RoadmapGraph : le « +n hors graphe » remplacé — la carte
+  verrouillée cite tous les #id (« Prérequis manquants (#14 #138) ») + un tooltip localise chaque
+  prérequis sans carte propre (« #14 — dans l'epic « distribution » · #138 — hors vue (archivée ou
+  masquée) », helper pur hiddenPrereqNote testé). Clé localStorage backlog:groupByEpic (orpheline
+  depuis la suppression du toggle en #135) : aucun résidu dans le code (grep exhaustif) + purge
+  one-shot localStorage.removeItem dans App.tsx pour nettoyer les navigateurs existants.
+verification: >-
+  tsc clean, 326 tests (+ RoadmapGraph.test hiddenPrereqNote), build OK, boot HTTP 200. QA visuel
+  (capture 04) : « Prérequis manquants (#14 #138) » + tooltip de localisation confirmés ; clé
+  orpheline posée manuellement → null après reload (assertion headless).
 release: null

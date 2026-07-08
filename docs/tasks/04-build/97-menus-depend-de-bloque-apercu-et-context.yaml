@@ -3,7 +3,7 @@ code: null
 title: >-
   Menus « dépend de » / « bloque » : aperçu et contexte des tâches (filtre + mini-carte façon
   backlog/roadmap)
-status: in_progress
+status: done
 tags:
   - ux
   - panel
@@ -20,8 +20,17 @@ dependsOn: []
 milestone: null
 source: ai
 createdAt: "2026-07-08T09:28:24"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: 76df14a
+outcome: >-
+  Aperçu riche dans les combobox de relations (AddCombobox/MultiCombobox, ui.tsx) : chaque item
+  montre glyphe statut/kind + #id mono + titre tronqué (barré si done) + stage court (dérivé du
+  dossier YAML) + team abrégée en Chip + badge « archivée ». SelectItem porte un preview?:
+  RelPreview optionnel (données pré-digérées par l'appelant via relItemOf, ui.tsx sans dépendance
+  lib). Popup ramené à la largeur du champ (w-[var(--anchor-width)], plus de dilatation plein
+  écran). Ouvertes listées avant faites/archivées. Filtre texte existant vérifié. Création à la
+  volée + retrait ✕ intacts. Partagé TaskPanel + CreateTaskPanel + SectionPanel.
+verification: >-
+  tsc clean, 326 tests (+ tests #125), build OK, boot HTTP 200. QA visuel (capture 02) : items «
+  glyphe #id titre … build eng » + popup largeur champ + filtre « skill » confirmés.
 release: null

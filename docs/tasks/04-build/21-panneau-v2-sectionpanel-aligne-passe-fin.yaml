@@ -1,7 +1,7 @@
 id: 28
 code: null
 title: Panneau v2 — SectionPanel aligné + passe finale des critères
-status: in_progress
+status: done
 tags:
   - panel
   - ux
@@ -25,8 +25,19 @@ dependsOn:
 milestone: null
 source: ai
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: 76df14a
+outcome: >-
+  SectionPanel réécrit en grammaire TaskPanel (lecture d'abord / ghost) : statut en Select ghost
+  avec libellés FR (ouverte/terminée/en veille/abandonnée, SECTION_STATUS_FR + « ouverte »), titre
+  canonique en lecture (l'API le refuse en écriture — pas de faux ghost, décision assumée), note en
+  textarea ghost permanente, ✓ enregistré + erreur par champ (SavedTick/FieldError mutualisés),
+  Toast erreur réseau, chemin docs/tasks/… en pied (archive comprise). Découverte corrigée : le
+  panneau n'était PLUS atteignable (l'accordéon des sections actives a disparu du Backlog) → accès
+  restauré via bouton crayon dans l'en-tête de colonne Roadmap (révélé hover+focus). Critères
+  d'audit routés #2 (docs/audit-ux-2026-07.md) vérifiés et cochés.
+verification: >-
+  tsc clean, 326 tests, build OK, boot HTTP 200. QA visuel (capture 03) : statut « ouverte », titre
+  « Build Stage », note ghost, chemin « docs/tasks/04-build » en pied confirmés. Critères audit
+  cochés dans le doc.
 release: null
