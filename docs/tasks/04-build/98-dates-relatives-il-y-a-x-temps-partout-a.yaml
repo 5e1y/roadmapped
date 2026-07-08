@@ -1,0 +1,24 @@
+id: 126
+code: null
+title: Dates relatives « il y a X temps » partout (au lieu des dates littérales)
+status: todo
+tags:
+  - ux
+size: M
+team: engineering
+detail: >-
+  Remplacer l'affichage des dates littérales par du relatif (« il y a 3 j », « il y a 2 sem »)
+  partout où une date apparaît (createdAt, startedAt, completedAt, done du jour…). Date absolue en
+  title/tooltip au survol. Un seul helper de formatage relatif, réutilisé (i18n FR). Base UI si un
+  composant existe.
+refs: []
+links: []
+dependsOn: []
+milestone: null
+source: ai
+createdAt: "2026-07-08T09:28:29"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

@@ -1,0 +1,27 @@
+id: 122
+code: null
+title: Ouverture auto de Roadmapped à l'ouverture d'une session Claude dans un repo Roadmapped
+status: todo
+tags:
+  - onboarding
+  - skill
+size: S
+team: engineering
+detail: >-
+  Quand une instance Claude démarre dans un repo où Roadmapped est installé (docs/tasks/_meta.yaml +
+  roadmaped.config.json présents), déclencher automatiquement l'entrée en workflow — a minima un
+  sitrep d'ouverture, idéalement via un hook SessionStart du skill/plugin. Trancher : hook plugin vs
+  consigne dans CLAUDE.md vs les deux. Dépend du mécanisme d'install (#12) pour savoir où vit le
+  hook. Découpe en spec possible si le mécanisme n'est pas évident.
+refs: []
+links:
+  - 12
+dependsOn: []
+milestone: null
+source: ai
+createdAt: "2026-07-08T09:28:06"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

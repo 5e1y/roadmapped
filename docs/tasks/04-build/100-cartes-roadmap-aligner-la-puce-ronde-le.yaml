@@ -1,0 +1,21 @@
+id: 128
+kind: quick
+code: null
+title: "Cartes roadmap : aligner la puce ronde, le # et la première ligne du titre"
+status: todo
+tags:
+  - ux
+size: null
+team: design
+detail: null
+refs: []
+links: []
+dependsOn: []
+milestone: null
+source: ai
+createdAt: "2026-07-08T09:28:35"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
