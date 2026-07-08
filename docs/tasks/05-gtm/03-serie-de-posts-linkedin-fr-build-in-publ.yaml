@@ -1,0 +1,29 @@
+id: 158
+code: null
+title: Série de posts LinkedIn FR (build-in-public) — banque de contenus post-lancement
+status: in_progress
+tags:
+  - marketing
+  - content
+size: null
+team: marketing
+detail: >-
+  Au-delà du post de lancement J0 (#20), une banque de 6-8 posts LinkedIn FR autonomes à distiller
+  après le lancement. Chaque post = 1 angle (dogfooding, une feature précise, une leçon, philosophie
+  fichiers plats, l'agent premier utilisateur, anti-SaaS, chiffres du backlog). Applique
+  docs/tone-of-voice.md à la lettre. Livrable: docs/linkedin-posts.md.
+refs:
+  - docs/tone-of-voice.md
+  - docs/comms-plan.md
+  - docs/announce-content.md
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-08T17:59:22"
+startedAt: "2026-07-08T17:59:33"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
