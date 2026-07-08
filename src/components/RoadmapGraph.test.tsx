@@ -4,14 +4,14 @@ import { hiddenPrereqNote, roundedEdgePath } from './RoadmapGraph'
 describe('hiddenPrereqNote (#138 — prérequis sans carte propre localisés)', () => {
   it('cite le #id et le titre de l’epic qui le porte', () => {
     expect(hiddenPrereqNote([{ id: 12, epicTitle: 'Checkout' }]))
-      .toBe("#12 — dans l'epic « Checkout »")
+      .toBe("#12 — in epic “Checkout”")
   })
 
   it('distingue le vraiment hors vue (masqué) de l’epic replié', () => {
     expect(hiddenPrereqNote([
       { id: 12, epicTitle: 'Checkout' },
       { id: 14, epicTitle: null },
-    ])).toBe("#12 — dans l'epic « Checkout » · #14 — hors vue (masquée)")
+    ])).toBe("#12 — in epic “Checkout” · #14 — out of view (hidden)")
   })
 
   it('liste vide → chaîne vide (aucun tooltip)', () => {

@@ -77,7 +77,7 @@ export function FilterMenu({ allLabel, options, selected, onChange, multiple = f
   const label =
     selected.length === 0 ? allLabel
     : selected.length === 1 ? (byValue.get(selected[0]) ?? selected[0])
-    : `${selected.length} filtres`
+    : `${selected.length} filters`
 
   return (
     <Popover.Root>
@@ -123,7 +123,7 @@ export function FilterMenu({ allLabel, options, selected, onChange, multiple = f
                 onClick={() => onChange([])}
                 className="mt-1 flex w-full border-t border-neutral-100 px-2.5 py-1.5 text-left text-xs text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700"
               >
-                Effacer le filtre
+                Clear filter
               </Popover.Close>
             )}
           </Popover.Popup>

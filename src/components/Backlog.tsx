@@ -12,7 +12,7 @@ import { TagGraph } from './TagGraph'
 import { tagGraph } from '../lib/tagGraph'
 import { TEAMS, type Team } from '../lib/tasks'
 
-/** Accord singulier/pluriel élémentaire (français). */
+/** Accord singulier/pluriel élémentaire (anglais). */
 const plural = (n: number, s: string) => `${n} ${s}${n === 1 ? '' : 's'}`
 
 /**
@@ -32,12 +32,12 @@ export function Backlog() {
   const [query, setQuery] = useState('')
 
   if (loading && !tree) {
-    return <div className="mx-auto max-w-3xl px-6 py-8 text-sm text-neutral-500">Chargement…</div>
+    return <div className="mx-auto max-w-3xl px-6 py-8 text-sm text-neutral-500">Loading…</div>
   }
   if (loadError) {
     return (
       <div className="mx-auto max-w-3xl px-6 py-8">
-        <h1 className="text-lg font-semibold tracking-tight">Serveur injoignable</h1>
+        <h1 className="text-lg font-semibold tracking-tight">Server unreachable</h1>
         <p className="mt-1 font-mono text-xs text-neutral-500">{loadError}</p>
       </div>
     )
@@ -46,10 +46,10 @@ export function Backlog() {
     return (
       <div className="mx-auto max-w-3xl px-6 py-8">
         <h1 className="text-lg font-semibold tracking-tight">
-          {errors.length} erreur{errors.length > 1 ? 's' : ''} de validation dans docs/tasks/
+          {errors.length} validation error{errors.length > 1 ? 's' : ''} in docs/tasks/
         </h1>
         <p className="mt-1 text-sm text-neutral-500">
-          Corriger les fichiers fautifs — rien n'est rendu tant que la source n'est pas saine.
+          Fix the offending files — nothing renders until the source is healthy.
         </p>
         <ul className="mt-6 flex flex-col divide-y divide-neutral-100 border border-neutral-200 bg-white">
           {errors.map((e, i) => (
@@ -95,7 +95,7 @@ export function Backlog() {
 
   // Ordre canonique (décision Rémi) : stage puis ancienneté — partagé (TaskColumns).
   const openAll = all.filter((t) => t.status !== 'done' && matches(t))
-  // Les quick vivent dans la zone Mini ; les task dans « À faire ».
+  // Les quick vivent dans la zone Mini ; les task dans « To do ».
   const quicks = sortOpen(openAll.filter((t) => t.kind === 'quick'), (id) => stageOf.get(id) ?? '99')
   const open = sortOpen(openAll.filter((t) => t.kind !== 'quick'), (id) => stageOf.get(id) ?? '99')
   const done = sortDone(all.filter((t) => t.status === 'done' && matches(t)))
@@ -106,14 +106,14 @@ export function Backlog() {
   return (
     <div className="flex h-full flex-col">
       {/* Header unifié (modèle Roadmap) : filtres en dropdowns, hauteur = panneau. */}
-      <ViewHeader meta={`${plural(open.length, 'ouverte')} · ${plural(done.length, 'terminée')}`}>
+      <ViewHeader meta={`${plural(open.length, 'open')} · ${plural(done.length, 'done')}`}>
         <div className="relative w-56">
           <Search size={13} className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-neutral-500" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Rechercher…"
-            aria-label="Rechercher une tâche"
+            placeholder="Search…"
+            aria-label="Search tasks"
             className="w-full rounded-md border border-neutral-300 bg-white py-1 pl-7 pr-2 text-xs text-neutral-900 placeholder:text-neutral-500 focus:border-neutral-900 focus:outline-none"
           />
         </div>
@@ -122,7 +122,7 @@ export function Backlog() {
           onClick={() => openCreateTask(createIn)}
           className="rounded-md border border-neutral-900 bg-neutral-900 px-2.5 py-1 text-xs text-white hover:bg-neutral-700"
         >
-          + tâche
+          + task
         </button>
       </ViewHeader>
 

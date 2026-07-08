@@ -31,20 +31,20 @@ import type { TaskNode, TaskTree } from '../lib/tasks'
  * IDENTIQUE (hauteur mesurée sur le rendu), aucun rétrécissement.
  */
 
-const STATUS_FR: Record<TaskNode['status'], string> = {
-  todo: 'à faire', in_progress: 'en cours', done: 'faite',
+const STATUS_LABEL: Record<TaskNode['status'], string> = {
+  todo: 'todo', in_progress: 'in progress', done: 'done',
 }
-const DEP_STATE_FR = {
-  done: 'faite', available: 'disponible', locked: 'verrouillée',
+const DEP_STATE_LABEL = {
+  done: 'done', available: 'available', locked: 'locked',
 } as const
 
-// Choisir « faite » dans ce Select n'écrit jamais directement : il ouvre le
-// mini-formulaire « Terminer… » (done guidé, outcome requis). Aucun chemin UI
+// Choisir « done » dans ce Select n'écrit jamais directement : il ouvre le
+// mini-formulaire « Finish… » (done guidé, outcome requis). Aucun chemin UI
 // ne mène à done sans outcome. Les retours en arrière restent des PATCH directs.
 const STATUS_ITEMS: SelectItem[] = [
-  { value: 'todo', label: 'à faire' },
-  { value: 'in_progress', label: 'en cours' },
-  { value: 'done', label: 'faite' },
+  { value: 'todo', label: 'todo' },
+  { value: 'in_progress', label: 'in progress' },
+  { value: 'done', label: 'done' },
 ]
 // '' = aucune (null). Enum réel validate.ts : S/M/L/null.
 const SIZE_ITEMS: SelectItem[] = [
@@ -166,7 +166,7 @@ function RelationRow({ tree, id, badge, onRemove }: {
         </span>
         {badge && <span className="ml-auto shrink-0 text-[11px] text-neutral-500">{badge}</span>}
       </button>
-      {onRemove && <RemoveButton label={`Retirer #${id}`} onClick={onRemove} />}
+      {onRemove && <RemoveButton label={`Remove #${id}`} onClick={onRemove} />}
     </div>
   )
 }
@@ -214,7 +214,7 @@ function RefLine({ refPath, onRemove }: { refPath: string; onRemove?: () => void
       ) : (
         <div className="min-w-0 flex-1 truncate px-1.5 py-0.5 font-mono text-xs text-neutral-600" title={refPath}>{refPath}</div>
       )}
-      {onRemove && <RemoveButton label={`Retirer ${refPath}`} onClick={onRemove} />}
+      {onRemove && <RemoveButton label={`Remove ${refPath}`} onClick={onRemove} />}
     </div>
   )
 }
@@ -240,25 +240,25 @@ function DoneForm({ task, busy, onCancel, onSubmit }: {
   return (
     <div className="mt-2 flex flex-col gap-2.5 border border-neutral-200 bg-neutral-50 p-3">
       <label className="flex flex-col gap-1">
-        <span className="text-[11px] font-medium text-neutral-500">Outcome — ce qui a été livré (requis)</span>
+        <span className="text-[11px] font-medium text-neutral-500">Outcome — what was delivered (required)</span>
         <AutoTextArea
           autoFocus
           value={outcome}
           onChange={(e) => setOutcome(e.target.value)}
-          placeholder="Une phrase orientée utilisateur, matière à changelog."
+          placeholder="One user-facing sentence, changelog material."
         />
       </label>
       <label className="flex flex-col gap-1">
-        <span className="text-[11px] font-medium text-neutral-500">Vérification (optionnel)</span>
-        <TextInput value={verification} onChange={(e) => setVerification(e.target.value)} placeholder="Comment l'artefact a été vérifié." />
+        <span className="text-[11px] font-medium text-neutral-500">Verification (optional)</span>
+        <TextInput value={verification} onChange={(e) => setVerification(e.target.value)} placeholder="How the artifact was verified." />
       </label>
       <div className="grid grid-cols-2 gap-2">
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] font-medium text-neutral-500">Commit (optionnel)</span>
+          <span className="text-[11px] font-medium text-neutral-500">Commit (optional)</span>
           <TextInput value={commit} onChange={(e) => setCommit(e.target.value)} placeholder="sha" />
         </label>
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] font-medium text-neutral-500">Release (optionnel)</span>
+          <span className="text-[11px] font-medium text-neutral-500">Release (optional)</span>
           <TextInput value={release} onChange={(e) => setRelease(e.target.value)} placeholder="v0.1.0" />
         </label>
       </div>
@@ -274,9 +274,9 @@ function DoneForm({ task, busy, onCancel, onSubmit }: {
           })}
           className={primaryBtn}
         >
-          {busy ? 'Enregistrement…' : 'Done ✓'}
+          {busy ? 'Saving…' : 'Done ✓'}
         </button>
-        <button type="button" onClick={onCancel} disabled={busy} className={actionBtn}>Annuler</button>
+        <button type="button" onClick={onCancel} disabled={busy} className={actionBtn}>Cancel</button>
       </div>
     </div>
   )
@@ -320,16 +320,16 @@ function TaskPanelBody({ id }: { id: number }) {
   const refsListRef = useRef<HTMLDivElement>(null)
 
   const task = tree ? findTaskInTree(tree, id) : null
-  if (!tree || !task) return <p className="text-sm text-neutral-500">Tâche introuvable (rechargez).</p>
+  if (!tree || !task) return <p className="text-sm text-neutral-500">Task not found (reload).</p>
 
   // Même source d'état que la Roadmap : computeAvailability (aucun recalcul
   // maison). 'locked' = prérequis non faits → cadenas au lieu du glyphe.
   const locked = computeAvailability(tree).get(id) === 'locked'
   const blocks = reverseDependents(tree, id).map((t) => t.id)
-  const depBadge = (depId: number) => DEP_STATE_FR[depState(tree, depId)]
+  const depBadge = (depId: number) => DEP_STATE_LABEL[depState(tree, depId)]
   const subBadge = (subId: number) => {
     const sub = task.subtasks.find((s) => s.id === subId)
-    return sub ? STATUS_FR[sub.status] : ''
+    return sub ? STATUS_LABEL[sub.status] : ''
   }
   // Vocabulaire de tags du projet — suggestions du Creatable.
   const allTags = [...new Set(activeTasks(tree).flatMap((t) => t.tags))]
@@ -367,11 +367,11 @@ function TaskPanelBody({ id }: { id: number }) {
       })
       const data = (await r.json()) as { ok: boolean; errors?: string[] }
       if (data.ok) { clearErr(field); flash(field); await reload(); return true }
-      setErr(field, data.errors ?? ['Erreur inconnue.'])
+      setErr(field, data.errors ?? ['Unknown error.'])
       return false
     } catch {
       // Erreur RÉSEAU uniquement → Toast (spec §Feedback), la saisie reste en place.
-      toast.add({ title: 'Erreur réseau', description: 'La modification n’a pas été enregistrée.', priority: 'high' })
+      toast.add({ title: 'Network error', description: 'The change was not saved.', priority: 'high' })
       return false
     }
   }
@@ -404,10 +404,10 @@ function TaskPanelBody({ id }: { id: number }) {
       const r = await fetch(url, init)
       const data = (await r.json()) as { ok: boolean; errors?: string[] }
       if (data.ok) { await reload(); if (closeOnSuccess) close(); return true }
-      setActionErrors(data.errors ?? ['Erreur inconnue.'])
+      setActionErrors(data.errors ?? ['Unknown error.'])
       return false
     } catch {
-      toast.add({ title: 'Erreur réseau', description: netMsg, priority: 'high' })
+      toast.add({ title: 'Network error', description: netMsg, priority: 'high' })
       return false
     } finally {
       setPending(false)
@@ -416,14 +416,14 @@ function TaskPanelBody({ id }: { id: number }) {
   const patchInit = (body: Record<string, unknown>): RequestInit => ({
     method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
   })
-  const start = () => void runAction(`/api/tasks/${id}`, patchInit({ status: 'in_progress' }), 'La tâche n’a pas pu être démarrée.', false)
+  const start = () => void runAction(`/api/tasks/${id}`, patchInit({ status: 'in_progress' }), 'The task could not be started.', false)
   const finishDone = async (fields: { outcome: string; verification: string | null; commit: string | null; release: string | null }) => {
-    const ok = await runAction(`/api/tasks/${id}`, patchInit({ status: 'done', ...fields }), 'La tâche n’a pas pu être terminée.', false)
+    const ok = await runAction(`/api/tasks/${id}`, patchInit({ status: 'done', ...fields }), 'The task could not be completed.', false)
     if (ok) setDoneOpen(false)
   }
   const remove = () => {
-    if (!window.confirm(`Supprimer définitivement la tâche #${id} ? (l'id ne sera jamais réutilisé)`)) return
-    void runAction(`/api/tasks/${id}`, { method: 'DELETE' }, 'La tâche n’a pas été supprimée.', true)
+    if (!window.confirm(`Permanently delete task #${id}? (the id will never be reused)`)) return
+    void runAction(`/api/tasks/${id}`, { method: 'DELETE' }, 'The task was not deleted.', true)
   }
 
   const openDetailEditor = (click?: { x: number; y: number }) => {
@@ -448,27 +448,27 @@ function TaskPanelBody({ id }: { id: number }) {
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center gap-1.5">
           {locked
-            ? <LockLocked size={11} className="shrink-0 text-neutral-500" ariaLabel="Verrouillée" />
+            ? <LockLocked size={11} className="shrink-0 text-neutral-500" ariaLabel="Locked" />
             : <KindGlyph task={task} />}
           <span className="font-mono text-xs text-neutral-500">#{task.id}</span>
           <div className="w-32">
             <Select
               ghost
-              aria-label="Statut"
+              aria-label="Status"
               defaultValue={task.status}
               items={STATUS_ITEMS}
               onValueChange={(v) => {
-                // Verrou done guidé : « faite » ouvre le mini-formulaire, jamais
+                // Verrou done guidé : « done » ouvre le mini-formulaire, jamais
                 // de PATCH direct vers done. (Le Select non contrôlé affiche déjà
-                // « faite » — le reload post-done confirme, Annuler remonte le panneau.)
+                // « done » — le reload post-done confirme, Cancel remonte le panneau.)
                 if (v === 'done') setDoneOpen(true)
                 else void save('status', changed(task.status, v), { status: v })
               }}
             />
           </div>
-          {/* Jalon (#133) : « bloque N » = dépendants inverses — le poids du verrou, visible. */}
+          {/* Jalon (#133) : « blocks N » = dépendants inverses — le poids du verrou, visible. */}
           {task.kind === 'milestone' && blocks.length > 0 && (
-            <Chip label={`bloque ${blocks.length}`} />
+            <Chip label={`blocks ${blocks.length}`} />
           )}
           <SavedTick show={savedIn('status')} />
         </div>
@@ -478,7 +478,7 @@ function TaskPanelBody({ id }: { id: number }) {
         <GhostAutoTextArea
           key={`title-${task.title}`}
           defaultValue={task.title}
-          aria-label="Titre"
+          aria-label="Title"
           onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur() } }}
           onBlur={(e) => {
             const v = e.target.value.trim()
@@ -509,12 +509,12 @@ function TaskPanelBody({ id }: { id: number }) {
         <div className="flex flex-wrap items-center gap-2">
           {task.status === 'todo' && (
             <button type="button" onClick={start} disabled={pending} className={primaryBtn}>
-              {pending ? 'Démarrage…' : 'Démarrer'}
+              {pending ? 'Starting…' : 'Start'}
             </button>
           )}
           {task.status === 'in_progress' && (
             <button type="button" onClick={() => setDoneOpen((o) => !o)} className={primaryBtn}>
-              {doneOpen ? 'Fermer' : 'Terminer…'}
+              {doneOpen ? 'Close' : 'Finish…'}
             </button>
           )}
           <button
@@ -527,14 +527,14 @@ function TaskPanelBody({ id }: { id: number }) {
                 setTimeout(() => setCopied(false), 1500)
               } catch {
                 // clipboard indisponible (contexte non sécurisé) — copie manuelle.
-                window.prompt('Copie manuelle du brief :', agentBrief(task))
+                window.prompt('Copy the brief manually:', agentBrief(task))
               }
             }}
           >
-            {copied ? 'Copié' : 'Copier le brief agent'}
+            {copied ? 'Copied' : 'Copy agent brief'}
           </button>
           <button type="button" onClick={remove} disabled={pending} className={`ml-auto ${actionBtn}`}>
-            Supprimer
+            Delete
           </button>
         </div>
         <Collapsible.Root open={doneOpen} onOpenChange={setDoneOpen}>
@@ -547,10 +547,10 @@ function TaskPanelBody({ id }: { id: number }) {
       {/* Métadonnées : champs ghost permanents, étiquetés. */}
       <div className="grid grid-cols-3 gap-2">
         <div className="flex flex-col gap-0.5">
-          <SectionLabel>Taille</SectionLabel>
+          <SectionLabel>Size</SectionLabel>
           <Select
             ghost
-            aria-label="Taille"
+            aria-label="Size"
             defaultValue={task.size ?? ''}
             items={SIZE_ITEMS}
             onValueChange={(v) => void save('size', changed(task.size, v || null), { size: v || null })}
@@ -603,7 +603,7 @@ function TaskPanelBody({ id }: { id: number }) {
       {/* Détail : markdown rendu au repos ; clic → textarea à taille identique. */}
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
-          <SectionLabel>Détail</SectionLabel>
+          <SectionLabel>Detail</SectionLabel>
           <SavedTick show={savedIn('detail')} />
         </div>
         {detailEditing ? (
@@ -637,9 +637,9 @@ function TaskPanelBody({ id }: { id: number }) {
             ref={detailReadRef}
             role="button"
             tabIndex={0}
-            title="Cliquer pour éditer"
+            title="Click to edit"
             // Nom accessible COURT (sinon tout le markdown devient le nom du bouton).
-            aria-label="Modifier le détail"
+            aria-label="Edit detail"
             onClick={(e) => { if (!(e.target as HTMLElement).closest('a')) openDetailEditor({ x: e.clientX, y: e.clientY }) }}
             // Un role="button" répond à Entrée ET Espace (design.md §3.5).
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDetailEditor() } }}
@@ -648,7 +648,7 @@ function TaskPanelBody({ id }: { id: number }) {
             {task.detail ? (
               <Markdown source={task.detail} className="doc-prose--panel" />
             ) : (
-              <p className="text-xs text-neutral-500">Aucun détail. Cliquer pour ajouter.</p>
+              <p className="text-xs text-neutral-500">No detail. Click to add.</p>
             )}
           </div>
         )}
@@ -658,7 +658,7 @@ function TaskPanelBody({ id }: { id: number }) {
       {/* Dépend de : lignes navigables (✕ au survol) + ajout ghost permanent. */}
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
-          <SectionLabel>Dépend de</SectionLabel>
+          <SectionLabel>Depends on</SectionLabel>
           <SavedTick show={savedIn('dependsOn')} />
         </div>
         <div ref={depsListRef} tabIndex={-1} className="flex flex-col">
@@ -670,21 +670,21 @@ function TaskPanelBody({ id }: { id: number }) {
           ))}
           <AddCombobox
             items={relItems(task.dependsOn)}
-            placeholder="+ ajouter une dépendance"
-            aria-label="Ajouter une dépendance"
+            placeholder="+ add a dependency"
+            aria-label="Add a dependency"
             onAdd={(v) => void save('dependsOn', true, { dependsOn: [...task.dependsOn, Number(v)] })}
           />
         </div>
         <FieldError errs={errors.dependsOn} />
       </div>
 
-      <RelationList label="Bloque" tree={tree} ids={blocks} />
-      <RelationList label="Sous-tâches" tree={tree} ids={task.subtasks.map((s) => s.id)} badgeOf={subBadge} />
+      <RelationList label="Blocks" tree={tree} ids={blocks} />
+      <RelationList label="Subtasks" tree={tree} ids={task.subtasks.map((s) => s.id)} badgeOf={subBadge} />
 
-      {/* Liens : même patron que Dépend de. */}
+      {/* Liens : même patron que Depends on. */}
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
-          <SectionLabel>Liens</SectionLabel>
+          <SectionLabel>Links</SectionLabel>
           <SavedTick show={savedIn('links')} />
         </div>
         <div ref={linksListRef} tabIndex={-1} className="flex flex-col">
@@ -696,8 +696,8 @@ function TaskPanelBody({ id }: { id: number }) {
           ))}
           <AddCombobox
             items={relItems(task.links)}
-            placeholder="+ ajouter un lien"
-            aria-label="Ajouter un lien"
+            placeholder="+ add a link"
+            aria-label="Add a link"
             onAdd={(v) => void save('links', true, { links: [...task.links, Number(v)] })}
           />
         </div>
@@ -707,7 +707,7 @@ function TaskPanelBody({ id }: { id: number }) {
       {/* Références : lignes (✕ au survol) + input d'ajout ghost (Entrée = ajouter). */}
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
-          <SectionLabel>Références</SectionLabel>
+          <SectionLabel>References</SectionLabel>
           <SavedTick show={savedIn('refs')} />
         </div>
         <div ref={refsListRef} tabIndex={-1} className="flex flex-col gap-0.5">
@@ -719,8 +719,8 @@ function TaskPanelBody({ id }: { id: number }) {
           ))}
           <GhostInput
             key={`refs-${task.refs.length}`}
-            placeholder="+ ajouter une référence (chemin, Entrée)"
-            aria-label="Ajouter une référence"
+            placeholder="+ add a reference (path, Enter)"
+            aria-label="Add a reference"
             onKeyDown={(e) => {
               if (e.key !== 'Enter') return
               const v = e.currentTarget.value.trim()
@@ -737,16 +737,16 @@ function TaskPanelBody({ id }: { id: number }) {
       {/* Consignation : inputs ghost permanents (corrections rares mais directes). */}
       <div className="flex flex-col gap-1 border border-neutral-200 bg-neutral-50 px-2 py-2">
         <div className="flex items-center gap-2 px-1.5">
-          <div className="text-[11px] font-medium text-neutral-500">Consignation</div>
+          <div className="text-[11px] font-medium text-neutral-500">Log</div>
           <SavedTick show={savedIn('outcome', 'verification', 'commit', 'release')} />
         </div>
         <div className="px-1.5 text-xs text-neutral-500">
-          <span title={absoluteDate(task.createdAt)}>créée {relativeTime(task.createdAt)}</span>
-          {task.completedAt ? <> · <span title={absoluteDate(task.completedAt)}>terminée {relativeTime(task.completedAt)}</span></> : ''}
+          <span title={absoluteDate(task.createdAt)}>created {relativeTime(task.createdAt)}</span>
+          {task.completedAt ? <> · <span title={absoluteDate(task.completedAt)}>completed {relativeTime(task.completedAt)}</span></> : ''}
         </div>
         {([
           { field: 'outcome', label: 'outcome', value: task.outcome, area: true },
-          { field: 'verification', label: 'vérification', value: task.verification, area: true },
+          { field: 'verification', label: 'verification', value: task.verification, area: true },
           { field: 'commit', label: 'commit', value: task.commit, area: false },
           { field: 'release', label: 'release', value: task.release, area: false },
         ] as const).map(({ field, label, value, area }) => (

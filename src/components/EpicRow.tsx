@@ -151,7 +151,7 @@ export function epicStatusOf(progress: { done: number; total: number }, tasks: T
   return 'todo'
 }
 
-/** Accord singulier/pluriel élémentaire (français). */
+/** Accord singulier/pluriel élémentaire (anglais). */
 const plural = (n: number, s: string) => `${n} ${s}${n === 1 ? '' : 's'}`
 
 /**
@@ -195,10 +195,10 @@ function EpicTitleInput({ slug, title, onError, done = false }: {
       })
       const data = (await r.json()) as { ok: boolean; errors?: string[] }
       if (data.ok) await treeState.reload()
-      else { revert(); onError((data.errors ?? ['Erreur inconnue.']).join(' · ')) }
+      else { revert(); onError((data.errors ?? ['Unknown error.']).join(' · ')) }
     } catch {
       revert()
-      onError('Échec réseau — le nom de l’epic n’a pas été enregistré.')
+      onError('Network error — the epic name was not saved.')
     } finally {
       setBusy(false)
     }
@@ -211,8 +211,8 @@ function EpicTitleInput({ slug, title, onError, done = false }: {
       <GhostInput
         key={title}
         defaultValue={title}
-        aria-label={`Renommer l'epic ${slug}`}
-        title="Renommer l'epic (le slug ne change pas)"
+        aria-label={`Rename epic ${slug}`}
+        title="Rename the epic (the slug does not change)"
         disabled={busy}
         onChange={(e) => setLen(e.target.value.length)}
         onKeyDown={(e) => {
@@ -251,7 +251,7 @@ export function EpicRow({ slug, title, tasks, progress, persistKey }: {
   const partial = tasks.length < progress.total
   // Compte LOCAL (ce que ce dépliage révèle) — « ici » quand l'epic a aussi des
   // tâches ailleurs (autre liste, autre stage).
-  const countLabel = `${plural(tasks.length, 'tâche')}${partial ? ' ici' : ''}`
+  const countLabel = `${plural(tasks.length, 'task')}${partial ? ' here' : ''}`
   // Epic 100 % terminé (#151) : titre barré + grisé comme une tâche done, sinon
   // confusion visuelle avec les epics à faire / en cours.
   const status = epicStatusOf(progress, tasks)
@@ -265,7 +265,7 @@ export function EpicRow({ slug, title, tasks, progress, persistKey }: {
         className="relative flex w-full items-center gap-2 px-4 py-[5px] text-sm hover:bg-neutral-50"
       >
         <Collapsible.Trigger
-          aria-label={`${title} — ${countLabel}, ${progress.done} sur ${progress.total} tâches terminées`}
+          aria-label={`${title} — ${countLabel}, ${progress.done} of ${progress.total} tasks done`}
           className="absolute inset-0 h-full w-full"
         />
         <Chevron />
@@ -277,7 +277,7 @@ export function EpicRow({ slug, title, tasks, progress, persistKey }: {
           <EpicProgressBar done={progress.done} total={progress.total} />
           <span
             className="font-mono text-[11px] text-neutral-500"
-            title={`Complétion globale de l'epic : ${progress.done}/${progress.total}`}
+            title={`Epic overall completion: ${progress.done}/${progress.total}`}
           >
             {progress.done}/{progress.total}
           </span>

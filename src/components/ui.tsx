@@ -43,7 +43,7 @@ export function SavedTick({ show }: { show: boolean }) {
   return (
     <span className="flex shrink-0 items-center gap-1 text-[11px] text-neutral-500">
       <Check size={10} />
-      enregistré
+      saved
     </span>
   )
 }
@@ -86,7 +86,7 @@ export function ErrorBanner({ errors }: { errors: string[] }) {
     <div role="alert" className="border border-l-4 border-neutral-900 bg-neutral-100 px-3 py-2 text-xs text-neutral-800">
       <div className="mb-1 flex items-center gap-1.5 font-semibold text-neutral-900">
 <Warning size={12} className="shrink-0" />
-        Erreur
+        Error
       </div>
       <ul className="flex flex-col gap-1">
         {errors.map((e, i) => <li key={i} className="font-mono">{e}</li>)}
@@ -172,7 +172,7 @@ export function ToastViewport() {
               <Toast.Description className="mt-0.5 text-xs text-neutral-700" />
             </div>
             <Toast.Close
-              aria-label="Fermer"
+              aria-label="Close"
               className="shrink-0 rounded p-0.5 text-neutral-500 hover:text-neutral-700"
             >
 <Cross size={10} />
@@ -333,7 +333,7 @@ export function AddCombobox({ items, placeholder, onAdd, 'aria-label': ariaLabel
           {/* Largeur = celle du champ (pas min-) : les lignes riches (#125)
               tronquent leur titre au lieu de dilater le popup à l'écran. */}
           <Combobox.Popup className="max-h-64 w-[var(--anchor-width)] overflow-y-auto border border-neutral-200 bg-white py-1 shadow-sm">
-            <Combobox.Empty className="px-2.5 py-1.5 text-sm text-neutral-500">Aucune tâche.</Combobox.Empty>
+            <Combobox.Empty className="px-2.5 py-1.5 text-sm text-neutral-500">No tasks.</Combobox.Empty>
             <Combobox.List>
               {(item: SelectItem) => (
                 <Combobox.Item
@@ -416,7 +416,7 @@ export function TagsCombobox({ tags, suggestions, disabled = false, onSave }: {
             className="flex items-center gap-1 text-[12px] text-neutral-500"
           >
             #{item.value}
-            <Combobox.ChipRemove aria-label={`Retirer ${item.value}`} className="shrink-0 rounded text-neutral-500 hover:text-neutral-700">
+            <Combobox.ChipRemove aria-label={`Remove ${item.value}`} className="shrink-0 rounded text-neutral-500 hover:text-neutral-700">
               <Cross size={8} />
             </Combobox.ChipRemove>
           </Combobox.Chip>
@@ -430,7 +430,7 @@ export function TagsCombobox({ tags, suggestions, disabled = false, onSave }: {
       <Combobox.Portal>
         <Combobox.Positioner sideOffset={4} className="z-50">
           <Combobox.Popup className="max-h-56 min-w-[var(--anchor-width)] overflow-y-auto border border-neutral-200 bg-white py-1 shadow-sm">
-            <Combobox.Empty className="px-2.5 py-1.5 text-sm text-neutral-500">Aucun tag.</Combobox.Empty>
+            <Combobox.Empty className="px-2.5 py-1.5 text-sm text-neutral-500">No tags.</Combobox.Empty>
             <Combobox.List>
               {(item: TagItem) => (
                 <Combobox.Item
@@ -441,7 +441,7 @@ export function TagsCombobox({ tags, suggestions, disabled = false, onSave }: {
                   {item.creatable ? (
                     <>
                       <Plus size={10} className="shrink-0 text-neutral-500" />
-                      <span>Créer « {item.creatable} »</span>
+                      <span>Create “{item.creatable}”</span>
                     </>
                   ) : (
                     <>
@@ -517,7 +517,7 @@ export function EpicCombobox({ value, suggestions, disabled = false, onSave, toS
         <Combobox.Portal>
           <Combobox.Positioner sideOffset={4} className="z-50">
             <Combobox.Popup className="max-h-56 min-w-[var(--anchor-width)] overflow-y-auto border border-neutral-200 bg-white py-1 shadow-sm">
-              <Combobox.Empty className="px-2.5 py-1.5 text-sm text-neutral-500">Aucun epic.</Combobox.Empty>
+              <Combobox.Empty className="px-2.5 py-1.5 text-sm text-neutral-500">No epics.</Combobox.Empty>
               <Combobox.List>
                 {(item: string) => (
                   <Combobox.Item
@@ -535,7 +535,7 @@ export function EpicCombobox({ value, suggestions, disabled = false, onSave, toS
                     ) : (
                       <>
                         <Plus size={10} className="shrink-0 text-neutral-500" />
-                        <span>Créer « {toSlug(item)} »</span>
+                        <span>Create “{toSlug(item)}”</span>
                       </>
                     )}
                   </Combobox.Item>
@@ -548,8 +548,8 @@ export function EpicCombobox({ value, suggestions, disabled = false, onSave, toS
       {value !== null && (
         <button
           type="button"
-          aria-label="Retirer l'epic"
-          title="Retirer l'epic"
+          aria-label="Remove epic"
+          title="Remove epic"
           onClick={() => onSave(null)}
           className="shrink-0 rounded p-1 text-neutral-500 opacity-0 transition-opacity hover:bg-neutral-200 hover:text-neutral-700 focus-visible:opacity-100 group-hover:opacity-100"
         >
@@ -588,7 +588,7 @@ export function MultiCombobox({
             className="flex max-w-full items-center gap-1 bg-neutral-100 px-1.5 py-0.5 text-xs text-neutral-700"
           >
             <span className="min-w-0 max-w-[200px] truncate" title={item.label}>{item.label}</span>
-            <Combobox.ChipRemove className="shrink-0 text-neutral-500 hover:text-neutral-700" aria-label={`Retirer ${item.label}`}>
+            <Combobox.ChipRemove className="shrink-0 text-neutral-500 hover:text-neutral-700" aria-label={`Remove ${item.label}`}>
               <Cross size={8} />
             </Combobox.ChipRemove>
           </Combobox.Chip>
@@ -604,7 +604,7 @@ export function MultiCombobox({
           {/* Largeur = celle du champ (pas min-) : les lignes riches (#125)
               tronquent leur titre au lieu de dilater le popup à l'écran. */}
           <Combobox.Popup className="max-h-64 w-[var(--anchor-width)] overflow-y-auto border border-neutral-200 bg-white py-1 shadow-sm">
-            <Combobox.Empty className="px-2.5 py-1.5 text-sm text-neutral-500">Aucune tâche.</Combobox.Empty>
+            <Combobox.Empty className="px-2.5 py-1.5 text-sm text-neutral-500">No tasks.</Combobox.Empty>
             <Combobox.List>
               {(item: SelectItem) => (
                 <Combobox.Item

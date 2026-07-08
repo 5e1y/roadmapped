@@ -62,17 +62,17 @@ export function TaskList({ open, done, tree, filtered }: {
   const keyOf = (i: EpicListItem) => (i.type === 'epic' ? `epic:${i.slug}` : `task:${i.task.id}`)
   const empty = (label: string) => (
     <p className="border border-dashed border-neutral-300 px-4 py-8 text-center text-xs text-neutral-500">
-      {label}{filtered ? ' avec ces filtres' : ''}.
+      {label}{filtered ? ' with these filters' : ''}.
     </p>
   )
   return (
     <div className="flex flex-col gap-8">
       <section>
         <h2 className="mb-2 flex items-baseline justify-between px-1 text-xs font-medium text-neutral-500">
-          <span>À faire — par stage puis ancienneté</span>
+          <span>To do — by stage, then oldest first</span>
           <span className="font-mono text-[11px]">{open.length}</span>
         </h2>
-        {open.length === 0 ? empty("Rien d'ouvert") : (
+        {open.length === 0 ? empty('Nothing open') : (
           <div className="divide-y divide-neutral-100 border border-neutral-200 bg-white">
             {visible.map((i) => <ListItemRow key={keyOf(i)} item={i} tree={tree} />)}
             {hidden > 0 && (
@@ -81,7 +81,7 @@ export function TaskList({ open, done, tree, filtered }: {
                 onClick={() => setShowAll(true)}
                 className="w-full px-4 py-2.5 text-center text-xs text-neutral-500 hover:bg-neutral-50 hover:text-neutral-800"
               >
-                Voir les {hidden} autres
+                Show {hidden} more
               </button>
             )}
             {showAll && openItems.length > PREVIEW && (
@@ -90,7 +90,7 @@ export function TaskList({ open, done, tree, filtered }: {
                 onClick={() => setShowAll(false)}
                 className="w-full px-4 py-2.5 text-center text-xs text-neutral-500 hover:bg-neutral-50 hover:text-neutral-700"
               >
-                Réduire
+                Show less
               </button>
             )}
           </div>
@@ -98,10 +98,10 @@ export function TaskList({ open, done, tree, filtered }: {
       </section>
       <section>
         <h2 className="mb-2 flex items-baseline justify-between px-1 text-xs font-medium text-neutral-500">
-          <span>Terminées — dernière bouclée en premier</span>
+          <span>Done — most recently completed first</span>
           <span className="font-mono text-[11px]">{done.length}</span>
         </h2>
-        {done.length === 0 ? empty('Rien de terminé') : (
+        {done.length === 0 ? empty('Nothing done yet') : (
           <div className="divide-y divide-neutral-100 border border-neutral-200 bg-white">
             {doneItems.map((i) => <ListItemRow key={keyOf(i)} item={i} tree={tree} />)}
           </div>
@@ -148,18 +148,18 @@ export function MiniZone({ quicks, reload }: { quicks: TaskNode[]; reload: () =>
       })
       const data = (await r.json()) as { ok: boolean; errors?: string[] }
       if (data.ok) { setTitle(''); await reload() }
-      else setError((data.errors ?? ['Erreur inconnue.']).join(' · '))
+      else setError((data.errors ?? ['Unknown error.']).join(' · '))
     } catch {
-      setError('Échec réseau — le mini n’a pas été créé.')
+      setError('Network error — the mini was not created.')
     } finally {
       setBusy(false)
     }
   }
 
   const quickDone = async (t: TaskNode) => {
-    const outcome = window.prompt(`Terminer #${t.id} — qu'est-ce qui a été livré ?`)
+    const outcome = window.prompt(`Finish #${t.id} — what was delivered?`)
     if (outcome === null) return
-    if (outcome.trim() === '') { setError('Un outcome est requis pour terminer un mini.'); return }
+    if (outcome.trim() === '') { setError('An outcome is required to finish a mini.'); return }
     try {
       const r = await fetch(`/api/tasks/${t.id}`, {
         method: 'PATCH',
@@ -168,16 +168,16 @@ export function MiniZone({ quicks, reload }: { quicks: TaskNode[]; reload: () =>
       })
       const data = (await r.json()) as { ok: boolean; errors?: string[] }
       if (data.ok) await reload()
-      else setError((data.errors ?? ['Erreur inconnue.']).join(' · '))
+      else setError((data.errors ?? ['Unknown error.']).join(' · '))
     } catch {
-      setError('Échec réseau — le mini n’a pas été terminé.')
+      setError('Network error — the mini was not finished.')
     }
   }
 
   return (
     <section>
       <h2 className="mb-2 flex items-baseline justify-between px-1 text-xs font-medium text-neutral-500">
-        <span>Mini — changements éclair, terminés d'un clic sur le glyphe</span>
+        <span>Mini — lightning changes, finished with one click on the glyph</span>
         <span className="font-mono text-[11px]">{quicks.length}</span>
       </h2>
       <div className="divide-y divide-neutral-100 border border-neutral-200 bg-white">
@@ -190,8 +190,8 @@ export function MiniZone({ quicks, reload }: { quicks: TaskNode[]; reload: () =>
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') void create() }}
-            placeholder="Nouveau mini — titre puis Entrée"
-            aria-label="Nouveau mini"
+            placeholder="New mini — title, then Enter"
+            aria-label="New mini"
             disabled={busy}
             className="min-w-0 flex-1 text-sm placeholder:text-neutral-500"
           />
@@ -200,7 +200,7 @@ export function MiniZone({ quicks, reload }: { quicks: TaskNode[]; reload: () =>
               defaultValue={team}
               onValueChange={(v) => setTeam(v as Team)}
               items={TEAM_ITEMS}
-              aria-label="Team du mini"
+              aria-label="Mini team"
               disabled={busy}
               compact
             />
@@ -216,8 +216,8 @@ export function MiniZone({ quicks, reload }: { quicks: TaskNode[]; reload: () =>
               <button
                 type="button"
                 onClick={() => void quickDone(t)}
-                title="Terminer (outcome demandé)"
-                aria-label={`Terminer #${t.id}`}
+                title="Finish (outcome prompted)"
+                aria-label={`Finish #${t.id}`}
                 className="shrink-0 rounded p-1 hover:bg-neutral-200"
               >
                 <StatusGlyph status={t.status} />

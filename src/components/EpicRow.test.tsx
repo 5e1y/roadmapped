@@ -154,8 +154,8 @@ describe('EpicRow', () => {
     renderRow('test:epics:a')
     // Le titre est un input ghost permanent (#140-A) — éditable, jamais de swap.
     expect(screen.getByDisplayValue('Refonte checkout')).toBeInTheDocument()
-    expect(screen.getByLabelText("Renommer l'epic checkout")).toBeInTheDocument()
-    expect(screen.getByText('2 tâches ici')).toBeInTheDocument()
+    expect(screen.getByLabelText('Rename epic checkout')).toBeInTheDocument()
+    expect(screen.getByText('2 tasks here')).toBeInTheDocument()
     expect(screen.getByText('1/3')).toBeInTheDocument()
     // repliée par défaut : les membres ne sont pas rendus
     expect(screen.queryByText('Tâche 2')).not.toBeInTheDocument()
@@ -174,12 +174,12 @@ describe('EpicRow', () => {
   it('annonce la complétion aux lecteurs d’écran (nom accessible du trigger)', () => {
     renderRow('test:epics:c')
     expect(
-      screen.getByRole('button', { name: 'Refonte checkout — 2 tâches ici, 1 sur 3 tâches terminées' }),
+      screen.getByRole('button', { name: 'Refonte checkout — 2 tasks here, 1 of 3 tasks done' }),
     ).toBeInTheDocument()
   })
 
   it('affiche l’état entamé du groupe (carré demi-plein accent)', () => {
     renderRow('test:epics:d')
-    expect(screen.getByRole('img', { name: 'epic en cours' })).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: 'epic in progress' })).toBeInTheDocument()
   })
 })

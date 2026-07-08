@@ -34,9 +34,9 @@ const ok = (text, structured) => ({
   ...(structured !== undefined ? { structuredContent: structured } : {}),
 })
 const fail = (text) => ({ content: [{ type: 'text', text }], isError: true })
-/** MutationResult → sortie MCP : succès (texte + tâche structurée) ou isError (erreurs autoportantes). */
+/** MutationResult → MCP output: success (text + structured task) or isError (self-contained errors). */
 const fromRes = (res, okText, structured) =>
-  res.ok ? ok(okText, structured) : fail(`Échec :\n${res.errors.map((e) => `  - ${e}`).join('\n')}`)
+  res.ok ? ok(okText, structured) : fail(`Failed:\n${res.errors.map((e) => `  - ${e}`).join('\n')}`)
 const splitList = (v) => (Array.isArray(v) ? v : typeof v === 'string' && v !== '' ? v.split(',').map((s) => s.trim()).filter(Boolean) : [])
 
 // Schémas de params réutilisés (le schéma EST la doc injectée dans le contexte).
@@ -44,23 +44,23 @@ const S = {
   none: { type: 'object', properties: {}, additionalProperties: false },
   id: {
     type: 'object',
-    properties: { id: { type: 'number', description: 'id global de la tâche (ex: 42)' } },
+    properties: { id: { type: 'number', description: 'global task id (e.g. 42)' } },
     required: ['id'], additionalProperties: false,
   },
-  team: { type: 'string', enum: TEAMS, description: 'équipe métier (enum fixe)' },
+  team: { type: 'string', enum: TEAMS, description: 'business team (fixed enum)' },
 }
 
-/** Rendu texte détaillé d'une tâche (équivalent de `show` du CLI). */
+/** Detailed text rendering of a task (equivalent of the CLI's `show`). */
 function showText(hit, tree) {
   const t = hit.task
-  const L = [taskLine(t, ''), `  section: ${hit.sectionKey}`, `  fichier: ${t.file}`]
+  const L = [taskLine(t, ''), `  section: ${hit.sectionKey}`, `  file: ${t.file}`]
   if (t.detail) L.push(`  detail: ${t.detail.trim()}`)
   if (t.refs.length) L.push(`  refs: ${t.refs.join(' · ')}`)
-  if (t.dependsOn.length) L.push(`  dépend de: ${t.dependsOn.map((d) => refLine(tree, d)).join(' · ')}`)
-  if (t.links.length) L.push(`  liées: ${t.links.map((l) => refLine(tree, l)).join(' · ')}`)
+  if (t.dependsOn.length) L.push(`  depends on: ${t.dependsOn.map((d) => refLine(tree, d)).join(' · ')}`)
+  if (t.links.length) L.push(`  linked: ${t.links.map((l) => refLine(tree, l)).join(' · ')}`)
   if (t.outcome) L.push(`  outcome: ${t.outcome}`)
-  if (t.verification) L.push(`  vérification: ${t.verification}`)
-  L.push(`  dates: créée ${t.createdAt}${t.completedAt ? ` · terminée ${t.completedAt}` : ''} · source ${t.source}`)
+  if (t.verification) L.push(`  verification: ${t.verification}`)
+  L.push(`  dates: created ${t.createdAt}${t.completedAt ? ` · completed ${t.completedAt}` : ''} · source ${t.source}`)
   for (const sub of t.subtasks) L.push(taskLine(sub, '    '))
   return L.join('\n')
 }
@@ -73,7 +73,7 @@ export function makeTools(ROOT) {
   return [
   {
     name: 'sitrep',
-    description: "L'état du monde en ≤30 lignes : done du jour, in_progress, 3 prochaines, validate, alertes. LE 1er geste de session.",
+    description: 'The state of the world in ≤30 lines: done today, in_progress, next 3, validate, alerts. THE first move of a session.',
     inputSchema: S.none,
     handler: () => {
       const { tree, errors } = treeWithErrors(ROOT)
@@ -82,63 +82,63 @@ export function makeTools(ROOT) {
   },
   {
     name: 'brief',
-    description: "Le contexte d'exécution dense d'une tâche (deps/liées titrées, refs + extraits d'ancre & fraîcheur, rappel done). Remplace show en cascade.",
+    description: "The dense execution context for a task (titled deps/linked, refs + anchor excerpts & freshness, done reminder). Supersedes show in cascade.",
     inputSchema: S.id,
     handler: ({ id }) => {
       const tree = readTree(ROOT)
       const hit = findTask(tree, id)
-      return hit ? ok(briefText(tree, hit)) : fail(`Aucune tâche #${id}.`)
+      return hit ? ok(briefText(tree, hit)) : fail(`No task #${id}.`)
     },
   },
   {
     name: 'show',
-    description: 'Détail complet d\'une tâche (id global).',
+    description: 'Full detail of a task (global id).',
     inputSchema: S.id,
     handler: ({ id }) => {
       const tree = readTree(ROOT)
       const hit = findTask(tree, id)
-      return hit ? ok(showText(hit, tree), hit.task) : fail(`Aucune tâche #${id}.`)
+      return hit ? ok(showText(hit, tree), hit.task) : fail(`No task #${id}.`)
     },
   },
   {
     name: 'next',
-    description: 'La file de travail : les N prochaines todo DISPONIBLES (deps done), ordre stage puis ancienneté. À CONSOMMER telle quelle.',
+    description: 'The work queue: the next N AVAILABLE todo tasks (deps done), ordered by stage then age. To be CONSUMED as-is.',
     inputSchema: {
       type: 'object',
-      properties: { count: { type: 'number', description: 'nombre de tâches (défaut 1)' }, team: S.team },
+      properties: { count: { type: 'number', description: 'number of tasks (default 1)' }, team: S.team },
       additionalProperties: false,
     },
     handler: ({ count = 1, team } = {}) => {
       const queue = nextQueue(readTree(ROOT), { team }).slice(0, Math.max(1, count))
-      if (queue.length === 0) return ok('Aucune tâche disponible (tout est fait, verrouillé ou en cours).')
+      if (queue.length === 0) return ok('No task available (everything is done, locked, or in progress).')
       return ok(queue.map((t) => taskLine(t, '')).join('\n'))
     },
   },
   {
     name: 'take',
-    description: 'Ouvre une session : next + start + brief EN UN APPEL. Prend la prochaine tâche dispo (optionnellement filtrée par team), la démarre, renvoie son brief.',
+    description: 'Opens a session: next + start + brief IN ONE CALL. Takes the next available task (optionally filtered by team), starts it, returns its brief.',
     inputSchema: { type: 'object', properties: { team: S.team }, additionalProperties: false },
     handler: ({ team } = {}) => {
       const queue = nextQueue(readTree(ROOT), { team })
-      if (queue.length === 0) return ok(`Aucune tâche disponible${team ? ` pour la team ${team}` : ''}.`)
+      if (queue.length === 0) return ok(`No task available${team ? ` for team ${team}` : ''}.`)
       const id = queue[0].id
       const res = startTask(ROOT, id)
-      if (!res.ok) return fail(`Échec du start #${id} :\n${res.errors.join('\n')}`)
+      if (!res.ok) return fail(`Start failed for #${id}:\n${res.errors.join('\n')}`)
       const tree = readTree(ROOT)
       const hit = findTask(tree, id)
-      return ok(`#${id} démarrée.\n${briefText(tree, hit)}`)
+      return ok(`#${id} started.\n${briefText(tree, hit)}`)
     },
   },
   {
     name: 'list',
-    description: 'Liste le backlog, filtrable par section/status/team/tag.',
+    description: 'Lists the backlog, filterable by section/status/team/tag.',
     inputSchema: {
       type: 'object',
       properties: {
-        section: { type: 'string', description: 'slug de stage (01-idea … 08-mature)' },
+        section: { type: 'string', description: 'stage slug (01-idea … 08-mature)' },
         status: { type: 'string', enum: ['todo', 'in_progress', 'done'] },
         team: S.team,
-        tag: { type: 'string', description: 'ne garde que les tâches portant ce tag (ex: debt)' },
+        tag: { type: 'string', description: 'only keep tasks carrying this tag (e.g. debt)' },
       },
       additionalProperties: false,
     },
@@ -156,12 +156,12 @@ export function makeTools(ROOT) {
         lines.push(`${s.key} — ${s.title} (${s.status}) ${done}/${s.tasks.length}`)
         for (const t of s.tasks) lines.push(taskLine(t))
       }
-      return ok(lines.join('\n') || '(aucune tâche)')
+      return ok(lines.join('\n') || '(no task)')
     },
   },
   {
     name: 'roadmap',
-    description: 'Avancement global + vue par epic : progression et état de chaque tâche (done/disponible/verrouillée, deps manquantes).',
+    description: 'Overall progress + epic view: progress and state of each task (done/available/locked, missing deps).',
     inputSchema: S.none,
     handler: () => {
       const tree = readTree(ROOT)
@@ -170,14 +170,14 @@ export function makeTools(ROOT) {
       const missingOf = (t) => t.dependsOn.filter((d) => avail.get(d) === 'available' || avail.get(d) === 'locked')
       const progress = globalProgress(tree)
       const pct = progress.total === 0 ? 0 : Math.round((progress.done / progress.total) * 100)
-      const lines = [`avancement global : ${progress.done}/${progress.total} (${pct}%)`]
+      const lines = [`overall progress: ${progress.done}/${progress.total} (${pct}%)`]
       const epics = allEpics(tree)
       if (epics.length === 0) {
-        lines.push(`Aucun epic (aucune tâche ne porte le champ epic). ${active.length} tâches actives.`)
+        lines.push(`No epics (no task carries the epic field). ${active.length} active tasks.`)
         return ok(lines.join('\n'))
       }
       const taskTag = (state, missing) =>
-        state === 'done' ? '[x]' : state === 'available' ? '[~] (disponible)' : `[ ] (verrouillé: ${missing.map((d) => `#${d}`).join(' ')})`
+        state === 'done' ? '[x]' : state === 'available' ? '[~] (available)' : `[ ] (locked: ${missing.map((d) => `#${d}`).join(' ')})`
       for (const e of epics) {
         const p = epicProgress(tree, e.slug)
         lines.push(`\n${e.slug}${e.title !== e.slug ? ` — ${e.title}` : ''}  ${p.done}/${p.total}`)
@@ -187,19 +187,19 @@ export function makeTools(ROOT) {
         }
       }
       const unassigned = active.filter((t) => t.epic === null).length
-      if (unassigned > 0) lines.push(`\n(sans epic) ${unassigned} tâche(s) active(s) non affectée(s)`)
+      if (unassigned > 0) lines.push(`\n(no epic) ${unassigned} active task(s) unassigned`)
       return ok(lines.join('\n'))
     },
   },
   {
     name: 'validate',
-    description: 'Valide tout docs/tasks/ (schéma + unicité des ids + nextId).',
+    description: 'Validates all of docs/tasks/ (schema + id uniqueness + nextId).',
     inputSchema: S.none,
     handler: () => {
       const { errors } = treeWithErrors(ROOT)
       return errors.length === 0
-        ? ok('OK — validation passée.', { ok: true, errors: [] })
-        : fail(`${errors.length} erreur(s) :\n${errors.map((e) => `  - ${e}`).join('\n')}`)
+        ? ok('OK — validation passed.', { ok: true, errors: [] })
+        : fail(`${errors.length} error(s):\n${errors.map((e) => `  - ${e}`).join('\n')}`)
     },
   },
 
@@ -208,36 +208,36 @@ export function makeTools(ROOT) {
   // (team hors enum, cycle, section absente) revient en isError avec le message du noyau.
   {
     name: 'add',
-    description: 'Crée une tâche. team REQUISE (enum fixe). Pour un mini-ticket, préférer quick ; kind milestone = JALON (verrou via dependsOn).',
+    description: 'Creates a task. team REQUIRED (fixed enum). For a mini-ticket, prefer quick; kind milestone = MILESTONE (lock via dependsOn).',
     inputSchema: {
       type: 'object',
       properties: {
-        section: { type: 'string', description: 'slug de stage (01-idea … 08-mature)' },
+        section: { type: 'string', description: 'stage slug (01-idea … 08-mature)' },
         title: { type: 'string' },
         team: S.team,
-        kind: { type: 'string', enum: ['task', 'quick', 'milestone'], description: 'défaut task ; milestone = jalon (rendu diamant, cible de dependsOn)' },
+        kind: { type: 'string', enum: ['task', 'quick', 'milestone'], description: 'default task; milestone = milestone (rendered as diamond, target of dependsOn)' },
         detail: { type: 'string' },
         tags: { type: 'array', items: { type: 'string' } },
         size: { type: 'string', enum: ['S', 'M', 'L'] },
         refs: { type: 'array', items: { type: 'string' } },
         links: { type: 'array', items: { type: 'number' } },
         dependsOn: { type: 'array', items: { type: 'number' } },
-        epic: { type: 'string', description: 'slug du regroupement transverse (epic)' },
-        milestone: { type: 'string', description: 'DÉPRÉCIÉ — alias de epic (#133)' },
-        blocks: { type: 'array', items: { type: 'number' }, description: 'ids que la nouvelle tâche VERROUILLE : elle est ajoutée à leur dependsOn (sucre jalon, inverse de dependsOn)' },
+        epic: { type: 'string', description: 'slug of the cross-cutting grouping (epic)' },
+        milestone: { type: 'string', description: 'DEPRECATED — alias of epic (#133)' },
+        blocks: { type: 'array', items: { type: 'number' }, description: 'ids that the new task LOCKS: it is added to their dependsOn (milestone sugar, inverse of dependsOn)' },
         source: { type: 'string', enum: ['ai', 'user'] },
       },
       required: ['section', 'title', 'team'], additionalProperties: false,
     },
     handler: (a) => {
-      // --blocks : ids vérifiés AVANT toute écriture (pas de jalon créé puis chaînage
-      // à moitié appliqué), en miroir du CLI (#137).
+      // --blocks: ids verified BEFORE any write (no milestone created then half-applied
+      // chaining), mirroring the CLI (#137).
       const blocks = splitList(a.blocks).map(Number)
       if (blocks.length > 0) {
         const tree = readTree(ROOT)
         for (const id of blocks) {
           const hit = findTask(tree, id)
-          if (!hit) return fromRes({ ok: false, errors: [`blocks : aucune tâche #${id}.`] }, '')
+          if (!hit) return fromRes({ ok: false, errors: [`blocks: no task #${id}.`] }, '')
         }
       }
       const res = addTask(ROOT, {
@@ -245,11 +245,11 @@ export function makeTools(ROOT) {
         detail: a.detail ?? null, tags: splitList(a.tags), size: a.size ?? null,
         refs: splitList(a.refs), links: splitList(a.links).map(Number),
         dependsOn: splitList(a.dependsOn).map(Number),
-        // --milestone déprécié : alias lu tant qu'il existe (rétrocompat #133).
+        // --milestone deprecated: alias read as long as it exists (backwards compat #133).
         epic: a.epic ?? a.milestone ?? null,
         source: a.source ?? 'ai',
       })
-      // Chaînage APRÈS création (l'id du jalon existe désormais), en miroir du CLI.
+      // Chaining AFTER creation (the milestone's id now exists), mirroring the CLI.
       if (res.ok && blocks.length > 0) {
         const newId = res.task.id
         for (const id of blocks) {
@@ -257,26 +257,26 @@ export function makeTools(ROOT) {
           if (!t.dependsOn.includes(newId)) updateTask(ROOT, id, { dependsOn: [...t.dependsOn, newId] })
         }
       }
-      return fromRes(res, res.ok ? `#${res.task.id} créée → ${res.task.file}` : '', res.ok ? res.task : undefined)
+      return fromRes(res, res.ok ? `#${res.task.id} created → ${res.task.file}` : '', res.ok ? res.task : undefined)
     },
   },
   {
     name: 'quick',
-    description: 'Crée un mini-ticket (kind:quick) : titre + team suffisent (stage défaut = 1er open). --start enchaîne le start. Au done, outcome requis mais verification facultative.',
+    description: 'Creates a mini-ticket (kind:quick): title + team suffice (default stage = 1st open one). --start chains the start. At done, outcome is required but verification is optional.',
     inputSchema: {
       type: 'object',
       properties: {
         title: { type: 'string' },
         team: S.team,
-        stage: { type: 'string', description: 'slug de stage (défaut : 1er stage open)' },
+        stage: { type: 'string', description: 'stage slug (default: 1st open stage)' },
         tags: { type: 'array', items: { type: 'string' } },
-        start: { type: 'boolean', description: 'démarrer aussitôt (todo → in_progress)' },
+        start: { type: 'boolean', description: 'start immediately (todo → in_progress)' },
       },
       required: ['title', 'team'], additionalProperties: false,
     },
     handler: (a) => {
       const stage = a.stage ?? readTree(ROOT).sections.find((s) => s.status === 'open')?.key
-      if (!stage) return fail('Aucun stage "open" pour accueillir le quick — préciser stage.')
+      if (!stage) return fail('No "open" stage to host the quick — specify stage.')
       const res = addTask(ROOT, { section: stage, title: a.title, team: a.team, tags: splitList(a.tags), kind: 'quick' })
       if (!res.ok) return fromRes(res)
       if (a.start) {
@@ -285,23 +285,23 @@ export function makeTools(ROOT) {
       }
       const tree = readTree(ROOT)
       const hit = findTask(tree, res.task.id)
-      return ok(`#${res.task.id} créée (quick)${a.start ? ' et démarrée' : ''}.`, hit.task)
+      return ok(`#${res.task.id} created (quick)${a.start ? ' and started' : ''}.`, hit.task)
     },
   },
   {
     name: 'start',
-    description: 'Démarre une tâche (todo → in_progress).',
+    description: 'Starts a task (todo → in_progress).',
     inputSchema: S.id,
-    handler: ({ id }) => fromRes(startTask(ROOT, id), `#${id} démarrée (in_progress).`),
+    handler: ({ id }) => fromRes(startTask(ROOT, id), `#${id} started (in_progress).`),
   },
   {
     name: 'done',
-    description: 'Consigne une livraison (→ done). Sans commit, l\'app remplit le HEAD. outcome = ce qui a été livré ; verification = ce qui a été OBSERVÉ (facultative pour un quick).',
+    description: 'Logs a delivery (→ done). Without commit, the app fills in HEAD. outcome = what was delivered; verification = what was OBSERVED (optional for a quick).',
     inputSchema: {
       type: 'object',
       properties: {
         id: { type: 'number' },
-        commit: { type: 'string', description: 'sha de livraison (défaut : HEAD courant)' },
+        commit: { type: 'string', description: 'delivery sha (default: current HEAD)' },
         outcome: { type: 'string' },
         verification: { type: 'string' },
         release: { type: 'string' },
@@ -309,7 +309,7 @@ export function makeTools(ROOT) {
       required: ['id'], additionalProperties: false,
     },
     handler: (a) => {
-      // Autofill HEAD (#71) : l'agent ne lit plus git.
+      // Autofill HEAD (#71): the agent no longer reads git.
       let commit = typeof a.commit === 'string' ? a.commit : undefined
       if (commit === undefined) { const head = git('rev-parse --short HEAD'); if (head) commit = head }
       const res = doneTask(ROOT, a.id, { commit, outcome: a.outcome, verification: a.verification, release: a.release })
@@ -317,13 +317,13 @@ export function makeTools(ROOT) {
       const tree = readTree(ROOT)
       const hit = findTask(tree, a.id)
       const suffix = res.warnings?.length ? `\n⚠ ${res.warnings.join('\n⚠ ')}` : ''
-      // warnings AUSSI dans le structured : le client peut masquer le texte (#95).
-      return ok(`#${a.id} terminée (done).${commit ? ` commit=${commit}.` : ''}${suffix}`, { task: hit.task, warnings: res.warnings ?? [] })
+      // warnings ALSO in structured: the client may hide the text (#95).
+      return ok(`#${a.id} done.${commit ? ` commit=${commit}.` : ''}${suffix}`, { task: hit.task, warnings: res.warnings ?? [] })
     },
   },
   {
     name: 'update',
-    description: 'Patch générique d\'une tâche (champs string, listes, dependsOn, epic). Envoyer [] pour vider une liste.',
+    description: 'Generic patch of a task (string fields, lists, dependsOn, epic). Send [] to clear a list.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -331,8 +331,8 @@ export function makeTools(ROOT) {
         title: { type: 'string' }, detail: { type: 'string' }, status: { type: 'string', enum: ['todo', 'in_progress', 'done'] },
         size: { type: 'string' }, team: S.team, code: { type: 'string' }, source: { type: 'string', enum: ['ai', 'user'] },
         commit: { type: 'string' }, outcome: { type: 'string' }, verification: { type: 'string' }, release: { type: 'string' },
-        epic: { type: 'string', description: 'slug du regroupement transverse (epic)' },
-        milestone: { type: 'string', description: 'DÉPRÉCIÉ — alias de epic (#133)' },
+        epic: { type: 'string', description: 'slug of the cross-cutting grouping (epic)' },
+        milestone: { type: 'string', description: 'DEPRECATED — alias of epic (#133)' },
         tags: { type: 'array', items: { type: 'string' } }, refs: { type: 'array', items: { type: 'string' } },
         links: { type: 'array', items: { type: 'number' } }, dependsOn: { type: 'array', items: { type: 'number' } },
       },
@@ -343,20 +343,20 @@ export function makeTools(ROOT) {
       for (const f of ['title', 'detail', 'status', 'size', 'team', 'code', 'source', 'commit', 'outcome', 'verification', 'release', 'epic']) {
         if (a[f] !== undefined) patch[f] = a[f]
       }
-      // --milestone déprécié : alias de epic tant qu'il existe (rétrocompat #133).
+      // --milestone deprecated: alias of epic as long as it exists (backwards compat #133).
       if (a.milestone !== undefined && a.epic === undefined) patch.epic = a.milestone
       if (a.tags !== undefined) patch.tags = splitList(a.tags)
       if (a.refs !== undefined) patch.refs = splitList(a.refs)
       if (a.links !== undefined) patch.links = splitList(a.links).map(Number)
       if (a.dependsOn !== undefined) patch.dependsOn = splitList(a.dependsOn).map(Number)
-      return fromRes(updateTask(ROOT, a.id, patch), `#${a.id} mise à jour.`)
+      return fromRes(updateTask(ROOT, a.id, patch), `#${a.id} updated.`)
     },
   },
   ]
 }
 
-// ------------------------------------------------------------------ serveur
-/** Monte un serveur MCP branché sur `tools` (registre déjà lié à un ROOT). */
+// ------------------------------------------------------------------ server
+/** Mounts an MCP server wired to `tools` (registry already bound to a ROOT). */
 export function buildServer(tools) {
   const server = new Server({ name: 'roadmapped', version: '1.0.0' }, { capabilities: { tools: {} } })
   server.setRequestHandler(ListToolsRequestSchema, () => ({
@@ -364,20 +364,20 @@ export function buildServer(tools) {
   }))
   server.setRequestHandler(CallToolRequestSchema, async (req) => {
     const tool = tools.find((t) => t.name === req.params.name)
-    if (!tool) return fail(`Tool inconnu : ${req.params.name}`)
+    if (!tool) return fail(`Unknown tool: ${req.params.name}`)
     try {
       return await tool.handler(req.params.arguments ?? {})
     } catch (e) {
-      // Erreur métier (verrou timeout, écriture, etc.) → isError avec le message autoportant.
-      return fail(`Échec du tool ${tool.name} : ${e instanceof Error ? e.message : String(e)}`)
+      // Business error (lock timeout, write failure, etc.) → isError with the self-contained message.
+      return fail(`Tool ${tool.name} failed: ${e instanceof Error ? e.message : String(e)}`)
     }
   })
   return server
 }
 
-// Ne démarre le transport que si lancé comme binaire (pas à l'import du test).
+// Only starts the transport when run as a binary (not on test import).
 if (import.meta.url === `file://${process.argv[1]}`) {
   const { tasksDir: ROOT } = loadPaths()
   await buildServer(makeTools(ROOT)).connect(new StdioServerTransport())
-  process.stderr.write('roadmapped MCP server prêt (stdio).\n')
+  process.stderr.write('roadmapped MCP server ready (stdio).\n')
 }

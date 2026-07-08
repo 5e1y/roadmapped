@@ -27,7 +27,7 @@ function PanelHost() {
   if (!target) return null
   if (target.kind === 'task') {
     return (
-      <SidePanel title={`Tâche #${target.id}`} onClose={close}>
+      <SidePanel title={`Task #${target.id}`} onClose={close}>
         {/* key : les champs sont non contrôlés (defaultValue) — sans remontage
             le panneau garderait les valeurs de la tâche précédente. */}
         <TaskPanel key={target.id} id={target.id} />
@@ -36,7 +36,7 @@ function PanelHost() {
   }
   if (target.kind === 'create-task') {
     return (
-      <SidePanel title="Nouvelle tâche" onClose={close}>
+      <SidePanel title="New task" onClose={close}>
         <CreateTaskPanel key={target.section} section={target.section} />
       </SidePanel>
     )

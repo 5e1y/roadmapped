@@ -8,15 +8,15 @@ import {
   type SelectItem,
 } from './ui'
 import { relItemOf } from './TaskPanel'
-import { STAGES, TEAMS, SECTION_STATUS_FR } from '../lib/tasks'
+import { STAGES, TEAMS, SECTION_STATUS_LABEL } from '../lib/tasks'
 import { activeTasks } from '../lib/roadmap'
 import type { SectionNode } from '../lib/tasks'
 
-// Statuts de section en français (#28) — même source que le Backlog/Colonnes
-// (SECTION_STATUS_FR), complétée du seul statut « open ».
+// Statuts de section (#28) — même source que le Backlog/Colonnes
+// (SECTION_STATUS_LABEL), complétée du seul statut « open ».
 const SECTION_STATUS_ITEMS: SelectItem[] = [
-  { value: 'open', label: 'ouverte' },
-  ...(Object.entries(SECTION_STATUS_FR) as [SectionNode['status'], string][])
+  { value: 'open', label: 'open' },
+  ...(Object.entries(SECTION_STATUS_LABEL) as [SectionNode['status'], string][])
     .map(([value, label]) => ({ value, label })),
 ]
 
@@ -58,7 +58,7 @@ export function CreateTaskPanel({ section }: { section: string }) {
 
   const create = async () => {
     if (busy) return
-    if (title.trim() === '') { setErrors(['Le titre est obligatoire.']); return }
+    if (title.trim() === '') { setErrors(['A title is required.']); return }
     setBusy(true)
     setErrors([])
     try {
@@ -83,9 +83,9 @@ export function CreateTaskPanel({ section }: { section: string }) {
       // Bascule directe sur le détail de la tâche créée : l'utilisateur voit le
       // résultat et peut compléter sans re-chercher la ligne.
       if (data.ok && data.task) { await reload(); openTask(data.task.id) }
-      else setErrors(data.errors ?? ['Erreur inconnue.'])
+      else setErrors(data.errors ?? ['Unknown error.'])
     } catch {
-      setErrors(['Échec réseau — la tâche n’a pas été créée, réessayer.'])
+      setErrors(['Network error — the task was not created, try again.'])
     } finally {
       setBusy(false)
     }
@@ -98,7 +98,7 @@ export function CreateTaskPanel({ section }: { section: string }) {
   return (
     <div className="flex flex-col gap-4">
       <ErrorBanner errors={errors} />
-      <Field label="Titre">
+      <Field label="Title">
         <TextInput value={title} autoFocus disabled={busy} onChange={(e) => setTitle(e.target.value)} onKeyDown={createOnEnter} />
       </Field>
       <div className="grid grid-cols-2 gap-3">
@@ -122,9 +122,9 @@ export function CreateTaskPanel({ section }: { section: string }) {
         </Field>
       </div>
       <div className="grid grid-cols-2 gap-3">
-        <Field label="Taille">
+        <Field label="Size">
           <Select
-            aria-label="Taille"
+            aria-label="Size"
             defaultValue=""
             items={[{ value: '', label: '—' }, { value: 'S', label: 'S' }, { value: 'M', label: 'M' }, { value: 'L', label: 'L' }]}
             disabled={busy}
@@ -138,27 +138,27 @@ export function CreateTaskPanel({ section }: { section: string }) {
       <Field label="Tags">
         <TagsCombobox tags={tags} suggestions={allTags} disabled={busy} onSave={setTags} />
       </Field>
-      <Field label="Détail">
+      <Field label="Detail">
         <TextArea className="min-h-[100px]" value={detail} disabled={busy} onChange={(e) => setDetail(e.target.value)} />
       </Field>
-      <Field label="Dépend de">
-        <MultiCombobox aria-label="Dépend de" value={dependsOn} items={relItems}
-          placeholder="Rechercher une tâche prérequise…" onValueChange={setDependsOn} />
+      <Field label="Depends on">
+        <MultiCombobox aria-label="Depends on" value={dependsOn} items={relItems}
+          placeholder="Search for a prerequisite task…" onValueChange={setDependsOn} />
       </Field>
-      <Field label="Liens">
-        <MultiCombobox aria-label="Liens" value={links} items={relItems}
-          placeholder="Rechercher une tâche liée…" onValueChange={setLinks} />
+      <Field label="Links">
+        <MultiCombobox aria-label="Links" value={links} items={relItems}
+          placeholder="Search for a related task…" onValueChange={setLinks} />
       </Field>
-      <Field label="Refs (un chemin par ligne)">
+      <Field label="Refs (one path per line)">
         <TextArea className="min-h-[60px] font-mono text-xs" value={refs} disabled={busy}
           placeholder={'docs/specs/....md\nsrc/lib/....ts'} onChange={(e) => setRefs(e.target.value)} />
       </Field>
       <div className="flex gap-2">
         <button type="button" onClick={create} disabled={busy} className={primaryBtn}>
-          {busy ? 'Création…' : 'Créer la tâche'}
+          {busy ? 'Creating…' : 'Create task'}
         </button>
         <button type="button" onClick={close} className={actionBtn}>
-          Annuler
+          Cancel
         </button>
       </div>
     </div>
@@ -189,7 +189,7 @@ function SectionPanelBody({ dir }: { dir: string }) {
   const [errors, setErrors] = useState<Record<string, string[]>>({})
   const [savedField, setSavedField] = useState<string | null>(null)
   const section = tree?.sections.find((s) => s.key === dir)
-  if (!section) return <p className="text-sm text-neutral-500">Section introuvable.</p>
+  if (!section) return <p className="text-sm text-neutral-500">Section not found.</p>
   const sectionPath = `docs/tasks/${dir}`
 
   const flash = (field: string) => {
@@ -210,21 +210,21 @@ function SectionPanelBody({ dir }: { dir: string }) {
         setErrors((p) => { const n = { ...p }; delete n[field]; return n })
         flash(field)
         await reload()
-      } else setErrors((p) => ({ ...p, [field]: data.errors ?? ['Erreur inconnue.'] }))
+      } else setErrors((p) => ({ ...p, [field]: data.errors ?? ['Unknown error.'] }))
     } catch {
-      toast.add({ title: 'Erreur réseau', description: 'La modification n’a pas été enregistrée.', priority: 'high' })
+      toast.add({ title: 'Network error', description: 'The change was not saved.', priority: 'high' })
     }
   }
 
   return (
     <div className="flex min-h-full flex-col gap-5">
-      {/* En-tête : statut (ghost select, FR) puis titre — miroir de TaskPanel. */}
+      {/* En-tête : statut (ghost select) puis titre — miroir de TaskPanel. */}
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center gap-1.5">
           <div className="w-32">
             <Select
               ghost
-              aria-label="Statut de la section"
+              aria-label="Section status"
               defaultValue={section.status}
               items={SECTION_STATUS_ITEMS}
               onValueChange={(v) => { if (v !== section.status) void save('status', { status: v }) }}
@@ -249,7 +249,7 @@ function SectionPanelBody({ dir }: { dir: string }) {
         <GhostAutoTextArea
           key={`note-${section.note ?? ''}`}
           defaultValue={section.note ?? ''}
-          placeholder="Aucune note. Cliquer pour ajouter."
+          placeholder="No note. Click to add."
           aria-label="Note"
           onKeyDown={(e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') e.currentTarget.blur() }}
           onBlur={(e) => {

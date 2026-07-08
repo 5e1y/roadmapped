@@ -1,29 +1,29 @@
-# Roadmapped — exécution, délégation à des subagents, garde-fous
+# Roadmapped — execution, subagent delegation, guardrails
 
-## 3. Exécution
+## 3. Execution
 
-### En solo (toi, directement)
+### Solo (you, directly)
 
-Cycle du SKILL.md : `take`/`next` → `start` → travailler → vérifier l'artefact → `done --commit --outcome --verification`. Plus les garde-fous transverses (§4).
+The SKILL.md cycle: `take`/`next` → `start` → work → verify the artefact → `done --commit --outcome --verification`. Plus the cross-cutting guardrails (§4).
 
-### Déléguée (subagents — l'ex-subagent-driven-development)
+### Delegated (subagents — formerly subagent-driven-development)
 
-Pour un chantier multi-tâches, dispatch **un subagent frais par tâche** :
-- **Brief** = la sortie de `npx roadmapped brief <id>` + le chemin de la spec + les interfaces des tâches voisines. Rien d'autre (pas l'historique de session).
-- **JAMAIS deux implémenteurs en parallèle** sur le même working tree. Le parallélisme, c'est des tâches sans deps dans des worktrees séparés — sinon séquentiel.
-- **Verrou vs worktrees (#83)** : le verrou de mutation (`docs/tasks/.lock`) sérialise les écritures concurrentes DANS UN SEUL arbre de travail — plusieurs agents peuvent y écrire sans collision d'ids. Il ne garantit RIEN inter-branches : deux worktrees peuvent allouer le même id, révélé au merge de `_meta.yaml` (la validation refuse l'arbre fusionné). Doctrine : le multi-agent concurrent partage un arbre (le verrou fait le travail) ; les worktrees restent des chantiers isolés qui mergent leurs tickets comme du code, conflits d'ids compris.
-- **Revue avant `done`** pour toute tâche M/L : un subagent reviewer frais, avec le diff (`git diff base..head` écrit dans un fichier, pas collé), qui rend deux verdicts — conformité à la tâche (rien de plus, rien de moins) ET qualité. Findings Critical/Important → fix → re-revue. C'est l'implémenteur (ou un fixeur) qui corrige, pas le reviewer.
-- **Réception d'une revue** (dans les deux sens) : vérifier chaque finding contre le code RÉEL avant d'implémenter — jamais d'accord performatif (« tu as tout à fait raison ! »), jamais d'implémentation aveugle d'une suggestion non vérifiée.
-- **Le suivi de progression = les statuts des tâches.** `in_progress` = dispatché, `done` + `verification` = revu et vérifié. Pas de fichier ledger parallèle : après une interruption, `list --status in_progress` + `git log` te remettent en selle.
-- Choix de modèle : le moins puissant qui suffit (mécanique bien spécifiée → petit modèle ; intégration/jugement → moyen ; architecture/revue finale → le plus fort).
+For a multi-task effort, dispatch **one fresh subagent per task**:
+- **Brief** = the output of `npx roadmapped brief <id>` + the spec's path + neighboring tasks' interfaces. Nothing else (not the session history).
+- **NEVER two implementers in parallel** on the same working tree. Parallelism means dep-free tasks in separate worktrees — otherwise sequential.
+- **Lock vs. worktrees (#83)**: the mutation lock (`docs/tasks/.lock`) serializes concurrent writes WITHIN A SINGLE working tree — several agents can write to it without id collisions. It guarantees NOTHING across branches: two worktrees can allocate the same id, revealed when `_meta.yaml` is merged (validation refuses the merged tree). Doctrine: concurrent multi-agent work shares one tree (the lock does the work); worktrees stay isolated efforts that merge their tickets like code, id conflicts included.
+- **Review before `done`** for any M/L task: a fresh reviewer subagent, given the diff (`git diff base..head` written to a file, not pasted), returns two verdicts — compliance with the task (nothing more, nothing less) AND quality. Critical/Important findings → fix → re-review. The implementer (or a fixer) does the fixing, not the reviewer.
+- **Receiving a review** (either direction): check every finding against the REAL code before implementing — never performative agreement ("you're absolutely right!"), never blind implementation of an unverified suggestion.
+- **Progress tracking = task statuses.** `in_progress` = dispatched, `done` + `verification` = reviewed and verified. No parallel ledger file: after an interruption, `list --status in_progress` + `git log` get you back in the saddle.
+- Model choice: the least powerful one that suffices (well-specified mechanics → small model; integration/judgment → medium; architecture/final review → the strongest).
 
-### Fin de chantier (l'ex-finishing-a-development-branch)
+### End of effort (formerly finishing-a-development-branch)
 
-Quand toutes les tâches du chantier sont `done` : (1) relance la suite de tests COMPLÈTE + la vérification d'artefact — tests rouges = pas fini, point ; (2) propose à l'utilisateur exactement : **merger localement / pousser une PR / garder la branche / jeter** (jeter = confirmation explicite, jamais par défaut) ; (3) après merge, vérifie que chaque tâche du chantier est `done` avec `commit`/`outcome` consignés — le backlog done est le changelog.
+When every task of the effort is `done`: (1) re-run the FULL test suite + artefact verification — red tests = not done, period; (2) offer the user exactly: **merge locally / push a PR / keep the branch / discard** (discard = explicit confirmation, never the default); (3) after merging, verify every task of the effort is `done` with `commit`/`outcome` logged — the done backlog is the changelog.
 
-## 4. Garde-fous transverses (versions courtes des disciplines superpowers)
+## 4. Cross-cutting guardrails (short versions of the superpowers disciplines)
 
-- **TDD** quand la tâche crée de la logique : test rouge d'abord, code minimal pour le vert, puis refactor. Du code écrit avant son test se supprime et se réécrit — il ne se « garde pas en référence ».
-- **Bug rencontré → cause racine AVANT tout fix** (instrumente, lis les vrais logs/artefacts, compare avec ce qui marche). Un fix sans cause comprise est interdit. **3 fixes ratés sur la même approche → STOP, remets l'approche en cause** — n'empile jamais une 4ᵉ rustine.
-- **Aucune affirmation de succès sans preuve fraîche** : identifier la commande de vérification → l'exécuter → LIRE sa sortie → seulement ensuite affirmer. « Ça devrait marcher », « probablement bon » = interdits. Le rapport d'un subagent est une revendication, pas une preuve : vérifie le diff toi-même.
-- **Branche de travail** : jamais de chantier multi-commits directement sur main sans accord explicite.
+- **TDD** when the task creates logic: red test first, minimal code to green, then refactor. Code written before its test gets deleted and rewritten — it doesn't get "kept for reference".
+- **Bug encountered → root cause BEFORE any fix** (instrument, read the real logs/artefacts, compare with what works). A fix without an understood cause is forbidden. **3 failed fixes on the same approach → STOP, question the approach** — never stack a 4th patch.
+- **No claim of success without fresh proof**: identify the verification command → run it → READ its output → only then assert. "Should work", "probably fine" = forbidden. A subagent's report is a claim, not proof: verify the diff yourself.
+- **Working branch**: never a multi-commit effort directly on main without explicit agreement.

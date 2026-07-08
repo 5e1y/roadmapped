@@ -128,12 +128,12 @@ There is no "add stage" button: the 8 stages are fixed.
 The Roadmap view treats **the 8 fixed stages as milestones**: always 8 columns, in
 idea→mature order. An empty stage renders dimmed and narrow (grey header, "0" count,
 no body) so the full path stays visible without competing for attention with the
-populated stages. It has two modes, toggled in the header (*Colonnes* / *Graphe*).
+populated stages. It has two modes, toggled in the header (*Columns* / *Graph*).
 
 - **Columns** — each stage is a column with a progress bar and its task cards.
 - **Graph** — an "achievement tree". Cards are laid out in dependency layers so a
   dependent card always sits below its prerequisite, and arrows draw the `dependsOn`
-  edges. Zoom controls in the corner: `−` / `Ajuster` (fit to width) / `+`.
+  edges. Zoom controls in the corner: `−` / `Fit` (fit to width) / `+`.
 
 Both modes render the same three **computed** states, and they are never written to
 disk:
@@ -141,8 +141,8 @@ disk:
 | State | Meaning | How it looks |
 |---|---|---|
 | **done** | `status: done`. | Check glyph, struck-through title. |
-| **available** | Todo/in-progress with every prerequisite done. | Solid emphasised border, "Disponible". |
-| **locked** | A prerequisite is not yet done. | Dimmed card, "Prérequis manquants (#…)". |
+| **available** | Todo/in-progress with every prerequisite done. | Solid emphasised border, "Available". |
+| **locked** | A prerequisite is not yet done. | Dimmed card, "Missing prerequisites (#…)". |
 
 The set of available cards is your "work front" — what can legitimately be started
 right now.
@@ -182,8 +182,7 @@ equivalent:
 node scripts/task.mjs <command> [arguments]
 ```
 
-> The CLI's own messages are currently in French; the outputs below are shown
-> verbatim. **Read** commands below were run against this repository's live backlog
+> **Read** commands below were run against this repository's live backlog
 > (already migrated to stages+teams). **Write** commands were run in an isolated
 > sandbox (a copy of `src/` + `scripts/` with a throwaway `tasksDir`, seeded with the
 > 8 canonical stages — `add` refuses to write into anything else), because writing to
@@ -195,20 +194,22 @@ node scripts/task.mjs <command> [arguments]
 
 ### `sitrep` — the state of the world in one call
 
-The **first** gesture of a session: what closed today, what is in progress (with an
-age in days), the next three available tasks, a one-word `validate`, and alerts
-(stale in-progress ≥ 7 days, open `#debt`, red validate). Capped at ≤ 30 lines — it
-replaces re-reading the whole backlog at session start (~1 200 tokens → ~150). Titles
-only; the count stays exact even when the display is truncated with `(+K autres)`.
+The **first** gesture of a session: overall progress, what closed today, what is in
+progress (with an age in days), the next three available tasks, a one-word `validate`,
+and alerts (stale in-progress ≥ 7 days, open `#debt`, red validate). Capped at ≤ 30
+lines — it replaces re-reading the whole backlog at session start (~1 200 tokens →
+~150). Titles only; the count stays exact even when the display is truncated with
+`(+K more)`.
 
 ```console
 $ node scripts/task.mjs sitrep
 sitrep — 2026-07-08
-done aujourd'hui (2): #64 Token economy 1 · #65 Token economy 2
-in_progress (1): #28 Panneau v2 — SectionPanel aligné (3j)
-prochaines: #16 Positionnement et copy du site · #3 Spec — création de tâche fluide · #4 Spec — vue Graphe v2
+progress: 25/45 (56%)
+done today (2): #64 Token economy 1 · #65 Token economy 2
+in_progress (1): #28 Panneau v2 — SectionPanel aligné (3d)
+next: #16 Positionnement et copy du site · #3 Spec — création de tâche fluide · #4 Spec — vue Graphe v2
 validate: OK
-⚠ 1 dette(s) ouverte(s) (#debt) : #72
+⚠ 1 open debt item(s) (#debt): #72
 ```
 
 The in-progress age is measured from `createdAt` (there is no `startedAt` field yet);
@@ -223,7 +224,7 @@ filtered by `--team`), starts it, and prints the full execution brief, so no sep
 
 ```console
 $ node scripts/task.mjs take
-#16 démarrée.
+#16 started (in_progress).
 #16 Positionnement et copy du site
 stage: 03-identity · team: marketing · size: M
 detail: Définir avec Rémi : audience (…) …
@@ -234,7 +235,7 @@ done 16 --commit <sha> --outcome "…" --verification "…"
 ```
 
 > Not run live (it would start a real task on this backlog and cannot be undone from
-> the CLI). The `#16 démarrée.` line and the `done …` reminder are the exact strings
+> the CLI). The `#16 started (in_progress).` line and the `done …` reminder are the exact strings
 > `task.mjs` prints (source: `cmdTake`/`briefText`); the brief body below it is
 > identical in shape to the real `brief <id>` output shown next — `take` is
 > `next` + `start` + that same `briefText()` call, concatenated.
@@ -255,8 +256,8 @@ refs:
   docs/specs/2026-07-07-task-panel.md
   src/components/SectionPanel.tsx
   src/components/SidePanel.tsx
-dépend de:
-  #27 Panneau v2 — done guidé (mini-formulaire outcome) (faite)
+depends on:
+  #27 Panneau v2 — done guidé (mini-formulaire outcome) (done)
 done 28 --commit <sha> --outcome "…" --verification "…"
 ```
 
@@ -270,9 +271,9 @@ resolved by grep at serve time, so the snippet is always the *current* code) or
 `file:line` (fragile — documented as such) makes `brief` inline the ~10 lines around
 that anchor, turning a full-file read (~2 500 tokens) into a snippet (~100). A bare
 `file` ref stays a single line. Independently, **any** ref whose file was committed
-*after* the ticket's `createdAt` is flagged `⚠ modifié depuis la création du ticket`
+*after* the ticket's `createdAt` is flagged `⚠ modified since the ticket was created`
 (git, day granularity) — trust verified, never blind. A symbol that no longer resolves
-prints `⚠ ancre introuvable (…)` instead of a fabricated snippet.
+prints `⚠ anchor not found (…)` instead of a fabricated snippet.
 
 ### `list` — browse the backlog
 
@@ -325,34 +326,34 @@ Takes a **global** id (not a per-stage number).
 $ node scripts/task.mjs show 47
 [x] #47  Préparer le repo standalone  (engineering)
   section: 02-initial
-  fichier: docs/tasks/02-initial/02-preparer-le-repo-standalone.yaml
+  file: docs/tasks/02-initial/02-preparer-le-repo-standalone.yaml
   detail: Extraire Roadmapped de son incubation dans ZineKit vers un repo autonome : code, dépendances (@types/node explicite), config, backlog.
   outcome: Repo standalone Roadmapped 0.1.0 initialisé — extraction depuis ZineKit, arbre propre.
-  vérification: Commit d'extraction 388fbb2 ; npm run build et npm run test verts sur le repo autonome.
+  verification: Commit d'extraction 388fbb2 ; npm run build et npm run test verts sur le repo autonome.
   commit: 388fbb2
-  dates: créée 2026-07-07 · terminée 2026-07-07 · source user
+  dates: created 2026-07-07 · completed 2026-07-07 · source user
 ```
 
 The `(engineering)` next to the title is the task's **team**. Add `--json` to get the
 raw task object; for handing context to a subagent, prefer [`brief <id>`](#brief-id--the-dense-execution-context)
 instead — it is the official execution entry point now.
 
-**`dépend de`/`liées` print the linked task's title and status inline** — no more
+**`depends on`/`linked` print the linked task's title and status inline** — no more
 bare ids to chase with a follow-up `show`:
 
 ```console
 $ node scripts/task.mjs show 68
 [~] #68  Token economy 5 — mesure avant/après et alignement doc  (S engineering token-economy docs)
   section: 04-build
-  fichier: docs/tasks/04-build/51-token-economy-5-mesure-avant-apres-et-al.yaml
+  file: docs/tasks/04-build/51-token-economy-5-mesure-avant-apres-et-al.yaml
   detail: ⛔ N'exécuter qu'après approbation de la spec par Rémi, et en DERNIER du chantier (dépend de 64-67). (…)
   refs: docs/specs/2026-07-07-token-economy.md · docs/guide.md
-  dépend de: #64 Token economy 1 — skill scindé en noyau minimal + références routées (faite) · #67 Token economy 4 — zone Mini dans le Backlog (création inline, done rapide) (faite)
-  dates: créée 2026-07-07 · source user
+  depends on: #64 Token economy 1 — skill scindé en noyau minimal + références routées (done) · #67 Token economy 4 — zone Mini dans le Backlog (création inline, done rapide) (done)
+  dates: created 2026-07-07 · source user
 ```
 
-`#64 … (faite)` tells you the dependency is done without a second `show 64` — the old
-bare-id format (`liées: #6`) used to force exactly that extra round trip.
+`#64 … (done)` tells you the dependency is done without a second `show 64` — the old
+bare-id format (`linked: #6`) used to force exactly that extra round trip.
 
 ### `next` — the one task to do now
 
@@ -364,10 +365,10 @@ continue on the roadmap".
 $ node scripts/task.mjs next
 [ ] #16  Positionnement et copy du site  (M marketing marketing)
   section: 03-identity
-  fichier: docs/tasks/03-identity/01-positionnement-et-copy-du-site.yaml
+  file: docs/tasks/03-identity/01-positionnement-et-copy-du-site.yaml
   detail: Définir avec Rémi : audience (founders solo pilotés par agent IA, utilisateurs Claude Code), promesse centrale (« votre repo est votre outil de gestion de projet »), différenciateurs (fichiers plats sans SaaS ni base de données, agent-first, local, open source), structure de la landing (hero, démo animée, features, quickstart, lien GitHub/skill), langue (EN, FR, ou les deux), ton. Livrable : docs/site-copy.md avec la copy complète et approuvée, section par section. C'est un livrable éditorial — pas de spec technique requise.
   refs: README.md · docs/specs/2026-07-07-roadmapped-v2-design.md
-  dates: créée 2026-07-07 · source user
+  dates: created 2026-07-07 · source user
 ```
 
 `next` walked past the fully-`done` `01-idea` and `02-initial` stages and the
@@ -394,7 +395,7 @@ array (or a single object, unwrapped, when `--count` is 1 or omitted).
 
 ```console
 $ node scripts/task.mjs roadmap
-Aucune roadmap (docs/tasks/_roadmaps.yaml absent).
+No roadmap (docs/tasks/_roadmaps.yaml missing).
 ```
 
 **Important nuance.** The `roadmap` *command* reads the optional
@@ -408,9 +409,9 @@ the command prints progress and per-task state:
 $ node scripts/task.mjs roadmap      # sandbox, with a _roadmaps.yaml present
 launch — Product launch
   core — Core  0/1
-    [~] (disponible) #2 Wire the login endpoint
+    [~] (available) #2 Wire the login endpoint
   beta — Beta  0/1
-    [~] (disponible) #3 Third task
+    [~] (available) #3 Third task
 ```
 
 ### `validate` — check everything
@@ -423,7 +424,7 @@ must carry a `team` from the fixed enum. Exit 1 on any error.
 
 ```console
 $ node scripts/task.mjs validate
-OK — 8 sections (45 tâches), nextId=52.
+OK — 8 sections (45 tasks), nextId=52.
 ```
 
 ### `add` — create a task
@@ -442,12 +443,12 @@ The id is allocated from `_meta.yaml`; the file is created in the stage folder.
 $ node scripts/task.mjs add --section 04-build --title "Set up the database schema" \
     --team engineering --detail "Create the users and sessions tables." \
     --tags backend,db --size M
-#1 créée → docs/tasks/04-build/01-set-up-the-database-schema.yaml
+#1 created → docs/tasks/04-build/01-set-up-the-database-schema.yaml
 
 $ node scripts/task.mjs add --section 04-build --title "Wire the login endpoint" \
     --team engineering --depends-on 1 --size S \
     --refs "src/api/auth.ts,docs/specs/2026-07-07-auth.md"
-#2 créée → docs/tasks/04-build/02-wire-the-login-endpoint.yaml
+#2 created → docs/tasks/04-build/02-wire-the-login-endpoint.yaml
 ```
 
 Omitting `--team` refuses the write outright, and `--zone` is gone — both fail loud
@@ -455,10 +456,10 @@ rather than silently falling back:
 
 ```console
 $ node scripts/task.mjs add --section 04-build --title "Missing team" --size S
-Flag requis manquant : --team
+Missing required flag: --team
 
 $ node scripts/task.mjs add --section 04-build --title "Zone flag" --team engineering --zone store
-Flag inconnu : --zone (autorisés : --section, --title, --team, --detail, --tags, --size, --code, --refs, --links, --depends-on, --milestone, --source, --json)
+Unknown flag: --zone (allowed: --section, --title, --team, --detail, --tags, --size, --code, --refs, --links, --depends-on, --milestone, --source, --json)
 ```
 
 `--source` defaults to `ai`; use `--source user` for work that comes from the user's
@@ -480,13 +481,13 @@ optional, because for a one-line fix the outcome *is* the verification.
 
 ```console
 $ node scripts/task.mjs quick
-quick : titre requis (1er argument positionnel, entre guillemets).
-Usage : quick "<titre>" --team <t> [--stage <s>] [--tags a,b] [--start] [--json]
+quick: title required (1st positional argument, quoted).
+Usage: quick "<title>" --team <t> [--stage <s>] [--tags a,b] [--start] [--json]
 ```
 
 > The success path (`quick "Fix chevron alignment" --team design --start`) is not run
 > live in this doc — it would create and start a real task on this backlog. Per
-> source (`cmdQuick`): it prints `#<id> créée (quick).`, then `#<id> démarrée.` if
+> source (`cmdQuick`): it prints `#<id> created (quick).`, then `#<id> started (in_progress).` if
 > `--start` was passed. Two commands close the loop: `quick "…" --team <t> --start`
 > then `done <id> --outcome "…"`.
 
@@ -494,7 +495,7 @@ Usage : quick "<titre>" --team <t> [--stage <s>] [--tags a,b] [--start] [--json]
 
 ```console
 $ node scripts/task.mjs start 2
-#2 démarrée (in_progress).
+#2 started (in_progress).
 ```
 
 Sets `status: in_progress`. Nothing stops you from starting a *locked* task — the
@@ -514,7 +515,7 @@ these fields inside the task file).
 $ node scripts/task.mjs done 1 --commit a1b2c3d \
     --outcome "Users and sessions tables ship in the initial migration" \
     --verification "Ran the migration on a scratch DB; \dt lists both tables"
-#1 terminée (done).
+#1 done.
 ```
 
 - `--outcome` — **what shipped**, one user-facing sentence. This is changelog
@@ -540,10 +541,10 @@ update <id> [--title] [--detail] [--status] [--tags] [--refs] [--links]
 
 ```console
 $ node scripts/task.mjs update 2 --status in_progress --code C1
-#2 mise à jour.
+#2 updated.
 
 $ node scripts/task.mjs update 2 --team design
-#2 mise à jour.
+#2 updated.
 ```
 
 **Clearing a field — two different conventions:**
@@ -559,8 +560,8 @@ $ node scripts/task.mjs update 2 --team design
 
 ```console
 $ node scripts/task.mjs update 2 --team null
-Échec :
-  - 04-build/2: team absente ou invalide (null) — attendu l'une de : marketing, sales, support, operations, finance, legal, engineering, design
+Failed:
+  - 04-build/2: team missing or invalid (null) — expected one of: marketing, sales, support, operations, finance, legal, engineering, design
 ```
 
 — the write rolls back and the task keeps its previous team. For every other field,
@@ -572,7 +573,7 @@ empty-string form `--tags ""` still works and stays valid, but is no longer requ
 > `null` and `--tags ""` was the only way to empty a list. That gotcha is gone.
 
 > There is no `archive` command any more: a delivered task simply stays `done` in its
-> stage (the *Terminées* column of the Backlog). The done backlog — with `commit`,
+> stage (the *Done* column of the Backlog). The done backlog — with `commit`,
 > `outcome` and `verification` recorded — **is** the changelog.
 
 ### Errors are self-documenting
@@ -642,7 +643,7 @@ Because a rule an agent must *remember* fails exactly when it matters (long cont
   no task is `in_progress`, and its message hands you the exact `quick` command to run.
   It stays out of the way for: backlog-only commits (the consignation itself), merges,
   repos not yet initialized, and anything when a task is in progress.
-- **`sitrep` signal** (CLI and MCP): `⚠ N commit(s) non consigné(s)` when commits landed
+- **`sitrep` signal** (CLI and MCP): `⚠ N unlogged commit(s) since #<id>` when commits landed
   after the last recorded delivery with no task in progress — drift that slipped through
   becomes visible at the next session opening instead of silent.
 - **Escape hatch**: `git commit --no-verify` still works — deliberately. Skipping the
@@ -772,7 +773,7 @@ source: ai
 createdAt: "2026-07-07"
 completedAt: "2026-07-07"
 commit: null
-outcome: "Chevron du menu mobile recentré verticalement."
+outcome: "Mobile nav chevron re-centered vertically."
 verification: null
 release: null
 ```
@@ -782,7 +783,7 @@ release: null
 ```yaml
 title: "Build Stage"
 status: open              # open | done | dormant | abandoned
-note: "Construire le produit ET ses fondations business (site, emails, comptabilité)."   # or null
+note: "Build the product AND its business foundations (site, email, accounting)."   # or null
 ```
 
 `title` is **locked** by validation: it must be exactly the canonical title of the
@@ -836,7 +837,7 @@ them at `done` time. The done backlog **is** the changelog.
 Roadmapped ships a Claude skill (`skills/roadmapped/`) so an agent drives the backlog in
 the correct format. The CLI is the agent's **only write interface**.
 
-**The skill is split**: `skills/roadmapped/SKILL.md` is a ≤50-line **core** — boussole,
+**The skill is split**: `skills/roadmapped/SKILL.md` is a ≤50-line **core** — compass,
 decision ladder, the cycle, one line per command, the prohibitions, and a **router** —
 and it is the *only* thing a routine session loads. Everything else lives in
 `references/` and is opened **only on its own explicit trigger**, never speculatively:
@@ -975,7 +976,7 @@ do hand-edit a task, keep the field order canonical and run `validate` immediate
 The everyday roadmap is the **dashboard's Roadmap view**, built from the *8 fixed
 stages* (one column per stage, idea→mature order, dependency state computed). The
 `roadmap` *command* reports the optional `_roadmaps.yaml` named milestones, which
-most projects (including this one) don't use — hence "Aucune roadmap". Stages *are*
+most projects (including this one) don't use — hence "No roadmap". Stages *are*
 your milestones: to build a roadmap, put each task in the right stage and set your
 `dependsOn` edges — there is no section to create or order.
 

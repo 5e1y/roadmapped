@@ -17,26 +17,26 @@ import type { TaskNode } from '../lib/tasks'
  */
 export function agentBrief(task: TaskNode): string {
   const meta = [
-    `Statut : ${task.status}`,
-    task.size && `Taille : ${task.size}`,
-    task.team && `Team : ${task.team}`,
-    task.code && `Code : ${task.code}`,
+    `Status: ${task.status}`,
+    task.size && `Size: ${task.size}`,
+    task.team && `Team: ${task.team}`,
+    task.code && `Code: ${task.code}`,
   ]
     .filter(Boolean)
     .join(' · ')
   return [
-    `Tâche #${task.id} — ${task.title}`,
-    `Fichier : ${task.file}`,
+    `Task #${task.id} — ${task.title}`,
+    `File: ${task.file}`,
     meta,
-    task.tags.length > 0 ? `Tags : ${task.tags.join(', ')}` : null,
-    task.refs.length > 0 ? `Refs : ${task.refs.join(' · ')}` : null,
-    task.links.length > 0 ? `Tâches liées : ${task.links.map((l) => `#${l}`).join(' ')}` : null,
+    task.tags.length > 0 ? `Tags: ${task.tags.join(', ')}` : null,
+    task.refs.length > 0 ? `Refs: ${task.refs.join(' · ')}` : null,
+    task.links.length > 0 ? `Linked tasks: ${task.links.map((l) => `#${l}`).join(' ')}` : null,
     task.detail ? `\n${task.detail.trim()}` : null,
     '',
-    'Gestion via le CLI du dashboard (depuis la racine du repo) :',
-    `- détail JSON : node scripts/task.mjs show ${task.id} --json`,
-    `- démarrer : node scripts/task.mjs start ${task.id}`,
-    `- terminer + documenter : node scripts/task.mjs done ${task.id} --commit <sha> --verification "<comment l'artefact a été vérifié>"`,
+    'Managed through the dashboard CLI (from the repo root):',
+    `- JSON detail: node scripts/task.mjs show ${task.id} --json`,
+    `- start: node scripts/task.mjs start ${task.id}`,
+    `- finish + document: node scripts/task.mjs done ${task.id} --commit <sha> --verification "<how the artifact was verified>"`,
   ]
     .filter((l): l is string => l !== null)
     .join('\n')
@@ -69,7 +69,7 @@ export function TaskRow({ task }: { task: TaskNode }) {
         {hasSubs && (
           <Collapsible.Trigger
             className="flex shrink-0 items-center self-stretch rounded px-0.5 hover:bg-neutral-200"
-            aria-label={open ? 'Replier les sous-tâches' : 'Déplier les sous-tâches'}
+            aria-label={open ? 'Collapse subtasks' : 'Expand subtasks'}
             onClick={(e) => e.stopPropagation()}
           >
             <Chevron />
@@ -82,7 +82,7 @@ export function TaskRow({ task }: { task: TaskNode }) {
           className="flex min-w-0 flex-1 items-center gap-2 py-2.5 text-left"
         >
           {locked
-            ? <LockLocked size={11} className="shrink-0 text-neutral-500" ariaLabel="Verrouillée" />
+            ? <LockLocked size={11} className="shrink-0 text-neutral-500" ariaLabel="Locked" />
             : <KindGlyph task={task} />}
           <span className="shrink-0 font-mono text-xs text-neutral-500">#{task.id}</span>
           {/* Une ligne STRICTE (pattern Linear) : le titre tronque (tooltip natif),
@@ -106,8 +106,8 @@ export function TaskRow({ task }: { task: TaskNode }) {
               </span>
             )}
             {blocksCount > 0 && (
-              <span className="text-[11px] text-neutral-500" title={`Ce jalon verrouille ${blocksCount} tâche(s) via dependsOn`}>
-                bloque {blocksCount}
+              <span className="text-[11px] text-neutral-500" title={`This milestone locks ${blocksCount} task(s) via dependsOn`}>
+                blocks {blocksCount}
               </span>
             )}
             {task.tags.slice(0, 3).map((t) => (

@@ -2,9 +2,14 @@ import { describe, it, expect } from 'vitest'
 import { parseFileLine, fileLineOf, cleanForAgent, insertOnOwnLines, extractDropPaths } from './noteFiles'
 
 describe('parseFileLine / fileLineOf (#89 — lignes pièces jointes)', () => {
-  it('extrait le chemin d\'une ligne [fichier: …] (roundtrip avec fileLineOf)', () => {
-    expect(parseFileLine('[fichier: /Users/remi/maquette.png]')).toBe('/Users/remi/maquette.png')
+  it('extrait le chemin d\'une ligne [file: …] (roundtrip avec fileLineOf)', () => {
+    expect(fileLineOf('/x.png')).toBe('[file: /x.png]') // #155 : émet le préfixe anglais
+    expect(parseFileLine('[file: /Users/remi/maquette.png]')).toBe('/Users/remi/maquette.png')
     expect(parseFileLine(fileLineOf('/a/b c/d.png'))).toBe('/a/b c/d.png')
+  })
+
+  it('lit encore le préfixe legacy [fichier: …] (notes d\'avant #155)', () => {
+    expect(parseFileLine('[fichier: /Users/remi/maquette.png]')).toBe('/Users/remi/maquette.png')
   })
 
   it('tolère espaces autour et crochets DANS le nom de fichier', () => {
