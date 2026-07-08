@@ -1,11 +1,11 @@
 import { Collapsible } from '@base-ui/react/collapsible'
 import { LockLocked } from 'trinil-react'
 import { Chip } from './Chip'
-import { Chevron, StatusGlyph } from './glyphs'
+import { Chevron, KindGlyph } from './glyphs'
 import { usePanel } from '../state/PanelContext'
 import { useOptionalTree } from '../state/TreeContext'
 import { usePersistentFlag } from '../state/uiPersist'
-import { computeAvailability } from '../lib/roadmap'
+import { computeAvailability, reverseDependents } from '../lib/roadmap'
 import { relativeTime, absoluteDate } from '../lib/relativeTime'
 import { TEAM_ABBR } from '../lib/tasks'
 import type { TaskNode } from '../lib/tasks'
@@ -48,6 +48,8 @@ export function TaskRow({ task }: { task: TaskNode }) {
   // Même source d'état que la Roadmap : computeAvailability (mémoïsé par tree,
   // aucun recalcul maison). 'locked' = prérequis non faits → cadenas au lieu du glyphe.
   const locked = tree ? computeAvailability(tree).get(task.id) === 'locked' : false
+  // Jalon (#133) : badge « bloque N » = dépendants inverses (calculé, aucun champ YAML).
+  const blocksCount = tree && task.kind === 'milestone' ? reverseDependents(tree, task.id).length : 0
   // Dépliage des sous-tâches persisté (survit à la navigation et au rechargement).
   const [open, setOpen] = usePersistentFlag('backlog:tasks', task.id)
   const isDone = task.status === 'done'
@@ -81,7 +83,7 @@ export function TaskRow({ task }: { task: TaskNode }) {
         >
           {locked
             ? <LockLocked size={11} className="shrink-0 text-neutral-500" ariaLabel="Verrouillée" />
-            : <StatusGlyph status={task.status} />}
+            : <KindGlyph task={task} />}
           <span className="shrink-0 font-mono text-xs text-neutral-500">#{task.id}</span>
           {/* Une ligne STRICTE (pattern Linear) : le titre tronque (tooltip natif),
               les chips restent ancrés à droite. Familles différenciées (cf.
@@ -101,6 +103,11 @@ export function TaskRow({ task }: { task: TaskNode }) {
             {hasSubs && (
               <span className="font-mono text-[11px] text-neutral-500">
                 {subDone}/{task.subtasks.length}
+              </span>
+            )}
+            {blocksCount > 0 && (
+              <span className="text-[11px] text-neutral-500" title={`Ce jalon verrouille ${blocksCount} tâche(s) via dependsOn`}>
+                bloque {blocksCount}
               </span>
             )}
             {task.tags.slice(0, 3).map((t) => (

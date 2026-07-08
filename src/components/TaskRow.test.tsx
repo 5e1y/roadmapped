@@ -14,7 +14,7 @@ const task: TaskNode = {
   id: 1, kind: 'task', code: 'A1', title: 'addImage isDirty', status: 'todo',
   tags: ['bug', 'security'], size: 'S', team: 'engineering',
   detail: 'Détail complet ici', refs: ['useDocumentStore.ts:809'], links: [],
-  dependsOn: [], milestone: null,
+  dependsOn: [], epic: null,
   source: 'ai', createdAt: '2026-06-24', startedAt: null, completedAt: null, commit: null,
   outcome: null, verification: null, release: null,
   file: 'docs/tasks/01-solidite/01-addimage.yaml', subtasks: [],
@@ -45,6 +45,11 @@ describe('TaskRow', () => {
     expect(screen.getByText('#c')).toBeInTheDocument()
     expect(screen.queryByText('#d')).not.toBeInTheDocument()
     expect(screen.getByText('+2')).toBeInTheDocument()
+  })
+
+  it('un jalon (kind milestone) porte le glyphe diamant, pas le cercle (#133)', () => {
+    render(<PanelProvider><TaskRow task={{ ...task, kind: 'milestone' }} /></PanelProvider>)
+    expect(screen.getByRole('img', { name: 'jalon à atteindre' })).toBeInTheDocument()
   })
 
   it('ouvre le panneau détail au clic sur le corps de la ligne', () => {

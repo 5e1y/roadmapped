@@ -444,3 +444,62 @@ describe('CLI guard — enforcement au commit (#100)', () => {
     expect(accepted.status).toBe(0)
   })
 })
+
+describe('CLI epic & jalons (#133)', () => {
+  it('update --epic écrit epic et le YAML legacy migre (le champ milestone disparaît)', () => {
+    runUpdate('--epic', 'refonte-graphe')
+    const t = readTask()
+    expect(t.epic).toBe('refonte-graphe')
+    expect(t).not.toHaveProperty('milestone')
+  })
+
+  it('--milestone reste un alias déprécié de --epic (warning stderr, valeur appliquée)', () => {
+    const r = runTask(['update', '1', '--milestone', 'socle'])
+    expect(r.code).toBe(0)
+    expect(r.stderr).toMatch(/déprécié/)
+    expect(readTask().epic).toBe('socle')
+  })
+
+  it('update --epic null vide le champ', () => {
+    runUpdate('--epic', 'socle')
+    runUpdate('--epic', 'null')
+    expect(readTask().epic).toBeNull()
+  })
+
+  it("add --kind milestone --blocks 1 crée le jalon ET l'ajoute aux dependsOn de #1", () => {
+    const r = runTask(['add', '--section', SEC, '--title', 'Socle prêt', '--team', 'engineering', '--kind', 'milestone', '--blocks', '1'])
+    expect(r.code).toBe(0)
+    expect(r.stdout).toMatch(/#2 bloque désormais : #1/)
+    const jalon = load(readFileSync(join(tasksDir, SEC, '02-socle-pret.yaml'), 'utf8'))
+    expect(jalon.kind).toBe('milestone')
+    expect(readTask().dependsOn).toEqual([2]) // #1 dépend désormais du jalon #2
+  })
+
+  it('add --blocks refuse un id inexistant AVANT toute écriture (aucun jalon créé)', () => {
+    const r = runTask(['add', '--section', SEC, '--title', 'Jalon', '--team', 'engineering', '--kind', 'milestone', '--blocks', '999'])
+    expect(r.code).not.toBe(0)
+    expect(r.stderr).toMatch(/999/)
+    expect(runTask(['show', '2']).code).not.toBe(0) // nextId non consommé
+  })
+
+  it('add --kind hors enum → erreur autoportante', () => {
+    const r = runTask(['add', '--section', SEC, '--title', 'X', '--team', 'engineering', '--kind', 'mega'])
+    expect(r.code).not.toBe(0)
+    expect(r.stderr).toMatch(/--kind invalide/)
+  })
+
+  it("roadmap affiche l'avancement global puis les epics auto-découverts", () => {
+    runUpdate('--epic', 'socle')
+    const r = runTask(['roadmap'])
+    expect(r.code).toBe(0)
+    expect(r.stdout).toMatch(/avancement global : 0\/1 \(0%\)/)
+    expect(r.stdout).toMatch(/socle {2}0\/1/)
+    expect(r.stdout).toMatch(/#1 Tâche/)
+  })
+
+  it('sitrep porte la ligne avancement (globalProgress)', () => {
+    const r = runTask(['sitrep'])
+    expect(r.code).toBe(0)
+    expect(r.stdout).toMatch(/avancement: 0\/1 \(0%\)/)
+  })
+})

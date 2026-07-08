@@ -6,14 +6,14 @@ import type { TaskTree, TaskNode, SectionNode } from './tasks'
 function task(id: number, over: Partial<TaskNode> = {}): TaskNode {
   return {
     id, kind: 'task', code: null, title: `T${id}`, status: 'todo', tags: [], size: null,
-    team: 'engineering', detail: null, refs: [], links: [], dependsOn: [], milestone: null,
+    team: 'engineering', detail: null, refs: [], links: [], dependsOn: [], epic: null,
     source: 'ai', createdAt: '2026-07-07', startedAt: null, completedAt: null, commit: null, outcome: null,
     verification: null, release: null, file: `docs/tasks/04-build/${id}.yaml`, subtasks: [], ...over,
   }
 }
 const tree = (tasks: TaskNode[]): TaskTree => {
   const sec = (key: string, ts: TaskNode[]): SectionNode => ({ key, title: key, status: 'open', note: null, tasks: ts })
-  return { nextId: 99, sections: [sec('04-build', tasks)], archive: [], roadmaps: [] }
+  return { nextId: 99, sections: [sec('04-build', tasks)], archive: [], epics: [] }
 }
 
 describe('taskLine', () => {
@@ -22,6 +22,9 @@ describe('taskLine', () => {
   })
   it('un quick porte le chip quick', () => {
     expect(taskLine(task(2, { kind: 'quick' }), '')).toContain('(engineering quick)')
+  })
+  it('un jalon porte le chip milestone (#133)', () => {
+    expect(taskLine(task(3, { kind: 'milestone' }), '')).toContain('(engineering milestone)')
   })
 })
 
@@ -42,6 +45,15 @@ describe('sitrepText', () => {
     expect(out).toMatch(/prochaines: #2 T2/)
     expect(out).toMatch(/validate: OK/)
     expect(out.split('\n').length).toBeLessThanOrEqual(30)
+  })
+
+  // #133 : l'avancement global visible en ouverture de session, sans ouvrir le dashboard.
+  it('porte la ligne avancement (done/total + pourcentage, globalProgress)', () => {
+    const out = sitrepText(tree([task(1, { status: 'done' }), task(2), task(3), task(4)]), [])
+    expect(out).toMatch(/avancement: 1\/4 \(25%\)/)
+  })
+  it('avancement 0/0 sur un backlog vide (pas de division par zéro)', () => {
+    expect(sitrepText(tree([]), [])).toMatch(/avancement: 0\/0 \(0%\)/)
   })
   it('validate rouge + dette ouverte remontent en alertes', () => {
     const out = sitrepText(tree([task(3, { tags: ['debt'] })]), ['boom'])

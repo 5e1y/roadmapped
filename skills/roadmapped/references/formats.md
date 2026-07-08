@@ -22,7 +22,7 @@ universelle d'un lancement de produit. Aucun autre dossier de section n'est admi
 ```
 docs/tasks/
 ├── _meta.yaml                  # { nextId: N } — compteur global, monotone, JAMAIS édité à la main
-├── _roadmaps.yaml              # optionnel — roadmaps + jalons ordonnés
+├── _epics.yaml                 # optionnel — déclaration des epics (titre lisible, ordre)
 ├── 01-idea/                    # stage canonique, créé au setup — jamais créé/renommé à la main
 │   ├── _section.yaml
 │   ├── 01-<slug>.yaml          # une tâche = un fichier
@@ -47,6 +47,7 @@ il ne disparaît jamais.
 
 ```yaml
 id: 42                    # alloué par le CLI depuis _meta.yaml — jamais choisi à la main
+kind: quick               # ADDITIF — absent = task (défaut). quick = mini-ticket ; milestone = JALON (cf. § Jalons)
 code: B3                  # optionnel, code court humain (null sinon)
 title: "Titre de la tâche"
 status: todo              # todo | in_progress | done — RIEN d'autre
@@ -61,7 +62,7 @@ refs:                     # fichiers pertinents : code (chemin:ligne) ET documen
   - docs/ARCHITECTURE.md
 links: []                 # ids d'autres tâches liées (contexte, pas ordre)
 dependsOn: [12, 45]       # ids PRÉREQUIS — la tâche est verrouillée tant qu'ils ne sont pas done
-milestone: null           # avancé (cf. § _roadmaps.yaml) — laisser null en usage normal
+epic: null                # REGROUPEMENT transverse aux stages : slug partagé par les tâches d'un même projet (ex: refonte-graphe) — cf. § Epics
 source: ai                # user | ai — qui a créé la tâche
 createdAt: "2026-07-07"
 completedAt: null         # posé automatiquement au passage à done
@@ -71,7 +72,9 @@ verification: null        # COMMENT l'artefact a été vérifié (done --verific
 release: null             # version de release si applicable
 ```
 
-Invariants appliqués : ids uniques globalement (archive comprise) ; chaque id de `dependsOn` existe ; pas d'auto-dépendance ; graphe `dependsOn` acyclique ; `milestone` déclaré dans `_roadmaps.yaml` ; une dépendance vers une tâche archivée compte comme satisfaite (done de fait) ; `team` présente et ∈ l'enum sur toute tâche active, sous-tâches comprises (l'archive n'est pas re-validée — les tâches archivées avant le refactor stages+teams gardent leur ancien schéma tel quel).
+Invariants appliqués : ids uniques globalement (archive comprise) ; chaque id de `dependsOn` existe ; pas d'auto-dépendance ; graphe `dependsOn` acyclique ; `epic` est un slug (minuscules/chiffres/tirets) ou null — AUCUNE déclaration exigée ; une dépendance vers une tâche archivée compte comme satisfaite (done de fait) ; `team` présente et ∈ l'enum sur toute tâche active, sous-tâches comprises (l'archive n'est pas re-validée — les tâches archivées avant le refactor stages+teams gardent leur ancien schéma tel quel).
+
+**Rétrocompat `milestone` (#133)** : l'ancien champ `milestone:` d'un YAML est LU comme `epic` et migre automatiquement au prochain dump ; le flag CLI `--milestone` reste un alias déprécié de `--epic`. Ne plus jamais écrire `milestone:` dans un YAML.
 
 ## Stage — `_section.yaml`
 
@@ -85,24 +88,29 @@ note: "L'idée initiale, sa validation, le problème/la cible."   # ou null — 
 
 **Il n'y a pas de commande « créer une section »** : ni CLI, ni API, ni édition manuelle. Les 8 stages sont créés une fois pour toutes à l'init du setup (`references/setup.md`) et sont immuables — on ne les renomme ni ne les ajoute ni ne les supprime jamais. Le préfixe `NN` donne l'ordre d'affichage (déjà fixé par la séquence idea→mature).
 
-## Roadmap
+## Roadmap, progression, epics, jalons
 
 **La vue Roadmap du dashboard = les 8 stages du backlog** (une colonne par stage, dans l'ordre idea→mature, stage vide estompé). L'état d'une tâche (fait / disponible / verrouillé) est **calculé** depuis `status` + `dependsOn` — jamais stocké. Il n'y a rien à créer : classer chaque tâche dans le bon stage ET poser ses `dependsOn`, c'est construire la roadmap.
 
-### `_roadmaps.yaml` (avancé, optionnel — non affiché par le dashboard)
+**Progression** : `sitrep` affiche une ligne `avancement: x/y (pct%)` (archive comptée done, stages abandoned/dormant exclus) ; `task.mjs roadmap` détaille l'avancement global + par epic. Compte simple de tâches, pas de pondération par size.
 
-Regroupements de jalons nommés, encore supportés par la validation et `task.mjs roadmap` :
+### Epics — le regroupement transverse (champ `epic`)
+
+Un **epic** regroupe les tâches d'un même gros projet À TRAVERS les stages (ex. « refonte du graphe » = sa spec + ses tâches + ses fixes ultérieures). C'est un simple slug partagé (`epic: refonte-graphe`) — aucune déclaration requise (auto-découverte). Le dashboard offre un mode « grouper par epic » dans le Backlog, et le panneau de tâche édite le champ (combobox + création à la volée).
+
+`_epics.yaml` (optionnel) déclare titre lisible et ordre :
 
 ```yaml
-roadmaps:
-  - slug: launch
-    title: "Lancement produit"
-    milestones:
-      - { slug: socle, title: "Socle" }
-      - { slug: beta,  title: "Beta" }
+epics:
+  - { slug: refonte-graphe, title: "Refonte du graphe" }
+  - { slug: socle,          title: "Socle" }
 ```
 
-Slugs de jalons uniques globalement ; le champ `milestone` d'une tâche doit référencer un slug déclaré. Ne t'en sers pas sauf demande explicite de l'utilisateur.
+Slugs uniques. **Rétrocompat** : un ancien `_roadmaps.yaml` est encore LU (ses jalons aplatis deviennent des epics) mais n'est plus écrit — l'API expose `PUT /api/epics`.
+
+### Jalons — `kind: milestone`
+
+Un **jalon** est une tâche-cible dont d'autres tâches dépendent : `add --kind milestone --blocks 1,2` crée le jalon ET l'ajoute aux `dependsOn` des tâches citées (`--blocks` = l'inverse ergonomique de `--depends-on`). Le verrou est la mécanique `dependsOn` STANDARD (aucune sémantique nouvelle) : tant que le jalon n'est pas done, ses dépendants sont verrouillés. Rendu distinct : glyphe **diamant** + badge « bloque N » (dashboard, N = dépendants inverses calculés). Ne pas confondre : `epic` regroupe, `kind: milestone` verrouille.
 
 ## Spec — `docs/specs/AAAA-MM-JJ-<sujet>.md`
 

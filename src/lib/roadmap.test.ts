@@ -1,19 +1,19 @@
 import { describe, it, expect } from 'vitest'
-import { computeAvailability, missingPrereqs, topoLayers, milestoneProgress, activeTasks, archivedTasks, slugify, reverseDependents, depState, nextQueue } from './roadmap'
+import { computeAvailability, missingPrereqs, topoLayers, epicProgress, globalProgress, allEpics, activeTasks, archivedTasks, slugify, reverseDependents, depState, nextQueue } from './roadmap'
 import type { TaskTree, TaskNode, SectionNode } from './tasks'
 
 /** Fabrique une tâche minimale ; les champs non pertinents prennent des défauts. */
-function task(id: number, status: TaskNode['status'], dependsOn: number[] = [], milestone: string | null = null): TaskNode {
+function task(id: number, status: TaskNode['status'], dependsOn: number[] = [], epic: string | null = null): TaskNode {
   return {
     id, kind: 'task', code: null, title: `T${id}`, status, tags: [], size: null, team: 'engineering', detail: null,
-    refs: [], links: [], dependsOn, milestone, source: 'ai', createdAt: '2026-07-07', startedAt: null,
+    refs: [], links: [], dependsOn, epic, source: 'ai', createdAt: '2026-07-07', startedAt: null,
     completedAt: null, commit: null, outcome: null, verification: null, release: null,
     file: `docs/tasks/01-x/${id}.yaml`, subtasks: [],
   }
 }
-function tree(active: TaskNode[], archived: TaskNode[] = [], roadmaps: TaskTree['roadmaps'] = []): TaskTree {
+function tree(active: TaskNode[], archived: TaskNode[] = [], epics: TaskTree['epics'] = []): TaskTree {
   const sec = (key: string, tasks: TaskNode[]): SectionNode => ({ key, title: key, status: 'open', note: null, tasks })
-  return { nextId: 999, sections: [sec('01-x', active)], archive: archived.length ? [sec('09-old', archived)] : [], roadmaps }
+  return { nextId: 999, sections: [sec('01-x', active)], archive: archived.length ? [sec('09-old', archived)] : [], epics }
 }
 
 describe('computeAvailability', () => {
@@ -90,11 +90,64 @@ describe('topoLayers', () => {
   })
 })
 
-describe('milestoneProgress', () => {
-  it('compte les tâches actives du jalon', () => {
+describe('epicProgress', () => {
+  it("compte les tâches actives de l'epic", () => {
     const t = tree([task(1, 'done', [], 'socle'), task(2, 'todo', [], 'socle'), task(3, 'todo', [], 'beta')])
-    expect(milestoneProgress(t, 'socle')).toEqual({ done: 1, total: 2 })
-    expect(milestoneProgress(t, 'beta')).toEqual({ done: 0, total: 1 })
+    expect(epicProgress(t, 'socle')).toEqual({ done: 1, total: 2 })
+    expect(epicProgress(t, 'beta')).toEqual({ done: 0, total: 1 })
+  })
+  it('epic inconnu → 0/0', () => {
+    expect(epicProgress(tree([task(1, 'todo')]), 'fantome')).toEqual({ done: 0, total: 0 })
+  })
+})
+
+describe('globalProgress', () => {
+  it('done/total simple sur les sections ouvertes', () => {
+    const t = tree([task(1, 'done'), task(2, 'todo'), task(3, 'in_progress')])
+    expect(globalProgress(t)).toEqual({ done: 1, total: 3 })
+  })
+  it("l'archive compte done de fait (total ET done)", () => {
+    const t = tree([task(1, 'todo')], [task(2, 'done'), task(3, 'done')])
+    expect(globalProgress(t)).toEqual({ done: 2, total: 3 })
+  })
+  it('exclut les stages abandoned et dormant', () => {
+    const sec = (key: string, status: SectionNode['status'], tasks: TaskNode[]): SectionNode =>
+      ({ key, title: key, status, note: null, tasks })
+    const t: TaskTree = {
+      nextId: 999,
+      sections: [
+        sec('01-x', 'open', [task(1, 'done'), task(2, 'todo')]),
+        sec('02-y', 'dormant', [task(3, 'todo')]),
+        sec('03-z', 'abandoned', [task(4, 'todo')]),
+      ],
+      archive: [], epics: [],
+    }
+    expect(globalProgress(t)).toEqual({ done: 1, total: 2 })
+  })
+  it('compte les sous-tâches (countTasksDeep)', () => {
+    const parent = { ...task(1, 'todo'), subtasks: [task(2, 'done')] }
+    expect(globalProgress(tree([parent]))).toEqual({ done: 1, total: 2 })
+  })
+  it('backlog vide → 0/0', () => {
+    expect(globalProgress(tree([]))).toEqual({ done: 0, total: 0 })
+  })
+})
+
+describe('allEpics', () => {
+  it('déclarés (ordre du fichier) puis auto-découverts (alphabétique, titre = slug)', () => {
+    const t = tree(
+      [task(1, 'todo', [], 'zebre'), task(2, 'todo', [], 'socle'), task(3, 'todo', [], 'alpha')],
+      [],
+      [{ slug: 'socle', title: 'Socle' }],
+    )
+    expect(allEpics(t)).toEqual([
+      { slug: 'socle', title: 'Socle' },
+      { slug: 'alpha', title: 'alpha' },
+      { slug: 'zebre', title: 'zebre' },
+    ])
+  })
+  it('aucun epic nulle part → []', () => {
+    expect(allEpics(tree([task(1, 'todo')]))).toEqual([])
   })
 })
 
@@ -148,7 +201,7 @@ describe('depState', () => {
 describe('archivedTasks', () => {
   it('aplati les tâches archivées (sous-tâches comprises)', () => {
     const tree = {
-      nextId: 10, roadmaps: [],
+      nextId: 10, epics: [],
       sections: [],
       archive: [{
         key: '_archive/01-x', title: 'X', status: 'done' as const, note: null,
@@ -163,7 +216,7 @@ describe('nextQueue', () => {
   const sec = (key: string, tasks: TaskNode[]): SectionNode =>
     ({ key, title: key, status: 'open', note: null, tasks })
   const multi = (sections: Array<[string, TaskNode[]]>): TaskTree =>
-    ({ nextId: 999, sections: sections.map(([k, t]) => sec(k, t)), archive: [], roadmaps: [] })
+    ({ nextId: 999, sections: sections.map(([k, t]) => sec(k, t)), archive: [], epics: [] })
 
   it('trie par stage PUIS par ancienneté (id) — une tâche d’un stage tôt passe avant, même plus récente', () => {
     const t = multi([
@@ -185,7 +238,7 @@ describe('nextQueue', () => {
   })
   it('ignore les sections non ouvertes (dormant)', () => {
     const dormant: SectionNode = { key: '03-identity', title: 'x', status: 'dormant', note: null, tasks: [task(9, 'todo')] }
-    const t: TaskTree = { nextId: 999, sections: [dormant, sec('04-build', [task(4, 'todo')])], archive: [], roadmaps: [] }
+    const t: TaskTree = { nextId: 999, sections: [dormant, sec('04-build', [task(4, 'todo')])], archive: [], epics: [] }
     expect(nextQueue(t).map((x) => x.id)).toEqual([4])
   })
 })

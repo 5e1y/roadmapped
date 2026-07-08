@@ -6,7 +6,7 @@ import type { TaskNode } from './tasks'
 function mkTask(id: number, status: TaskNode['status'], subtasks: TaskNode[] = []): TaskNode {
   return {
     id, kind: 'task', code: null, title: `T${id}`, status, tags: [], size: null, team: 'engineering', detail: null,
-    refs: [], links: [], dependsOn: [], milestone: null, source: 'ai', createdAt: '2026-07-07', startedAt: null,
+    refs: [], links: [], dependsOn: [], epic: null, source: 'ai', createdAt: '2026-07-07', startedAt: null,
     completedAt: null, commit: null, outcome: null, verification: null, release: null,
     file: `docs/tasks/01-x/${id}.yaml`, subtasks,
   }
@@ -165,7 +165,7 @@ describe('buildTaskTree', () => {
   })
 })
 
-describe('buildTaskTree — kind (mini-tickets)', () => {
+describe('buildTaskTree — kind (mini-tickets & jalons)', () => {
   it('kind absent → défaut "task" (rétrocompat totale)', () => {
     const files = {
       '/docs/tasks/_meta.yaml': 'nextId: 2\n',
@@ -184,10 +184,35 @@ describe('buildTaskTree — kind (mini-tickets)', () => {
     }
     expect(buildTaskTree(files).sections[0].tasks[0].kind).toBe('quick')
   })
+
+  it('kind: milestone lu quand présent (jalon, #133)', () => {
+    const files = {
+      '/docs/tasks/_meta.yaml': 'nextId: 2\n',
+      '/docs/tasks/01-x/_section.yaml': 'title: "X"\nstatus: open\n',
+      '/docs/tasks/01-x/01-t.yaml':
+        'id: 1\nkind: milestone\ntitle: "Jalon"\nstatus: todo\nsource: ai\ncreatedAt: "2026-07-07"\n',
+    }
+    expect(buildTaskTree(files).sections[0].tasks[0].kind).toBe('milestone')
+  })
 })
 
-describe('buildTaskTree — roadmap (phase 2)', () => {
-  it('parse _roadmaps.yaml dans tree.roadmaps (ordre des jalons préservé)', () => {
+describe('buildTaskTree — epics (#133, ex-roadmaps)', () => {
+  it('parse _epics.yaml dans tree.epics (ordre préservé)', () => {
+    const files = {
+      '/docs/tasks/_meta.yaml': 'nextId: 2\n',
+      '/docs/tasks/_epics.yaml': [
+        'epics:',
+        '  - { slug: socle, title: "Socle" }',
+        '  - { slug: beta,  title: "Beta" }',
+      ].join('\n'),
+      '/docs/tasks/01-x/_section.yaml': 'title: "X"\nstatus: open\n',
+    }
+    const tree = buildTaskTree(files)
+    expect(tree.epics.map((e) => e.slug)).toEqual(['socle', 'beta'])
+    expect(tree.epics[0].title).toBe('Socle')
+  })
+
+  it('rétrocompat lecture : un ancien _roadmaps.yaml est lu comme des epics (jalons aplatis)', () => {
     const files = {
       '/docs/tasks/_meta.yaml': 'nextId: 2\n',
       '/docs/tasks/_roadmaps.yaml': [
@@ -201,20 +226,29 @@ describe('buildTaskTree — roadmap (phase 2)', () => {
       '/docs/tasks/01-x/_section.yaml': 'title: "X"\nstatus: open\n',
     }
     const tree = buildTaskTree(files)
-    expect(tree.roadmaps).toHaveLength(1)
-    expect(tree.roadmaps[0].slug).toBe('launch')
-    expect(tree.roadmaps[0].milestones.map((m) => m.slug)).toEqual(['socle', 'beta'])
+    expect(tree.epics.map((e) => e.slug)).toEqual(['socle', 'beta'])
   })
 
-  it('_roadmaps.yaml absent → roadmaps: [] (rétrocompat)', () => {
+  it('_epics.yaml prime sur un _roadmaps.yaml legacy co-présent', () => {
+    const files = {
+      '/docs/tasks/_meta.yaml': 'nextId: 2\n',
+      '/docs/tasks/_epics.yaml': 'epics:\n  - { slug: neuf, title: "Neuf" }\n',
+      '/docs/tasks/_roadmaps.yaml':
+        'roadmaps:\n  - slug: l\n    title: "L"\n    milestones:\n      - { slug: vieux, title: "Vieux" }\n',
+      '/docs/tasks/01-x/_section.yaml': 'title: "X"\nstatus: open\n',
+    }
+    expect(buildTaskTree(files).epics.map((e) => e.slug)).toEqual(['neuf'])
+  })
+
+  it('aucun fichier → epics: [] (rétrocompat)', () => {
     const files = {
       '/docs/tasks/_meta.yaml': 'nextId: 2\n',
       '/docs/tasks/01-x/_section.yaml': 'title: "X"\nstatus: open\n',
     }
-    expect(buildTaskTree(files).roadmaps).toEqual([])
+    expect(buildTaskTree(files).epics).toEqual([])
   })
 
-  it('dependsOn/milestone : défauts [] et null quand absents', () => {
+  it('dependsOn/epic : défauts [] et null quand absents', () => {
     const files = {
       '/docs/tasks/_meta.yaml': 'nextId: 2\n',
       '/docs/tasks/01-x/_section.yaml': 'title: "X"\nstatus: open\n',
@@ -222,18 +256,38 @@ describe('buildTaskTree — roadmap (phase 2)', () => {
     }
     const t = buildTaskTree(files).sections[0].tasks[0]
     expect(t.dependsOn).toEqual([])
-    expect(t.milestone).toBeNull()
+    expect(t.epic).toBeNull()
   })
 
-  it('dependsOn/milestone lus quand présents', () => {
+  it('dependsOn/epic lus quand présents', () => {
     const files = {
       '/docs/tasks/_meta.yaml': 'nextId: 3\n',
       '/docs/tasks/01-x/_section.yaml': 'title: "X"\nstatus: open\n',
       '/docs/tasks/01-x/01-t.yaml':
-        'id: 2\ntitle: "T"\nstatus: todo\ndependsOn: [1]\nmilestone: socle\nsource: ai\ncreatedAt: "2026-07-07"\n',
+        'id: 2\ntitle: "T"\nstatus: todo\ndependsOn: [1]\nepic: socle\nsource: ai\ncreatedAt: "2026-07-07"\n',
     }
     const t = buildTaskTree(files).sections[0].tasks[0]
     expect(t.dependsOn).toEqual([1])
-    expect(t.milestone).toBe('socle')
+    expect(t.epic).toBe('socle')
+  })
+
+  it('rétrocompat champ : un YAML qui porte encore `milestone:` est lu comme epic', () => {
+    const files = {
+      '/docs/tasks/_meta.yaml': 'nextId: 2\n',
+      '/docs/tasks/01-x/_section.yaml': 'title: "X"\nstatus: open\n',
+      '/docs/tasks/01-x/01-t.yaml':
+        'id: 1\ntitle: "T"\nstatus: todo\nmilestone: socle\nsource: ai\ncreatedAt: "2026-07-07"\n',
+    }
+    expect(buildTaskTree(files).sections[0].tasks[0].epic).toBe('socle')
+  })
+
+  it('epic prime sur milestone si les deux sont présents (fichier en cours de migration)', () => {
+    const files = {
+      '/docs/tasks/_meta.yaml': 'nextId: 2\n',
+      '/docs/tasks/01-x/_section.yaml': 'title: "X"\nstatus: open\n',
+      '/docs/tasks/01-x/01-t.yaml':
+        'id: 1\ntitle: "T"\nstatus: todo\nepic: neuf\nmilestone: vieux\nsource: ai\ncreatedAt: "2026-07-07"\n',
+    }
+    expect(buildTaskTree(files).sections[0].tasks[0].epic).toBe('neuf')
   })
 })

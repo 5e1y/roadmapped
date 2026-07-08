@@ -6,13 +6,13 @@ import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
 import { agentBrief } from './TaskRow'
 import { findTaskInTree } from '../lib/findTaskInTree'
-import { reverseDependents, depState, activeTasks, archivedTasks, computeAvailability } from '../lib/roadmap'
-import { StatusGlyph } from './glyphs'
+import { reverseDependents, depState, activeTasks, archivedTasks, computeAvailability, allEpics, slugify } from '../lib/roadmap'
+import { KindGlyph } from './glyphs'
 import { relativeTime, absoluteDate } from '../lib/relativeTime'
 import { Chip } from './Chip'
 import {
   ErrorBanner, Select, TextInput, AutoTextArea, GhostInput, GhostAutoTextArea,
-  AddCombobox, TagsCombobox, ToastViewport, blurOnEnter, type SelectItem,
+  AddCombobox, TagsCombobox, EpicCombobox, ToastViewport, blurOnEnter, type SelectItem,
 } from './ui'
 import { Markdown } from './Markdown'
 import { TEAMS } from '../lib/tasks'
@@ -158,7 +158,7 @@ function RelationRow({ tree, id, badge, onRemove }: {
         onClick={() => openTask(id)}
         className="flex min-w-0 flex-1 items-center gap-2 px-1.5 py-1 text-left text-sm hover:bg-neutral-100"
       >
-        <StatusGlyph status={t.status} />
+        <KindGlyph task={t} />
         <span className="shrink-0 font-mono text-xs text-neutral-500">#{t.id}</span>
         <span
           title={t.title}
@@ -340,6 +340,8 @@ function TaskPanelBody({ id }: { id: number }) {
   }
   // Vocabulaire de tags du projet (actives + archive) — suggestions du Creatable.
   const allTags = [...new Set([...activeTasks(tree), ...archivedTasks(tree)].flatMap((t) => t.tags))]
+  // Epics du projet (déclarés + auto-découverts) — suggestions du champ Epic (#133).
+  const epicSlugs = allEpics(tree).map((e) => e.slug)
   // Tâches proposables en relation : actives + ARCHIVÉES (soi-même exclu),
   // moins celles déjà liées (l'AddCombobox ne fait qu'AJOUTER).
   const relItems = (already: number[]): SelectItem[] => [
@@ -453,7 +455,7 @@ function TaskPanelBody({ id }: { id: number }) {
         <div className="flex items-center gap-1.5">
           {locked
             ? <LockLocked size={11} className="shrink-0 text-neutral-500" ariaLabel="Verrouillée" />
-            : <StatusGlyph status={task.status} />}
+            : <KindGlyph task={task} />}
           <span className="font-mono text-xs text-neutral-500">#{task.id}</span>
           <div className="w-32">
             <Select
@@ -472,6 +474,10 @@ function TaskPanelBody({ id }: { id: number }) {
             />
           </div>
           {archived && <Chip label="archivée" />}
+          {/* Jalon (#133) : « bloque N » = dépendants inverses — le poids du verrou, visible. */}
+          {task.kind === 'milestone' && blocks.length > 0 && (
+            <Chip label={`bloque ${blocks.length}`} />
+          )}
           <SavedTick show={savedIn('status')} />
         </div>
         <FieldError errs={errors.status} />
@@ -574,6 +580,24 @@ function TaskPanelBody({ id }: { id: number }) {
       </div>
       <div className="-mt-4 px-1.5"><SavedTick show={savedIn('size', 'team', 'code')} /></div>
       <FieldError errs={errors.size ?? errors.team ?? errors.code} />
+
+      {/* Epic : LE regroupement transverse aux stages (#133) — combobox des epics
+          existants + création à la volée (saisie slugifiée), ✕ pour retirer. */}
+      <div className="flex flex-col gap-0.5">
+        <div className="flex items-center gap-2">
+          <SectionLabel>Epic</SectionLabel>
+          <SavedTick show={savedIn('epic')} />
+        </div>
+        <EpicCombobox
+          key={`epic-${task.epic ?? ''}`}
+          value={task.epic}
+          suggestions={epicSlugs}
+          disabled={!editable}
+          toSlug={slugify}
+          onSave={(next) => void save('epic', changed(task.epic, next), { epic: next })}
+        />
+        <FieldError errs={errors.epic} />
+      </div>
 
       {/* Détail : markdown rendu au repos ; clic → textarea à taille identique. */}
       <div className="flex flex-col gap-1">

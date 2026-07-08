@@ -18,6 +18,44 @@ export function Chevron() {
  * todo = cercle vide, in_progress = demi-cercle ACCENT (le travail en cours
  * attire l'œil dans toutes les vues — tâche #37), done = cercle plein.
  */
+/**
+ * Glyphe d'un JALON (kind milestone, #133) : le diamant remplace le cercle —
+ * même langage d'encre que StatusGlyph (vide = à atteindre, demi ACCENT = en
+ * cours, plein = atteint), la FORME seule dit « ceci verrouille d'autres tâches ».
+ */
+export function MilestoneGlyph({ status }: { status: TaskNode['status'] }) {
+  const label = { todo: 'jalon à atteindre', in_progress: 'jalon en cours', done: 'jalon atteint' }[status]
+  return (
+    <svg
+      className={`shrink-0 ${status === 'in_progress' ? 'text-accent' : 'text-neutral-900'}`}
+      width="10"
+      height="10"
+      viewBox="0 0 10 10"
+      role="img"
+      aria-label={label}
+    >
+      <title>{label}</title>
+      {status === 'done' ? (
+        <path d="M5 0.6 L9.4 5 L5 9.4 L0.6 5 Z" fill="currentColor" />
+      ) : status === 'in_progress' ? (
+        <>
+          <path d="M5 1.1 L8.9 5 L5 8.9 L1.1 5 Z" fill="none" stroke="currentColor" strokeWidth="1" />
+          <path d="M5 1.1 L1.1 5 L5 8.9 Z" fill="currentColor" />
+        </>
+      ) : (
+        <path d="M5 1.1 L8.9 5 L5 8.9 L1.1 5 Z" fill="none" stroke="#737373" strokeWidth="1" />
+      )}
+    </svg>
+  )
+}
+
+/** Glyphe d'état selon le kind : diamant pour un jalon, cercle sinon. */
+export function KindGlyph({ task }: { task: Pick<TaskNode, 'kind' | 'status'> }) {
+  return task.kind === 'milestone'
+    ? <MilestoneGlyph status={task.status} />
+    : <StatusGlyph status={task.status} />
+}
+
 export function StatusGlyph({ status }: { status: TaskNode['status'] }) {
   const label = { todo: 'à faire', in_progress: 'en cours', done: 'faite' }[status]
   return (

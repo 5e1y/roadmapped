@@ -3,7 +3,7 @@ import type { ServerResponse, IncomingMessage } from 'node:http'
 import { loadPaths, type RoadmappedPaths } from '../lib/paths'
 import {
   treeWithErrors, addTask, updateTask, archiveTask, deleteTask,
-  updateSection, saveRoadmaps, type MutationResult,
+  updateSection, saveEpics, type MutationResult,
 } from '../lib/taskWrites'
 import { buildDocsTree, readDocContent, unsafeDocPath } from './docs'
 import {
@@ -18,7 +18,7 @@ export type ApiAction =
   | { type: 'archiveTask'; id: number }
   | { type: 'deleteTask'; id: number }
   | { type: 'patchSection'; dir: string; body: any }
-  | { type: 'putRoadmaps'; body: any }
+  | { type: 'putEpics'; body: any }
   | { type: 'getDocsTree' }
   | { type: 'getDocContent'; path: string }
   | { type: 'listNotes' }
@@ -92,8 +92,9 @@ export function routeApi(method: string, rawUrl: string, body: any): ApiAction {
     }
   }
 
-  if (seg[0] === 'roadmaps' && seg.length === 1 && method === 'PUT') {
-    return { type: 'putRoadmaps', body }
+  // Epics (#133, ex-roadmaps) : réécriture complète de _epics.yaml.
+  if (seg[0] === 'epics' && seg.length === 1 && method === 'PUT') {
+    return { type: 'putEpics', body }
   }
 
   // Notepad (#86) : notes plates sous docs/notes/. Le slug (:slug) est validé côté
@@ -153,8 +154,8 @@ export function runAction(paths: RoadmappedPaths, action: ApiAction): ApiRespons
         return fromMutation(deleteTask(tasksDir, action.id))
       case 'patchSection':
         return fromMutation(updateSection(tasksDir, action.dir, action.body ?? {}))
-      case 'putRoadmaps':
-        return fromMutation(saveRoadmaps(tasksDir, action.body ?? {}))
+      case 'putEpics':
+        return fromMutation(saveEpics(tasksDir, action.body ?? {}))
       case 'getDocsTree':
         return { status: 200, payload: { ok: true, tree: buildDocsTree(docsDir) } }
       case 'getDocContent': {

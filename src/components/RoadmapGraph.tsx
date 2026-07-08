@@ -1,9 +1,9 @@
 import { useRef, useState } from 'react'
 import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
-import { computeAvailability, missingPrereqs, topoLayers, type Availability } from '../lib/roadmap'
+import { computeAvailability, missingPrereqs, topoLayers, reverseDependents, type Availability } from '../lib/roadmap'
 import { LockLocked } from 'trinil-react'
-import { StatusGlyph } from './glyphs'
+import { KindGlyph } from './glyphs'
 import { Chip } from './Chip'
 import { TEAM_ABBR } from '../lib/tasks'
 import type { TaskNode } from '../lib/tasks'
@@ -14,7 +14,7 @@ const COL_W = 280, COL_GAP = 32, ROW_H = 96, CARD_W = 248, CARD_H = 72, PAD = 24
 const xOf = (col: number) => PAD + col * (COL_W + COL_GAP)
 const yOf = (row: number) => PAD + HEADER_H + row * ROW_H
 
-interface Placed { task: TaskNode; col: number; row: number; state: Availability; missing: number[]; missingHidden: number }
+interface Placed { task: TaskNode; col: number; row: number; state: Availability; missing: number[]; missingHidden: number; blocksCount: number }
 
 /** Vue achievement : colonnes = sections du backlog, cartes par couche de dépendance. */
 export function RoadmapGraph() {
@@ -78,7 +78,12 @@ export function RoadmapGraph() {
       // (sous-tâche, section en veille…) pour ne pas citer un #id introuvable.
       const allMissing = missingPrereqs(t, avail)
       const missing = allMissing.filter((d) => nodeIds.has(d))
-      placed.push({ task: t, col, row, state: avail.get(t.id) ?? 'available', missing, missingHidden: allMissing.length - missing.length })
+      placed.push({
+        task: t, col, row, state: avail.get(t.id) ?? 'available', missing,
+        missingHidden: allMissing.length - missing.length,
+        // Jalon (#133) : « bloque N » = dépendants inverses (tous, même hors graphe).
+        blocksCount: t.kind === 'milestone' ? reverseDependents(tree, t.id).length : 0,
+      })
     }
   }
   const posById = new Map(placed.map((p) => [p.task.id, p]))
@@ -192,7 +197,7 @@ function GraphCard({ placed, onOpen }: { placed: Placed; onOpen: () => void }) {
       <div className="flex items-center gap-2">
         {state === 'locked'
           ? <LockLocked size={11} className="shrink-0 text-neutral-500" ariaLabel="Verrouillée" />
-          : <StatusGlyph status={task.status} />}
+          : <KindGlyph task={task} />}
         <span className="shrink-0 font-mono text-xs text-neutral-500">#{task.id}</span>
         <span className={`min-w-0 truncate text-sm ${titleCls}`}>
           {task.title}
@@ -206,6 +211,10 @@ function GraphCard({ placed, onOpen }: { placed: Placed; onOpen: () => void }) {
       ) : state === 'available' ? (
         <span className="text-[11px] font-medium text-neutral-700">Disponible</span>
       ) : null /* done : contenu identique aux autres états, sans chips (cohérence) */}
+      {/* Jalon (#133) : le poids du verrou, même donnée que le panneau (« Bloque »). */}
+      {task.kind === 'milestone' && placed.blocksCount > 0 && (
+        <span className="text-[11px] text-neutral-500">bloque {placed.blocksCount}</span>
+      )}
       {/* Badge team (le QUI) — abrégé, coin bas droit. Même donnée = même rendu
           que le Backlog : Chip (design.md §2). */}
       <span className="absolute bottom-1 right-2"><Chip label={TEAM_ABBR[task.team]} /></span>
