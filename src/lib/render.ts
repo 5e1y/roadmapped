@@ -214,6 +214,10 @@ export function sitrepText(tree: TaskTree, errors: string[], unlogged?: Unlogged
   if (stale.length) lines.push(`⚠ ${stale.length} stale in_progress (≥7d): ${stale.map((t) => `#${t.id}`).join(' ')}`)
   const debt = active.filter((t) => t.status !== 'done' && t.tags.includes('debt'))
   if (debt.length) lines.push(`⚠ ${debt.length} open debt item(s) (#debt): ${debt.map((t) => `#${t.id}`).join(' ')}`)
+  // Feedback mode (#149) : une tâche done avec des retours non résolus attend une
+  // décision — même périmètre → rouvrir ; nouveau → un quick.
+  const openFb = active.filter((t) => t.status === 'done' && (t.feedback ?? []).some((f) => !f.resolved))
+  if (openFb.length) lines.push(`⚠ ${openFb.length} done task(s) with open feedback: ${openFb.map((t) => `#${t.id}`).join(' ')} — same scope → reopen; new → quick`)
   // Dérive hors ticket (#101) : muet si une in_progress existe — committer en cours de tâche est normal.
   if (unlogged && unlogged.count > 0 && inProgress.length === 0) {
     lines.push(`⚠ ${unlogged.count} unlogged commit(s) since #${unlogged.sinceId} — every change gets its ticket (quick)`)
