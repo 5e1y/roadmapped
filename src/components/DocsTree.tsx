@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Collapsible } from '@base-ui/react/collapsible'
 import { Chevron } from './glyphs'
+import { relativeTime, absoluteDate } from '../lib/relativeTime'
 import type { DocNode } from '../server/docs'
 
 const INDENT_PX = 14
@@ -84,7 +85,7 @@ function DocsTreeFile({
       {/* .md implicite (tout l'arbre en est) — le nom brut reste en tooltip. */}
       <span className="min-w-0 flex-1 truncate">{node.name.replace(/\.md$/, '')}</span>
       {node.createdAt && (
-        <span className="shrink-0 font-mono text-[10px] text-neutral-500">{node.createdAt}</span>
+        <span className="shrink-0 font-mono text-[10px] text-neutral-500" title={absoluteDate(node.createdAt)}>{relativeTime(node.createdAt)}</span>
       )}
     </button>
   )

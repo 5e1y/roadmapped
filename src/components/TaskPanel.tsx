@@ -8,6 +8,7 @@ import { agentBrief } from './TaskRow'
 import { findTaskInTree } from '../lib/findTaskInTree'
 import { reverseDependents, depState, activeTasks, archivedTasks, computeAvailability } from '../lib/roadmap'
 import { StatusGlyph } from './glyphs'
+import { relativeTime, absoluteDate } from '../lib/relativeTime'
 import { Chip } from './Chip'
 import {
   ErrorBanner, Select, TextInput, AutoTextArea, GhostInput, GhostAutoTextArea,
@@ -727,7 +728,8 @@ function TaskPanelBody({ id }: { id: number }) {
           <SavedTick show={savedIn('outcome', 'verification', 'commit', 'release')} />
         </div>
         <div className="px-1.5 text-xs text-neutral-500">
-          créée {task.createdAt}{task.completedAt ? ` · terminée ${task.completedAt}` : ''}
+          <span title={absoluteDate(task.createdAt)}>créée {relativeTime(task.createdAt)}</span>
+          {task.completedAt ? <> · <span title={absoluteDate(task.completedAt)}>terminée {relativeTime(task.completedAt)}</span></> : ''}
         </div>
         {([
           { field: 'outcome', label: 'outcome', value: task.outcome, area: true },
