@@ -3,7 +3,7 @@ code: null
 title: >-
   Graph de liens façon Obsidian pour les tags — flanc droit Backlog, sous le radar Teams, clic =
   filtre par tag
-status: todo
+status: in_progress
 tags:
   - ux
   - fable
@@ -24,6 +24,7 @@ dependsOn: []
 epic: vues-dashboard
 source: ai
 createdAt: "2026-07-08T15:02:17"
+startedAt: "2026-07-08T15:18:36"
 completedAt: null
 commit: null
 outcome: null
