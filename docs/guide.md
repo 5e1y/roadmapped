@@ -110,7 +110,7 @@ defaults.
 
 ## 3. Dashboard tour
 
-`npm run dev` serves a three-view app. The left sidebar switches between **Backlog**,
+`npx roadmapped dashboard` serves a three-view app. The left sidebar switches between **Backlog**,
 **Roadmap** and **Docs**; the last view is remembered across reloads. Clicking any
 task anywhere opens a **side panel** on the right.
 
@@ -174,9 +174,9 @@ npx roadmapped <command> [arguments]
 
 Every unknown verb is proxied to the task CLI (`init`, `upgrade` and `dashboard`
 are handled by the dispatcher itself), and the data root is resolved from your
-repo, wherever you run it from. The examples below use the self-hosting form —
-inside the Roadmapped repository, `node scripts/task.mjs <command>` is exactly
-equivalent:
+repo, wherever you run it from. The examples below use `npx roadmapped`; inside
+the Roadmapped repository (self-hosting), `node scripts/task.mjs <command>` is
+exactly equivalent:
 
 ```bash
 node scripts/task.mjs <command> [arguments]
@@ -202,12 +202,12 @@ lines — it replaces re-reading the whole backlog at session start (~1 200 toke
 `(+K more)`.
 
 ```console
-$ node scripts/task.mjs sitrep
+$ npx roadmapped sitrep
 sitrep — 2026-07-08
 progress: 25/45 (56%)
 done today (2): #64 Token economy 1 · #65 Token economy 2
-in_progress (1): #28 Panneau v2 — SectionPanel aligné (3d)
-next: #16 Positionnement et copy du site · #3 Spec — création de tâche fluide · #4 Spec — vue Graphe v2
+in_progress (1): #28 Panel v2 — SectionPanel aligned (3d)
+next: #16 Site positioning and copy · #3 Spec — smooth task creation · #4 Spec — Graph view v2
 validate: OK
 ⚠ 1 open debt item(s) (#debt): #72
 ```
@@ -223,11 +223,11 @@ filtered by `--team`), starts it, and prints the full execution brief, so no sep
 `show` is ever needed to get moving.
 
 ```console
-$ node scripts/task.mjs take
+$ npx roadmapped take
 #16 started (in_progress).
-#16 Positionnement et copy du site
+#16 Site positioning and copy
 stage: 03-identity · team: marketing · size: M
-detail: Définir avec Rémi : audience (…) …
+detail: Define with Rémi: audience (…) …
 refs:
   README.md
   docs/specs/2026-07-07-roadmapped-v2-design.md
@@ -248,16 +248,16 @@ a ready-to-paste `done` reminder. This is what `take` prints after starting the 
 and what a delegated subagent should be handed instead of `show --json`.
 
 ```console
-$ node scripts/task.mjs brief 28
-#28 Panneau v2 — SectionPanel aligné + passe finale des critères
+$ npx roadmapped brief 28
+#28 Panel v2 — SectionPanel aligned + final criteria pass
 stage: 04-build · team: engineering · size: M · tags: panel, ux
-detail: Aligner SectionPanel sur le paradigme lecture d'abord (…) Fini quand : les 6 critères sont observés et consignés dans la vérification du done.
+detail: Align SectionPanel with the read-first paradigm (…) Done when: the 6 criteria are observed and recorded in the done verification.
 refs:
   docs/specs/2026-07-07-task-panel.md
   src/components/SectionPanel.tsx
   src/components/SidePanel.tsx
 depends on:
-  #27 Panneau v2 — done guidé (mini-formulaire outcome) (done)
+  #27 Panel v2 — guided done (outcome mini-form) (done)
 done 28 --commit <sha> --outcome "…" --verification "…"
 ```
 
@@ -282,26 +282,26 @@ list [--section <key>] [--status todo|in_progress|done] [--team <t>] [--tag <tag
 ```
 
 ```console
-$ node scripts/task.mjs list --section 05-gtm
+$ npx roadmapped list --section 05-gtm
 05-gtm — GTM Stage (open) 0/2
-  [ ] #19  Stratégie de communication  (M marketing marketing)
-  [ ] #20  Préparer les contenus d'annonce  (M marketing marketing)
+  [ ] #19  Communication strategy  (M marketing marketing)
+  [ ] #20  Prepare the announcement content  (M marketing marketing)
 ```
 
 `--section` takes one of the 8 stage slugs (`01-idea` … `08-mature`) — there is no
 other value to give it. `--team` filters across all stages:
 
 ```console
-$ node scripts/task.mjs list --team engineering
+$ npx roadmapped list --team engineering
 01-idea — Idea Stage (done) 1/1
-  [x] #45  Idée initiale — Roadmapped, gestion de projet locale agent-first  (engineering)
+  [x] #45  Initial idea — Roadmapped, local agent-first project management  (engineering)
 02-initial — Initial Stage (done) 2/2
-  [x] #46  Choisir le nom Roadmapped  (engineering)
-  [x] #47  Préparer le repo standalone  (engineering)
+  [x] #46  Choose the name Roadmapped  (engineering)
+  [x] #47  Prepare the standalone repo  (engineering)
 04-build — Build Stage (open) 20/30
-  [x] #1   Audit UX/UI complet du dashboard  (S engineering ux audit)
-  [x] #2   Spec — panneau de détail de tâche clarifié  (S engineering ux spec)
-  [ ] #3   Spec — création de tâche fluide  (S engineering ux spec)
+  [x] #1   Full UX/UI audit of the dashboard  (S engineering ux audit)
+  [x] #2   Spec — clarified task detail panel  (S engineering ux spec)
+  [ ] #3   Spec — smooth task creation  (S engineering ux spec)
   ...
 ```
 
@@ -323,13 +323,13 @@ dates, everything) for every task in one call — `--json-full`, which prints
 Takes a **global** id (not a per-stage number).
 
 ```console
-$ node scripts/task.mjs show 47
-[x] #47  Préparer le repo standalone  (engineering)
+$ npx roadmapped show 47
+[x] #47  Prepare the standalone repo  (engineering)
   section: 02-initial
   file: docs/tasks/02-initial/02-preparer-le-repo-standalone.yaml
-  detail: Extraire Roadmapped de son incubation dans ZineKit vers un repo autonome : code, dépendances (@types/node explicite), config, backlog.
-  outcome: Repo standalone Roadmapped 0.1.0 initialisé — extraction depuis ZineKit, arbre propre.
-  verification: Commit d'extraction 388fbb2 ; npm run build et npm run test verts sur le repo autonome.
+  detail: Extract Roadmapped from its incubation inside ZineKit into a standalone repo: code, dependencies (@types/node explicit), config, backlog.
+  outcome: Standalone Roadmapped 0.1.0 repo initialized — extracted from ZineKit, clean tree.
+  verification: Extraction commit 388fbb2; npm run build and npm run test green on the standalone repo.
   commit: 388fbb2
   dates: created 2026-07-07 · completed 2026-07-07 · source user
 ```
@@ -342,13 +342,13 @@ instead — it is the official execution entry point now.
 bare ids to chase with a follow-up `show`:
 
 ```console
-$ node scripts/task.mjs show 68
-[~] #68  Token economy 5 — mesure avant/après et alignement doc  (S engineering token-economy docs)
+$ npx roadmapped show 68
+[~] #68  Token economy 5 — before/after measurement and doc alignment  (S engineering token-economy docs)
   section: 04-build
   file: docs/tasks/04-build/51-token-economy-5-mesure-avant-apres-et-al.yaml
-  detail: ⛔ N'exécuter qu'après approbation de la spec par Rémi, et en DERNIER du chantier (dépend de 64-67). (…)
+  detail: ⛔ Run only after the spec is approved by Rémi, and LAST in the project (depends on 64-67). (…)
   refs: docs/specs/2026-07-07-token-economy.md · docs/guide.md
-  depends on: #64 Token economy 1 — skill scindé en noyau minimal + références routées (done) · #67 Token economy 4 — zone Mini dans le Backlog (création inline, done rapide) (done)
+  depends on: #64 Token economy 1 — skill split into minimal core + routed references (done) · #67 Token economy 4 — Mini zone in the Backlog (inline creation, quick done) (done)
   dates: created 2026-07-07 · source user
 ```
 
@@ -362,11 +362,11 @@ Returns the **first available todo** (all dependencies done) of the highest-prio
 continue on the roadmap".
 
 ```console
-$ node scripts/task.mjs next
-[ ] #16  Positionnement et copy du site  (M marketing marketing)
+$ npx roadmapped next
+[ ] #16  Site positioning and copy  (M marketing marketing)
   section: 03-identity
   file: docs/tasks/03-identity/01-positionnement-et-copy-du-site.yaml
-  detail: Définir avec Rémi : audience (founders solo pilotés par agent IA, utilisateurs Claude Code), promesse centrale (« votre repo est votre outil de gestion de projet »), différenciateurs (fichiers plats sans SaaS ni base de données, agent-first, local, open source), structure de la landing (hero, démo animée, features, quickstart, lien GitHub/skill), langue (EN, FR, ou les deux), ton. Livrable : docs/site-copy.md avec la copy complète et approuvée, section par section. C'est un livrable éditorial — pas de spec technique requise.
+  detail: Define with Rémi: audience (solo founders driven by an AI agent, Claude Code users), central promise ("your repo is your project management tool"), differentiators (flat files with no SaaS or database, agent-first, local, open source), landing structure (hero, animated demo, features, quickstart, GitHub/skill link), language (EN, FR, or both), tone. Deliverable: docs/site-copy.md with the complete and approved copy, section by section. This is an editorial deliverable — no technical spec required.
   refs: README.md · docs/specs/2026-07-07-roadmapped-v2-design.md
   dates: created 2026-07-07 · source user
 ```
@@ -382,10 +382,10 @@ full detail block — the priority order (stage, then age) is **computed by the 
 consume it as given, never recompute it by re-reading the backlog:
 
 ```console
-$ node scripts/task.mjs next --count 3
-[ ] #16  Positionnement et copy du site  (M marketing marketing)
-[ ] #3   Spec — création de tâche fluide  (S engineering ux spec)
-[ ] #4   Spec — vue Graphe v2 (lisibilité et navigation)  (S engineering ux spec)
+$ npx roadmapped next --count 3
+[ ] #16  Site positioning and copy  (M marketing marketing)
+[ ] #3   Spec — smooth task creation  (S engineering ux spec)
+[ ] #4   Spec — Graph view v2 (readability and navigation)  (S engineering ux spec)
 ```
 
 `--team` filters the queue to one team; `--json` prints the same N task objects as an
@@ -394,7 +394,7 @@ array (or a single object, unwrapped, when `--count` is 1 or omitted).
 ### `roadmap` — milestone rollup
 
 ```console
-$ node scripts/task.mjs roadmap
+$ npx roadmapped roadmap
 No roadmap (docs/tasks/_roadmaps.yaml missing).
 ```
 
@@ -406,7 +406,7 @@ by the *8 fixed stages*, not by `_roadmaps.yaml`. When `_roadmaps.yaml` does exi
 the command prints progress and per-task state:
 
 ```console
-$ node scripts/task.mjs roadmap      # sandbox, with a _roadmaps.yaml present
+$ npx roadmapped roadmap      # sandbox, with a _roadmaps.yaml present
 launch — Product launch
   core — Core  0/1
     [~] (available) #2 Wire the login endpoint
@@ -423,7 +423,7 @@ must carry a `team` from the fixed enum. Exit 1 on any error.
 **Run it after every manual edit.**
 
 ```console
-$ node scripts/task.mjs validate
+$ npx roadmapped validate
 OK — 8 sections (45 tasks), nextId=52.
 ```
 
@@ -440,12 +440,12 @@ add --section <stage> --title <t> --team <team> [--detail <d>] [--tags a,b]
 The id is allocated from `_meta.yaml`; the file is created in the stage folder.
 
 ```console
-$ node scripts/task.mjs add --section 04-build --title "Set up the database schema" \
+$ npx roadmapped add --section 04-build --title "Set up the database schema" \
     --team engineering --detail "Create the users and sessions tables." \
     --tags backend,db --size M
 #1 created → docs/tasks/04-build/01-set-up-the-database-schema.yaml
 
-$ node scripts/task.mjs add --section 04-build --title "Wire the login endpoint" \
+$ npx roadmapped add --section 04-build --title "Wire the login endpoint" \
     --team engineering --depends-on 1 --size S \
     --refs "src/api/auth.ts,docs/specs/2026-07-07-auth.md"
 #2 created → docs/tasks/04-build/02-wire-the-login-endpoint.yaml
@@ -455,10 +455,10 @@ Omitting `--team` refuses the write outright, and `--zone` is gone — both fail
 rather than silently falling back:
 
 ```console
-$ node scripts/task.mjs add --section 04-build --title "Missing team" --size S
+$ npx roadmapped add --section 04-build --title "Missing team" --size S
 Missing required flag: --team
 
-$ node scripts/task.mjs add --section 04-build --title "Zone flag" --team engineering --zone store
+$ npx roadmapped add --section 04-build --title "Zone flag" --team engineering --zone store
 Unknown flag: --zone (allowed: --section, --title, --team, --detail, --tags, --size, --code, --refs, --links, --depends-on, --milestone, --source, --json)
 ```
 
@@ -480,7 +480,7 @@ same call. At `done`, a quick only requires `--outcome` — `--verification` is
 optional, because for a one-line fix the outcome *is* the verification.
 
 ```console
-$ node scripts/task.mjs quick
+$ npx roadmapped quick
 quick: title required (1st positional argument, quoted).
 Usage: quick "<title>" --team <t> [--stage <s>] [--tags a,b] [--start] [--json]
 ```
@@ -494,7 +494,7 @@ Usage: quick "<title>" --team <t> [--stage <s>] [--tags a,b] [--start] [--json]
 ### `start <id>` — begin work
 
 ```console
-$ node scripts/task.mjs start 2
+$ npx roadmapped start 2
 #2 started (in_progress).
 ```
 
@@ -512,7 +512,7 @@ fields onto the task's YAML (there is no separate delivery document — the "rec
 these fields inside the task file).
 
 ```console
-$ node scripts/task.mjs done 1 --commit a1b2c3d \
+$ npx roadmapped done 1 --commit a1b2c3d \
     --outcome "Users and sessions tables ship in the initial migration" \
     --verification "Ran the migration on a scratch DB; \dt lists both tables"
 #1 done.
@@ -540,10 +540,10 @@ update <id> [--title] [--detail] [--status] [--tags] [--refs] [--links]
 ```
 
 ```console
-$ node scripts/task.mjs update 2 --status in_progress --code C1
+$ npx roadmapped update 2 --status in_progress --code C1
 #2 updated.
 
-$ node scripts/task.mjs update 2 --team design
+$ npx roadmapped update 2 --team design
 #2 updated.
 ```
 
@@ -559,7 +559,7 @@ $ node scripts/task.mjs update 2 --team design
 `--team null` is rejected by validation instead of clearing the field —
 
 ```console
-$ node scripts/task.mjs update 2 --team null
+$ npx roadmapped update 2 --team null
 Failed:
   - 04-build/2: team missing or invalid (null) — expected one of: marketing, sales, support, operations, finance, legal, engineering, design
 ```
@@ -967,7 +967,7 @@ cycle, unknown milestone. You cannot end up in a half-written state.
 
 **Can I edit the files by hand?**
 Yes, for what the CLI does not do (creating a sub-task twin folder) — and then run
-`node scripts/task.mjs validate`. There is no hand-edit for stages: the 8 are created
+`npx roadmapped validate`. There is no hand-edit for stages: the 8 are created
 once at setup and are immutable. For everything the CLI covers (add, status changes,
 field edits), use the CLI: it allocates ids correctly and validates for you. If you
 do hand-edit a task, keep the field order canonical and run `validate` immediately.
