@@ -1,7 +1,7 @@
 id: 12
 code: null
 title: Spec — distribution et installation (npx roadmaped init)
-status: todo
+status: done
 tags:
   - spec
   - open-source
@@ -27,8 +27,19 @@ dependsOn: []
 milestone: null
 source: user
 createdAt: "2026-07-07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: c76070c
+outcome: >-
+  Spec docs/specs/2026-07-08-distribution.md écrite (cadrage : les deux — skill + npx). Paquet npm «
+  roadmapped » (retirer private, ajouter bin/files/engines) exposant bin/roadmapped.mjs :
+  init/upgrade/dashboard + proxy des autres verbes vers scripts/task.mjs (CLI portable `roadmapped
+  <cmd>`). Le skill reste le point d'entrée agent mais délègue au bin. `npx roadmapped init` pose
+  config + squelette 8 stages + skill dans .claude/skills/ + entrée .mcp.json + hook guard ;
+  `upgrade` recopie le tool-owned sans toucher docs/tasks ni config. Correctif structurant :
+  dissocier racine-paquet / racine-hôte dans paths.ts.
+verification: >-
+  Spec relue (100 l. denses), complète, ancrée à package.json/roadmaped.config.json/paths.ts. Points
+  ouverts (6) : shipper .ts bruts (strip-types) vs build à la publication ; install locale devDep vs
+  npx pur ; hook guard vs husky/lefthook existant ; skill tool-owned écrasé à l'upgrade ; frontière
+  squelette bin vs #121 ; poids paquet (Vite en dependency).
 release: null
