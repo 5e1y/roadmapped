@@ -385,7 +385,7 @@ export function TagsCombobox({ tags, suggestions, disabled = false, onSave }: {
   if (disabled) {
     return (
       <div className="flex flex-wrap items-center gap-1.5 px-1.5 py-1">
-        {tags.length === 0 && <span className="text-[12px] text-neutral-400">—</span>}
+        {tags.length === 0 && <span className="text-[12px] text-neutral-500">—</span>}
         {tags.map((t) => <span key={t} className="text-[12px] text-neutral-500">#{t}</span>)}
       </div>
     )
@@ -581,7 +581,7 @@ export function MultiCombobox({
       value={selected}
       onValueChange={(objs: SelectItem[]) => onValueChange(objs.map((o) => Number(o.value)))}
     >
-      <Combobox.Chips className={`${fieldCls} flex flex-wrap items-center gap-1`}>
+      <Combobox.Chips className={`${fieldCls} flex flex-wrap items-center gap-1 focus-within:border-neutral-900 focus-within:bg-white`}>
         {selected.map((item) => (
           <Combobox.Chip
             key={item.value}
