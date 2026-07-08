@@ -1,0 +1,28 @@
+id: 173
+kind: quick
+code: null
+title: >-
+  README Quickstart montre le flow contributeur (npm install/npm run dev) au lieu du flow
+  utilisateur npx roadmapped init/dashboard
+status: done
+tags:
+  - publish
+size: null
+team: engineering
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-08T18:21:13"
+startedAt: "2026-07-08T18:21:13"
+completedAt: "2026-07-08"
+commit: "89937e8"
+outcome: >-
+  README Quickstart réécrit sur le flow UTILISATEUR : npx roadmapped init/dashboard/--help (au lieu
+  de npm install/npm run dev = flow contributeur). Le flow contributeur (clone + npm install + node
+  scripts/task.mjs) déplacé en note blockquote. Mention du skill .claude/ + .mcp.json posés par
+  init. Cohérent avec la landing et le paquet npm.
+verification: null
+release: null
