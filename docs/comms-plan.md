@@ -1,8 +1,8 @@
 # Plan de communication — lancement open source de Roadmapped
 
-**Statut : DRAFT — proposition Fable à relire par Rémi (tâche #19).**
-Les choix éditoriaux (ton, canaux prioritaires, objectifs chiffrés) sont des propositions
-à trancher ensemble ; la structure suit la définition de fini de la tâche.
+**Statut : plan de travail (relu sous l'angle voix, #19).** Ton, canaux et prérequis sont
+arrêtés ; les **objectifs chiffrés** (§Objectifs) restent des cibles à calibrer selon le
+signal réel du J0 — pas des engagements. Domaine acquis : **roadmapped.work** (Cloudflare).
 
 ## Ton
 
@@ -34,7 +34,7 @@ agent IA est le premier utilisateur ».
 | Canal | Angle | Langue | Quand |
 |---|---|---|---|
 | **Show HN** (Hacker News) | Local-first, no-SaaS, flat files ; le README technique fait le travail. Titre proposé : « Show HN: Roadmapped – project management as flat files in your repo, built for AI agents ». Premier commentaire : architecture (validation+rollback, ids immuables, états calculés), et l'histoire du dogfooding. | EN | J0 matin (16h-17h CET = matin US) |
-| **Product Hunt** | Fiche produit : tagline « Your repo is your project manager », galerie = captures des 3 vues + GIF du cycle agent (next → start → done). | EN | J0 (00h01 PT) |
+| **Product Hunt** | Fiche produit : tagline « Your repo is already your project management tool » (alignée hero README/site), galerie = captures des 3 vues + GIF du cycle agent (next → start → done). | EN | J0 (00h01 PT) |
 | **LinkedIn** (compte Rémi) | Récit founder FR : « j'ai lancé un outil open source en le pilotant avec lui-même » — le méta-récit, les leçons, le lien repo. Version EN en commentaire ou post séparé J+1. | FR puis EN | J0 midi |
 | **Reddit r/ClaudeAI** | Le skill Claude : démo du cycle agent complet, setup en premier commentaire. | EN | J0 |
 | **Reddit r/SideProject + r/opensource** | Le projet et sa licence MIT ; angle « construit en public par un agent ». | EN | J+1 (étaler pour éviter le cross-post spam) |
@@ -46,8 +46,10 @@ exacts sont le livrable de la tâche #20.
 
 ## Prérequis au J0 (bloquants, cf. dépendances des tâches)
 
-Repo GitHub public avec CI verte et README à jour (#13) · site déployé (#18) · skill publié
-sur le marketplace (#15) · captures/GIF frais du dashboard poli · ce plan approuvé.
+Repo GitHub public avec CI verte et README à jour (#13, README fait #11) · site déployé sur
+**roadmapped.work** via Cloudflare Pages (#18 — repo site branché par Rémi) · skill publié
+sur le marketplace (#15) · captures/GIF frais du dashboard poli (dépend de #134, capture
+obsolète) · ce plan approuvé.
 
 ## Objectifs mesurables à J+7 (proposition à calibrer)
 
