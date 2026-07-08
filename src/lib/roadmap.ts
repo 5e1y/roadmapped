@@ -26,7 +26,15 @@ export function archivedTasks(tree: TaskTree): TaskNode[] {
  *              une dep vers un id inconnu est ignorée défensivement — la validation l'interdit déjà)
  * - locked : au moins une dep non done
  */
+// Mémo par identité de tree (#130) : computeAvailability est appelé une fois par
+// ligne de backlog (TaskRow) + par le panneau + par la roadmap. Le tree est un
+// snapshot immuable reconstruit à chaque écriture → un nouvel objet = un nouveau
+// calcul, l'ancien est GC'd avec la WeakMap. Évite le O(n²) de recalcul par ligne.
+const availabilityCache = new WeakMap<TaskTree, Map<number, Availability>>()
+
 export function computeAvailability(tree: TaskTree): Map<number, Availability> {
+  const cached = availabilityCache.get(tree)
+  if (cached) return cached
   const active = flatten(tree.sections)
   const archivedIds = new Set(flatten(tree.archive).map((t) => t.id))
   const activeById = new Map(active.map((t) => [t.id, t]))
@@ -40,6 +48,7 @@ export function computeAvailability(tree: TaskTree): Map<number, Availability> {
     if (t.status === 'done') result.set(t.id, 'done')
     else result.set(t.id, t.dependsOn.every(isDone) ? 'available' : 'locked')
   }
+  availabilityCache.set(tree, result)
   return result
 }
 
