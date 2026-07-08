@@ -6,15 +6,15 @@ import { resolve } from 'node:path'
 import { packageRoot } from './src/lib/paths'
 
 /*
- * Build DÉMO (#148) : `npm run build:demo` → dist-demo/, un bundle statique
- * autonome du dashboard avec le backlog démo embarqué (src/demo/). Aucun
- * serveur, aucune API — le shim fetch (src/demo/api.ts) répond à tout.
+ * DEMO build (#148): `npm run build:demo` → dist-demo/, a standalone static
+ * bundle of the dashboard with the demo backlog embedded (src/demo/). No
+ * server, no API — the fetch shim (src/demo/api.ts) answers everything.
  *
- * Séparé du vite.config.ts normal EXPRÈS : le build de l'app (dist/) et le
- * dev server (plugin API, fs.allow, watch) ne changent pas d'un octet.
+ * Split from the normal vite.config.ts ON PURPOSE: the app build (dist/) and the
+ * dev server (API plugin, fs.allow, watch) don't change by a single byte.
  *
- * `base: './'` : le bundle est copié tel quel dans le repo du site sous
- * /demo/ — les assets doivent se résoudre en relatif, pas depuis la racine.
+ * `base: './'`: the bundle is copied as-is into the site repo under
+ * /demo/ — assets must resolve relatively, not from the root.
  */
 const root = packageRoot()
 
@@ -25,8 +25,8 @@ export default defineConfig({
     react(),
     tailwindcss(),
     {
-      // Rollup nomme la page comme son input (index.demo.html) ; le site la
-      // sert comme index de /demo/ → renommage en index.html à la fin du build.
+      // Rollup names the page after its input (index.demo.html); the site
+      // serves it as /demo/'s index → rename to index.html at the end of the build.
       name: 'roadmapped-demo-index',
       async closeBundle() {
         await rename(

@@ -1,14 +1,14 @@
 #!/usr/bin/env node
-// Plomberie d'installation dans un repo HÔTE (spec 2026-07-08-distribution, §3-4).
-// `roadmapped init`   : config + squelette 8 stages + skill + entrée MCP + hook guard.
-// `roadmapped upgrade`: re-copie les fichiers TOOL-OWNED (skill, MCP, hook) — ne
-//                       touche JAMAIS docs/tasks/ ni roadmapped.config.json.
+// Install plumbing inside a HOST repo (spec 2026-07-08-distribution, §3-4).
+// `roadmapped init`   : config + 8-stage skeleton + skill + MCP entry + guard hook.
+// `roadmapped upgrade`: re-copies the TOOL-OWNED files (skill, MCP, hook) — NEVER
+//                       touches docs/tasks/ or roadmapped.config.json.
 //
-// Idempotent par construction : chaque étape détecte l'existant et ne réécrase
-// jamais des données utilisateur. Le CONTENU de l'init (questionnaire, migration,
-// premières tâches) appartient au skill / #121 — ici uniquement du déterministe.
+// Idempotent by construction: each step detects what already exists and never
+// overwrites user data. The CONTENT of init (questionnaire, migration, first
+// tasks) belongs to the skill / #121 — here only deterministic plumbing.
 //
-// Node ≥ 22.18 (imports .ts via strip-types natif) — vérifié par bin/roadmapped.mjs.
+// Node >= 22.18 (.ts imports via native strip-types) — checked by bin/roadmapped.mjs.
 
 import {
   existsSync, mkdirSync, writeFileSync, readFileSync, cpSync, chmodSync,
@@ -27,37 +27,37 @@ const CLAUDE_END = '<!-- <<< roadmapped <<< -->'
 const CLAUDE_BLOCK = `${CLAUDE_START}
 ## Roadmapped
 
-Ce repo utilise **Roadmapped** (gestion de projet en fichiers plats, pilotée par agent).
+This repo uses **Roadmapped** (flat-file project management, agent-driven).
 
-- **Au démarrage de session** : si le dashboard Roadmapped n'est pas déjà ouvert, lance
-  \`npx roadmapped dashboard\` (idempotent — no-op s'il tourne déjà, sinon ouvre le navigateur).
-- Toute création/mise à jour de tâche passe par le skill roadmapped ou \`npx roadmapped <cmd>\`
-  (jamais d'édition manuelle des YAML de \`docs/tasks/\`).
+- **At session start**: if the Roadmapped dashboard is not already open, run
+  \`npx roadmapped dashboard\` (idempotent — no-op if it's already running, otherwise opens the browser).
+- Every task creation/update goes through the roadmapped skill or \`npx roadmapped <cmd>\`
+  (never edit the YAML files under \`docs/tasks/\` by hand).
 ${CLAUDE_END}`
 
-const CONFIG_NAMES = ['roadmapped.config.json', 'roadmaped.config.json'] // rétrocompat un p
+const CONFIG_NAMES = ['roadmapped.config.json', 'roadmaped.config.json'] // back-compat with an old typo
 
-// ------------------------------------------------------------------ étapes (testables)
+// ------------------------------------------------------------------ steps (testable)
 
-/** Pose roadmapped.config.json à la racine hôte — seulement s'il n'existe sous
- *  aucune des deux orthographes (rétrocompat : un roadmaped.config.json est respecté). */
+/** Writes roadmapped.config.json at the host root — only if it doesn't exist under
+ *  either spelling (back-compat: an existing roadmaped.config.json is respected). */
 export function ensureConfig(hostRoot, log = () => {}) {
   const existing = CONFIG_NAMES.map((n) => join(hostRoot, n)).find(existsSync)
   if (existing) {
-    log(`config : ${existing} déjà présent — respecté tel quel.`)
+    log(`config: ${existing} already present — kept as-is.`)
     return existing
   }
   const file = join(hostRoot, 'roadmapped.config.json')
   writeFileSync(file, `${JSON.stringify({ tasksDir: 'docs/tasks', docsDir: 'docs' }, null, 2)}\n`)
-  log(`config : ${file} créé (tasksDir=docs/tasks, docsDir=docs).`)
+  log(`config: ${file} created (tasksDir=docs/tasks, docsDir=docs).`)
   return file
 }
 
-/** Squelette du backlog : _meta.yaml (nextId: 1) + les 8 stages canoniques vides.
- *  Si _meta.yaml existe, le backlog est déjà initialisé → on ne touche à RIEN. */
+/** Backlog skeleton: _meta.yaml (nextId: 1) + the 8 canonical empty stages.
+ *  If _meta.yaml exists, the backlog is already initialized → we touch NOTHING. */
 export function ensureSkeleton(tasksDir, log = () => {}) {
   if (existsSync(join(tasksDir, '_meta.yaml'))) {
-    log(`squelette : ${tasksDir} déjà initialisé (_meta.yaml présent) — étape sautée.`)
+    log(`skeleton: ${tasksDir} already initialized (_meta.yaml present) — step skipped.`)
     return false
   }
   mkdirSync(tasksDir, { recursive: true })
@@ -67,49 +67,49 @@ export function ensureSkeleton(tasksDir, log = () => {}) {
     mkdirSync(dir, { recursive: true })
     writeFileSync(join(dir, '_section.yaml'), yaml.dump({ title: stage.title, status: 'open', note: stage.note }))
   }
-  log(`squelette : ${tasksDir} créé (8 stages canoniques vides, nextId: 1).`)
+  log(`skeleton: ${tasksDir} created (8 canonical empty stages, nextId: 1).`)
   return true
 }
 
-/** Ajoute roadmapped en devDependency du package.json hôte (sans lancer npm :
- *  pas de round-trip réseau ici — l'install effective reste à la main de l'hôte). */
+/** Adds roadmapped as a devDependency of the host package.json (without running
+ *  npm: no network round-trip here — the actual install stays in the host's hands). */
 export function ensureDevDependency(hostRoot, packageDir, log = () => {}) {
   const pkgFile = join(hostRoot, 'package.json')
   if (!existsSync(pkgFile)) {
-    log('devDependency : pas de package.json hôte — ajoute roadmapped à ton gestionnaire de paquets toi-même.')
+    log('devDependency: no host package.json — add roadmapped to your package manager yourself.')
     return false
   }
   let pkg
   try {
     pkg = JSON.parse(readFileSync(pkgFile, 'utf8'))
   } catch {
-    log(`devDependency : ${pkgFile} illisible — étape sautée (fichier laissé intact).`)
+    log(`devDependency: ${pkgFile} unreadable — step skipped (file left intact).`)
     return false
   }
   if (pkg.dependencies?.roadmapped || pkg.devDependencies?.roadmapped) {
-    log('devDependency : roadmapped déjà déclaré — étape sautée.')
+    log('devDependency: roadmapped already declared — step skipped.')
     return false
   }
   const { version } = JSON.parse(readFileSync(join(packageDir, 'package.json'), 'utf8'))
   pkg.devDependencies = { ...(pkg.devDependencies ?? {}), roadmapped: `^${version}` }
   writeFileSync(pkgFile, `${JSON.stringify(pkg, null, 2)}\n`)
-  log(`devDependency : roadmapped ^${version} ajouté à ${pkgFile} — lance \`npm install\` pour matérialiser node_modules.`)
+  log(`devDependency: roadmapped ^${version} added to ${pkgFile} — run \`npm install\` to materialize node_modules.`)
   return true
 }
 
-/** Copie le skill (tool-owned, écrasable) vers .claude/skills/roadmapped/ de l'hôte. */
+/** Copies the skill (tool-owned, overwritable) to the host's .claude/skills/roadmapped/. */
 export function copySkill(packageDir, hostRoot, log = () => {}) {
   const src = join(packageDir, 'skills', 'roadmapped')
   const dest = join(hostRoot, '.claude', 'skills', 'roadmapped')
   if (resolve(src) === resolve(dest)) return dest
   cpSync(src, dest, { recursive: true, force: true })
-  log(`skill : copié vers ${dest} (tool-owned : réécrasé à chaque upgrade).`)
+  log(`skill: copied to ${dest} (tool-owned: overwritten on every upgrade).`)
   return dest
 }
 
-/** Fusionne l'entrée `roadmapped` dans .mcp.json hôte — merge, jamais de clobber
- *  des autres serveurs. Un .mcp.json illisible est laissé INTACT (on ne détruit
- *  pas la config MCP d'un hôte pour installer la nôtre). */
+/** Merges the `roadmapped` entry into the host .mcp.json — merge, never clobber
+ *  other servers. An unreadable .mcp.json is left INTACT (we don't wipe a host's
+ *  MCP config just to install ours). */
 export function mergeMcpEntry(hostRoot, serverArgs, log = () => {}) {
   const file = join(hostRoot, '.mcp.json')
   let json = {}
@@ -117,22 +117,22 @@ export function mergeMcpEntry(hostRoot, serverArgs, log = () => {}) {
     try {
       json = JSON.parse(readFileSync(file, 'utf8'))
     } catch {
-      log(`mcp : ${file} illisible — étape sautée (fichier laissé intact). Ajoute l'entrée toi-même : { "roadmapped": { "command": "node", "args": ${JSON.stringify(serverArgs)} } }`)
+      log(`mcp: ${file} unreadable — step skipped (file left intact). Add the entry yourself: { "roadmapped": { "command": "node", "args": ${JSON.stringify(serverArgs)} } }`)
       return false
     }
   }
   json.mcpServers = { ...(json.mcpServers ?? {}), roadmapped: { command: 'node', args: serverArgs } }
   writeFileSync(file, `${JSON.stringify(json, null, 2)}\n`)
-  log(`mcp : entrée roadmapped → ${serverArgs.join(' ')} fusionnée dans ${file}.`)
+  log(`mcp: roadmapped entry → ${serverArgs.join(' ')} merged into ${file}.`)
   return true
 }
 
-/** Hook SessionStart (#122) : à l'ouverture d'une session Claude dans le repo,
- *  lance `sitrep` — son état du monde est injecté d'emblée dans le contexte, sans
- *  compter sur l'agent pour y penser. Merge idempotent dans .claude/settings.json :
- *  les autres hooks/réglages sont préservés, notre entrée (repérée par la commande
- *  sitrep) est remise à jour plutôt que dupliquée. Un settings.json illisible est
- *  laissé intact (étape sautée). */
+/** SessionStart hook (#122): when a Claude session opens in the repo, runs
+ *  `sitrep` — its state of the world is injected into the context up front, without
+ *  relying on the agent to think of it. Idempotent merge into .claude/settings.json:
+ *  other hooks/settings are preserved, our entry (spotted by the sitrep command) is
+ *  updated rather than duplicated. An unreadable settings.json is left intact (step
+ *  skipped). */
 export function ensureSessionHook(hostRoot, sitrepCommand, log = () => {}) {
   const file = join(hostRoot, '.claude', 'settings.json')
   let json = {}
@@ -140,33 +140,33 @@ export function ensureSessionHook(hostRoot, sitrepCommand, log = () => {}) {
     try {
       json = JSON.parse(readFileSync(file, 'utf8'))
     } catch {
-      log(`session hook : ${file} illisible — étape sautée (fichier laissé intact).`)
+      log(`session hook: ${file} unreadable — step skipped (file left intact).`)
       return false
     }
   }
   const entry = { hooks: [{ type: 'command', command: sitrepCommand }] }
   json.hooks = json.hooks ?? {}
   const existing = Array.isArray(json.hooks.SessionStart) ? json.hooks.SessionStart : []
-  // Repère notre entrée par la présence de « task.mjs sitrep » dans une de ses commandes.
+  // Spots our entry by the presence of "task.mjs sitrep" in one of its commands.
   const isOurs = (g) => (g?.hooks ?? []).some((h) => typeof h?.command === 'string' && h.command.includes('task.mjs sitrep'))
   const others = existing.filter((g) => !isOurs(g))
   json.hooks.SessionStart = [...others, entry]
   mkdirSync(dirname(file), { recursive: true })
   writeFileSync(file, `${JSON.stringify(json, null, 2)}\n`)
-  log(`session hook : SessionStart → ${sitrepCommand} posé dans ${file}.`)
+  log(`session hook: SessionStart → ${sitrepCommand} set in ${file}.`)
   return true
 }
 
-/** Écrit un bloc Roadmapped dans le CLAUDE.md du repo hôte (#153) : consigne
- *  « au démarrage, ouvre le dashboard s'il n'est pas déjà ouvert » lue par l'agent.
- *  Idempotent et NON destructif (pattern marqueurs, comme installGuardHook) : le
- *  CLAUDE.md existant de l'utilisateur est PRÉSERVÉ, le bloc entre marqueurs est
- *  ajouté (fichier absent → créé) ou remplacé à l'identique au ré-init/upgrade. */
+/** Writes a Roadmapped block into the host repo's CLAUDE.md (#153): the instruction
+ *  "at startup, open the dashboard if it's not already open" read by the agent.
+ *  Idempotent and NON-destructive (marker pattern, like installGuardHook): the
+ *  user's existing CLAUDE.md is PRESERVED, the block between markers is appended
+ *  (file absent → created) or replaced identically on re-init/upgrade. */
 export function ensureClaudeMd(hostRoot, log = () => {}) {
   const file = join(hostRoot, 'CLAUDE.md')
   if (!existsSync(file)) {
     writeFileSync(file, `${CLAUDE_BLOCK}\n`)
-    log(`CLAUDE.md : créé avec le bloc roadmapped (${file}).`)
+    log(`CLAUDE.md: created with the roadmapped block (${file}).`)
     return
   }
   const current = readFileSync(file, 'utf8')
@@ -174,32 +174,32 @@ export function ensureClaudeMd(hostRoot, log = () => {}) {
     const re = new RegExp(`${escapeRe(CLAUDE_START)}[\\s\\S]*?${escapeRe(CLAUDE_END)}`)
     const next = current.replace(re, CLAUDE_BLOCK)
     if (next !== current) writeFileSync(file, next)
-    log(`CLAUDE.md : bloc roadmapped déjà présent — remis à jour.`)
+    log(`CLAUDE.md: roadmapped block already present — updated.`)
   } else {
     writeFileSync(file, `${current.replace(/\s+$/, '')}\n\n${CLAUDE_BLOCK}\n`)
-    log(`CLAUDE.md existant PRÉSERVÉ, bloc roadmapped ajouté à la suite (${file}).`)
+    log(`CLAUDE.md existing content PRESERVED, roadmapped block appended (${file}).`)
   }
 }
 
-/** Installe le hook guard en CHAÎNANT (décision verrouillée) : un pre-commit
- *  existant (husky, lefthook-shim, hook maison) est PRÉSERVÉ, le guard est ajouté
- *  à la suite entre marqueurs ; core.hooksPath n'est JAMAIS modifié. Le bloc entre
- *  marqueurs est remplacé à l'identique au ré-init/upgrade (idempotent). */
+/** Installs the guard hook by CHAINING (locked decision): an existing pre-commit
+ *  (husky, lefthook-shim, homemade hook) is PRESERVED, the guard is appended between
+ *  markers; core.hooksPath is NEVER modified. The block between markers is replaced
+ *  identically on re-init/upgrade (idempotent). */
 export function installGuardHook(hostRoot, guardCommand, log = () => {}) {
   if (!existsSync(join(hostRoot, '.git'))) {
-    log('hook : pas de .git à la racine hôte — étape sautée.')
+    log('hook: no .git at the host root — step skipped.')
     return null
   }
-  // Dossier de hooks EFFECTIF de l'hôte, sans jamais le changer.
+  // The host's EFFECTIVE hooks directory, without ever changing it.
   let hooksPath = ''
   try {
     hooksPath = execFileSync('git', ['config', 'core.hooksPath'], { cwd: hostRoot, encoding: 'utf8' }).trim()
   } catch {
-    // core.hooksPath non défini → défaut .git/hooks
+    // core.hooksPath not set → default .git/hooks
   }
   let target
   if (existsSync(join(hostRoot, '.husky')) || hooksPath.includes('.husky')) {
-    // husky : les hooks utilisateur vivent dans .husky/ (le _ interne est régénéré).
+    // husky: user hooks live in .husky/ (the internal _ is regenerated).
     target = join(hostRoot, '.husky', 'pre-commit')
   } else if (hooksPath) {
     target = join(isAbsolute(hooksPath) ? hooksPath : join(hostRoot, hooksPath), 'pre-commit')
@@ -210,17 +210,17 @@ export function installGuardHook(hostRoot, guardCommand, log = () => {}) {
   mkdirSync(dirname(target), { recursive: true })
   if (!existsSync(target)) {
     writeFileSync(target, `#!/bin/sh\n${block}`)
-    log(`hook : pre-commit guard créé (${target}).`)
+    log(`hook: pre-commit guard created (${target}).`)
   } else {
     const current = readFileSync(target, 'utf8')
     if (current.includes(GUARD_START)) {
       const re = new RegExp(`${escapeRe(GUARD_START)}[\\s\\S]*?${escapeRe(GUARD_END)}\\n?`)
       const next = current.replace(re, block)
       if (next !== current) writeFileSync(target, next)
-      log(`hook : bloc guard déjà présent dans ${target} — remis à jour.`)
+      log(`hook: guard block already present in ${target} — updated.`)
     } else {
       writeFileSync(target, `${current.replace(/\s+$/, '')}\n\n${block}`)
-      log(`hook : pre-commit existant PRÉSERVÉ, guard chaîné à la suite (${target}).`)
+      log(`hook: existing pre-commit PRESERVED, guard chained after it (${target}).`)
     }
   }
   chmodSync(target, 0o755)
@@ -229,17 +229,17 @@ export function installGuardHook(hostRoot, guardCommand, log = () => {}) {
 
 const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
-// ------------------------------------------------------------------ verbes
+// ------------------------------------------------------------------ verbs
 
-/** Chemins côté hôte vers les scripts du paquet. Self-host (le repo Roadmapped
- *  lui-même) : les scripts sont à la racine, pas dans node_modules — et Node
- *  strippe alors les types nativement. Sous node_modules, il refuse : le loader
- *  amaro (scripts/register-ts.mjs) est injecté via --import (cf. ce fichier). */
+/** Host-side paths to the package scripts. Self-host (the Roadmapped repo
+ *  itself): the scripts are at the root, not in node_modules — and Node then
+ *  strips the types natively. Under node_modules it refuses: the amaro loader
+ *  (scripts/register-ts.mjs) is injected via --import (see this file). */
 function packageScripts(hostRoot, packageDir) {
   const selfHost = resolve(hostRoot) === resolve(packageDir)
   const base = selfHost ? 'scripts' : 'node_modules/roadmapped/scripts'
-  // `./` obligatoire : sans lui, --import lit « node_modules/… » comme un
-  // spécificateur de PAQUET (ERR_MODULE_NOT_FOUND), pas comme un chemin.
+  // `./` is mandatory: without it, --import reads "node_modules/…" as a PACKAGE
+  // specifier (ERR_MODULE_NOT_FOUND), not as a path.
   const tsFlags = selfHost ? [] : ['--import', `./${base}/register-ts.mjs`]
   return {
     selfHost,
@@ -251,31 +251,31 @@ function packageScripts(hostRoot, packageDir) {
 
 export function runInit({ hostRoot = findHostRoot(), packageDir = packageRoot(), log = console.log } = {}) {
   const { selfHost, mcpArgs, guardCommand, sitrepCommand } = packageScripts(hostRoot, packageDir)
-  log(`roadmapped init — racine hôte : ${hostRoot}${selfHost ? ' (self-host)' : ''}`)
+  log(`roadmapped init — host root: ${hostRoot}${selfHost ? ' (self-host)' : ''}`)
   ensureConfig(hostRoot, log)
   const { tasksDir } = loadPathsAt(hostRoot)
   ensureSkeleton(tasksDir, log)
   if (!selfHost) ensureDevDependency(hostRoot, packageDir, log)
   if (!selfHost) copySkill(packageDir, hostRoot, log)
-  else log('skill : self-host — le skill vit déjà dans skills/roadmapped/, pas de copie.')
+  else log('skill: self-host — the skill already lives in skills/roadmapped/, no copy.')
   mergeMcpEntry(hostRoot, mcpArgs, log)
   ensureSessionHook(hostRoot, sitrepCommand, log)
   ensureClaudeMd(hostRoot, log)
   installGuardHook(hostRoot, guardCommand, log)
-  log('init terminé. Prochaine étape : le skill roadmapped (phase de setup) remplit le backlog.')
-  log('▶ Dashboard : npx roadmapped dashboard   (ouvre le navigateur ; pas « npm run dev », qui lance TON projet)')
+  log('init done. Next step: the roadmapped skill (setup phase) fills the backlog.')
+  log('▶ Dashboard: npx roadmapped dashboard   (opens the browser; not `npm run dev`, which runs YOUR project)')
 }
 
 export function runUpgrade({ hostRoot = findHostRoot(), packageDir = packageRoot(), log = console.log } = {}) {
   const { selfHost, mcpArgs, guardCommand, sitrepCommand } = packageScripts(hostRoot, packageDir)
-  log(`roadmapped upgrade — racine hôte : ${hostRoot}${selfHost ? ' (self-host)' : ''}`)
-  // Frontière nette : fichiers TOOL-OWNED uniquement. docs/tasks/ et la config
-  // sont des données utilisateur — jamais touchés par upgrade.
+  log(`roadmapped upgrade — host root: ${hostRoot}${selfHost ? ' (self-host)' : ''}`)
+  // Clean boundary: TOOL-OWNED files only. docs/tasks/ and the config are user
+  // data — never touched by upgrade.
   if (!selfHost) copySkill(packageDir, hostRoot, log)
-  else log('skill : self-host — rien à recopier.')
+  else log('skill: self-host — nothing to re-copy.')
   mergeMcpEntry(hostRoot, mcpArgs, log)
   ensureSessionHook(hostRoot, sitrepCommand, log)
   ensureClaudeMd(hostRoot, log)
   installGuardHook(hostRoot, guardCommand, log)
-  log('upgrade terminé (docs/tasks/ et roadmapped.config.json non touchés). Pour bumper le paquet : npm install -D roadmapped@latest')
+  log('upgrade done (docs/tasks/ and roadmapped.config.json untouched). To bump the package: npm install -D roadmapped@latest')
 }
