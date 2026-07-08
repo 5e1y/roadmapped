@@ -271,6 +271,20 @@ describe('mode feedback (#149)', () => {
     expect(t.completedAt).toBeNull()
   })
 
+  it('updateTask remplace le tableau feedback (chemin UI : lit/modifie/renvoie)', () => {
+    add({ title: 'Iterated' })
+    addFeedback(dir, 1, { text: 'a' })
+    // L'UI renvoie le tableau complet modifié (ici : marque le 1er résolu + en ajoute un).
+    const cur = fb(1)
+    const next = [{ ...cur[0], resolved: true }, { date: '2026-07-09T12:00:00', author: 'rémi', text: 'b', resolved: false }]
+    const res = updateTask(dir, 1, { feedback: next })
+    expect(res.ok).toBe(true)
+    const items = fb(1)
+    expect(items).toHaveLength(2)
+    expect(items[0].resolved).toBe(true)
+    expect(items[1].text).toBe('b')
+  })
+
   it("done --resolve-feedback 'all' résout tous les retours ; positions 1-based ciblent", () => {
     add({ title: 'Iterated' })
     addFeedback(dir, 1, { text: 'a' })

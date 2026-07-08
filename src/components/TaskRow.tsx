@@ -57,6 +57,8 @@ export function TaskRow({ task }: { task: TaskNode }) {
   const isDone = task.status === 'done'
   const subDone = task.subtasks.filter((s) => s.status === 'done').length
   const hasSubs = task.subtasks.length > 0
+  // Feedback ouvert (#149) : compteur discret quand ≥1 retour non résolu.
+  const openFeedback = task.feedback?.filter((f) => !f.resolved).length ?? 0
   // Tâche affichée dans le side panel : surlignée à l'accent pour rester
   // repérable pendant qu'on navigue dans le backlog (#36).
   const isOpenInPanel = top?.type === 'task' && top.id === task.id
@@ -110,6 +112,11 @@ export function TaskRow({ task }: { task: TaskNode }) {
             {/* Liste une-colonne : la date de bouclage passe sur la ligne. */}
             {task.completedAt && (
               <span className="font-mono text-[11px] text-neutral-500" title={absoluteDate(task.completedAt)}>{relativeTime(task.completedAt)}</span>
+            )}
+            {openFeedback > 0 && (
+              <span className="text-[11px] text-neutral-500" title={`${openFeedback} open feedback item(s)`}>
+                feedback {openFeedback}
+              </span>
             )}
             {hasSubs && (
               <span className="font-mono text-[11px] text-neutral-500">

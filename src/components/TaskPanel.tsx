@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'react'
 import { Toast } from '@base-ui/react/toast'
-import { Cross, LockLocked } from 'trinil-react'
+import { Check, Cross, LockLocked } from 'trinil-react'
 import { Collapsible } from '@base-ui/react/collapsible'
 import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
@@ -58,6 +58,13 @@ const TEAM_ITEMS: SelectItem[] = TEAMS.map((t) => ({ value: t, label: t }))
 
 /** Deux valeurs (potentiellement listes) diffèrent-elles ? Comparaison structurelle, null-safe. */
 const changed = (a: unknown, b: unknown) => JSON.stringify(a ?? null) !== JSON.stringify(b ?? null)
+
+/** Horodatage local à la seconde (YYYY-MM-DDTHH:MM:SS) — même format que createdAt (cf. taskWrites now()). */
+function localNow(): string {
+  const d = new Date()
+  const p = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`
+}
 
 /**
  * Offset dans la SOURCE markdown correspondant à un clic dans le texte RENDU :
@@ -332,6 +339,8 @@ function TaskPanelBody({ id }: { id: number }) {
   // maison). 'locked' = prérequis non faits → cadenas au lieu du glyphe.
   const locked = computeAvailability(tree).get(id) === 'locked'
   const blocks = reverseDependents(tree, id).map((t) => t.id)
+  // Feedback (#149) : additif — absent/[] sur les YAML d'avant le champ.
+  const feedback = task.feedback ?? []
   const depBadge = (depId: number) => DEP_STATE_LABEL[depState(tree, depId)]
   const subBadge = (subId: number) => {
     const sub = task.subtasks.find((s) => s.id === subId)
@@ -738,6 +747,65 @@ function TaskPanelBody({ id }: { id: number }) {
           />
         </div>
         <FieldError errs={errors.refs} />
+      </div>
+
+      {/* Feedback (#149) : retours capturés SANS ticket. Chaque item = texte,
+          auteur · date, état résolu ; bascule résolu/rouvrir d'un bouton ;
+          ajout via input ghost (Entrée). PATCH du TABLEAU COMPLET (save('feedback')),
+          même mécanisme que les autres champs (lecture courante → modif → envoi). */}
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center gap-2">
+          <SectionLabel>Feedback</SectionLabel>
+          <SavedTick show={savedIn('feedback')} />
+        </div>
+        <div className="flex flex-col gap-0.5">
+          {feedback.length === 0 && (
+            <p className="px-1.5 text-xs text-neutral-500">No feedback yet.</p>
+          )}
+          {feedback.map((f, i) => (
+            <div
+              key={i}
+              className={`flex items-start gap-2 border-l-2 py-1 pl-2 ${f.resolved ? 'border-neutral-200' : 'border-accent'}`}
+            >
+              <div className="min-w-0 flex-1">
+                <div className={`whitespace-pre-wrap break-words text-sm ${f.resolved ? 'text-neutral-500 line-through' : 'text-neutral-800'}`}>
+                  {f.text}
+                </div>
+                <div className="mt-0.5 flex items-center gap-1 text-[11px] text-neutral-500">
+                  {f.resolved && <Check size={10} className="shrink-0" />}
+                  <span>{f.author}</span>
+                  <span>·</span>
+                  <span title={absoluteDate(f.date)}>{relativeTime(f.date)}</span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => void save('feedback', true, {
+                  feedback: feedback.map((x, j) => (j === i ? { ...x, resolved: !x.resolved } : x)),
+                })}
+                className={`shrink-0 ${actionBtn}`}
+              >
+                {f.resolved ? 'Reopen' : 'Resolve'}
+              </button>
+            </div>
+          ))}
+          <GhostInput
+            key={`feedback-${feedback.length}`}
+            placeholder="+ add feedback (Enter)"
+            aria-label="Add feedback"
+            onKeyDown={(e) => {
+              if (e.key !== 'Enter') return
+              const v = e.currentTarget.value.trim()
+              if (!v) return
+              e.currentTarget.value = ''
+              void save('feedback', true, {
+                feedback: [...feedback, { date: localNow(), author: 'rémi', text: v, resolved: false }],
+              })
+            }}
+            className="text-sm"
+          />
+        </div>
+        <FieldError errs={errors.feedback} />
       </div>
 
       {/* Consignation : inputs ghost permanents (corrections rares mais directes). */}
