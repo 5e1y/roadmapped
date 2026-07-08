@@ -3,7 +3,7 @@ code: null
 title: >-
   Supprimer l'archivage — le statut « done » suffit, retrait complet de la fonction archive (app +
   CLI + MCP + skill)
-status: in_progress
+status: done
 tags:
   - data-model
   - fable
@@ -31,8 +31,28 @@ epic: null
 source: ai
 createdAt: "2026-07-08T16:21:53"
 startedAt: "2026-07-08T16:22:30"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: 08814b0
+outcome: >-
+  Archivage entièrement supprimé (Fable). Retiré : tree.archive + parse _archive + double bucket
+  (tasks.ts) ; archiveTask + _archive dans walk/loadFiles + gardes « archivée » (taskWrites.ts) ;
+  archivedTasks + règle « dep archivée = done de fait » de computeAvailability + archive de
+  globalProgress + cas 'archived' de depState (render Availability pur) (roadmap.ts) ; parcours
+  archive de lastLogged/auditCommits/doneToday (render.ts) ; tolérance archive (validate.ts) ;
+  commande archive + cmdArchive + flag --archive (CLI) ; tool archive + param archive de list (MCP :
+  14→13 tools) ; section Archive du Backlog + SectionAccordion.tsx SUPPRIMÉ + mécanique
+  archived/editable de TaskPanel (tout éditable) ; mentions skill
+  (SKILL.md/formats.md/delegation.md) + guide.md + README/site-copy/announce-content/tone-of-voice
+  (affirmations « _archive = changelog » devenues fausses). Nouvelle règle deps : une dep n'est done
+  que si status==='done' (id inconnu → locked+listé, plus honnête ; zéro impact sur le vrai
+  backlog). Démo #148 : la tâche #8 (v1 rejetée) migrée d'_archive vers 04-build done. Notepad
+  archiveNote conservé (feature distincte). Migration nulle (0 tâche archivée).
+verification: >-
+  Vérif indépendante : grep → aucune réf archive de code hors notes.ts (archiveNote Notepad, voulu)
+  ; SectionAccordion.tsx bien supprimé ; tsc clean ; vitest 372/372 (tests archive réécrits/retirés,
+  aucun mort) ; build OK. NON-RÉGRESSION dogfooding : validate OK 145 tâches, sitrep avancement
+  136/145, roadmap (epics + avancement) cohérent, boot HTTP 200. computeAvailability sans effet réel
+  (toutes les deps du backlog pointent vers des tâches actives). Backlog rendu sans section Archive,
+  panneau done sans bouton Archiver (headless Fable, 0 erreur console). Contenu docs/tasks/*.yaml
+  intact.
 release: null
