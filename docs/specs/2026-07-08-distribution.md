@@ -98,3 +98,8 @@ Dissocier dans `src/lib/paths.ts` **racine du paquet** (où vit le code) et **ra
 - **Skill *tool-owned* écrasé à l'upgrade.** Si un utilisateur édite `.claude/skills/roadmapped/`, `upgrade` l'écrase. Assumé (le skill appartient à l'outil) ou marqueur « ne pas éditer » en tête de fichier ?
 - **Frontière `init` (plomberie) vs #121 (init riche).** Ici : `init` crée le squelette 8 stages VIDE + la config ; le skill/#121 remplit (questionnaire, migration, CLAUDE.md). Confirmer que le squelette appartient bien au bin et non au skill (setup.md serait à réécrire en conséquence — ticket 7).
 - **Poids du paquet (Vite en dependency).** Le dashboard tourne en Vite dev (l'API d'écriture est un plugin `configureServer`), donc Vite + la source sont des `dependencies`, pas des `devDependencies`. Paquet plus lourd qu'un CLI seul. Acceptable pour un outil local, à acter.
+
+> **Décisions verrouillées (Rémi, 2026-07-08)** : format de distribution = **.ts bruts +
+> Node strip-types** (Node ≥22.18, zéro build à la publication) ; hook guard face à un
+> gestionnaire existant chez l'hôte = **chaîner** (préserver le hook/pre-commit existant ET
+> ajouter le guard, jamais écraser `core.hooksPath`).

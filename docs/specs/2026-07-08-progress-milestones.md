@@ -246,3 +246,9 @@ supposent la reco (iii) validée.
   honnête (le goal a grossi) mais peut surprendre ; aucun lissage prévu (YAGNI).
 - **Graphe** : le diamant doit rester lisible en zoom-out — vérification visuelle à
   l'artefact, pas de test automatisable utile.
+
+> **Décision verrouillée (Rémi, 2026-07-08)** : verrou milestone = option **(iii)** (via
+> `dependsOn` + marqueur `kind:'milestone'`, pas de nouveau lock) ; progression = **compte
+> simple** de tâches. Le REGROUPEMENT (ex-« milestone » comme thème) passe sous le nom
+> **« Epic »** — voir la spec unifiée `2026-07-08-hierarchie-regroupement.md` (#131) qui
+> supersede cette partie. Ce doc reste le brainstorm de référence.
