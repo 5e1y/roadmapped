@@ -31,6 +31,11 @@ const SEC = '04-build'
 let sandbox
 let tasksDir
 const scriptPath = () => join(sandbox, 'scripts', 'task.mjs')
+// Depuis #139, loadPaths() ancre les données sur le repo HÔTE (cwd remonté ou
+// ROADMAPPED_ROOT), plus sur l'emplacement du script : chaque invocation du CLI
+// épingle donc explicitement le sandbox comme racine hôte — sans ça, un test
+// lancé depuis la racine du repo taperait le VRAI backlog.
+const sbEnv = () => ({ ...process.env, ROADMAPPED_ROOT: sandbox })
 
 /** Construit un sandbox autonome (script + lib + node_modules + config + 8 stages). */
 function buildSandbox() {
@@ -66,12 +71,12 @@ function buildSandbox() {
 /** Lance le CLI et capture code + stdout + stderr (spawnSync : stderr capturé même
  *  en cas de SUCCÈS — nécessaire pour les warnings non bloquants du done). */
 function runTask(args) {
-  const r = spawnSync('node', [scriptPath(), ...args], { encoding: 'utf8' })
+  const r = spawnSync('node', [scriptPath(), ...args], { encoding: 'utf8', env: sbEnv() })
   return { code: r.status ?? 1, stdout: r.stdout ?? '', stderr: r.stderr ?? '' }
 }
 
 const runUpdate = (...args) =>
-  execFileSync('node', [scriptPath(), 'update', '1', ...args], { encoding: 'utf8' })
+  execFileSync('node', [scriptPath(), 'update', '1', ...args], { encoding: 'utf8', env: sbEnv() })
 
 const readTask = () =>
   load(readFileSync(join(tasksDir, SEC, '01-tache.yaml'), 'utf8'))
@@ -293,7 +298,7 @@ describe('CLI concurrence — verrou global de mutation (#83)', () => {
     const N = 8
     const run = (i) =>
       new Promise((resolve) => {
-        const p = spawn('node', [scriptPath(), 'add', '--section', SEC, '--title', `Concurrente ${i}`, '--team', 'engineering', '--json'], { encoding: 'utf8' })
+        const p = spawn('node', [scriptPath(), 'add', '--section', SEC, '--title', `Concurrente ${i}`, '--team', 'engineering', '--json'], { encoding: 'utf8', env: sbEnv() })
         let out = ''
         p.stdout.on('data', (d) => { out += d })
         p.on('close', (code) => resolve({ code, out }))
@@ -400,7 +405,7 @@ describe('CLI guard — enforcement au commit (#100)', () => {
   it('passe quand une tâche est in_progress', () => {
     initGit()
     stageProductFile()
-    execFileSync('node', [scriptPath(), 'start', '1'], { encoding: 'utf8' })
+    execFileSync('node', [scriptPath(), 'start', '1'], { encoding: 'utf8', env: sbEnv() })
     expect(runGuard().code).toBe(0)
   })
 
@@ -439,7 +444,7 @@ describe('CLI guard — enforcement au commit (#100)', () => {
     stageProductFile()
     const refused = spawnSync('git', ['commit', '-q', '-m', 'hors ticket'], { cwd: sandbox, encoding: 'utf8' })
     expect(refused.status).not.toBe(0)
-    execFileSync('node', [scriptPath(), 'start', '1'], { encoding: 'utf8' })
+    execFileSync('node', [scriptPath(), 'start', '1'], { encoding: 'utf8', env: sbEnv() })
     const accepted = spawnSync('git', ['commit', '-q', '-m', 'sous ticket'], { cwd: sandbox, encoding: 'utf8' })
     expect(accepted.status).toBe(0)
   })

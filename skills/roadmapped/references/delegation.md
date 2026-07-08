@@ -9,7 +9,7 @@ Cycle du SKILL.md : `take`/`next` → `start` → travailler → vérifier l'art
 ### Déléguée (subagents — l'ex-subagent-driven-development)
 
 Pour un chantier multi-tâches, dispatch **un subagent frais par tâche** :
-- **Brief** = la sortie de `node scripts/task.mjs brief <id>` + le chemin de la spec + les interfaces des tâches voisines. Rien d'autre (pas l'historique de session).
+- **Brief** = la sortie de `npx roadmapped brief <id>` + le chemin de la spec + les interfaces des tâches voisines. Rien d'autre (pas l'historique de session).
 - **JAMAIS deux implémenteurs en parallèle** sur le même working tree. Le parallélisme, c'est des tâches sans deps dans des worktrees séparés — sinon séquentiel.
 - **Verrou vs worktrees (#83)** : le verrou de mutation (`docs/tasks/.lock`) sérialise les écritures concurrentes DANS UN SEUL arbre de travail — plusieurs agents peuvent y écrire sans collision d'ids. Il ne garantit RIEN inter-branches : deux worktrees peuvent allouer le même id, révélé au merge de `_meta.yaml` (la validation refuse l'arbre fusionné). Doctrine : le multi-agent concurrent partage un arbre (le verrou fait le travail) ; les worktrees restent des chantiers isolés qui mergent leurs tickets comme du code, conflits d'ids compris.
 - **Revue avant `done`** pour toute tâche M/L : un subagent reviewer frais, avec le diff (`git diff base..head` écrit dans un fichier, pas collé), qui rend deux verdicts — conformité à la tâche (rien de plus, rien de moins) ET qualité. Findings Critical/Important → fix → re-revue. C'est l'implémenteur (ou un fixeur) qui corrige, pas le reviewer.

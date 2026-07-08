@@ -103,3 +103,26 @@ Dissocier dans `src/lib/paths.ts` **racine du paquet** (où vit le code) et **ra
 > Node strip-types** (Node ≥22.18, zéro build à la publication) ; hook guard face à un
 > gestionnaire existant chez l'hôte = **chaîner** (préserver le hook/pre-commit existant ET
 > ajouter le guard, jamais écraser `core.hooksPath`).
+
+## Note d'implémentation (#139, 2026-07-08)
+
+Constat découvert en implémentant : **Node refuse de stripper les types sous
+`node_modules`** (`ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING`, restriction volontaire,
+aucun flag d'échappement) — or installé chez un hôte, tout notre `.ts` vit précisément là.
+La décision « .ts bruts, zéro build » est préservée par un **loader** plutôt qu'un build :
+`scripts/register-ts.mjs` enregistre un hook `module.registerHooks` qui strippe via
+**`amaro`** (le moteur SWC que Node embarque lui-même pour son strip-types — mêmes
+sémantiques, positions de lignes préservées ; nouvelle dependency). Branchement :
+`bin/roadmapped.mjs` l'importe avant tout `.ts` et le propage aux sous-processus par
+`--import` ; l'entrée `.mcp.json` et le hook guard posés par `init` embarquent le même
+`--import ./node_modules/roadmapped/scripts/register-ts.mjs`. En self-host (code hors
+node_modules), rien ne change : strip-types natif, commandes existantes intactes.
+
+Autres choix d'implémentation : `ensureDevDependency` édite le `package.json` hôte sans
+lancer npm (pas de réseau dans `init` ; message « lance npm install ») ; `upgrade` ne
+bumpe pas la dépendance lui-même (hint `npm install -D roadmapped@latest`) ; en
+self-host, `init`/`upgrade` sautent la copie du skill (il vit déjà dans `skills/`) ;
+la résolution de racine hôte ne « saute » jamais hors du repo courant (le premier `.git`
+rencontré borne la remontée, config prioritaire au même niveau) ; Vite et ses plugins
+passent en `dependencies` (requis par `roadmapped dashboard` chez l'hôte — risque
+« poids du paquet » acté).

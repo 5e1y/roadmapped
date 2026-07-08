@@ -30,6 +30,8 @@ export const TEAMS: Team[] = [
 export interface Stage {
   slug: string
   title: string
+  /** Note d'esprit canonique du stage — posée dans `_section.yaml` par `roadmapped init`. */
+  note: string
 }
 
 /**
@@ -37,14 +39,14 @@ export interface Stage {
  * `docs/tasks/` contient EXACTEMENT ces 8 dossiers (validation stricte).
  */
 export const STAGES: Stage[] = [
-  { slug: '01-idea', title: 'Idea Stage' },
-  { slug: '02-initial', title: 'Initial Stage' },
-  { slug: '03-identity', title: 'Identity Stage' },
-  { slug: '04-build', title: 'Build Stage' },
-  { slug: '05-gtm', title: 'GTM Stage' },
-  { slug: '06-launch', title: 'Launch Stage' },
-  { slug: '07-scale', title: 'Scale Stage' },
-  { slug: '08-mature', title: 'Mature Stage' },
+  { slug: '01-idea', title: 'Idea Stage', note: "L'idée initiale, sa validation, le problème/la cible." },
+  { slug: '02-initial', title: 'Initial Stage', note: "Nom, repo, structure juridique — l'existence du projet." },
+  { slug: '03-identity', title: 'Identity Stage', note: 'Marque, domaine, présence sociale, positionnement.' },
+  { slug: '04-build', title: 'Build Stage', note: 'Construire le produit ET ses fondations business (site, emails, comptabilité).' },
+  { slug: '05-gtm', title: 'GTM Stage', note: 'Go-to-market : contenu, outbound, acquisition payante.' },
+  { slug: '06-launch', title: 'Launch Stage', note: 'Lancer : produit, site, moteur de contenu, qualification.' },
+  { slug: '07-scale', title: 'Scale Stage', note: 'Monitoring, SEO, communauté, deals, billing, support.' },
+  { slug: '08-mature', title: 'Mature Stage', note: 'Referral, legal & compliance, intégrations avancées.' },
 ]
 
 export interface TaskNode {

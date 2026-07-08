@@ -58,22 +58,34 @@ yourself keeping a parallel checklist, you are fighting the tool.
 
 ## 2. Installation in a host repo
 
-Roadmapped lives as a folder in (or next to) your project. Install its dependencies
-and start the dashboard:
+Roadmapped is an npm package: the tool lives in `node_modules/roadmapped/`, the
+*data* (backlog, config) lives at the root of **your** repo. Install and scaffold:
 
 ```bash
-npm install
-npm run dev            # dashboard on http://localhost:5173
-node scripts/task.mjs --help
+npm install --save-dev roadmapped
+npx roadmapped init          # config + 8-stage skeleton + skill + MCP entry + guard hook
+npx roadmapped dashboard     # dashboard on http://localhost:5173
+npx roadmapped --help
 ```
 
-Node **≥ 22.18** is required — it runs the TypeScript imports natively. On older
-Node, use `npm run task -- <command>` instead of `node scripts/task.mjs <command>`.
+`init` is idempotent and never overwrites existing data: an existing
+`roadmapped.config.json` is respected, a populated `docs/tasks/` is never touched,
+and an existing `pre-commit` hook (husky, lefthook, custom) is **chained** — your
+hook keeps running, the guard is appended after it; `core.hooksPath` is never
+modified. `npx roadmapped upgrade` refreshes the tool-owned files (skill, MCP
+entry, hook) and never touches `docs/tasks/` or your config.
+
+Node **≥ 22.18** is required — it runs the TypeScript imports natively (the package
+ships raw `.ts`, no build step; inside `node_modules` a small loader based on
+`amaro`, Node's own type-stripping engine, fills the gap).
+
+Inside the Roadmapped repository itself (self-hosting), `npm install` + `npm run dev`
+and `node scripts/task.mjs <command>` keep working unchanged.
 
 ### `roadmapped.config.json`
 
 The CLI and the dashboard resolve two directories from a `roadmapped.config.json` at
-the Roadmapped root:
+the **host repo root**:
 
 ```json
 {
@@ -84,17 +96,16 @@ the Roadmapped root:
 
 | Key | Meaning | Default |
 |---|---|---|
-| `tasksDir` | Where the backlog lives (stages, tasks, `_meta.yaml`, archive). | `../docs/tasks` |
-| `docsDir` | Where the Docs view reads markdown from. | `../docs` |
+| `tasksDir` | Where the backlog lives (stages, tasks, `_meta.yaml`, archive). | `docs/tasks` |
+| `docsDir` | Where the Docs view reads markdown from. | `docs` |
 
-Relative paths are resolved against the Roadmapped root (the folder that contains
-`roadmapped.config.json`), **not** your shell's working directory — so the CLI always
-targets the same backlog no matter where you run it from. The defaults
-(`../docs/tasks`, `../docs`) assume Roadmapped sits *beside* your `docs/`. If it sits
-*inside* the repo it manages (as in this repository), point both keys at the repo's
-own `docs`, as shown above. Adjust this file **before** the first run — otherwise the
-tool works in the wrong place. A missing or unreadable config silently falls back to
-the defaults.
+The host root is found by walking up from your shell's working directory to the
+first folder containing `roadmapped.config.json` (or, failing that, `.git`).
+Relative paths are resolved against that root — so the CLI always targets the same
+backlog no matter where inside the repo you run it from, and **never** the tool's
+own install location (`node_modules`). Set `ROADMAPPED_ROOT` to override the
+detection explicitly. A missing or unreadable config silently falls back to the
+defaults.
 
 ---
 
@@ -155,8 +166,18 @@ validate-then-rollback path as the CLI, so the panel can never save an invalid s
 
 ## 4. CLI reference
 
-`scripts/task.mjs` is the agent's entry point and the only *write* interface you
-should use for anything the CLI covers. Run everything from the Roadmapped root:
+The CLI is the agent's entry point and the only *write* interface you should use
+for anything it covers. In a host repo the portable form is:
+
+```bash
+npx roadmapped <command> [arguments]
+```
+
+Every unknown verb is proxied to the task CLI (`init`, `upgrade` and `dashboard`
+are handled by the dispatcher itself), and the data root is resolved from your
+repo, wherever you run it from. The examples below use the self-hosting form —
+inside the Roadmapped repository, `node scripts/task.mjs <command>` is exactly
+equivalent:
 
 ```bash
 node scripts/task.mjs <command> [arguments]
@@ -625,9 +646,11 @@ the `quick` *is* the fast path (~2 commands). Only exchanges that produce no art
 Because a rule an agent must *remember* fails exactly when it matters (long context,
 "just polishing" after a done), the app enforces it at the real choke point — the commit:
 
-- **`task.mjs guard`**, wired as a committed pre-commit hook (`scripts/githooks/`,
-  activated automatically by `npm install` via the `prepare` script →
-  `git config core.hooksPath`). It **refuses** a commit that stages product files while
+- **`task.mjs guard`**, wired as a pre-commit hook. In a host repo,
+  `npx roadmapped init` installs it — chained after any existing hook (husky,
+  lefthook, custom), never clobbering it. In this repository it is a committed hook
+  (`scripts/githooks/`, activated automatically by `npm install` via the `prepare`
+  script → `git config core.hooksPath`). It **refuses** a commit that stages product files while
   no task is `in_progress`, and its message hands you the exact `quick` command to run.
   It stays out of the way for: backlog-only commits (the consignation itself), merges,
   repos not yet initialized, and anything when a task is in progress.
