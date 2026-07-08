@@ -1,7 +1,8 @@
 # Site copy — Roadmapped landing
 
-**Status: proposal, section by section. Language: EN. Voice:
-[docs/tone-of-voice.md](./tone-of-voice.md), applied to the letter.**
+**Status: realized. Shipped as `site/index.html` (self-contained, mobile-first, SEO,
+OG image). This doc is the copy source of truth; the built page is the render.
+Language: EN. Voice: [docs/tone-of-voice.md](./tone-of-voice.md), applied to the letter.**
 
 Audience: solo founders and developers who run their work through an AI agent
 (Claude Code and friends). They already live in the repo. They don't want
@@ -75,7 +76,7 @@ the agent recording a task from the CLI.*
    > drift out of sync, because there's no second copy.
 
 3. **Agent-first, by design**
-   > A CLI (`scripts/task.mjs`) and a Claude skill so your agent creates specs,
+   > A CLI (`npx roadmapped`) and a Claude skill so your agent creates specs,
    > tasks and dependencies in the correct schema — and records what it ships
    > with more discipline than most of us manage.
 
@@ -130,9 +131,9 @@ the agent recording a task from the CLI.*
 **Body**
 
 ```bash
-npm install
-npm run dev                  # dashboard on http://localhost:5173
-node scripts/task.mjs --help # the CLI your agent (or you) drives
+npx roadmapped init       # scaffold docs/tasks/ in your repo
+npx roadmapped dashboard  # open the dashboard in your browser
+npx roadmapped --help     # the CLI your agent (or you) drives
 ```
 
 **Under the block**
