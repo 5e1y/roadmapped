@@ -137,5 +137,9 @@ aux stages** — une fix qui arrive trois semaines plus tard reste rattachée au
 - **`kind:'milestone'` et l'affichage roadmap.** Le diamant ne doit pas casser le layout
   dagre de la spec #4 (graph-v2) ni le calque de #128 (alignement des cartes) — vérification
   visuelle à l'artefact.
-- **Nommage `epic` vs `projet` vs `thème`.** « epic » est un terme Agile parfois connoté ;
-  Rémi tranchera le libellé affiché (le slug interne reste `epic`). Décision cosmétique.
+- ~~**Nommage `epic` vs `projet` vs `thème`.**~~ **Tranché (Rémi, 2026-07-08) : « Epic »** —
+  slug interne ET libellé affiché.
+
+> **Décisions verrouillées (Rémi, 2026-07-08)** : verrou jalon = option **(iii)** (via
+> `dependsOn`, aucune nouvelle logique de lock, rendu diamant + « bloque N ») ; libellé du
+> regroupement = **« Epic »**. Ces choix sont fermes pour l'implémentation.
