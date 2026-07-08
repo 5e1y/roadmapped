@@ -17,10 +17,10 @@
   "homepage": "https://roadmapped.work",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/remicourtillon/Roadmapped.git"
+    "url": "git+https://github.com/5e1y/roadmapped.git"
   },
   "bugs": {
-    "url": "https://github.com/remicourtillon/Roadmapped/issues"
+    "url": "https://github.com/5e1y/roadmapped/issues"
   },
   "author": "Rémi Courtillon",
   "license": "MIT",

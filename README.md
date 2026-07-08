@@ -10,11 +10,41 @@ right format through a CLI and a Claude skill; you review the diff.
 
 ![Roadmapped dashboard — Backlog view](./docs/assets/dashboard.png)
 
+## Install it by pointing your AI agent at this repo
+
+Give your AI coding agent (Claude Code and friends) this repo and one instruction:
+
+> **Install Roadmapped in my repo:** https://github.com/5e1y/roadmapped
+
+The agent should then, from your repo's root:
+
+**1. Install the skill** — so the agent learns Roadmapped's method before touching anything:
+
+```bash
+tmp=$(mktemp -d) && git clone --depth 1 https://github.com/5e1y/roadmapped "$tmp" \
+  && mkdir -p .claude/skills && cp -r "$tmp/skills/roadmapped" .claude/skills/roadmapped \
+  && rm -rf "$tmp"
+```
+
+**2. Reload your skills** so the freshly installed skill is picked up — in Claude Code,
+restart the session (or run `/doctor` then reopen). The `roadmapped` skill is now active.
+
+**3. Run the guided setup** — now that the skill is loaded, it walks the agent through init:
+
+```bash
+npx --yes github:5e1y/roadmapped init
+```
+
+`init` is idempotent and scaffolds everything: the `docs/tasks/` skeleton, the Claude
+skill in `.claude/skills/`, an `.mcp.json` entry, a git pre-commit guard, and a `CLAUDE.md`
+block. From there the skill's setup phase reads your repo and helps you seed the backlog —
+just tell the agent "let's set up Roadmapped".
+
 ## Why
 
 - **It's just files.** Task YAML you can diff, review, and blame — because it *is* one. No
   hidden state, no second copy to drift out of sync.
-- **Agent-first.** A CLI (`scripts/task.mjs`) and a Claude skill so your agent creates specs,
+- **Agent-first.** A CLI (`npx roadmapped`) and a Claude skill so your agent creates specs,
   tasks and dependencies in the correct schema — and records what it ships.
 - **Local and yours.** Your data stays on your machine, in your repo. Not out of principle —
   we simply don't have a server to send it to. Deleting your account is `rm -rf`.
@@ -24,12 +54,13 @@ right format through a CLI and a Claude skill; you review the diff.
 
 ## Quickstart
 
-In any repo you want to manage:
+In any repo you want to manage (until the npm package is published, run it straight from
+GitHub with `github:5e1y/roadmapped`):
 
 ```bash
-npx roadmapped init       # scaffold docs/tasks/, the Claude skill, and the git guard
-npx roadmapped dashboard  # open the dashboard in your browser
-npx roadmapped --help     # the CLI your agent (or you) drives over docs/tasks/
+npx --yes github:5e1y/roadmapped init       # scaffold docs/tasks/, the skill, the git guard
+npx --yes github:5e1y/roadmapped dashboard  # open the dashboard in your browser
+npx --yes github:5e1y/roadmapped --help     # the CLI your agent (or you) drives
 ```
 
 `init` also drops a Claude skill into `.claude/` and an `.mcp.json` entry, so your AI
@@ -60,8 +91,8 @@ task it ships. The done tasks are the changelog. If you want to know whether the
 holds up, read the backlog.
 
 > **Naming** — the brand is **Roadmapped** (two p's, renamed 2026-07). The GitHub repository
-> is `Roadmapped`. Host repos still using the legacy `roadmaped.config.json` (one p) keep
-> working — the old filename is read as a fallback.
+> and the npm package are `roadmapped` (lowercase). Host repos still using the legacy
+> `roadmaped.config.json` (one p) keep working — the old filename is read as a fallback.
 
 ## Documentation
 
