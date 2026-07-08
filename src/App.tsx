@@ -9,6 +9,7 @@ import { CreateTaskPanel, SectionPanel } from './components/SectionPanel'
 import { RoadmapView } from './components/RoadmapView'
 import { DocsView } from './components/DocsView'
 import { NotepadView } from './components/NotepadView'
+import { LiveConsole } from './components/LiveConsole'
 import { OPEN_DOC_EVENT } from './lib/events'
 
 function MainView({ view, docPath, onSelectDoc }: {
@@ -108,6 +109,7 @@ function Shell() {
         </ViewProvider>
       </main>
       <PanelHost />
+      <LiveConsole />
     </div>
   )
 }
