@@ -3,7 +3,7 @@ code: null
 title: >-
   Nettoyage résidus FR post-migration : strings USAGE de bin/roadmapped.mjs, commentaires
   vite.config, design.md → anglais
-status: todo
+status: in_progress
 tags:
   - i18n
 size: null
