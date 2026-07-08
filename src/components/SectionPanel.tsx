@@ -151,11 +151,11 @@ export function CreateTaskPanel({ section }: { section: string }) {
       </Field>
       <div className="flex gap-2">
         <button type="button" onClick={create} disabled={busy}
-          className="rounded border border-neutral-900 bg-neutral-900 px-3 py-1.5 text-xs text-white hover:bg-neutral-700 disabled:opacity-50">
+          className="rounded border border-neutral-900 bg-neutral-900 px-2.5 py-1 text-xs text-white hover:bg-neutral-700 disabled:opacity-50">
           {busy ? 'Création…' : 'Créer la tâche'}
         </button>
         <button type="button" onClick={close}
-          className="rounded border border-neutral-300 px-3 py-1.5 text-xs text-neutral-700 hover:bg-neutral-100">
+          className="rounded border border-neutral-300 px-2.5 py-1 text-xs text-neutral-700 hover:bg-neutral-100">
           Annuler
         </button>
       </div>

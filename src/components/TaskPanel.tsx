@@ -276,7 +276,7 @@ function DoneForm({ task, busy, onCancel, onSubmit }: {
             commit: commit.trim() || null,
             release: release.trim() || null,
           })}
-          className="rounded border border-neutral-900 bg-neutral-900 px-2.5 py-1 text-[11px] text-white transition-colors hover:bg-neutral-700 disabled:cursor-not-allowed disabled:border-neutral-300 disabled:bg-neutral-300"
+          className="rounded border border-neutral-900 bg-neutral-900 px-2.5 py-1 text-xs text-white transition-colors hover:bg-neutral-700 disabled:cursor-not-allowed disabled:border-neutral-300 disabled:bg-neutral-300"
         >
           {busy ? 'Enregistrement…' : 'Done ✓'}
         </button>
@@ -727,9 +727,11 @@ function TaskPanelBody({ id }: { id: number }) {
       </div>
 
       <div className="flex items-center gap-2">
+        {/* Registre secondaire actionBtn (design.md §2 Boutons) — le hover
+            « inversé » clair→noir plein est interdit. */}
         <button
           type="button"
-          className="rounded border border-neutral-300 px-2 py-1 text-[11px] text-neutral-600 transition-colors hover:bg-neutral-900 hover:text-white"
+          className={actionBtn}
           onClick={async () => {
             try {
               await navigator.clipboard.writeText(agentBrief(task))
@@ -743,8 +745,7 @@ function TaskPanelBody({ id }: { id: number }) {
         >
           {copied ? 'Copié' : 'Copier le brief agent'}
         </button>
-        <button type="button" onClick={remove} disabled={pending}
-          className="rounded border border-neutral-300 px-2 py-1 text-[11px] text-neutral-600 hover:bg-neutral-900 hover:text-white disabled:opacity-50">
+        <button type="button" onClick={remove} disabled={pending} className={actionBtn}>
           Supprimer
         </button>
       </div>

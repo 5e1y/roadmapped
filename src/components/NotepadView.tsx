@@ -109,7 +109,9 @@ export function NotepadView() {
   const tokens = Math.ceil(content.length / 4)
 
   return (
-    <div className="flex h-full flex-col bg-white">
+    // Tri-couche (design.md §3.1) : la racine hérite du #fafafa du body ;
+    // le flanc gauche est une surface « carte » bg-white (modèle radar Backlog).
+    <div className="flex h-full flex-col">
       <ViewHeader meta={slug ?? undefined} />
 
       {/* Bandeau d'avertissement en registre monochrome (modèle ErrorBanner, design.md §3.6) —
@@ -122,7 +124,7 @@ export function NotepadView() {
       )}
 
       <div className="flex min-h-0 flex-1">
-        <div className="flex w-[420px] shrink-0 flex-col border-r border-neutral-200 py-2">
+        <div className="flex w-[420px] shrink-0 flex-col border-r border-neutral-200 bg-white py-2">
           {/* Création EN TÊTE de liste (pas de bouton en haut à droite, pas de ⌘N). */}
           <button
             type="button" onClick={createNote}
@@ -172,7 +174,7 @@ export function NotepadView() {
               // Le :focus-visible global (index.css, hors @layer) bat toute classe
               // utilitaire Tailwind (layered) → outline tué en inline, qui gagne toujours.
               style={{ outline: 'none', boxShadow: 'none' }}
-              className="mx-auto min-h-0 w-full max-w-3xl flex-1 resize-none border-0 bg-transparent px-6 py-10 text-[2rem] leading-relaxed text-neutral-800 placeholder:text-neutral-300"
+              className="mx-auto min-h-0 w-full max-w-3xl flex-1 resize-none border-0 bg-transparent px-6 py-8 text-[2rem] leading-relaxed text-neutral-800 placeholder:text-neutral-300"
             />
             <div className="mx-auto flex w-full max-w-3xl shrink-0 items-center justify-between px-6 py-1.5 font-mono text-[11px] text-neutral-400">
               <span>{content.length} car. · ≈{tokens} tokens</span>

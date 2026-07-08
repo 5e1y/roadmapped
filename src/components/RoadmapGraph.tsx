@@ -137,8 +137,10 @@ export function RoadmapGraph() {
             {sections.map((s, i) => (
               <div key={s.key} className="absolute top-0 border-l border-neutral-100"
                 style={{ left: xOf(i) - COL_GAP / 2, width: COL_W + COL_GAP, height }}>
+                {/* Même hiérarchie d'encre que le titre de stage du mode Colonnes :
+                    neutral-900 quand le stage est peuplé, estompé quand il est vide. */}
                 <div
-                  className={`truncate px-3 pt-3 text-xs font-semibold ${s.tasks.length === 0 ? 'text-neutral-200' : 'text-neutral-400'}`}
+                  className={`truncate px-3 pt-3 text-xs font-semibold ${s.tasks.length === 0 ? 'text-neutral-300' : 'text-neutral-900'}`}
                   title={s.title}
                 >
                   {s.title}

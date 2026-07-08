@@ -93,7 +93,7 @@ function Column({ section, visible, avail }: { section: SectionNode; visible: Ta
     <div className="grid row-span-4 min-w-0 grid-rows-subgrid">
       {/* Rangée titre collante : le contexte (titre + compteur) survit au scroll
           vertical. Le pt-8 du conteneur vit ici pour que rien ne dépasse au-dessus. */}
-      <div className="sticky top-0 z-20 flex items-baseline justify-between gap-2 bg-[#fafafa] pb-0.5 pt-8">
+      <div className="sticky top-0 z-20 flex items-baseline justify-between gap-2 bg-neutral-50 pb-0.5 pt-8">
         <span
           className={`min-w-0 truncate text-sm font-semibold tracking-tight ${empty ? 'text-neutral-300' : 'text-neutral-900'}`}
           title={section.title}

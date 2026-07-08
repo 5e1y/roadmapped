@@ -33,11 +33,11 @@ export function Backlog() {
   const [query, setQuery] = useState('')
 
   if (loading && !tree) {
-    return <div className="mx-auto max-w-5xl px-6 py-14 text-sm text-neutral-500">Chargement…</div>
+    return <div className="mx-auto max-w-3xl px-6 py-8 text-sm text-neutral-500">Chargement…</div>
   }
   if (loadError) {
     return (
-      <div className="mx-auto max-w-2xl px-6 py-14">
+      <div className="mx-auto max-w-3xl px-6 py-8">
         <h1 className="text-lg font-semibold tracking-tight">Serveur injoignable</h1>
         <p className="mt-1 font-mono text-xs text-neutral-500">{loadError}</p>
       </div>
@@ -45,7 +45,7 @@ export function Backlog() {
   }
   if (errors.length > 0) {
     return (
-      <div className="mx-auto max-w-2xl px-6 py-14">
+      <div className="mx-auto max-w-3xl px-6 py-8">
         <h1 className="text-lg font-semibold tracking-tight">
           {errors.length} erreur{errors.length > 1 ? 's' : ''} de validation dans docs/tasks/
         </h1>
@@ -124,7 +124,7 @@ export function Backlog() {
             Clic dans le vide = toutes les teams. */}
         <div
           onClick={() => radarSelect('')}
-          className={`${top !== null ? 'hidden 2xl:flex' : 'flex'} w-[420px] shrink-0 cursor-pointer items-center border-r border-neutral-200 bg-white p-2`}
+          className={`${top !== null ? 'hidden 2xl:flex' : 'flex'} w-[420px] shrink-0 cursor-pointer items-center border-r border-neutral-200 bg-white py-2`}
         >
           <TeamsRadar counts={load} selected={radarSelected} onSelect={radarSelect} />
         </div>

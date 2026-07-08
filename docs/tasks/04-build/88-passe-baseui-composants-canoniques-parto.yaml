@@ -1,7 +1,7 @@
 id: 113
 code: null
 title: Passe BaseUI — composants canoniques partout, zéro élément en dur
-status: in_progress
+status: done
 tags:
   - design
   - baseui
@@ -27,8 +27,17 @@ dependsOn:
 milestone: null
 source: user
 createdAt: "2026-07-08T01:57:19"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+completedAt: "2026-07-08"
+commit: 86da857
+outcome: >-
+  Zéro élément fait main restant : MiniZone passe au Select Base UI compact (TEAM_ITEMS) +
+  GhostInput (peau ghost canonique) + ErrorBanner ; DocsTree actif au langage universel accent-tint
+  + filet gauche, lignes carrées ; Notepad remis au monochrome (bandeau modèle ErrorBanner, croix
+  hover neutral-700) ; badge team Roadmap en Chip (même rendu que Backlog) ; DocsView sur
+  ErrorBanner ; OPEN_DOC_EVENT constante partagée dans src/lib/events.ts (consommée par App +
+  TaskPanel)
+verification: >-
+  Implémentation par agent délégué, revue du diff par l'orchestrateur (8 fichiers, API Select
+  defaultValue/onValueChange vérifiée conforme à l'usage TaskPanel, state team non réinitialisé) ;
+  225 tests + build verts ; grep select natif → zéro hit dans src/components
 release: null
