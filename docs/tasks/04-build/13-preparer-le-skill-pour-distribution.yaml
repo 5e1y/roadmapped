@@ -26,11 +26,11 @@ links:
   - 22
 dependsOn:
   - 13
-milestone: null
+epic: null
 source: user
 createdAt: "2026-07-07"
 completedAt: "2026-07-08"
-commit: "null"
+commit: null
 outcome: >-
   Skill prêt pour distribution — VÉRIFICATION (le gros du travail a été fait par #139 : chemins CLI
   unifiés « node scripts/task.mjs » → « npx roadmapped » dans SKILL.md/setup.md/delegation.md ; et

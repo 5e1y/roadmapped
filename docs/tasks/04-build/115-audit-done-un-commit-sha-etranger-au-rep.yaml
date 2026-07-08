@@ -1,0 +1,23 @@
+id: 143
+kind: quick
+code: null
+title: >-
+  Audit/done : un commit sha étranger au repo (travail dans un autre repo, ex. site) devient une
+  ancre lastLogged non résolvable et coupe l'audit en silence — détecter/ignorer un sha absent
+status: todo
+tags:
+  - debt
+size: null
+team: engineering
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: process-enforcement
+source: ai
+createdAt: "2026-07-08T14:11:01"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
