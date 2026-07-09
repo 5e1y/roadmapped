@@ -1,0 +1,36 @@
+id: 205
+code: null
+title: Live updates V2 — panneau d'activité redessiné et docké dans le header (instance Fable 5)
+status: todo
+tags:
+  - dashboard
+  - design
+  - live-reactivity
+size: null
+team: design
+detail: >-
+  Demande Rémi (exception explicite : instance Fable 5, malgré la règle « pas de Fable » par
+  défaut). V1 = LiveConsole, bouton flottant bottom-left + tiroir. V2 : le déplacer dans la bande
+  header (visuellement en haut), améliorer UI, cohésion DS (monochrome + accent bleu rare, Base UI
+  au max, ghost inputs, h-12), interactivité. CONTRAINTE ARCHI : ViewHeader est monté 1×/vue (4
+  instances, une visible) → le panneau reste une instance UNIQUE niveau App (sinon état log/unread
+  perdu au switch de vue). Instance unique montée dans App.tsx, positionnée `fixed` top-right pour
+  vivre dans la bande header — PAS dans ViewHeader. Seam propre : Fable ne possède que
+  src/components/LiveConsole.tsx (+ éventuellement index.css anim, ui.tsx toast) ; il ne touche NI
+  ViewHeader NI api NI bin. Spec : docs/specs/2026-07-09-live-updates-v2.md.
+refs:
+  - src/components/LiveConsole.tsx
+  - src/App.tsx
+  - src/components/ui.tsx
+  - src/index.css
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-09T09:41:54"
+updatedAt: "2026-07-09T09:41:54"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
