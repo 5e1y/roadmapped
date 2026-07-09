@@ -16,29 +16,29 @@ Give your AI coding agent (Claude Code and friends) this repo and one instructio
 
 > **Install Roadmapped in my repo:** https://github.com/5e1y/roadmapped
 
-The agent should then, from your repo's root:
-
-**1. Install the skill** — so the agent learns Roadmapped's method before touching anything:
-
-```bash
-tmp=$(mktemp -d) && git clone --depth 1 https://github.com/5e1y/roadmapped "$tmp" \
-  && mkdir -p .claude/skills && cp -r "$tmp/skills/roadmapped" .claude/skills/roadmapped \
-  && rm -rf "$tmp"
-```
-
-**2. Reload your skills** so the freshly installed skill is picked up — in Claude Code,
-restart the session (or run `/doctor` then reopen). The `roadmapped` skill is now active.
-
-**3. Run the guided setup** — now that the skill is loaded, it walks the agent through init:
+Everything runs straight from GitHub — nothing needs to be on npm. From your repo's root,
+the agent runs, in order:
 
 ```bash
-npx --yes github:5e1y/roadmapped init
+npx --yes github:5e1y/roadmapped init   # scaffold + skill + git guard + .mcp.json + CLAUDE.md
+npm install                             # pull roadmapped from GitHub → node_modules (activates hooks + MCP)
 ```
 
-`init` is idempotent and scaffolds everything: the `docs/tasks/` skeleton, the Claude
-skill in `.claude/skills/`, an `.mcp.json` entry, a git pre-commit guard, and a `CLAUDE.md`
-block. From there the skill's setup phase reads your repo and helps you seed the backlog —
-just tell the agent "let's set up Roadmapped".
+`init` is idempotent. It lays down the `docs/tasks/` skeleton, the Claude skill in
+`.claude/skills/`, a git pre-commit guard, an `.mcp.json` entry, a `CLAUDE.md` block, and
+adds `roadmapped` as a devDependency **sourced from GitHub** (`github:5e1y/roadmapped`) — so
+`npm install` resolves without the package ever being published to npm.
+
+Then:
+
+1. **Restart your Claude Code session** so it picks up the freshly installed skill *and* the
+   MCP server.
+2. Tell the agent **"let's set up Roadmapped"**. The skill is now active — its setup phase
+   reads your existing plans, roadmaps, TODOs and specs and converts them into the backlog,
+   with your sign-off on the mapping. From there, `npx roadmapped <cmd>` drives everything.
+
+> Needs a repo with a `package.json` (the hooks and MCP entry live in `node_modules/roadmapped/`).
+> Node ≥ 22.18.
 
 ## Why
 

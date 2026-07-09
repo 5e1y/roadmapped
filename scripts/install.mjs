@@ -90,10 +90,16 @@ export function ensureDevDependency(hostRoot, packageDir, log = () => {}) {
     log('devDependency: roadmapped already declared — step skipped.')
     return false
   }
-  const { version } = JSON.parse(readFileSync(join(packageDir, 'package.json'), 'utf8'))
-  pkg.devDependencies = { ...(pkg.devDependencies ?? {}), roadmapped: `^${version}` }
+  // Source from GitHub, not the npm registry: the package isn't published, so a
+  // `roadmapped@^x` devDep would 404 on `npm install`. Derive owner/repo from the
+  // repository field → `github:owner/repo`; fall back to `^version` only if some fork
+  // strips the repository field (and presumably publishes to a registry).
+  const selfPkg = JSON.parse(readFileSync(join(packageDir, 'package.json'), 'utf8'))
+  const m = (selfPkg.repository?.url ?? '').match(/github\.com[/:]([^/]+)\/([^/.]+)/)
+  const spec = m ? `github:${m[1]}/${m[2]}` : `^${selfPkg.version}`
+  pkg.devDependencies = { ...(pkg.devDependencies ?? {}), roadmapped: spec }
   writeFileSync(pkgFile, `${JSON.stringify(pkg, null, 2)}\n`)
-  log(`devDependency: roadmapped ^${version} added to ${pkgFile} — run \`npm install\` to materialize node_modules.`)
+  log(`devDependency: roadmapped ${spec} added to ${pkgFile} — run \`npm install\` to materialize node_modules.`)
   return true
 }
 
