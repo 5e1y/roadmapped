@@ -3,7 +3,7 @@ code: null
 title: >-
   Révision complète de la homepage (5e1y/roadmapped-site) — SEO, logique, liens des boutons, retrait
   du logo, copy à jour, features
-status: todo
+status: done
 tags:
   - marketing
   - seo
@@ -27,9 +27,24 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-09T10:21:17"
-updatedAt: "2026-07-09T10:21:17"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+startedAt: "2026-07-09T10:27:01"
+updatedAt: "2026-07-09T10:35:56"
+completedAt: "2026-07-09"
+commit: 687c982
+outcome: >-
+  HP révisée dans 5e1y/roadmapped-site (commit 687c982, poussé sur git). Liens github.com/OWNER →
+  5e1y/roadmapped partout (header, hero, footer, JSON-LD). Logo retiré (header + favicon
+  neutralisé), CSS mort supprimé. Copy alignée sur l'app réelle : install github:5e1y/roadmapped +
+  npx roadmapped (fini npm install / scripts/task.mjs), 8 stages fixes, plus de _archive (done reste
+  en place). Features 4→8 cartes (+ MCP, live dashboard, multi-repos, git guard, docs/notepad ; 8ᵉ
+  carte ajoutée par moi pour équilibrer la grille 2-col). SEO : Twitter Card, JSON-LD
+  SoftwareApplication, og:image + og.png généré (1200×630 monochrome sans logo, via Chrome
+  headless). Délégation : gros de la réécriture par sonnet ; pas de Fable nécessaire (aucun
+  redesign, que du contenu). DÉPLOIEMENT LIVE en attente : `npx wrangler deploy` (auth Cloudflare
+  Rémi).
+verification: >-
+  Page rendue via Chrome headless (screenshot 1200×3200) et revue à l'œil : header sans logo, hero à
+  jour, grille 8 cartes symétrique, nouvelles features présentes, thème clair/sombre OK. grep de
+  contrôle vide (0 occurrence OWNER/npm install/scripts/task.mjs/_archive/brand-mark). og.png
+  vérifié 1200×630 on-brand.
 release: null
