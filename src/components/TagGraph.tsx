@@ -94,6 +94,7 @@ export function TagGraph({ graph, selected, onSelect }: {
                 type="button"
                 onClick={(e) => { e.stopPropagation(); onSelect(active ? '' : p.tag) }}
                 aria-pressed={active}
+                title={active ? 'Click again to clear this tag filter' : `Filter by #${p.tag}`}
                 style={{
                   left: `${(p.x / LAYOUT_W) * 100}%`,
                   top: `${((p.y + p.r) / LAYOUT_H) * 100}%`,

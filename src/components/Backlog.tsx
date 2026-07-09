@@ -16,6 +16,29 @@ import { TEAMS, type Team } from '../lib/tasks'
 const plural = (n: number, s: string) => `${n} ${s}${n === 1 ? '' : 's'}`
 
 /**
+ * Chip de filtre actif supprimable (#210). Inset accent = langage « filtre
+ * actif » commun au FilterMenu du header ; le × retire CE filtre. Vit dans la
+ * barre en haut de la liste, TOUJOURS visible — y compris quand le flanc
+ * radar/graph est masqué (panneau ouvert sur petit écran), où c'était jusque-là
+ * un cul-de-sac : plus aucun moyen de délester ses filtres.
+ */
+function RemovableChip({ label, onRemove, ariaLabel }: { label: string; onRemove: () => void; ariaLabel: string }) {
+  return (
+    <span className="inline-flex max-w-[16rem] items-center gap-1 rounded-md border border-neutral-300 bg-white py-0.5 pl-2.5 pr-1 text-xs text-neutral-700 shadow-[inset_2px_0_0_var(--color-accent)]">
+      <span className="min-w-0 truncate">{label}</span>
+      <button
+        type="button"
+        onClick={onRemove}
+        aria-label={ariaLabel}
+        className="flex size-4 shrink-0 items-center justify-center rounded text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"
+      >
+        ×
+      </button>
+    </span>
+  )
+}
+
+/**
  * Backlog v2 (décision Rémi) : liste PLATE — les stages vivent dans la
  * Roadmap, le Backlog est la vue « travail ». Deux colonnes :
  *  - gauche : tickets ouverts (todo + in_progress), du plus ancien créé au
@@ -103,6 +126,11 @@ export function Backlog() {
   // « + tâche » : Build par défaut (modifiable dans le panneau de création).
   const createIn = '04-build'
 
+  // Filtres actifs (#210) : team + tag + recherche. La barre de chips ne s'affiche
+  // que s'il y en a ; « Clear all » remet les trois à zéro d'un coup.
+  const hasFilters = teamFilter.length > 0 || tagFilter.length > 0 || q !== ''
+  const clearAll = () => { setTeamFilter([]); setTagFilter([]); setQuery('') }
+
   return (
     <div className="flex h-full flex-col">
       {/* Header unifié (modèle Roadmap) : filtres en dropdowns, hauteur = panneau. */}
@@ -150,19 +178,48 @@ export function Backlog() {
             )}
           </div>
         </div>
-      {/* relative (#141) : le scroller est le containing block de TOUT absolu
-          descendant — sans ça, un span position:absolute (sr-only Tailwind…)
-          remonte jusqu'à <html>, échappe au clip d'overflow et rend la page
-          entière scrollable dans le vide. */}
-      <div className="relative min-h-0 flex-1 overflow-y-auto">
-      <div className="mx-auto max-w-3xl px-6 py-8">
-      <div className="flex flex-col gap-8">
-      {(quicks.length > 0 || !q) && <MiniZone quicks={quicks} reload={reload} />}
-      {/* Epics (#135) : lignes-groupe repliables DANS la liste — plus de vue
-          alternative « par epic » (#133 rejeté), le groupe est le défaut. */}
-      <TaskList open={open} done={done} tree={tree} filtered={Boolean(q || teamFilter.length || tagFilter.length)} />
-      </div>
-      </div>
+      {/* Colonne liste = barre de filtres actifs (toujours visible) + scroller. */}
+      <div className="flex min-h-0 flex-1 flex-col">
+        {/* Chips de filtres actifs (#210) : AU-DESSUS du scroller et HORS du flanc
+            masqué → délestables même panneau ouvert sur petit écran. */}
+        {hasFilters && (
+          <div className="shrink-0 border-b border-neutral-200 bg-white">
+            <div className="mx-auto flex max-w-3xl flex-wrap items-center gap-1.5 px-6 py-2">
+              {teamFilter.map((t) => (
+                <RemovableChip key={`team:${t}`} label={t} ariaLabel={`Remove team filter: ${t}`}
+                  onRemove={() => setTeamFilter(teamFilter.filter((x) => x !== t))} />
+              ))}
+              {tagFilter.map((t) => (
+                <RemovableChip key={`tag:${t}`} label={`#${t}`} ariaLabel={`Remove tag filter: ${t}`}
+                  onRemove={() => setTagFilter(tagFilter.filter((x) => x !== t))} />
+              ))}
+              {q !== '' && (
+                <RemovableChip label={`“${query.trim()}”`} ariaLabel="Clear search" onRemove={() => setQuery('')} />
+              )}
+              <button
+                type="button"
+                onClick={clearAll}
+                className="ml-1 rounded-md px-2 py-0.5 text-xs text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"
+              >
+                Clear all
+              </button>
+            </div>
+          </div>
+        )}
+        {/* relative (#141) : le scroller est le containing block de TOUT absolu
+            descendant — sans ça, un span position:absolute (sr-only Tailwind…)
+            remonte jusqu'à <html>, échappe au clip d'overflow et rend la page
+            entière scrollable dans le vide. */}
+        <div className="relative min-h-0 flex-1 overflow-y-auto">
+          <div className="mx-auto max-w-3xl px-6 py-8">
+            <div className="flex flex-col gap-8">
+              {(quicks.length > 0 || !q) && <MiniZone quicks={quicks} reload={reload} />}
+              {/* Epics (#135) : lignes-groupe repliables DANS la liste — plus de vue
+                  alternative « par epic » (#133 rejeté), le groupe est le défaut. */}
+              <TaskList open={open} done={done} tree={tree} filtered={Boolean(q || teamFilter.length || tagFilter.length)} />
+            </div>
+          </div>
+        </div>
       </div>
       </div>
     </div>

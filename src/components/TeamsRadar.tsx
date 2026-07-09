@@ -71,6 +71,7 @@ export function TeamsRadar({ counts, selected, onSelect }: {
             type="button"
             onClick={(e) => { e.stopPropagation(); onSelect(active ? '' : t) }}
             aria-pressed={active}
+            title={active ? 'Click again to clear this team filter' : `Filter by ${t}`}
             style={{
               left: `${50 + cos * 35}%`,
               top: `${50 + sin * 38}%`,
