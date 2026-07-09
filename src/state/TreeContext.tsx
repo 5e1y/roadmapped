@@ -10,6 +10,9 @@ export interface TreeState {
       header pour distinguer plusieurs dashboards ouverts. null tant qu'inconnu
       (avant 1er /api/tree, ou build démo statique sans ce champ). */
   repoName: string | null
+  /** MAJ disponible (#211) : SHA installé vs dernier de main + repo GitHub de
+      distribution. null = à jour / indéterminable / clone de dev / build démo. */
+  update: { installed: string; remote: string; repo: string } | null
   loading: boolean
   loadError: string | null
   reload: (opts?: { silent?: boolean }) => Promise<void>
@@ -24,6 +27,7 @@ export function TreeProvider({ children }: { children: ReactNode }) {
   const [tree, setTree] = useState<TaskTree | null>(null)
   const [errors, setErrors] = useState<string[]>([])
   const [repoName, setRepoName] = useState<string | null>(null)
+  const [update, setUpdate] = useState<{ installed: string; remote: string; repo: string } | null>(null)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [lastChange, setLastChange] = useState<{ seq: number; diff: TreeDiff } | null>(null)
@@ -41,7 +45,10 @@ export function TreeProvider({ children }: { children: ReactNode }) {
         setLoadError(`HTTP ${r.status}`)
         return
       }
-      const data = (await r.json()) as { ok: boolean; tree?: TaskTree; errors?: string[]; repoName?: string }
+      const data = (await r.json()) as {
+        ok: boolean; tree?: TaskTree; errors?: string[]; repoName?: string
+        update?: { installed: string; remote: string } | null; updateRepo?: string
+      }
       if (data.ok === false) {
         setLoadError(
           data.errors?.length
@@ -69,6 +76,11 @@ export function TreeProvider({ children }: { children: ReactNode }) {
       setTree(data.tree)
       setErrors(data.errors ?? [])
       if (typeof data.repoName === 'string' && data.repoName) setRepoName(data.repoName)
+      setUpdate(
+        data.update && data.updateRepo
+          ? { installed: data.update.installed, remote: data.update.remote, repo: data.updateRepo }
+          : null,
+      )
     } catch (e) {
       setLoadError((e as Error).message)
     } finally {
@@ -92,7 +104,7 @@ export function TreeProvider({ children }: { children: ReactNode }) {
   }, [reload])
 
   return (
-    <TreeContext.Provider value={{ tree, errors, repoName, loading, loadError, reload, lastChange }}>
+    <TreeContext.Provider value={{ tree, errors, repoName, update, loading, loadError, reload, lastChange }}>
       {children}
     </TreeContext.Provider>
   )

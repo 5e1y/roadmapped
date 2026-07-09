@@ -2,7 +2,8 @@ import type { Plugin, Connect } from 'vite'
 import type { ServerResponse, IncomingMessage } from 'node:http'
 import { watch, readdirSync } from 'node:fs'
 import { join, basename } from 'node:path'
-import { loadPaths, type RoadmappedPaths } from '../lib/paths'
+import { loadPaths, packageRoot, type RoadmappedPaths } from '../lib/paths'
+import { checkUpdate, UPDATE_REPO, type UpdateStatus } from '../lib/updateNotifier'
 import {
   treeWithErrors, addTask, updateTask, deleteTask,
   updateSection, saveEpics, type MutationResult,
@@ -205,6 +206,12 @@ function readJsonBody(req: IncomingMessage): Promise<any> {
 
 export function roadmappedApi(): Plugin {
   const paths = loadPaths()
+  // MAJ dispo (#211) : sondée UNE fois au boot (async, non bloquant — checkUpdate
+  // fait le git ls-remote hors du chemin de rendu), puis injectée dans le payload
+  // getTree pour une notif IN-APP designée. null = à jour / indéterminable / clone
+  // de dev. Le seam : le frontend lit `update` ; l'UI est un composant à part (#211).
+  let updateStatus: UpdateStatus | null = null
+  void checkUpdate(packageRoot(), paths.root).then((s) => { updateStatus = s }).catch(() => {})
   // Live reactivity (#147) : les clients SSE abonnés à /api/events. Le watcher pousse
   // un signal léger « quelque chose a changé » ; le client resync via /api/tree.
   const clients = new Set<ServerResponse>()
@@ -271,10 +278,18 @@ export function roadmappedApi(): Plugin {
 
         // req.url (pas url.pathname) : routeApi a besoin de la query string
         // brute pour /api/docs/content?path=... (elle la parse elle-même).
-        const { status, payload } = runAction(paths, routeApi(method, req.url ?? '/', body))
+        const action = routeApi(method, req.url ?? '/', body)
+        const { status, payload } = runAction(paths, action)
+        // Injecte l'état de MAJ dans /api/tree (#211) — hors runAction (qui reste
+        // pur) : le closure `updateStatus` vit ici. Le client resync sur /api/tree,
+        // la notif apparaît dès que le check async a répondu.
+        const out =
+          action.type === 'getTree' && payload && typeof payload === 'object'
+            ? { ...(payload as object), update: updateStatus, updateRepo: UPDATE_REPO }
+            : payload
         res.statusCode = status
         res.setHeader('Content-Type', 'application/json')
-        res.end(JSON.stringify(payload))
+        res.end(JSON.stringify(out))
       })
     },
   }
