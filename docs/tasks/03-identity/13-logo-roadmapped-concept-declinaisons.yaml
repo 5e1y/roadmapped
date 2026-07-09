@@ -1,0 +1,28 @@
+id: 212
+code: null
+title: Logo Roadmapped — concept + déclinaisons
+status: todo
+tags:
+  - owner-remi
+  - design
+  - brand
+size: null
+team: design
+detail: >-
+  **Owner : Rémi** (humain — décision créative, pas pour un agent IA). Concevoir le logo de
+  Roadmapped + ses déclinaisons (monochrome, tailles, fond clair/sombre, favicon-ready). Rémi
+  n'aimait pas l'ancien mark (3 barres, retiré de la HP #208). Point de départ possible : le langage
+  visuel du dashboard (monochrome + accent bleu, glyphes de statut). Alimente ensuite les assets de
+  marque (favicon, og, app icons) et la charte.
+refs: []
+links: []
+dependsOn: []
+epic: brand-identity
+source: ai
+createdAt: "2026-07-09T13:54:49"
+updatedAt: "2026-07-09T13:54:49"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

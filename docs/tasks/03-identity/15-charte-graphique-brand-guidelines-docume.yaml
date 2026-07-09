@@ -1,0 +1,29 @@
+id: 214
+code: null
+title: Charte graphique / brand guidelines — document
+status: todo
+tags:
+  - design
+  - brand
+  - docs
+size: null
+team: design
+detail: >-
+  Rédiger la charte : couleurs (tokens actuels + éventuelle palette de marque), typographie, échelle
+  d'espacement, usage du logo, do/don't, ton visuel, exemples. Dérivable de docs/design.md +
+  docs/tone-of-voice.md ; Rémi valide les partis-pris. Dépend des décisions DA (owner Rémi) et du
+  logo.
+refs: []
+links: []
+dependsOn:
+  - 212
+  - 213
+epic: brand-identity
+source: ai
+createdAt: "2026-07-09T13:54:57"
+updatedAt: "2026-07-09T13:56:04"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
