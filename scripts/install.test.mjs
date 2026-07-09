@@ -159,7 +159,8 @@ describe('ensureDevDependency', () => {
     expect(ensureDevDependency(host, repoRoot, silent)).toBe(true)
     const pkg = JSON.parse(readFileSync(join(host, 'package.json'), 'utf8'))
     expect(pkg.devDependencies.x).toBe('1.0.0') // préservé
-    expect(pkg.devDependencies.roadmapped).toMatch(/^\^\d+\.\d+\.\d+$/)
+    // Sourcé depuis GitHub (dérivé du champ repository), pas le registre npm (#199).
+    expect(pkg.devDependencies.roadmapped).toMatch(/^github:[^/]+\/roadmapped$/)
   })
 
   it('sans package.json hôte : étape sautée, rien de créé', () => {
