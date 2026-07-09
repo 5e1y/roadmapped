@@ -5,6 +5,7 @@ import { useTree } from '../state/TreeContext'
 import { useView, type View } from '../state/ViewContext'
 import { STAGES } from '../lib/tasks'
 import { LiveActivityMenu } from './LiveActivityMenu'
+import { UpdateNotice } from './UpdateNotice'
 
 const NAV: { id: View; label: string }[] = [
   { id: 'backlog', label: 'Backlog' },
@@ -65,6 +66,9 @@ export function ViewHeader({ meta, children }: {
           les 4 vues, son état vit dans LiveActivityProvider (null hors provider :
           tests, build démo statique) — puis les contrôles propres à la vue. */}
       <div className="flex shrink-0 items-center gap-2">
+        {/* Notif de MAJ (#211) : rendue seulement si une MAJ est dispo (update
+            non null) — présente sur les 4 vues, dismiss de session module-level. */}
+        <UpdateNotice />
         <LiveActivityMenu />
         {children}
       </div>
