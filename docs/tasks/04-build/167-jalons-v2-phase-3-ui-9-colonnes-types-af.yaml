@@ -1,0 +1,41 @@
+id: 235
+code: null
+title: >-
+  Jalons v2 — Phase 3 : UI (9 colonnes types + affichage température spectre bleu→orange + icônes
+  Trinil + bande d'epics + filtre type)
+status: todo
+tags:
+  - design
+  - jalons-v2
+  - dashboard
+size: null
+team: design
+detail: >-
+  UI (Fable 5, design). Réf : les 2 docs specs + décisions Rémi. (1) RoadmapColumns/RoadmapView : 9
+  colonnes = types (au lieu de 8 stages). (2) Affichage température : DÉCISION RÉMI = spectre de
+  couleur BLEU→ORANGE (froid→chaud) + icônes Trinil — c'est une EXCEPTION explicite au DS monochrome
+  (la reco monochrome de Fable est écartée). La température s'affiche là où le chip TEAM s'affichait
+  avant (cartes, lignes, panneau). Prévoir la décomposition (auto/base/seed) au survol/panneau. (3)
+  Bande d'epics transversale au-dessus des colonnes (epics multi-types) — reco du doc types §6.3,
+  via l'étape d'ancrage majoritaire d'abord si besoin. (4) Remplacer le filtre team (radar/sidebar)
+  par un filtre type. Respecter le reste du DS ; le spectre couleur est réservé à la température.
+  Dépend des phases 1 (types) + 2 (moteur/expose température).
+refs:
+  - src/components/RoadmapColumns.tsx
+  - src/components/RoadmapView.tsx
+  - src/components/TaskRow.tsx
+  - src/components/Backlog.tsx
+  - src/components/TeamsRadar.tsx
+  - src/components/Chip.tsx
+links: []
+dependsOn:
+  - 234
+epic: jalons-v2
+source: ai
+createdAt: "2026-07-09T16:13:42"
+updatedAt: "2026-07-09T16:13:42"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
