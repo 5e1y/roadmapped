@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom/vitest'
 import { describe, it, expect, afterEach } from 'vitest'
 import { render, screen, fireEvent, cleanup } from '@testing-library/react'
-import { EpicRow, groupByEpic, splitBacklogItems, epicAnchorStage, groupByEpicAnchored, epicStatusOf } from './EpicRow'
+import { EpicRow, groupByEpic, splitBacklogItems, epicStatusOf } from './EpicRow'
 import { PanelProvider } from '../state/PanelContext'
 import type { TaskNode, Epic } from '../lib/tasks'
 
@@ -84,48 +84,8 @@ describe('splitBacklogItems (dé-dup Backlog, #140-B)', () => {
   })
 })
 
-describe('epicAnchorStage (ancrage Roadmap, #140-B)', () => {
-  it('ancre au stage du ticket NON terminé le plus amont', () => {
-    const anchor = epicAnchorStage([
-      { stage: '06-launch', task: t(1) },
-      { stage: '04-build', task: t(2, { status: 'done' }) },
-      { stage: '05-gtm', task: t(3, { status: 'in_progress' }) },
-    ])
-    expect(anchor).toBe('05-gtm')
-  })
-
-  it('un epic 100 % done est ancré au stage de son dernier ticket (le plus aval)', () => {
-    const anchor = epicAnchorStage([
-      { stage: '04-build', task: t(1, { status: 'done' }) },
-      { stage: '06-launch', task: t(2, { status: 'done' }) },
-      { stage: '05-gtm', task: t(3, { status: 'done' }) },
-    ])
-    expect(anchor).toBe('06-launch')
-  })
-
-  it('sans membre : null', () => {
-    expect(epicAnchorStage([])).toBeNull()
-  })
-})
-
-describe('groupByEpicAnchored (colonnes, #140-B)', () => {
-  const epics: Epic[] = [{ slug: 'checkout', title: 'Refonte checkout' }]
-
-  it('rend le groupe UNE fois dans la colonne d’ancrage, avec les membres complets', () => {
-    const colTasks = [t(1), t(2, { epic: 'checkout' }), t(3, { epic: 'checkout' })]
-    const members = [t(2, { epic: 'checkout' }), t(3, { epic: 'checkout' }), t(9, { epic: 'checkout', status: 'done' })]
-    const items = groupByEpicAnchored(colTasks, epics, () => true, () => members)
-    expect(items.map((i) => i.type)).toEqual(['task', 'epic'])
-    const grp = items[1]
-    if (grp.type !== 'epic') throw new Error('attendu: epic')
-    expect(grp.tasks.map((x) => x.id)).toEqual([2, 3, 9])
-  })
-
-  it('omet les membres d’un epic ancré ailleurs (rendus dans leur colonne d’ancrage)', () => {
-    const items = groupByEpicAnchored([t(1), t(2, { epic: 'checkout' })], epics, () => false, () => [])
-    expect(items.map((i) => i.type)).toEqual(['task'])
-  })
-})
+// L'ancrage Roadmap (epicAnchorStage/groupByEpicAnchored, #140-B) est mort avec
+// la bande d'epics (#235, EpicBand) — tests retirés avec les fonctions.
 
 describe('epicStatusOf', () => {
   it('plein quand tout est terminé, demi dès que c’est entamé, vide sinon', () => {

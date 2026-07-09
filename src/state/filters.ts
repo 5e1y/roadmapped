@@ -12,3 +12,12 @@ import { usePersistentStrings } from './uiPersist'
 export function useTagFilter(): [string[], (next: string[]) => void] {
   return usePersistentStrings('filter:tags')
 }
+
+/**
+ * Filtre TYPE (#235, recycle le slot de l'ex-filtre team) : clés de section
+ * `NN-slug` (les 9 types canoniques), [] = pas de filtre. Multi-sélection,
+ * comme l'était le filtre team.
+ */
+export function useTypeFilter(): [string[], (next: string[]) => void] {
+  return usePersistentStrings('filter:types')
+}

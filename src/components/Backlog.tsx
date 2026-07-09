@@ -5,8 +5,8 @@ import { usePanel } from '../state/PanelContext'
 import { type TaskNode } from '../lib/tasks'
 import { TaskList, MiniZone, sortOpen, sortDone } from './TaskColumns'
 
-import { useTagFilter } from '../state/filters'
-import { ViewHeader } from './ViewHeader'
+import { useTagFilter, useTypeFilter } from '../state/filters'
+import { ViewHeader, FilterMenu } from './ViewHeader'
 import { TagGraph } from './TagGraph'
 import { tagGraph } from '../lib/tagGraph'
 
@@ -50,6 +50,7 @@ export function Backlog() {
   const { tree, errors, loading, loadError, reload } = useTree()
   const { openCreateTask, top } = usePanel()
   const [tagFilter, setTagFilter] = useTagFilter()
+  const [typeFilter, setTypeFilter] = useTypeFilter()
   const [query, setQuery] = useState('')
 
   if (loading && !tree) {
@@ -91,35 +92,55 @@ export function Backlog() {
   const tagSelect = (t: string) => setTagFilter(t ? [t] : [])
 
   const q = query.trim().toLowerCase()
-  const stageOf = new Map<number, string>()
+  const typeOf = new Map<number, string>()
   const all: TaskNode[] = []
   for (const s of tree.sections) {
     if (s.status === 'abandoned') continue
-    for (const t of s.tasks) { all.push(t); stageOf.set(t.id, s.key) }
+    for (const t of s.tasks) { all.push(t); typeOf.set(t.id, s.key) }
   }
   const matches = (t: TaskNode) =>
+    (typeFilter.length === 0 || typeFilter.includes(typeOf.get(t.id) ?? '')) &&
     (tagFilter.length === 0 || tagFilter.some((tag) => t.tags.includes(tag))) &&
     (q === '' || t.title.toLowerCase().includes(q) || `#${t.id}`.includes(q))
 
-  // Ordre canonique (décision Rémi) : stage puis ancienneté — partagé (TaskColumns).
+  // Filtre TYPE (#235, remplace l'ex-filtre team) : les 9 types canoniques,
+  // multi-sélection, compteur = tickets ouverts du type.
+  const sections = tree.sections.filter((s) => s.status !== 'abandoned')
+  const typeOptions = sections.map((s) => ({
+    value: s.key,
+    label: s.title,
+    count: s.tasks.filter((t) => t.status !== 'done').length,
+  }))
+  const typeLabel = new Map(sections.map((s) => [s.key, s.title]))
+
+  // Ordre canonique (décision Rémi) : type puis ancienneté — partagé (TaskColumns).
   const openAll = all.filter((t) => t.status !== 'done' && matches(t))
   // Les quick vivent dans la zone Mini ; les task dans « To do ».
-  const quicks = sortOpen(openAll.filter((t) => t.kind === 'quick'), (id) => stageOf.get(id) ?? '99')
-  const open = sortOpen(openAll.filter((t) => t.kind !== 'quick'), (id) => stageOf.get(id) ?? '99')
+  const quicks = sortOpen(openAll.filter((t) => t.kind === 'quick'), (id) => typeOf.get(id) ?? '99')
+  const open = sortOpen(openAll.filter((t) => t.kind !== 'quick'), (id) => typeOf.get(id) ?? '99')
   const done = sortDone(all.filter((t) => t.status === 'done' && matches(t)))
 
   // « + tâche » : Feature par défaut (modifiable dans le panneau de création).
   const createIn = '02-feature'
 
-  // Filtres actifs (#210) : tag + recherche. La barre de chips ne s'affiche
-  // que s'il y en a ; « Clear all » remet les deux à zéro d'un coup.
-  const hasFilters = tagFilter.length > 0 || q !== ''
-  const clearAll = () => { setTagFilter([]); setQuery('') }
+  // Filtres actifs (#210) : type + tag + recherche. La barre de chips ne
+  // s'affiche que s'il y en a ; « Clear all » remet tout à zéro d'un coup.
+  const hasFilters = typeFilter.length > 0 || tagFilter.length > 0 || q !== ''
+  const clearAll = () => { setTypeFilter([]); setTagFilter([]); setQuery('') }
 
   return (
     <div className="flex h-full flex-col">
       {/* Header unifié (modèle Roadmap) : filtres en dropdowns, hauteur = panneau. */}
       <ViewHeader meta={`${plural(open.length, 'open')} · ${plural(done.length, 'done')}`}>
+        {/* Filtre par TYPE (#235) — même dropdown canonique que l'ex-filtre team. */}
+        <FilterMenu
+          allLabel="All types"
+          aria-label="Filter by type"
+          options={typeOptions}
+          selected={typeFilter}
+          onChange={setTypeFilter}
+          multiple
+        />
         <div className="relative w-56">
           <Search size={13} className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-neutral-500" />
           <input
@@ -159,6 +180,10 @@ export function Backlog() {
         {hasFilters && (
           <div className="shrink-0 border-b border-neutral-200 bg-white">
             <div className="mx-auto flex max-w-3xl flex-wrap items-center gap-1.5 px-6 py-2">
+              {typeFilter.map((k) => (
+                <RemovableChip key={`type:${k}`} label={typeLabel.get(k) ?? k} ariaLabel={`Remove type filter: ${typeLabel.get(k) ?? k}`}
+                  onRemove={() => setTypeFilter(typeFilter.filter((x) => x !== k))} />
+              ))}
               {tagFilter.map((t) => (
                 <RemovableChip key={`tag:${t}`} label={`#${t}`} ariaLabel={`Remove tag filter: ${t}`}
                   onRemove={() => setTagFilter(tagFilter.filter((x) => x !== t))} />

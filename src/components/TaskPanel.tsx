@@ -10,6 +10,7 @@ import { reverseDependents, depState, activeTasks, computeAvailability, allEpics
 import { KindGlyph } from './glyphs'
 import { relativeTime, absoluteDate } from '../lib/relativeTime'
 import { Chip } from './Chip'
+import { ThermoGlyph, formatTemp, tempBreakdown, tempTitle } from './Temperature'
 import {
   ErrorBanner, Select, TextInput, AutoTextArea, GhostInput, GhostAutoTextArea,
   AddCombobox, TagsCombobox, EpicCombobox, ToastViewport, blurOnEnter,
@@ -583,6 +584,22 @@ function TaskPanelBody({ id }: { id: number }) {
       </div>
       <div className="-mt-4 px-1.5"><SavedTick show={savedIn('size', 'code')} /></div>
       <FieldError errs={errors.size ?? errors.code} />
+
+      {/* Température (#235) : le POURQUOI de la priorité — thermomètre coloré
+          (seule exception couleur du DS, décision Rémi) + valeur à 2 décimales
+          + décomposition en trois tiers (auto = blocages transitifs + âge,
+          base = nature du type, seed = champ heat). Lecture seule : calculée
+          par l'API, jamais éditée ici. */}
+      {task.temperature && (
+        <div className="flex flex-col gap-0.5">
+          <SectionLabel>Temperature</SectionLabel>
+          <div className="flex items-center gap-2 px-1.5 py-0.5" title={tempTitle(task.temperature)}>
+            <ThermoGlyph value={task.temperature.value} size={14} />
+            <span className="font-mono text-sm text-neutral-900">{formatTemp(task.temperature.value, 2)}</span>
+            <span className="font-mono text-[11px] text-neutral-500">{tempBreakdown(task.temperature)}</span>
+          </div>
+        </div>
+      )}
 
       {/* Epic : LE regroupement transverse aux stages (#133) — combobox des epics
           existants + création à la volée (saisie slugifiée), ✕ pour retirer. */}

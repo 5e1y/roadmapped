@@ -118,25 +118,33 @@ export function FilterMenu({ allLabel, options, selected, onChange, multiple = f
           <Popover.Popup className="w-56 border border-neutral-200 bg-white py-1 shadow-sm">
             {options.map((o) => {
               const active = selected.includes(o.value)
-              return (
-                <Popover.Close
-                  key={o.value}
-                  disabled={multiple}
-                  render={<button type="button" />}
-                  onClick={() => {
-                    if (multiple) onChange(active ? selected.filter((v) => v !== o.value) : [...selected, o.value])
-                    else onChange(active ? [] : [o.value])
-                  }}
-                  aria-pressed={active}
-                  className={`flex w-full items-baseline justify-between gap-2 px-2.5 py-1.5 text-left text-xs hover:bg-neutral-100 ${
-                    active ? 'bg-accent-tint font-medium text-neutral-900 shadow-[inset_2px_0_0_var(--color-accent)]'
-                    : o.count === 0 ? 'text-neutral-500' : 'text-neutral-600'
-                  }`}
-                >
+              const onClick = () => {
+                if (multiple) onChange(active ? selected.filter((v) => v !== o.value) : [...selected, o.value])
+                else onChange(active ? [] : [o.value])
+              }
+              const cls = `flex w-full items-baseline justify-between gap-2 px-2.5 py-1.5 text-left text-xs hover:bg-neutral-100 ${
+                active ? 'bg-accent-tint font-medium text-neutral-900 shadow-[inset_2px_0_0_var(--color-accent)]'
+                : o.count === 0 ? 'text-neutral-500' : 'text-neutral-600'
+              }`
+              const body = (
+                <>
                   <span className="min-w-0 truncate">{o.label}</span>
                   {o.count !== undefined && (
                     <span className="shrink-0 font-mono text-[11px] text-neutral-500">{o.count}</span>
                   )}
+                </>
+              )
+              // Multi : un <button> SIMPLE — le popup reste ouvert pour enchaîner
+              // les choix. JAMAIS `Popover.Close disabled` (design.md §2 : il rend
+              // l'option inerte — le disabled atterrit sur le <button> du DOM).
+              // Simple : Popover.Close, le choix referme.
+              return multiple ? (
+                <button key={o.value} type="button" onClick={onClick} aria-pressed={active} className={cls}>
+                  {body}
+                </button>
+              ) : (
+                <Popover.Close key={o.value} render={<button type="button" />} onClick={onClick} aria-pressed={active} className={cls}>
+                  {body}
                 </Popover.Close>
               )
             })}
