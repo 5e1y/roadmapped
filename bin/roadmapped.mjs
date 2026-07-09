@@ -58,6 +58,11 @@ switch (cmd) {
   }
 
   case 'dashboard': {
+    // MAJ auto (#207) : notify-only si une version plus récente est publiée. Borné à
+    // ~800 ms, mis en cache 1×/jour, silencieux sur toute erreur — jamais bloquant.
+    const { notifyIfOutdated } = await importPkg('src/lib/updateNotifier.ts')
+    await notifyIfOutdated(packageDir).catch(() => {})
+
     // Root of the HOST repo this launch serves — resolved BEFORE the probe: the
     // idempotence check must compare repos, not just "something answers on 5173".
     const { findHostRoot } = await importPkg('src/lib/paths.ts')
