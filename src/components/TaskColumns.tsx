@@ -66,7 +66,7 @@ export function TaskList({ open, done, tree, filtered }: {
     <div className="flex flex-col gap-8">
       <section>
         <h2 className="mb-2 flex items-baseline justify-between px-1 text-xs font-medium text-neutral-500">
-          <span>To do — by stage, then oldest first</span>
+          <span>To do — hottest first</span>
           <span className="font-mono text-[11px]">{open.length}</span>
         </h2>
         {open.length === 0 ? empty('Nothing open') : (
@@ -109,9 +109,12 @@ export function TaskList({ open, done, tree, filtered }: {
 }
 
 /** Tri canonique des ouvertes : stage (préfixe NN du dossier) puis id. */
-export function sortOpen(tasks: TaskNode[], stageOf: (id: number) => string): TaskNode[] {
-  const prefix = (id: number) => parseInt(stageOf(id), 10) || 99
-  return [...tasks].sort((a, b) => prefix(a.id) - prefix(b.id) || a.id - b.id)
+export function sortOpen(tasks: TaskNode[]): TaskNode[] {
+  // Priorité = TEMPÉRATURE (jalons v2) : le backlog sert la file la plus chaude
+  // d'abord, comme `next`. Tie-break id croissant (plus ancien). Remplace l'ancien
+  // tri par préfixe de stage, qui n'a plus de sens (les colonnes sont des types).
+  const temp = (t: TaskNode) => t.temperature?.value ?? 0
+  return [...tasks].sort((a, b) => temp(b) - temp(a) || a.id - b.id)
 }
 
 /** Tri canonique des terminées : completedAt décroissant puis id décroissant. */

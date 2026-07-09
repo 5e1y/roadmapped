@@ -8,6 +8,7 @@ import { TaskList, MiniZone, sortOpen, sortDone } from './TaskColumns'
 import { useTagFilter, useTypeFilter } from '../state/filters'
 import { ViewHeader, FilterMenu } from './ViewHeader'
 import { TagGraph } from './TagGraph'
+import { TypesRadar } from './TypesRadar'
 import { tagGraph } from '../lib/tagGraph'
 
 /** Accord singulier/pluriel élémentaire (anglais). */
@@ -98,6 +99,19 @@ export function Backlog() {
     if (s.status === 'abandoned') continue
     for (const t of s.tasks) { all.push(t); typeOf.set(t.id, s.key) }
   }
+
+  // Charge du radar par TYPE (jalons v2 — successeur du radar de teams) : tickets
+  // OUVERTS par type, sous-tâches comprises, INDÉPENDANTE des filtres (le radar
+  // montre TOUT, la liste est filtrée). Sélection radar = le filtre type solo.
+  const load = new Map<string, number>()
+  const countLoad = (t: TaskNode, key: string) => {
+    if (t.status !== 'done') load.set(key, (load.get(key) ?? 0) + 1)
+    t.subtasks.forEach((s) => countLoad(s, key))
+  }
+  for (const s of tree.sections) if (s.status !== 'abandoned') s.tasks.forEach((t) => countLoad(t, s.key))
+  const radarSelected = typeFilter.length === 1 ? typeFilter[0] : ''
+  const radarSelect = (k: string) => setTypeFilter(k ? [k] : [])
+
   const matches = (t: TaskNode) =>
     (typeFilter.length === 0 || typeFilter.includes(typeOf.get(t.id) ?? '')) &&
     (tagFilter.length === 0 || tagFilter.some((tag) => t.tags.includes(tag))) &&
@@ -113,11 +127,12 @@ export function Backlog() {
   }))
   const typeLabel = new Map(sections.map((s) => [s.key, s.title]))
 
-  // Ordre canonique (décision Rémi) : type puis ancienneté — partagé (TaskColumns).
+  // Ordre = TEMPÉRATURE décroissante (jalons v2) : le backlog sert la file la plus
+  // chaude d'abord, comme `next`. Les epics s'ancrent sur leur membre le plus chaud.
   const openAll = all.filter((t) => t.status !== 'done' && matches(t))
   // Les quick vivent dans la zone Mini ; les task dans « To do ».
-  const quicks = sortOpen(openAll.filter((t) => t.kind === 'quick'), (id) => typeOf.get(id) ?? '99')
-  const open = sortOpen(openAll.filter((t) => t.kind !== 'quick'), (id) => typeOf.get(id) ?? '99')
+  const quicks = sortOpen(openAll.filter((t) => t.kind === 'quick'))
+  const open = sortOpen(openAll.filter((t) => t.kind !== 'quick'))
   const done = sortDone(all.filter((t) => t.status === 'done' && matches(t)))
 
   // « + tâche » : Feature par défaut (modifiable dans le panneau de création).
@@ -161,18 +176,25 @@ export function Backlog() {
       </ViewHeader>
 
       <div className="flex min-h-0 flex-1">
-        {/* Flanc : graphe de liens des tags (#146/#150) — carte des thèmes du
-            projet. S'efface quand le panneau est ouvert et que la place manque
-            (< 2xl). Masqué s'il n'y a rien à montrer. */}
-        {(themeTags.nodes.length > 0 || tagSelected !== '') && (
-          <div
-            className={`${top !== null ? 'hidden 2xl:flex' : 'flex'} relative min-h-0 w-[420px] shrink-0 flex-col overflow-y-auto border-r border-neutral-200 bg-white py-2`}
-          >
-            <div className="flex w-full shrink-0 flex-col pt-2">
-              <TagGraph graph={themeTags} selected={tagSelected} onSelect={tagSelect} />
-            </div>
+        {/* Flanc : radar de CHARGE par type (le « qui » devenu « quoi ») en haut,
+            puis le graphe des THÈMES (tags) en dessous. S'efface quand le panneau
+            est ouvert et que la place manque (< 2xl). Le radar montre TOUT, la
+            liste est filtrée ; recliquer le type actif le désélectionne. */}
+        <div
+          className={`${top !== null ? 'hidden 2xl:flex' : 'flex'} relative min-h-0 w-[420px] shrink-0 flex-col overflow-y-auto border-r border-neutral-200 bg-white py-2`}
+        >
+          <div className="flex w-full shrink-0 flex-col">
+            <TypesRadar counts={load} selected={radarSelected} onSelect={radarSelect} />
+            {(themeTags.nodes.length > 0 || tagSelected !== '') && (
+              <>
+                <div className="mt-2 border-t border-neutral-200" />
+                <div className="pt-2">
+                  <TagGraph graph={themeTags} selected={tagSelected} onSelect={tagSelect} />
+                </div>
+              </>
+            )}
           </div>
-        )}
+        </div>
       {/* Colonne liste = barre de filtres actifs (toujours visible) + scroller. */}
       <div className="flex min-h-0 flex-1 flex-col">
         {/* Chips de filtres actifs (#210) : AU-DESSUS du scroller et HORS du flanc
