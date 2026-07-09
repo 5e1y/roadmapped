@@ -3,7 +3,7 @@ code: null
 title: >-
   Jalons v2 — Phase 4 : skill + docs + repositionnement site (types, température, no-epic-order,
   priorité=heat)
-status: in_progress
+status: done
 tags:
   - engineering
   - jalons-v2
@@ -27,9 +27,16 @@ epic: jalons-v2
 source: ai
 createdAt: "2026-07-09T16:14:04"
 startedAt: "2026-07-09T17:58:50"
-updatedAt: "2026-07-09T17:58:50"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+updatedAt: "2026-07-09T18:13:45"
+completedAt: "2026-07-09"
+commit: 021db07
+outcome: >-
+  Skill (SKILL.md + references formats/setup/planning) et docs/guide.md réécrits pour le modèle
+  9-types + température : arbre de classement (nature du livrable), température/priorité (heat +
+  dépendances, jamais d'ordre d'epic), flags --type/--heat, forbidden à jour. README vérifié
+  inchangé. Grep final propre (obsolètes team/stage/idea→mature seulement en mentions volontaires).
+  Exemples CLI testés en réel, validate vert. Par sonnet.
+verification: >-
+  grep obsolètes vérifié (occurrences restantes justifiées : champ supprimé, alias dépréciés,
+  exemples de rejet). validate OK (9 sections). SKILL compass correct.
 release: null
