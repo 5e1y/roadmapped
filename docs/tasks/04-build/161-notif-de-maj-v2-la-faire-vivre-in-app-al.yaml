@@ -1,0 +1,39 @@
+id: 211
+code: null
+title: Notif de MAJ V2 — la faire vivre IN-APP, alignée sur la DA (instance Fable 5)
+status: in_progress
+tags:
+  - dashboard
+  - design
+  - publish
+size: null
+team: design
+detail: >-
+  Demande Rémi : la notif d'update (#207) est aujourd'hui une simple ligne TERMINAL au lancement →
+  elle dénote de la DA de l'app. La faire vivre DANS le dashboard, designée, cohérente avec le DS
+  (monochrome + accent rare, Base UI, ghost, h-12). SEAM DÉJÀ POSÉ (moi, engineering) : /api/tree
+  renvoie `update: {installed, remote} | null` + `updateRepo` (checkUpdate async non bloquant,
+  src/lib/updateNotifier.ts) ; TreeContext expose `useTree().update`. Hook de design : lancer le
+  dashboard avec ROADMAPPED_FAKE_UPDATE=1 force un état MAJ dispo pour rendre/voir la notif. Reste =
+  le COMPOSANT in-app (Fable) : where (header ? bandeau ?), look, interactivité (dismiss ? lien
+  GitHub compare, commande copy « npm install github:5e1y/roadmapped && npx roadmapped upgrade »).
+  Ne PAS toucher au check backend ni au contrat. Fichiers probables : un nouveau
+  src/components/UpdateNotice.tsx + montage (App/ViewHeader).
+refs:
+  - src/lib/updateNotifier.ts
+  - src/server/api.ts
+  - src/state/TreeContext.tsx
+  - src/components/ViewHeader.tsx
+  - src/App.tsx
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-09T13:52:41"
+startedAt: "2026-07-09T13:52:44"
+updatedAt: "2026-07-09T13:52:44"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

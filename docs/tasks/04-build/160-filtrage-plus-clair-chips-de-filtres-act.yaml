@@ -31,17 +31,20 @@ epic: null
 source: ai
 createdAt: "2026-07-09T13:29:48"
 startedAt: "2026-07-09T13:30:00"
-updatedAt: "2026-07-09T13:37:21"
+updatedAt: "2026-07-09T13:48:39"
 completedAt: "2026-07-09"
-commit: feeb244
+commit: e27a1eb
 outcome: >-
-  Barre de filtres actifs en haut de la liste du backlog (RemovableChip × par filtre + « Clear all
-  »), rendue AU-DESSUS du scroller et HORS du flanc radar/graph (qui passe en hidden 2xl:flex quand
-  un panneau est ouvert). Couvre team, tag et recherche. Résout le cul-de-sac : panneau task ouvert
-  sur petit écran, on peut désormais délester ses filtres sans fermer le panneau. Bonus (2) : title
-  « Click again to clear » sur les éléments actifs de TeamsRadar et TagGraph.
+  Retour Rémi appliqué : liseré accent (inset) retiré des chips → pilule neutre (bord neutral-300,
+  fond blanc, arrondie). Le reste de la barre inchangé.
 verification: >-
-  Vrai dashboard (Chrome headless) avec recherche « live » active : barre affichée avec chip « live
-  » × (liseré accent = langage filtre actif) + bouton Clear all, liste filtrée (0 open / 9 done, «
-  Nothing open with these filters. »). Sans filtre : pas de barre. tsc 0 erreur, 399 tests verts.
+  Vrai dashboard (Chrome headless, recherche « live » active) : chip « live » × sans trait bleu +
+  Clear all, propre. tsc 0 erreur.
 release: null
+feedback:
+  - date: "2026-07-09T13:47:04"
+    author: user
+    text: >-
+      Chips : retirer le trait bleu (liseré accent inset). Le combo trait sur un côté + coins
+      arrondis est jugé moche. Le reste de la barre de chips est validé.
+    resolved: true

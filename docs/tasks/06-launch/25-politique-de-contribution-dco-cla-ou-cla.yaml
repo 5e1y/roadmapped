@@ -1,0 +1,25 @@
+id: 220
+code: null
+title: "Politique de contribution : DCO/CLA ou clause claire (droits sur les contributions)"
+status: todo
+tags:
+  - legal
+  - publish
+size: null
+team: legal
+detail: >-
+  Décider et documenter le cadre légal des contributions externes : DCO (Signed-off-by) léger, ou
+  CLA, ou clause « inbound=outbound » dans CONTRIBUTING. Éviter l'ambiguïté sur la propriété/licence
+  des PRs des futurs contributeurs. Coordonner avec la gouvernance GitHub (support).
+refs: []
+links: []
+dependsOn: []
+epic: legal-readiness
+source: ai
+createdAt: "2026-07-09T13:55:26"
+updatedAt: "2026-07-09T13:55:26"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

@@ -1,0 +1,27 @@
+id: 225
+code: null
+title: "Gouvernance repo : CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, PR template"
+status: todo
+tags:
+  - support
+  - publish
+  - github
+size: null
+team: support
+detail: >-
+  Fichiers de gouvernance communautaire : CONTRIBUTING.md (comment contribuer, flow roadmapped,
+  exigences), CODE_OF_CONDUCT.md, SECURITY.md (comment signaler une faille),
+  .github/PULL_REQUEST_TEMPLATE.md. Coordonner avec la politique de contribution (legal #220).
+refs: []
+links: []
+dependsOn:
+  - 220
+epic: community-github
+source: ai
+createdAt: "2026-07-09T13:55:48"
+updatedAt: "2026-07-09T13:56:07"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
