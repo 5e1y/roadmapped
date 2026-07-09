@@ -9,41 +9,52 @@
 Le paquet `roadmapped` est distribué via npm/npx. Rien ne prévient l'utilisateur
 qu'une version plus récente existe — il reste sur une vieille version sans le savoir.
 
-## Décision : notify-only, jamais d'install auto
+## Décision : notify-only, jamais d'install auto — sonde GitHub (jamais npm)
 
-Muter les dépendances de l'utilisateur en silence (auto `npm install`) est dangereux
-et surprenant. On se limite à **notifier** : une ligne discrète au lancement, et
-l'utilisateur décide. C'est le pattern `update-notifier` (npm lui-même), réimplémenté
-en ~30 lignes sans dépendance.
+**Distribution GitHub-only (tranché par Rémi le 2026-07-09 : « on reste github only »).**
+L'install passe par `github:5e1y/roadmapped` et suit HEAD de `main`. Il n'y a PAS de
+publication npm — sonder `registry.npmjs.org` serait un 404 permanent. On sonde donc
+GitHub. Et on se limite à **notifier** (jamais d'auto-install : muter les deps de
+l'utilisateur en silence est dangereux). Pattern `update-notifier`, ~40 lignes, une seule
+dépendance système déjà requise par l'install github: — `git`.
+
+Comme la version reste statique (`0.1.0` non bumpée par commit), le seul signal fiable de
+« main a bougé » est le **SHA de commit**, pas le semver.
 
 ## Conception
 
-`src/lib/updateNotifier.ts` — `notifyIfOutdated(packageDir): Promise<void>` :
+`src/lib/updateNotifier.ts` — `notifyIfOutdated(packageDir, hostRoot): Promise<void>` :
 
-1. **Version installée** : lue depuis `packageDir/package.json`.
-2. **Cache** : `os.tmpdir()/roadmapped-update-check.json` = `{ checkedAt, latest }`.
-   - Cache frais (< 24 h) → on réutilise `latest` sans toucher le réseau (pas de
-     ralentissement à chaque lancement, pas de spam registre).
-   - Sinon → `fetch('https://registry.npmjs.org/roadmapped/latest')`, timeout **800 ms**
-     (`AbortSignal.timeout`), on écrit le cache.
-3. **Comparaison** : `isOutdated(installed, latest)` — compare `major.minor.patch`
-   numériquement. `ponytail:` comparateur naïf, ignore les pré-releases (`-beta`) — notre
-   versionnage est en x.y.z simple ; upgrade = un vrai semver si on publie des pré-releases.
-4. **Notice** (si `latest > installed`) :
+1. **Clone de dev / self-host** : si `packageDir/.git` existe → `return` immédiat. L'auteur
+   travaille sur les sources, pas sur une install ; il ne veut pas d'une notice « en retard »
+   à chaque commit local non poussé.
+2. **SHA installé** : lu du **package-lock de l'hôte** (`hostRoot/package-lock.json`, puis
+   `hostRoot/node_modules/.package-lock.json`), champ `packages["node_modules/roadmapped"].resolved`
+   = `git+…github.com/5e1y/roadmapped.git#<sha>` → `shaFromResolved()`. Le `package.json`
+   installé ne porte AUCUN champ SHA avec npm moderne (vérifié). Pas de lock (pnpm/yarn/bun)
+   → `null` → no-op silencieux (plafond assumé).
+3. **SHA distant** : cache `os.tmpdir()/roadmapped-update-check.json` = `{ checkedAt, remoteSha }`.
+   - Cache frais (< 24 h) → réutilisé (pas de réseau à chaque lancement).
+   - Sinon → `git ls-remote https://github.com/5e1y/roadmapped.git HEAD`, timeout **2 s**
+     (pas de limite de taux, pas d'auth, contrairement à l'API GitHub), on écrit le cache.
+4. **Comparaison** : SHA installé ≠ SHA distant (avec tolérance short/long via `startsWith`)
+   → en retard. Notice :
    ```
-   roadmapped: update available 0.1.0 → 0.2.0
-     npm install roadmapped@latest && npx roadmapped upgrade
+   roadmapped: a newer version is available on GitHub (5982339 → 5715898)
+     npm install github:5e1y/roadmapped && npx roadmapped upgrade
    ```
-5. **Silence total** sur toute erreur : offline, paquet pas encore publié (404), JSON
-   invalide, FS en lecture seule → `try/catch` englobant, aucune sortie, aucun throw. La
-   notif ne doit JAMAIS casser ni ralentir un lancement.
+5. **Silence total** sur toute erreur : offline, git absent, lock illisible, FS RO →
+   `try/catch` englobant, aucune sortie, aucun throw. La notif ne doit JAMAIS casser ni
+   ralentir un lancement.
 
-**Appel** : au tout début de `case 'dashboard'` dans `bin/roadmapped.mjs`,
-`await notifyIfOutdated(packageDir).catch(() => {})`. Borné à 800 ms, 1×/jour (cache).
+**Appel** : dans `case 'dashboard'` de `bin/roadmapped.mjs`, APRÈS résolution du `hostRoot`
+(dont la sonde a besoin), `await notifyIfOutdated(packageDir, hostRoot).catch(() => {})`.
+Borné à ~2 s, 1×/jour (cache).
 
 ## Hors scope
 
-- Vérif sur chaque commande CLU (`done`, `add`…) : le dashboard est l'entrée
-  principale ; l'étendre au proxy `task.mjs` est trivial plus tard si utile. YAGNI.
+- Vérif sur chaque commande CLI (`done`, `add`…) : le dashboard est l'entrée principale.
+  YAGNI.
 - Auto-install / auto-upgrade silencieux : décision explicite de ne PAS le faire.
-- Canal de pré-release / channels : YAGNI.
+- Installs non-npm (pnpm/yarn/bun) : pas de package-lock npm → pas de notice. Plafond assumé.
+- Publication npm : abandonnée (github-only).
