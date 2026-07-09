@@ -28,17 +28,34 @@ epic: null
 source: ai
 createdAt: "2026-07-09T10:21:09"
 startedAt: "2026-07-09T10:21:48"
-updatedAt: "2026-07-09T10:24:19"
+updatedAt: "2026-07-09T10:40:34"
 completedAt: "2026-07-09"
-commit: 1cf33fc
+commit: "5006751"
 outcome: >-
-  MAJ auto notify-only : src/lib/updateNotifier.ts (notifyIfOutdated + isOutdated), appelé au début
-  du case 'dashboard' du bin. Compare version installée vs registre npm (fetch natif, timeout
-  800ms), cache 1×/jour dans os.tmpdir, notice « update available X → Y : npm install
-  roadmapped@latest && npx roadmapped upgrade ». Silence total sur offline/404/JSON invalide/FS.
-  Jamais d'install auto (décision). CLI proxy hors scope (YAGNI).
+  Retargeté sur GitHub (décision Rémi github-only). notifyIfOutdated(packageDir, hostRoot) : saute
+  si packageDir/.git (clone dev/self-host) ; lit le SHA installé dans le package-lock de l'hôte
+  (packages['node_modules/roadmapped'].resolved) ; compare au dernier commit de main via git
+  ls-remote HEAD (cache 1×/jour, timeout 2s) ; notice 'a newer version is available on GitHub (X →
+  Y) : npm install github:5e1y/roadmapped && npx roadmapped upgrade'. Silence total sur erreur/lock
+  absent/pnpm-yarn-bun. Appelé après résolution du hostRoot dans le case dashboard du bin. Spec mise
+  à jour.
 verification: >-
-  tsc -b 0 erreur, 401 tests verts (dont 4 sur isOutdated). Chemins réels testés : cache forcé
-  latest=9.9.9 → notice s'affiche ; latest=0.1.0 → silence ; cache vidé → fetch réel du registre
-  sans crash (404 → aucun cache écrit, no-op).
+  Empirique : npm install github:5e1y/roadmapped réel → SHA seulement dans le package-lock de l'hôte
+  (pas le package.json installé), d'où la lecture du lock. Chemins : install lockée sur HEAD distant
+  → silence ; lock forcé sur commit ancien → notice « (5982339 → 5715898) » ; self-host (.git) →
+  silence ; git ls-remote renvoie bien le HEAD distant (571589...). tsc 0 erreur, 399 tests verts
+  (dont shaFromResolved).
 release: null
+feedback:
+  - date: "2026-07-09T10:28:26"
+    author: claude
+    text: >-
+      MISMATCH distribution : l'update-notifier sonde le registre npm
+      (registry.npmjs.org/roadmapped), mais la distribution réelle actuelle passe par GitHub
+      (github:5e1y/roadmapped) — cf. README « nothing needs to be on npm ». Tant que le paquet n'est
+      pas publié sur npm, la notif no-op silencieusement (404) : inoffensif mais DORMANT. Décision à
+      trancher (Rémi) : (a) publication npm prévue → laisser tel quel, ça s'activera à la
+      publication ; (b) distribution GitHub assumée → retarget la sonde sur GitHub (comparer le
+      gitHead installé au dernier commit de main via api.github.com, ou les tags/releases). Reopen
+      #207 pour (b).
+    resolved: true
