@@ -3,7 +3,7 @@ code: null
 title: >-
   Jalons v2 — Phase 4 : skill + docs + repositionnement site (types, température, no-epic-order,
   priorité=heat)
-status: todo
+status: in_progress
 tags:
   - engineering
   - jalons-v2
@@ -26,7 +26,8 @@ dependsOn:
 epic: jalons-v2
 source: ai
 createdAt: "2026-07-09T16:14:04"
-updatedAt: "2026-07-09T16:14:04"
+startedAt: "2026-07-09T17:58:50"
+updatedAt: "2026-07-09T17:58:50"
 completedAt: null
 commit: null
 outcome: null
