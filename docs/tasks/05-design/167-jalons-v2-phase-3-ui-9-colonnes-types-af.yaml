@@ -3,7 +3,7 @@ code: null
 title: >-
   Jalons v2 — Phase 3 : UI (9 colonnes types + affichage température spectre bleu→orange + icônes
   Trinil + bande d'epics + filtre type)
-status: todo
+status: done
 tags:
   - design
   - jalons-v2
@@ -33,9 +33,17 @@ dependsOn:
 epic: jalons-v2
 source: ai
 createdAt: "2026-07-09T16:13:42"
-updatedAt: "2026-07-09T17:24:20"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+startedAt: "2026-07-09T17:33:32"
+updatedAt: "2026-07-09T17:58:19"
+completedAt: "2026-07-09"
+commit: 0ddccd7
+outcome: >-
+  Phase 3 UI jalons-v2 : thermomètre SVG coloré (rampe coolwarm, couleur confinée à l'icône) +
+  valeur, à la place de l'ex-chip team (lignes/cartes/panneau) ; décomposition auto/base/seed au
+  survol + panneau. Bande d'epics transversale filtrante au-dessus des 9 colonnes-types (colonnes à
+  plat). Filtre par type. Bugfix FilterMenu multi. Seuil d'affichage écarté (max ouvert 22° l'aurait
+  tout masqué) → badge sur toutes les ouvertes. Réalisé par Fable 5.
+verification: >-
+  tsc 0, 426 tests verts, dashboard réel screenshoté : 9 colonnes-types, thermomètres+valeurs sur
+  chaque carte, bande d'epics avec pastilles/progression, filtre type/epic en interaction.
 release: null
