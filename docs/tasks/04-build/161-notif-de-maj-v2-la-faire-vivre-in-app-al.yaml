@@ -31,20 +31,25 @@ epic: null
 source: ai
 createdAt: "2026-07-09T13:52:41"
 startedAt: "2026-07-09T13:52:44"
-updatedAt: "2026-07-09T14:03:50"
+updatedAt: "2026-07-09T14:23:09"
 completedAt: "2026-07-09"
-commit: 76bedbc
+commit: 492a2ed
 outcome: >-
-  Notif de MAJ désormais IN-APP : contrôle « Update ● » dans le ViewHeader (cluster droit, Popover
-  Base UI façon LiveActivityMenu). Point accent = unique bleu (attention légitime). Popup : « A
-  newer Roadmapped is on main », SHA installed→remote (mono), lien GitHub compare, commande
-  d'upgrade copiable (bouton copy + ✓), « Hide for this session » (dismiss module-level, survit aux
-  switch de vue, repart au prochain lancement). Rendu conditionnel : update null → header identique
-  à avant. Seam engineering (checkUpdate async + /api/tree + TreeContext) déjà livré en 8a509b9.
-  Composant par Fable 5. Ligne terminale (#207) conservée en parallèle.
+  Lien « what changed » réparé. Le hook de test ROADMAPPED_FAKE_UPDATE renvoyait des SHA fictifs
+  (a1b2c3d/e4f5a6b) → compare GitHub 404. Il renvoie désormais de vrais SHA poussés (origin/main~5 →
+  origin/main via git rev-parse, fallback fictif si git absent) → le lien résout. Chemin réel (SHA
+  package-lock + ls-remote) déjà correct. Le composant/UI inchangé.
 verification: >-
-  Chrome headless avec ROADMAPPED_FAKE_UPDATE=1 : trigger « Update » + point bleu dans le header
-  entre le compteur et Activity, même peau/hauteur — se fond dans le DS, seul le point accroche
-  l'œil. 5 icônes trinil confirmées exportées, useOptionalTreeState non-jetant. tsc 0 erreur, 399
-  tests verts.
+  Serveur réel + hook : /api/tree renvoie update{installed:8a509b9, remote:dd00eef} ; compare URL
+  https://github.com/5e1y/roadmapped/compare/8a509b9...dd00eef → curl HTTP 200 (ne 404 plus). tsc 0
+  erreur, 28 tests (updateNotifier+api) verts.
 release: null
+feedback:
+  - date: "2026-07-09T14:20:55"
+    author: user
+    text: >-
+      Le lien « what changed » (GitHub compare) de la notif ne fonctionne pas : il pointe sur des
+      SHA bidons (a1b2c3d/e4f5a6b) fournis par le hook de test ROADMAPPED_FAKE_UPDATE → 404. Le
+      chemin réel serait bon, mais le hook doit renvoyer de VRAIS SHA du repo pour que le lien soit
+      testable/fonctionnel.
+    resolved: true
