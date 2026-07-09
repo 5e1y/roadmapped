@@ -1,0 +1,31 @@
+id: 238
+kind: quick
+code: null
+title: >-
+  Feedback jalons-v2 UI : trier le backlog par température + restaurer le radar (types au lieu de
+  teams)
+status: done
+tags:
+  - dashboard
+size: null
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-09T18:05:40"
+startedAt: "2026-07-09T18:05:40"
+updatedAt: "2026-07-09T18:12:40"
+completedAt: "2026-07-09"
+commit: 6328c8a
+outcome: >-
+  Deux retours Rémi sur l'UI jalons-v2 corrigés. (1) Tri backlog par TEMPÉRATURE : sortOpen trie
+  température↓ puis id (les epics s'ancrent sur leur membre le plus chaud) ; label « To do — hottest
+  first ». (2) Radar de charge restauré en TypesRadar (9 axes = 9 types, icônes Trinil + comptes
+  d'ouverts, clic = filtre type solo), remonté dans le flanc au-dessus du graphe de tags —
+  successeur direct du radar de teams supprimé à la bascule.
+verification: >-
+  tsc 0. Dashboard réel screenshoté : radar 9 types affiché avec charges (feature 6, comm 6, design
+  5, legal 5…), To-do trié 14°→7°→5°.
+release: null
