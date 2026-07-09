@@ -1,0 +1,43 @@
+id: 233
+code: null
+title: >-
+  Jalons v2 — Phase 1 : schéma (9 types, retrait team, champ heat) + validate + migration des 213
+  fichiers + CLI/MCP
+status: in_progress
+tags:
+  - engineering
+  - jalons-v2
+  - migration
+size: null
+team: engineering
+detail: >-
+  Fondation mécanique (sonnet/opus, non-design). Réf :
+  docs/specs/2026-07-09-jalons-par-type-brainstorm.md +
+  docs/specs/2026-07-09-next-temperature-brainstorm.md. REWIRE PROPRE (décision Rémi : pas de hack
+  team→heat — on retire team, on ajoute heat, proprement). (1) tasks.ts : STAGES→TYPES (9 :
+  bug/feature/chore/brainstorm/design/marketing/communication/legal/business), supprimer
+  Team/TEAMS/TEAM_ABBR + champ team de TaskNode ; ajouter heat?:number|null (0–100). (2) validate.ts
+  : 9 dossiers canoniques, titres canoniques, rejet de team:, validation heat 0–100 (2 décimales).
+  (3) Migration : script qui déplace les 213 fichiers old-folder(stage×team)→new-folder(type) selon
+  la table §4.3 du doc types (raffinement par tags), strip team:, crée les 9 _section.yaml, miroir
+  _archive, rapport diff. Tout en git (réversible), validate vert. (4) CLI/MCP/API : --team→--heat +
+  --section prend les nouveaux slugs (alias --type), brief agent Team→Température, list
+  --team→--type. Ne PAS toucher à l'UI ni au moteur température (phases 2/3).
+refs:
+  - src/lib/tasks.ts
+  - src/lib/validate.ts
+  - src/lib/taskWrites.ts
+  - scripts/task.mjs
+  - scripts/mcp-server.mjs
+links: []
+dependsOn: []
+epic: jalons-v2
+source: ai
+createdAt: "2026-07-09T16:13:20"
+startedAt: "2026-07-09T16:17:28"
+updatedAt: "2026-07-09T16:17:28"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
