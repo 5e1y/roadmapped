@@ -1,0 +1,37 @@
+id: 199
+kind: quick
+code: null
+title: >-
+  BUG install : init écrit roadmapped@^0.1.0 (registre npm non publié) → npm install 404 chez
+  l'hôte, MCP+guard+hooks cassés. Sourcer depuis github:5e1y/roadmapped
+status: done
+tags:
+  - bug
+  - publish
+size: null
+team: engineering
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-09T02:10:25"
+startedAt: "2026-07-09T02:10:25"
+updatedAt: "2026-07-09T02:13:42"
+completedAt: "2026-07-09"
+commit: a5b421e
+outcome: >-
+  BUG install corrigé. Cause : ensureDevDependency écrivait 'roadmapped: ^0.1.0' (registre npm non
+  publié) → npm install 404 chez l'hôte → node_modules/roadmapped absent → MCP + guard + hook sitrep
+  (qui pointent tous node_modules/roadmapped/scripts/…) cassés. Fix : dériver 'github:owner/repo' du
+  champ repository (fallback ^version si absent). README : flux clarifié init→npm
+  install→restart→setup (l'étape npm install manquait ; suppression du clone-skill manuel fragile,
+  init pose déjà le skill). Vérifié E2E AVEC npm install : devDep=github:5e1y/roadmapped écrit, npm
+  install OK en 11s (plus de 404), node_modules/roadmapped matérialisé, guard/MCP/CLI résolvent,
+  guard hook LIVE (commit sans ticket refusé). 391 tests verts.
+verification: >-
+  repo hôte : init local → npm install github → node_modules/roadmapped présent,
+  task.mjs/mcp-server.mjs/register-ts.mjs OK, npx roadmapped validate OK, git commit sans ticket →
+  guard refuse.
+release: null
