@@ -220,7 +220,10 @@ function EpicTitleInput({ slug, title, onError, done = false }: {
           blurOnEnter(e)
         }}
         onBlur={(e) => void save(e.currentTarget)}
-        className={`truncate py-0.5 text-sm font-medium ${done ? 'text-neutral-500 line-through' : ''}`}
+        // `text-neutral-500!` (important) : ghostCls impose `text-neutral-900` en
+        // base — sans le forcer, le titre d'epic terminé reste barré mais en encre
+        // foncée, pas gris comme une task done (#209).
+        className={`truncate py-0.5 text-sm font-medium ${done ? 'text-neutral-500! line-through' : ''}`}
       />
     </span>
   )
