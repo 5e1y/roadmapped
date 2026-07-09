@@ -1,14 +1,14 @@
-import { Collapsible } from '@base-ui/react/collapsible'
+import { useState } from 'react'
 import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
-import { usePersistentStringFlag } from '../state/uiPersist'
-import { computeAvailability, missingPrereqs, reverseDependents, globalProgress, allEpics, epicProgress, type Availability } from '../lib/roadmap'
+import { computeAvailability, missingPrereqs, reverseDependents, globalProgress, type Availability } from '../lib/roadmap'
 import { EditPen, LockLocked } from 'trinil-react'
-import { Chevron, EpicGlyph, KindGlyph } from './glyphs'
+import { KindGlyph } from './glyphs'
 import { Chip } from './Chip'
-import { groupByEpicAnchored, epicAnchorStage, epicStatusOf, type EpicListItem } from './EpicRow'
+import { TempBadge, rowTemperature } from './Temperature'
+import { EpicBand, epicBandItems } from './EpicBand'
 import { countTasksDeep, SECTION_STATUS_LABEL } from '../lib/tasks'
-import type { SectionNode, TaskNode, TaskTree } from '../lib/tasks'
+import type { SectionNode, TaskNode } from '../lib/tasks'
 import { useShowDone } from './RoadmapView'
 
 function ProgressBar({ done, total }: { done: number; total: number }) {
@@ -23,9 +23,11 @@ function ProgressBar({ done, total }: { done: number; total: number }) {
 /**
  * Carte de tâche du mode Colonnes. Rend les trois états d'availability comme
  * GraphCard (mode Graphe) pour que les deux modes soient cohérents :
- *  - done      : coche (StatusGlyph) + titre barré/atténué + chips zone/size ;
- *  - available : bordure pleine marquée + mention « Disponible » ;
- *  - locked    : carte estompée + « Prérequis manquants (#…) ».
+ *  - done      : coche (StatusGlyph) + titre barré/atténué ;
+ *  - available : mention « Available » ;
+ *  - locked    : carte estompée + « Missing prerequisites (#…) ».
+ * Température (#235) : badge thermomètre + valeur au coin bas droit — LE slot
+ * de l'ex-chip team — sur toute carte ouverte (rowTemperature).
  */
 function TaskCard({ task, state, missing, blocksCount = 0 }: { task: TaskNode; state: Availability; missing: number[]; blocksCount?: number }) {
   const { openTask, top } = usePanel()
@@ -43,6 +45,7 @@ function TaskCard({ task, state, missing, blocksCount = 0 }: { task: TaskNode; s
   const dim = state === 'done' || state === 'locked'
   const titleCls = task.status === 'done' ? 'text-neutral-500 line-through' : dim ? 'text-neutral-500' : 'text-neutral-900'
   const subs = task.subtasks.length > 0 ? countTasksDeep(task.subtasks) : null
+  const temp = rowTemperature(task)
   return (
     <button type="button" onClick={() => openTask(task.id)} title={task.title}
       className={`relative -mt-px flex w-full flex-col gap-1.5 px-3 py-2.5 text-left first:mt-0 ${skin}`}>
@@ -74,67 +77,9 @@ function TaskCard({ task, state, missing, blocksCount = 0 }: { task: TaskNode; s
       {task.kind === 'milestone' && blocksCount > 0 && (
         <span className="text-[11px] text-neutral-500">blocks {blocksCount}</span>
       )}
+      {/* Température (#235) — coin bas droit, l'emplacement exact de l'ex-chip team. */}
+      {temp && <span className="absolute bottom-1.5 right-2"><TempBadge t={temp} /></span>}
     </button>
-  )
-}
-
-/**
- * Carte-GROUPE d'un epic dans une colonne de stage (#135) : repliée par défaut,
- * même gabarit qu'une TaskCard mais marquée groupe (chevron + carré EpicGlyph +
- * titre en font-medium). Dé-dup (#140-B) : un epic n'apparaît que dans UNE
- * colonne — son stage d'ancrage (epicAnchorStage : ticket non terminé le plus
- * amont, ou dernier ticket si 100 % done) — avec TOUS ses membres (« n ici »
- * si d'autres stages y contribuent) et sa complétion GLOBALE (epicProgress).
- * Le dépliage (persisté par slug) révèle les cartes membres, indentées.
- */
-function EpicCardGroup({ item, tree, avail, blocksOf }: {
-  item: Extract<EpicListItem, { type: 'epic' }>
-  tree: TaskTree
-  avail: Map<number, Availability>
-  blocksOf: (t: TaskNode) => number
-}) {
-  const [open, setOpen] = usePersistentStringFlag('roadmap:epics', item.slug)
-  const progress = epicProgress(tree, item.slug)
-  const partial = item.tasks.length < progress.total
-  const pct = progress.total === 0 ? 0 : Math.round((progress.done / progress.total) * 100)
-  return (
-    <Collapsible.Root open={open} onOpenChange={setOpen} className="-mt-px first:mt-0">
-      <Collapsible.Trigger
-        title={item.title}
-        className="relative flex w-full flex-col gap-1.5 border border-neutral-200 bg-white px-3 py-2.5 text-left hover:z-10 hover:border-neutral-400"
-      >
-        <div className="flex items-center gap-2">
-          <Chevron />
-          <EpicGlyph status={epicStatusOf(progress, item.tasks)} />
-          <span className="min-w-0 truncate text-sm font-medium text-neutral-900">{item.title}</span>
-        </div>
-        <div className="flex items-center gap-1.5 pl-[26px]">
-          <span className="text-[11px] text-neutral-500">
-            {item.tasks.length} task{item.tasks.length === 1 ? '' : 's'}{partial ? ' here' : ''}
-          </span>
-          <span className="ml-auto flex items-center gap-1.5">
-            <span aria-hidden className="h-1 w-14 overflow-hidden rounded-full bg-neutral-200">
-              <span className="block h-full bg-accent" style={{ width: `${pct}%` }} />
-            </span>
-            <span
-              className="font-mono text-[11px] text-neutral-500"
-              title={`Epic overall completion: ${progress.done}/${progress.total}`}
-            >
-              {progress.done}/{progress.total}
-            </span>
-            <span className="sr-only">, {progress.done} of {progress.total} tasks done</span>
-          </span>
-        </div>
-      </Collapsible.Trigger>
-      <Collapsible.Panel>
-        {/* Membres indentés d'un cran sous la carte-groupe (langage sous-tâches). */}
-        <div className="-mt-px ml-3 flex flex-col">
-          {item.tasks.map((t) => (
-            <TaskCard key={t.id} task={t} state={avail.get(t.id) ?? 'available'} missing={missingPrereqs(t, avail)} blocksCount={blocksOf(t)} />
-          ))}
-        </div>
-      </Collapsible.Panel>
-    </Collapsible.Root>
   )
 }
 
@@ -144,21 +89,29 @@ function EpicCardGroup({ item, tree, avail, blocksOf }: {
  * hauteur du plus grand et les barres de progression sont alignées entre
  * colonnes, quelle que soit la longueur des notes. Les rangées vides gardent
  * un placeholder pour ne pas décaler les suivantes.
+ * `scope` = les tâches comptées (filtre epic appliqué, done compris) ;
+ * `tasks` = les cartes rendues (toggle « done » appliqué en plus).
  */
-function Column({ section, items, avail, blocksOf, tree }: { section: SectionNode; items: EpicListItem[]; avail: Map<number, Availability>; blocksOf: (t: TaskNode) => number; tree: TaskTree }) {
+function Column({ section, scope, tasks, avail, blocksOf }: {
+  section: SectionNode
+  scope: TaskNode[]
+  tasks: TaskNode[]
+  avail: Map<number, Availability>
+  blocksOf: (t: TaskNode) => number
+}) {
   const { openSection } = usePanel()
-  // Compteurs et barre = RÉEL (section.tasks) ; les cartes rendues = visible
-  // (les done masqués ne changent pas la progression affichée).
-  const { done, total } = countTasksDeep(section.tasks)
-  const empty = section.tasks.length === 0
+  // Compteurs et barre = le périmètre RÉEL de la colonne (scope) ; les cartes
+  // rendues = visible (les done masqués ne changent pas la progression affichée).
+  const { done, total } = countTasksDeep(scope)
+  const empty = scope.length === 0
   const statusLabel = section.status !== 'open' ? SECTION_STATUS_LABEL[section.status] : null
   return (
     // min-w-0 : un enfant de grille a min-width:auto par défaut → sans ça, un contenu
     // plus large que la piste (280px) déborde sur la colonne voisine (#97).
     <div className="grid row-span-4 min-w-0 grid-rows-subgrid">
       {/* Rangée titre collante : le contexte (titre + compteur) survit au scroll
-          vertical. Le pt-8 du conteneur vit ici pour que rien ne dépasse au-dessus. */}
-      <div className="group sticky top-0 z-20 flex items-baseline justify-between gap-2 bg-neutral-50 pb-0.5 pt-8">
+          vertical. Le pt-5 du conteneur vit ici pour que rien ne dépasse au-dessus. */}
+      <div className="group sticky top-0 z-20 flex items-baseline justify-between gap-2 bg-neutral-50 pb-0.5 pt-5">
         <span
           className={`min-w-0 truncate text-sm font-semibold tracking-tight ${empty ? 'text-neutral-500' : 'text-neutral-900'}`}
           title={section.title}
@@ -183,82 +136,72 @@ function Column({ section, items, avail, blocksOf, tree }: { section: SectionNod
           <span className="font-mono text-xs text-neutral-500">{done}/{total}</span>
         </span>
       </div>
-      {/* Stage vide = estompé : ni note ni barre, l'espace va aux stages peuplés. */}
+      {/* Type vide = estompé : ni note ni barre, l'espace va aux types peuplés. */}
       {section.note && !empty ? (
         <p className="text-xs leading-relaxed text-neutral-500">{section.note}</p>
       ) : (
         <div aria-hidden />
       )}
       <div className="self-end">{!empty && <ProgressBar done={done} total={total} />}</div>
-      {/* Cartes accolées (gap 0, bordures fusionnées par -mt-px) : liste dense.
-          Les cartes à liseré fort (sélection, disponible) passent au-dessus (z-10)
-          pour que leur bordure ne soit pas mangée par la carte suivante.
-          Epics (#135/#140-B) : les tâches à epic vivent dans une carte-groupe
-          repliable — rendue UNIQUEMENT dans la colonne d'ancrage de l'epic
-          (items calculés par RoadmapColumns), à la position de sa première
-          membre locale. */}
+      {/* Cartes accolées (gap 0, bordures fusionnées par -mt-px) : liste dense,
+          à PLAT — plus de carte-groupe d'epic dans les colonnes (#235) : le
+          transversal vit dans la bande d'epics au-dessus, chaque tâche chez
+          son type. Les cartes à liseré fort (sélection) passent au-dessus
+          (z-10) pour que leur bordure ne soit pas mangée par la suivante. */}
       <div className="flex min-w-0 flex-col pt-1.5">
-        {items.map((item) =>
-          item.type === 'epic' ? (
-            <EpicCardGroup key={`epic:${item.slug}`} item={item} tree={tree} avail={avail} blocksOf={blocksOf} />
-          ) : (
-            <TaskCard key={item.task.id} task={item.task} state={avail.get(item.task.id) ?? 'available'} missing={missingPrereqs(item.task, avail)} blocksCount={blocksOf(item.task)} />
-          ),
-        )}
+        {tasks.map((task) => (
+          <TaskCard key={task.id} task={task} state={avail.get(task.id) ?? 'available'} missing={missingPrereqs(task, avail)} blocksCount={blocksOf(task)} />
+        ))}
       </div>
     </div>
   )
 }
 
-/** Vue stages : une colonne par stage canonique — les vides restent visibles, estompés et resserrés. */
+/**
+ * Vue types (#235) : la bande d'epics transversale en tête + une colonne par
+ * type canonique (9) — les vides restent visibles, estompés et resserrés.
+ * Le filtre epic (clic sur une carte de la bande) restreint les 9 colonnes
+ * aux membres de cet epic ; les compteurs/barres suivent le périmètre filtré.
+ */
 export function RoadmapColumns() {
   const { tree } = useTree()
   const [showDone] = useShowDone()
+  // Filtre epic : état de session (pas persisté — un filtre de lecture, pas une préférence).
+  const [epicFilter, setEpicFilter] = useState<string | null>(null)
   if (!tree) return null
-  // Pas de filtre team en Roadmap (décision Rémi) : la vue montre TOUT le
-  // lancement — un filtre posé via le radar du Backlog ne déborde pas ici.
   const sections = tree.sections.filter((s) => s.status !== 'abandoned')
-  const visibleOf = (s: SectionNode) => (showDone ? s.tasks : s.tasks.filter((t) => t.status !== 'done'))
   const avail = computeAvailability(tree)
   // « bloque N » des jalons : dépendants inverses, calculé une fois par carte jalon.
   const blocksOf = (t: TaskNode) => (t.kind === 'milestone' ? reverseDependents(tree, t.id).length : 0)
 
-  // Ancrage unique des epics (#140-B) : un epic ne vit que dans UNE colonne —
-  // le stage de son ticket non terminé le plus amont (ou de son dernier ticket
-  // si tout est done). Membres collectés en ordre canonique (sections NN, puis
-  // ordre de la colonne) — le dépliage montre TOUT l'epic, autres stages compris.
-  const epics = allEpics(tree)
-  const epicMembers = new Map<string, Array<{ stage: string; task: TaskNode }>>()
-  for (const s of sections) {
-    for (const t of s.tasks) {
-      if (t.epic === null) continue
-      const arr = epicMembers.get(t.epic)
-      if (arr) arr.push({ stage: s.key, task: t })
-      else epicMembers.set(t.epic, [{ stage: s.key, task: t }])
-    }
-  }
-  const anchorOf = new Map<string, string>()
-  for (const [slug, members] of epicMembers) {
-    const anchor = epicAnchorStage(members)
-    if (anchor !== null) anchorOf.set(slug, anchor)
-  }
-  // Membres affichés dans le groupe : tout l'epic, filtré par le toggle
-  // « terminées » (la complétion affichée reste GLOBALE via epicProgress).
-  const membersOf = (slug: string) =>
-    (epicMembers.get(slug) ?? []).map((m) => m.task).filter((t) => showDone || t.status !== 'done')
-  const itemsOf = (s: SectionNode) =>
-    groupByEpicAnchored(visibleOf(s), epics, (slug) => anchorOf.get(slug) === s.key, membersOf)
+  // Bande d'epics : les terminés suivent le toggle « done » (repli, comme les
+  // cartes) — sauf celui éventuellement sélectionné, jamais escamoté sous son
+  // propre filtre. Le filtre d'un epic disparu (rename/reload) est ignoré.
+  const band = epicBandItems(tree).filter(
+    (i) => showDone || i.status !== 'done' || i.slug === epicFilter,
+  )
+  const selected = epicFilter !== null && band.some((i) => i.slug === epicFilter) ? epicFilter : null
 
-  // Largeurs par colonne : un stage vide (ou vidé par le filtre) est resserré —
-  // le chemin Idea→Mature reste entièrement visible sans voler l'espace.
-  const template = sections.map((s) => (s.tasks.length === 0 ? '180px' : '280px')).join(' ')
+  const scopeOf = (s: SectionNode) =>
+    selected === null ? s.tasks : s.tasks.filter((t) => t.epic === selected)
+  const visibleOf = (s: SectionNode) =>
+    scopeOf(s).filter((t) => showDone || t.status !== 'done')
+
+  // Largeurs par colonne : un type vide (ou vidé par le filtre epic) est
+  // resserré — les 9 colonnes restent visibles sans voler l'espace.
+  const template = sections.map((s) => (scopeOf(s).length === 0 ? '180px' : '280px')).join(' ')
 
   return (
-    <div
-      className="roadmap-cols-scroll grid h-full grid-flow-col grid-rows-[auto_auto_auto_1fr] gap-x-4 gap-y-1.5 overflow-x-auto px-6 pb-6"
-      style={{ gridTemplateColumns: template }}
-    >
-      {sections.map((s) => <Column key={s.key} section={s} items={itemsOf(s)} avail={avail} blocksOf={blocksOf} tree={tree} />)}
+    <div className="flex h-full flex-col">
+      <EpicBand items={band} selected={selected} onSelect={setEpicFilter} />
+      <div
+        className="roadmap-cols-scroll grid min-h-0 flex-1 grid-flow-col grid-rows-[auto_auto_auto_1fr] gap-x-4 gap-y-1.5 overflow-x-auto px-6 pb-6"
+        style={{ gridTemplateColumns: template }}
+      >
+        {sections.map((s) => (
+          <Column key={s.key} section={s} scope={scopeOf(s)} tasks={visibleOf(s)} avail={avail} blocksOf={blocksOf} />
+        ))}
+      </div>
     </div>
   )
 }

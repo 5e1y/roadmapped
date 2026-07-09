@@ -17,8 +17,10 @@ import type { TaskNode, Epic } from '../lib/tasks'
  *
  * Dé-duplication (#140) : un epic n'apparaît qu'UNE fois par vue — côté ouvert
  * tant qu'il n'est pas 100 % terminé (ses membres done vivent DANS le groupe),
- * côté « Terminées » seulement quand tout est bouclé (splitBacklogItems) ; en
- * Roadmap, dans UN seul stage (epicAnchorStage + groupByEpicAnchored).
+ * côté « Terminées » seulement quand tout est bouclé (splitBacklogItems). En
+ * Roadmap, plus AUCUN groupe en colonne (#235) : le transversal vit dans la
+ * bande d'epics (EpicBand) — l'ancrage (epicAnchorStage/groupByEpicAnchored)
+ * est mort avec elle.
  */
 
 /** Item d'une liste mixte : tâche à plat OU groupe-epic portant ses membres. */
@@ -94,50 +96,6 @@ export function splitBacklogItems(
   }
   const doneItems = groupByEpic(done.filter((t) => t.epic === null || isComplete(t.epic)), epics)
   return { open: openItems, done: doneItems }
-}
-
-/**
- * Stage d'ANCRAGE d'un epic (#140-B, Roadmap) : le stage (clé `NN-slug`) de son
- * ticket NON TERMINÉ le plus AMONT (index NN le plus petit — une tâche Build
- * ancre avant une tâche Launch) ; un epic 100 % done est ancré au stage de son
- * dernier ticket (index le plus grand : là où il s'est terminé). Null sans membre.
- */
-export function epicAnchorStage(members: Array<{ stage: string; task: TaskNode }>): string | null {
-  if (members.length === 0) return null
-  const idx = (s: string) => parseInt(s, 10) || 0
-  const notDone = members.filter((m) => m.task.status !== 'done')
-  if (notDone.length > 0) {
-    return notDone.reduce((a, b) => (idx(b.stage) < idx(a.stage) ? b : a)).stage
-  }
-  return members.reduce((a, b) => (idx(b.stage) >= idx(a.stage) ? b : a)).stage
-}
-
-/**
- * Regroupement ANCRÉ (#140-B, colonnes de stage) : dans une liste donnée, seuls
- * les epics `anchoredHere` produisent un groupe — à la position de leur première
- * membre locale, avec les membres COMPLETS fournis par `membersOf` (même ceux
- * d'autres stages). Les membres d'un epic ancré AILLEURS sont omis (ils sont
- * rendus dans la colonne d'ancrage) ; les tâches sans epic restent à plat.
- */
-export function groupByEpicAnchored(
-  tasks: TaskNode[],
-  epics: Epic[],
-  anchoredHere: (slug: string) => boolean,
-  membersOf: (slug: string) => TaskNode[],
-): EpicListItem[] {
-  const titleOf = new Map(epics.map((e) => [e.slug, e.title]))
-  const seen = new Set<string>()
-  const items: EpicListItem[] = []
-  for (const t of tasks) {
-    if (t.epic === null) {
-      items.push({ type: 'task', task: t })
-      continue
-    }
-    if (!anchoredHere(t.epic) || seen.has(t.epic)) continue
-    seen.add(t.epic)
-    items.push({ type: 'epic', slug: t.epic, title: titleOf.get(t.epic) ?? t.epic, tasks: membersOf(t.epic) })
-  }
-  return items
 }
 
 /**

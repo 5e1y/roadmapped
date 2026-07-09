@@ -1,6 +1,7 @@
 import { Collapsible } from '@base-ui/react/collapsible'
 import { LockLocked } from 'trinil-react'
 import { Chip } from './Chip'
+import { TempBadge, rowTemperature } from './Temperature'
 import { Chevron, KindGlyph } from './glyphs'
 import { usePanel } from '../state/PanelContext'
 import { useOptionalTree } from '../state/TreeContext'
@@ -27,6 +28,10 @@ export function agentBrief(task: TaskNode): string {
     `Task #${task.id} — ${task.title}`,
     `File: ${task.file}`,
     meta,
+    // La décomposition en trois tiers, pas juste le nombre (spec température §6.2).
+    task.temperature
+      ? `Temperature: ${task.temperature.value}° (auto ${task.temperature.auto} · base ${task.temperature.base} · seed ${task.temperature.seed})`
+      : null,
     task.tags.length > 0 ? `Tags: ${task.tags.join(', ')}` : null,
     task.refs.length > 0 ? `Refs: ${task.refs.join(' · ')}` : null,
     task.links.length > 0 ? `Linked tasks: ${task.links.map((l) => `#${l}`).join(' ')}` : null,
@@ -60,6 +65,9 @@ export function TaskRow({ task }: { task: TaskNode }) {
   // Tâche affichée dans le side panel : surlignée à l'accent pour rester
   // repérable pendant qu'on navigue dans le backlog (#36).
   const isOpenInPanel = top?.type === 'task' && top.id === task.id
+  // Température (#235) : badge thermomètre + valeur, LE slot de l'ex-chip team —
+  // sur toute tâche ouverte (rowTemperature), décomposition au survol.
+  const temp = rowTemperature(task)
 
   return (
     <Collapsible.Root open={open} onOpenChange={setOpen}>
@@ -135,6 +143,7 @@ export function TaskRow({ task }: { task: TaskNode }) {
               </span>
             )}
             {task.code && <Chip label={task.code} mono />}
+            {temp && <TempBadge t={temp} />}
             {task.size && <Chip label={task.size} mono strong />}
           </span>
         </button>
