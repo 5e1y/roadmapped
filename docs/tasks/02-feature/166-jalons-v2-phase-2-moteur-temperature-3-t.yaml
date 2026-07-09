@@ -3,7 +3,7 @@ code: null
 title: >-
   Jalons v2 — Phase 2 : moteur température (3 tiers : auto + base-type + seed) + tri de next +
   exposition API
-status: todo
+status: done
 tags:
   - engineering
   - jalons-v2
@@ -29,9 +29,16 @@ dependsOn:
 epic: jalons-v2
 source: ai
 createdAt: "2026-07-09T16:13:30"
-updatedAt: "2026-07-09T16:13:30"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+startedAt: "2026-07-09T17:32:35"
+updatedAt: "2026-07-09T17:32:36"
+completedAt: "2026-07-09"
+commit: d894412
+outcome: >-
+  Phase 2 jalons-v2 : moteur température temperature(tree,task,today) — 3 tiers égaux
+  (auto=min(33.33,20B+13.33A) blocages transitifs+âge ; base=baseHeat du jalon, fallback code ;
+  seed=heat/3), pure+cache WeakMap. nextQueue trié par température↓ puis id↑. Température exposée
+  dans /api/tree. Base lue de _section.yaml (décision Rémi : la base vit dans le jalon).
+verification: >-
+  52 tests température/roadmap verts, /api/tree expose la température (plus chaudes : #233 22,57°
+  #218/#220 legal 22°), mini-exemple du doc reproduit (bug 48,67° > design seedé 45,62°).
 release: null
