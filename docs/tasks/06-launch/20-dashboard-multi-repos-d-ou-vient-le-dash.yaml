@@ -1,0 +1,36 @@
+id: 203
+code: null
+title: >-
+  Dashboard multi-repos : d'où vient le dashboard + ouvrir deux repos à la fois (collision
+  d'idempotence port 5173)
+status: todo
+tags:
+  - dashboard
+  - publish
+size: null
+team: engineering
+detail: >-
+  DEUX volets. (1) DOC — clarifier le modèle : le CODE du dashboard vient du PAQUET
+  (node_modules/roadmapped, ou le repo standalone), mais il affiche les DONNÉES du repo HÔTE
+  (ROADMAPPED_ROOT, résolu depuis le cwd). Un paquet, N hôtes. À documenter (guide/README). (2) BUG
+  à corriger — l'idempotence #153 (bin/roadmapped.mjs) sonde localhost:5173/api/tree et no-op dès
+  qu'un {ok:…} répond, SANS vérifier que ce dashboard sert le MÊME host root. Donc : dashboard
+  ouvert sur repo A (5173) → 'npx roadmapped dashboard' dans repo B voit A, dit 'déjà ouvert → 5173'
+  et affiche les données de A (faux !). Fix : /api/tree (ou un /api/whoami) renvoie le hostRoot ; la
+  sonde compare — même root → no-op ; root différent → laisser Vite démarrer sur le port suivant
+  (auto-increment). Workaround immédiat à documenter : 'npx roadmapped dashboard --port 5174' pour
+  le 2e repo.
+refs:
+  - bin/roadmapped.mjs
+  - src/server/api.ts
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-09T02:56:50"
+updatedAt: "2026-07-09T02:56:50"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
