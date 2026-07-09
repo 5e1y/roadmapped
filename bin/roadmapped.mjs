@@ -58,16 +58,18 @@ switch (cmd) {
   }
 
   case 'dashboard': {
-    // MAJ auto (#207) : notify-only si une version plus récente est publiée. Borné à
-    // ~800 ms, mis en cache 1×/jour, silencieux sur toute erreur — jamais bloquant.
-    const { notifyIfOutdated } = await importPkg('src/lib/updateNotifier.ts')
-    await notifyIfOutdated(packageDir).catch(() => {})
-
     // Root of the HOST repo this launch serves — resolved BEFORE the probe: the
     // idempotence check must compare repos, not just "something answers on 5173".
     const { findHostRoot } = await importPkg('src/lib/paths.ts')
     const envRoot = process.env.ROADMAPPED_ROOT
     const hostRoot = envRoot && envRoot.trim() !== '' ? resolve(envRoot) : findHostRoot()
+
+    // MAJ auto (#207) : notify-only si le commit installé est en retard sur main
+    // (distribution GitHub-only). Lit le SHA installé dans le package-lock de
+    // l'hôte, le compare à git ls-remote HEAD. Borné ~2 s, caché 1×/jour, silencieux
+    // sur toute erreur, sauté dans un clone de dev (packageDir/.git). Jamais bloquant.
+    const { notifyIfOutdated } = await importPkg('src/lib/updateNotifier.ts')
+    await notifyIfOutdated(packageDir, hostRoot).catch(() => {})
 
     // Idempotent (#153/#203): if a dashboard already serves THIS SAME repo on the
     // default port, don't launch a 2nd instance — no-op + URL. We probe /api/tree

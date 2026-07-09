@@ -1,27 +1,18 @@
 import { describe, it, expect } from 'vitest'
-import { isOutdated } from './updateNotifier'
+import { shaFromResolved } from './updateNotifier'
 
-describe('isOutdated (#207)', () => {
-  it('détecte une version publiée plus récente', () => {
-    expect(isOutdated('0.1.0', '0.2.0')).toBe(true)
-    expect(isOutdated('0.1.0', '0.1.1')).toBe(true)
-    expect(isOutdated('0.1.0', '1.0.0')).toBe(true)
-    expect(isOutdated('1.2.9', '1.3.0')).toBe(true)
+describe('shaFromResolved (#207)', () => {
+  it('extrait le SHA d\'un champ resolved de package-lock (git dep GitHub)', () => {
+    expect(shaFromResolved('git+ssh://git@github.com/5e1y/roadmapped.git#571589838c47bd3b883355243dad4d37b3dcaba4'))
+      .toBe('571589838c47bd3b883355243dad4d37b3dcaba4')
+    expect(shaFromResolved('git+https://github.com/5e1y/roadmapped.git#abc1234'))
+      .toBe('abc1234')
   })
 
-  it('ne notifie pas si à jour ou en avance', () => {
-    expect(isOutdated('0.2.0', '0.2.0')).toBe(false)
-    expect(isOutdated('0.2.0', '0.1.9')).toBe(false)
-    expect(isOutdated('1.0.0', '0.9.9')).toBe(false)
-  })
-
-  it('ignore le suffixe pré-release (comparaison x.y.z)', () => {
-    expect(isOutdated('0.1.0', '0.1.0-beta.1')).toBe(false) // même x.y.z
-    expect(isOutdated('0.1.0-beta', '0.2.0')).toBe(true)
-  })
-
-  it('tolère les composantes manquantes', () => {
-    expect(isOutdated('1', '1.0.1')).toBe(true)
-    expect(isOutdated('1.0', '1.0.0')).toBe(false)
+  it('renvoie null quand il n\'y a pas de SHA exploitable', () => {
+    expect(shaFromResolved(undefined)).toBeNull()
+    expect(shaFromResolved('https://registry.npmjs.org/roadmapped/-/roadmapped-0.1.0.tgz')).toBeNull() // pas de #
+    expect(shaFromResolved('git+https://github.com/5e1y/roadmapped.git#not-a-sha!')).toBeNull()
+    expect(shaFromResolved(42)).toBeNull()
   })
 })
