@@ -1,0 +1,47 @@
+id: 210
+code: null
+title: >-
+  Filtrage plus clair : chips de filtres actifs + clear-all en haut du backlog (fix cul-de-sac petit
+  écran) + affordance de désélection
+status: done
+tags:
+  - dashboard
+  - design
+  - ux
+size: null
+team: design
+detail: >-
+  Demande Rémi (quickshot). Trois problèmes de filtrage : (1) pas clair qu'il faut recliquer un
+  élément (team dans le radar, tag dans la matrice nodale/TagGraph) pour revenir à la normale ; (2)
+  sur PETIT écran, quand on ouvre une task sur un backlog filtré, le flanc radar+graph passe en
+  `hidden 2xl:flex` (top !== null) → plus AUCUN moyen d'annuler/re-filtrer tant que le panneau task
+  n'est pas fermé = cul-de-sac. Fix principal : afficher les FILTRES ACTIFS en CHIPS supprimables (×
+  par chip) EN HAUT de la liste du backlog — toujours visibles, hors du flanc masqué — + un bouton «
+  Clear all ». Couvre team (teamFilter[]), tag (tagFilter[]) et la recherche (query). Bonus
+  discoverabilité (1) : title « Click again to clear » sur les éléments actifs du radar (TeamsRadar)
+  et du graph (TagGraph). Refs : Backlog.tsx, TeamsRadar.tsx, TagGraph.tsx, filters.ts.
+refs:
+  - src/components/Backlog.tsx
+  - src/components/TeamsRadar.tsx
+  - src/components/TagGraph.tsx
+  - src/state/filters.ts
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-09T13:29:48"
+startedAt: "2026-07-09T13:30:00"
+updatedAt: "2026-07-09T13:37:21"
+completedAt: "2026-07-09"
+commit: feeb244
+outcome: >-
+  Barre de filtres actifs en haut de la liste du backlog (RemovableChip × par filtre + « Clear all
+  »), rendue AU-DESSUS du scroller et HORS du flanc radar/graph (qui passe en hidden 2xl:flex quand
+  un panneau est ouvert). Couvre team, tag et recherche. Résout le cul-de-sac : panneau task ouvert
+  sur petit écran, on peut désormais délester ses filtres sans fermer le panneau. Bonus (2) : title
+  « Click again to clear » sur les éléments actifs de TeamsRadar et TagGraph.
+verification: >-
+  Vrai dashboard (Chrome headless) avec recherche « live » active : barre affichée avec chip « live
+  » × (liseré accent = langage filtre actif) + bouton Clear all, liste filtrée (0 open / 9 done, «
+  Nothing open with these filters. »). Sans filtre : pas de barre. tsc 0 erreur, 399 tests verts.
+release: null
