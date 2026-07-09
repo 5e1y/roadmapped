@@ -1,0 +1,40 @@
+id: 228
+code: null
+title: >-
+  Brainstorm : faire évoluer le système de jalons pour le post-launch (travail continu), pas
+  seulement le launch
+status: in_progress
+tags:
+  - engineering
+  - product
+  - design
+size: null
+team: engineering
+detail: >-
+  Hésitation Rémi. Les 8 stages fixes immuables (01-idea → 08-mature) modélisent un LAUNCH produit
+  (0→1) : parfait pour aller de l'idée à la maturité. MAIS une fois le produit lancé (cas actuel),
+  le travail continu (features, bugs, maintenance, itérations, croissance) s'entasse tout dans
+  04-build → une seule colonne obèse, et la métaphore linéaire ne dit plus rien. Objectif :
+  BRAINSTORM (pas d'implémentation) sur comment faire vivre le modèle de jalons AUSSI pour le
+  travail continu post-launch, sans casser ce qui marche pour la phase de launch. Livrable = doc
+  d'options (docs/specs) avec tradeoffs + reco. Contrainte forte à empoigner : aujourd'hui le skill
+  INTERDIT une 9e stage / le renommage, et validate.ts fige l'enum ; toute piste doit composer avec
+  ça (ou proposer d'assouplir la règle, en connaissance de cause). Décision finale = Rémi
+  (changement de modèle cœur). Réalisé par une instance Fable 5 en brainstorm.
+refs:
+  - docs/specs/2026-07-07-stages-teams.md
+  - skills/roadmapped/SKILL.md
+  - src/lib/validate.ts
+  - src/components/RoadmapView.tsx
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-09T14:01:06"
+startedAt: "2026-07-09T14:01:31"
+updatedAt: "2026-07-09T14:01:31"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

@@ -1,7 +1,7 @@
 id: 211
 code: null
 title: Notif de MAJ V2 — la faire vivre IN-APP, alignée sur la DA (instance Fable 5)
-status: in_progress
+status: done
 tags:
   - dashboard
   - design
@@ -31,9 +31,20 @@ epic: null
 source: ai
 createdAt: "2026-07-09T13:52:41"
 startedAt: "2026-07-09T13:52:44"
-updatedAt: "2026-07-09T13:52:44"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+updatedAt: "2026-07-09T14:03:50"
+completedAt: "2026-07-09"
+commit: 76bedbc
+outcome: >-
+  Notif de MAJ désormais IN-APP : contrôle « Update ● » dans le ViewHeader (cluster droit, Popover
+  Base UI façon LiveActivityMenu). Point accent = unique bleu (attention légitime). Popup : « A
+  newer Roadmapped is on main », SHA installed→remote (mono), lien GitHub compare, commande
+  d'upgrade copiable (bouton copy + ✓), « Hide for this session » (dismiss module-level, survit aux
+  switch de vue, repart au prochain lancement). Rendu conditionnel : update null → header identique
+  à avant. Seam engineering (checkUpdate async + /api/tree + TreeContext) déjà livré en 8a509b9.
+  Composant par Fable 5. Ligne terminale (#207) conservée en parallèle.
+verification: >-
+  Chrome headless avec ROADMAPPED_FAKE_UPDATE=1 : trigger « Update » + point bleu dans le header
+  entre le compteur et Activity, même peau/hauteur — se fond dans le DS, seul le point accroche
+  l'œil. 5 icônes trinil confirmées exportées, useOptionalTreeState non-jetant. tsc 0 erreur, 399
+  tests verts.
 release: null
