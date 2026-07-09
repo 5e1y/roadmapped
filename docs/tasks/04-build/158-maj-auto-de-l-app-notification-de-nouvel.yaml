@@ -1,0 +1,44 @@
+id: 207
+code: null
+title: MAJ auto de l'app — notification de nouvelle version au lancement (pattern update-notifier)
+status: done
+tags:
+  - publish
+  - engineering
+size: null
+team: engineering
+detail: >-
+  Demande Rémi. Le paquet `roadmapped` est distribué via npm/npx ; rien ne prévient l'utilisateur
+  qu'une version plus récente existe. Implémenter une NOTIFICATION (pas d'auto-install silencieuse —
+  muter les deps de l'utilisateur sans consentement est dangereux). Au lancement du `dashboard` (et
+  éventuellement du CLI), comparer la version installée (package.json du paquet) à la dernière
+  publiée sur le registre npm ; si plus récente → afficher une ligne discrète « update available X →
+  Y : npm install roadmapped@latest && npx roadmapped upgrade ». Contraintes : fetch natif du
+  registre (https://registry.npmjs.org/roadmapped/latest), timeout court (~800ms), no-op TOTALEMENT
+  silencieux si offline / paquet pas encore publié / réponse invalide. Mettre en cache le résultat
+  (~1×/jour, fichier dans un dossier tmp/OS) pour ne pas ralentir chaque lancement ni spammer le
+  registre. Décision : notify-only, jamais d'install auto. Spec à écrire :
+  docs/specs/2026-07-09-auto-update.md.
+refs:
+  - bin/roadmapped.mjs
+  - scripts/install.mjs
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-09T10:21:09"
+startedAt: "2026-07-09T10:21:48"
+updatedAt: "2026-07-09T10:24:19"
+completedAt: "2026-07-09"
+commit: 1cf33fc
+outcome: >-
+  MAJ auto notify-only : src/lib/updateNotifier.ts (notifyIfOutdated + isOutdated), appelé au début
+  du case 'dashboard' du bin. Compare version installée vs registre npm (fetch natif, timeout
+  800ms), cache 1×/jour dans os.tmpdir, notice « update available X → Y : npm install
+  roadmapped@latest && npx roadmapped upgrade ». Silence total sur offline/404/JSON invalide/FS.
+  Jamais d'install auto (décision). CLI proxy hors scope (YAGNI).
+verification: >-
+  tsc -b 0 erreur, 401 tests verts (dont 4 sur isOutdated). Chemins réels testés : cache forcé
+  latest=9.9.9 → notice s'affiche ; latest=0.1.0 → silence ; cache vidé → fetch réel du registre
+  sans crash (404 → aucun cache écrit, no-op).
+release: null
