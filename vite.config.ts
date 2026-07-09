@@ -12,6 +12,21 @@ export default defineConfig({
   // explicit root, Vite would look for index.html in the host.
   root: packageRoot(),
   plugins: [react(), tailwindcss(), roadmappedApi()],
+  // Host-install (#202) : root = le paquet, mais les deps se résolvent depuis les
+  // node_modules de l'HÔTE. Si l'hôte hoiste une copie du stack React (ex. un projet
+  // avec zustand → use-sync-external-store), Vite ne pré-bundle pas ces CJS et sert le
+  // CJS brut comme de l'ESM → exports default/nommés manquants → React ne monte jamais
+  // (#root vide, écran blanc, alors qu'index.html renvoie 200 — le piège). On FORCE le
+  // pré-bundle de tout le stack + les shims pour exposer les exports. En standalone le
+  // graphe diffère et ça finissait pré-bundlé par chance — la config ne doit pas en dépendre.
+  optimizeDeps: {
+    include: [
+      'react', 'react-dom', 'react-dom/client', 'react/jsx-runtime', 'react/jsx-dev-runtime',
+      'use-sync-external-store/shim', 'use-sync-external-store/shim/with-selector',
+    ],
+  },
+  // Une seule copie de React (celle du paquet), même si l'hôte a la sienne.
+  resolve: { dedupe: ['react', 'react-dom'] },
   server: {
     fs: {
       // tasksDir/docsDir may live outside the package: Vite blocks them with a 403
