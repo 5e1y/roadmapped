@@ -7,7 +7,7 @@ import { EditPen, LockLocked } from 'trinil-react'
 import { Chevron, EpicGlyph, KindGlyph } from './glyphs'
 import { Chip } from './Chip'
 import { groupByEpicAnchored, epicAnchorStage, epicStatusOf, type EpicListItem } from './EpicRow'
-import { countTasksDeep, SECTION_STATUS_LABEL, TEAM_ABBR } from '../lib/tasks'
+import { countTasksDeep, SECTION_STATUS_LABEL } from '../lib/tasks'
 import type { SectionNode, TaskNode, TaskTree } from '../lib/tasks'
 import { useShowDone } from './RoadmapView'
 
@@ -74,9 +74,6 @@ function TaskCard({ task, state, missing, blocksCount = 0 }: { task: TaskNode; s
       {task.kind === 'milestone' && blocksCount > 0 && (
         <span className="text-[11px] text-neutral-500">blocks {blocksCount}</span>
       )}
-      {/* Badge team (le QUI) — abrégé, coin bas droit de la carte. Même donnée
-          = même rendu que le Backlog : Chip (design.md §2). */}
-      <span className="absolute bottom-1.5 right-2"><Chip label={TEAM_ABBR[task.team]} /></span>
     </button>
   )
 }

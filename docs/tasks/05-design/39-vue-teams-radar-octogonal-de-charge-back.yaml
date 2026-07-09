@@ -1,0 +1,42 @@
+id: 56
+code: null
+title: Vue Teams — radar octogonal de charge + backlog filtré par team
+status: done
+tags:
+  - ux
+  - design
+size: L
+detail: >-
+  Demande Rémi (2026-07-07, référence image radar octogonal). Nouvelle vue « Teams » dans la nav :
+  un radar SVG à 8 axes (une team par sommet, ordre TEAMS) montrant la CHARGE (tickets ouverts par
+  team) — anneaux concentriques octogonaux, axes, polygone accent (trait + remplissage accent/15,
+  points aux sommets), labels cliquables avec compteur. Clic sur une team → layout deux zones :
+  radar en colonne entière à GAUCHE, à DROITE le même backlog deux-colonnes (ouvertes/terminées)
+  filtré sur la team (composant TaskColumns extrait de Backlog, réutilisé). Ouvrir une tâche →
+  panneau habituel à droite ; SI la place manque (< breakpoint 2xl), la colonne radar disparaît tant
+  que le panneau est ouvert et réapparaît à sa fermeture. Team sélectionnée persistée. Header unifié
+  (ViewHeader). Fini quand : radar fidèle à la référence (captures), clic team → backlog filtré,
+  ouverture de tâche à 1280px → radar caché puis restauré à la fermeture.
+refs:
+  - src/components/Sidebar.tsx
+  - src/App.tsx
+  - src/components/Backlog.tsx
+  - docs/assets/refs
+links: []
+dependsOn:
+  - 53
+epic: vues-dashboard
+source: user
+createdAt: "2026-07-07"
+completedAt: "2026-07-07"
+commit: dff378b
+outcome: >-
+  La vue Teams montre la charge de chaque équipe d'un coup d'œil sur un radar octogonal, et un clic
+  sur une team ouvre son backlog dédié — le radar s'efface poliment quand on ouvre une tâche à
+  l'étroit
+verification: >-
+  Vérifié au navigateur à 1280px : radar fidèle à la référence (8 axes, anneaux, polygone accent,
+  compteurs), clic engineering → colonne radar + listes filtrées eng, ouverture d'une tâche → radar
+  caché (asserté), fermeture → revenu (asserté), sélection persistée. Colonnes en container queries
+  (1 colonne quand étroit). 132 tests + build verts.
+release: null

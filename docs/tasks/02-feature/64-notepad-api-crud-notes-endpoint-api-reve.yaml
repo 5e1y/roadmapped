@@ -1,0 +1,36 @@
+id: 86
+code: null
+title: Notepad API — CRUD notes + endpoint /api/reveal sécurisé
+status: done
+tags: []
+size: M
+detail: >-
+  Routes fichiers plats (pas de front-matter, le nom de fichier + stats FS suffisent) : GET
+  /api/notes (liste + dates), GET/PUT /api/notes/:slug (contenu), POST /api/notes (création), POST
+  /api/notes/:slug/archive (→ notes/_archive/), DELETE /api/notes/:slug. Plus POST /api/reveal :
+  chemin absolu → open -R (macOS) / xdg-open dossier parent (Linux) / explorer /select (Windows).
+  SÉCURITÉ /api/reveal : local-only (comme le reste de l'API), chemin absolu EXIGÉ, existence
+  vérifiée, REFUS de tout chemin hors du HOME de l'utilisateur. TDD (api.test.ts) : CRUD notes,
+  chemin hors HOME refusé, chemin inexistant refusé. Fini quand : les 6 routes répondent, tests API
+  verts incl. refus hors HOME.
+refs:
+  - docs/specs/2026-07-07-notepad.md
+  - src/server/api.ts
+  - src/server/api.test.ts
+links: []
+dependsOn: []
+epic: notepad
+source: ai
+createdAt: "2026-07-08"
+completedAt: "2026-07-08"
+commit: da8e56f
+outcome: >-
+  API Notepad : 6 routes notes (list/create/read/write/archive/delete) sur docs/notes/ plates +
+  renommage au fil de l'eau (titre=1re ligne) ; POST /api/reveal ouvre le Finder (open -R / xdg-open
+  / explorer) avec chemin absolu exigé, existence vérifiée, refus hors HOME, spawn en argv (pas de
+  shell)
+verification: >-
+  23 tests API verts : CRUD relu sur disque (autosave), renommage slug quand la 1re ligne change,
+  list trie + archive exclue, reveal → 403 hors HOME / 400 non absolu / 404 inexistant ; 229 tests +
+  build verts
+release: null

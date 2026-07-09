@@ -5,7 +5,7 @@ import type { TaskTree, TaskNode, SectionNode } from './tasks'
 /** Fabrique une tâche minimale ; les champs non pertinents prennent des défauts. */
 function task(id: number, status: TaskNode['status'], dependsOn: number[] = [], epic: string | null = null): TaskNode {
   return {
-    id, kind: 'task', code: null, title: `T${id}`, status, tags: [], size: null, team: 'engineering', detail: null,
+    id, kind: 'task', code: null, title: `T${id}`, status, tags: [], size: null, detail: null,
     refs: [], links: [], dependsOn, epic, source: 'ai', createdAt: '2026-07-07', startedAt: null,
     completedAt: null, commit: null, outcome: null, verification: null, release: null,
     file: `docs/tasks/01-x/${id}.yaml`, subtasks: [],
@@ -263,12 +263,15 @@ describe('nextQueue', () => {
   const multi = (sections: Array<[string, TaskNode[]]>): TaskTree =>
     ({ nextId: 999, sections: sections.map(([k, t]) => sec(k, t)), epics: [] })
 
-  it('trie par stage PUIS par ancienneté (id) — une tâche d’un stage tôt passe avant, même plus récente', () => {
-    const t = multi([
-      ['04-build', [task(3, 'todo'), task(4, 'todo')]],
-      ['03-identity', [task(16, 'todo')]],
-    ])
-    expect(nextQueue(t).map((x) => x.id)).toEqual([16, 3, 4])
+  it('trie par TEMPÉRATURE décroissante puis id croissant (#234)', () => {
+    // Même section/base/âge → départage à l'id (le plus ancien/petit d'abord).
+    const t0 = multi([['02-feature', [task(4, 'todo'), task(3, 'todo')]]])
+    expect(nextQueue(t0, { today: '2026-07-07' }).map((x) => x.id)).toEqual([3, 4])
+    // Un seed (heat 90 → +30) fait passer #4 devant #3 MALGRÉ son id plus grand :
+    // la température commande, pas l'id.
+    const hot = { ...task(4, 'todo'), heat: 90 }
+    const t1 = multi([['02-feature', [task(3, 'todo'), hot]]])
+    expect(nextQueue(t1, { today: '2026-07-07' }).map((x) => x.id)).toEqual([4, 3])
   })
   it('exclut les done, les in_progress et les verrouillées', () => {
     const t = multi([
@@ -276,10 +279,16 @@ describe('nextQueue', () => {
     ])
     expect(nextQueue(t).map((x) => x.id)).toEqual([4])
   })
-  it('filtre par team quand demandé', () => {
-    const mkt = { ...task(5, 'todo'), team: 'marketing' as const }
-    const t = multi([['04-build', [task(4, 'todo'), mkt]]])
-    expect(nextQueue(t, { team: 'marketing' }).map((x) => x.id)).toEqual([5])
+  it('filtre par type quand demandé (le type = la section)', () => {
+    // La nature d'une tâche EST sa section (#230) : filtrer par type = ne garder que
+    // les tâches de la section-type demandée. Accepte le slug nu ("marketing").
+    const t = multi([
+      ['02-feature', [task(4, 'todo')]],
+      ['06-marketing', [task(5, 'todo')]],
+    ])
+    expect(nextQueue(t, { type: 'marketing' }).map((x) => x.id)).toEqual([5])
+    expect(nextQueue(t, { type: '06-marketing' }).map((x) => x.id)).toEqual([5])
+    expect(nextQueue(t, { type: '02-feature' }).map((x) => x.id)).toEqual([4])
   })
   it('ignore les sections non ouvertes (dormant)', () => {
     const dormant: SectionNode = { key: '03-identity', title: 'x', status: 'dormant', note: null, tasks: [task(9, 'todo')] }

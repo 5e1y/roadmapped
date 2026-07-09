@@ -1,6 +1,6 @@
 import { Graph, layout as dagreLayout } from '@dagrejs/dagre'
-import type { TaskTree, TaskNode, SectionNode, Epic } from './tasks'
-import { countTasksDeep } from './tasks.ts'
+import type { TaskTree, TaskNode, SectionNode, Epic, Temperature } from './tasks'
+import { countTasksDeep, DEFAULT_BASE_HEAT } from './tasks.ts'
 
 export type Availability = 'done' | 'available' | 'locked'
 
@@ -231,30 +231,161 @@ export function slugify(input: string): string {
   )
 }
 
+// ── Température (#234, phase 2) ───────────────────────────────────────────────
+// Spec : docs/specs/2026-07-09-next-temperature-brainstorm.md (partition TIERS
+// ÉGAUX, verrouillée). température = auto + base + seed, chaque terme ≤ ~33,33,
+// total arrondi à 0,01 AVANT tri. Fonction PURE, mémoïsée par identité de tree
+// (même pattern que computeAvailability) ET par `today` (granularité JOUR).
+
+// La chaleur de départ (le tiers `base`) vit dans le JALON : le champ `baseHeat` de
+// `_section.yaml` (semé à l'init/migration depuis TYPES). Le moteur la LIT de la section
+// du ticket ; `DEFAULT_BASE_HEAT` (issu de TYPES) n'est que le FALLBACK si le champ manque.
+
+/** Constantes du tiers machine et des saturations (§2.2), fixes et versionnées. */
+const W_BLOCK = 20 // poids des blocages aval
+const W_AGE = 13.33 // poids de l'âge (20 + 13,33 = 33,33 = le tiers machine)
+const AUTO_CAP = 33.33 // ceinture du tiers machine
+const K_AGE = 90 // demi-vie de l'âge (jours)
+const K_BLOCK = 4 // demi-vie des blocages
+
+/** Date locale (fix #232) : "YYYY-MM-DD[T…]" → ms de minuit LOCAL du jour calendaire. */
+function localDayMs(iso: string): number {
+  const [y, m, d] = iso.slice(0, 10).split('-').map(Number)
+  return new Date(y, (m ?? 1) - 1, d ?? 1).getTime()
+}
+
+/** Jours entiers écoulés de createdAt à today, en dates LOCALES (≥ 0). */
+function ageInDays(createdAt: string, today: string): number {
+  const days = Math.floor((localDayMs(today) - localDayMs(createdAt)) / 86_400_000)
+  return days > 0 ? days : 0
+}
+
+/** Date du jour locale "YYYY-MM-DD" — défaut de `today` (dupliqué de render pour éviter le cycle). */
+function todayLocal(): string {
+  const d = new Date()
+  const p = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`
+}
+
+/** Arrondi à 0,01 (la valeur affichée EST la valeur de tri, §2.2). */
+function round2(x: number): number {
+  return Math.round(x * 100) / 100
+}
+
+interface TempCacheEntry {
+  today: string
+  /** id → b : nb de descendants transitifs ACTIFS NON-done (blocages aval). */
+  bById: Map<number, number>
+  /** clé de section ("01-bug") → base résolue (baseHeat du jalon, sinon défaut code). */
+  baseByKey: Map<string, number>
+}
+const temperatureCache = new WeakMap<TaskTree, TempCacheEntry>()
+
 /**
- * LA file de travail canonique (décision Rémi 2026-07-07) : les tâches todo
- * DISPONIBLES (deps done), triées par stage (une tâche Build passe avant une
- * tâche Launch) puis par ancienneté (id croissant = createdAt). C'est l'app
- * qui calcule la priorité — le CLI la sert (`next --count`), le skill la
- * CONSOMME sans jamais la recalculer (coût en tokens). Sections non `open`
- * exclues ; tâches de premier niveau uniquement (les sous-tâches suivent leur
- * parent). `team` optionnelle pour la vue Teams.
+ * Contexte de température mémoïsé par (tree, today), calculé en une passe :
+ *  - `bById` : pour CHAQUE tâche, `b` = descendants transitifs (fermeture aval du
+ *    graphe `dependsOn`, sous-tâches comprises) ACTIFS et NON-done. O(V·(V+E)).
+ *  - `baseByKey` : la base de chaque section = son `baseHeat` (jalon) si présent,
+ *    sinon le défaut code (`DEFAULT_BASE_HEAT`, issu de TYPES) — jamais 0 par surprise.
  */
-export function nextQueue(tree: TaskTree, opts: { team?: string } = {}): TaskNode[] {
+function temperatureContext(tree: TaskTree, today: string): TempCacheEntry {
+  const cached = temperatureCache.get(tree)
+  if (cached && cached.today === today) return cached
+  const active = flatten(tree.sections)
+  const statusById = new Map<number, TaskNode['status']>()
+  const down = new Map<number, number[]>() // prérequis → [dépendants directs]
+  for (const t of active) {
+    statusById.set(t.id, t.status)
+    for (const dep of t.dependsOn) {
+      down.set(dep, [...(down.get(dep) ?? []), t.id])
+    }
+  }
+  const bById = new Map<number, number>()
+  for (const t of active) {
+    const seen = new Set<number>()
+    const stack = [...(down.get(t.id) ?? [])]
+    while (stack.length > 0) {
+      const k = stack.pop()!
+      if (k === t.id || seen.has(k)) continue
+      seen.add(k)
+      stack.push(...(down.get(k) ?? []))
+    }
+    let b = 0
+    for (const id of seen) {
+      const st = statusById.get(id)
+      if (st !== undefined && st !== 'done') b += 1
+    }
+    bById.set(t.id, b)
+  }
+  const baseByKey = new Map<string, number>()
+  for (const s of tree.sections) {
+    const slug = s.key.replace(/^\d+-/, '')
+    baseByKey.set(s.key, typeof s.baseHeat === 'number' ? s.baseHeat : (DEFAULT_BASE_HEAT[slug] ?? 0))
+  }
+  const entry: TempCacheEntry = { today, bById, baseByKey }
+  temperatureCache.set(tree, entry)
+  return entry
+}
+
+/**
+ * Température d'une tâche (#234) — fonction PURE, mémoïsée par (tree, today).
+ * `temperature = auto + base + seed`, chaque terme dans son tiers (§2), total
+ * arrondi à 0,01. `base` vient du `baseHeat` de la SECTION du ticket (défaut code si
+ * absent). La décomposition {auto, base, seed} est rendue pour l'affichage (arrondie
+ * de même) ; `value` est l'arrondi de la somme des termes NON arrondis (c'est ce qui
+ * reproduit le mini-exemple du doc au centième).
+ */
+export function temperature(tree: TaskTree, task: TaskNode, today: string = todayLocal()): Temperature {
+  const ctx = temperatureContext(tree, today)
+  const b = ctx.bById.get(task.id) ?? 0
+  const B = b / (b + K_BLOCK)
+  const age = ageInDays(task.createdAt, today)
+  const A = age / (age + K_AGE)
+  const autoRaw = Math.min(AUTO_CAP, W_BLOCK * B + W_AGE * A)
+  const sectionKey = task.file.split('/')[2] ?? ''
+  const baseRaw = ctx.baseByKey.get(sectionKey) ?? (DEFAULT_BASE_HEAT[sectionKey.replace(/^\d+-/, '')] ?? 0)
+  const seedRaw = (typeof task.heat === 'number' ? task.heat : 0) / 3
+  return {
+    value: round2(autoRaw + baseRaw + seedRaw),
+    auto: round2(autoRaw),
+    base: round2(baseRaw),
+    seed: round2(seedRaw),
+  }
+}
+
+/**
+ * Attache `temperature` à CHAQUE tâche active (sous-tâches comprises) — mutation en
+ * place d'un tree FRAÎCHEMENT construit (l'API en rebuild un par requête). Sert le
+ * payload /api/tree (#234) ; les consommateurs qui ignorent le champ sont intacts.
+ */
+export function attachTemperatures(tree: TaskTree, today: string = todayLocal()): TaskTree {
+  for (const t of flatten(tree.sections)) t.temperature = temperature(tree, t, today)
+  return tree
+}
+
+/**
+ * LA file de travail canonique. Les FILTRES sont inchangés (décision Rémi 2026-07-07) :
+ * tâches todo DISPONIBLES (deps done — jamais un `locked`), premier niveau, section
+ * `open`. `type` optionnelle = filtre par nature (#230, "01-bug" ou "bug"). Le TRI
+ * (#234, phase 2) : TEMPÉRATURE décroissante puis id croissant (tie-break : le plus
+ * ancien). C'est l'app qui calcule — le CLI sert, le skill CONSOMME sans recalculer.
+ * `today` traverse (granularité JOUR, pur/testable).
+ */
+export function nextQueue(tree: TaskTree, opts: { type?: string; today?: string } = {}): TaskNode[] {
   const avail = computeAvailability(tree)
-  // Ordre de stage = préfixe NN du dossier (robuste à l'ordre du tableau).
-  const stageOf = (key: string) => parseInt(key, 10) || 0
-  const out: Array<{ stage: number; task: TaskNode }> = []
+  const today = opts.today ?? todayLocal()
+  const bareType = (key: string) => key.replace(/^\d+-/, '')
+  const out: Array<{ temp: number; task: TaskNode }> = []
   for (const section of tree.sections) {
     if (section.status !== 'open') continue
+    if (opts.type && section.key !== opts.type && bareType(section.key) !== opts.type) continue
     for (const t of section.tasks) {
       if (t.status !== 'todo') continue
       if (avail.get(t.id) !== 'available') continue
-      if (opts.team && t.team !== opts.team) continue
-      out.push({ stage: stageOf(section.key), task: t })
+      out.push({ temp: temperature(tree, t, today).value, task: t })
     }
   }
   return out
-    .sort((a, b) => a.stage - b.stage || a.task.id - b.task.id)
+    .sort((a, b) => b.temp - a.temp || a.task.id - b.task.id)
     .map((x) => x.task)
 }

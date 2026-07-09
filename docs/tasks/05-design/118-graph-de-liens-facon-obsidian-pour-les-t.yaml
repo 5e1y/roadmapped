@@ -1,0 +1,49 @@
+id: 146
+code: null
+title: >-
+  Graph de liens façon Obsidian pour les tags — flanc droit Backlog, sous le radar Teams, clic =
+  filtre par tag
+status: done
+tags:
+  - ux
+  - fable
+size: L
+detail: >-
+  Nouveau graphe de liens (façon Obsidian) visualisant les THÈMES (tags) des tickets OUVERTS (todo +
+  in_progress). Objectif : voir sur quoi le travail se porte. Clic sur un tag → filtre le backlog
+  par ce tag (MÊME système que le radar Teams : radarSelected/useTeamFilter → un teamFilter
+  équivalent pour les tags). Placement : dans le flanc DROIT de la vue Backlog, EN DESSOUS du radar
+  Teams (TeamsRadar). Nœuds = tags, taille/poids ~ nombre de tickets ouverts portant le tag ; liens
+  = co-occurrence de tags sur un même ticket (façon graphe de connaissances Obsidian). Monochrome +
+  accent (design.md), le tag actif surligné comme la team active. Carte blanche design Fable 5. NOTE
+  ORCHESTRATION : à faire APRÈS #144 (collision src/roadmap.ts + graphe).
+refs: []
+links: []
+dependsOn: []
+epic: vues-dashboard
+source: ai
+createdAt: "2026-07-08T15:02:17"
+startedAt: "2026-07-08T15:18:36"
+completedAt: "2026-07-08"
+commit: 79e16b7
+outcome: >-
+  Graphe de liens façon Obsidian pour les tags (Fable). tagGraph.ts pur : tagGraph(tasks,
+  maxNodes=16) → nœuds = tags des tickets OUVERTS (todo+in_progress, sous-tâches comprises), count =
+  nb de tickets, arêtes = co-occurrence sur un même ticket (poids ∝ nb), tri déterministe ; +
+  layoutTagGraph() force-directed MAISON déterministe (cercle initial + 260 itérations
+  répulsion/ressorts/gravité/refroidissement, normalisé 120×100, zéro dep zéro aléa → testable).
+  TagGraph.tsx : SVG aria-hidden (arêtes accent atténué ∝ co-occurrence, surlignées si touchent le
+  tag actif ; pastilles ∝ √count, plein accent réservé à la sélection — doctrine rareté) + labels
+  boutons aria-pressed (gabarit TeamsRadar), chip « retirer » pour un filtre fantôme. useTagFilter
+  (filters.ts, clé filter:tags, symétrique useTeamFilter) ; matches() Backlog inclut le tag ;
+  re-clic = désélection ; team+tag = ET logique (qui × quoi). Placement : flanc droit 420px, radar
+  Teams au-dessus + filet + tag-graph dessous, flanc en flex-col overflow-y-auto (scroll interne,
+  pas de clip ni position:absolute orphelin — leçon #141). Plafond 16 tags (TAG_GRAPH_MAX_NODES).
+verification: >-
+  Vérif indépendante : tsc clean ; vitest 376/376 (20 fichiers, +11 tagGraph) ; build OK ; boot HTTP
+  200 zéro erreur ; roadmap.ts et docs/tasks INTOUCHÉS (scope git). QA VISUEL (capture 2) :
+  tag-graph sous le radar Teams, « fable » sélectionné (pastille pleine, 4) relié par co-occurrence
+  à ux/marketing/skill/open-source/data-model/spec, backlog filtré à 4 ouvertes, radar « engineering
+  4 » actif en parallèle (ET logique) — conforme. Headless Fable : clic fable 8→4, re-clic 8,
+  engineering+marketing→0 « rien avec ces filtres », aucun scroll fantôme (viewport 1280×700).
+release: null

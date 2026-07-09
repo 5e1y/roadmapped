@@ -1,0 +1,39 @@
+id: 52
+code: null
+title: Roadmap — masquer les tickets terminés (ON par défaut, deps visibles en Graphe)
+status: done
+tags:
+  - ux
+  - design
+size: S
+detail: >-
+  Demande Rémi (2026-07-07) : toggle dans le header de la vue Roadmap pour cacher les tickets done —
+  MASQUÉS PAR DÉFAUT, préférence persistée (localStorage). Mode Colonnes : les done disparaissent
+  des listes mais les compteurs x/y et les barres de progression continuent de compter le réel. Mode
+  Graphe : les done disparaissent SAUF ceux qui sont dépendances (fermeture transitive) de tickets
+  affichés — les arêtes restent intègres. Fini quand : toggle vérifié au pixel dans les deux modes,
+  un done-dépendance visible en Graphe mais absent des Colonnes, préférence conservée au
+  rechargement.
+refs:
+  - src/components/RoadmapView.tsx
+  - src/components/RoadmapColumns.tsx
+  - src/components/RoadmapGraph.tsx
+links: []
+dependsOn:
+  - 49
+epic: vues-dashboard
+source: user
+createdAt: "2026-07-07"
+completedAt: "2026-07-07"
+commit: 8211b24
+outcome: >-
+  La Roadmap se concentre sur le travail restant : les tickets terminés sont masqués par défaut
+  (toggle œil), les barres de progression continuent de compter le réel, et le Graphe garde les
+  terminés dont d'autres tickets dépendent
+verification: >-
+  Asserté au navigateur : #1 (done) absent des Colonnes par défaut, présent après toggle ; dans le
+  Graphe #48 (done, dépendance de #50 ouverte) reste visible ; #1 y reste aussi — à raison :
+  dépendance transitive de #17 ouverte via #7 (la fermeture préserve les arêtes, mon assertion de
+  test initiale était fausse, pas le code). Préférence persistée (localStorage). 128 tests + build
+  verts.
+release: null

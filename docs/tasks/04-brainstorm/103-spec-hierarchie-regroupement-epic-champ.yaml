@@ -1,0 +1,45 @@
+id: 131
+code: null
+title: >-
+  Spec — hiérarchie & regroupement : epic (champ transverse) + milestones-jalons + progression
+  (fusionne #6)
+status: done
+tags:
+  - spec
+  - data-model
+size: M
+detail: >-
+  Fusion décidée avec Rémi du besoin « epic/regroupement » et de #6 (progression + milestones).
+  Décisions tranchées : (1) EPIC = dimension (champ), pas un nouveau type — on réutilise/renomme le
+  champ milestone dormant (null sur 119/119 tâches, _roadmaps.yaml absent → migration nulle) en
+  `epic`, transverse aux stages ; le dashboard groupe par epic. (2) Le mot « milestone » se libère
+  du sens regroupement → il désigne un JALON/verrou : kind:'milestone' (additif comme kind:quick),
+  tâche dont d'autres dépendent via dependsOn, rendu distinct (diamant, « bloque N »), verrou via
+  computeAvailability existant (option iii de #6, pas de nouvelle sémantique de lock). (3)
+  Progression globale : % done/total (globalProgress) + par epic (epicProgress,
+  ex-milestoneProgress). Livrable : docs/specs/2026-07-08-hierarchie-regroupement.md. Supersede la
+  partie milestone du brouillon #6. Zéro code avant approbation.
+refs: []
+links:
+  - 6
+dependsOn: []
+epic: hierarchie-regroupement
+source: ai
+createdAt: "2026-07-08T10:51:11"
+completedAt: "2026-07-08"
+commit: bba577d
+outcome: >-
+  Spec docs/specs/2026-07-08-hierarchie-regroupement.md écrite (fusion #6 + besoin epic de Rémi).
+  Tranche le vocabulaire sans collision : EPIC = dimension/champ transverse (renomme le champ
+  milestone dormant, migration nulle car 119/119 null) qui regroupe spec+tasks+fixes d'un projet à
+  travers les stages ; MILESTONE = jalon/verrou (kind:'milestone' additif, verrou via dependsOn
+  existant, rendu diamant + « bloque N », zéro nouvelle logique de lock) ; progression globale
+  done/total + par epic. Découpage en 9 tâches chaînées, rétrocompat lecture (epic ?? milestone,
+  _roadmaps→_epics). Supersede la partie milestone du brouillon #6.
+verification: >-
+  Spec relue, ancrée au code réel (tasks.ts/validate.ts/taskWrites.ts/roadmap.ts,
+  milestoneProgress→epicProgress, computeAvailability inchangé, reverseDependents pour « bloque N
+  »). Migration vérifiée nulle (grep : 0 tâche avec milestone non-null, _roadmaps.yaml absent).
+  Points ouverts : libellé affiché epic/projet/thème ; regroupement epic vs stage par défaut ; alias
+  CLI --milestone déprécié.
+release: null

@@ -1,0 +1,36 @@
+id: 11
+code: null
+title: README public orienté adoption
+status: done
+tags:
+  - open-source
+  - marketing
+size: M
+detail: >-
+  Réécrire le README pour un visiteur GitHub qui découvre le projet : pitch en 3 lignes, capture du
+  dashboard, quickstart en 3 commandes, tableau des features, liens guide/skill, badges. ÉTAT :
+  LIVRÉ en anglais (commit du chantier #29/#11 — capture docs/assets/dashboard.png prise sur le vrai
+  dashboard) mais la capture est ANTÉRIEURE aux refontes (stages, radar, tabs) → à re-prendre, et il
+  manque LA RELECTURE DE RÉMI (définition de fini). Reste : re-capture + relecture + done.
+refs:
+  - README.md
+  - docs/guide.md
+links: []
+dependsOn:
+  - 10
+epic: site
+source: ai
+createdAt: "2026-07-07"
+completedAt: "2026-07-08"
+commit: 1c9a08b
+outcome: >-
+  README réécrit orienté adoption (EN, voix tone-of-voice mesurée) : hero « Your repo is already
+  your PM tool », section « Why » (fichiers, agent-first, local, free), aveu « c'est un dossier de
+  YAML, c'est le sujet », quickstart + pointeur skill, table « What's in the folder », « How it
+  works » avec le beat dogfooding (_archive = changelog), note de nommage. Mot « milestone » évité
+  (Fable le redéfinit dans #133 : sections = « columns »).
+verification: >-
+  README relu, liens internes inchangés (guide.md, skill, LICENSE, dashboard.png présents). Badge CI
+  volontairement NON ajouté : repo pas encore public, slug GitHub inconnu — à faire avec la
+  publication (#13). Livrable éditorial.
+release: null

@@ -1,0 +1,25 @@
+id: 224
+code: null
+title: GitHub Discussions pour organiser les feedbacks + catégories
+status: todo
+tags:
+  - support
+  - publish
+  - github
+size: null
+detail: >-
+  Activer Discussions et créer les catégories (Idées / Q&A / Retours d'usage / Annonces). C'est le
+  lieu des feedbacks non-bug des futurs users. Poser un post d'accueil. Décider de la répartition
+  Issues (bugs/features actionnables) vs Discussions (ouvert).
+refs: []
+links: []
+dependsOn: []
+epic: community-github
+source: ai
+createdAt: "2026-07-09T13:55:45"
+updatedAt: "2026-07-09T13:55:45"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

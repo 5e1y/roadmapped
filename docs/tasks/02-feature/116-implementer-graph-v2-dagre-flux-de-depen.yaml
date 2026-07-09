@@ -1,0 +1,54 @@
+id: 144
+code: null
+title: "Implémenter graph-v2 : dagre (flux de dépendances) + zoom/pan + surlignage amont/aval (spec #4)"
+status: done
+tags:
+  - ux
+  - fable
+size: L
+detail: >-
+  Implémenter docs/specs/2026-07-08-graph-v2.md (décision Rémi 2026-07-08 : DAGRE, on abandonne les
+  colonnes-par-stage pour un layout flux-de-dépendances rankdir LR, croisements minimisés).
+  Périmètre : (1) @dagrejs/dagre + adaptateur pur graphLayout dans roadmap.ts (mémo WeakMap,
+  conversion centre→coin, points d'arête) ; (2) hook useZoomPan (zoom-vers-curseur, drag-pan, fit,
+  reset, clamp) — remplace le zoom-boutons-seul actuel ; (3) réécriture RoadmapGraph.tsx sur dagre +
+  arêtes arrondies, RETRAIT du layout topoLayers maison ; (4) surlignage amont/aval par
+  graphNeighborhood (roadmap.ts + test) au SURVOL SEUL transitoire (décision verrouillée #132, pas
+  de sticky), atténuation monochrome. CONTRAINTE : intégrer dagre au modèle nœud-EPIC de #135 (nœuds
+  = epics dépliables + tâches standalone, arêtes = deps entre unités) — PRÉSERVER l'expansion epic,
+  le diamant jalon + « bloque N » (#133), le rendu monochrome. Le stage devient une métadonnée (chip
+  ?), plus le layout. Repli documenté dans la spec si dagre compound déborde. Confié à Fable 5.
+refs: []
+links: []
+dependsOn: []
+epic: graph-v2
+source: ai
+createdAt: "2026-07-08T14:55:21"
+startedAt: "2026-07-08T14:55:36"
+completedAt: "2026-07-08"
+commit: 7e70fe3
+outcome: >-
+  Vue Graphe réécrite sur dagre (Fable, spec #4). @dagrejs/dagre (unique dep ajoutée) : adaptateur
+  PUR graphLayout dans roadmap.ts (rankdir LR flux-de-dépendances, nodesep 28/ranksep 72, conversion
+  centre→coin, points d'arête, mémo WeakMap → zéro recalcul au hover/zoom/pan ; défensif
+  self-loops/arêtes orphelines/cycles). Remplace le layout maison colonnes-par-stage (topoLayers
+  SUPPRIMÉ, orphelin). Hook useZoomPan : zoom-vers-curseur (wheel natif non-passif), drag-pan (le
+  pan manquait totalement), fit/reset/clamp, clavier ; géométrie en fns pures testées. RoadmapGraph
+  réécrit : nœuds via buildGraphModel mémoïsé (fusion epic #135 conservée), arêtes polyligne
+  arrondie (roundedEdgePath), stage → Chip en pied de carte (plus le layout). Surlignage amont/aval
+  graphNeighborhood (BFS bidir, roadmap.ts) au SURVOL SEUL transitoire (décision #132, clic reste
+  openTask), chemin trait plein #171717 + hors-chemin voilé (bg-white/70, jamais opacity sur
+  conteneur), focus-visible clavier déclenche aussi. PRÉSERVÉ à l'identique : nœuds-epic dépliables,
+  diamant jalon + « bloque N » (#133), cadenas locked. Pas de compound dagre (l'unité est déjà
+  l'epic-nœud). Reste noté (YAGNI) : nœuds sans dep empilés rang 0 ; cycles epic (site↔lancement)
+  résolus par inversion d'arête dagre, flèches justes.
+verification: >-
+  Vérif indépendante : tsc clean ; vitest 365/365 (19 fichiers ; +graphLayout 7, useZoomPan
+  9+géométrie, graphNeighborhood 3, roundedEdgePath, 60-nœuds sans chevauchement ; −topoLayers et
+  ses 4 tests) ; build OK ; boot HTTP 200 zéro erreur. package.json : @dagrejs/dagre seule dep
+  ajoutée (vérifié). topoLayers absent de src/ (grep). QA VISUEL sur captures Fable (vraies données
+  ~136 tâches) : layout LR + arêtes arrondies (08/09) ; surlignage survol = chemin
+  #1→#7→site→lancement→#14 en trait plein, reste voilé, revient à la sortie (06/09) ; nœud-epic «
+  site 3/4 » déplié avec ses membres ; chips stage+team ; contrôles −/Ajuster/100%/+ ; clic →
+  panneau. Conforme spec + décision colonnes-abandonnées.
+release: null

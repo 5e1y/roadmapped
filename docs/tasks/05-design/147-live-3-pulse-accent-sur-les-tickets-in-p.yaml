@@ -1,0 +1,29 @@
+id: 188
+code: null
+title: Live 3 — pulse accent sur les tickets in_progress (CSS, reduced-motion)
+status: done
+tags:
+  - live
+  - a11y
+size: null
+detail: null
+refs: []
+links: []
+dependsOn:
+  - 185
+epic: live-reactivity
+source: ai
+createdAt: "2026-07-09T00:23:53"
+startedAt: "2026-07-09T00:37:48"
+updatedAt: "2026-07-09T00:38:51"
+completedAt: "2026-07-09"
+commit: dea8a09
+outcome: >-
+  Glyphe d'un ticket in_progress (StatusGlyph/MilestoneGlyph/EpicGlyph, les 3 partagent le pattern)
+  porte la classe .pulse-live : keyframe rm-pulse (opacité 1→0.4→1, 1.8s ease-in-out infinite),
+  coupée sous prefers-reduced-motion. Avec le socle live, un ticket que l'agent démarre se met à
+  pulser sans recharger. Vérif : tsc clean, capture du dashboard réel (5173) — glyphes rendent
+  proprement, zéro régression, l'accent in_progress bien présent (still ne montre pas l'animation
+  mais classe+keyframe corrects).
+verification: null
+release: null

@@ -1,0 +1,44 @@
+id: 122
+code: null
+title: Ouverture auto de Roadmapped à l'ouverture d'une session Claude dans un repo Roadmapped
+status: done
+tags:
+  - onboarding
+  - skill
+size: S
+detail: >-
+  Quand une instance Claude démarre dans un repo où Roadmapped est installé (docs/tasks/_meta.yaml +
+  roadmaped.config.json présents), déclencher automatiquement l'entrée en workflow — a minima un
+  sitrep d'ouverture, idéalement via un hook SessionStart du skill/plugin. Trancher : hook plugin vs
+  consigne dans CLAUDE.md vs les deux. Dépend du mécanisme d'install (#12) pour savoir où vit le
+  hook. Découpe en spec possible si le mécanisme n'est pas évident.
+refs: []
+links:
+  - 12
+dependsOn: []
+milestone: null
+source: ai
+createdAt: "2026-07-08T09:28:06"
+completedAt: "2026-07-08"
+commit: 4ad705b
+outcome: >-
+  Ouverture auto via hook SessionStart. ensureSessionHook (scripts/install.mjs) merge idempotent
+  dans .claude/settings.json de l'hôte un hook SessionStart qui lance `sitrep` (commande = node
+  [--import amaro loader] <base>/task.mjs sitrep, adaptée self-host vs node_modules) — à l'ouverture
+  d'une session Claude dans un repo Roadmapped, l'état du monde (done du jour, in_progress,
+  prochaines, avancement, alertes) est injecté d'emblée dans le contexte, sans compter sur l'agent
+  pour y penser. Câblé dans runInit ET runUpgrade (config tool-owned re-assertable). Merge préserve
+  les autres hooks SessionStart et les réglages voisins (model…), repère notre entrée par « task.mjs
+  sitrep » (pas de doublon au ré-init), settings.json illisible laissé intact. DÉCISION (ticket «
+  trancher hook vs CLAUDE.md vs les deux ») : hook SEUL — mécanisme déterministe qui injecte le vrai
+  état ; pas de doublon CLAUDE.md (le skill instruit déjà sitrep-first, ce serait de la prose
+  redondante). Self-host dogfoodé : .claude/settings.json de CE repo porte désormais le hook.
+verification: >-
+  npx vitest run 346/346 (4 nouveaux ensureSessionHook : pose le hook, idempotent, préserve autres
+  hooks+réglages, settings illisible sauté) ; tsc clean ; validate OK 131 tâches (non-régression).
+  Dogfood réel : ensureSessionHook exécuté sur ce repo → .claude/settings.json créé avec le hook
+  (vérifié cat). E2E hôte : runInit dans un sandbox pose bien SessionStart avec la commande
+  node_modules + loader amaro. Le déclenchement effectif s'observera à ma prochaine session dans ce
+  repo (le hook injecte le sitrep) — non observable dans la session courante (déjà démarrée avant le
+  hook).
+release: null

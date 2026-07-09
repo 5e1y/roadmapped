@@ -5,12 +5,10 @@ import { usePanel } from '../state/PanelContext'
 import { type TaskNode } from '../lib/tasks'
 import { TaskList, MiniZone, sortOpen, sortDone } from './TaskColumns'
 
-import { useTagFilter, useTeamFilter } from '../state/filters'
+import { useTagFilter } from '../state/filters'
 import { ViewHeader } from './ViewHeader'
-import { TeamsRadar } from './TeamsRadar'
 import { TagGraph } from './TagGraph'
 import { tagGraph } from '../lib/tagGraph'
-import { TEAMS, type Team } from '../lib/tasks'
 
 /** Accord singulier/pluriel élémentaire (anglais). */
 const plural = (n: number, s: string) => `${n} ${s}${n === 1 ? '' : 's'}`
@@ -51,7 +49,6 @@ function RemovableChip({ label, onRemove, ariaLabel }: { label: string; onRemove
 export function Backlog() {
   const { tree, errors, loading, loadError, reload } = useTree()
   const { openCreateTask, top } = usePanel()
-  const [teamFilter, setTeamFilter] = useTeamFilter()
   const [tagFilter, setTagFilter] = useTagFilter()
   const [query, setQuery] = useState('')
 
@@ -85,20 +82,8 @@ export function Backlog() {
   }
   if (!tree) return null
 
-  // Charge du radar : tickets ouverts par team, sous-tâches comprises,
-  // indépendante des filtres (le radar montre TOUT, la liste est filtrée).
-  const load = new Map<Team, number>(TEAMS.map((t) => [t, 0]))
-  const countLoad = (t: TaskNode) => {
-    if (t.status !== 'done') load.set(t.team, (load.get(t.team) ?? 0) + 1)
-    t.subtasks.forEach(countLoad)
-  }
-  for (const s of tree.sections) if (s.status !== 'abandoned') s.tasks.forEach(countLoad)
-  // Sélection du radar = LE filtre team (solo) ; clic vide = tout.
-  const radarSelected: Team | '' = teamFilter.length === 1 ? (teamFilter[0] as Team) : ''
-  const radarSelect = (t: Team | '') => setTeamFilter(t ? [t] : [])
   // Graphe des tags (#146/#150) : carte des THÈMES du projet entier — TOUS les
-  // tickets (done inclus), sous-tâches comprises. Distinct du radar teams
-  // (qui, lui, montre la charge ouverte). Le clic filtre la liste.
+  // tickets (done inclus), sous-tâches comprises. Le clic filtre la liste.
   const themeTags = tagGraph(
     tree.sections.filter((s) => s.status !== 'abandoned').flatMap((s) => s.tasks),
   )
@@ -113,7 +98,6 @@ export function Backlog() {
     for (const t of s.tasks) { all.push(t); stageOf.set(t.id, s.key) }
   }
   const matches = (t: TaskNode) =>
-    (teamFilter.length === 0 || teamFilter.includes(t.team)) &&
     (tagFilter.length === 0 || tagFilter.some((tag) => t.tags.includes(tag))) &&
     (q === '' || t.title.toLowerCase().includes(q) || `#${t.id}`.includes(q))
 
@@ -124,13 +108,13 @@ export function Backlog() {
   const open = sortOpen(openAll.filter((t) => t.kind !== 'quick'), (id) => stageOf.get(id) ?? '99')
   const done = sortDone(all.filter((t) => t.status === 'done' && matches(t)))
 
-  // « + tâche » : Build par défaut (modifiable dans le panneau de création).
-  const createIn = '04-build'
+  // « + tâche » : Feature par défaut (modifiable dans le panneau de création).
+  const createIn = '02-feature'
 
-  // Filtres actifs (#210) : team + tag + recherche. La barre de chips ne s'affiche
-  // que s'il y en a ; « Clear all » remet les trois à zéro d'un coup.
-  const hasFilters = teamFilter.length > 0 || tagFilter.length > 0 || q !== ''
-  const clearAll = () => { setTeamFilter([]); setTagFilter([]); setQuery('') }
+  // Filtres actifs (#210) : tag + recherche. La barre de chips ne s'affiche
+  // que s'il y en a ; « Clear all » remet les deux à zéro d'un coup.
+  const hasFilters = tagFilter.length > 0 || q !== ''
+  const clearAll = () => { setTagFilter([]); setQuery('') }
 
   return (
     <div className="flex h-full flex-col">
@@ -156,29 +140,18 @@ export function Backlog() {
       </ViewHeader>
 
       <div className="flex min-h-0 flex-1">
-        {/* Flanc radar (fusion vue Teams) : charge par team, sélection = filtre.
-            S'efface quand le panneau est ouvert et que la place manque (< 2xl).
-            Désélectionner = recliquer la team active (souris ET clavier, #118). */}
-        <div
-          className={`${top !== null ? 'hidden 2xl:flex' : 'flex'} relative min-h-0 w-[420px] shrink-0 flex-col overflow-y-auto border-r border-neutral-200 bg-white py-2`}
-        >
-          {/* Ancré EN HAUT (#150) : radar puis visu nodal, dans l'ordre naturel
-              du flux ; le flanc scrolle en interne si ça déborde. */}
-          <div className="flex w-full shrink-0 flex-col">
-            <TeamsRadar counts={load} selected={radarSelected} onSelect={radarSelect} />
-            {/* Graphe de liens des tags (#146/#150) — carte des thèmes du projet,
-                sous le radar (le « qui » au-dessus, le « quoi » en dessous).
-                Séparateur FULL-WIDTH bord à bord (#150). */}
-            {(themeTags.nodes.length > 0 || tagSelected !== '') && (
-              <>
-                <div className="border-t border-neutral-200" />
-                <div className="pt-2">
-                  <TagGraph graph={themeTags} selected={tagSelected} onSelect={tagSelect} />
-                </div>
-              </>
-            )}
+        {/* Flanc : graphe de liens des tags (#146/#150) — carte des thèmes du
+            projet. S'efface quand le panneau est ouvert et que la place manque
+            (< 2xl). Masqué s'il n'y a rien à montrer. */}
+        {(themeTags.nodes.length > 0 || tagSelected !== '') && (
+          <div
+            className={`${top !== null ? 'hidden 2xl:flex' : 'flex'} relative min-h-0 w-[420px] shrink-0 flex-col overflow-y-auto border-r border-neutral-200 bg-white py-2`}
+          >
+            <div className="flex w-full shrink-0 flex-col pt-2">
+              <TagGraph graph={themeTags} selected={tagSelected} onSelect={tagSelect} />
+            </div>
           </div>
-        </div>
+        )}
       {/* Colonne liste = barre de filtres actifs (toujours visible) + scroller. */}
       <div className="flex min-h-0 flex-1 flex-col">
         {/* Chips de filtres actifs (#210) : AU-DESSUS du scroller et HORS du flanc
@@ -186,10 +159,6 @@ export function Backlog() {
         {hasFilters && (
           <div className="shrink-0 border-b border-neutral-200 bg-white">
             <div className="mx-auto flex max-w-3xl flex-wrap items-center gap-1.5 px-6 py-2">
-              {teamFilter.map((t) => (
-                <RemovableChip key={`team:${t}`} label={t} ariaLabel={`Remove team filter: ${t}`}
-                  onRemove={() => setTeamFilter(teamFilter.filter((x) => x !== t))} />
-              ))}
               {tagFilter.map((t) => (
                 <RemovableChip key={`tag:${t}`} label={`#${t}`} ariaLabel={`Remove tag filter: ${t}`}
                   onRemove={() => setTagFilter(tagFilter.filter((x) => x !== t))} />
@@ -217,7 +186,7 @@ export function Backlog() {
               {(quicks.length > 0 || !q) && <MiniZone quicks={quicks} reload={reload} />}
               {/* Epics (#135) : lignes-groupe repliables DANS la liste — plus de vue
                   alternative « par epic » (#133 rejeté), le groupe est le défaut. */}
-              <TaskList open={open} done={done} tree={tree} filtered={Boolean(q || teamFilter.length || tagFilter.length)} />
+              <TaskList open={open} done={done} tree={tree} filtered={Boolean(q || tagFilter.length)} />
             </div>
           </div>
         </div>

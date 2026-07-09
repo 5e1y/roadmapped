@@ -8,7 +8,6 @@ import { usePersistentFlag } from '../state/uiPersist'
 import { useSeenTasks } from '../state/seenTasks'
 import { computeAvailability, reverseDependents } from '../lib/roadmap'
 import { relativeTime, absoluteDate } from '../lib/relativeTime'
-import { TEAM_ABBR } from '../lib/tasks'
 import type { TaskNode } from '../lib/tasks'
 
 /**
@@ -20,7 +19,6 @@ export function agentBrief(task: TaskNode): string {
   const meta = [
     `Status: ${task.status}`,
     task.size && `Size: ${task.size}`,
-    task.team && `Team: ${task.team}`,
     task.code && `Code: ${task.code}`,
   ]
     .filter(Boolean)
@@ -137,7 +135,6 @@ export function TaskRow({ task }: { task: TaskNode }) {
               </span>
             )}
             {task.code && <Chip label={task.code} mono />}
-            <Chip label={TEAM_ABBR[task.team]} />
             {task.size && <Chip label={task.size} mono strong />}
           </span>
         </button>

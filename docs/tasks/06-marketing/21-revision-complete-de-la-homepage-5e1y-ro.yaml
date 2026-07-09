@@ -1,0 +1,49 @@
+id: 208
+code: null
+title: >-
+  Révision complète de la homepage (5e1y/roadmapped-site) — SEO, logique, liens des boutons, retrait
+  du logo, copy à jour, features
+status: done
+tags:
+  - marketing
+  - seo
+  - homepage
+size: null
+detail: >-
+  Demande Rémi. Passe de révision tous sujets confondus sur la HP (repo externe
+  5e1y/roadmapped-site, Cloudflare Pages — cf. mémoire). Points : (1) SEO — titres, meta, structure
+  Hn, OG, mots-clés. (2) Logique/flow de la page. (3) Boutons — vérifier que chaque CTA pointe vers
+  le BON lien (GitHub, install, dashboard, docs…). (4) RETIRER le logo (Rémi ne l'aime pas). (5)
+  Copy à jour vs dernière version de l'app : on a fait évoluer la distribution (« viré npm », npx
+  roadmapped, upgrade, MCP, multi-repos, live V2…) — la copy doit refléter l'état réel. (6) Mieux
+  lister les features (backlog/roadmap/docs/notepad, live reactivity, guard, MCP, multi-repos,
+  etc.). Ton = tone-of-voice Rémi (docs/tone-of-voice.md). Délégation autorisée : Fable AVEC
+  PARCIMONIE (seulement les éléments les plus durs et les plus visuels) ; sonnet/haiku pour les
+  tâches faciles (copy, liens, meta). Voisin : #198 (porter SEO+assets vers le vrai site).
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-09T10:21:17"
+startedAt: "2026-07-09T10:27:01"
+updatedAt: "2026-07-09T10:35:56"
+completedAt: "2026-07-09"
+commit: 687c982
+outcome: >-
+  HP révisée dans 5e1y/roadmapped-site (commit 687c982, poussé sur git). Liens github.com/OWNER →
+  5e1y/roadmapped partout (header, hero, footer, JSON-LD). Logo retiré (header + favicon
+  neutralisé), CSS mort supprimé. Copy alignée sur l'app réelle : install github:5e1y/roadmapped +
+  npx roadmapped (fini npm install / scripts/task.mjs), 8 stages fixes, plus de _archive (done reste
+  en place). Features 4→8 cartes (+ MCP, live dashboard, multi-repos, git guard, docs/notepad ; 8ᵉ
+  carte ajoutée par moi pour équilibrer la grille 2-col). SEO : Twitter Card, JSON-LD
+  SoftwareApplication, og:image + og.png généré (1200×630 monochrome sans logo, via Chrome
+  headless). Délégation : gros de la réécriture par sonnet ; pas de Fable nécessaire (aucun
+  redesign, que du contenu). DÉPLOIEMENT LIVE en attente : `npx wrangler deploy` (auth Cloudflare
+  Rémi).
+verification: >-
+  Page rendue via Chrome headless (screenshot 1200×3200) et revue à l'œil : header sans logo, hero à
+  jour, grille 8 cartes symétrique, nouvelles features présentes, thème clair/sombre OK. grep de
+  contrôle vide (0 occurrence OWNER/npm install/scripts/task.mjs/_archive/brand-mark). og.png
+  vérifié 1200×630 on-brand.
+release: null

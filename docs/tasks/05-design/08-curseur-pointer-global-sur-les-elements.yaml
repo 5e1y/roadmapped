@@ -1,0 +1,28 @@
+id: 120
+kind: quick
+code: null
+title: Curseur pointer global sur les éléments interactifs (Tailwind v4 ne le met plus sur les boutons)
+status: done
+tags: []
+size: null
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: polish-ui
+source: ai
+createdAt: "2026-07-08T09:15:43"
+completedAt: "2026-07-08"
+commit: 2b90300
+outcome: >-
+  Règle CSS globale dans @layer base : cursor:pointer sur
+  button/[role=button]/[role=option]/[role=tab]/[role=switch]/[role=menuitem]/label[for]/summary,
+  exclus :disabled et aria-disabled. Un seul endroit plutôt que cursor-pointer sur des dizaines de
+  composants. Placée en @layer base pour que les utilitaires cursor-* (ex. le cursor-text de l'état
+  vide Notepad) l'emportent toujours.
+verification: >-
+  npm run dev boote sans erreur ; CSS compilé (vérifié dans le bundle vite) contient bien la règle
+  dans @layer base ; ordre des couches « theme, base, components, utilities » confirmé → les
+  utilitaires cursor-* overrident la base (cursor-text du Notepad préservé). tsc non requis (CSS
+  pur).
+release: null

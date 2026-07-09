@@ -1,0 +1,26 @@
+id: 193
+code: null
+title: "Feedback 3 — sitrep : alerte 'N done tasks with open feedback'"
+status: done
+tags:
+  - feedback
+size: null
+detail: null
+refs:
+  - scripts/task.mjs
+links: []
+dependsOn:
+  - 191
+epic: feedback-mode
+source: ai
+createdAt: "2026-07-09T00:24:08"
+startedAt: "2026-07-09T01:13:21"
+updatedAt: "2026-07-09T01:14:30"
+completedAt: "2026-07-09"
+commit: 6c6fcd5
+outcome: >-
+  sitrepText : nouvelle alerte '⚠ N done task(s) with open feedback: #… — same scope → reopen; new →
+  quick' (tâches done avec au moins un feedback resolved:false), à côté des alertes dette/commits.
+  Vérif : 2 tests (done+feedback ouvert → alerte ; résolu → pas d'alerte), tsc clean, 390 tests.
+verification: null
+release: null

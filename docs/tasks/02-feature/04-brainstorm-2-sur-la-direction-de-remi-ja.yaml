@@ -1,0 +1,61 @@
+id: 230
+code: null
+title: >-
+  Brainstorm 2 (sur la direction de Rémi) : jalons = types de tâches, fusion stage+team en un axe,
+  anciens stages → epics
+status: done
+tags:
+  - engineering
+  - product
+  - design
+size: null
+detail: >-
+  Suite de #228. Rémi a tranché une DIRECTION (à faire marcher/détailler, PAS à re-litiguer). Le
+  modèle : UN SEUL AXE « type de tâche » qui remplace À LA FOIS l'axe stage ET l'axe team (fusion
+  back-end ; les teams disparaissent, absorbées). Correction importante d'un malentendu : marketing
+  / legal / communication / design / finance & sales sont des TYPES DE TÂCHE, PAS des teams — ex : «
+  créer un logo » = type design (ou marketing), « créer des posts LinkedIn » = type communication.
+  On assigne LE type qui colle à la nature de la tâche ; il n'y a PAS de croisement à deux axes (pas
+  de « bug marketing »), un seul type par tâche. Liste proposée par Rémi : bug, feature, brainstorm,
+  marketing, design, communication, legal, finance & sales. (1) La notion de TEMPS est écartée
+  (flèche idea→mature dégage). (2) Les jalons/colonnes = ces types. (3) Les anciens stages («
+  go-to-market », « launch the app public »…) deviennent des EPICS (regroupements transverses). (4)
+  Nœud identifié par Rémi : ré-apparition du problème d'affichage des epics qui ont des tâches dans
+  PLUSIEURS colonnes (types). Fable doit : finaliser/compléter la liste des types (MECE, minimale,
+  couvre TOUT le travail — dev inclus via bug/feature ?), poser la règle de classement (nature
+  dominante ; cas limites), le modèle de données (un champ remplaçant section+team ; dossiers
+  docs/tasks/<type>/ ; MIGRATION des 211 tâches en mappant ancien stage+team → type), le NOUVEL
+  ordre de `next` (le tri était stage-primaire — que devient-il ?), la refonte
+  validate/skill/dashboard, la solution d'AFFICHAGE des epics multi-colonnes, et
+  fixe-vs-configurable (garder le zéro-bikeshedding ?). Décision finale = Rémi. Réalisé par Fable 5.
+refs:
+  - docs/specs/2026-07-09-jalons-post-launch-brainstorm.md
+  - docs/specs/2026-07-07-stages-teams.md
+  - src/lib/tasks.ts
+  - src/lib/validate.ts
+  - src/components/RoadmapColumns.tsx
+  - src/components/EpicRow.tsx
+links: []
+dependsOn:
+  - 228
+epic: null
+source: ai
+createdAt: "2026-07-09T14:46:28"
+startedAt: "2026-07-09T14:51:01"
+updatedAt: "2026-07-09T14:58:27"
+completedAt: "2026-07-09"
+commit: "270e056"
+outcome: >-
+  Doc docs/specs/2026-07-09-jalons-par-type-brainstorm.md : détaille la direction de Rémi (jalons
+  par type, fusion stage+team, temps écarté). 9 types fixes (bug, feature, chore, brainstorm,
+  design, marketing, communication, legal, business) = liste Rémi + chore (justifié chiffres) +
+  finance&sales→slug business. Règle de classement (arbre 7 règles, nature du livrable). Modèle :
+  type=dossier, champ team supprimé, table de migration des 213 tâches. Tri next : ordre de
+  _epics.yaml remplace l'ordre des stages (prioriser = réordonner ~10 lignes). Epics multi-colonnes
+  : reco = bande d'epics transversale (cible) via ancrage majoritaire (étape). Fixe non
+  configurable. 7 questions ouvertes. Décision = Rémi (rien engagé).
+verification: >-
+  Doc relu intégralement : fidèle à la direction (ne la re-litige pas), grounded (backlog recompté
+  213 fichiers / croisement stage×team, insight _epics.yaml ordonné jamais exploité,
+  epicAnchorStage), 9 sections complètes, honnête sur pertes/risques. Livrable-doc, pas de code.
+release: null

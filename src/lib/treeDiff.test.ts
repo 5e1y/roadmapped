@@ -5,7 +5,7 @@ import type { TaskNode, TaskTree } from './tasks'
 function node(partial: Partial<TaskNode> & { id: number }): TaskNode {
   return {
     kind: 'task', code: null, title: `Task ${partial.id}`, status: 'todo',
-    tags: [], size: null, team: 'engineering', detail: null, refs: [], links: [],
+    tags: [], size: null, detail: null, refs: [], links: [],
     dependsOn: [], epic: null, source: 'ai', createdAt: '2026-07-09', startedAt: null,
     completedAt: null, commit: null, outcome: null, verification: null, release: null,
     file: `docs/tasks/01-idea/${partial.id}.yaml`, subtasks: [], ...partial,

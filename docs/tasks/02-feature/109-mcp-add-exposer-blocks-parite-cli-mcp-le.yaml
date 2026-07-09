@@ -1,0 +1,29 @@
+id: 137
+kind: quick
+code: null
+title: "MCP add : exposer --blocks (parité CLI/MCP — le skill promet « mêmes garanties »)"
+status: done
+tags:
+  - mcp
+size: null
+detail: null
+refs: []
+links: []
+dependsOn: []
+milestone: null
+source: ai
+createdAt: "2026-07-08T12:13:09"
+completedAt: "2026-07-08"
+commit: 457209e
+outcome: >-
+  Tool MCP `add` expose désormais `blocks` (array d'ids) : la nouvelle tâche est ajoutée aux
+  dependsOn des cibles (sucre jalon, inverse de dependsOn), en miroir EXACT du CLI — ids validés
+  avant toute écriture (existence + non-archivée, sinon erreur retournée), chaînage via updateTask
+  après création. Ferme le trou de parité CLI/MCP que le skill promettait (« CLI ou MCP, mêmes
+  garanties »).
+verification: >-
+  npx vitest run scripts/mcp-server.test.mjs → 15/15 verts (aucune régression). Logique identique à
+  celle du CLI add --blocks (déjà couverte par task.test.mjs). Suite ciblée seulement (Fable édite
+  src/components en parallèle → suite complète non lancée pour éviter la contamination). Le tool
+  sera actif après redémarrage du serveur MCP (comme tout #133).
+release: null

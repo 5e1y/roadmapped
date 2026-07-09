@@ -1,0 +1,37 @@
+id: 164
+code: null
+title: >-
+  Landing marketing statique auto-suffisante (site/index.html) — mobile-first, DS monochrome+accent,
+  embarque la démo
+status: done
+tags:
+  - marketing
+  - homepage
+size: null
+detail: >-
+  Aucune landing n'existe dans le repo (seulement docs/site-copy.md + le build démo). Construire une
+  page HTML unique auto-suffisante (CSS inline), mobile-first, alignée design.md (monochrome +
+  accent #2563eb, light/dark), reprenant la copy approuvée de site-copy.md + tone-of-voice. Embarque
+  la démo dashboard (iframe vers le build démo). Déployable tel quel sur Cloudflare Pages
+  (roadmapped.work).
+refs:
+  - docs/site-copy.md
+  - docs/tone-of-voice.md
+  - docs/design.md
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-08T18:03:10"
+completedAt: "2026-07-08"
+commit: ea33888
+outcome: >-
+  site/index.html : landing statique auto-suffisante (CSS inline, mobile-first, dark mode, DS
+  monochrome+accent #2563eb). Toutes les sections de site-copy.md (hero, démo, 4 features,
+  how-it-works, built-by-itself, quickstart, privacy, open-source, footer), ton appliqué. Embarque
+  la capture dashboard + lien démo live (/demo/). Vérifié en headless Chrome desktop 1280 + mobile
+  (largeur mini réelle 500px, macOS clampe <500) : zéro débordement horizontal
+  (scrollWidth==clientWidth), code-block wrappé. ⚠ liens GitHub = placeholder
+  remicourtillon/Roadmapped à confirmer.
+verification: null
+release: null

@@ -1,0 +1,56 @@
+id: 135
+code: null
+title: >-
+  Epic = groupe visuel expandable (partout : Backlog, Roadmap colonnes ET graphe) — pas un tag
+  filtrable
+status: done
+tags:
+  - ux
+  - data-model
+  - fable
+size: L
+detail: >-
+  Refonte VISUELLE de l'epic (le back champ epic reste inchangé). Aujourd'hui l'epic est un tag
+  filtrable (toggle « par epic » → blocs plats) — NON. Vision Rémi : un epic est un GROUPE. Partout
+  où des tasks sont listées, une task appartenant à un epic ne s'affiche plus à plat : on affiche
+  l'EPIC (replié par défaut), on le déplie pour révéler ses tasks. Un epic se rend comme un
+  composant SIMILAIRE à une task-row mais avec des indicateurs clairs : (1) c'est un groupe, (2) il
+  contient N tasks, (3) son taux de complétion done/total (comme un jalon). Périmètre : (a) Backlog
+  (liste) — rows epic expandables inline, tasks sans epic en rows normales ; remplace le
+  toggle/blocs actuels ; (b) Roadmap colonnes — idem, l'epic est un item de groupe dépliable dans la
+  colonne ; (c) Roadmap GRAPHE — un epic est un NŒUD représentant le groupe (avec complétion),
+  dépliable pour révéler ses task-nodes membres (le plus dur — si trop gros, livrer Backlog+colonnes
+  d'abord et signaler le graphe). État déplié/replié persisté (uiPersist). Réutiliser
+  epicProgress/allEpics, le pattern Collapsible de TaskRow (sous-tâches), les tokens monochromes.
+  Confié à Fable 5.
+refs: []
+links:
+  - 133
+  - 131
+dependsOn: []
+milestone: null
+source: ai
+createdAt: "2026-07-08T12:04:24"
+completedAt: "2026-07-08"
+commit: 847ace6
+outcome: >-
+  Epic rendu comme GROUPE expandable partout (Fable 5). Nouveau EpicRow.tsx (groupByEpic pur +
+  EpicRow + epicStatusOf) + EpicGlyph carré (complète cercle=task / diamant=jalon / carré=epic).
+  Chaque epic = ligne/carte/nœud au gabarit d'une tâche mais marquée parente : chevron systématique,
+  carré, « N tâches [ici] », mini-barre + done/total (epicProgress global), repliée par défaut,
+  dépliage persisté par slug ET par vue (backlog:epics / roadmap:epics / graph:epics). Une task en
+  epic ne s'affiche plus à plat ; les one-off restent des rows normales. Toggle « par epic
+  »/EpicGroupedList de #133 supprimés (le groupe est le défaut). Couvre Backlog (TaskColumns),
+  Roadmap Colonnes (EpicCardGroup, epic à cheval = présent dans chaque colonne avec compte local «
+  ici » + complétion globale) et Graphe (UN nœud par epic ancré au stage amont, arêtes = union des
+  deps externes remappées/dédupliquées, dépliage en place). A11y : ligne = 1 seul button trigger,
+  aria-expanded, complétion en sr-only.
+verification: >-
+  Vérif indépendante : npx tsc --noEmit clean ; npx vitest run 282/282 (14 fichiers, +8 nouveaux sur
+  EpicRow) ; npm run build vert ; scope git = uniquement src (EpicRow neuf +
+  glyphs/uiPersist/TaskColumns/Backlog/RoadmapColumns/RoadmapGraph), roadmap.ts et docs/tasks
+  INTOUCHÉS. QA VISUEL sur les captures Fable (vraies données, 10+ epics) : Backlog = epics
+  dépliables avec compteur+barre+done/total, membres indentés, one-off à plat ✓ ; Graphe =
+  nœuds-epic (site 3/3 déplié, distribution 3/5…) + avancement global 114/126 en tête + arêtes de
+  deps ✓ ; panneau = champ Epic éditable ✓. Conforme à la vision Rémi.
+release: null

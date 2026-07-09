@@ -1,0 +1,42 @@
+id: 17
+code: null
+title: Construire la landing page
+status: done
+tags:
+  - marketing
+size: L
+detail: >-
+  Site statique simple (HTML/CSS pur ou Vite, pas de framework lourd), design cohérent avec
+  l'identité du dashboard (monochrome, dense, filets fins), contenu intégral depuis
+  docs/site-copy.md, captures et GIF du dashboard poli (d'où la dépendance au polissage #7) montrant
+  Backlog, Graphe et le cycle agent, responsive mobile, Lighthouse performance et accessibilité
+  supérieurs à 90. Fini quand : le site buildé tourne localement et Rémi l'a relu.
+refs:
+  - docs/site-copy.md
+  - src/index.css
+links: []
+dependsOn:
+  - 16
+  - 7
+epic: site
+source: user
+createdAt: "2026-07-07"
+completedAt: "2026-07-08"
+commit: bd8bea6
+outcome: >-
+  Landing construite par Fable dans un repo isolé, publiée sur GitHub :
+  https://github.com/5e1y/roadmapped-site (public, commit bd8bea6 — repo SÉPARÉ du repo outil). Site
+  statique sans build (index.html + style.css + demo.js + README de déploiement), copy exacte de
+  site-copy.md, mêmes tokens que design.md (page/carte/filet, accent unique), light+dark via
+  prefers-color-scheme, a11y vérifiée (landmarks, skip-link, contrastes ≥ plancher, focus visibles),
+  fallback complet sans JS, démo hero vanilla (cycle start→done en lignes de diff teintées),
+  sections introduites par de vraies commandes shell. Zéro ressource externe. Prêt pour Cloudflare
+  Pages (no build, output dir = racine). RESTE POUR RÉMI : brancher le repo sur Cloudflare Pages
+  (#18) + remplacer le placeholder https://github.com/OWNER/roadmapped par l'URL réelle du repo
+  outil quand il sera public (#13 ; sed fourni dans le README du site).
+verification: >-
+  Site relu (fichiers présents, hero correct, grep confirme zéro ressource externe hormis
+  SVG-namespace + roadmapped.work + placeholder GitHub). Fable a testé en Chrome headless light/dark
+  + 1440px/390px, JS on/off. Repo créé et push vérifiés (gh + git remote). Rendu visuel fin à
+  valider par Rémi à l'œil. Commit dans le repo site (bd8bea6), pas le repo outil.
+release: null

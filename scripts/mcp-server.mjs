@@ -22,7 +22,7 @@ import {
 } from '../src/lib/taskWrites.ts'
 import { computeAvailability, activeTasks, nextQueue, globalProgress, epicProgress, allEpics } from '../src/lib/roadmap.ts'
 import { briefText, sitrepText, taskLine, refLine, git, unloggedCommits } from '../src/lib/render.ts'
-import { TEAMS } from '../src/lib/tasks.ts'
+import { TYPES } from '../src/lib/tasks.ts'
 
 // ------------------------------------------------------------------ helpers de sortie
 // Règle (#95) : structuredContent SEULEMENT quand l'objet est la charge utile (écriture →
@@ -47,7 +47,11 @@ const S = {
     properties: { id: { type: 'number', description: 'global task id (e.g. 42)' } },
     required: ['id'], additionalProperties: false,
   },
-  team: { type: 'string', enum: TEAMS, description: 'business team (fixed enum)' },
+  // Le type = la NATURE d'une tâche = son dossier de section (#230). Le slug entier
+  // ("02-feature") ou nu ("feature") est accepté par les filtres.
+  type: { type: 'string', enum: [...TYPES.map((t) => t.slug), ...TYPES.map((t) => t.slug.replace(/^\d+-/, ''))], description: 'task type = nature/section (e.g. 02-feature or feature)' },
+  section: { type: 'string', description: `type/section slug (${TYPES.map((t) => t.slug).join(' … ')})` },
+  heat: { type: 'number', description: 'priority seed 0-100 (optional, absent = cold; 0 cools)' },
 }
 
 /** Detailed text rendering of a task (equivalent of the CLI's `show`). */
@@ -102,25 +106,25 @@ export function makeTools(ROOT) {
   },
   {
     name: 'next',
-    description: 'The work queue: the next N AVAILABLE todo tasks (deps done), ordered by stage then age. To be CONSUMED as-is.',
+    description: 'The work queue: the next N AVAILABLE todo tasks (deps done), ordered by type-column then age. To be CONSUMED as-is.',
     inputSchema: {
       type: 'object',
-      properties: { count: { type: 'number', description: 'number of tasks (default 1)' }, team: S.team },
+      properties: { count: { type: 'number', description: 'number of tasks (default 1)' }, type: S.type },
       additionalProperties: false,
     },
-    handler: ({ count = 1, team } = {}) => {
-      const queue = nextQueue(readTree(ROOT), { team }).slice(0, Math.max(1, count))
+    handler: ({ count = 1, type } = {}) => {
+      const queue = nextQueue(readTree(ROOT), { type }).slice(0, Math.max(1, count))
       if (queue.length === 0) return ok('No task available (everything is done, locked, or in progress).')
       return ok(queue.map((t) => taskLine(t, '')).join('\n'))
     },
   },
   {
     name: 'take',
-    description: 'Opens a session: next + start + brief IN ONE CALL. Takes the next available task (optionally filtered by team), starts it, returns its brief.',
-    inputSchema: { type: 'object', properties: { team: S.team }, additionalProperties: false },
-    handler: ({ team } = {}) => {
-      const queue = nextQueue(readTree(ROOT), { team })
-      if (queue.length === 0) return ok(`No task available${team ? ` for team ${team}` : ''}.`)
+    description: 'Opens a session: next + start + brief IN ONE CALL. Takes the next available task (optionally filtered by type), starts it, returns its brief.',
+    inputSchema: { type: 'object', properties: { type: S.type }, additionalProperties: false },
+    handler: ({ type } = {}) => {
+      const queue = nextQueue(readTree(ROOT), { type })
+      if (queue.length === 0) return ok(`No task available${type ? ` for type ${type}` : ''}.`)
       const id = queue[0].id
       const res = startTask(ROOT, id)
       if (!res.ok) return fail(`Start failed for #${id}:\n${res.errors.join('\n')}`)
@@ -131,13 +135,13 @@ export function makeTools(ROOT) {
   },
   {
     name: 'list',
-    description: 'Lists the backlog, filterable by section/status/team/tag.',
+    description: 'Lists the backlog, filterable by section/type/status/tag.',
     inputSchema: {
       type: 'object',
       properties: {
-        section: { type: 'string', description: 'stage slug (01-idea … 08-mature)' },
+        section: S.section,
         status: { type: 'string', enum: ['todo', 'in_progress', 'done'] },
-        team: S.team,
+        type: S.type,
         tag: { type: 'string', description: 'only keep tasks carrying this tag (e.g. debt)' },
       },
       additionalProperties: false,
@@ -145,10 +149,12 @@ export function makeTools(ROOT) {
     handler: (a = {}) => {
       const tree = readTree(ROOT)
       let sections = tree.sections
+      const bare = (key) => key.replace(/^\d+-/, '')
       if (a.section) sections = sections.filter((s) => s.key === a.section)
+      // --type = filtre par nature : la section EST le type. Accepte "bug" ou "01-bug".
+      if (a.type) sections = sections.filter((s) => s.key === a.type || bare(s.key) === a.type)
       const keep = (pred) => { sections = sections.map((s) => ({ ...s, tasks: s.tasks.filter(pred) })).filter((s) => s.tasks.length) }
       if (a.status) keep((t) => t.status === a.status)
-      if (a.team) keep((t) => t.team === a.team)
       if (a.tag) keep((t) => t.tags.includes(a.tag))
       const lines = []
       for (const s of sections) {
@@ -182,7 +188,7 @@ export function makeTools(ROOT) {
         const p = epicProgress(tree, e.slug)
         lines.push(`\n${e.slug}${e.title !== e.slug ? ` — ${e.title}` : ''}  ${p.done}/${p.total}`)
         for (const t of active.filter((x) => x.epic === e.slug)) {
-          const chips = [t.team, t.kind !== 'task' ? t.kind : null].filter(Boolean).join(' ')
+          const chips = [t.kind !== 'task' ? t.kind : null].filter(Boolean).join(' ')
           lines.push(`  ${taskTag(avail.get(t.id) ?? 'available', missingOf(t))} #${t.id} ${t.title}${chips ? ` (${chips})` : ''}`)
         }
       }
@@ -205,16 +211,16 @@ export function makeTools(ROOT) {
 
   // ---------------------------------------------------------------- écriture (#92)
   // Via taskWrites : validation + rollback + verrou (#83) HÉRITÉS. Une erreur métier
-  // (team hors enum, cycle, section absente) revient en isError avec le message du noyau.
+  // (heat hors bornes, cycle, section absente) revient en isError avec le message du noyau.
   {
     name: 'add',
-    description: 'Creates a task. team REQUIRED (fixed enum). For a mini-ticket, prefer quick; kind milestone = MILESTONE (lock via dependsOn).',
+    description: 'Creates a task. type (nature/section) REQUIRED. For a mini-ticket, prefer quick; kind milestone = MILESTONE (lock via dependsOn).',
     inputSchema: {
       type: 'object',
       properties: {
-        section: { type: 'string', description: 'stage slug (01-idea … 08-mature)' },
+        section: S.section,
         title: { type: 'string' },
-        team: S.team,
+        heat: S.heat,
         kind: { type: 'string', enum: ['task', 'quick', 'milestone'], description: 'default task; milestone = milestone (rendered as diamond, target of dependsOn)' },
         detail: { type: 'string' },
         tags: { type: 'array', items: { type: 'string' } },
@@ -227,7 +233,7 @@ export function makeTools(ROOT) {
         blocks: { type: 'array', items: { type: 'number' }, description: 'ids that the new task LOCKS: it is added to their dependsOn (milestone sugar, inverse of dependsOn)' },
         source: { type: 'string', enum: ['ai', 'user'] },
       },
-      required: ['section', 'title', 'team'], additionalProperties: false,
+      required: ['section', 'title'], additionalProperties: false,
     },
     handler: (a) => {
       // --blocks: ids verified BEFORE any write (no milestone created then half-applied
@@ -241,7 +247,7 @@ export function makeTools(ROOT) {
         }
       }
       const res = addTask(ROOT, {
-        section: a.section, title: a.title, team: a.team, kind: a.kind ?? 'task',
+        section: a.section, title: a.title, heat: a.heat, kind: a.kind ?? 'task',
         detail: a.detail ?? null, tags: splitList(a.tags), size: a.size ?? null,
         refs: splitList(a.refs), links: splitList(a.links).map(Number),
         dependsOn: splitList(a.dependsOn).map(Number),
@@ -262,22 +268,24 @@ export function makeTools(ROOT) {
   },
   {
     name: 'quick',
-    description: 'Creates a mini-ticket (kind:quick): title + team suffice (default stage = 1st open one). --start chains the start. At done, outcome is required but verification is optional.',
+    description: 'Creates a mini-ticket (kind:quick): title suffices (default type = 1st open one). --start chains the start. At done, outcome is required but verification is optional.',
     inputSchema: {
       type: 'object',
       properties: {
         title: { type: 'string' },
-        team: S.team,
-        stage: { type: 'string', description: 'stage slug (default: 1st open stage)' },
+        type: S.type,
+        heat: S.heat,
         tags: { type: 'array', items: { type: 'string' } },
         start: { type: 'boolean', description: 'start immediately (todo → in_progress)' },
       },
-      required: ['title', 'team'], additionalProperties: false,
+      required: ['title'], additionalProperties: false,
     },
     handler: (a) => {
-      const stage = a.stage ?? readTree(ROOT).sections.find((s) => s.status === 'open')?.key
-      if (!stage) return fail('No "open" stage to host the quick — specify stage.')
-      const res = addTask(ROOT, { section: stage, title: a.title, team: a.team, tags: splitList(a.tags), kind: 'quick' })
+      // type nu ("feature") → section canonique via TYPES ; sinon défaut = 1er type open.
+      const canon = a.type ? (TYPES.find((t) => t.slug === a.type || t.slug.replace(/^\d+-/, '') === a.type)?.slug) : undefined
+      const section = canon ?? readTree(ROOT).sections.find((s) => s.status === 'open')?.key
+      if (!section) return fail('No "open" type to host the quick — specify type.')
+      const res = addTask(ROOT, { section, title: a.title, heat: a.heat, tags: splitList(a.tags), kind: 'quick' })
       if (!res.ok) return fromRes(res)
       if (a.start) {
         const s = startTask(ROOT, res.task.id)
@@ -348,7 +356,7 @@ export function makeTools(ROOT) {
       properties: {
         id: { type: 'number' },
         title: { type: 'string' }, detail: { type: 'string' }, status: { type: 'string', enum: ['todo', 'in_progress', 'done'] },
-        size: { type: 'string' }, team: S.team, code: { type: 'string' }, source: { type: 'string', enum: ['ai', 'user'] },
+        size: { type: 'string' }, heat: S.heat, code: { type: 'string' }, source: { type: 'string', enum: ['ai', 'user'] },
         commit: { type: 'string' }, outcome: { type: 'string' }, verification: { type: 'string' }, release: { type: 'string' },
         epic: { type: 'string', description: 'slug of the cross-cutting grouping (epic)' },
         milestone: { type: 'string', description: 'DEPRECATED — alias of epic (#133)' },
@@ -359,7 +367,7 @@ export function makeTools(ROOT) {
     },
     handler: (a) => {
       const patch = {}
-      for (const f of ['title', 'detail', 'status', 'size', 'team', 'code', 'source', 'commit', 'outcome', 'verification', 'release', 'epic']) {
+      for (const f of ['title', 'detail', 'status', 'size', 'heat', 'code', 'source', 'commit', 'outcome', 'verification', 'release', 'epic']) {
         if (a[f] !== undefined) patch[f] = a[f]
       }
       // --milestone deprecated: alias of epic as long as it exists (backwards compat #133).

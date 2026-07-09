@@ -1,0 +1,25 @@
+id: 226
+code: null
+title: Système de labels pour trier les feedbacks (bug/feature/question/priorité)
+status: todo
+tags:
+  - support
+  - publish
+  - github
+size: null
+detail: >-
+  Définir un jeu de labels cohérent et minimal pour trier issues/discussions : type (bug, feature,
+  question, docs), état (needs-triage, confirmed, wontfix), priorité éventuelle, good-first-issue.
+  Éviter l'inflation de labels. Alignez sur les issue templates.
+refs: []
+links: []
+dependsOn: []
+epic: community-github
+source: ai
+createdAt: "2026-07-09T13:55:51"
+updatedAt: "2026-07-09T13:55:51"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

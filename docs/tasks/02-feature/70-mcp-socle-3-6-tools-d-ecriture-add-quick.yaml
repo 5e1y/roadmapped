@@ -1,0 +1,34 @@
+id: 92
+code: null
+title: MCP socle 3 — 6 tools d'écriture (add/quick/start/done/update/archive)
+status: done
+tags: []
+size: M
+detail: >-
+  Tools d'ÉCRITURE via taskWrites (validation + rollback + verrou #83 hérités, aucun second chemin)
+  : add, quick, start, done, update, archive. done conserve l'autofill HEAD (#71) et remonte les
+  warnings non bloquants (sans refs) en champ warnings de la sortie. Une erreur métier (team hors
+  enum, cycle de deps, flag manquant) revient en isError avec le MÊME message autoportant que le
+  noyau CLI (réutilisé). structuredContent = la tâche résultante. Fini quand : cycle complet PAR
+  TOOLS (sitrep→take→done) sur sandbox sans une commande bash, YAML relu conforme ; une écriture
+  invalide → isError + rollback vérifié (arbre inchangé) ; tests + build verts.
+refs:
+  - docs/specs/2026-07-08-mcp-server.md
+  - src/lib/taskWrites.ts
+links: []
+dependsOn:
+  - 91
+epic: mcp-server
+source: ai
+createdAt: "2026-07-08"
+completedAt: "2026-07-08"
+commit: 306b3fe
+outcome: >-
+  6 tools d'écriture MCP (add, quick, start, done, update, archive) via taskWrites :
+  validation/rollback/verrou hérités, done auto-remplit HEAD et remonte les warnings, erreur métier
+  → isError avec le message du noyau ; registre complet à 14 tools
+verification: >-
+  Cycle complet PAR TOOLS (take→done) sur sandbox, YAML relu status=done ; add team invalide →
+  isError + rollback (vérifié aussi sur stdio RÉEL contre le vrai backlog : nextId inchangé, zéro
+  tâche parasite) ; quick sans outcome → isError ; 14 tests MCP + 206 tests + build verts
+release: null

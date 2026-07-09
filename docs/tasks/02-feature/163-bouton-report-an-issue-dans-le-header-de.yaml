@@ -1,0 +1,29 @@
+id: 227
+code: null
+title: Bouton « Report an issue » dans le header de l'app → GitHub new issue
+status: todo
+tags:
+  - engineering
+  - dashboard
+  - github
+size: null
+detail: >-
+  Demandé par la team support pour canaliser les feedbacks users depuis l'app. Ajouter un contrôle
+  discret dans le header (ViewHeader, cluster droit, cohérent avec Activity/FilterMenu) « Report an
+  issue » qui ouvre https://github.com/5e1y/roadmapped/issues/new (idéalement avec le template bug
+  pré-sélectionné : /issues/new?template=bug-report.yml). Dépend des issue templates (support) pour
+  le lien exact. Rester dans le DS.
+refs:
+  - src/components/ViewHeader.tsx
+links: []
+dependsOn:
+  - 223
+epic: community-github
+source: ai
+createdAt: "2026-07-09T13:55:55"
+updatedAt: "2026-07-09T13:56:06"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

@@ -1,0 +1,43 @@
+id: 139
+code: null
+title: >-
+  Implémenter la distribution : paquet npm + bin roadmapped + fix racine-paquet/racine-hôte (spec
+  #12, finding #123)
+status: done
+tags:
+  - fable
+size: L
+detail: null
+refs: []
+links: []
+dependsOn: []
+milestone: null
+source: ai
+createdAt: "2026-07-08T12:25:17"
+completedAt: "2026-07-08"
+commit: 15b4f77
+outcome: >-
+  Distribution implémentée (Fable, spec #12). FIX #123 (racine) : paths.ts dissocie packageRoot()
+  (import.meta.url — code, réservé à Vite) et findHostRoot(cwd) (remonte jusqu'au 1er
+  roadmapped.config.json/.git, borné au 1er .git) ; tasksDir/docsDir s'ancrent sur le repo HÔTE,
+  défauts relatifs à l'hôte (plus de ../). loadPathsAt + override ROADMAPPED_ROOT. Paquet publiable
+  : package.json sans private, bin/files/engines(node>=22.18), Vite+plugins en dependencies
+  (roadmapped dashboard chez l'hôte). bin/roadmapped.mjs = dispatcher (init/upgrade/dashboard +
+  proxy transparent de tout verbe vers task.mjs → CLI portable). scripts/install.mjs = étapes
+  idempotentes exportées (ensureConfig/ensureSkeleton 8
+  stages/copySkill→.claude/skills/roadmapped/mergeMcpEntry/installGuardHook CHAÎNÉ
+  husky/lefthook/core.hooksPath jamais écrasé) ; upgrade = tool-owned seulement, docs/tasks + config
+  intouchés. Découverte : Node refuse strip-types sous node_modules → loader amaro
+  (scripts/register-ts.mjs, moteur SWC embarqué de Node) branché par bin + entrées écrites par init.
+  Notes canoniques des 8 stages remontées dans STAGES (tasks.ts). Skill
+  (SKILL.md/setup.md/delegation.md → npx roadmapped) + guide §2 MAJ.
+verification: >-
+  Vérif INDÉPENDANTE : tsc clean ; vitest 319/319 (+29 : paths.test 11, install.test 21) ; build OK.
+  NON-RÉGRESSION dogfooding (priorité 1) : node scripts/task.mjs validate → OK 131 tâches nextId=143
+  ; sitrep 119/131 ; git status = AUCUN fichier parasite dans docs/tasks, _meta.yaml réel inchangé
+  (les tests écrivent bien dans un sandbox épinglé ROADMAPPED_ROOT). PREUVE FIX #123 (mon propre
+  test, pas celui de Fable) : repo hôte vierge monté dans un scratch (config + _meta nextId:1 + 1
+  stage), CLI de l'install lancé DEPUIS lui → sitrep « avancement 0/0, done 0 » + validate se plaint
+  des stages manquants de l'HÔTE, PLUS les 131 de l'install. Le bug #123 est bien corrigé. Scratch
+  nettoyé.
+release: null

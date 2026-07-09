@@ -24,7 +24,8 @@ export function git(args: string): string | null {
 }
 
 export function taskLine(t: TaskNode, indent = '  '): string {
-  const chips = [t.code, t.size, t.team, t.kind !== 'task' ? t.kind : null, ...t.tags].filter(Boolean).join(' ')
+  const heatChip = typeof t.heat === 'number' && t.heat > 0 ? `heat ${t.heat}` : null
+  const chips = [t.code, t.size, heatChip, t.kind !== 'task' ? t.kind : null, ...t.tags].filter(Boolean).join(' ')
   return `${indent}${GLYPH[t.status]} #${String(t.id).padEnd(4)}${t.title}${chips ? `  (${chips})` : ''}`
 }
 
@@ -65,7 +66,8 @@ export function renderRef(ref: string, createdAt: string): string {
 export function briefText(tree: TaskTree, hit: FoundTask): string {
   const t = hit.task
   const out = [`#${t.id} ${t.title}`]
-  const meta = [`stage: ${hit.sectionKey}`, `team: ${t.team}`]
+  const meta = [`type: ${hit.sectionKey}`]
+  if (typeof t.heat === 'number' && t.heat > 0) meta.push(`heat: ${t.heat}`)
   if (t.kind !== 'task') meta.push(`kind: ${t.kind}`)
   if (t.epic) meta.push(`epic: ${t.epic}`)
   if (t.size) meta.push(`size: ${t.size}`)

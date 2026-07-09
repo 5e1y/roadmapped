@@ -1,0 +1,33 @@
+id: 72
+code: null
+title: "Token economy v2 — convention #debt : les quick comme ledger de dette"
+status: done
+tags:
+  - token-economy
+  - docs
+size: S
+detail: >-
+  ⛔ Après le ticket quick (#66). Annexe pt 5 : convention documentée dans le noyau du skill — un
+  raccourci assumé (plafond connu, upgrade path) se trace en quick taggé debt, outcome nommant le
+  plafond (l'équivalent requêtable des commentaires ponytail:). list --tag existe-t-il ? sinon
+  l'ajouter (filtre tags sur list). Fini quand : convention dans le skill (2 lignes max, noyau
+  stable), list --tag debt fonctionnel, un exemple réel créé.
+refs:
+  - docs/specs/2026-07-07-token-economy.md
+  - skills/roadmaped/SKILL.md
+links: []
+dependsOn:
+  - 66
+epic: token-economy
+source: user
+createdAt: "2026-07-07"
+completedAt: "2026-07-08"
+commit: e2d1c42
+outcome: >-
+  convention #debt : un raccourci assumé se trace en quick taggé debt (plafond dans le titre),
+  requêtable via 'list --tag debt' ; sitrep alerte la dette ouverte ; documenté dans le noyau du
+  skill (2 lignes)
+verification: >-
+  list --tag debt sort #82 (exemple réel créé : âge sitrep depuis createdAt) et exclut les autres ;
+  2 tests CLI verts ; convention dans SKILL.md et guide.md
+release: null

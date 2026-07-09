@@ -1,0 +1,30 @@
+id: 162
+code: null
+title: >-
+  npm publish dry-run : npm pack, vérifier l'allowlist files, rendu README sur npm, zéro secret,
+  dispo du nom 'roadmapped'
+status: done
+tags:
+  - publish
+size: null
+detail: >-
+  Préparation de #13 (publish repo). npm pack --dry-run → inspecter le tarball (bin, scripts, src,
+  skills, index.html, vite.config.ts, tsconfig.json). Vérifier : pas de fichier sensible embarqué,
+  README rend bien sur npmjs, version 0.1.0 OK, engines node>=22.18 documenté. Vérifier la dispo du
+  nom 'roadmapped' sur le registre npm. NE PAS publier — juste prouver que c'est prêt.
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-08T18:03:09"
+completedAt: "2026-07-08"
+commit: 2d2215e
+outcome: >-
+  npm pack dry-run OK. Nom 'roadmapped' LIBRE sur npm (registry 404). Correctif : le paquet
+  embarquait 22 fichiers de test (.test.ts/.tsx/.mjs) + stageFixtures — exclus via négations dans le
+  champ files. Paquet : 88→66 fichiers, 190→151 kB, zéro secret. Fichiers essentiels vérifiés
+  présents (bin/roadmapped.mjs, scripts/task.mjs, skills/roadmapped/, src/, index.html). version
+  0.1.0, engines node>=22.18. Prêt à publier (reste : confirmer l'URL repo + npm publish par Rémi).
+verification: null
+release: null

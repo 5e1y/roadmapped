@@ -1,0 +1,42 @@
+id: 149
+code: null
+title: "Spec — mode « feedback » : itérer sur une tâche sans créer des tickets à l'infini"
+status: done
+tags:
+  - spec
+  - data-model
+size: M
+detail: >-
+  Problème constaté par Rémi : itérer sur le MÊME sujet fait ruisseler des tickets (#140→#141→#146…)
+  alors que c'est une seule chose en cours de finition. Spécifier un « mode feedback » qui capte les
+  retours sur une tâche SANS créer un nouveau ticket à chaque fois. À explorer/trancher : le modèle
+  (nouveau statut type in_review/needs_feedback ? un journal de feedback horodaté attaché à la tâche
+  — items {date, auteur, texte, résolu} ? des sous-items légers distincts des subtasks ?) ; le cycle
+  de vie (une tâche done qui reçoit un retour repasse-t-elle en feedback plutôt que de spawner un
+  quick ? frontière avec la règle actuelle « done = frontière, un retour = un quick » de
+  process-enforcement — CE mode assouplit-il cette règle et dans quels cas ?) ; l'UI (où saisir un
+  feedback dans le panneau, comment le voir/résoudre) ; l'impact CLI/MCP/skill (une commande
+  feedback <id> "…" ? comment l'agent lit et traite les feedbacks ouverts) ; l'articulation avec la
+  console action-tracking de #147. Livrable : docs/specs/2026-07-08-feedback-mode.md + découpage en
+  sous-tickets (difficulté + tier d'agent). Confié à Fable 5. Zéro code avant approbation.
+refs: []
+links: []
+dependsOn: []
+epic: feedback-mode
+source: ai
+createdAt: "2026-07-08T15:26:48"
+startedAt: "2026-07-08T15:26:54"
+completedAt: "2026-07-08"
+commit: 40f224a
+outcome: >-
+  docs/specs/2026-07-08-feedback-mode.md rédigé (DRAFT). Résout le ruissellement de tickets
+  (#140→#141→#146) SANS casser la traçabilité : (1) journal feedback[]{date,author,text,resolved}
+  additif sur la tâche = capture sans ticket ; (2) PAS de nouveau statut (enum immuable) — une done
+  avec feedback open est signalée (sitrep) ; (3) agir sur un retour même-périmètre = ROUVRIR
+  (done→in_progress) + re-done avec commit, au lieu d'un quick-jumeau → git log garde chaque commit,
+  la tâche porte le récit ; (4) le quick reste le défaut pour un périmètre nouveau. Impact CLI/MCP
+  (feedback <id>), sitrep, UI panneau, skill/process-enforcement. Articulé avec la console #147.
+  Décision de FOND (assouplir 'done=frontière') balisée pour Rémi. Découpage 5 sous-tickets. Sans
+  tiering Fable.
+verification: null
+release: null

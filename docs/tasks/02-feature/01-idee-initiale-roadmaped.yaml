@@ -1,0 +1,18 @@
+id: 45
+code: null
+title: "Idée initiale — Roadmaped, gestion de projet locale agent-first"
+status: done
+tags: []
+size: null
+detail: "Le problème : piloter le travail d'un agent (Claude Code) sur un projet exige une source de vérité locale, versionnée, lisible par l'agent comme par l'humain — les outils SaaS restent hors-repo et opaques à l'agent. La cible : développeurs solo et petites équipes qui lancent un produit avec un agent."
+refs: []
+links: []
+dependsOn: []
+milestone: null
+source: user
+createdAt: "2026-07-07"
+completedAt: "2026-07-07"
+commit: null
+outcome: "L'idée fondatrice de Roadmaped : un backlog en fichiers YAML dans le repo, piloté par un CLI et un dashboard, pensé pour être conduit par un agent."
+verification: "Confirmée a posteriori par l'existence du produit : dashboard et CLI tournent sur leur propre backlog (dogfooding)."
+release: null

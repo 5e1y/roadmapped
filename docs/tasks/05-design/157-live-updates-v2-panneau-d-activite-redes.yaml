@@ -1,0 +1,47 @@
+id: 205
+code: null
+title: Live updates V2 — panneau d'activité redessiné et docké dans le header (instance Fable 5)
+status: done
+tags:
+  - dashboard
+  - design
+  - live-reactivity
+size: null
+detail: >-
+  Demande Rémi (exception explicite : instance Fable 5, malgré la règle « pas de Fable » par
+  défaut). V1 = LiveConsole, bouton flottant bottom-left + tiroir. V2 : le déplacer dans la bande
+  header (visuellement en haut), améliorer UI, cohésion DS (monochrome + accent bleu rare, Base UI
+  au max, ghost inputs, h-12), interactivité. CONTRAINTE ARCHI : ViewHeader est monté 1×/vue (4
+  instances, une visible) → le panneau reste une instance UNIQUE niveau App (sinon état log/unread
+  perdu au switch de vue). Instance unique montée dans App.tsx, positionnée `fixed` top-right pour
+  vivre dans la bande header — PAS dans ViewHeader. Seam propre : Fable ne possède que
+  src/components/LiveConsole.tsx (+ éventuellement index.css anim, ui.tsx toast) ; il ne touche NI
+  ViewHeader NI api NI bin. Spec : docs/specs/2026-07-09-live-updates-v2.md.
+refs:
+  - src/components/LiveConsole.tsx
+  - src/App.tsx
+  - src/components/ui.tsx
+  - src/index.css
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-09T09:41:54"
+startedAt: "2026-07-09T09:52:13"
+updatedAt: "2026-07-09T10:07:16"
+completedAt: "2026-07-09"
+commit: c91afa4
+outcome: >-
+  Live V2 « Activity » docké dans le cluster droit du header (Popover Base UI, jumeau des
+  FilterMenu). État levé dans LiveActivityProvider (App-level) → log/unread/open survivent au
+  remontage de ViewHeader ; déclencheur présentationnel LiveActivityMenu (null hors provider). Badge
+  non-lus accent+pulse, flash accent-tint des entrées fraîches (reduced-motion coupé), clic entrée →
+  ouvre le ticket, toasts « Task finished! » conservés, removed sans titre. LiveConsole.tsx
+  supprimé. Réalisé par instance Fable 5. Reportés (ponytail): filtre par verbe, regroupement des
+  rafales.
+verification: >-
+  tsc -b 0 erreur (rejoué). 397 tests verts dont src/state/LiveActivity.test.ts (9 assertions
+  eventsFromDiff/verbForStatus). 8 icônes trinil-react confirmées exportées, usePanel().openTask
+  confirmé. Dashboard réel sur :5188 : /api/tree répond, LiveActivityMenu.tsx + LiveActivity.tsx
+  transpilés par Vite sans erreur, log serveur propre. build:demo OK.
+release: null

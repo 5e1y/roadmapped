@@ -1,0 +1,38 @@
+id: 48
+code: null
+title: Icônes trinil-react — intégration et remplacement des SVG inline
+status: done
+tags:
+  - ux
+  - design
+  - icons
+size: S
+detail: >-
+  Installer trinil-react (vérifié : v1.3.9 npm, 1055 icônes outline, tree-shakeable, zéro dep, API
+  size/color=currentColor/strokeWidth/className/ariaLabel — banque perso de Rémi). Remplacer les SVG
+  inline : Chevron→ChevronRight (garder la classe .chev pour la rotation), ✕→Cross (SidePanel,
+  RemoveButton, ChipRemove), ✓→Check (SavedTick, indicateurs de popup), crayon→EditPen, +→Plus,
+  copier→Clipboard. GARDER les StatusGlyph maison (cercles vide/demi/plein = identité visuelle du
+  produit) — décision design validée. LockLocked servira aux cartes verrouillées (tâche suivante).
+  strokeWidth 1.5, tailles calées sur l'existant (10-14px). Fini quand : zéro régression visuelle
+  (captures avant/après), tests + build verts.
+refs:
+  - src/components/glyphs.tsx
+  - src/components/ui.tsx
+  - src/components/SidePanel.tsx
+links: []
+dependsOn:
+  - 43
+epic: design-system
+source: user
+createdAt: "2026-07-07"
+completedAt: "2026-07-07"
+commit: "1871706"
+outcome: >-
+  L'app utilise la banque d'icônes trinil-react de Rémi : chevrons, croix, coches, crayon, alerte,
+  flèche retour — les cercles de statut maison restent la signature du produit
+verification: >-
+  npm i trinil-react@1.3.9 dans le repo ; 11 SVG inline remplacés dans 6 composants ; grep <svg → ne
+  restent que StatusGlyph (choix) et le marker de flèche du graphe (structurel) ; build tsc + 128
+  tests verts ; rendu vérifié sur les captures #49 (chevrons, ✕, ✓ visibles).
+release: null

@@ -1,0 +1,28 @@
+id: 177
+kind: quick
+code: null
+title: >-
+  Doc de déploiement site/ (Cloudflare Pages + wiring du build démo dans /demo/) — rend la landing
+  shippable, prépare #18
+status: done
+tags:
+  - marketing
+  - homepage
+size: null
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-08T18:31:15"
+startedAt: "2026-07-08T18:31:15"
+completedAt: "2026-07-08"
+commit: dfb6f6a
+outcome: >-
+  site/README.md : inventaire des fichiers, déploiement Cloudflare Pages (build:none, output=site/),
+  wiring du build démo (npm run build:demo → /demo/, artifact non commité car gitignore + base:'./'
+  déjà OK), checklist avant-publish (URL GitHub placeholder à remplacer, régénération OG image).
+  Rend la landing shippable et prépare #18.
+verification: null
+release: null

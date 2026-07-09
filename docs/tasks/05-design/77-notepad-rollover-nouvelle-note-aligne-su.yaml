@@ -1,0 +1,24 @@
+id: 99
+kind: quick
+code: null
+title: "Notepad : rollover + Nouvelle note aligné sur les inputs du panneau (neutral-100, pas 200)"
+status: done
+tags:
+  - ux
+size: null
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: notepad
+source: ai
+createdAt: "2026-07-08T01:31:25"
+completedAt: "2026-07-08"
+commit: 27e55fa
+outcome: >-
+  Rollover « + Nouvelle note » repassé en hover:bg-neutral-100 — même intensité que le hover des
+  champs ghost du panneau de tâche (ghostCls, ui.tsx), plus le gris trop foncé neutral-200
+verification: >-
+  Build vert ; classe hover:bg-neutral-100 confirmée dans NotepadView, identique au ghostCls de
+  ui.tsx. (Rendu à confirmer visuellement au refresh.)
+release: null

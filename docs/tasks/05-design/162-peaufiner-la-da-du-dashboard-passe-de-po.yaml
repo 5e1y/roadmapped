@@ -1,0 +1,25 @@
+id: 215
+code: null
+title: Peaufiner la DA du dashboard — passe de polish UI
+status: todo
+tags:
+  - design
+  - dashboard
+  - ux
+size: null
+detail: >-
+  Passe de raffinement visuel sur le dashboard existant : cohérence des espacements/rythmes, états
+  (hover/focus/empty/loading), micro-interactions, alignements, densité, contraste. Rester dans le
+  DS (monochrome + accent rare, Base UI). Distinct des features : ici on polit l'existant.
+refs: []
+links: []
+dependsOn: []
+epic: brand-identity
+source: ai
+createdAt: "2026-07-09T13:55:01"
+updatedAt: "2026-07-09T13:55:01"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

@@ -1,0 +1,40 @@
+id: 61
+code: null
+title: Fusion Backlog + Teams — le radar devient le flanc gauche du backlog
+status: done
+tags:
+  - ux
+  - design
+size: M
+detail: >-
+  Décision Rémi (2026-07-07) : fusionner les vues Teams et Backlog. La vue Backlog devient : colonne
+  radar à gauche (charge par team, cartes cliquables) + liste de travail à droite (TaskList 12+voir
+  plus, terminées après, archive). La sélection du radar PILOTE le filtre team existant (clic carte
+  = filtre sur cette team, re-clic ou clic dans le vide = tout ; le dropdown Teams du header reste
+  pour le multi et reflète le même état). Le radar s'efface quand le panneau est ouvert sous 2xl
+  (comportement conservé). L'entrée « Teams » disparaît de la nav (View, App, titre, whitelist
+  localStorage) ; TeamsRadar extrait dans son fichier, TeamsView supprimée. Fini quand : captures de
+  la vue fusionnée (radar + liste), clic carte = liste filtrée + dropdown header synchronisé, nav à
+  3 entrées, tests + build verts.
+refs:
+  - src/components/Backlog.tsx
+  - src/components/TeamsView.tsx
+  - src/components/Sidebar.tsx
+  - src/App.tsx
+links: []
+dependsOn:
+  - 60
+epic: vues-dashboard
+source: user
+createdAt: "2026-07-07"
+completedAt: "2026-07-07"
+commit: 80bf8c4
+outcome: >-
+  Backlog et Teams ne font plus qu'un : la charge par équipe vit en flanc gauche du backlog et
+  cliquer une team filtre la liste instantanément — une vue de moins, plus de sens
+verification: >-
+  8 assertions navigateur : nav à 3 entrées, radar présent dans Backlog, clic carte marketing →
+  dropdown header « marketing » et liste filtrée (#16 en tête), radar visible panneau ouvert à
+  1600px (2xl) et caché à 1280px puis revenu à la fermeture, clic vide → « Toutes les teams ».
+  Capture de la vue fusionnée relue. 132 tests + build verts.
+release: null

@@ -10,23 +10,24 @@ import { load } from 'js-yaml'
 
 // On teste le vrai binaire, en sous-processus, contre un sandbox jetable — JAMAIS
 // le docs/tasks réel (la config du sandbox pointe tasksDir sur un chemin ABSOLU
-// temporaire). Depuis le refactor stages+teams, la validation stricte exige les
-// 8 stages canoniques : le sandbox les sème donc tous.
+// temporaire). Depuis le refactor « jalons par type » (#230), la validation stricte
+// exige les 9 TYPES canoniques : le sandbox les sème donc tous.
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 
-// Les 8 stages canoniques (miroir de STAGES dans src/lib/tasks.ts).
+// Les 9 types canoniques (miroir de TYPES dans src/lib/tasks.ts).
 const STAGES = [
-  ['01-idea', 'Idea Stage'],
-  ['02-initial', 'Initial Stage'],
-  ['03-identity', 'Identity Stage'],
-  ['04-build', 'Build Stage'],
-  ['05-gtm', 'GTM Stage'],
-  ['06-launch', 'Launch Stage'],
-  ['07-scale', 'Scale Stage'],
-  ['08-mature', 'Mature Stage'],
+  ['01-bug', 'Bugs'],
+  ['02-feature', 'Features'],
+  ['03-chore', 'Chores'],
+  ['04-brainstorm', 'Brainstorms'],
+  ['05-design', 'Design'],
+  ['06-marketing', 'Marketing'],
+  ['07-communication', 'Communication'],
+  ['08-legal', 'Legal'],
+  ['09-business', 'Business'],
 ]
-const SEC = '04-build'
+const SEC = '02-feature'
 
 let sandbox
 let tasksDir
@@ -37,7 +38,7 @@ const scriptPath = () => join(sandbox, 'scripts', 'task.mjs')
 // lancé depuis la racine du repo taperait le VRAI backlog.
 const sbEnv = () => ({ ...process.env, ROADMAPPED_ROOT: sandbox })
 
-/** Construit un sandbox autonome (script + lib + node_modules + config + 8 stages). */
+/** Construit un sandbox autonome (script + lib + node_modules + config + 9 types). */
 function buildSandbox() {
   sandbox = mkdtempSync(join(tmpdir(), 'roadmapped-cli-'))
   mkdirSync(join(sandbox, 'scripts'))
@@ -58,7 +59,7 @@ function buildSandbox() {
     [
       'id: 1', 'code: null', 'title: Tâche', 'status: todo',
       'tags:', '  - alpha', '  - beta',
-      'size: M', 'team: engineering', 'detail: null',
+      'size: M', 'detail: null',
       'refs:', '  - docs/x.md',
       'links:', '  - 2',
       'dependsOn: []', 'milestone: null', 'source: ai',
@@ -110,27 +111,31 @@ describe('CLI update — champs liste avec "null"', () => {
   })
 })
 
-describe('CLI add — team obligatoire (enum fixe)', () => {
-  it('refuse un add sans --team', () => {
-    const r = runTask(['add', '--section', SEC, '--title', 'Sans team'])
+describe('CLI add — --type requis (la nature, #230)', () => {
+  it('refuse un add sans --type', () => {
+    const r = runTask(['add', '--title', 'Sans type'])
     expect(r.code).not.toBe(0)
-    expect(r.stderr).toMatch(/--team/)
+    expect(r.stderr).toMatch(/--type/)
   })
 
-  it('refuse un add avec une --team hors enum (message listant les valeurs)', () => {
-    const r = runTask(['add', '--section', SEC, '--title', 'X', '--team', 'wizardry'])
+  it('refuse un add avec un --heat non numérique (message autoportant)', () => {
+    const r = runTask(['add', '--type', SEC, '--title', 'X', '--heat', 'brûlant'])
     expect(r.code).not.toBe(0)
-    expect(r.stderr).toMatch(/team/)
-    expect(r.stderr).toMatch(/engineering/) // le message énumère les teams valides
+    expect(r.stderr).toMatch(/heat/)
   })
 
-  it('accepte un add avec une --team valide', () => {
-    const r = runTask(['add', '--section', SEC, '--title', 'Bien née', '--team', 'design'])
+  it('accepte un add avec un --type valide', () => {
+    const r = runTask(['add', '--type', SEC, '--title', 'Bien née'])
     expect(r.code).toBe(0)
   })
 
+  it('accepte --section / --stage comme alias de --type', () => {
+    expect(runTask(['add', '--section', SEC, '--title', 'Via section']).code).toBe(0)
+    expect(runTask(['add', '--stage', SEC, '--title', 'Via stage']).code).toBe(0)
+  })
+
   it('rejette --zone comme flag inconnu', () => {
-    const r = runTask(['add', '--section', SEC, '--title', 'X', '--team', 'engineering', '--zone', 'store'])
+    const r = runTask(['add', '--type', SEC, '--title', 'X', '--zone', 'store'])
     expect(r.code).not.toBe(0)
     expect(r.stderr).toMatch(/Unknown flag.*--zone/)
   })
@@ -139,7 +144,7 @@ describe('CLI add — team obligatoire (enum fixe)', () => {
 describe('CLI take / brief — liens titrés, contexte en 1 appel (#65)', () => {
   it('brief affiche les liées avec titre + statut inline (#id titre (statut))', () => {
     // #1 est liée à #2 (links: [2]) ; on crée #2 pour lui donner un titre.
-    runTask(['add', '--section', SEC, '--title', 'Cible liée', '--team', 'design'])
+    runTask(['add', '--type', SEC, '--title', 'Cible liée'])
     const r = runTask(['brief', '1'])
     expect(r.code).toBe(0)
     expect(r.stdout).toMatch(/linked:/)
@@ -158,32 +163,33 @@ describe('CLI take / brief — liens titrés, contexte en 1 appel (#65)', () => 
     const r = runTask(['take'])
     expect(r.code).toBe(0)
     expect(r.stdout).toMatch(/#1 started/)
-    expect(r.stdout).toMatch(/stage: 04-build/)
+    expect(r.stdout).toMatch(/type: 02-feature/)
     // la tâche est réellement passée in_progress
     expect(readTask().status).toBe('in_progress')
   })
 
   it('take sans rien de dispo → message court', () => {
-    const r = runTask(['take', '--team', 'legal']) // aucune tâche legal
+    const r = runTask(['take', '--type', 'legal']) // aucune tâche legal
     expect(r.code).toBe(0)
     expect(r.stdout).toMatch(/No task available/)
   })
 
   it('show affiche les liées titrées (même helper que brief)', () => {
-    runTask(['add', '--section', SEC, '--title', 'Autre cible', '--team', 'design'])
+    runTask(['add', '--type', SEC, '--title', 'Autre cible'])
     const r = runTask(['show', '1'])
     expect(r.stdout).toMatch(/linked:.*#2 Autre cible \(todo\)/)
   })
 })
 
 describe('CLI list --json — allégé par défaut, --json-full pour l\'intégral (#65)', () => {
-  it('--json est allégé (id,title,status,team,stage,size,kind ; pas de detail/dates)', () => {
+  it('--json est allégé (id,title,status,type,size,kind,heat ; pas de detail/dates)', () => {
     const r = runTask(['list', '--json'])
     expect(r.code).toBe(0)
     const arr = JSON.parse(r.stdout)
     expect(Array.isArray(arr)).toBe(true)
     const t = arr.find((x) => x.id === 1)
-    expect(t).toMatchObject({ id: 1, title: 'Tâche', status: 'todo', team: 'engineering', stage: '04-build', size: 'M', kind: 'task' })
+    expect(t).toMatchObject({ id: 1, title: 'Tâche', status: 'todo', type: '02-feature', size: 'M', kind: 'task' })
+    expect(t).not.toHaveProperty('team')
     expect(t).not.toHaveProperty('detail')
     expect(t).not.toHaveProperty('createdAt')
   })
@@ -217,44 +223,44 @@ describe('CLI erreurs autoportantes — usage exact de la commande fautive (#65)
 
 describe('CLI quick — mini-tickets (#66)', () => {
   it('cycle complet en 2 commandes : quick --start puis done --outcome (sans verification) → OK', () => {
-    const created = runTask(['quick', 'fix chevron', '--team', 'design', '--start'])
+    const created = runTask(['quick', 'fix chevron', '--start'])
     expect(created.code).toBe(0)
     expect(created.stdout).toMatch(/#2 created \(quick\)/)
     expect(created.stdout).toMatch(/#2 started/)
     const done = runTask(['done', '2', '--outcome', 'chevron redressé'])
     expect(done.code).toBe(0)
-    // Stage par défaut = 1er stage open : dans ce sandbox les 8 sont open → 01-idea.
-    const t = load(readFileSync(join(tasksDir, '01-idea', '01-fix-chevron.yaml'), 'utf8'))
+    // Type par défaut = 1er type open : dans ce sandbox les 9 sont open → 01-bug.
+    const t = load(readFileSync(join(tasksDir, '01-bug', '01-fix-chevron.yaml'), 'utf8'))
     expect(t.kind).toBe('quick')
     expect(t.status).toBe('done')
     expect(t.outcome).toBe('chevron redressé')
     expect(t.verification).toBeNull() // facultative pour un quick
   })
 
-  it('quick sans stage → atterrit dans le premier stage open (01-idea ici)', () => {
-    const r = runTask(['quick', 'petit truc', '--team', 'design'])
+  it('quick sans type → atterrit dans le premier type open (01-bug ici)', () => {
+    const r = runTask(['quick', 'petit truc'])
     expect(r.code).toBe(0)
     expect(r.stdout).toMatch(/#2 created \(quick\)/)
-    const t = load(readFileSync(join(tasksDir, '01-idea', '01-petit-truc.yaml'), 'utf8'))
+    const t = load(readFileSync(join(tasksDir, '01-bug', '01-petit-truc.yaml'), 'utf8'))
     expect(t.kind).toBe('quick')
   })
 
   it('done d\'un quick SANS outcome échoue (outcome requis)', () => {
-    runTask(['quick', 'sans issue', '--team', 'design', '--start'])
+    runTask(['quick', 'sans issue', '--start'])
     const r = runTask(['done', '2'])
     expect(r.code).not.toBe(0)
     expect(r.stderr).toMatch(/outcome/)
   })
 
   it('quick en size L est refusé (via update size L → rollback)', () => {
-    runTask(['quick', 'gros truc', '--team', 'design'])
+    runTask(['quick', 'gros truc'])
     const r = runTask(['update', '2', '--size', 'L'])
     expect(r.code).not.toBe(0)
     expect(r.stderr).toMatch(/quick.*L|L.*quick/)
   })
 
   it('quick apparaît dans la file next (servi comme une task)', () => {
-    runTask(['quick', 'à prendre', '--team', 'design'])
+    runTask(['quick', 'à prendre'])
     const r = runTask(['next', '--count', '5', '--json'])
     const arr = JSON.parse(r.stdout)
     expect(arr.some((t) => t.id === 2 && t.kind === 'quick')).toBe(true)
@@ -263,7 +269,7 @@ describe('CLI quick — mini-tickets (#66)', () => {
 
 describe('CLI done — anti-exploration & rétrocompat kind (#66)', () => {
   it('done d\'une task SANS refs → succès + warning sur stderr', () => {
-    runTask(['add', '--section', SEC, '--title', 'Sans refs', '--team', 'design']) // #2, refs vides
+    runTask(['add', '--type', SEC, '--title', 'Sans refs']) // #2, refs vides
     runTask(['start', '2'])
     const r = runTask(['done', '2', '--outcome', 'livré'])
     expect(r.code).toBe(0) // non bloquant
@@ -271,21 +277,22 @@ describe('CLI done — anti-exploration & rétrocompat kind (#66)', () => {
   })
 
   it('une task créée via CLI ne matérialise jamais « kind » dans son YAML', () => {
-    runTask(['add', '--section', SEC, '--title', 'Normale née CLI', '--team', 'design'])
+    runTask(['add', '--type', SEC, '--title', 'Normale née CLI'])
     const raw = readFileSync(join(tasksDir, SEC, '02-normale-nee-cli.yaml'), 'utf8')
     expect(raw).not.toContain('kind:')
   })
 })
 
-describe('CLI list — filtre --team', () => {
-  it('ne renvoie que les tâches de la team demandée', () => {
-    runTask(['add', '--section', SEC, '--title', 'Une tâche design', '--team', 'design'])
-    runTask(['add', '--section', SEC, '--title', 'Une tâche finance', '--team', 'finance'])
-    const r = runTask(['list', '--team', 'design'])
+describe('CLI list — filtre --type (la nature = la section, #230)', () => {
+  it('ne renvoie que les tâches du type demandé', () => {
+    // #2 dans 05-design, #3 dans 06-marketing ; le seed #1 est dans 02-feature.
+    runTask(['add', '--type', '05-design', '--title', 'Une tâche design'])
+    runTask(['add', '--type', '06-marketing', '--title', 'Une tâche marketing'])
+    const r = runTask(['list', '--type', 'design']) // slug nu accepté
     expect(r.code).toBe(0)
     expect(r.stdout).toMatch(/Une tâche design/)
-    expect(r.stdout).not.toMatch(/Une tâche finance/)
-    // La tâche seed (#1, engineering) n'apparaît pas non plus
+    expect(r.stdout).not.toMatch(/Une tâche marketing/)
+    // La tâche seed (#1, dans 02-feature) n'apparaît pas non plus
     expect(r.stdout).not.toMatch(/#1 /)
   })
 })
@@ -298,7 +305,7 @@ describe('CLI concurrence — verrou global de mutation (#83)', () => {
     const N = 8
     const run = (i) =>
       new Promise((resolve) => {
-        const p = spawn('node', [scriptPath(), 'add', '--section', SEC, '--title', `Concurrente ${i}`, '--team', 'engineering', '--json'], { encoding: 'utf8', env: sbEnv() })
+        const p = spawn('node', [scriptPath(), 'add', '--type', SEC, '--title', `Concurrente ${i}`, '--json'], { encoding: 'utf8', env: sbEnv() })
         let out = ''
         p.stdout.on('data', (d) => { out += d })
         p.on('close', (code) => resolve({ code, out }))
@@ -314,7 +321,7 @@ describe('CLI concurrence — verrou global de mutation (#83)', () => {
 
 describe('CLI list — filtre --tag : le ledger de dette requêtable (#72)', () => {
   it('ne renvoie que les tâches portant le tag demandé', () => {
-    runTask(['quick', 'Raccourci assumé', '--team', 'engineering', '--tags', 'debt']) // #2
+    runTask(['quick', 'Raccourci assumé', '--tags', 'debt']) // #2
     const r = runTask(['list', '--tag', 'debt'])
     expect(r.code).toBe(0)
     expect(r.stdout).toMatch(/Raccourci assumé/)
@@ -341,7 +348,7 @@ describe('CLI sitrep — l\'état du monde en ≤30 lignes (#70)', () => {
   })
 
   it('signale la dette ouverte (#debt) en alerte', () => {
-    runTask(['quick', 'Dette ouverte', '--team', 'engineering', '--tags', 'debt']) // #2 todo
+    runTask(['quick', 'Dette ouverte', '--tags', 'debt']) // #2 todo
     const r = runTask(['sitrep'])
     expect(r.stdout).toMatch(/open debt item\(s\).*#2/)
   })
@@ -398,7 +405,7 @@ describe('CLI guard — enforcement au commit (#100)', () => {
     const r = runGuard()
     expect(r.code).toBe(1)
     expect(r.stderr).toMatch(/produit\.txt/)
-    expect(r.stderr).toMatch(/quick "<title>" --team/)
+    expect(r.stderr).toMatch(/quick "<title>" --type/)
     expect(r.stderr).toMatch(/--no-verify/)
   })
 
@@ -472,7 +479,7 @@ describe('CLI epic & jalons (#133)', () => {
   })
 
   it("add --kind milestone --blocks 1 crée le jalon ET l'ajoute aux dependsOn de #1", () => {
-    const r = runTask(['add', '--section', SEC, '--title', 'Socle prêt', '--team', 'engineering', '--kind', 'milestone', '--blocks', '1'])
+    const r = runTask(['add', '--type', SEC, '--title', 'Socle prêt', '--kind', 'milestone', '--blocks', '1'])
     expect(r.code).toBe(0)
     expect(r.stdout).toMatch(/#2 now blocks: #1/)
     const jalon = load(readFileSync(join(tasksDir, SEC, '02-socle-pret.yaml'), 'utf8'))
@@ -481,14 +488,14 @@ describe('CLI epic & jalons (#133)', () => {
   })
 
   it('add --blocks refuse un id inexistant AVANT toute écriture (aucun jalon créé)', () => {
-    const r = runTask(['add', '--section', SEC, '--title', 'Jalon', '--team', 'engineering', '--kind', 'milestone', '--blocks', '999'])
+    const r = runTask(['add', '--type', SEC, '--title', 'Jalon', '--kind', 'milestone', '--blocks', '999'])
     expect(r.code).not.toBe(0)
     expect(r.stderr).toMatch(/999/)
     expect(runTask(['show', '2']).code).not.toBe(0) // nextId non consommé
   })
 
   it('add --kind hors enum → erreur autoportante', () => {
-    const r = runTask(['add', '--section', SEC, '--title', 'X', '--team', 'engineering', '--kind', 'mega'])
+    const r = runTask(['add', '--type', SEC, '--title', 'X', '--kind', 'mega'])
     expect(r.code).not.toBe(0)
     expect(r.stderr).toMatch(/--kind invalid/)
   })

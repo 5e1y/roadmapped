@@ -140,7 +140,7 @@ describe('validateTaskTree — deps & epics', () => {
   it('accepte un epic NON déclaré (simple tag partagé, aucune déclaration exigée)', () => {
     const files = {
       [meta]: 'nextId: 2\n', [sec]: 'title: "X"\nstatus: open\n',
-      '/docs/tasks/01-x/01-t.yaml': task(1, 'epic: refonte-graphe\nteam: engineering\n'),
+      '/docs/tasks/01-x/01-t.yaml': task(1, 'epic: refonte-graphe\n'),
     }
     expect(validateTaskTree(buildTaskTree(files)).some((e) => e.includes('epic'))).toBe(false)
   })
@@ -156,7 +156,7 @@ describe('validateTaskTree — deps & epics', () => {
   it('rétrocompat : un ancien champ milestone est lu comme epic et validé comme tel', () => {
     const files = {
       [meta]: 'nextId: 2\n', [sec]: 'title: "X"\nstatus: open\n',
-      '/docs/tasks/01-x/01-t.yaml': task(1, 'milestone: socle\nteam: engineering\n'),
+      '/docs/tasks/01-x/01-t.yaml': task(1, 'milestone: socle\n'),
     }
     // slug valide → aucune erreur epic ; aucune exigence de déclaration
     expect(validateTaskTree(buildTaskTree(files)).some((e) => e.includes('epic'))).toBe(false)
@@ -178,7 +178,7 @@ describe('validateTaskTree — deps & epics', () => {
     const ok = {
       [meta]: 'nextId: 3\n', [sec]: 'title: "X"\nstatus: open\n',
       '/docs/tasks/01-x/01-done.yaml':
-        'id: 1\ntitle: "Livrée"\nstatus: done\nteam: engineering\nsource: ai\ncreatedAt: "2026-06-01"\n',
+        'id: 1\ntitle: "Livrée"\nstatus: done\nsource: ai\ncreatedAt: "2026-06-01"\n',
       '/docs/tasks/01-x/02-t.yaml': task(2, 'dependsOn: [1]\n'),
     }
     expect(validateTaskTree(buildTaskTree(ok)).some((e) => e.includes('inexistante'))).toBe(false)
@@ -197,7 +197,7 @@ describe('validateTaskTree — deps & epics', () => {
     const files = {
       [meta]: 'nextId: 2\n',
       ...stageSectionFiles(),
-      '/docs/tasks/04-build/01-t.yaml': task(1, 'team: engineering\n'),
+      '/docs/tasks/02-feature/01-t.yaml': task(1),
     }
     const errs = validateTaskTree(buildTaskTree(files))
     expect(errs).toEqual([])
@@ -207,12 +207,12 @@ describe('validateTaskTree — deps & epics', () => {
 describe('validateTaskTree — kind quick (mini-tickets)', () => {
   const meta = '/docs/tasks/_meta.yaml'
   const base = (id: number, extra = '') =>
-    `id: ${id}\ntitle: "T${id}"\nstatus: todo\nteam: engineering\nsource: ai\ncreatedAt: "2026-07-07"\n${extra}`
+    `id: ${id}\ntitle: "T${id}"\nstatus: todo\nsource: ai\ncreatedAt: "2026-07-07"\n${extra}`
 
   it('accepte kind: quick', () => {
     const files = {
       [meta]: 'nextId: 2\n', ...stageSectionFiles(),
-      '/docs/tasks/04-build/01-t.yaml': base(1, 'kind: quick\n'),
+      '/docs/tasks/02-feature/01-t.yaml': base(1, 'kind: quick\n'),
     }
     expect(validateTaskTree(buildTaskTree(files))).toEqual([])
   })
@@ -220,7 +220,7 @@ describe('validateTaskTree — kind quick (mini-tickets)', () => {
   it('rejette un kind inconnu', () => {
     const files = {
       [meta]: 'nextId: 2\n', ...stageSectionFiles(),
-      '/docs/tasks/04-build/01-t.yaml': base(1, 'kind: mega\n'),
+      '/docs/tasks/02-feature/01-t.yaml': base(1, 'kind: mega\n'),
     }
     expect(validateTaskTree(buildTaskTree(files)).some((e) => e.includes('kind'))).toBe(true)
   })
@@ -228,7 +228,7 @@ describe('validateTaskTree — kind quick (mini-tickets)', () => {
   it('accepte kind: milestone (jalon, #133)', () => {
     const files = {
       [meta]: 'nextId: 2\n', ...stageSectionFiles(),
-      '/docs/tasks/04-build/01-t.yaml': base(1, 'kind: milestone\n'),
+      '/docs/tasks/02-feature/01-t.yaml': base(1, 'kind: milestone\n'),
     }
     expect(validateTaskTree(buildTaskTree(files))).toEqual([])
   })
@@ -236,7 +236,7 @@ describe('validateTaskTree — kind quick (mini-tickets)', () => {
   it('rejette un quick en size L (garde-fou : si c\'est gros, c\'est un ticket)', () => {
     const files = {
       [meta]: 'nextId: 2\n', ...stageSectionFiles(),
-      '/docs/tasks/04-build/01-t.yaml': base(1, 'kind: quick\nsize: L\n'),
+      '/docs/tasks/02-feature/01-t.yaml': base(1, 'kind: quick\nsize: L\n'),
     }
     expect(validateTaskTree(buildTaskTree(files)).some((e) => e.includes('quick') && e.includes('L'))).toBe(true)
   })
@@ -244,7 +244,7 @@ describe('validateTaskTree — kind quick (mini-tickets)', () => {
   it('accepte un quick en size S ou M', () => {
     const files = {
       [meta]: 'nextId: 2\n', ...stageSectionFiles(),
-      '/docs/tasks/04-build/01-t.yaml': base(1, 'kind: quick\nsize: S\n'),
+      '/docs/tasks/02-feature/01-t.yaml': base(1, 'kind: quick\nsize: S\n'),
     }
     expect(validateTaskTree(buildTaskTree(files))).toEqual([])
   })
@@ -252,8 +252,8 @@ describe('validateTaskTree — kind quick (mini-tickets)', () => {
   it('rejette un quick done SANS outcome (le requis vit dans la validation, couvre le dashboard)', () => {
     const files = {
       [meta]: 'nextId: 2\n', ...stageSectionFiles(),
-      '/docs/tasks/04-build/01-t.yaml':
-        'id: 1\nkind: quick\ntitle: "T"\nstatus: done\nteam: engineering\nsource: ai\ncreatedAt: "2026-07-07"\ncompletedAt: "2026-07-07"\n',
+      '/docs/tasks/02-feature/01-t.yaml':
+        'id: 1\nkind: quick\ntitle: "T"\nstatus: done\nsource: ai\ncreatedAt: "2026-07-07"\ncompletedAt: "2026-07-07"\n',
     }
     expect(validateTaskTree(buildTaskTree(files)).some((e) => e.includes('outcome'))).toBe(true)
   })
@@ -261,36 +261,36 @@ describe('validateTaskTree — kind quick (mini-tickets)', () => {
   it('accepte un quick done AVEC outcome (verification facultative)', () => {
     const files = {
       [meta]: 'nextId: 2\n', ...stageSectionFiles(),
-      '/docs/tasks/04-build/01-t.yaml':
-        'id: 1\nkind: quick\ntitle: "T"\nstatus: done\nteam: engineering\nsource: ai\ncreatedAt: "2026-07-07"\ncompletedAt: "2026-07-07"\noutcome: "chevron corrigé"\n',
+      '/docs/tasks/02-feature/01-t.yaml':
+        'id: 1\nkind: quick\ntitle: "T"\nstatus: done\nsource: ai\ncreatedAt: "2026-07-07"\ncompletedAt: "2026-07-07"\noutcome: "chevron corrigé"\n',
     }
     expect(validateTaskTree(buildTaskTree(files))).toEqual([])
   })
 
 })
 
-describe('validateTaskTree — stages canoniques + team (stages+teams)', () => {
+describe('validateTaskTree — 9 types canoniques + heat (#230)', () => {
   const meta = '/docs/tasks/_meta.yaml'
   const okTask = (id: number, extra = '') =>
-    `id: ${id}\ntitle: "T${id}"\nstatus: todo\nteam: engineering\nsource: ai\ncreatedAt: "2026-07-07"\n${extra}`
+    `id: ${id}\ntitle: "T${id}"\nstatus: todo\nsource: ai\ncreatedAt: "2026-07-07"\n${extra}`
 
-  it('happy path : 8 stages canoniques + tâche avec team valide → aucune erreur', () => {
+  it('happy path : 9 types canoniques + une tâche → aucune erreur', () => {
     const files = {
       [meta]: 'nextId: 2\n',
       ...stageSectionFiles(),
-      '/docs/tasks/04-build/01-t.yaml': okTask(1),
+      '/docs/tasks/02-feature/01-t.yaml': okTask(1),
     }
     expect(validateTaskTree(buildTaskTree(files))).toEqual([])
   })
 
   // #84 : createdAt accepte les DEUX formats (date héritée + datetime), rejette le reste.
   const taskWithCreatedAt = (v: string) =>
-    `id: 1\ntitle: "T"\nstatus: todo\nteam: engineering\nsource: ai\ncreatedAt: "${v}"\n`
+    `id: 1\ntitle: "T"\nstatus: todo\nsource: ai\ncreatedAt: "${v}"\n`
 
   it('createdAt datetime local à la seconde → accepté', () => {
     const files = {
       [meta]: 'nextId: 2\n', ...stageSectionFiles(),
-      '/docs/tasks/04-build/01-t.yaml': taskWithCreatedAt('2026-07-08T22:58:41'),
+      '/docs/tasks/02-feature/01-t.yaml': taskWithCreatedAt('2026-07-08T22:58:41'),
     }
     expect(validateTaskTree(buildTaskTree(files))).toEqual([])
   })
@@ -298,19 +298,19 @@ describe('validateTaskTree — stages canoniques + team (stages+teams)', () => {
   it('createdAt au format bidon → rejeté', () => {
     const files = {
       [meta]: 'nextId: 2\n', ...stageSectionFiles(),
-      '/docs/tasks/04-build/01-t.yaml': taskWithCreatedAt('hier'),
+      '/docs/tasks/02-feature/01-t.yaml': taskWithCreatedAt('hier'),
     }
     expect(validateTaskTree(buildTaskTree(files)).some((e) => e.includes('createdAt format invalide'))).toBe(true)
   })
 
-  it('rejette un 9e dossier de section (hors set canonique)', () => {
+  it('rejette un dossier de section hors set canonique (10e type)', () => {
     const files = {
       [meta]: 'nextId: 2\n',
       ...stageSectionFiles(),
-      '/docs/tasks/09-extra/_section.yaml': 'title: "Extra"\nstatus: open\nnote: null\n',
+      '/docs/tasks/10-extra/_section.yaml': 'title: "Extra"\nstatus: open\nnote: null\n',
     }
     const errs = validateTaskTree(buildTaskTree(files))
-    expect(errs.some((e) => e.includes('09-extra'))).toBe(true)
+    expect(errs.some((e) => e.includes('10-extra'))).toBe(true)
   })
 
   it('rejette un slug de section non canonique', () => {
@@ -318,22 +318,22 @@ describe('validateTaskTree — stages canoniques + team (stages+teams)', () => {
       [meta]: 'nextId: 2\n',
       ...stageSectionFiles(),
     }
-    // remplace le stage 04-build par un slug inconnu
-    delete files['/docs/tasks/04-build/_section.yaml']
+    // remplace le type 02-feature par un slug inconnu
+    delete files['/docs/tasks/02-feature/_section.yaml']
     files['/docs/tasks/04-atelier/_section.yaml'] = 'title: "Atelier"\nstatus: open\nnote: null\n'
     const errs = validateTaskTree(buildTaskTree(files))
     expect(errs.some((e) => e.includes('04-atelier'))).toBe(true)
-    expect(errs.some((e) => e.includes('04-build') && e.includes('manquant'))).toBe(true)
+    expect(errs.some((e) => e.includes('02-feature') && e.includes('manquant'))).toBe(true)
   })
 
-  it('rejette un stage manquant', () => {
+  it('rejette un type manquant', () => {
     const files: Record<string, string> = {
       [meta]: 'nextId: 2\n',
       ...stageSectionFiles(),
     }
-    delete files['/docs/tasks/08-mature/_section.yaml']
+    delete files['/docs/tasks/09-business/_section.yaml']
     const errs = validateTaskTree(buildTaskTree(files))
-    expect(errs.some((e) => e.includes('08-mature') && e.includes('manquant'))).toBe(true)
+    expect(errs.some((e) => e.includes('09-business') && e.includes('manquant'))).toBe(true)
   })
 
   it('rejette un title de section non canonique', () => {
@@ -341,41 +341,69 @@ describe('validateTaskTree — stages canoniques + team (stages+teams)', () => {
       [meta]: 'nextId: 2\n',
       ...stageSectionFiles(),
     }
-    files['/docs/tasks/04-build/_section.yaml'] = 'title: "Mauvais titre"\nstatus: open\nnote: null\n'
+    files['/docs/tasks/02-feature/_section.yaml'] = 'title: "Mauvais titre"\nstatus: open\nnote: null\n'
     const errs = validateTaskTree(buildTaskTree(files))
-    expect(errs.some((e) => e.includes('04-build') && e.includes('Build Stage'))).toBe(true)
+    // 02-feature exige EXACTEMENT le titre canonique "Features".
+    expect(errs.some((e) => e.includes('02-feature') && e.includes('Features'))).toBe(true)
   })
 
-  it('rejette une tâche active sans team', () => {
+  // team supprimée du modèle (#230) : validateIdUniquenessAcrossFiles (qui lit le YAML
+  // brut, avant que toTaskNode ne laisse tomber le champ) REJETTE toute clé team: active.
+  it('rejette toute clé "team" sur une tâche active (champ supprimé, #230)', () => {
     const files = {
       [meta]: 'nextId: 2\n',
       ...stageSectionFiles(),
-      '/docs/tasks/04-build/01-t.yaml':
-        'id: 1\ntitle: "T"\nstatus: todo\nsource: ai\ncreatedAt: "2026-07-07"\n',
+      '/docs/tasks/02-feature/01-t.yaml': okTask(1, 'team: engineering\n'),
     }
-    const errs = validateTaskTree(buildTaskTree(files))
-    expect(errs.some((e) => e.includes('04-build/1') && e.includes('team'))).toBe(true)
+    const errs = validateIdUniquenessAcrossFiles(files)
+    expect(errs.some((e) => e.includes('team') && e.includes('interdit'))).toBe(true)
   })
 
-  it('rejette une tâche active avec team inconnue', () => {
+  it('une tâche sans team (ni heat) est valide — l\'absence de heat = froid', () => {
     const files = {
       [meta]: 'nextId: 2\n',
       ...stageSectionFiles(),
-      '/docs/tasks/04-build/01-t.yaml': okTask(1).replace('team: engineering', 'team: wizardry'),
+      '/docs/tasks/02-feature/01-t.yaml': okTask(1),
     }
-    const errs = validateTaskTree(buildTaskTree(files))
-    expect(errs.some((e) => e.includes('04-build/1') && e.includes('team'))).toBe(true)
+    expect(validateTaskTree(buildTaskTree(files))).toEqual([])
+    expect(validateIdUniquenessAcrossFiles(files)).toEqual([])
   })
 
-  it('rejette une SOUS-tâche sans team', () => {
-    const files = {
-      [meta]: 'nextId: 3\n',
-      ...stageSectionFiles(),
-      '/docs/tasks/04-build/01-t.yaml': okTask(1),
-      '/docs/tasks/04-build/01-t/01-sub.yaml':
-        'id: 2\ntitle: "Sous"\nstatus: todo\nsource: ai\ncreatedAt: "2026-07-07"\n',
+  it('accepte un heat valide (0 ≤ heat ≤ 100, ≤ 2 décimales)', () => {
+    for (const h of ['0', '50', '100', '33.5', '12.25']) {
+      const files = {
+        [meta]: 'nextId: 2\n',
+        ...stageSectionFiles(),
+        '/docs/tasks/02-feature/01-t.yaml': okTask(1, `heat: ${h}\n`),
+      }
+      expect(validateTaskTree(buildTaskTree(files))).toEqual([])
     }
-    const errs = validateTaskTree(buildTaskTree(files))
-    expect(errs.some((e) => e.includes('team'))).toBe(true)
+  })
+
+  it('rejette un heat hors bornes (>100)', () => {
+    const files = {
+      [meta]: 'nextId: 2\n',
+      ...stageSectionFiles(),
+      '/docs/tasks/02-feature/01-t.yaml': okTask(1, 'heat: 150\n'),
+    }
+    expect(validateTaskTree(buildTaskTree(files)).some((e) => e.includes('heat'))).toBe(true)
+  })
+
+  it('rejette un heat négatif', () => {
+    const files = {
+      [meta]: 'nextId: 2\n',
+      ...stageSectionFiles(),
+      '/docs/tasks/02-feature/01-t.yaml': okTask(1, 'heat: -3\n'),
+    }
+    expect(validateTaskTree(buildTaskTree(files)).some((e) => e.includes('heat'))).toBe(true)
+  })
+
+  it('rejette un heat à 3 décimales (2 décimales maximum)', () => {
+    const files = {
+      [meta]: 'nextId: 2\n',
+      ...stageSectionFiles(),
+      '/docs/tasks/02-feature/01-t.yaml': okTask(1, 'heat: 12.345\n'),
+    }
+    expect(validateTaskTree(buildTaskTree(files)).some((e) => e.includes('heat'))).toBe(true)
   })
 })

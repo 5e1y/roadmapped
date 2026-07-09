@@ -1,0 +1,29 @@
+id: 197
+kind: quick
+code: null
+title: >-
+  Supprimer la landing site/ que j'avais créée à tort — la homepage vit dans le repo externe
+  5e1y/roadmapped-site (le SEO/l'amélioration doivent y aller, pas ici)
+status: done
+tags: []
+size: null
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-09T01:37:44"
+startedAt: "2026-07-09T01:37:44"
+updatedAt: "2026-07-09T01:38:01"
+completedAt: "2026-07-09"
+commit: b15ef6c
+outcome: >-
+  site/ supprimé (index.html, dashboard.png, og-image.*, robots/sitemap/llms, README) : la homepage
+  vit dans le repo externe 5e1y/roadmapped-site (confirmé par #156), pas ici. site-copy.md : ligne
+  de statut corrigée (source de copy pour le site externe, plus 'shipped as site/index.html'). Les
+  outcomes des tickets #164/#165/#166/#177 restent (historique). Les assets SEO (OG image,
+  robots/sitemap/llms, meta) restent récupérables via git si utiles au repo externe. Le vrai
+  SEO/l'amélioration doivent cibler roadmapped-site.
+verification: null
+release: null
