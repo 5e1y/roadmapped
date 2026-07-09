@@ -3,7 +3,7 @@ code: null
 title: >-
   Brainstorm : faire évoluer le système de jalons pour le post-launch (travail continu), pas
   seulement le launch
-status: in_progress
+status: done
 tags:
   - engineering
   - product
@@ -32,9 +32,18 @@ epic: null
 source: ai
 createdAt: "2026-07-09T14:01:06"
 startedAt: "2026-07-09T14:01:31"
-updatedAt: "2026-07-09T14:01:31"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+updatedAt: "2026-07-09T14:09:18"
+completedAt: "2026-07-09"
+commit: c3a7f28
+outcome: >-
+  Doc de brainstorm livré : docs/specs/2026-07-09-jalons-post-launch-brainstorm.md. Cadrage
+  (04-build = 74% du backlog / 152 done ; 07-scale+08-mature vides ; next trie primairement par
+  stage → le modèle pilote l'agent-first), grille des 6 forces à préserver, 6 options franchement
+  distinctes (A vue → F stages configurables) avec tradeoffs + impacts + « casse l'immuabilité ? »,
+  reco combo A+B, 6 questions ouvertes. AUCUN code, AUCUN stage touché. Décision = Rémi (pas
+  engagée).
+verification: >-
+  Doc relu intégralement : cohérent, grounded (chiffres du backlog réel, insight roadmap.ts l.258
+  tri par stage, epics déjà dispo), honnête sur les tradeoffs. Constat chiffré vérifiable via
+  docs/tasks/. C'est un livrable-doc, pas de code à exécuter.
 release: null
