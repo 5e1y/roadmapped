@@ -9,7 +9,7 @@ import { CreateTaskPanel, SectionPanel } from './components/SectionPanel'
 import { RoadmapView } from './components/RoadmapView'
 import { DocsView } from './components/DocsView'
 import { NotepadView } from './components/NotepadView'
-import { LiveConsole } from './components/LiveConsole'
+import { LiveActivityProvider } from './state/LiveActivity'
 import { OPEN_DOC_EVENT } from './lib/events'
 
 function MainView({ view, docPath, onSelectDoc }: {
@@ -111,7 +111,6 @@ function Shell() {
         </ViewProvider>
       </main>
       <PanelHost />
-      <LiveConsole />
     </div>
   )
 }
@@ -120,7 +119,13 @@ export default function App() {
   return (
     <TreeProvider>
       <PanelProvider>
-        <Shell />
+        {/* Live updates V2 (#205) : l'état du panneau Activity (log, non-lus,
+            ouverture) vit au-dessus de Shell — il survit aux remontages de
+            ViewHeader (une instance par vue). Le déclencheur, lui, est rendu
+            par ViewHeader (LiveActivityMenu). */}
+        <LiveActivityProvider>
+          <Shell />
+        </LiveActivityProvider>
       </PanelProvider>
     </TreeProvider>
   )

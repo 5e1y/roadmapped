@@ -97,6 +97,26 @@ body {
 }
 
 /*
+ * Live updates V2 (#205) : une entrée fraîchement arrivée dans le panneau
+ * Activity s'allume à l'accent-tint puis s'éteint — l'œil tombe dessus à
+ * l'ouverture sans que le panneau crie. Jouée au montage de la ligne ; les
+ * entrées anciennes ne la reçoivent pas (garde `receivedAt` côté React).
+ * Coupée sous prefers-reduced-motion.
+ */
+@keyframes rm-entry-in {
+  from { background-color: var(--color-accent-tint); }
+  to { background-color: transparent; }
+}
+.live-entry-in {
+  animation: rm-entry-in 1.8s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .live-entry-in {
+    animation: none;
+  }
+}
+
+/*
  * Mode Colonnes de la Roadmap : barre de défilement horizontale toujours
  * visible (fine, monochrome) = affordance de scroll pour la dernière colonne
  * quand les jalons débordent de la largeur de l'écran.
