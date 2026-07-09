@@ -16,15 +16,16 @@ import { TEAMS, type Team } from '../lib/tasks'
 const plural = (n: number, s: string) => `${n} ${s}${n === 1 ? '' : 's'}`
 
 /**
- * Chip de filtre actif supprimable (#210). Inset accent = langage « filtre
- * actif » commun au FilterMenu du header ; le × retire CE filtre. Vit dans la
- * barre en haut de la liste, TOUJOURS visible — y compris quand le flanc
- * radar/graph est masqué (panneau ouvert sur petit écran), où c'était jusque-là
- * un cul-de-sac : plus aucun moyen de délester ses filtres.
+ * Chip de filtre actif supprimable (#210). Pilule neutre — sa seule présence
+ * dans la barre « filtres actifs » suffit à signaler l'état ; le × retire CE
+ * filtre. Pas de liseré accent (retour Rémi : trait sur un côté + coins
+ * arrondis = moche). Vit en haut de la liste, TOUJOURS visible — y compris
+ * quand le flanc radar/graph est masqué (panneau ouvert sur petit écran), où
+ * c'était jusque-là un cul-de-sac.
  */
 function RemovableChip({ label, onRemove, ariaLabel }: { label: string; onRemove: () => void; ariaLabel: string }) {
   return (
-    <span className="inline-flex max-w-[16rem] items-center gap-1 rounded-md border border-neutral-300 bg-white py-0.5 pl-2.5 pr-1 text-xs text-neutral-700 shadow-[inset_2px_0_0_var(--color-accent)]">
+    <span className="inline-flex max-w-[16rem] items-center gap-1 rounded-md border border-neutral-300 bg-white py-0.5 pl-2 pr-1 text-xs text-neutral-700">
       <span className="min-w-0 truncate">{label}</span>
       <button
         type="button"
