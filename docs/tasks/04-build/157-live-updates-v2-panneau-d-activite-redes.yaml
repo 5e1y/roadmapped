@@ -1,7 +1,7 @@
 id: 205
 code: null
 title: Live updates V2 — panneau d'activité redessiné et docké dans le header (instance Fable 5)
-status: todo
+status: in_progress
 tags:
   - dashboard
   - design
@@ -28,7 +28,8 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-09T09:41:54"
-updatedAt: "2026-07-09T09:41:54"
+startedAt: "2026-07-09T09:52:13"
+updatedAt: "2026-07-09T09:52:13"
 completedAt: null
 commit: null
 outcome: null
