@@ -7,7 +7,7 @@ description: Roadmapped project management — use BEFORE modifying any file in 
 
 ## Compass
 
-Flat YAML/markdown files under `docs/tasks/` are the ONLY source of truth (no parallel plan). 8 fixed, immutable stages (`01-idea` → `08-mature` = the milestones, one dashboard column each). Every active task carries a mandatory `team` (fixed enum). The `npx roadmapped <command>` CLI — or the roadmapped MCP tools if loaded (same core, same guarantees) — is your ONLY write interface — never hand-edit a YAML the CLI covers. (In the Roadmapped repo itself, `node scripts/task.mjs <command>` remains equivalent.)
+Flat YAML/markdown files under `docs/tasks/` are the ONLY source of truth (no parallel plan). 9 fixed, immutable TYPES (`01-bug` → `09-business` = the NATURE of the work, one dashboard column each — never a "when", never a team). Priority is a computed TEMPERATURE, not a stage rank and not an epic order (epics are unordered groupings). The `npx roadmapped <command>` CLI — or the roadmapped MCP tools if loaded (same core, same guarantees) — is your ONLY write interface — never hand-edit a YAML the CLI covers. (In the Roadmapped repo itself, `node scripts/task.mjs <command>` remains equivalent.)
 
 ## Decision ladder — stop at the first rung that holds
 
@@ -20,29 +20,47 @@ Flat YAML/markdown files under `docs/tasks/` are the ONLY source of truth (no pa
 3. Otherwise, does a single task suffice? → `add`, normal cycle.
 4. Otherwise (multi-task, architecture calls to make): spec first, THEN the tasks (`references/planning.md`).
 
+## Which type? — first match wins (the deliverable's NATURE, never its purpose or who does it)
+
+One axis, 9 fixed folders: `01-bug · 02-feature · 03-chore · 04-brainstorm · 05-design · 06-marketing · 07-communication · 08-legal · 09-business`. Classify by what the deliverable **is**, not what it serves: a logo serves marketing, but it's a visual artefact → `design`. Tree, first match wins:
+
+1. Something is broken (regression, doesn't behave as promised) — any surface, product/site/CLI/docs → **bug**.
+2. The deliverable is a reflection/decision document (spec, brainstorm, research, benchmark, plan) → **brainstorm**.
+3. The deliverable is a visual/UX artefact (logo, mockup, design system, illustration) → **design**.
+4. The deliverable is legal (ToS, privacy, licence, contract, trademark filing, company structure) → **legal**.
+5. The deliverable touches money or a direct client relationship (pricing, billing, accounting, prospecting, deals, partnerships) → **business**.
+6. The deliverable is outward-facing content: durable acquisition (site page, copy, SEO, campaign) → **marketing**; informs or animates (post, announcement, newsletter, changelog, community, support reply) → **communication**.
+7. Otherwise it's code/product: adds a user-visible capability (embedded product docs count) → **feature**; doesn't (refactor, debt, deps, CI, tooling, migration, monitoring) → **chore**.
+
+A `kind: milestone` (a target other tasks lock onto via `dependsOn`) still gets a type — the type of its own final gesture, not of what it aggregates.
+
+## Priority — temperature, never a stage or epic order
+
+There's no "do this column first" and no "epics in priority order" (an epic is an unordered grouping, always). `next` serves tasks by a computed **temperature** = automatic (transitive downstream blockers + age) + the type's base heat (`baseHeat` in `_section.yaml`, fixed per type) + an optional manual seed. **To prioritize a task: give it `--heat` (0–100, `add`/`update`) OR make something depend on it** (a dependency heats its blocker). A naturally hot ticket (old, blocking, high-base-heat type) can and should outrank a manually maxed `--heat` — the seed weighs in, it doesn't override.
+
 ## The cycle
 
-`sitrep` (the state of the world in 1 call — THE 1st move of a session) → `take [--team t]` (claims + starts + briefs in 1 call) → work (`detail` + `refs`) → verify the REAL artefact (not just the typecheck) → `done <id> --outcome "…" --verification "…"` (`--commit` auto-fills to HEAD; for a `quick`: `--outcome` alone suffices).
+`sitrep` (the state of the world in 1 call — THE 1st move of a session) → `take [--type t]` (claims + starts + briefs in 1 call) → work (`detail` + `refs`) → verify the REAL artefact (not just the typecheck) → `done <id> --outcome "…" --verification "…"` (`--commit` auto-fills to HEAD; for a `quick`: `--outcome` alone suffices).
 
 Two guard mechanics to internalise: (1) a unit must be `in_progress` BEFORE you commit its work — `take`/`start`/`quick --start` first, or the commit is refused. (2) `done` mutates the task YAML, so that YAML is left uncommitted — commit it as a task-log-only follow-up (`chore: consigne — done #<id>`); the guard exempts commits that touch ONLY `docs/tasks/`.
 
 ## Accepted debt = a `quick` tagged `debt`
 
-A deliberate shortcut (known ceiling, upgrade path) gets logged as `quick "<the ceiling>" --team <t> --tags debt` — the queryable equivalent of a `ponytail:` comment. `list --tag debt` prints the ledger; `sitrep` flags open debt.
+A deliberate shortcut (known ceiling, upgrade path) gets logged as `quick "<the ceiling>" --tags debt` — the queryable equivalent of a `ponytail:` comment. `list --tag debt` prints the ledger; `sitrep` flags open debt.
 
 ## Commands (one line each)
 
 - `sitrep` — today's done, in_progress, next 3, validate, alerts in ≤30 lines. Opens the session.
-- `take [--team t] [--json]` — next + start + brief, THE command to open work.
+- `take [--type t] [--json]` — next + start + brief, THE command to open work.
 - `brief <id>` — dense execution context (titled deps/related, refs + anchor excerpts & staleness flag, `done` reminder).
-- `next [--count N] [--team t] [--json]` — the work queue to CONSUME as-is.
-- `quick "<title>" --team <t> [--stage s] [--tags a,b] [--start] [--json]` — mini-ticket, minimal ceremony.
-- `add --section <stage> --title <t> --team <t> [--detail d] [--refs a,b] [--depends-on 1,2] [--epic slug] [--kind task|quick|milestone] [--blocks 1,2] [--json]` — create a task (`--epic` = cross-stage grouping; `--kind milestone` + `--blocks` = a milestone that locks the cited tasks via their dependsOn).
+- `next [--count N] [--type t] [--json]` — the work queue, temperature-sorted — CONSUME as-is.
+- `quick "<title>" [--type t] [--tags a,b] [--heat 0-100] [--start] [--json]` — mini-ticket, minimal ceremony (type defaults to the first open one).
+- `add --type <type> --title <t> [--detail d] [--tags a,b] [--heat 0-100] [--refs a,b] [--depends-on 1,2] [--epic slug] [--kind task|quick|milestone] [--blocks 1,2] [--json]` — create a task (`--type` = the exact folder slug, e.g. `02-feature` — REQUIRED; `--epic` = cross-type grouping, unordered; `--kind milestone` + `--blocks` = a milestone that locks the cited tasks via their dependsOn).
 - `start <id>` — todo → in_progress.
 - `done <id> [--commit sha] [--outcome o] [--verification v] [--release r] [--suggest-refs] [--resolve-feedback all|1,3]` — log completion (commit auto=HEAD; `--suggest-refs` suggests refs from the diff, to confirm; `--resolve-feedback` closes open feedback items).
 - `feedback <id> "<text>" [--author name]` — capture a note on a task WITHOUT a ticket (#149). Same scope → reopen (`start <id>`) + re-`done`; new scope → a `quick`.
-- `update <id> [--field value ...]` — generic patch (`"null"` to clear a field).
-- `list [--section s] [--status s] [--team t] [--tag t] [--json]` — list.
+- `update <id> [--field value ...] [--heat 0-100|--no-heat]` — generic patch (`"null"` to clear a field, `--no-heat` cools it back to absent).
+- `list [--type t] [--status s] [--tag t] [--json]` — list.
 - `show <id> [--json]` — full detail of a task.
 - `validate` — revalidates all of `docs/tasks/` (mandatory after any manual edit).
 - `roadmap [--json]` — overall progress + per-epic view, available/locked (`sitrep` also carries the `progress: x/y` line).
@@ -59,7 +77,8 @@ For `sitrep`/`take`/`brief`/`next`/`quick`/`add`/`start`/`done`: open NO referen
 - ❌ Hand-editing a YAML when the CLI covers the operation, or touching `_meta.yaml`/reusing an id.
 - ❌ Starting a locked task or bypassing a dependency without explicit agreement.
 - ❌ `done` without an honest `--outcome` (and `--verification` actually run for a `task`) — never "should work".
-- ❌ Creating a 9th stage, renaming a stage, or writing a status/size outside the enum.
+- ❌ Creating a 10th type, renaming a type, writing a `team`/`stage` field (removed from the schema), or a status/size outside the enum.
+- ❌ Reordering `_epics.yaml` to "prioritize" — epics don't order anything; use `--heat` or a dependency instead.
 - ❌ Coding anything non-trivial (rung 4) without an approved spec first.
 - ❌ Creating a parallel markdown plan file — a plan IS tasks chained by `dependsOn`.
 

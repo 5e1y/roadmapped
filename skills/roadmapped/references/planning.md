@@ -18,7 +18,9 @@ The lifecycle of a feature, before execution: **Idea → Spec → Tasks**. Each 
 
 A Roadmapped "plan" = chained tasks. Granularity: **one task = one independently testable deliverable**, one a context-free executor can pick up via `brief <id>` + the spec in `refs`.
 
-**Every task picks a stage (the WHEN) and a team (the WHO).** The stage (`--section`, one of the 8 fixed idea→mature) places the task in the product launch sequence — the stages ARE the milestones, no need to create a dedicated section or milestone. The team (`--team`, fixed enum) says which business team owns it. Both are required at creation (`add`); no active task is exempt.
+**Every task picks ONE type — the nature of its deliverable, not its purpose or who does it.** The type (`--type`, one of the 9 fixed folders, e.g. `02-feature`) is REQUIRED at creation (`add`); classify with the tree in `references/formats.md` (first match wins: broken → bug, decision doc → brainstorm, visual/UX → design, legal → legal, money/clients → business, outward content → marketing/communication, otherwise code → feature/chore). There's no second axis to fill in — the old stage (WHEN) and team (WHO) are gone, fused into this single nature axis.
+
+**Priority is not a placement decision.** Putting a task in `01-bug` doesn't make it urgent by itself — its `next` order comes from a computed temperature (age + downstream blockers + the type's base heat + an optional `--heat` seed). While planning, the only priority levers worth using are `--depends-on` (real order) and, rarely, `--heat` on something that must visibly jump the queue.
 
 **The `detail` field carries what a plan used to carry.** For each task:
 - WHAT and WHY, the exact files to create/modify, the chosen approach.
@@ -26,6 +28,6 @@ A Roadmapped "plan" = chained tasks. Granularity: **one task = one independently
 - The definition of done: which command, which artefact observed.
 - **Absolute bans**: "TBD", "to be completed", "handle errors properly", "like task N" without the content. If you can't write it precisely, the spec isn't finished — escalate.
 
-**Order and parallelism**: `--depends-on` encodes the REAL order (A must exist for B). What can be done in parallel has NO dependency between the two — that's what the Graph view shows (columns = stages, available cards = the work front). Don't chain artificially.
+**Order and parallelism**: `--depends-on` encodes the REAL order (A must exist for B — and it's also a priority signal: B being blocked heats A up). What can be done in parallel has NO dependency between the two — that's what the Graph view shows (columns = types, available cards = the work front). Don't chain artificially.
 
 **Final check**: `roadmap` must show a sensible starting front (the first available tasks) and a clear end. Otherwise the breakdown is wrong.
