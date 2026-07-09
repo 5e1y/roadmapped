@@ -58,24 +58,32 @@ switch (cmd) {
   }
 
   case 'dashboard': {
-    // Idempotent (#153): if OUR dashboard already responds on the default port,
-    // don't launch a 2nd instance — no-op + URL. We probe /api/tree and check the
-    // shape { ok: … }: another server (the host's project) on the same port won't
-    // match, in which case we let vite start (and auto-increment).
-    // ponytail: probes port 5173 only (the dashboard's home); if it migrated to
-    // 5174 on a previous launch, detection misses it — accepted ceiling.
+    // Root of the HOST repo this launch serves — resolved BEFORE the probe: the
+    // idempotence check must compare repos, not just "something answers on 5173".
+    const { findHostRoot } = await importPkg('src/lib/paths.ts')
+    const envRoot = process.env.ROADMAPPED_ROOT
+    const hostRoot = envRoot && envRoot.trim() !== '' ? resolve(envRoot) : findHostRoot()
+
+    // Idempotent (#153/#203): if a dashboard already serves THIS SAME repo on the
+    // default port, don't launch a 2nd instance — no-op + URL. We probe /api/tree
+    // and compare its hostRoot (#204). Three cases:
+    //   - same hostRoot        → legit idempotence, no-op.
+    //   - different hostRoot    → another repo's dashboard owns 5173; we let vite
+    //                             start and auto-increment (5174…) so both coexist.
+    //   - not our shape / down  → we start normally.
+    // ponytail: probes port 5173 only (the dashboard's home); a 3rd repo whose
+    // dashboard migrated to 5174 isn't detected as "already open" → a duplicate
+    // instance for that repo may start on 5175. Rare, harmless. Upgrade = sweep
+    // 5173-5180.
     const DASH_PORT = 5173
     try {
       const res = await fetch(`http://localhost:${DASH_PORT}/api/tree`, { signal: AbortSignal.timeout(500) })
       const body = res.ok ? await res.json().catch(() => null) : null
-      if (body && typeof body.ok === 'boolean') {
+      if (body && typeof body.ok === 'boolean' && body.hostRoot === hostRoot) {
         console.log(`roadmapped dashboard: already open → http://localhost:${DASH_PORT}/`)
         process.exit(0)
       }
     } catch { /* nothing listening (or another app) → we start normally */ }
-    const { findHostRoot } = await importPkg('src/lib/paths.ts')
-    const envRoot = process.env.ROADMAPPED_ROOT
-    const hostRoot = envRoot && envRoot.trim() !== '' ? resolve(envRoot) : findHostRoot()
     let viteBin
     try {
       // 'vite/bin/vite.js' is not an exported subpath: we resolve package.json

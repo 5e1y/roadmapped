@@ -114,6 +114,20 @@ defaults.
 **Roadmap** and **Docs**; the last view is remembered across reloads. Clicking any
 task anywhere opens a **side panel** on the right.
 
+### One package, many repos
+
+The dashboard **code** ships in the package (`node_modules/roadmapped/`); the **data** it
+shows belongs to the repo you launch it from (`ROADMAPPED_ROOT`, resolved by walking up
+from the current directory). One package, N host repos. The header spells out which repo
+the window is looking at: **Roadmapped × yourrepo** (top-left), and the browser tab title
+is prefixed with the repo name — so several open dashboards stay distinguishable.
+
+Working on two repos at once just works: run `npx roadmapped dashboard` in each. The
+first takes port **5173**; the second sees that 5173 already serves a *different* repo and
+lets Vite auto-increment to **5174** (and so on). Launching twice in the *same* repo is a
+no-op — it just reopens the existing window. Need a fixed port for the second repo:
+`npx roadmapped dashboard --port 5174`.
+
 ### Backlog
 
 The working list. The 8 stages in order (empty ones dimmed and collapsed by default),
