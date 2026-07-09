@@ -1,0 +1,38 @@
+id: 202
+kind: quick
+code: null
+title: >-
+  BUG dashboard écran blanc en host-install : Vite ne pré-bundle pas le stack CJS React (deps hôte
+  hoistées) → app React ne monte jamais. Fix optimizeDeps.include (spec ZineKit)
+status: done
+tags:
+  - bug
+  - publish
+size: null
+team: engineering
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-09T02:46:24"
+startedAt: "2026-07-09T02:46:24"
+updatedAt: "2026-07-09T02:56:16"
+completedAt: "2026-07-09"
+commit: 8b31fed
+outcome: >-
+  Écran blanc du dashboard en host-install corrigé (diag+fix ZineKit). Cause : root Vite = paquet
+  mais deps résolues depuis l'hôte ; un hôte qui hoiste le stack React (ex. zustand →
+  use-sync-external-store) fait servir du CJS brut comme ESM → exports manquants → React ne monte
+  pas (index.html renvoie 200, le piège). Fix : optimizeDeps.include du stack complet (react,
+  react-dom, react-dom/client, jsx-runtime(s), use-sync-external-store/shim + with-selector) +
+  resolve.dedupe['react','react-dom']. VÉRIF : (a) ZineKit a vérifié end-to-end sur un vrai hôte
+  Electron (#root peuplé, title 'Backlog · Roadmapped', zéro SyntaxError) ; (b) j'ai reproduit la
+  condition (hôte zustand, deps hoistées confirmées) et vérifié le MÉCANISME — le main.tsx servi
+  importe react-dom/client depuis /node_modules/.vite/deps/ (pré-bundlé ESM, plus le CJS brut) ; (c)
+  tsc clean + 391 tests (config valide). ⚠ HONNÊTETÉ : ma re-vérif headless du DOM monté est restée
+  non concluante — mon Chrome headless s'est dégradé en cours de session (0 octet même sur le 5173
+  connu-bon → outillage, pas l'app). Je m'appuie donc sur la vérif ZineKit + le mécanisme confirmé.
+verification: null
+release: null
