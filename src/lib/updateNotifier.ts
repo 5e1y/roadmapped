@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
-import { execFile } from 'node:child_process'
+import { execFile, execFileSync } from 'node:child_process'
 
 /*
  * MAJ auto de l'app (#207) — notify-only, distribution GitHub-only (jamais npm).
@@ -78,8 +78,20 @@ export async function checkUpdate(packageDir: string, hostRoot: string): Promise
   try {
     // ponytail: hook de test/design — ROADMAPPED_FAKE_UPDATE=1 force un état « MAJ
     // dispo » pour rendre la notif in-app sans clone en retard (le self-host renvoie
-    // toujours null, .git présent). Inerte en prod (personne ne le pose).
-    if (process.env.ROADMAPPED_FAKE_UPDATE) return { installed: 'a1b2c3d', remote: 'e4f5a6b' }
+    // toujours null, .git présent). De VRAIS SHA POUSSÉS (origin/main~5 → origin/main,
+    // pas HEAD qui peut être en avance) → le lien GitHub compare de la notif marche en test.
+    // Fallback sur des SHA fictifs si git indisponible. Inerte en prod (personne ne le pose).
+    if (process.env.ROADMAPPED_FAKE_UPDATE) {
+      try {
+        const short = (rev: string) => execFileSync('git', ['-C', packageDir, 'rev-parse', '--short', rev], { encoding: 'utf8' }).trim()
+        const installed = short('origin/main~5')
+        const remote = short('origin/main')
+        if (/^[0-9a-f]{7,}$/i.test(installed) && /^[0-9a-f]{7,}$/i.test(remote) && installed !== remote) {
+          return { installed, remote }
+        }
+      } catch { /* pas de git / pas assez de commits → fallback fictif */ }
+      return { installed: 'a1b2c3d', remote: 'e4f5a6b' }
+    }
     if (existsSync(join(packageDir, '.git'))) return null
     const installed = installedSha(hostRoot)
     if (!installed) return null
