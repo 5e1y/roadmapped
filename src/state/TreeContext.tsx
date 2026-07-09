@@ -6,6 +6,10 @@ import { seedSeenBaseline } from './seenTasks'
 export interface TreeState {
   tree: TaskTree | null
   errors: string[]
+  /** Nom du repo hôte servi (basename du hostRoot, #204) — affiché dans le
+      header pour distinguer plusieurs dashboards ouverts. null tant qu'inconnu
+      (avant 1er /api/tree, ou build démo statique sans ce champ). */
+  repoName: string | null
   loading: boolean
   loadError: string | null
   reload: (opts?: { silent?: boolean }) => Promise<void>
@@ -19,6 +23,7 @@ const TreeContext = createContext<TreeState | null>(null)
 export function TreeProvider({ children }: { children: ReactNode }) {
   const [tree, setTree] = useState<TaskTree | null>(null)
   const [errors, setErrors] = useState<string[]>([])
+  const [repoName, setRepoName] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [lastChange, setLastChange] = useState<{ seq: number; diff: TreeDiff } | null>(null)
@@ -36,7 +41,7 @@ export function TreeProvider({ children }: { children: ReactNode }) {
         setLoadError(`HTTP ${r.status}`)
         return
       }
-      const data = (await r.json()) as { ok: boolean; tree?: TaskTree; errors?: string[] }
+      const data = (await r.json()) as { ok: boolean; tree?: TaskTree; errors?: string[]; repoName?: string }
       if (data.ok === false) {
         setLoadError(
           data.errors?.length
@@ -63,6 +68,7 @@ export function TreeProvider({ children }: { children: ReactNode }) {
       seedSeenBaseline(data.tree) // #147 Live 5 : baseline « tout vu » au 1er run (idempotent)
       setTree(data.tree)
       setErrors(data.errors ?? [])
+      if (typeof data.repoName === 'string' && data.repoName) setRepoName(data.repoName)
     } catch (e) {
       setLoadError((e as Error).message)
     } finally {
@@ -86,7 +92,7 @@ export function TreeProvider({ children }: { children: ReactNode }) {
   }, [reload])
 
   return (
-    <TreeContext.Provider value={{ tree, errors, loading, loadError, reload, lastChange }}>
+    <TreeContext.Provider value={{ tree, errors, repoName, loading, loadError, reload, lastChange }}>
       {children}
     </TreeContext.Provider>
   )

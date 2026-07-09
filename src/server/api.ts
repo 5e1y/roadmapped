@@ -1,7 +1,7 @@
 import type { Plugin, Connect } from 'vite'
 import type { ServerResponse, IncomingMessage } from 'node:http'
 import { watch, readdirSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, basename } from 'node:path'
 import { loadPaths, type RoadmappedPaths } from '../lib/paths'
 import {
   treeWithErrors, addTask, updateTask, deleteTask,
@@ -140,7 +140,10 @@ export function runAction(paths: RoadmappedPaths, action: ApiAction): ApiRespons
     switch (action.type) {
       case 'getTree': {
         const { tree, errors } = treeWithErrors(tasksDir)
-        return { status: 200, payload: { ok: true, tree, errors } }
+        // hostRoot/repoName : identifient le repo servi (un paquet, N hôtes).
+        // Deux consommateurs : le header du dashboard et la sonde de collision
+        // du bin (bin/roadmapped.mjs) qui compare avant de no-op.
+        return { status: 200, payload: { ok: true, tree, errors, hostRoot: paths.root, repoName: basename(paths.root) } }
       }
       case 'createTask':
         return fromMutation(addTask(tasksDir, action.body ?? {}))

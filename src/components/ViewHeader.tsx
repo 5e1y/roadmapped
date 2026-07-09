@@ -26,10 +26,23 @@ export function ViewHeader({ meta, children }: {
   children?: ReactNode
 }) {
   const { view, setView } = useView()
+  const { repoName } = useTree()
   return (
     <header className="flex h-12 shrink-0 items-center justify-between gap-4 border-b border-neutral-200 bg-white px-4">
       <div className="flex min-w-0 items-center gap-4">
-        <span className="shrink-0 text-sm font-semibold tracking-tight text-neutral-900">Roadmapped</span>
+        {/* Marque × repo (#204) : savoir sur quel repo pointe CE dashboard quand
+            plusieurs sont ouverts. Le × séparateur en graisse Light (décision Rémi) ;
+            le repo tronque, marque + × ne rétrécissent pas. Sans repoName (build démo
+            statique, avant 1er /api/tree) : marque seule, pas de × orphelin. */}
+        <h1 className="flex min-w-0 items-baseline gap-1.5 text-sm tracking-tight">
+          <span className="shrink-0 font-semibold text-neutral-900">Roadmapped</span>
+          {repoName && (
+            <>
+              <span className="shrink-0 font-light text-neutral-400" aria-hidden="true">×</span>
+              <span className="min-w-0 truncate font-medium text-neutral-700" title={repoName}>{repoName}</span>
+            </>
+          )}
+        </h1>
         <nav className="flex shrink-0 overflow-hidden rounded-md border border-neutral-300">
           {NAV.map((item) => (
             <button

@@ -8,6 +8,10 @@ export interface RoadmappedConfig {
 }
 
 export interface RoadmappedPaths {
+  /** Racine absolue du repo HÔTE (où vivent config + docs/tasks). Sert à
+   *  identifier le repo servi (nom affiché dans le header, comparaison de la
+   *  sonde de collision du bin) — un paquet, N hôtes. */
+  root: string
   /** Chemin absolu du dossier des tâches. */
   tasksDir: string
   /** Chemin absolu du dossier des docs. */
@@ -64,6 +68,7 @@ export function resolvePaths(root: string, config: RoadmappedConfig): Roadmapped
     return isAbsolute(raw) ? raw : resolve(root, raw)
   }
   return {
+    root: resolve(root),
     tasksDir: one(config.tasksDir, DEFAULTS.tasksDir),
     docsDir: one(config.docsDir, DEFAULTS.docsDir),
   }

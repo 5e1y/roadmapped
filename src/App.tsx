@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { TreeProvider } from './state/TreeContext'
+import { TreeProvider, useTree } from './state/TreeContext'
 import { PanelProvider, usePanel } from './state/PanelContext'
 import { ViewProvider, type View } from './state/ViewContext'
 import { SidePanel } from './components/SidePanel'
@@ -89,7 +89,9 @@ function Shell() {
     return () => window.removeEventListener(OPEN_DOC_EVENT, onOpenDoc)
   }, [])
 
-  // Titre d'onglet = vue courante (ou nom du doc ouvert).
+  // Titre d'onglet = repo · vue courante (ou nom du doc ouvert). Le repo en tête
+  // (#204) distingue les onglets quand plusieurs dashboards sont ouverts.
+  const { repoName } = useTree()
   useEffect(() => {
     const name =
       view === 'docs' && docPath ? docPath.split('/').pop()!.replace(/\.md$/, '')
@@ -97,8 +99,8 @@ function Shell() {
       : view === 'docs' ? 'Docs'
       : view === 'notepad' ? 'Notepad'
       : 'Backlog'
-    document.title = `${name} · Roadmapped`
-  }, [view, docPath])
+    document.title = repoName ? `${repoName} · ${name} · Roadmapped` : `${name} · Roadmapped`
+  }, [view, docPath, repoName])
 
   return (
     <div className="flex h-screen w-screen overflow-hidden">
