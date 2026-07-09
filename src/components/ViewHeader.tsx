@@ -4,6 +4,7 @@ import { type ReactNode } from 'react'
 import { useTree } from '../state/TreeContext'
 import { useView, type View } from '../state/ViewContext'
 import { STAGES } from '../lib/tasks'
+import { LiveActivityMenu } from './LiveActivityMenu'
 
 const NAV: { id: View; label: string }[] = [
   { id: 'backlog', label: 'Backlog' },
@@ -60,7 +61,13 @@ export function ViewHeader({ meta, children }: {
         </nav>
         {meta && <div className="min-w-0 truncate font-mono text-xs text-neutral-500">{meta}</div>}
       </div>
-      {children && <div className="flex shrink-0 items-center gap-2">{children}</div>}
+      {/* Cluster droit : le panneau Activity (live, #205) d'abord — présent sur
+          les 4 vues, son état vit dans LiveActivityProvider (null hors provider :
+          tests, build démo statique) — puis les contrôles propres à la vue. */}
+      <div className="flex shrink-0 items-center gap-2">
+        <LiveActivityMenu />
+        {children}
+      </div>
     </header>
   )
 }
