@@ -17,8 +17,8 @@ describe('routeApi', () => {
   })
 
   it('PATCH /api/tasks/:id → patchTask id numérique', () => {
-    expect(routeApi('PATCH', '/api/tasks/42', { team: 'engineering' })).toEqual({
-      type: 'patchTask', id: 42, body: { team: 'engineering' },
+    expect(routeApi('PATCH', '/api/tasks/42', { heat: 50 })).toEqual({
+      type: 'patchTask', id: 42, body: { heat: 50 },
     })
   })
 

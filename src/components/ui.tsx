@@ -5,7 +5,6 @@ import { Toast } from '@base-ui/react/toast'
 import { useEffect, useRef, useState, type ComponentProps, type KeyboardEvent } from 'react'
 import { Check, ChevronDown, Cross, Plus, Warning } from 'trinil-react'
 import { KindGlyph } from './glyphs'
-import { Chip } from './Chip'
 
 /**
  * Mini-kit de primitives Base UI stylées monochrome — source unique des
@@ -186,8 +185,8 @@ export function ToastViewport() {
 
 /**
  * Aperçu d'une tâche dans les listes déroulantes de relations (#125) : de quoi
- * choisir sans ouvrir la tâche — glyphe de statut, #id, titre, stage, team.
- * Données PRÉ-DIGÉRÉES par l'appelant (team déjà abrégée, stage déjà court) :
+ * choisir sans ouvrir la tâche — glyphe de statut, #id, titre, stage.
+ * Données PRÉ-DIGÉRÉES par l'appelant (stage déjà court) :
  * ui.tsx reste sans dépendance lib (même contrat que le toSlug d'EpicCombobox).
  */
 export interface RelPreview {
@@ -195,8 +194,6 @@ export interface RelPreview {
   title: string
   status: 'todo' | 'in_progress' | 'done'
   kind: 'task' | 'quick' | 'milestone'
-  /** Team abrégée (TEAM_ABBR côté appelant) — vide si inconnue. */
-  team: string
   /** Stage court (« build », « gtm »…) dérivé du dossier de la tâche. */
   stage: string
 }
@@ -211,7 +208,7 @@ export interface SelectItem {
 
 /**
  * Corps d'un item de relation : ligne compacte façon backlog — glyphe (statut),
- * #id, titre (barré si faite), puis stage + team ancrés à droite. Sans aperçu,
+ * #id, titre (barré si faite), puis stage ancré à droite. Sans aperçu,
  * repli sur le label brut (items génériques).
  */
 function RelOption({ item }: { item: SelectItem }) {
@@ -229,7 +226,6 @@ function RelOption({ item }: { item: SelectItem }) {
       </span>
       <span className="ml-auto flex shrink-0 items-center gap-1.5">
         {p.stage && <span className="font-mono text-[11px] text-neutral-500">{p.stage}</span>}
-        {p.team && <Chip label={p.team} />}
       </span>
     </span>
   )

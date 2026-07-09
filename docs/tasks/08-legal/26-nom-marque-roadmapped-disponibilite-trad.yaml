@@ -1,0 +1,25 @@
+id: 221
+code: null
+title: "Nom & marque « Roadmapped » : disponibilité (trademark, org GitHub/npm, domaine)"
+status: todo
+tags:
+  - owner-remi
+  - legal
+  - publish
+size: null
+detail: >-
+  **Owner : Rémi** (décision business/légale). Vérifier la disponibilité et les risques du nom «
+  Roadmapped » : conflits de marque existants, cohérence org GitHub (5e1y) / futur nom npm
+  (abandonné mais nom réservé ?) / domaine roadmapped.work. Décider s'il faut protéger le nom.
+refs: []
+links: []
+dependsOn: []
+epic: legal-readiness
+source: ai
+createdAt: "2026-07-09T13:55:29"
+updatedAt: "2026-07-09T13:55:29"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

@@ -1,0 +1,35 @@
+id: 73
+code: null
+title: Spec — serveur MCP Roadmaped (l'étage final de l'économie de tokens)
+status: done
+tags:
+  - spec
+  - token-economy
+size: M
+detail: >-
+  ⛔ Brainstorm avec Rémi requis (hard-gate spec). Annexe pt 6 : remplacer le CLI par un serveur MCP
+  — les commandes deviennent des tools aux schémas auto-documentés (le schéma REMPLACE la doc dans
+  le contexte), zéro bash à formater, zéro sortie parasite, mêmes écritures via taskWrites (source
+  unique conservée). Questions à trancher : distribution (npx ? config .mcp.json ?), coexistence
+  CLI/MCP, périmètre v1 des tools (take/done/quick/brief/sitrep). Livrable :
+  docs/specs/AAAA-MM-JJ-mcp-server.md approuvée. Zéro code avant.
+refs:
+  - docs/specs/2026-07-07-token-economy.md
+  - src/lib/taskWrites.ts
+links: []
+dependsOn:
+  - 68
+epic: mcp-server
+source: user
+createdAt: "2026-07-07"
+completedAt: "2026-07-08"
+commit: e6ac18a
+outcome: >-
+  Spec serveur MCP écrite et approuvée (docs/specs/2026-07-08-mcp-server.md) : distribution
+  repo-local .mcp.json, coexistence CLI+MCP sur taskWrites, 14 tools en v1 via SDK stdio ;
+  décomposée en 4 tâches chaînées #90→#91→#92→#93
+verification: >-
+  Brainstorm 3 questions tranchées par Rémi (distribution/coexistence/périmètre) ; spec rédigée avec
+  écartés + décisions techniques + critères de fini ; 4 tâches créées avec detail complet + refs
+  spec, chaîne de deps confirmée, validate OK (82 tâches)
+release: null

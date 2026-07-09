@@ -1,0 +1,60 @@
+id: 231
+code: null
+title: >-
+  Brainstorm 3 : ordre de next SANS ordre d'epics — « température » (spectre continu) + signaux
+  graphe (blocages) + ancienneté
+status: done
+tags:
+  - engineering
+  - product
+size: null
+detail: >-
+  Suite de #230. CONTRAINTE DURE de Rémi : AUCUN ordre dans/entre les epics — la proposition « ordre
+  de _epics.yaml = priorité » (#230 §5) est REJETÉE. Les epics restent des regroupements NON
+  ordonnés. Le champ team disparaissant, son slot back-end (champ validé, flag CLI, filtre, badge)
+  se libère et peut être RÉUTILISÉ pour la valeur de priorité. Idées de Rémi pour le tri de next :
+  (A) graphe — servir d'abord les tickets qui BLOQUENT le plus d'autres tickets et sont en DÉBUT de
+  chaîne de dépendances, puis ancienneté (plus ancien → plus récent). Caveat de Rémi : exige une
+  vraie rigueur dépendances/blocages, sinon dégénère en ordre chronologique. (B) « Température » :
+  un SPECTRE continu (0–100,00, ~10 000 crans) au lieu de 5 paliers ; optionnel, à n'utiliser QUE
+  pour faire ressortir un ticket ; granularité quasi infinie, peu de charge mentale, et indicateur
+  FUN (« température » > « priorité »). (C) COMBINER : température = calcul algorithmique mêlant
+  ancienneté + nombre de tickets bloqués par ce ticket + la valeur de température initiale (seed)
+  posée à la main → dynamique, monte toute seule. Fable doit concevoir le tri de next DÉFINITIF
+  honorant tout ça (probable synthèse : température calculée = seed optionnel + downstream-blocks
+  (graphe) + âge, déterministe, tri primaire, tie-break id ; PAS d'ordre d'epic), avec la FORMULE
+  exacte (poids, normalisation 0–100, stockée vs calculée vs hybride), la question du
+  déterminisme/dépendance au temps (l'âge fait évoluer next), le risque d'hygiène des dépendances
+  (A/C en dépendent), le modèle de données (réutiliser le slot team libéré, défaut « froid »), la
+  cérémonie minimale (optionnel/épars), et l'affichage (indicateur fun MAIS DS monochrome + 1 accent
+  à respecter). Réutiliser dependsOn/milestones (déjà l'ordre fin). Décision = Rémi. Fable 5,
+  brainstorm.
+refs:
+  - docs/specs/2026-07-09-jalons-par-type-brainstorm.md
+  - src/lib/roadmap.ts
+  - src/lib/tasks.ts
+links: []
+dependsOn:
+  - 230
+epic: null
+source: ai
+createdAt: "2026-07-09T15:30:23"
+startedAt: "2026-07-09T15:30:29"
+updatedAt: "2026-07-09T15:57:05"
+completedAt: "2026-07-09"
+commit: "3843248"
+outcome: >-
+  Doc docs/specs/2026-07-09-next-temperature-brainstorm.md finalisé (2 itérations Fable via
+  SendMessage). Tri de next par TEMPÉRATURE, partition TROIS TIERS ÉGAUX (décision Rémi) :
+  température = auto + base + seed, chaque terme ≤33,33. auto = min(33,33 ; 20·B + 13,33·A) [B =
+  blocages transitifs aval, A = âge/(âge+90)] ; base = base-par-type (bug 30, business 20, legal 18,
+  feature 14, design 12, brainstorm 10, marketing 7, communication 7, chore 5) ; seed = heat/3
+  (champ heat stocké 0–100 dans le slot team libéré). 3 signaux à égalité, seed NON souverain
+  (voulu). Hybride (seed stocké, température calculée à la lecture, cache WeakMap). Déterministe à
+  date injectée (granularité jour, minuit UTC). AUCUN ordre d'epic. Migration nulle (absent=froid).
+  Affichage monochrome (chip °, seuil ≥33,33). Décision finale = Rémi.
+verification: >-
+  Doc relu (§2 formule + tiers + base + §3 tri). Cohérent, arrondis vérifiés par Fable (Python),
+  mini-exemple démontre la propriété clé : bug jamais seedé #320 (48,67°) dépasse design seed-maxé
+  #310 (45,62°). Aucune trace résiduelle du 50/50 hors §2.5 (alternative écartée). Livrable-doc.
+release: null

@@ -1,0 +1,18 @@
+id: 47
+code: null
+title: "Préparer le repo standalone"
+status: done
+tags: []
+size: null
+detail: "Extraire Roadmaped de son incubation dans ZineKit vers un repo autonome : code, dépendances (@types/node explicite), config, backlog."
+refs: []
+links: []
+dependsOn: []
+milestone: null
+source: user
+createdAt: "2026-07-07"
+completedAt: "2026-07-07"
+commit: 388fbb2
+outcome: "Repo standalone Roadmaped 0.1.0 initialisé — extraction depuis ZineKit, arbre propre."
+verification: "Commit d'extraction 388fbb2 ; npm run build et npm run test verts sur le repo autonome."
+release: null

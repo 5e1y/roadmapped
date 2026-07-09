@@ -1,0 +1,46 @@
+id: 121
+code: null
+title: >-
+  Spec — init riche : questionnaire projet, milestones, 1ère vague de tickets, migration des docs
+  existants, CLAUDE.md
+status: done
+tags:
+  - spec
+  - open-source
+  - onboarding
+  - fable
+size: M
+detail: >-
+  Onboarding à la PREMIÈRE installation de Roadmapped dans un repo (le CONTENU de l'init, au-delà du
+  mécanisme d'install traité en #12). Trancher/couvrir : (1) questionnaire projet à l'utilisateur
+  (nature du projet, teams actives, jalons visés) ; (2) génération de milestones initiaux ; (3)
+  première vague de tickets amorcée depuis les réponses ; (4) MIGRATION des artefacts existants
+  (ROADMAP/TODO/BACKLOG/specs) vers le format Roadmapped — vraies tâches/stages/milestones, pas un
+  inventaire lecture-seule ; (5) CLAUDE.md soigné écrit/complété à l'init pour que l'agent adopte le
+  workflow d'emblée. Étend references/setup.md du skill. Livrable :
+  docs/specs/AAAA-MM-JJ-init-onboarding.md approuvée par Rémi, puis tâches d'implémentation. Zéro
+  code avant approbation.
+refs: []
+links:
+  - 12
+  - 14
+dependsOn: []
+epic: distribution
+source: ai
+createdAt: "2026-07-08T09:27:46"
+completedAt: "2026-07-08"
+commit: b953bea
+outcome: >-
+  Spec docs/specs/2026-07-08-init-onboarding.md écrite (cadrage : init complète + migration auto).
+  Diagnostic des 3 manques de setup.md actuel (pas de questionnaire, migration floue, aucun
+  CLAUDE.md). Spécifie : déroulé conversationnel du questionnaire (nature/teams/jalons),
+  transformation réponses→milestones+1ère vague de tickets, heuristique DÉTERMINISTE de migration
+  des docs existants (globs de détection ROADMAP/TODO/specs, règles de parsing, tables de mapping
+  stage/team, câblage dependsOn), contenu du CLAUDE.md généré, et articulation avec #12 (install) et
+  #122 (ouverture auto). Plan d'exécution net car implémentation prévue sur subagent Fable 5 (tag
+  fable).
+verification: >-
+  Spec relue (287 l.), complète, ancrée à references/setup.md et formats.md. Reste : implémentation
+  à confier à Fable 5. Dépendance : la frontière install/init suppose #12 tranché (éviter la
+  double-écriture de config).
+release: null

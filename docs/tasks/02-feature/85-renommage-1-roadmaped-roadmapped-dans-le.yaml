@@ -1,0 +1,42 @@
+id: 110
+code: null
+title: Renommage 1 — roadmaped → Roadmapped dans le code, la config et les docs
+status: done
+tags:
+  - marketing
+  - rename
+size: M
+detail: >-
+  Renommer roadmaped → roadmapped (marque : Roadmapped, deux P) partout où le nom vit : package.json
+  (name), .mcp.json (clé serveur), serverInfo du serveur MCP (scripts/mcp-server.mjs),
+  roadmaped.config.json → roadmapped.config.json AVEC rétrocompat de lecture dans src/lib/paths.ts
+  (si roadmapped.config.json absent, lire l'ancien nom + signaler — 3 lignes, les repos hôtes
+  existants ne cassent pas), textes UI du dashboard (titres, App.tsx), USAGE du CLI, README.md,
+  docs/guide.md, CONTRIBUTING/CODE_OF_CONDUCT si mentionné. NE PAS toucher : l'historique (specs
+  datées, archive, outcomes de tâches consignées), package-lock (npm install le régénère), les ids.
+  Vérifier avec grep -ri roadmaped --exclude-dir={node_modules,dist,docs/tasks,docs/specs} → zéro
+  hit hors historique. Fini quand : grep propre, 224+ tests verts (les tests qui mentionnent le nom
+  sont mis à jour), build vert, serveur MCP répond serverInfo roadmapped après reconnexion.
+refs:
+  - package.json
+  - scripts/mcp-server.mjs
+  - src/lib/paths.ts
+  - docs/guide.md
+links: []
+dependsOn: []
+epic: renommage
+source: user
+createdAt: "2026-07-08T01:56:46"
+completedAt: "2026-07-08"
+commit: 63813c8
+outcome: >-
+  roadmaped → roadmapped partout dans le vivant : package.json, .mcp.json (clé serveur), serverInfo
+  MCP, config git mv roadmapped.config.json AVEC rétrocompat de lecture de l'ancien nom (paths.ts, +
+  test dédié), UI (App/ViewHeader/TaskPanel/index.html), USAGE CLI, hook guard,
+  README/CONTRIBUTING/guide/comms-plan/tone-of-voice/templates GitHub, lockfile régénéré ;
+  historique (specs datées, docs/tasks, audit) intact volontairement
+verification: >-
+  225 tests verts dont le nouveau test rétrocompat (sandbox renommé en ancien nom → CLI fonctionne)
+  ; build vert ; serveur MCP relancé sur stdio répond serverInfo name=roadmapped ; grep roadmaped
+  sur le périmètre vivant → zéro hit hors mention volontaire de rétrocompat
+release: null

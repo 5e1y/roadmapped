@@ -1,0 +1,33 @@
+id: 105
+kind: quick
+code: null
+title: >-
+  guard : mapping fichiers stagés↔tâche in_progress (le passe-partout 'une in_progress éternelle'
+  n'est pas détecté)
+status: done
+tags:
+  - debt
+  - process
+size: null
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: process-enforcement
+source: ai
+createdAt: "2026-07-08T01:46:24"
+completedAt: "2026-07-08"
+commit: 93740d1
+outcome: >-
+  Guard enrichi : nomme la/les tâche(s) in_progress créditant le commit et alerte (non bloquant,
+  stderr, exit 0) quand la SEULE couverture est ancienne — le passe-partout « in_progress éternelle
+  ». Mapping strict fichier↔tâche écarté (YAGNI : pas de propriété de fichiers sur les tâches).
+  Seuil via ROADMAPED_GUARD_STALE_DAYS (défaut 7j). Décision isolée en helper pur
+  stalePassepartout(tree, today, threshold). Âge = proxy createdAt, upgrade path noté sur la dette
+  #82 (startedAt).
+verification: >-
+  15/15 tests render verts (4 nouveaux sur stalePassepartout : aucune / fraîche / ancienne+âge /
+  fraîche-couvre-ancienne). Run réel du guard avec fichiers stagés : seuil forcé à 0 → alerte
+  nommant #105 + âge, exit 0 ; seuil normal 7 avec #105 fraîche → silencieux, exit 0. Les deux
+  branches confirmées end-to-end sur le vrai dépôt.
+release: null

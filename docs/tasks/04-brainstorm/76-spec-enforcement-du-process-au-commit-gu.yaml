@@ -1,0 +1,38 @@
+id: 98
+code: null
+title: Spec — enforcement du process au commit (guard bloquant + signal sitrep + skill)
+status: done
+tags:
+  - process
+  - spec
+size: M
+detail: >-
+  Transformer le brief de passation #94 (docs/process-enforcement-gap.md) en spec approuvée puis en
+  tâches. Décisions déjà tranchées avec Rémi : hook pre-commit BLOQUANT (pas avertissement) ;
+  liaison commit↔tâche différée (quick #debt). À spécifier : task.mjs guard + installation des hooks
+  committés (core.hooksPath via npm prepare), exemption des commits ne touchant que docs/tasks/ (la
+  consignation), signal « commits non consignés » dans sitrepText (remonte CLI et MCP), règle « done
+  = frontière » + piège ASAP dans le noyau du skill (≤ ~55 lignes), resync du skill installé
+  ~/.claude/skills (désynchronisé — vieux chemins dashboard/). Livrable :
+  docs/specs/2026-07-08-process-enforcement.md approuvée par Rémi, puis décomposition en tâches
+  chaînées. Zéro code avant.
+refs:
+  - docs/process-enforcement-gap.md
+  - skills/roadmaped/SKILL.md
+  - scripts/task.mjs
+links: []
+dependsOn: []
+epic: process-enforcement
+source: user
+createdAt: "2026-07-08T01:28:37"
+completedAt: "2026-07-08"
+commit: 763dae2
+outcome: >-
+  Spec docs/specs/2026-07-08-process-enforcement.md écrite et approuvée (hook BLOQUANT tranché avec
+  Rémi, liaison commit↔tâche différée, carte blanche sur l'exécution) ; décomposée en 4 tâches :
+  #100 guard+hook, #101 signal sitrep, #102 skill+resync, #103 guide (deps 100+101)
+verification: >-
+  2 questions tranchées par Rémi (bloquer / différer), challenge « skill seul suffirait ? » répondu
+  et arbitré carte blanche ; spec self-reviewée (zéro placeholder, alternatives écartées, périmètre
+  unique) ; roadmap montre un front de départ sensé (100-102 disponibles, 103 verrouillée)
+release: null

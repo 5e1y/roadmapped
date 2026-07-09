@@ -1,0 +1,29 @@
+id: 190
+code: null
+title: Live 6 — console d'actions (tiroir, diff live) + toast sur done
+status: done
+tags:
+  - live
+size: null
+detail: null
+refs: []
+links: []
+dependsOn:
+  - 186
+epic: live-reactivity
+source: ai
+createdAt: "2026-07-09T00:23:54"
+startedAt: "2026-07-09T00:45:16"
+updatedAt: "2026-07-09T00:47:27"
+completedAt: "2026-07-09"
+commit: 0f558c0
+outcome: >-
+  src/components/LiveConsole.tsx : tiroir Activity (bouton bottom-left + badge unread accent)
+  alimenté par TreeContext.lastChange (diff prev/next). Événements horodatés :
+  created/started/finished/reopened/edited/removed, newest-first, cap 200. Toast 'Task finished!'
+  Base UI sur chaque transition →done (done seul, spec §4). Note 'session only — full history is git
+  log'. Monté dans Shell (App), garde __ROADMAPPED_STATIC__ (off sur la démo). Vérif : tsc clean,
+  383 tests, capture du dashboard réel — bouton Activity monté, zéro casse. Cycle live repose sur la
+  chaîne SSE (#185, vérifiée live) + diff (#186, testé).
+verification: null
+release: null

@@ -1,0 +1,42 @@
+id: 67
+code: null
+title: Token economy 4 — zone Mini dans le Backlog (création inline, done rapide)
+status: done
+tags:
+  - token-economy
+  - ux
+  - design
+size: M
+detail: >-
+  ⛔ N'exécuter qu'après approbation de la spec par Rémi. RÉSERVÉ FABLE (design). Spec §3 UI : zone «
+  Mini » compacte au-dessus de « À faire » dans le Backlog — lignes ultra-denses (glyphe, #id,
+  titre, badge team), création INLINE dans l'en-tête de la zone (titre + team, Entrée = créé), done
+  rapide depuis la ligne (clic glyphe → prompt outcome court, un seul PATCH). Les quick comptent
+  dans compteurs et radar, apparaissent dans les colonnes de la Roadmap mais PAS dans le Graphe.
+  Fini quand : créer/terminer un quick sans ouvrir le panneau (captures), Graphe sans quick, tests +
+  build verts.
+refs:
+  - docs/specs/2026-07-07-token-economy.md
+  - src/components/Backlog.tsx
+  - src/components/TaskColumns.tsx
+  - src/components/RoadmapGraph.tsx
+links: []
+dependsOn:
+  - 66
+epic: token-economy
+source: user
+createdAt: "2026-07-07"
+completedAt: "2026-07-07"
+commit: dffd595
+outcome: >-
+  Les minis se créent et se terminent sans quitter le Backlog : zone dédiée dense, titre+Entrée pour
+  créer, un clic sur le glyphe et un outcome pour terminer — et le Graphe reste réservé aux vraies
+  tâches
+verification: >-
+  E2E navigateur sur mini jetable : création inline constatée, done au glyphe (dialog outcome
+  auto-accepté) → YAML relu (kind quick, done, outcome, verification null acceptée), sorti de Mini
+  et présent dans Terminées. Le débug du Graphe a révélé un bug racine préexistant (cartes depuis
+  s.tasks non filtrés) corrigé et re-vérifié : quick absents avec et sans toggle terminées, done
+  masquées sauf chaîne transitive réelle (#17→#7→#1). Jetables supprimés, ids consommés. 162 tests +
+  build verts.
+release: null

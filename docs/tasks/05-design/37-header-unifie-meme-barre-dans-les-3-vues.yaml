@@ -1,0 +1,42 @@
+id: 53
+code: null
+title: Header unifié — même barre dans les 3 vues, filtres en dropdowns
+status: done
+tags:
+  - ux
+  - design
+size: M
+detail: >-
+  Demande Rémi (2026-07-07) : un seul modèle de header (barre en haut, style vue Roadmap) dans les
+  TROIS vues — hauteur STRICTEMENT identique à celle du header du panneau de tâche (SidePanel).
+  Composant partagé ViewHeader (h-12, filet bas). Les filtres quittent la sidebar (supprimer les
+  listes Stages et Teams) et deviennent des dropdowns/combobox DANS le header : Backlog = recherche
+  + Select stage + dropdown Teams (multi, Popover Base UI) + « + tâche » ; Roadmap = dropdown Teams
+  + toggle terminées + segmented Colonnes/Graphe ; Docs = titre + chemin du doc ouvert. Sidebar =
+  navigation pure (+ arbre de fichiers en vue Docs). Hooks de filtres déplacés hors de Sidebar
+  (state/filters.ts). Fini quand : hauteurs mesurées égales (assertion DOM), filtres fonctionnels
+  dans le header des 2 vues, sidebar sans filtre, captures relues.
+refs:
+  - src/components/RoadmapView.tsx
+  - src/components/Backlog.tsx
+  - src/components/DocsView.tsx
+  - src/components/Sidebar.tsx
+  - src/components/SidePanel.tsx
+links: []
+dependsOn:
+  - 50
+epic: vues-dashboard
+source: user
+createdAt: "2026-07-07"
+completedAt: "2026-07-07"
+commit: abd6778
+outcome: >-
+  Les trois vues partagent le même header — une barre unique de la hauteur exacte du panneau, où
+  vivent recherche, filtres stage et teams en dropdowns et la création ; la sidebar redevient de la
+  navigation pure
+verification: >-
+  Hauteurs assertées au DOM : header de vue 48px = header de panneau 48px ; sidebar vérifiée sans
+  Stages/Teams ; dropdown Teams joué (sélection marketing reflétée sur le trigger, effacement) ;
+  filtre stage GTM appliqué depuis le header (2 ouvertes restantes constatées sur capture). 128
+  tests + build verts.
+release: null

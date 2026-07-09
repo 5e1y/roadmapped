@@ -1,0 +1,50 @@
+id: 133
+code: null
+title: "Implémenter — epic, jalons & progression (spec #131)"
+status: done
+tags:
+  - data-model
+  - fable
+size: L
+detail: >-
+  Implémenter la spec docs/specs/2026-07-08-hierarchie-regroupement.md (décisions verrouillées).
+  Périmètre : (1) renommer le champ milestone→epic dans le schéma (tasks.ts) avec parse rétrocompat
+  epic ?? milestone, FIELD_ORDER/dumpTask, validate (slug optionnel) ; (2)
+  milestoneProgress→epicProgress + types Roadmap/Milestone→Epic, lecture _roadmaps.yaml→_epics.yaml
+  rétrocompat ; (3) CLI --milestone→--epic (alias déprécié) ; (4) kind:'milestone' additif + add
+  --kind milestone + helper --blocks ; (5) globalProgress + ligne d'avancement dans sitrep ; (6)
+  rendu diamant + « bloque N » (TaskRow/TaskPanel/roadmap) ; (7) regroupement par epic dans le
+  dashboard (toggle ViewHeader, bloc Sans epic, champ epic éditable) ; (8) skill
+  references/formats.md ; (9) tests. Verrou jalon = via dependsOn (computeAvailability inchangé).
+  Confié à Fable 5.
+refs: []
+links:
+  - 131
+  - 6
+dependsOn: []
+epic: hierarchie-regroupement
+source: ai
+createdAt: "2026-07-08T11:18:55"
+completedAt: "2026-07-08"
+commit: d549cf5
+outcome: >-
+  Spec #131 implémentée intégralement par Fable 5 (26 fichiers). Champ milestone→epic (parse
+  rétrocompat epic ?? milestone, migration lazy au dump sans résurrection sur {epic:null}, validate
+  slug optionnel). kind:'milestone' additif = jalon (verrou via dependsOn, computeAvailability
+  inchangé ; MilestoneGlyph diamant 3 états + badge « bloque N » dans
+  TaskRow/TaskPanel/RoadmapColumns/RoadmapGraph ; cadenas #130 prioritaire si le jalon est lui-même
+  verrouillé). epicProgress + globalProgress (ligne « avancement: x/y (pct%) » dans sitrep + header
+  Roadmap). Backlog : toggle « par epic » persisté (défaut par stage), blocs par epic + « Sans epic
+  ». EpicCombobox (nouvelle primitive ui.tsx, saisie slugifiée). _roadmaps.yaml→_epics.yaml
+  (rétrocompat lecture). CLI --epic (alias --milestone déprécié avec warning) + --kind milestone +
+  --blocks ; MCP idem ; skill formats.md/SKILL.md à jour. Non fait (volontaire, optionnel dans la
+  spec) : coloration des cartes roadmap par epic.
+verification: >-
+  Vérif INDÉPENDANTE (pas seulement celle de Fable) : npx tsc --noEmit clean ; npx vitest run
+  274/274 verts (13 fichiers, +35 vs avant) ; npm run build vert ; node scripts/task.mjs validate OK
+  sur 123 tâches réelles (rétrocompat des 119 milestone:null confirmée) ; sitrep affiche «
+  avancement: 111/123 (90%) » ; roadmap affiche l'avancement global + « Aucun epic » (correct) ; npm
+  run dev boote HTTP 200, /api/tree valide, zéro erreur. Rendu visuel fin (diamant, combobox,
+  regroupement) à valider à l'œil par Rémi ; EpicCombobox = seul comportement Base UI réellement
+  neuf, sans test d'interaction DOM (couvert typecheck/build).
+release: null

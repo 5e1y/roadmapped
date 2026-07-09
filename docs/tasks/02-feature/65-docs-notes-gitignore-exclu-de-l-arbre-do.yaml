@@ -1,0 +1,30 @@
+id: 87
+code: null
+title: docs/notes/ gitignoré + exclu de l'arbre Docs + création au 1er usage
+status: done
+tags: []
+size: S
+detail: >-
+  L'app crée docs/notes/ au premier usage ET ajoute 'docs/notes/' à .gitignore si absent
+  (idempotent). buildDocsTree exclut explicitement notes/ (comme node_modules) → invisible dans
+  l'onglet Docs. Fini quand : créer une note laisse git status propre (gitignoré), notes/ absent de
+  l'arbre Docs (test docs), ligne .gitignore ajoutée une seule fois.
+refs:
+  - docs/specs/2026-07-07-notepad.md
+  - src/server/docs.ts
+links: []
+dependsOn: []
+epic: notepad
+source: ai
+createdAt: "2026-07-08"
+completedAt: "2026-07-08"
+commit: d491b55
+outcome: >-
+  docs/notes/ invisible dans l'onglet Docs (buildDocsTree l'exclut à la racine, garde un notes/ plus
+  profond) ; ensureNotesSetup au boot du serveur crée le dossier + ajoute 'docs/notes/' au
+  .gitignore si absente (idempotent) ; ligne ajoutée au .gitignore du repo
+verification: >-
+  Créer docs/notes/_probe.md → git status propre (ignoré, vérifié en réel) ; test docs : notes/
+  racine exclu, plans/notes conservé ; test ensureGitignore idempotent (ajoute 1×, jamais 2) ; 214
+  tests + build verts
+release: null

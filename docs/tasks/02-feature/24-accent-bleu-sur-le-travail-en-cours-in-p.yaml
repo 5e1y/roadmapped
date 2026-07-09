@@ -1,0 +1,36 @@
+id: 37
+code: null
+title: Accent bleu sur le travail en cours (in_progress)
+status: done
+tags:
+  - ux
+  - design
+size: S
+detail: >-
+  Second usage de l'accent (carte blanche design validée par Rémi) : le travail EN COURS doit
+  attirer l'œil partout où il apparaît. Passer le glyphe in_progress (demi-cercle, glyphs.tsx) en
+  couleur accent — il est utilisé par toutes les vues (Backlog, Colonnes, Graphe, panneau,
+  relations), donc un seul changement rend chaque tâche démarrée repérable partout. Étendre avec
+  parcimonie si pertinent (libellé « en cours » du panneau). NE PAS bleuir : done, available, les
+  barres de progression, la nav — le bleu se dilue s'il est partout. Fini quand : une tâche
+  in_progress se distingue immédiatement d'une todo dans chaque vue (captures comparées), token
+  accent uniquement.
+refs:
+  - src/components/glyphs.tsx
+  - src/components/TaskPanel.tsx
+links: []
+dependsOn:
+  - 36
+epic: design-system
+source: user
+createdAt: "2026-07-07"
+completedAt: "2026-07-07"
+commit: 5ad66ba
+outcome: >-
+  Le travail en cours saute aux yeux : le demi-cercle in_progress est bleu dans toutes les vues
+  (Backlog, Colonnes, Graphe, panneau, relations)
+verification: >-
+  Un seul changement dans glyphs.tsx (currentColor + text-accent conditionnel) propagé partout ;
+  glyphes bleus constatés sur les captures Backlog et Graphe (#9, #11, #36, #37) ;
+  done/todo/available restés monochromes comme voulu. 113 tests verts.
+release: null

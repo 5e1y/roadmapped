@@ -128,14 +128,14 @@ describe('ensureConfig', () => {
 })
 
 describe('ensureSkeleton', () => {
-  it('crée _meta.yaml (nextId: 1) + les 8 stages canoniques, et validate passe', () => {
+  it('crée _meta.yaml (nextId: 1) + les 9 types canoniques, et validate passe', () => {
     const tasksDir = join(host, 'docs', 'tasks')
     expect(ensureSkeleton(tasksDir, silent)).toBe(true)
     expect(load(readFileSync(join(tasksDir, '_meta.yaml'), 'utf8'))).toEqual({ nextId: 1 })
     const stages = readdirSync(tasksDir).filter((n) => n !== '_meta.yaml').sort()
-    expect(stages).toEqual(['01-idea', '02-initial', '03-identity', '04-build', '05-gtm', '06-launch', '07-scale', '08-mature'])
-    const section = load(readFileSync(join(tasksDir, '01-idea', '_section.yaml'), 'utf8'))
-    expect(section.title).toBe('Idea Stage')
+    expect(stages).toEqual(['01-bug', '02-feature', '03-chore', '04-brainstorm', '05-design', '06-marketing', '07-communication', '08-legal', '09-business'])
+    const section = load(readFileSync(join(tasksDir, '01-bug', '_section.yaml'), 'utf8'))
+    expect(section.title).toBe('Bugs')
     expect(section.status).toBe('open')
     // La validation STRICTE du vrai CLI passe sur le squelette vide.
     writeFileSync(join(host, 'roadmapped.config.json'), JSON.stringify({ tasksDir: 'docs/tasks', docsDir: 'docs' }))
@@ -149,7 +149,7 @@ describe('ensureSkeleton', () => {
     writeFileSync(join(tasksDir, '_meta.yaml'), 'nextId: 42\n')
     expect(ensureSkeleton(tasksDir, silent)).toBe(false)
     expect(readFileSync(join(tasksDir, '_meta.yaml'), 'utf8')).toBe('nextId: 42\n')
-    expect(existsSync(join(tasksDir, '01-idea'))).toBe(false) // rien semé par-dessus
+    expect(existsSync(join(tasksDir, '01-bug'))).toBe(false) // rien semé par-dessus
   })
 })
 
@@ -274,7 +274,7 @@ describe('runInit — orchestration idempotente', () => {
     runInit({ hostRoot: host, packageDir: repoRoot, log: silent })
     expect(readFileSync(join(host, 'backlog', '_meta.yaml'), 'utf8')).toBe('nextId: 99\n') // données intactes
     expect(JSON.parse(readFileSync(join(host, 'roadmapped.config.json'), 'utf8')).tasksDir).toBe('backlog')
-    expect(existsSync(join(host, 'backlog', '01-idea'))).toBe(false) // pas de squelette par-dessus
+    expect(existsSync(join(host, 'backlog', '01-bug'))).toBe(false) // pas de squelette par-dessus
   })
 })
 
@@ -309,11 +309,11 @@ describe('dispatcher bin/roadmapped.mjs — un repo hôte lit SES tâches, pas c
     // Le "paquet installé" = ce repo ; le bin est lancé avec cwd = repo hôte vierge.
     let r = spawnSync('node', [binPath, 'init'], { cwd: host, encoding: 'utf8', env: hostEnv() })
     expect(r.status).toBe(0)
-    r = spawnSync('node', [binPath, 'add', '--section', '04-build', '--title', 'Tâche hôte', '--team', 'engineering', '--json'],
+    r = spawnSync('node', [binPath, 'add', '--type', '02-feature', '--title', 'Tâche hôte', '--json'],
       { cwd: host, encoding: 'utf8', env: hostEnv() })
     expect(r.status).toBe(0)
     expect(JSON.parse(r.stdout).id).toBe(1) // nextId de l'HÔTE (1), pas celui de l'install (140+)
-    expect(existsSync(join(host, 'docs', 'tasks', '04-build', '01-tache-hote.yaml'))).toBe(true)
+    expect(existsSync(join(host, 'docs', 'tasks', '02-feature', '01-tache-hote.yaml'))).toBe(true)
     // list ne voit QUE le backlog hôte.
     r = spawnSync('node', [binPath, 'list', '--json'], { cwd: host, encoding: 'utf8', env: hostEnv() })
     const ids = JSON.parse(r.stdout).map((t) => t.id)

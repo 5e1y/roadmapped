@@ -11,15 +11,15 @@ import type { TaskTree } from './tasks'
 
 let dir: string
 
-/** Section de travail des tests : le stage canonique 04-build. */
-const SEC = '04-build'
-/** Récupère un stage par slug dans un arbre (les 8 stages sont toujours présents). */
+/** Section de travail des tests : le type canonique 02-feature. */
+const SEC = '02-feature'
+/** Récupère un type par slug dans un arbre (les 9 types sont toujours présents). */
 const sectionOf = (tree: TaskTree, key = SEC) => tree.sections.find((s) => s.key === key)!
-/** addTask pré-rempli (section 04-build + team engineering) — surcharge via `input`. */
+/** addTask pré-rempli (type 02-feature) — surcharge via `input`. */
 const add = (input: Partial<Parameters<typeof addTask>[1]> = {}) =>
-  addTask(dir, { section: SEC, team: 'engineering', title: 'Tâche', ...input })
+  addTask(dir, { section: SEC, title: 'Tâche', ...input })
 
-/** Fabrique un tasksDir jetable : _meta.yaml + les 8 stages canoniques. */
+/** Fabrique un tasksDir jetable : _meta.yaml + les 9 types canoniques. */
 function seed(): void {
   writeFileSync(join(dir, '_meta.yaml'), 'nextId: 1\n')
   seedStages(dir)
@@ -72,11 +72,12 @@ describe('addTask', () => {
     expect(existsSync(join(dir, SEC, '01-nouvelle-tache.yaml'))).toBe(true)
     expect(readFileSync(join(dir, '_meta.yaml'), 'utf8')).toContain('nextId: 2')
     expect(sectionOf(res.tree).tasks[0].title).toBe('Nouvelle tâche')
-    expect(sectionOf(res.tree).tasks[0].team).toBe('engineering')
+    // La nature d'une tâche est désormais portée par sa section (#230, plus de team).
+    expect(res.task!.file).toContain(`${SEC}/`)
   })
 
   it('refuse une section inexistante', () => {
-    const res = addTask(dir, { section: '99-nope', team: 'engineering', title: 'X' })
+    const res = addTask(dir, { section: '99-nope', title: 'X' })
     expect(res.ok).toBe(false)
     if (res.ok) return
     expect(res.notFound).toBe(true)
@@ -89,22 +90,27 @@ describe('addTask', () => {
     expect(res.task!.createdAt).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/)
   })
 
-  it('rejette (rollback) une team inconnue', () => {
-    const res = add({ team: 'wizardry' })
+  it('un add sans team réussit (team supprimée du modèle, #230)', () => {
+    const res = add({ title: 'Sans team' })
+    expect(res.ok).toBe(true)
+  })
+
+  it('rejette (rollback) un heat hors bornes (>100)', () => {
+    const res = add({ heat: 150 })
     expect(res.ok).toBe(false)
     if (res.ok) return
-    expect(res.errors.some((e) => e.includes('team'))).toBe(true)
+    expect(res.errors.some((e) => e.includes('heat'))).toBe(true)
   })
 })
 
 describe('updateTask', () => {
   it('modifie un champ et le persiste', () => {
     add()
-    const res = updateTask(dir, 1, { title: 'Titre modifié', team: 'design' })
+    const res = updateTask(dir, 1, { title: 'Titre modifié', heat: 60 })
     expect(res.ok).toBe(true)
     if (!res.ok) return
     expect(sectionOf(res.tree).tasks[0].title).toBe('Titre modifié')
-    expect(sectionOf(res.tree).tasks[0].team).toBe('design')
+    expect(sectionOf(res.tree).tasks[0].heat).toBe(60)
   })
 
   it('rollback quand l’écriture rend l’arbre invalide (status inconnu)', () => {
@@ -118,10 +124,12 @@ describe('updateTask', () => {
     expect(readFileSync(join(dir, SEC, '01-tache.yaml'), 'utf8')).toBe(before)
   })
 
-  it('rollback quand on met une team inconnue', () => {
+  it('rollback quand on met un heat hors bornes', () => {
     add()
-    const res = updateTask(dir, 1, { team: 'wizardry' })
+    const res = updateTask(dir, 1, { heat: 150 })
     expect(res.ok).toBe(false)
+    if (res.ok) return
+    expect(res.errors.some((e) => e.includes('heat'))).toBe(true)
   })
 })
 
@@ -330,12 +338,12 @@ describe('sections', () => {
     expect(res.ok).toBe(true)
     if (!res.ok) return
     const s = sectionOf(res.tree)
-    expect(s.title).toBe('Build Stage') // titre canonique inchangé
+    expect(s.title).toBe('Features') // titre canonique inchangé (02-feature)
     expect(s.status).toBe('dormant')
     expect(s.note).toBe('en veille')
   })
 
-  it('rollback si on renomme un stage hors de son titre canonique', () => {
+  it('rollback si on renomme un type hors de son titre canonique', () => {
     const res = updateSection(dir, SEC, { title: 'Autre titre' })
     expect(res.ok).toBe(false)
     if (res.ok) return
@@ -422,7 +430,7 @@ describe('addTask/updateTask — dependsOn & epic', () => {
       join(dir, SEC, '01-legacy.yaml'),
       [
         'id: 1', 'title: "Legacy"', 'status: todo', 'tags: []', 'size: null',
-        'team: engineering', 'detail: null', 'refs: []', 'links: []', 'dependsOn: []',
+        'detail: null', 'refs: []', 'links: []', 'dependsOn: []',
         'milestone: socle', 'source: ai', 'createdAt: "2026-07-07"', 'completedAt: null',
         'commit: null', 'outcome: null', 'verification: null', 'release: null', '',
       ].join('\n'),
@@ -440,7 +448,7 @@ describe('addTask/updateTask — dependsOn & epic', () => {
   it('rétrocompat : vider l\'epic d\'un YAML legacy ne ressuscite PAS la valeur milestone', () => {
     writeFileSync(
       join(dir, SEC, '01-legacy.yaml'),
-      'id: 1\ntitle: "Legacy"\nstatus: todo\nteam: engineering\nmilestone: socle\nsource: ai\ncreatedAt: "2026-07-07"\n',
+      'id: 1\ntitle: "Legacy"\nstatus: todo\nmilestone: socle\nsource: ai\ncreatedAt: "2026-07-07"\n',
     )
     writeFileSync(join(dir, '_meta.yaml'), 'nextId: 2\n')
     expect(updateTask(dir, 1, { epic: null }).ok).toBe(true)

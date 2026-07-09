@@ -1,0 +1,37 @@
+id: 114
+code: null
+title: Passe uniformité — fonds, arrondis et espacements alignés sur design.md
+status: done
+tags:
+  - design
+size: S
+detail: >-
+  Appliquer les tokens de docs/design.md (#111) sur les écrans : LE fond de page canonique partout
+  (fin du mélange blanc/gris relevé par #109), échelle d'arrondis unique, espacements harmonisés
+  entre les 4 tabs et les panneaux latéraux. Purement visuel, zéro comportement. Fini quand :
+  bascule entre les 4 tabs sans rupture de fond ni de rythme (vérifié à l'œil dans l'app), les
+  valeurs utilisées sont celles de design.md, tests + build verts.
+refs:
+  - src/components/ViewHeader.tsx
+  - src/components/ui.tsx
+links: []
+dependsOn:
+  - 111
+epic: design-system
+source: user
+createdAt: "2026-07-08T01:57:24"
+completedAt: "2026-07-08"
+commit: 85ea032
+outcome: >-
+  Tri-couche appliqué : bg-white retiré des racines Docs/Notepad (le ViewHeader est identique dans
+  les 4 tabs), flancs 420px en surface carte bg-white, hex sticky de RoadmapColumns thémé
+  bg-neutral-50 ; Select compact passé rounded (usage corps unique vérifié) ; gabarits centrés
+  mx-auto max-w-3xl px-6 py-8 partout, états loading ET erreur compris ; flancs unifiés py-2 +
+  lignes px-4 (DocsTree compensé BASE_PADDING 8→16) ; micro-labels à deux niveaux (10px→11px) ;
+  encre du titre de stage du graphe alignée sur le mode Colonnes ; boutons primaires à deux
+  métriques, hover inversé du pied de TaskPanel remplacé par actionBtn
+verification: >-
+  Agent délégué + revue de diff orchestrateur (12 fichiers, écarts justifiés : blocs erreur alignés
+  car design.md l'exige, Annuler harmonisé avec sa rangée) ; 225 tests + build verts ; bascule
+  inter-tabs sans rupture de fond garantie par le retrait des bg-white racine
+release: null

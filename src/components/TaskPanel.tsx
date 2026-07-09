@@ -16,7 +16,6 @@ import {
   SavedTick, FieldError, primaryBtn, actionBtn, type SelectItem,
 } from './ui'
 import { Markdown } from './Markdown'
-import { TEAMS, TEAM_ABBR } from '../lib/tasks'
 import { OPEN_DOC_EVENT } from '../lib/events'
 import { markTaskSeen } from '../state/seenTasks'
 import type { TaskNode, TaskTree } from '../lib/tasks'
@@ -54,7 +53,6 @@ const SIZE_ITEMS: SelectItem[] = [
   { value: 'M', label: 'M' },
   { value: 'L', label: 'L' },
 ]
-const TEAM_ITEMS: SelectItem[] = TEAMS.map((t) => ({ value: t, label: t }))
 
 /** Deux valeurs (potentiellement listes) diffèrent-elles ? Comparaison structurelle, null-safe. */
 const changed = (a: unknown, b: unknown) => JSON.stringify(a ?? null) !== JSON.stringify(b ?? null)
@@ -123,7 +121,6 @@ export function relItemOf(t: TaskNode): SelectItem {
       title: t.title,
       status: t.status,
       kind: t.kind,
-      team: TEAM_ABBR[t.team] ?? (t.team ? String(t.team) : ''),
       stage: dir.replace(/^\d+-/, ''),
     },
   }
@@ -560,7 +557,7 @@ function TaskPanelBody({ id }: { id: number }) {
       </div>
 
       {/* Métadonnées : champs ghost permanents, étiquetés. */}
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 gap-2">
         <div className="flex flex-col gap-0.5">
           <SectionLabel>Size</SectionLabel>
           <Select
@@ -569,17 +566,6 @@ function TaskPanelBody({ id }: { id: number }) {
             defaultValue={task.size ?? ''}
             items={SIZE_ITEMS}
             onValueChange={(v) => void save('size', changed(task.size, v || null), { size: v || null })}
-          />
-        </div>
-        <div className="flex flex-col gap-0.5">
-          <SectionLabel>Team</SectionLabel>
-          {/* Enum stricte (8 teams, requise) : Select ghost, pas d'option vide. */}
-          <Select
-            ghost
-            aria-label="Team"
-            defaultValue={task.team}
-            items={TEAM_ITEMS}
-            onValueChange={(v) => void save('team', changed(task.team, v), { team: v })}
           />
         </div>
         <div className="flex flex-col gap-0.5">
@@ -595,8 +581,8 @@ function TaskPanelBody({ id }: { id: number }) {
           />
         </div>
       </div>
-      <div className="-mt-4 px-1.5"><SavedTick show={savedIn('size', 'team', 'code')} /></div>
-      <FieldError errs={errors.size ?? errors.team ?? errors.code} />
+      <div className="-mt-4 px-1.5"><SavedTick show={savedIn('size', 'code')} /></div>
+      <FieldError errs={errors.size ?? errors.code} />
 
       {/* Epic : LE regroupement transverse aux stages (#133) — combobox des epics
           existants + création à la volée (saisie slugifiée), ✕ pour retirer. */}

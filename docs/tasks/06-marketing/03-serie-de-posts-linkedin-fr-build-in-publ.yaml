@@ -1,0 +1,32 @@
+id: 158
+code: null
+title: Série de posts LinkedIn FR (build-in-public) — banque de contenus post-lancement
+status: done
+tags:
+  - marketing
+  - content
+size: null
+detail: >-
+  Au-delà du post de lancement J0 (#20), une banque de 6-8 posts LinkedIn FR autonomes à distiller
+  après le lancement. Chaque post = 1 angle (dogfooding, une feature précise, une leçon, philosophie
+  fichiers plats, l'agent premier utilisateur, anti-SaaS, chiffres du backlog). Applique
+  docs/tone-of-voice.md à la lettre. Livrable: docs/linkedin-posts.md.
+refs:
+  - docs/tone-of-voice.md
+  - docs/comms-plan.md
+  - docs/announce-content.md
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-08T17:59:22"
+startedAt: "2026-07-08T17:59:33"
+completedAt: "2026-07-08"
+commit: a13c9fc
+outcome: >-
+  docs/linkedin-posts.md créé : 7 posts LinkedIn FR autonomes (build-in-public), chacun un angle
+  distinct (agent citoyen du process, hook git, pas de DB, dogfooding récursif, 3 leçons, anti-fiche
+  produit, méta-post). Applique tone-of-voice.md. Chiffres snapshot 2026-07-08 (145/139, 373 tests)
+  à re-vérifier avant publication. Notes cadence/visuel/EN incluses.
+verification: null
+release: null

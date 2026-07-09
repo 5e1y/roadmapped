@@ -1,0 +1,30 @@
+id: 206
+kind: quick
+code: null
+title: >-
+  Self-host : exposer le skill roadmapped à /roadmapped (symlink .claude/skills → skills/roadmapped)
+  pour que la discipline s'auto-charge chaque session
+status: done
+tags:
+  - debt
+  - skill
+size: null
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-09T09:42:00"
+startedAt: "2026-07-09T09:55:09"
+updatedAt: "2026-07-09T09:55:37"
+completedAt: "2026-07-09"
+commit: 447e7f9
+outcome: >-
+  Symlink relatif `.claude/skills/roadmapped → ../../skills/roadmapped` (stocké en git mode 120000,
+  portable). Résolution vérifiée : SKILL.md lisible au travers. Plafond assumé (debt) : la
+  DÉCOUVERTE du skill par Claude Code se fait au démarrage de session — non vérifiable dans cette
+  session-ci, effet attendu à la prochaine (/roadmapped invocable + discipline auto-chargée). Aucun
+  conflit avec install.mjs (branche self-host = pas de copie du skill).
+verification: null
+release: null

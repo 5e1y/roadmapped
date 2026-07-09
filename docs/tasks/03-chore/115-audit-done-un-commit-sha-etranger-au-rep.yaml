@@ -1,0 +1,36 @@
+id: 143
+kind: quick
+code: null
+title: >-
+  Audit/done : un commit sha étranger au repo (travail dans un autre repo, ex. site) devient une
+  ancre lastLogged non résolvable et coupe l'audit en silence — détecter/ignorer un sha absent
+status: done
+tags:
+  - debt
+size: null
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: process-enforcement
+source: ai
+createdAt: "2026-07-08T14:11:01"
+startedAt: "2026-07-08T14:46:43"
+completedAt: "2026-07-08"
+commit: 74b584a
+outcome: >-
+  lastLogged (src/lib/render.ts) durci : au lieu de prendre la tâche consignée la plus récente
+  aveuglément, il descend la liste triée (completedAt desc, id desc) jusqu'au 1er commit dont le sha
+  EXISTE dans ce dépôt (git rev-parse --verify --quiet <sha>^{commit}). Un sha étranger (travail
+  livré dans un autre repo comme le site, commit rebasé/amendé disparu, ou valeur parasite) est
+  désormais sauté au lieu de couper silencieusement l'audit ET le signal « commits non consignés »
+  (git log <sha-absent>..HEAD échouait → null → « hors dépôt git »). Corrige à la source les deux
+  consommateurs (unloggedCommits, auditCommits). Dette #debt close.
+verification: >-
+  tsc clean ; suite complète 346/346 (aucune régression). Test de robustesse RÉEL : sha bidon «
+  deadbeef » injecté comme ancre la plus récente (update 140 --commit deadbeef) → audit RESTE
+  fonctionnel « 14 commit(s) · ✔ 14 liés » (lastLogged saute deadbeef et tombe sur le commit réel
+  suivant), là où avant le fix ça donnait « indisponible (hors dépôt git) » ; vrai sha restauré
+  ensuite. Sur données réelles : audit 14/14 liés, et le faux « 14 commits non consignés » a disparu
+  du sitrep. validate OK 132 tâches.
+release: null

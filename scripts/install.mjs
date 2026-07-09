@@ -16,7 +16,7 @@ import {
 import { join, dirname, resolve, isAbsolute } from 'node:path'
 import { execFileSync } from 'node:child_process'
 import yaml from 'js-yaml'
-import { STAGES } from '../src/lib/tasks.ts'
+import { TYPES } from '../src/lib/tasks.ts'
 import { findHostRoot, packageRoot, loadPathsAt } from '../src/lib/paths.ts'
 
 const GUARD_START = '# >>> roadmapped guard >>>'
@@ -53,7 +53,7 @@ export function ensureConfig(hostRoot, log = () => {}) {
   return file
 }
 
-/** Backlog skeleton: _meta.yaml (nextId: 1) + the 8 canonical empty stages.
+/** Backlog skeleton: _meta.yaml (nextId: 1) + the 9 canonical empty types.
  *  If _meta.yaml exists, the backlog is already initialized → we touch NOTHING. */
 export function ensureSkeleton(tasksDir, log = () => {}) {
   if (existsSync(join(tasksDir, '_meta.yaml'))) {
@@ -62,12 +62,13 @@ export function ensureSkeleton(tasksDir, log = () => {}) {
   }
   mkdirSync(tasksDir, { recursive: true })
   writeFileSync(join(tasksDir, '_meta.yaml'), 'nextId: 1\n')
-  for (const stage of STAGES) {
-    const dir = join(tasksDir, stage.slug)
+  for (const type of TYPES) {
+    const dir = join(tasksDir, type.slug)
     mkdirSync(dir, { recursive: true })
-    writeFileSync(join(dir, '_section.yaml'), yaml.dump({ title: stage.title, status: 'open', note: stage.note }))
+    // baseHeat (#234) semé depuis TYPES : la chaleur de départ vit dans le jalon, tunable.
+    writeFileSync(join(dir, '_section.yaml'), yaml.dump({ title: type.title, status: 'open', baseHeat: type.baseHeat, note: type.note }))
   }
-  log(`skeleton: ${tasksDir} created (8 canonical empty stages, nextId: 1).`)
+  log(`skeleton: ${tasksDir} created (9 canonical empty types, nextId: 1).`)
   return true
 }
 

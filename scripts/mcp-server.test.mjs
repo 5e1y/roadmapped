@@ -16,7 +16,7 @@ beforeEach(() => {
   dir = mkdtempSync(join(tmpdir(), 'roadmapped-mcp-'))
   writeFileSync(join(dir, '_meta.yaml'), 'nextId: 1\n')
   seedStages(dir)
-  addTask(dir, { section: '04-build', team: 'engineering', title: 'Une tâche', refs: ['docs/x.md'] }) // #1
+  addTask(dir, { section: '02-feature', title: 'Une tâche', refs: ['docs/x.md'] }) // #1
   tools = makeTools(dir)
 })
 afterEach(() => rmSync(dir, { recursive: true, force: true }))
@@ -63,7 +63,7 @@ describe('MCP — tools de lecture (#91)', () => {
   })
 
   it('list --tag debt filtre le ledger de dette', () => {
-    addTask(dir, { section: '04-build', team: 'engineering', title: 'Dette assumée', tags: ['debt'], kind: 'quick' }) // #2
+    addTask(dir, { section: '02-feature', title: 'Dette assumée', tags: ['debt'], kind: 'quick' }) // #2
     const r = makeTools(dir).find((t) => t.name === 'list').handler({ tag: 'debt' })
     expect(r.content[0].text).toMatch(/Dette assumée/)
     expect(r.content[0].text).not.toMatch(/#1 {2}/)
@@ -78,14 +78,14 @@ describe('MCP — tools de lecture (#91)', () => {
 
 describe('MCP — tools d’écriture (#92)', () => {
   it('add crée une tâche (structured.id) sans casser la validation', () => {
-    const r = tool('add').handler({ section: '04-build', title: 'Née par tool', team: 'design' })
+    const r = tool('add').handler({ section: '02-feature', title: 'Née par tool' })
     expect(r.isError).toBeFalsy()
     expect(r.structuredContent.id).toBe(2)
     expect(makeTools(dir).find((t) => t.name === 'validate').handler({}).structuredContent.ok).toBe(true)
   })
 
   it('quick --start crée un mini-ticket in_progress', () => {
-    const r = tool('quick').handler({ title: 'Fix rapide', team: 'engineering', start: true })
+    const r = tool('quick').handler({ title: 'Fix rapide', start: true })
     expect(r.structuredContent.kind).toBe('quick')
     expect(r.structuredContent.status).toBe('in_progress')
   })
@@ -100,9 +100,9 @@ describe('MCP — tools d’écriture (#92)', () => {
     expect(makeTools(dir).find((t) => t.name === 'show').handler({ id: 1 }).structuredContent.status).toBe('done')
   })
 
-  it('écriture invalide (team hors enum) → isError ET rollback (arbre inchangé)', () => {
+  it('écriture invalide (heat hors bornes) → isError ET rollback (arbre inchangé)', () => {
     const before = makeTools(dir).find((t) => t.name === 'next').handler({ count: 9 }).content[0].text
-    const r = tool('add').handler({ section: '04-build', title: 'Mauvaise team', team: 'wizardry' })
+    const r = tool('add').handler({ section: '02-feature', title: 'Mauvais heat', heat: 150 })
     expect(r.isError).toBe(true)
     // rollback : la validation reste OK et aucune tâche n'a été ajoutée
     expect(makeTools(dir).find((t) => t.name === 'validate').handler({}).structuredContent.ok).toBe(true)
@@ -110,7 +110,7 @@ describe('MCP — tools d’écriture (#92)', () => {
   })
 
   it('done d’un quick sans outcome → isError (message du noyau)', () => {
-    const q = tool('quick').handler({ title: 'Sans outcome', team: 'engineering', start: true })
+    const q = tool('quick').handler({ title: 'Sans outcome', start: true })
     const r = tool('done').handler({ id: q.structuredContent.id })
     expect(r.isError).toBe(true)
     expect(r.content[0].text).toMatch(/outcome requis/)
@@ -138,11 +138,11 @@ describe('MCP — invariant de sortie (#95)', () => {
     check(tool('validate').handler({}))
     check(tool('take').handler({}))                                                   // démarre #1
     check(tool('done').handler({ id: 1, outcome: 'x', verification: 'y' }))
-    check(tool('add').handler({ section: '04-build', title: 'T', team: 'design' }))   // #2
+    check(tool('add').handler({ section: '02-feature', title: 'T' }))                 // #2
     check(tool('update').handler({ id: 2, detail: 'd' }))
-    check(tool('quick').handler({ title: 'Q', team: 'engineering' }))                 // #3
+    check(tool('quick').handler({ title: 'Q' }))                                      // #3
     check(tool('start').handler({ id: 2 }))
-    check(tool('take').handler({ team: 'legal' }))  // file vide → l'ancien cas structured:null
-    check(tool('next').handler({ team: 'legal' }))  // file vide → l'ancien cas structured:[]
+    check(tool('take').handler({ type: 'legal' }))  // file vide → l'ancien cas structured:null
+    check(tool('next').handler({ type: 'legal' }))  // file vide → l'ancien cas structured:[]
   })
 })

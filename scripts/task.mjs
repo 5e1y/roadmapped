@@ -24,7 +24,7 @@ import {
 import { computeAvailability, activeTasks, nextQueue, globalProgress, epicProgress, allEpics } from '../src/lib/roadmap.ts'
 // Rendu partagé (#90) : CLI et serveur MCP consomment le MÊME code (src/lib/render.ts).
 import { git, taskLine, refLine, briefText, sitrepText, unloggedCommits, auditCommits, auditText, stalePassepartout, todayStr } from '../src/lib/render.ts'
-import { TEAMS } from '../src/lib/tasks.ts'
+import { TYPES } from '../src/lib/tasks.ts'
 
 const { tasksDir: ROOT } = loadPaths()
 
@@ -113,25 +113,25 @@ const USAGE = `task.mjs — manages docs/tasks/ (source of truth for the Roadmap
 Usage: node scripts/task.mjs <command> [arguments]
         (Node >= 22.18; otherwise: npm run task --prefix dashboard -- <command>)
 
-Stages (canonical, fixed sections): 01-idea · 02-initial · 03-identity · 04-build
-  05-gtm · 06-launch · 07-scale · 08-mature  (created at init, not editable from the CLI)
-Teams (business team, fixed enum): ${TEAMS.join(' · ')}
+Types (canonical, fixed sections = the NATURE of the work):
+  ${TYPES.map((t) => t.slug).join(' · ')}  (created at init, not editable from the CLI)
 
 Opening a session (machine-first: all the context in 1 call)
   sitrep                    the state of the world in ≤30 lines (done today, in_progress,
                             next 3, validate, alerts) — THE first move of a session
-  take [--team <t>] [--json] next + start + brief IN ONE COMMAND (the opening command)
+  take [--type <t>] [--json] next + start + brief IN ONE COMMAND (the opening command)
   brief <id>                THE full, dense execution context (titled deps/linked,
                             refs + anchor excerpts & freshness, done reminder) — supersedes show
 
 Reading
-  list [--section <key>] [--status todo|in_progress|done] [--team <t>] [--tag <tag>] [--json] [--json-full]
-                            --json = lightweight (id,title,status,team,stage,size,kind);
+  list [--section <key>] [--status todo|in_progress|done] [--type <t>] [--tag <tag>] [--json] [--json-full]
+                            --type = filter by nature (section slug, "bug" or "01-bug");
+                            --json = lightweight (id,title,status,type,size,kind,heat);
                             --json-full = the full object (nextId + complete sections)
   show <id> [--json]        full detail of a task (titled deps/linked, global id e.g. 42)
-  next [--count N] [--team t] [--json]
+  next [--count N] [--type t] [--json]
                             THE work queue: the next N AVAILABLE todo tasks
-                            (deps done), ordered by stage THEN age — computed by
+                            (deps done), ordered by type-column THEN age — computed by
                             the app, to be CONSUMED as-is (never recompute)
   roadmap [--json]          overall progress + epic view (epic field, _epics.yaml
                             optional): progress + state of each task
@@ -144,16 +144,18 @@ Reading
                             task; surfaces orphans (no #id) + dead references
 
 Writing (id allocated from _meta.yaml; validated after EVERY write, full rollback on error)
-  add --section <stage> --title <t> --team <team> [--detail <d>] [--tags a,b]
+  add --type <type> --title <t> [--detail <d>] [--tags a,b] [--heat 0-100]
       [--size S|M|L] [--code <c>] [--refs a,b] [--links 1,2]
       [--depends-on 1,2] [--epic <slug>] [--kind task|quick|milestone]
       [--blocks 1,2] [--source ai|user] [--json]
-                            --team is REQUIRED (fixed enum above);
+                            --type is the NATURE (section slug, e.g. 02-feature) — REQUIRED
+                            (--section / --stage still accepted as aliases);
+                            --heat = priority seed 0-100 (optional, absent = cold);
                             --kind milestone = MILESTONE (lock via dependsOn, rendered as diamond);
                             --blocks 1,2 = adds the new task to the dependsOn
                             of the tasks named (the ergonomic inverse of --depends-on)
-  quick "<title>" --team <t> [--stage <s>] [--tags a,b] [--start] [--json]
-                            mini-ticket: title+team suffice (default stage = 1st open one);
+  quick "<title>" [--type <t>] [--tags a,b] [--heat 0-100] [--start] [--json]
+                            mini-ticket: title suffices (default type = 1st open one);
                             at done, --outcome required but --verification optional
   start <id>                status → in_progress
   done <id> [--commit <sha>] [--outcome <o>] [--verification <v>] [--release <r>] [--resolve-feedback all|1,3]
@@ -163,15 +165,16 @@ Writing (id allocated from _meta.yaml; validated after EVERY write, full rollbac
                             capture a note on a task WITHOUT a new ticket (#149).
                             Same scope → reopen (start <id>) + re-done; new scope → a quick.
   update <id> [--title] [--detail] [--status] [--tags] [--refs] [--links]
-      [--size] [--team] [--code] [--source] [--commit] [--outcome] [--verification] [--release]
+      [--size] [--heat 0-100|--no-heat] [--code] [--source] [--commit] [--outcome] [--verification] [--release]
       [--depends-on 1,2] [--epic <slug>]
                             generic patch ("null" = reset a field to null;
+                            --heat 0 / --no-heat cools the task (clears the field);
                             --depends-on null / --epic null to clear;
                             --milestone still accepted as a deprecated alias of --epic)
 
 Conventions
   - NEVER reuse an id (monotonic nextId counter, _meta.yaml).
-  - A done task stays in its stage (Done column) — that's the changelog.
+  - A done task stays in its type column (Done) — that's the changelog.
   - Subtasks: manually create a twin folder (04-x/ for 04-x.yaml),
     ids taken via add --json on a temporary section or manual edit
     + validate. The CLI only creates top-level tasks.
@@ -180,10 +183,10 @@ Conventions
 // Usage COURT par commande : servi tel quel sur une erreur de flag/valeur (message
 // autoportant, 2-3 lignes), au lieu du USAGE global. Coupe court (annexe 2 du coût).
 const CMD_USAGE = {
-  list: 'Usage: list [--section <key>] [--status todo|in_progress|done] [--team <t>] [--tag <tag>] [--json] [--json-full]',
+  list: 'Usage: list [--section <key>] [--status todo|in_progress|done] [--type <t>] [--tag <tag>] [--json] [--json-full]',
   show: 'Usage: show <id> [--json]',
-  next: 'Usage: next [--count N] [--team <t>] [--json]',
-  take: 'Usage: take [--team <t>] [--json]',
+  next: 'Usage: next [--count N] [--type <t>] [--json]',
+  take: 'Usage: take [--type <t>] [--json]',
   brief: 'Usage: brief <id>',
   sitrep: 'Usage: sitrep',
   audit: 'Usage: audit [--json]  (parses the #id convention in commits since the last logged task; surfaces orphans + dead references)',
@@ -191,9 +194,9 @@ const CMD_USAGE = {
   done: 'Usage: done <id> [--commit <sha>] [--outcome <o>] [--verification <v>] [--release <r>] [--suggest-refs] [--resolve-feedback all|1,3]',
   feedback: 'Usage: feedback <id> "<text>" [--author <name>]',
   roadmap: 'Usage: roadmap [--json]',
-  add: 'Usage: add --section <stage> --title <t> --team <team> [--detail <d>] [--tags a,b] [--size S|M|L]\n        [--code <c>] [--refs a,b] [--links 1,2] [--depends-on 1,2] [--epic <slug>]\n        [--kind task|quick|milestone] [--blocks 1,2] [--source ai|user] [--json]',
-  quick: 'Usage: quick "<title>" --team <t> [--stage <s>] [--tags a,b] [--start] [--json]',
-  update: 'Usage: update <id> [--title ...] [--detail ...] [--status ...] [--team ...] [--tags a,b] [--refs a,b]\n        [--links 1,2] [--depends-on 1,2] [--epic <slug>] [--size ...] [--code ...] [--outcome ...] …',
+  add: 'Usage: add --type <type> --title <t> [--detail <d>] [--tags a,b] [--heat 0-100] [--size S|M|L]\n        [--code <c>] [--refs a,b] [--links 1,2] [--depends-on 1,2] [--epic <slug>]\n        [--kind task|quick|milestone] [--blocks 1,2] [--source ai|user] [--json]  (--section/--stage = aliases of --type)',
+  quick: 'Usage: quick "<title>" [--type <t>] [--tags a,b] [--heat 0-100] [--start] [--json]',
+  update: 'Usage: update <id> [--title ...] [--detail ...] [--status ...] [--heat 0-100|--no-heat] [--tags a,b] [--refs a,b]\n        [--links 1,2] [--depends-on 1,2] [--epic <slug>] [--size ...] [--code ...] [--outcome ...] …',
 }
 
 /**
@@ -225,20 +228,22 @@ function cmdValidate() {
 }
 
 function cmdList(flags) {
-  rejectUnknownFlags(flags, ['section', 'status', 'team', 'tag', 'json', 'json-full'], CMD_USAGE.list)
+  rejectUnknownFlags(flags, ['section', 'status', 'type', 'tag', 'json', 'json-full'], CMD_USAGE.list)
   const tree = readTree(ROOT)
   let sections = tree.sections
+  const bareType = (key) => key.replace(/^\d+-/, '')
   if (typeof flags.section === 'string') sections = sections.filter((s) => s.key === flags.section)
+  // --type = filtre par nature : la section EST le type (#230). Accepte "bug" ou "01-bug".
+  if (typeof flags.type === 'string') sections = sections.filter((s) => s.key === flags.type || bareType(s.key) === flags.type)
   const keepTasks = (pred) => {
     sections = sections.map((s) => ({ ...s, tasks: s.tasks.filter(pred) })).filter((s) => s.tasks.length > 0)
   }
   if (typeof flags.status === 'string') keepTasks((t) => t.status === flags.status)
-  if (typeof flags.team === 'string') keepTasks((t) => t.team === flags.team)
   // --tag : le ledger de dette (#72) est requêtable — `list --tag debt` sort les
   // raccourcis assumés (quick taggés debt) comme l'équivalent des commentaires ponytail:.
   if (typeof flags.tag === 'string') keepTasks((t) => t.tags.includes(flags.tag))
   // --json-full : l'objet intégral d'avant (consommateurs qui exigent le detail).
-  // --json (défaut) : ALLÉGÉ — id,title,status,team,stage,size,kind, sous-tâches
+  // --json (défaut) : ALLÉGÉ — id,title,status,type,size,kind,heat, sous-tâches
   // aplaties. Vérifié : aucun call-site programmatique de `list --json` (l'UI lit
   // /api/tasks → readTree, jamais le CLI ; seuls des docs le mentionnaient).
   if (flags['json-full']) {
@@ -247,8 +252,8 @@ function cmdList(flags) {
   }
   if (flags.json) {
     const light = []
-    const push = (t, stage) =>
-      light.push({ id: t.id, title: t.title, status: t.status, team: t.team, stage, size: t.size, kind: t.kind })
+    const push = (t, type) =>
+      light.push({ id: t.id, title: t.title, status: t.status, type, size: t.size, kind: t.kind, heat: t.heat ?? null })
     for (const s of sections) for (const t of s.tasks) {
       push(t, s.key)
       for (const sub of t.subtasks) push(sub, s.key)
@@ -287,14 +292,14 @@ function cmdBrief(id, flags) {
 }
 
 function cmdTake(flags) {
-  rejectUnknownFlags(flags, ['team', 'json'], CMD_USAGE.take)
-  const team = typeof flags.team === 'string' ? flags.team : undefined
-  const queue = nextQueue(readTree(ROOT), { team })
+  rejectUnknownFlags(flags, ['type', 'json'], CMD_USAGE.take)
+  const type = typeof flags.type === 'string' ? flags.type : undefined
+  const queue = nextQueue(readTree(ROOT), { type })
   if (queue.length === 0) {
     console.log(
       flags.json
         ? '{}'
-        : `No task available${team ? ` for team ${team}` : ''} (everything is done, locked, or in progress).`,
+        : `No task available${type ? ` for type ${type}` : ''} (everything is done, locked, or in progress).`,
     )
     return
   }
@@ -311,10 +316,10 @@ function cmdTake(flags) {
 }
 
 function cmdNext(flags) {
-  rejectUnknownFlags(flags, ['json', 'count', 'team'], CMD_USAGE.next)
+  rejectUnknownFlags(flags, ['json', 'count', 'type'], CMD_USAGE.next)
   const count = flags.count ? Math.max(1, Number(flags.count) || 1) : 1
   const tree = readTree(ROOT)
-  const queue = nextQueue(tree, { team: typeof flags.team === 'string' ? flags.team : undefined }).slice(0, count)
+  const queue = nextQueue(tree, { type: typeof flags.type === 'string' ? flags.type : undefined }).slice(0, count)
   if (queue.length === 0) {
     console.log(flags.json ? '[]' : 'No task available (everything is done, locked, or in progress).')
     return
@@ -341,20 +346,38 @@ function report(res, successMessage) {
   return res
 }
 
-/** Checks that a team value belongs to the enum; otherwise exits, listing the 8. */
-function assertTeam(value, usage) {
-  if (!TEAMS.includes(value)) {
-    fail(`--team invalid: "${value}" (expected one of: ${TEAMS.join(', ')})`, usage)
+/**
+ * `--type`/`--section`/`--stage` désignent tous LA nature (= le dossier de section).
+ * `--type` est le mot du modèle ; les deux autres restent des alias rétrocompat.
+ */
+function sectionFromFlags(flags) {
+  for (const k of ['type', 'section', 'stage']) {
+    if (typeof flags[k] === 'string' && flags[k] !== '') return flags[k]
   }
+  return undefined
+}
+
+/**
+ * Parse `--heat <n>` en nombre (0–100). "null"/absent → undefined (pas de heat).
+ * La validation fine (bornes, décimales) est faite après écriture par validate.ts ;
+ * ici on garde-fou juste le non-numérique pour un message clair immédiat.
+ */
+function parseHeat(value, usage) {
+  if (value === undefined || value === 'null') return undefined
+  const n = Number(value)
+  if (Number.isNaN(n)) fail(`--heat invalid: "${value}" (expected a number 0-100).`, usage)
+  return n
 }
 
 function cmdAdd(flags) {
   rejectUnknownFlags(flags, [
-    'section', 'title', 'team', 'detail', 'tags', 'size', 'code', 'refs', 'links',
+    'type', 'section', 'stage', 'title', 'heat', 'detail', 'tags', 'size', 'code', 'refs', 'links',
     'depends-on', 'epic', 'milestone', 'kind', 'blocks', 'source', 'json',
   ], CMD_USAGE.add)
-  requireFlags(flags, ['section', 'title', 'team'], CMD_USAGE.add)
-  assertTeam(flags.team, CMD_USAGE.add)
+  requireFlags(flags, ['title'], CMD_USAGE.add)
+  const section = sectionFromFlags(flags)
+  if (!section) fail('Missing required flag: --type (the nature/section, e.g. 02-feature)', CMD_USAGE.add)
+  const heat = parseHeat(flags.heat, CMD_USAGE.add)
   if (typeof flags.kind === 'string' && !['task', 'quick', 'milestone'].includes(flags.kind)) {
     fail(`--kind invalid: "${flags.kind}" (expected task, quick, or milestone).`, CMD_USAGE.add)
   }
@@ -371,9 +394,9 @@ function cmdAdd(flags) {
   }
   const epic = epicFromFlags(flags)
   const res = addTask(ROOT, {
-    section: flags.section,
+    section,
     title: flags.title,
-    team: flags.team,
+    heat,
     kind: typeof flags.kind === 'string' ? flags.kind : 'task',
     detail: typeof flags.detail === 'string' ? flags.detail : null,
     tags: typeof flags.tags === 'string' ? splitList(flags.tags) : [],
@@ -401,23 +424,20 @@ function cmdAdd(flags) {
 }
 
 function cmdQuick(flags, positional) {
-  rejectUnknownFlags(flags, ['team', 'stage', 'tags', 'start', 'json'], CMD_USAGE.quick)
+  rejectUnknownFlags(flags, ['type', 'section', 'stage', 'heat', 'tags', 'start', 'json'], CMD_USAGE.quick)
   const title = positional[0]
   if (!title || title.trim() === '') {
     fail('quick: title required (1st positional argument, in quotes).', CMD_USAGE.quick)
   }
-  requireFlags(flags, ['team'], CMD_USAGE.quick)
-  assertTeam(flags.team, CMD_USAGE.quick)
-  // Stage par défaut = le premier stage "open" (Build aujourd'hui). tree.sections
-  // est déjà trié par préfixe numérique croissant.
-  const stage = typeof flags.stage === 'string'
-    ? flags.stage
-    : readTree(ROOT).sections.find((s) => s.status === 'open')?.key
-  if (!stage) fail('No "open" stage to host the quick — specify --stage.', CMD_USAGE.quick)
+  const heat = parseHeat(flags.heat, CMD_USAGE.quick)
+  // Type par défaut = le premier type "open". tree.sections est déjà trié par préfixe.
+  const section = sectionFromFlags(flags)
+    ?? readTree(ROOT).sections.find((s) => s.status === 'open')?.key
+  if (!section) fail('No "open" type to host the quick — specify --type.', CMD_USAGE.quick)
   const res = addTask(ROOT, {
-    section: stage,
+    section,
     title,
-    team: flags.team,
+    heat,
     tags: typeof flags.tags === 'string' ? splitList(flags.tags) : [],
     kind: 'quick',
   })
@@ -510,17 +530,17 @@ function cmdDone(id, flags) {
 }
 
 function cmdUpdate(id, flags) {
-  const stringFields = ['title', 'detail', 'status', 'size', 'team', 'code', 'source', 'commit', 'outcome', 'verification', 'release', 'completedAt']
+  const stringFields = ['title', 'detail', 'status', 'size', 'code', 'source', 'commit', 'outcome', 'verification', 'release', 'completedAt']
   const listFields = ['tags', 'refs', 'links']
-  rejectUnknownFlags(flags, [...stringFields, ...listFields, 'depends-on', 'epic', 'milestone'], CMD_USAGE.update)
+  rejectUnknownFlags(flags, [...stringFields, ...listFields, 'heat', 'no-heat', 'depends-on', 'epic', 'milestone'], CMD_USAGE.update)
   if (Object.keys(flags).length === 0) {
     fail('update: no field to modify.', CMD_USAGE.update)
   }
-  // --team: validate the enum before writing (clear message listing the 8),
-  // except "null" which doesn't make sense here (team is required) but is still rejected by validate.
-  if (typeof flags.team === 'string' && flags.team !== 'null') assertTeam(flags.team, CMD_USAGE.update)
   const patch = {}
   for (const f of stringFields) if (typeof flags[f] === 'string') patch[f] = nullable(flags[f])
+  // --heat <n> pose/monte la chaleur ; --no-heat (ou --heat 0) refroidit (efface le champ).
+  if (flags['no-heat']) patch.heat = 0
+  else if (flags.heat !== undefined) patch.heat = parseHeat(flags.heat, CMD_USAGE.update) ?? 0
   for (const f of listFields) {
     if (typeof flags[f] !== 'string') continue
     // Parité avec --depends-on null : la valeur exacte "null" vide la liste ([]).
@@ -560,7 +580,7 @@ function cmdGuard(flags) {
         '✋ guard: commit refused — no in_progress task covers this work.',
         `Files outside the task log: ${offenders.join(', ')}`,
         'The quick path (~2 commands), then recommit:',
-        '  npx roadmapped quick "<title>" --team <team> --start',
+        '  npx roadmapped quick "<title>" --type <type> --start',
         '(Conscious escape hatch: git commit --no-verify — the drift will still show up in sitrep.)',
       ].join('\n'),
     )
@@ -608,7 +628,7 @@ function cmdRoadmap(flags) {
     title: e.title,
     ...epicProgress(tree, e.slug),
     tasks: active.filter((t) => t.epic === e.slug).map((t) => ({
-      id: t.id, title: t.title, team: t.team, kind: t.kind,
+      id: t.id, title: t.title, kind: t.kind,
       state: avail.get(t.id) ?? 'available', missing: missingOf(t),
     })),
   }))
@@ -627,7 +647,7 @@ function cmdRoadmap(flags) {
     console.log(`\n${e.slug}${e.title !== e.slug ? ` — ${e.title}` : ''}  ${e.done}/${e.total}`)
     for (const t of e.tasks) {
       const tag = t.state === 'done' ? '[x]' : t.state === 'available' ? '[~] (available)' : `[ ] (locked: ${t.missing.map((d) => `#${d}`).join(' ')})`
-      const chips = [t.team, t.kind !== 'task' ? t.kind : null].filter(Boolean).join(' ')
+      const chips = [t.kind !== 'task' ? t.kind : null].filter(Boolean).join(' ')
       console.log(`  ${tag} #${t.id} ${t.title}${chips ? `  (${chips})` : ''}`)
     }
   }

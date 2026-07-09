@@ -1,0 +1,36 @@
+id: 91
+code: null
+title: MCP socle 2 — serveur stdio + .mcp.json + 8 tools de lecture
+status: done
+tags: []
+size: L
+detail: >-
+  scripts/mcp-server.mjs : instancie @modelcontextprotocol/sdk (transport stdio, Node ≥22.18),
+  résout tasksDir via loadPaths(). Enregistre les 8 tools de LECTURE : sitrep, brief, next, show,
+  list, roadmap, validate, take (take est read+write mais c'est LA porte d'entrée — l'inclure ici
+  avec start). Chaque tool : description court + inputSchema typé/décrit (= la doc qui remplace
+  --help), handler appelant render.ts (#90) + taskWrites/roadmap, sortie = structuredContent (objet)
+  + content texte dense. .mcp.json committé à la racine (command node, args scripts/mcp-server.mjs).
+  Fini quand : Claude Code liste les tools après redémarrage, un sitrep et un brief via tool
+  renvoient le même contenu que le CLI (vérifié en session réelle), build vert.
+refs:
+  - docs/specs/2026-07-08-mcp-server.md
+  - src/lib/taskWrites.ts
+  - src/lib/roadmap.ts
+links: []
+dependsOn:
+  - 90
+epic: mcp-server
+source: ai
+createdAt: "2026-07-08"
+completedAt: "2026-07-08"
+commit: db48ea4
+outcome: >-
+  Serveur MCP stdio (scripts/mcp-server.mjs, SDK officiel) + .mcp.json committé ; 8 tools de lecture
+  (sitrep, brief, show, next, take, list, roadmap, validate) aux schémas auto-documentés, sortie
+  texte + structuredContent, branchés sur render.ts/taskWrites (noyau unique CLI+MCP)
+verification: >-
+  Handshake JSON-RPC réel sur stdio : initialize → serverInfo roadmaped, tools/list → 8 tools avec
+  inputSchema, tools/call sitrep → rendu + structured.validateOk ; 9 tests handlers sur sandbox
+  (makeTools injectable) ; 201 tests + build verts
+release: v0.2

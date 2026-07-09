@@ -8,6 +8,7 @@ import {
   treeWithErrors, addTask, updateTask, deleteTask,
   updateSection, saveEpics, type MutationResult,
 } from '../lib/taskWrites'
+import { attachTemperatures } from '../lib/roadmap'
 import { buildDocsTree, readDocContent, unsafeDocPath } from './docs'
 import {
   listNotes, readNote, createNote, writeNote, archiveNote, deleteNote, revealPath, ensureNotesSetup,
@@ -123,7 +124,9 @@ interface ApiResponse {
 
 /** Traduit un MutationResult en réponse HTTP (400 validation, 404 not found). */
 function fromMutation(res: MutationResult): ApiResponse {
-  if (res.ok) return { status: 200, payload: { ok: true, tree: res.tree, task: res.task } }
+  // Température (#234) attachée aussi sur l'arbre post-mutation : le client le
+  // consomme directement (resync /api/tree recalcule de toute façon). tree frais → sûr.
+  if (res.ok) return { status: 200, payload: { ok: true, tree: attachTemperatures(res.tree), task: res.task } }
   return { status: res.notFound ? 404 : 400, payload: { ok: false, errors: res.errors } }
 }
 
@@ -141,6 +144,9 @@ export function runAction(paths: RoadmappedPaths, action: ApiAction): ApiRespons
     switch (action.type) {
       case 'getTree': {
         const { tree, errors } = treeWithErrors(tasksDir)
+        // Température (#234) attachée par tâche pour l'affichage (phase 3). tree
+        // fraîchement construit → mutation en place sûre (aucun partage inter-requête).
+        attachTemperatures(tree)
         // hostRoot/repoName : identifient le repo servi (un paquet, N hôtes).
         // Deux consommateurs : le header du dashboard et la sonde de collision
         // du bin (bin/roadmapped.mjs) qui compare avant de no-op.
@@ -237,7 +243,7 @@ export function roadmappedApi(): Plugin {
       // (agent, CLI, autre onglet) déclenche un signal SSE débouncé.
       // ponytail: recursive:true couvre macOS/Windows ; sous Linux il jette
       // (ERR_FEATURE_UNAVAILABLE) → on retombe sur un watch des sous-dossiers immédiats
-      // (les 8 stages), suffisant pour tasksDir. Upgrade Linux profond = chokidar.
+      // (les 9 types), suffisant pour tasksDir. Upgrade Linux profond = chokidar.
       for (const dir of [paths.tasksDir, paths.docsDir]) {
         try {
           watch(dir, { recursive: true }, (_e, f) => { if (f) schedule(String(f)) })

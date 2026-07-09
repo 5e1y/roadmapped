@@ -1,0 +1,41 @@
+id: 57
+code: null
+title: Tri par stage puis ancienneté — calculé par l'app, consommé par le skill
+status: done
+tags:
+  - core
+  - cli
+size: M
+detail: >-
+  Demande Rémi (2026-07-07). (1) ORDRE canonique des tâches ouvertes : stage d'abord (une tâche
+  Build passe avant une tâche Launch), puis ancienneté (id croissant = createdAt). Implémenté UNE
+  fois dans lib (nextQueue/compare partagé) et appliqué partout : colonne « ouvertes » du Backlog,
+  listes de la vue Teams. (2) CLI : next --count N sert la FILE des N prochaines tâches DISPONIBLES
+  dans cet ordre (défaut 1, forme de sortie actuelle conservée pour compat) ; --team pour filtrer.
+  (3) Skill (SKILL.md) : la priorité est CALCULÉE PAR L'APP — l'agent consomme les ids de next/next
+  --count et ne recalcule JAMAIS l'ordre en relisant tout le backlog (catastrophique en tokens). TDD
+  sur la fonction de tri lib. Fini quand : tests verts, next --count 3 rejoué sur le vrai backlog
+  (l'identity #16 passe avant les build), SKILL.md mis à jour.
+refs:
+  - src/lib/roadmap.ts
+  - src/components/Backlog.tsx
+  - scripts/task.mjs
+  - skills/roadmaped/SKILL.md
+links: []
+dependsOn:
+  - 53
+epic: vues-dashboard
+source: user
+createdAt: "2026-07-07"
+completedAt: "2026-07-07"
+commit: dff378b
+outcome: >-
+  L'ordre de travail est calculé par l'app une fois pour toutes : stage d'abord, ancienneté ensuite
+  — visible dans les backlogs, servi par next --count, et le skill a interdiction de le recalculer
+verification: >-
+  TDD : 4 tests nextQueue rouges puis verts (stage avant ancienneté, exclusions
+  done/in_progress/verrouillées, filtre team, sections dormantes). Sur le vrai backlog : next
+  --count 3 → #16 (identity) avant #3 #4 (build) ; next --team marketing → #16 ; colonne ouvertes du
+  Backlog assertée [#16,#3,#4,#5]. SKILL.md consigne « consomme, ne recalcule jamais ». 132 tests +
+  build verts.
+release: null

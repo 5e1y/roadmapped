@@ -1,0 +1,35 @@
+id: 2
+code: null
+title: Spec — panneau de détail de tâche clarifié
+status: done
+tags:
+  - ux
+  - spec
+size: S
+detail: >-
+  Brainstorm avec Rémi (workflow §1 du skill) pour repenser le panneau : hiérarchiser l'information
+  (titre, statut, detail d'abord ; métadonnées ensuite), clarifier l'édition en place (quel champ
+  s'édite comment, feedback de sauvegarde), rendre les dépendances lisibles (titres de tâches
+  cliquables plutôt que des ids nus), place du bouton « Copier le brief agent », gestion des
+  sous-tâches. Livrable : docs/specs/AAAA-MM-JJ-task-panel.md approuvée par Rémi — contexte,
+  décisions et alternatives écartées, périmètre/hors-périmètre, critères de fini. Ensuite seulement
+  : créer les tâches d'implémentation dans cette section (workflow §2). Zéro code avant approbation.
+refs:
+  - docs/specs/2026-07-07-roadmaped-v2-design.md
+  - src/components/TaskPanel.tsx
+  - src/components/SidePanel.tsx
+links: []
+dependsOn: []
+epic: panneau-v2
+source: user
+createdAt: "2026-07-07"
+completedAt: "2026-07-07"
+commit: d5ef960
+outcome: >-
+  Le panneau de tâche v2 a sa spec approuvée : lecture d'abord avec édition au clic, navigation en
+  pile entre tâches liées, done guidé avec outcome requis, feedback inline — Base UI au maximum
+verification: >-
+  Brainstorm en 4 questions avec previews (paradigme, navigation, done, feedback), toutes tranchées
+  par Rémi ; spec self-reviewée (1 contradiction corrigée : contournement du done guidé par le
+  Select) ; approbation explicite de Rémi sur le fichier spec (« go pour le plan du panneau »).
+release: null

@@ -2,52 +2,43 @@ import yaml from 'js-yaml'
 
 export type TaskFileMap = Record<string, string>
 
-/**
- * Team — l'équipe métier qui réalise une tâche (le « qui »), enum fixe et
- * obligatoire. Remplace l'ancien champ libre `zone`. 8 valeurs, minuscules.
- */
-export type Team =
-  | 'marketing'
-  | 'sales'
-  | 'support'
-  | 'operations'
-  | 'finance'
-  | 'legal'
-  | 'engineering'
-  | 'design'
-
-export const TEAMS: Team[] = [
-  'marketing',
-  'sales',
-  'support',
-  'operations',
-  'finance',
-  'legal',
-  'engineering',
-  'design',
-]
-
-export interface Stage {
+export interface TaskType {
   slug: string
   title: string
-  /** Note d'esprit canonique du stage — posée dans `_section.yaml` par `roadmapped init`. */
+  /** Note d'esprit canonique du type — posée dans `_section.yaml` par `roadmapped init`. */
   note: string
+  /**
+   * Chaleur de départ canonique du type (#234, le tiers `base` de la température) : 0–33,33.
+   * SEMÉE dans `_section.yaml` (champ `baseHeat`) à l'init/migration — donc tunable par
+   * projet en éditant le jalon, pas le code. Sert AUSSI de DÉFAUT si un `_section.yaml`
+   * n'a pas le champ (ancien repo) : jamais de crash, jamais 0 par surprise.
+   */
+  baseHeat: number
 }
 
 /**
- * Stages — les 8 sections canoniques d'un lancement produit (le « quand »).
- * `docs/tasks/` contient EXACTEMENT ces 8 dossiers (validation stricte).
+ * TYPES — les 9 sections canoniques : la NATURE d'une tâche (fusion #230 de
+ * l'ancien stage « quand » et de l'ancienne team « qui » en un axe unique).
+ * `docs/tasks/` contient EXACTEMENT ces 9 dossiers (validation stricte). L'ordre
+ * `01`→`09` est un ordre d'AFFICHAGE canonique — il n'encode aucune priorité.
+ * `baseHeat` est la source canonique du tiers `base` (seed + défaut, cf. TaskType).
  */
-export const STAGES: Stage[] = [
-  { slug: '01-idea', title: 'Idea Stage', note: 'The initial idea, its validation, the problem/the audience.' },
-  { slug: '02-initial', title: 'Initial Stage', note: "Name, repo, legal structure — the project's existence." },
-  { slug: '03-identity', title: 'Identity Stage', note: 'Brand, domain, social presence, positioning.' },
-  { slug: '04-build', title: 'Build Stage', note: 'Build the product AND its business foundations (site, emails, accounting).' },
-  { slug: '05-gtm', title: 'GTM Stage', note: 'Go-to-market: content, outbound, paid acquisition.' },
-  { slug: '06-launch', title: 'Launch Stage', note: 'Launch: product, site, content engine, qualification.' },
-  { slug: '07-scale', title: 'Scale Stage', note: 'Monitoring, SEO, community, deals, billing, support.' },
-  { slug: '08-mature', title: 'Mature Stage', note: 'Referral, legal & compliance, advanced integrations.' },
+export const TYPES: TaskType[] = [
+  { slug: '01-bug', title: 'Bugs', baseHeat: 30, note: "Quelque chose est cassé ou ne se comporte pas comme promis — produit, site, outil, peu importe la surface." },
+  { slug: '02-feature', title: 'Features', baseHeat: 14, note: "Du code/du produit qui ajoute une capacité visible pour l'utilisateur." },
+  { slug: '03-chore', title: 'Chores', baseHeat: 5, note: "Du code/de l'infra qui n'ajoute rien de visible : refactor, dette, deps, CI, tooling, migrations, monitoring." },
+  { slug: '04-brainstorm', title: 'Brainstorms', baseHeat: 10, note: "Réfléchir avant de faire : specs, recherches, benchmarks, décisions, plans." },
+  { slug: '05-design', title: 'Design', baseHeat: 12, note: "Artefacts visuels et d'expérience : logo, maquettes, design system, illustrations, UX." },
+  { slug: '06-marketing', title: 'Marketing', baseHeat: 7, note: "Acquérir : site, copy, SEO, campagnes, positionnement, growth." },
+  { slug: '07-communication', title: 'Communication', baseHeat: 7, note: "Parler au monde : posts, annonces, newsletter, changelog public, communauté, support aux users." },
+  { slug: '08-legal', title: 'Legal', baseHeat: 18, note: "Conformité et juridique : CGU, RGPD, licences, contrats, structure, dépôts." },
+  { slug: '09-business', title: 'Business', baseHeat: 20, note: "L'argent et les clients en direct : pricing, facturation, compta, prospection, deals, partenariats." },
 ]
+
+/** DÉFAUT de `base` par slug nu (fallback si `_section.yaml` n'a pas `baseHeat`). Source : TYPES. */
+export const DEFAULT_BASE_HEAT: Record<string, number> = Object.fromEntries(
+  TYPES.map((t) => [t.slug.replace(/^\d+-/, ''), t.baseHeat]),
+)
 
 /**
  * Un retour attaché à une tâche (#149, mode feedback) : capturé SANS créer de
@@ -60,11 +51,24 @@ export interface FeedbackItem {
   resolved: boolean
 }
 
+/**
+ * Température d'une tâche (#234, phase 2) : CALCULÉE, jamais stockée ni validée.
+ * `value` = auto + base + seed (arrondi 0,01) ; la décomposition sert l'affichage.
+ * Attachée aux tâches par l'API (`attachTemperatures`) pour le payload /api/tree —
+ * absente d'un YAML, jamais écrite par dumpTask (hors FIELD_ORDER).
+ */
+export interface Temperature {
+  value: number
+  auto: number
+  base: number
+  seed: number
+}
+
 export interface TaskNode {
   id: number
   /**
    * Nature du ticket : 'task' (défaut, cérémonie complète), 'quick' (mini-ticket :
-   * titre+team+stage suffisent, outcome requis mais verification facultative au done)
+   * titre+type suffisent, outcome requis mais verification facultative au done)
    * ou 'milestone' (JALON : une tâche-cible que d'autres verrouillent via dependsOn —
    * aucune sémantique de lock nouvelle, computeAvailability suffit ; rendu diamant).
    * ADDITIF : absent d'un YAML = 'task' (rétrocompat totale, aucun YAML existant ne change).
@@ -75,8 +79,13 @@ export interface TaskNode {
   status: 'todo' | 'in_progress' | 'done'
   tags: string[]
   size: 'S' | 'M' | 'L' | null
-  /** Équipe métier (enum fixe, obligatoire sur toute tâche active). */
-  team: Team
+  /**
+   * Seed de priorité (#230/#231, « chaleur ») : 0–100, OPTIONNEL. Absent = froid (0) —
+   * l'absence EST le zéro, aucun `heat: 0` n'est écrit (même régime que `kind` absent).
+   * Recycle le slot de l'ex-champ `team`. Le moteur température (phase 2) le dérive ;
+   * ici ce n'est qu'un champ stocké validé. Frontière de parse : `raw.heat ?? null`.
+   */
+  heat?: number | null
   detail: string | null
   refs: string[]
   links: number[]
@@ -106,6 +115,12 @@ export interface TaskNode {
   /** Chemin repo-relatif du fichier YAML source (ex: "docs/tasks/01-solidite/01-addimage.yaml"). */
   file: string
   subtasks: TaskNode[]
+  /**
+   * Température CALCULÉE (#234) — jamais parsée d'un YAML ni écrite. `toTaskNode` la
+   * laisse `undefined` ; l'API l'attache pour l'affichage (phase 3). Optionnelle donc
+   * transparente pour tout consommateur existant.
+   */
+  temperature?: Temperature | null
 }
 
 export interface SectionNode {
@@ -113,6 +128,8 @@ export interface SectionNode {
   title: string
   status: 'open' | 'done' | 'dormant' | 'abandoned'
   note: string | null
+  /** Chaleur de départ du type (#234) — lue de `_section.yaml`. Null = absente → défaut code. */
+  baseHeat?: number | null
   tasks: TaskNode[]
 }
 
@@ -135,7 +152,7 @@ export interface Epic {
 
 export interface TaskTree {
   nextId: number
-  /** Sections (docs/tasks/NN-*) — les 8 stages canoniques. */
+  /** Sections (docs/tasks/NN-*) — les 9 types canoniques. */
   sections: SectionNode[]
   /** Epics déclarés dans _epics.yaml (racine de tasksDir ; rétrocompat lecture de
       l'ancien _roadmaps.yaml, jalons aplatis). Vide si aucun fichier. */
@@ -195,9 +212,9 @@ function toTaskNode(raw: any, file: string): TaskNode {
     status: raw.status,
     tags: raw.tags ?? [],
     size: raw.size ?? null,
-    // Frontière de parse : raw est any. Pour une tâche sans team (ou avec
-    // une team invalide), la valeur remonte telle quelle et validate.ts la rejette.
-    team: raw.team,
+    // Frontière de parse : raw est any. Un heat absent = null (froid) ; une
+    // valeur hors bornes/non numérique remonte telle quelle et validate.ts la rejette.
+    heat: raw.heat ?? null,
     detail: raw.detail ?? null,
     refs: raw.refs ?? [],
     links: raw.links ?? [],
@@ -244,6 +261,7 @@ function assembleSections(buckets: Map<string, Bucket>): SectionNode[] {
       title: bucket.meta.title,
       status: bucket.meta.status,
       note: bucket.meta.note ?? null,
+      baseHeat: bucket.meta.baseHeat ?? null,
       tasks,
     })
   }
@@ -341,10 +359,4 @@ export function buildTaskTree(files: TaskFileMap): TaskTree {
     // _epics.yaml prime ; l'ancien _roadmaps.yaml ne sert que s'il est seul (rétrocompat).
     epics: epics.length > 0 ? epics : legacyEpics,
   }
-}
-
-/** Abréviations d'affichage des teams (badges de cartes et de lignes). */
-export const TEAM_ABBR: Record<Team, string> = {
-  marketing: 'mkt', sales: 'sales', support: 'sup', operations: 'ops',
-  finance: 'fin', legal: 'legal', engineering: 'eng', design: 'dsgn',
 }

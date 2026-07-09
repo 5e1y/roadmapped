@@ -1,0 +1,40 @@
+id: 66
+code: null
+title: Token economy 3 — mini-tickets kind:quick (schéma, validation, CLI)
+status: done
+tags:
+  - token-economy
+  - data-model
+size: M
+detail: >-
+  ⛔ N'exécuter qu'après approbation de la spec par Rémi. Spec §3 : champ optionnel kind: task|quick
+  (absent = task, rétrocompat totale, ADDITIF — aucun YAML existant modifié). TDD validation : quick
+  refuse size L ; au done d'un quick, outcome requis mais verification facultative (pour un task,
+  warning non bloquant si refs vides — spec §4). CLI : quick "<titre>" --team <t> [--stage <s>]
+  [--start] (stage défaut = premier stage open), servi normalement par next/take. FIELD_ORDER : kind
+  après id. Fini quand : cycle quick complet en 2 commandes rejoué en sandbox ET sur le vrai repo
+  (YAML relu : kind quick, done accepté sans verification), tests verts, ~120 tokens le cycle
+  mesuré.
+refs:
+  - docs/specs/2026-07-07-token-economy.md
+  - src/lib/tasks.ts
+  - src/lib/validate.ts
+  - src/lib/taskWrites.ts
+  - scripts/task.mjs
+links: []
+dependsOn:
+  - 65
+epic: token-economy
+source: user
+createdAt: "2026-07-07"
+completedAt: "2026-07-07"
+commit: e9150bd
+outcome: >-
+  Les mini-tickets existent : kind quick, créés en une commande, terminés avec un simple outcome —
+  la cérémonie d'un fix d'une ligne tient en 2 commandes
+verification: >-
+  TDD vérifié dans la suite (quick+size L rejeté, done quick sans verification accepté, task sans
+  refs → warning stderr, kind omis des YAML existants — grep kind: docs/tasks = zéro hors nouveaux).
+  Cycle réel joué par l'agent puis nettoyé (id 75 consommé, nextId=76, aucun résidu, validate OK
+  revérifié par moi).
+release: null

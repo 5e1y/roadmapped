@@ -1,0 +1,36 @@
+id: 136
+code: null
+title: Passe d'assignation d'epics sur le backlog (rétro-tri des tâches existantes en projets)
+status: done
+tags:
+  - data-model
+size: M
+detail: >-
+  Assigner un champ epic aux tâches existantes (in_progress + done + todo) par projet transverse,
+  pour que le système d'epic soit réel/démontrable. Via le CLI update --epic (pas le MCP, périmé en
+  session). One-off/standalone laissés sans epic (choix Rémi). Disjoint du chantier design Fable
+  #135 (src/) — édition YAML seule, verrou global.
+refs: []
+links:
+  - 133
+  - 135
+dependsOn: []
+milestone: null
+source: ai
+createdAt: "2026-07-08T12:09:31"
+completedAt: "2026-07-08"
+commit: 4c4061a
+outcome: >-
+  Backlog rétro-trié en epics : 108 tâches assignées à 16 projets transverses
+  (hierarchie-regroupement, panneau-v2, stages-teams, token-economy, mcp-server, notepad,
+  ecritures-concurrentes, process-enforcement, a11y, design-system, renommage, vues-dashboard,
+  distribution, lancement, site, polish-ui) via le CLI update --epic. 25 tâches laissées sans epic
+  (one-off/fondations : audits isolés, fixes ponctuels #74/#81/#97/#119, idée/naming initiaux, +
+  specs #3/#4/#5 gardées pour leur future impl). Migration milestone→epic effectuée de fait sur
+  chaque YAML touché.
+verification: >-
+  node scripts/task.mjs validate OK (125 tâches, 0 erreur) après la passe ; node scripts/task.mjs
+  roadmap affiche désormais chaque epic avec sa complétion (a11y 4/4, design-system 10/10,
+  distribution 3/5, etc.) + avancement global 112/125 ; comptage disque : 108 YAML avec epic, 25
+  sans. Édition YAML seule, disjoint de Fable #135 (src/).
+release: null

@@ -1,0 +1,41 @@
+id: 95
+code: null
+title: Fix MCP — structuredContent conforme (objet ou rien), texte dense préservé
+status: done
+tags:
+  - bug
+  - mcp
+size: S
+detail: >-
+  Deux bugs révélés au premier usage réel dans Claude Code (invisible en JSON-RPC brut, #91). Bug 1
+  (bloquant) : next/list/roadmap passent un ARRAY comme structuredContent — la spec MCP exige un
+  objet, le SDK client rejette (-32602) ; take avec file vide passe null (même famille). Bug 2
+  (dégradant) : quand structuredContent est présent, Claude Code n'affiche QUE lui et jette le
+  content texte — sitrep perd ses 30 lignes, brief devient ≡ show (extraits de refs/fraîcheur perdus
+  = la valeur token-economy). Fix : n'émettre structuredContent que quand l'objet EST la charge
+  utile (tools d'écriture → tâche résultante, validate) ; les tools texte-first (sitrep, brief,
+  next, take, list, roadmap) renvoient le texte seul ; done remonte les warnings DANS le structured
+  ({task, warnings}) pour ne pas les perdre. Fini quand : les 14 tools répondent dans une session
+  Claude Code réelle sans -32602, sitrep/brief affichent leur texte dense, tests MCP mis à jour +
+  garde « structuredContent = objet ou absent » sur tous les tools, suite + build verts.
+refs:
+  - docs/specs/2026-07-08-mcp-server.md
+  - scripts/mcp-server.mjs
+links: []
+dependsOn: []
+epic: mcp-server
+source: user
+createdAt: "2026-07-08T01:12:44"
+completedAt: "2026-07-08"
+commit: 9b2c8e4
+outcome: >-
+  structuredContent conforme sur les 14 tools : émis seulement quand l'objet est la charge utile
+  (écriture → tâche résultante, validate) ; sitrep/brief/next/take/list/roadmap en texte seul (plus
+  d'array/null illégaux, plus de texte dense masqué par le client) ; done remonte les warnings dans
+  {task, warnings} ; ligne du guide alignée
+verification: >-
+  Serveur relancé sur stdio : next/list/roadmap répondent (plus de -32602), structuredContent absent
+  sur les tools texte-first, texte dense présent (vérifié champ par champ) ; test-garde invariant
+  sur les 14 tools + 215 tests + build verts ; add/start/done de ce ticket passés eux-mêmes par les
+  tools MCP
+release: null

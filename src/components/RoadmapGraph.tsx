@@ -11,7 +11,6 @@ import { LockLocked } from 'trinil-react'
 import { Chevron, EpicGlyph, KindGlyph } from './glyphs'
 import { Chip } from './Chip'
 import { epicStatusOf } from './EpicRow'
-import { TEAM_ABBR } from '../lib/tasks'
 import type { TaskTree, TaskNode } from '../lib/tasks'
 import { useShowDone } from './RoadmapView'
 import { useZoomPan, ZOOM_STEP } from './useZoomPan'
@@ -423,13 +422,13 @@ function GraphCard({ model, task, pos, dimmed, focused, onHoverChange }: NodeChr
       {task.kind === 'milestone' && model.blocksCount > 0 && (
         <span className="text-[11px] text-neutral-500">blocks {model.blocksCount}</span>
       )}
-      {/* Footer chips : le stage devenu métadonnée (graph-v2 — le layout est le
-          flux de dépendances) + la team (le QUI). Même rendu que le Backlog :
-          Chip (design.md §2). */}
-      <span className="mt-auto flex items-center justify-between gap-2 pt-0.5">
-        {model.stage !== null ? <Chip label={model.stage} /> : <span />}
-        <Chip label={TEAM_ABBR[task.team]} />
-      </span>
+      {/* Footer chip : le stage devenu métadonnée (graph-v2 — le layout est le
+          flux de dépendances). Même rendu que le Backlog : Chip (design.md §2). */}
+      {model.stage !== null && (
+        <span className="mt-auto flex items-center gap-2 pt-0.5">
+          <Chip label={model.stage} />
+        </span>
+      )}
       {dimmed && <DimVeil />}
     </button>
   )

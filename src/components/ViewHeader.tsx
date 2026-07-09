@@ -3,7 +3,6 @@ import { ChevronDown } from 'trinil-react'
 import { type ReactNode } from 'react'
 import { useTree } from '../state/TreeContext'
 import { useView, type View } from '../state/ViewContext'
-import { STAGES } from '../lib/tasks'
 import { LiveActivityMenu } from './LiveActivityMenu'
 import { UpdateNotice } from './UpdateNotice'
 

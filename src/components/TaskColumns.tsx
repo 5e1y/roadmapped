@@ -1,15 +1,12 @@
 import { useState } from 'react'
 import { Plus } from 'trinil-react'
 import { TaskRow } from './TaskRow'
-import { Chip } from './Chip'
 import { StatusGlyph } from './glyphs'
 import { EpicRow, splitBacklogItems, type EpicListItem } from './EpicRow'
-import { ErrorBanner, GhostInput, Select, type SelectItem } from './ui'
+import { ErrorBanner, GhostInput } from './ui'
 import { usePanel } from '../state/PanelContext'
 import { allEpics, epicProgress } from '../lib/roadmap'
-import { TEAMS, TEAM_ABBR, type Team, type TaskNode, type TaskTree } from '../lib/tasks'
-
-const TEAM_ITEMS: SelectItem[] = TEAMS.map((t) => ({ value: t, label: t }))
+import { type TaskNode, type TaskTree } from '../lib/tasks'
 
 const PREVIEW = 12
 
@@ -131,7 +128,6 @@ export function sortDone(tasks: TaskNode[]): TaskNode[] {
 export function MiniZone({ quicks, reload }: { quicks: TaskNode[]; reload: () => Promise<void> }) {
   const { openTask, top } = usePanel()
   const [title, setTitle] = useState('')
-  const [team, setTeam] = useState<Team>('engineering')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -144,7 +140,7 @@ export function MiniZone({ quicks, reload }: { quicks: TaskNode[]; reload: () =>
       const r = await fetch('/api/tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ section: '04-build', title: t, team, kind: 'quick', source: 'user' }),
+        body: JSON.stringify({ section: '02-feature', title: t, kind: 'quick', source: 'user' }),
       })
       const data = (await r.json()) as { ok: boolean; errors?: string[] }
       if (data.ok) { setTitle(''); await reload() }
@@ -181,9 +177,9 @@ export function MiniZone({ quicks, reload }: { quicks: TaskNode[]; reload: () =>
         <span className="font-mono text-[11px]">{quicks.length}</span>
       </h2>
       <div className="divide-y divide-neutral-100 border border-neutral-200 bg-white">
-        {/* Création inline : titre puis Entrée — la team en Select compact (Base UI).
-            Titre en peau ghost canonique (ghostCls) : invisible au repos, hover gris,
-            focus bordure + fond blanc — le :focus-visible global reste actif. */}
+        {/* Création inline : titre puis Entrée. Titre en peau ghost canonique
+            (ghostCls) : invisible au repos, hover gris, focus bordure + fond
+            blanc — le :focus-visible global reste actif. */}
         <div className="flex items-center gap-2 px-4 py-1.5">
           <Plus size={11} className="shrink-0 text-neutral-500" />
           <GhostInput
@@ -195,16 +191,6 @@ export function MiniZone({ quicks, reload }: { quicks: TaskNode[]; reload: () =>
             disabled={busy}
             className="min-w-0 flex-1 text-sm placeholder:text-neutral-500"
           />
-          <div className="w-32 shrink-0">
-            <Select
-              defaultValue={team}
-              onValueChange={(v) => setTeam(v as Team)}
-              items={TEAM_ITEMS}
-              aria-label="Mini team"
-              disabled={busy}
-              compact
-            />
-          </div>
         </div>
         {quicks.map((t) => {
           const isOpenInPanel = top?.type === 'task' && top.id === t.id
@@ -229,7 +215,6 @@ export function MiniZone({ quicks, reload }: { quicks: TaskNode[]; reload: () =>
               >
                 <span className="shrink-0 font-mono text-xs text-neutral-500">#{t.id}</span>
                 <span title={t.title} className="min-w-0 truncate text-sm text-neutral-900">{t.title}</span>
-                <span className="ml-auto shrink-0"><Chip label={TEAM_ABBR[t.team]} /></span>
               </button>
             </div>
           )

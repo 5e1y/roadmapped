@@ -1,0 +1,54 @@
+id: 211
+code: null
+title: Notif de MAJ V2 — la faire vivre IN-APP, alignée sur la DA (instance Fable 5)
+status: done
+tags:
+  - dashboard
+  - design
+  - publish
+size: null
+detail: >-
+  Demande Rémi : la notif d'update (#207) est aujourd'hui une simple ligne TERMINAL au lancement →
+  elle dénote de la DA de l'app. La faire vivre DANS le dashboard, designée, cohérente avec le DS
+  (monochrome + accent rare, Base UI, ghost, h-12). SEAM DÉJÀ POSÉ (moi, engineering) : /api/tree
+  renvoie `update: {installed, remote} | null` + `updateRepo` (checkUpdate async non bloquant,
+  src/lib/updateNotifier.ts) ; TreeContext expose `useTree().update`. Hook de design : lancer le
+  dashboard avec ROADMAPPED_FAKE_UPDATE=1 force un état MAJ dispo pour rendre/voir la notif. Reste =
+  le COMPOSANT in-app (Fable) : where (header ? bandeau ?), look, interactivité (dismiss ? lien
+  GitHub compare, commande copy « npm install github:5e1y/roadmapped && npx roadmapped upgrade »).
+  Ne PAS toucher au check backend ni au contrat. Fichiers probables : un nouveau
+  src/components/UpdateNotice.tsx + montage (App/ViewHeader).
+refs:
+  - src/lib/updateNotifier.ts
+  - src/server/api.ts
+  - src/state/TreeContext.tsx
+  - src/components/ViewHeader.tsx
+  - src/App.tsx
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-09T13:52:41"
+startedAt: "2026-07-09T13:52:44"
+updatedAt: "2026-07-09T14:23:09"
+completedAt: "2026-07-09"
+commit: 492a2ed
+outcome: >-
+  Lien « what changed » réparé. Le hook de test ROADMAPPED_FAKE_UPDATE renvoyait des SHA fictifs
+  (a1b2c3d/e4f5a6b) → compare GitHub 404. Il renvoie désormais de vrais SHA poussés (origin/main~5 →
+  origin/main via git rev-parse, fallback fictif si git absent) → le lien résout. Chemin réel (SHA
+  package-lock + ls-remote) déjà correct. Le composant/UI inchangé.
+verification: >-
+  Serveur réel + hook : /api/tree renvoie update{installed:8a509b9, remote:dd00eef} ; compare URL
+  https://github.com/5e1y/roadmapped/compare/8a509b9...dd00eef → curl HTTP 200 (ne 404 plus). tsc 0
+  erreur, 28 tests (updateNotifier+api) verts.
+release: null
+feedback:
+  - date: "2026-07-09T14:20:55"
+    author: user
+    text: >-
+      Le lien « what changed » (GitHub compare) de la notif ne fonctionne pas : il pointe sur des
+      SHA bidons (a1b2c3d/e4f5a6b) fournis par le hook de test ROADMAPPED_FAKE_UPDATE → 404. Le
+      chemin réel serait bon, mais le hook doit renvoyer de VRAIS SHA du repo pour que le lien soit
+      testable/fonctionnel.
+    resolved: true

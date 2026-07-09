@@ -1,0 +1,34 @@
+id: 236
+code: null
+title: >-
+  Jalons v2 — Phase 4 : skill + docs + repositionnement site (types, température, no-epic-order,
+  priorité=heat)
+status: todo
+tags:
+  - engineering
+  - jalons-v2
+  - docs
+size: null
+detail: >-
+  Doc/écriture (sonnet). (1) skills/roadmapped/ : réécrire l'esprit des stages→types + l'arbre de
+  classement (§3 doc types), la température et « prioriser = poser un heat / une dep » (PAS d'ordre
+  d'epic), la règle de routage. formats.md, setup.md, SKILL.md. (2) docs/guide.md + README : modèle
+  types, heat, next par température. (3) Repositionnement : le site (5e1y/roadmapped-site) raconte
+  encore idea→mature — mettre à jour la copy (ticket voisin/annexe). Dépend du modèle stabilisé
+  (phases 1–3).
+refs:
+  - skills/roadmapped/SKILL.md
+  - docs/guide.md
+  - README.md
+links: []
+dependsOn:
+  - 235
+epic: jalons-v2
+source: ai
+createdAt: "2026-07-09T16:14:04"
+updatedAt: "2026-07-09T16:14:04"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

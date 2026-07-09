@@ -1,0 +1,6 @@
+title: Chores
+status: open
+baseHeat: 5
+note: >-
+  Du code/de l'infra qui n'ajoute rien de visible : refactor, dette, deps, CI, tooling, migrations,
+  monitoring.

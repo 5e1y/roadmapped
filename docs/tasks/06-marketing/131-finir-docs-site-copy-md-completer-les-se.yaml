@@ -1,0 +1,29 @@
+id: 167
+code: null
+title: "Finir docs/site-copy.md : compléter les sections restantes (proposal section-by-section)"
+status: done
+tags:
+  - marketing
+  - homepage
+size: null
+detail: >-
+  site-copy.md est en statut 'proposal, section by section' — incomplet. Compléter : au-delà de
+  Hero/Demo/Features, ajouter How-it-works, Privacy, FAQ courte, Footer, meta/SEO copy, en
+  appliquant tone-of-voice.md. Source de vérité de la copy pour la landing.
+refs:
+  - docs/site-copy.md
+  - docs/tone-of-voice.md
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-08T18:03:13"
+completedAt: "2026-07-08"
+commit: 3fe3edd
+outcome: >-
+  docs/site-copy.md : toutes les sections étaient déjà présentes (hero→footer). Vrai gap =
+  incohérences avec la landing livrée : Quickstart mis à jour (npm install/run dev → npx roadmapped
+  init/dashboard/--help), card Features (scripts/task.mjs → npx roadmapped), statut 'proposal' →
+  'realized' pointant site/index.html comme render, ce doc restant la source de vérité de la copy.
+verification: null
+release: null

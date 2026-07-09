@@ -1,6 +1,6 @@
 import yaml from 'js-yaml'
 import type { SectionNode, TaskNode, TaskFileMap, Epic } from './tasks'
-import { STAGES, TEAMS } from './tasks.ts'
+import { TYPES } from './tasks.ts'
 
 const TASK_STATUSES = ['todo', 'in_progress', 'done']
 const SECTION_STATUSES = ['open', 'done', 'dormant', 'abandoned']
@@ -10,8 +10,8 @@ const DATE_OR_DATETIME = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2})?$/
 /** Slug d'epic : minuscules/chiffres/tirets, comme les ids de section (#133). */
 const EPIC_SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/
 
-/** Titre canonique attendu pour chaque slug de stage (source unique : STAGES). */
-const CANONICAL_TITLE = new Map(STAGES.map((s) => [s.slug, s.title]))
+/** Titre canonique attendu pour chaque slug de type (source unique : TYPES). */
+const CANONICAL_TITLE = new Map(TYPES.map((t) => [t.slug, t.title]))
 
 function validateTask(task: TaskNode, path: string, errors: string[]) {
   if (typeof task.id !== 'number') errors.push(`${path}: id manquant ou invalide`)
@@ -31,8 +31,16 @@ function validateTask(task: TaskNode, path: string, errors: string[]) {
   if (task.kind === 'quick' && task.status === 'done' && !task.outcome) {
     errors.push(`${path}: un quick terminé exige un outcome (l'outcome tient lieu de vérification)`)
   }
-  if (!TEAMS.includes(task.team)) {
-    errors.push(`${path}: team absente ou invalide (${task.team}) — attendu l'une de : ${TEAMS.join(', ')}`)
+  // heat (#230/#231) : seed de priorité OPTIONNEL. Absent/null = valide (froid).
+  // Sinon : nombre fini, 0 ≤ heat ≤ 100, au plus 2 décimales.
+  if (task.heat !== undefined && task.heat !== null) {
+    if (typeof task.heat !== 'number' || !Number.isFinite(task.heat)) {
+      errors.push(`${path}: heat invalide (${task.heat}) — attendu un nombre entre 0 et 100`)
+    } else if (task.heat < 0 || task.heat > 100) {
+      errors.push(`${path}: heat hors bornes (${task.heat}) — attendu 0 ≤ heat ≤ 100`)
+    } else if (Math.abs(task.heat * 100 - Math.round(task.heat * 100)) > 1e-9) {
+      errors.push(`${path}: heat trop précis (${task.heat}) — 2 décimales maximum`)
+    }
   }
   if (!['user', 'ai'].includes(task.source)) errors.push(`${path}: source invalide (${task.source})`)
   if (!task.createdAt) errors.push(`${path}: createdAt manquant`)
@@ -126,18 +134,18 @@ export function validateTaskTree(tree: {
     for (const sub of task.subtasks) collectIds(sub, `${path}/${sub.id}`)
   }
 
-  // Invariant stages STRICT : l'ensemble des sections = exactement les
-  // 8 slugs canoniques (ni plus, ni moins), et chaque title = titre canonique.
+  // Invariant types STRICT : l'ensemble des sections = exactement les
+  // 9 slugs canoniques (ni plus, ni moins), et chaque title = titre canonique.
   const activeSlugs = new Set(tree.sections.map((s) => s.key))
-  for (const stage of STAGES) {
-    if (!activeSlugs.has(stage.slug)) {
-      errors.push(`stage manquant : "${stage.slug}" (${stage.title}) absent de docs/tasks/`)
+  for (const type of TYPES) {
+    if (!activeSlugs.has(type.slug)) {
+      errors.push(`type manquant : "${type.slug}" (${type.title}) absent de docs/tasks/`)
     }
   }
 
   for (const section of tree.sections) {
     if (!CANONICAL_TITLE.has(section.key)) {
-      errors.push(`${section.key}/: section non canonique — seuls les 8 stages sont admis (${STAGES.map((s) => s.slug).join(', ')})`)
+      errors.push(`${section.key}/: section non canonique — seuls les 9 types sont admis (${TYPES.map((t) => t.slug).join(', ')})`)
     } else {
       const expected = CANONICAL_TITLE.get(section.key)!
       if (section.title !== expected) {
@@ -146,6 +154,15 @@ export function validateTaskTree(tree: {
     }
     if (!SECTION_STATUSES.includes(section.status)) {
       errors.push(`${section.key}/_section.yaml: status invalide (${section.status})`)
+    }
+    // baseHeat (#234) : OPTIONNEL dans `_section.yaml` — la chaleur de départ du type.
+    // Si présent : nombre fini, 0 ≤ baseHeat ≤ 33.33. Absent = valide (défaut code).
+    if (section.baseHeat !== undefined && section.baseHeat !== null) {
+      if (typeof section.baseHeat !== 'number' || !Number.isFinite(section.baseHeat)) {
+        errors.push(`${section.key}/_section.yaml: baseHeat invalide (${section.baseHeat}) — attendu un nombre 0–33.33`)
+      } else if (section.baseHeat < 0 || section.baseHeat > 33.33) {
+        errors.push(`${section.key}/_section.yaml: baseHeat hors bornes (${section.baseHeat}) — attendu 0 ≤ baseHeat ≤ 33.33`)
+      }
     }
     for (const task of section.tasks) {
       const path = `${section.key}/${task.id}`
@@ -208,8 +225,13 @@ export function validateIdUniquenessAcrossFiles(files: TaskFileMap): string[] {
     if (filename === '_section.yaml') continue
     if (filename === '_epics.yaml') continue
     if (filename === '_roadmaps.yaml') continue // legacy (rétrocompat lecture #133)
-    const raw = yaml.load(content) as { id?: unknown }
+    const raw = yaml.load(content) as { id?: unknown; team?: unknown }
     if (typeof raw?.id !== 'number') continue
+    // Rejet de `team:` sur toute tâche active (#230 — team supprimée du modèle, comme
+    // `zone` avant elle). L'archive (_archive/) n'est jamais re-validée et garde ses `team:`.
+    if ('team' in raw && !path.includes('/_archive/')) {
+      errors.push(`${path}: champ "team" interdit — supprimé du modèle (#230, jalons par type). Retire-le.`)
+    }
     if (seenIds.has(raw.id)) {
       errors.push(`id ${raw.id} dupliqué (toutes sections confondues) : ${seenIds.get(raw.id)} et ${path}`)
     } else {

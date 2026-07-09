@@ -1,0 +1,31 @@
+id: 209
+kind: quick
+code: null
+title: >-
+  Titre d'epic terminé : gris comme une task barrée (conflit text-neutral-900 de ghostCls vs
+  text-neutral-500 → forcer)
+status: done
+tags:
+  - dashboard
+  - design
+size: null
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-09T13:29:41"
+startedAt: "2026-07-09T13:30:00"
+updatedAt: "2026-07-09T13:37:16"
+completedAt: "2026-07-09"
+commit: feeb244
+outcome: >-
+  Titre d'epic terminé forcé en gris via `text-neutral-500!` (EpicRow/EpicTitleInput) : ghostCls
+  impose text-neutral-900 en base, en conflit avec le text-neutral-500 du done → sans le `!` l'epic
+  restait barré mais en encre foncée. Maintenant gris comme une task barrée.
+verification: >-
+  Vrai dashboard (Chrome headless) : epics done « feedback-mode » et « live-reactivity » barrés ET
+  gris, identiques aux tasks done autour ; l'epic « lancement » (7/9, non fini) reste en encre
+  foncée non barrée. tsc 0 erreur.
+release: null

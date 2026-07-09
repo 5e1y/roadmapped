@@ -1,0 +1,46 @@
+id: 123
+code: null
+title: >-
+  Valider Roadmapped dans un repo hôte réel où le code vit hors du dossier tasks (usage final ≠
+  self-hosting)
+status: done
+tags:
+  - correctness
+  - onboarding
+size: M
+detail: >-
+  Aujourd'hui on ne dogfood QUE le repo de Roadmapped sur lui-même : app + CLI + docs/tasks/ à la
+  racine. L'usage final est différent — un repo hôte avec SON code, où Roadmapped n'est qu'un
+  sous-ensemble (dossier tasks + config + skill). Vérifier de bout en bout dans un repo tiers : CLI
+  (ROOT/tasksDir configuré), guard (relRoot déjà géré ?), dashboard (chemins docs/assets), audit
+  commit↔tâche, hook pre-commit, sitrep. Lister les hypothèses « repo == racine » qui cassent,
+  corriger. Findings → tâches de fix. Indépendant, testable maintenant.
+refs: []
+links: []
+dependsOn: []
+epic: distribution
+source: ai
+createdAt: "2026-07-08T09:28:13"
+completedAt: "2026-07-08"
+commit: null
+outcome: >-
+  VALIDATION (pas de code — findings). Verdict : Roadmapped ne fonctionne PAS aujourd'hui dans un
+  repo hôte où le code vit hors du dossier tasks. Cause racine unique : loadPaths()/dashboardRoot()
+  (src/lib/paths.ts) ancrent la résolution sur l'EMPLACEMENT DU CODE (import.meta.url), jamais sur
+  le cwd ni sur le repo hôte. Conséquences en cascade : (1) le CLI lit toujours les tâches de
+  l'install quel que soit le cwd ; (2) le dashboard/API (loadPaths partagé) écrit dans le tasksDir
+  de l'install ; (3) le guard compare git rev-parse --show-toplevel (repo courant) à ROOT (tasksDir
+  de l'install) → relRoot en '..' → tout fichier stagé traité en offender ; (4) audit/git tournent
+  dans le cwd mais avec les tâches de l'install → incohérent ; (5) le hook githooks est posé par
+  `prepare` sur le repo d'install, pas sur l'hôte. Ça marche uniquement en self-hosting (code +
+  docs/tasks + cwd = même repo, ce qui est notre seul cas testé jusqu'ici). CORRECTIF = item déjà
+  identifié dans la spec #12 (« dissocier racine-paquet et racine-hôte dans paths.ts ») : anchorer
+  la résolution sur le repo HÔTE (remonter depuis cwd jusqu'à roadmapped.config.json / .git) et non
+  sur import.meta.url. À traiter dans l'implémentation de #12.
+verification: >-
+  Test empirique réel : repo hôte factice monté dans un scratch (git init + roadmapped.config.json
+  tasksDir=docs/tasks + docs/tasks/_meta.yaml nextId=1), CLI de l'install lancé DEPUIS ce repo →
+  sitrep a renvoyé les 59 done + #123 de l'install, PAS le backlog vide de l'hôte. Preuve directe du
+  binding install-location. loadPaths() inspecté (résout via dashboardRoot=import.meta.url). Scratch
+  nettoyé.
+release: null

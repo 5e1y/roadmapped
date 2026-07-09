@@ -1,0 +1,33 @@
+id: 232
+kind: quick
+code: null
+title: >-
+  Fix ancienneté : date seule (completedAt) parsée en UTC minuit → décalage jusqu'à ~24h (« 22h ago
+  » pour aujourd'hui)
+status: done
+tags:
+  - bug
+  - dashboard
+size: null
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-09T16:10:18"
+startedAt: "2026-07-09T16:10:18"
+updatedAt: "2026-07-09T16:10:45"
+completedAt: "2026-07-09"
+commit: 0325bb6
+outcome: >-
+  relativeTime/absoluteDate : une date seule « YYYY-MM-DD » (completedAt via today()) était parsée
+  par Date.parse en UTC minuit → décalage du fuseau (jusqu'à ~24h, « 22 hours ago » pour aujourd'hui
+  en soirée CEST). toMs complète une date seule en datetime LOCAL (`+T00:00:00`) avant parsing,
+  cohérent avec la génération locale. Les datetime (createdAt) parsaient déjà en local — inchangés.
+  Corrige aussi absoluteDate près de minuit en fuseau négatif.
+verification: >-
+  Reproduit node+Chrome : datetime « now » → « 9 minutes ago » (OK) ; date seule « 2026-07-09 » → «
+  14 hours ago » avant fix (UTC minuit), « just now » après. tsc 0 erreur, 7 tests relativeTime
+  verts (dont régression TZ-indépendante : date seule == datetime-local minuit).
+release: null

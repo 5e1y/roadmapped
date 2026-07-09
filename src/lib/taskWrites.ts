@@ -9,7 +9,7 @@ import { validateTaskTree, validateIdUniquenessAcrossFiles } from './validate.ts
 import type { TaskTree, TaskNode, TaskFileMap, FeedbackItem } from './tasks'
 
 export const FIELD_ORDER = [
-  'id', 'kind', 'code', 'title', 'status', 'tags', 'size', 'team', 'detail',
+  'id', 'kind', 'code', 'title', 'status', 'tags', 'size', 'heat', 'detail',
   'refs', 'links', 'dependsOn', 'epic', 'source', 'createdAt', 'startedAt', 'updatedAt', 'completedAt', 'commit',
   'outcome', 'verification', 'release', 'feedback',
 ]
@@ -165,6 +165,12 @@ function dumpTask(raw: Record<string, unknown>): string {
       if (raw.kind === 'quick' || raw.kind === 'milestone') ordered.kind = raw.kind
       continue
     }
+    // heat ADDITIF (#230/#231) : écrit seulement s'il est un nombre > 0. Absent = froid
+    // (0) ; --heat 0 / --no-heat REFROIDIT en effaçant le champ (l'absence EST le zéro).
+    if (key === 'heat') {
+      if (typeof raw.heat === 'number' && raw.heat > 0) ordered.heat = raw.heat
+      continue
+    }
     // startedAt ADDITIF (comme kind) : écrit seulement quand posé, sinon les YAML
     // d'avant le champ (#82) prendraient tous un "startedAt: null" au prochain dump.
     if (key === 'startedAt') {
@@ -284,8 +290,8 @@ function rollback(applied: Op[]): void {
 export interface AddTaskInput {
   section: string
   title: string
-  /** Équipe métier (enum fixe, REQUISE). Validée après écriture par validate.ts. */
-  team: string
+  /** Seed de priorité (#230/#231) : 0–100, OPTIONNEL. Absent = froid. Validé après écriture. */
+  heat?: number | null
   /** 'quick' (mini-ticket) ou 'milestone' (jalon) ; absent/'task' = ticket normal (kind omis du YAML). */
   kind?: 'task' | 'quick' | 'milestone'
   detail?: string | null
@@ -345,9 +351,8 @@ function addTaskImpl(tasksDir: string, input: AddTaskInput): MutationResult {
     status: 'todo',
     tags: input.tags ?? [],
     size: str(input.size),
-    // team REQUISE : une valeur absente/vide part telle quelle et validate.ts
-    // rejette (rollback) — jamais de coercion silencieuse vers une valeur bidon.
-    team: typeof input.team === 'string' && input.team !== '' ? input.team : null,
+    // heat ADDITIF : dumpTask ne l'écrit que si nombre > 0 (absent = froid).
+    heat: typeof input.heat === 'number' ? input.heat : null,
     detail: str(input.detail),
     refs: input.refs ?? [],
     links: input.links ?? [],
@@ -471,7 +476,8 @@ export interface UpdateTaskPatch {
   detail?: string | null
   status?: string
   size?: string | null
-  team?: string | null
+  /** Seed de priorité (#230/#231) : 0–100. 0 ou null REFROIDIT (efface le champ). */
+  heat?: number | null
   code?: string | null
   epic?: string | null
   source?: string
@@ -494,7 +500,7 @@ export function updateTask(tasksDir: string, id: number, patch: UpdateTaskPatch)
 
 function updateTaskImpl(tasksDir: string, id: number, patch: UpdateTaskPatch): MutationResult {
   const stringFields: (keyof UpdateTaskPatch)[] = [
-    'title', 'detail', 'status', 'size', 'team', 'code', 'epic', 'source',
+    'title', 'detail', 'status', 'size', 'code', 'epic', 'source',
     'commit', 'outcome', 'verification', 'release', 'completedAt',
   ]
   const listFields: (keyof UpdateTaskPatch)[] = ['tags', 'refs', 'links', 'dependsOn']
@@ -503,6 +509,8 @@ function updateTaskImpl(tasksDir: string, id: number, patch: UpdateTaskPatch): M
     for (const f of stringFields) {
       if (patch[f] !== undefined) raw[f] = patch[f]
     }
+    // heat (#230/#231) : nombre ou null. dumpTask efface le champ si 0/null (refroidit).
+    if (patch.heat !== undefined) raw.heat = patch.heat
     for (const f of listFields) {
       if (patch[f] !== undefined) raw[f] = patch[f]
     }
@@ -567,8 +575,8 @@ function deleteTaskImpl(tasksDir: string, id: number): MutationResult {
 
 // ---------------------------------------------------------------- sections
 
-// La CRÉATION de section a disparu (stages fixes) : docs/tasks/ contient
-// exactement les 8 stages canoniques, créés à l'init. Seul l'édition
+// La CRÉATION de section a disparu (types fixes) : docs/tasks/ contient
+// exactement les 9 types canoniques, créés à l'init. Seul l'édition
 // (title canonique, status, note) reste possible via updateSection.
 
 export interface UpdateSectionPatch {
@@ -599,7 +607,11 @@ function updateSectionImpl(
   if (patch.title !== undefined) raw.title = patch.title
   if (patch.status !== undefined) raw.status = patch.status
   if (patch.note !== undefined) raw.note = patch.note
-  const meta = { title: raw.title, status: raw.status, note: raw.note ?? null }
+  // baseHeat (#234) PRÉSERVÉ : une édition de status/note/titre ne doit pas effacer la
+  // chaleur de départ du jalon. Réécrit seulement s'il existait (sinon champ absent = défaut).
+  const meta: Record<string, unknown> = { title: raw.title, status: raw.status }
+  if (raw.baseHeat !== undefined && raw.baseHeat !== null) meta.baseHeat = raw.baseHeat
+  meta.note = raw.note ?? null
   return commitWrites(tasksDir, [
     { absPath: absMeta, content: yaml.dump(meta, { lineWidth: 100, quotingType: '"' }), prevContent },
   ])

@@ -1,0 +1,32 @@
+id: 171
+code: null
+title: "Passe de cohérence DS : audit composants vs design.md et Base UI, repérer les valeurs en dur"
+status: done
+tags:
+  - design-system
+size: null
+detail: >-
+  Auditer les ~20 composants src/components/ contre design.md : arrondis, espacements, fonds,
+  couleurs — repérer toute valeur en dur qui devrait être un token, tout élément non-Base-UI qui
+  devrait l'être. Livrer une liste priorisée de findings (fix en tâches séparées si volumineux).
+refs:
+  - docs/design.md
+  - src/components
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-08T18:03:16"
+completedAt: "2026-07-08"
+commit: 5291fd2
+outcome: >-
+  Audit DS des 20 composants vs design.md (délégué). RÉSULTAT : DS en excellent état. 5 findings, 1
+  seul vrai bug : (1) a11y — MultiCombobox (ui.tsx:584/599) : focus:outline-none sur l'input interne
+  + focus: sur le wrapper → aucun indicateur de focus à la frappe (le sibling TagsCombobox L412 a le
+  bon focus-within). (3) contraste mineur : RoadmapColumns:166 titre colonne vide en
+  text-neutral-300 (1.48:1). (4) contraste borderline : ui.tsx:388 tiret '—' placeholder no-tags en
+  neutral-400. (2) SidePanel focus:outline-none = cible de focus programmatique sanctionnée. (5)
+  RoadmapView:61 toggle show-done gris-comme-état (choix design). CLEAN : tri-couche, monochrome,
+  radii, Base UI/select natif, langage de sélection. Fixes → tickets séparés.
+verification: grep anti-patterns sur src/components/** + lecture ciblée des hits par un subagent d'audit.
+release: null

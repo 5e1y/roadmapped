@@ -1,0 +1,25 @@
+id: 217
+code: null
+title: "Licence du projet : confirmer MIT, fichier LICENSE (holder, année), cohérence README/site"
+status: todo
+tags:
+  - legal
+  - publish
+size: null
+detail: >-
+  Vérifier/poser la licence : fichier LICENSE MIT correct (titulaire = Rémi Courtillon, année),
+  badge et mentions cohérents entre LICENSE, package.json (champ license), README et le site
+  (roadmapped.work dit « MIT »). S'assurer qu'il n'y a pas d'incohérence (ex. package.json sans
+  champ license).
+refs: []
+links: []
+dependsOn: []
+epic: legal-readiness
+source: ai
+createdAt: "2026-07-09T13:55:15"
+updatedAt: "2026-07-09T13:55:15"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

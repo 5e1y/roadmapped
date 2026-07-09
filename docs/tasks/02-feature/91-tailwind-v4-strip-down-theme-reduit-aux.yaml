@@ -1,0 +1,41 @@
+id: 116
+code: null
+title: Tailwind v4 strip down — @theme réduit aux tokens de design.md
+status: done
+tags:
+  - design
+  - tailwind
+size: S
+detail: >-
+  Note de cadrage : Tailwind v4 purge DÉJÀ automatiquement les utilities non utilisées au build — le
+  « strip down » utile n'est pas là. Le vrai travail : (1) réduire le @theme (CSS d'entrée) aux
+  tokens de design.md (#111) — virer les couleurs/valeurs de la palette par défaut non utilisées
+  pour que l'autocomplétion et le code ne proposent QUE le système ; (2) grep des classes
+  arbitraires ([#hex], valeurs magiques) dans src/ → remplacer par les tokens ; (3) vérifier
+  qu'aucun plugin/preset inutile ne traîne (package.json). Mesurer avant/après : taille du CSS de
+  dist/ au build. Fini quand : @theme = design.md, zéro couleur en dur hors tokens dans
+  src/components/, taille CSS consignée dans l'outcome, build vert.
+refs:
+  - vite.config.ts
+  - package.json
+links: []
+dependsOn:
+  - 111
+epic: design-system
+source: user
+createdAt: "2026-07-08T01:57:37"
+completedAt: "2026-07-08"
+commit: 748f2c6
+outcome: >-
+  @theme verrouillé : --color-*: initial désactive la palette Tailwind par défaut, seuls existent
+  accent, accent-tint, white et neutral-50→900 (valeurs oklch v4 d'origine — zéro dérive de rendu) ;
+  toute classe hors système ne génère plus aucun style (l'écart devient visible au lieu de
+  silencieux). Zéro couleur arbitraire [#hex] dans src/components (purgées par #113-115, vérifié) ;
+  pas de plugin/preset superflu (seul @tailwindcss/vite). Taille CSS dist inchangée : 26 576 octets
+  avant/après — attendu, la purge v4 n'émettait déjà que l'utilisé ; le gain est l'enforcement, pas
+  les octets
+verification: >-
+  Build vert avant/après avec tailles CSS comparées (26576→26576) ; grep du CSS émis : neutral-500
+  présent, aucune trace red/amber ; grep src : zéro classe hors palette, zéro hex arbitraire hors
+  shadow inset var ; 225 tests verts
+release: null

@@ -8,7 +8,7 @@ import {
   type SelectItem,
 } from './ui'
 import { relItemOf } from './TaskPanel'
-import { STAGES, TEAMS, SECTION_STATUS_LABEL } from '../lib/tasks'
+import { TYPES, SECTION_STATUS_LABEL } from '../lib/tasks'
 import { activeTasks } from '../lib/roadmap'
 import type { SectionNode } from '../lib/tasks'
 
@@ -39,7 +39,6 @@ export function CreateTaskPanel({ section }: { section: string }) {
   const { openTask, close } = usePanel()
   const [stage, setStage] = useState(section)
   const [title, setTitle] = useState('')
-  const [team, setTeam] = useState<string>('engineering')
   const [tags, setTags] = useState<string[]>([])
   const [size, setSize] = useState('')
   const [code, setCode] = useState('')
@@ -68,7 +67,6 @@ export function CreateTaskPanel({ section }: { section: string }) {
         body: JSON.stringify({
           section: stage,
           title,
-          team,
           tags,
           size: size || null,
           code: code.trim() || null,
@@ -102,22 +100,13 @@ export function CreateTaskPanel({ section }: { section: string }) {
         <TextInput value={title} autoFocus disabled={busy} onChange={(e) => setTitle(e.target.value)} onKeyDown={createOnEnter} />
       </Field>
       <div className="grid grid-cols-2 gap-3">
-        <Field label="Stage">
+        <Field label="Type">
           <Select
-            aria-label="Stage"
+            aria-label="Type"
             defaultValue={stage}
-            items={STAGES.map((s) => ({ value: s.slug, label: s.title }))}
+            items={TYPES.map((t) => ({ value: t.slug, label: t.title }))}
             disabled={busy}
             onValueChange={setStage}
-          />
-        </Field>
-        <Field label="Team">
-          <Select
-            aria-label="Team"
-            defaultValue={team}
-            items={TEAMS.map((t) => ({ value: t, label: t }))}
-            disabled={busy}
-            onValueChange={setTeam}
           />
         </Field>
       </div>

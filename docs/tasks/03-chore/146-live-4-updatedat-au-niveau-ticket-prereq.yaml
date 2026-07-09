@@ -1,0 +1,29 @@
+id: 187
+code: null
+title: Live 4 — updatedAt au niveau ticket (prérequis badges NEW)
+status: done
+tags:
+  - live
+  - data-model
+size: null
+detail: null
+refs:
+  - src/lib/validate.ts
+links: []
+dependsOn: []
+epic: live-reactivity
+source: ai
+createdAt: "2026-07-09T00:23:52"
+startedAt: "2026-07-09T00:32:33"
+updatedAt: "2026-07-09T00:37:13"
+completedAt: "2026-07-09"
+commit: 4eaba20
+outcome: >-
+  Champ updatedAt sur TaskNode (optionnel string|null : absent = repli createdAt, zéro churn de
+  tests). Posé à la création (addTask) et bumpé à CHAQUE écriture via le point de passage unique
+  patchActive (start/done/update/futur feedback). Additif au dump (comme startedAt : écrit seulement
+  si posé, aucun YAML ancien ne prend updatedAt:null). Validé (format date/datetime) dans
+  validate.ts. Vérif : test dédié prouvant le bump (vieille valeur forcée → re-datée après patch),
+  tsc clean, 379 tests. Prérequis des badges NEW (#189).
+verification: null
+release: null

@@ -1,0 +1,42 @@
+id: 113
+code: null
+title: Passe BaseUI — composants canoniques partout, zéro élément en dur
+status: done
+tags:
+  - design
+  - baseui
+size: M
+detail: >-
+  Appliquer la section « composants canoniques » de docs/design.md (#111) : remplacer chaque
+  variante en dur par le composant BaseUI retenu, centralisé dans src/components/ui.tsx. Cas connus
+  dès maintenant (l'inventaire #109 peut en ajouter) : le quick-add mini du Backlog — text field
+  sans arrondis à aligner, et son dropdown de fin qui est en dur et 100% différent des dropdowns de
+  la TaskBar → même composant Select BaseUI que la TaskBar ; les croix de suppression de tags des
+  combobox → le composant canonique avec focus/aria. Zéro changement de comportement (mêmes actions,
+  même data) — uniquement l'implémentation des contrôles. Fini quand : grep des implémentations
+  divergentes listées par #109 → toutes remplacées, tests + build verts, et chaque contrôle vérifié
+  à la main dans l'app (npm run dev).
+refs:
+  - src/components/ui.tsx
+  - src/components/Backlog.tsx
+  - src/components/TaskPanel.tsx
+links: []
+dependsOn:
+  - 111
+epic: design-system
+source: user
+createdAt: "2026-07-08T01:57:19"
+completedAt: "2026-07-08"
+commit: 86da857
+outcome: >-
+  Zéro élément fait main restant : MiniZone passe au Select Base UI compact (TEAM_ITEMS) +
+  GhostInput (peau ghost canonique) + ErrorBanner ; DocsTree actif au langage universel accent-tint
+  + filet gauche, lignes carrées ; Notepad remis au monochrome (bandeau modèle ErrorBanner, croix
+  hover neutral-700) ; badge team Roadmap en Chip (même rendu que Backlog) ; DocsView sur
+  ErrorBanner ; OPEN_DOC_EVENT constante partagée dans src/lib/events.ts (consommée par App +
+  TaskPanel)
+verification: >-
+  Implémentation par agent délégué, revue du diff par l'orchestrateur (8 fichiers, API Select
+  defaultValue/onValueChange vérifiée conforme à l'usage TaskPanel, state team non réinitialisé) ;
+  225 tests + build verts ; grep select natif → zéro hit dans src/components
+release: null

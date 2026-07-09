@@ -1,0 +1,42 @@
+id: 64
+code: null
+title: Token economy 1 — skill scindé en noyau minimal + références routées
+status: done
+tags:
+  - token-economy
+  - skill
+size: M
+detail: >-
+  ⛔ N'exécuter qu'après approbation de la spec par Rémi. Spec §1 + annexe pt 1 : réécrire SKILL.md
+  en noyau ≤ 50 lignes (boussole 5 lignes, cycle take→done, commandes en 1 ligne, interdits
+  condensés, ROUTEUR de références) avec DEUX règles d'or : (a) anti-token —
+  next/take/start/done/add/quick = zéro lecture de référence, le CLI est autoportant ; (b) l'ÉCHELLE
+  de décision façon ponytail — « ce changement mérite-t-il d'exister ? → un quick ? → un task ? →
+  une spec ? », stop au premier barreau. Le noyau doit être STRICTEMENT STABLE (aucun contenu
+  dynamique — condition du cache, annexe 2). Éclater workflows.md en planning.md et delegation.md ;
+  mettre à jour routeur et renvois. À faire APRÈS les tickets CLI 65-66 (les commandes documentées
+  doivent exister). Fini quand : wc -l ≤ 50, cycle take→done rejoué en sandbox sans ouvrir une
+  référence, bootstrap ~900 tokens.
+refs:
+  - docs/specs/2026-07-07-token-economy.md
+  - skills/roadmaped/SKILL.md
+  - skills/roadmaped/references/workflows.md
+links: []
+dependsOn:
+  - 65
+  - 66
+epic: token-economy
+source: user
+createdAt: "2026-07-07"
+completedAt: "2026-07-07"
+commit: dffd595
+outcome: >-
+  Le skill tient en 49 lignes : boussole, échelle de décision quick→task→spec, cycle take→done, une
+  ligne par commande, règle d'or anti-token et routeur de références — une session de routine ne lit
+  plus rien d'autre
+verification: >-
+  Corps du SKILL.md compté : 49 lignes (awk depuis le titre). Références : workflows.md supprimé
+  (grep = 0 renvoi), planning.md + delegation.md créés, delegation dispatche via brief <id>. Sanity
+  : les 3 nouvelles commandes citées existent dans --help. Sonnet a inspecté take en lecture seule
+  (jamais exécuté). Aucune divergence CLI/spec.
+release: null

@@ -19,24 +19,24 @@ const section = (title: string, note: string): string =>
 export const DEMO_FILES: TaskFileMap = {
   'docs/tasks/_meta.yaml': 'nextId: 18\n',
 
-  // ------------------------------------------------------------ stages (8, canonical)
-  'docs/tasks/01-idea/_section.yaml': section('Idea Stage', 'The initial idea, its validation, the problem/target.'),
-  'docs/tasks/02-initial/_section.yaml': section('Initial Stage', 'Name, repo, legal structure — the project exists.'),
-  'docs/tasks/03-identity/_section.yaml': section('Identity Stage', 'Brand, domain, social presence, positioning.'),
-  'docs/tasks/04-build/_section.yaml': section('Build Stage', 'Build the product AND its business foundations (site, emails, accounting).'),
-  'docs/tasks/05-gtm/_section.yaml': section('GTM Stage', 'Go-to-market: content, outbound, paid acquisition.'),
-  'docs/tasks/06-launch/_section.yaml': section('Launch Stage', 'Launch: product, site, content engine, qualification.'),
-  'docs/tasks/07-scale/_section.yaml': section('Scale Stage', 'Monitoring, SEO, community, deals, billing, support.'),
-  'docs/tasks/08-mature/_section.yaml': section('Mature Stage', 'Referral, legal & compliance, advanced integrations.'),
+  // ------------------------------------------------------------ types (9, canonical)
+  'docs/tasks/01-bug/_section.yaml': section('Bugs', 'Something is broken or does not behave as promised.'),
+  'docs/tasks/02-feature/_section.yaml': section('Features', 'Product code that adds a capability the user can see.'),
+  'docs/tasks/03-chore/_section.yaml': section('Chores', 'Invisible work: refactors, deps, CI, tooling, deploys, monitoring.'),
+  'docs/tasks/04-brainstorm/_section.yaml': section('Brainstorms', 'Thinking before doing: specs, research, benchmarks, decisions, plans.'),
+  'docs/tasks/05-design/_section.yaml': section('Design', 'Visual and experience artifacts: logo, mockups, design system, UX.'),
+  'docs/tasks/06-marketing/_section.yaml': section('Marketing', 'Acquire: site, copy, SEO, campaigns, positioning, growth.'),
+  'docs/tasks/07-communication/_section.yaml': section('Communication', 'Talk to the world: posts, announcements, changelog, community, support.'),
+  'docs/tasks/08-legal/_section.yaml': section('Legal', 'Compliance and law: terms, GDPR, licenses, contracts, structure.'),
+  'docs/tasks/09-business/_section.yaml': section('Business', 'Money and customers: pricing, billing, accounting, deals, partnerships.'),
 
-  // ------------------------------------------------------------ 01-idea
-  'docs/tasks/01-idea/01-the-demo-should-be-the-product.yaml': `id: 1
+  // ------------------------------------------------------------ 04-brainstorm
+  'docs/tasks/04-brainstorm/01-the-demo-should-be-the-product.yaml': `id: 1
 title: "The demo should be the product"
 status: "done"
 tags:
   - "site"
 size: "M"
-team: "design"
 detail: "Options considered for the hero: a video (goes stale), screenshots (lie by omission), a hand-built imitation (see #8, RIP). Decision: embed the real dashboard, showing the backlog that built the page. This ticket is in that backlog. You see the problem."
 refs: []
 links: []
@@ -52,15 +52,14 @@ verification: "you're looking at it"
 release: null
 `,
 
-  // ------------------------------------------------------------ 02-initial
-  'docs/tasks/02-initial/01-name-check-roadmapped-work.yaml': `id: 2
+  // ------------------------------------------------------------ 09-business
+  'docs/tasks/09-business/01-name-check-roadmapped-work.yaml': `id: 2
 kind: "quick"
 title: "Name check: roadmapped.work"
 status: "done"
 tags:
   - "site"
 size: "S"
-team: "operations"
 detail: null
 refs: []
 links: []
@@ -75,15 +74,14 @@ verification: null
 release: null
 `,
 
-  // ------------------------------------------------------------ 03-identity
-  'docs/tasks/03-identity/01-copy-that-survives-the-tone-of-voice.yaml': `id: 3
+  // ------------------------------------------------------------ 06-marketing
+  'docs/tasks/06-marketing/01-copy-that-survives-the-tone-of-voice.yaml': `id: 3
 title: "Copy that survives the tone-of-voice doc"
 status: "done"
 tags:
   - "site"
   - "copy"
 size: "M"
-team: "marketing"
 detail: "House rules: direct, deadpan, never negative, no marketing voice. Every headline gets re-read by the agent against the doc before it ships."
 refs:
   - "docs/tone-of-voice.md"
@@ -101,14 +99,14 @@ verification: "agent re-read it — “almost not salesy”"
 release: null
 `,
 
-  'docs/tasks/03-identity/02-monochrome-plus-one-blue.yaml': `id: 4
+  // ------------------------------------------------------------ 05-design
+  'docs/tasks/05-design/01-monochrome-plus-one-blue.yaml': `id: 4
 title: "Monochrome + one blue, both themes"
 status: "done"
 tags:
   - "site"
   - "design"
 size: "S"
-team: "design"
 detail: "One accent color, used rarely enough to mean something. Light and dark via prefers-color-scheme — no toggle to maintain, the OS already has one."
 refs:
   - "design.md"
@@ -126,14 +124,13 @@ verification: "toggle your OS theme"
 release: null
 `,
 
-  // ------------------------------------------------------------ 04-build
-  'docs/tasks/04-build/01-columns-view.yaml': `id: 5
+  // ------------------------------------------------------------ 02-feature
+  'docs/tasks/02-feature/01-columns-view.yaml': `id: 5
 title: "Columns view"
 status: "done"
 tags:
   - "dashboard"
 size: "M"
-team: "engineering"
 detail: "Three columns, zero drag-and-drop. The agent moves the cards by editing YAML; you review the diff. A board you cannot fidget with is a board that tells the truth."
 refs:
   - "src/components/TaskColumns.tsx"
@@ -151,13 +148,12 @@ verification: "you're looking at it"
 release: null
 `,
 
-  'docs/tasks/04-build/02-dependency-graph-view.yaml': `id: 6
+  'docs/tasks/02-feature/02-dependency-graph-view.yaml': `id: 6
 title: "Dependency graph view"
 status: "done"
 tags:
   - "dashboard"
 size: "M"
-team: "engineering"
 detail: "dependsOn is already a graph; drawing it is the honest part. Dagre lays it out, SVG renders it, done/available/locked states are computed on every read — never stored."
 refs:
   - "src/components/RoadmapGraph.tsx"
@@ -175,13 +171,12 @@ verification: "it's the other tab"
 release: null
 `,
 
-  'docs/tasks/04-build/03-task-panel-on-click.yaml': `id: 7
+  'docs/tasks/02-feature/03-task-panel-on-click.yaml': `id: 7
 title: "Task panel on click"
 status: "done"
 tags:
   - "dashboard"
 size: "S"
-team: "engineering"
 detail: null
 refs:
   - "src/components/TaskPanel.tsx"
@@ -199,14 +194,36 @@ verification: "this panel"
 release: null
 `,
 
-  'docs/tasks/04-build/05-demo-mode-static-tree.yaml': `id: 9
+  // La v1 rejetée : done, consignée, jamais cachée — le backlog est le changelog.
+  'docs/tasks/02-feature/04-homepage-v1-hand-built-imitation.yaml': `id: 8
+title: "Homepage v1 — a hand-built imitation of the dashboard"
+status: "done"
+tags:
+  - "site"
+size: "L"
+detail: "Rebuild the dashboard in vanilla JS for the hero: columns, graph, task panel, agent pane. 288 lines of very sincere JavaScript."
+refs: []
+links:
+  - 10
+dependsOn: []
+epic: null
+source: "ai"
+createdAt: "2026-06-22T09:18:40"
+startedAt: "2026-06-22T09:44:07"
+completedAt: "2026-06-27"
+commit: "9b30f77"
+outcome: "A faithful-ish replica. It was almost right, which is the worst kind of wrong: the graph diverged, the scroll broke, and the agent pane looked like part of the app. Rejected in review, replaced by the real thing (#10). Kept here because the backlog is the changelog, including this part."
+verification: "rejected — see #10"
+release: null
+`,
+
+  'docs/tasks/02-feature/05-demo-mode-static-tree.yaml': `id: 9
 title: "Demo mode — static tree, polite refusals"
 status: "done"
 tags:
   - "site"
   - "demo"
 size: "M"
-team: "engineering"
 detail: "The dashboard you are using right now: the backlog is baked into the bundle at build time, and every attempt to save is declined with an apology. Same components, same parser, same validator as the real app — minus the part where anything happens."
 refs:
   - "src/demo/tree.ts"
@@ -227,14 +244,13 @@ verification: "try editing anything"
 release: null
 `,
 
-  'docs/tasks/04-build/06-embed-the-real-dashboard.yaml': `id: 10
+  'docs/tasks/02-feature/06-embed-the-real-dashboard.yaml': `id: 10
 title: "Embed the real dashboard in the homepage"
 status: "in_progress"
 tags:
   - "site"
   - "demo"
 size: "L"
-team: "engineering"
 detail: "v1 imitated the dashboard by hand (RIP #8). It was almost right, which is the worst kind of wrong. v2 stops pretending: build the actual app with the demo tree baked in, put it in an iframe, full width. If you can read this ticket, it is working."
 refs:
   - "src/demo/main.tsx"
@@ -253,7 +269,32 @@ verification: null
 release: null
 `,
 
-  'docs/tasks/04-build/07-kill-the-horizontal-scroll.yaml': `id: 11
+  'docs/tasks/02-feature/07-homepage-v2-live.yaml': `id: 15
+kind: "milestone"
+title: "Homepage v2 live"
+status: "todo"
+tags:
+  - "site"
+size: null
+detail: "The real dashboard, embedded, in production. Unlocks when #10 lands."
+refs: []
+links: []
+dependsOn:
+  - 10
+  - 14
+epic: null
+source: "user"
+createdAt: "2026-07-05T08:35:29"
+startedAt: null
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
+`,
+
+  // ------------------------------------------------------------ 01-bug
+  'docs/tasks/01-bug/01-kill-the-horizontal-scroll.yaml': `id: 11
 kind: "quick"
 title: "Kill the horizontal scroll on mobile"
 status: "done"
@@ -261,7 +302,6 @@ tags:
   - "site"
   - "a11y"
 size: "S"
-team: "engineering"
 detail: null
 refs: []
 links: []
@@ -276,14 +316,13 @@ verification: null
 release: null
 `,
 
-  // ------------------------------------------------------------ 05-gtm
-  'docs/tasks/05-gtm/01-launch-post.yaml': `id: 12
+  // ------------------------------------------------------------ 07-communication
+  'docs/tasks/07-communication/01-launch-post.yaml': `id: 12
 title: "Launch post"
 status: "todo"
 tags:
   - "content"
 size: "M"
-team: "marketing"
 detail: "Working title: “Your repo is already your project management tool.” The post is mostly written — it is this backlog, narrated."
 refs: []
 links: []
@@ -300,13 +339,12 @@ verification: null
 release: null
 `,
 
-  'docs/tasks/05-gtm/02-post-it-then-do-not-refresh.yaml': `id: 13
+  'docs/tasks/07-communication/02-post-it-then-do-not-refresh.yaml': `id: 13
 title: "Post it, then don't refresh the analytics for one hour"
 status: "todo"
 tags:
   - "content"
 size: "S"
-team: "marketing"
 detail: "The hard part is the second half."
 refs: []
 links: []
@@ -324,14 +362,34 @@ verification: null
 release: null
 `,
 
-  // ------------------------------------------------------------ 06-launch
-  'docs/tasks/06-launch/01-deploy-to-cloudflare-pages.yaml': `id: 14
+  'docs/tasks/07-communication/03-answer-the-first-github-issue.yaml': `id: 16
+title: "Answer the first GitHub issue"
+status: "todo"
+tags: []
+size: "S"
+detail: "Within a day, like a shop that answers its own phone."
+refs: []
+links: []
+dependsOn:
+  - 15
+epic: null
+source: "user"
+createdAt: "2026-07-06T11:31:08"
+startedAt: null
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
+`,
+
+  // ------------------------------------------------------------ 03-chore
+  'docs/tasks/03-chore/01-deploy-to-cloudflare-pages.yaml': `id: 14
 title: "Deploy to Cloudflare Pages"
 status: "done"
 tags:
   - "site"
 size: "S"
-team: "operations"
 detail: "Static files, no build step on the far side. The deploy instructions fit in four lines and one of them is a joke."
 refs:
   - "wrangler.jsonc"
@@ -350,61 +408,11 @@ verification: "you're looking at the deployment"
 release: null
 `,
 
-  'docs/tasks/06-launch/02-homepage-v2-live.yaml': `id: 15
-kind: "milestone"
-title: "Homepage v2 live"
-status: "todo"
-tags:
-  - "site"
-size: null
-team: "engineering"
-detail: "The real dashboard, embedded, in production. Unlocks when #10 lands."
-refs: []
-links: []
-dependsOn:
-  - 10
-  - 14
-epic: null
-source: "user"
-createdAt: "2026-07-05T08:35:29"
-startedAt: null
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
-`,
-
-  // ------------------------------------------------------------ 07-scale
-  'docs/tasks/07-scale/01-answer-the-first-github-issue.yaml': `id: 16
-title: "Answer the first GitHub issue"
-status: "todo"
-tags: []
-size: "S"
-team: "support"
-detail: "Within a day, like a shop that answers its own phone."
-refs: []
-links: []
-dependsOn:
-  - 15
-epic: null
-source: "user"
-createdAt: "2026-07-06T11:31:08"
-startedAt: null
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
-`,
-
-  // ------------------------------------------------------------ 08-mature
-  'docs/tasks/08-mature/01-still-no-database.yaml': `id: 17
+  'docs/tasks/03-chore/02-still-no-database.yaml': `id: 17
 title: "Still no database"
 status: "todo"
 tags: []
 size: "S"
-team: "engineering"
 detail: "Recurring ticket. Someone suggests one; we decline; the ticket closes itself. Your data stays a folder of files you can read without us."
 refs: []
 links: []
@@ -418,30 +426,6 @@ completedAt: null
 commit: null
 outcome: null
 verification: null
-release: null
-`,
-
-  // La v1 rejetée : done, consignée, jamais cachée — le backlog est le changelog.
-  'docs/tasks/04-build/04-homepage-v1-hand-built-imitation.yaml': `id: 8
-title: "Homepage v1 — a hand-built imitation of the dashboard"
-status: "done"
-tags:
-  - "site"
-size: "L"
-team: "engineering"
-detail: "Rebuild the dashboard in vanilla JS for the hero: columns, graph, task panel, agent pane. 288 lines of very sincere JavaScript."
-refs: []
-links:
-  - 10
-dependsOn: []
-epic: null
-source: "ai"
-createdAt: "2026-06-22T09:18:40"
-startedAt: "2026-06-22T09:44:07"
-completedAt: "2026-06-27"
-commit: "9b30f77"
-outcome: "A faithful-ish replica. It was almost right, which is the worst kind of wrong: the graph diverged, the scroll broke, and the agent pane looked like part of the app. Rejected in review, replaced by the real thing (#10). Kept here because the backlog is the changelog, including this part."
-verification: "rejected — see #10"
 release: null
 `,
 }
