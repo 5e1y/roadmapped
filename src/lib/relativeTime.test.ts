@@ -23,6 +23,14 @@ describe('relativeTime (#126)', () => {
   it('entrée non parsable → renvoyée telle quelle', () => {
     expect(relativeTime('pas-une-date', NOW)).toBe('pas-une-date')
   })
+  // Régression : une DATE SEULE (completedAt = today()) était parsée en UTC minuit
+  // → décalage du fuseau (« 22 hours ago » pour aujourd'hui). Doit être minuit LOCAL.
+  // TZ-indépendant : la date seule et son datetime-local minuit doivent coïncider.
+  it('date seule « YYYY-MM-DD » parsée en minuit LOCAL (pas UTC)', () => {
+    const midnightLocal = Date.parse('2026-07-08T00:00:00')
+    expect(relativeTime('2026-07-08', midnightLocal)).toBe('just now')
+    expect(Date.parse('2026-07-08T00:00:00')).toBe(new Date(2026, 6, 8).getTime())
+  })
 })
 
 describe('absoluteDate', () => {
