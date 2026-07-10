@@ -1,0 +1,48 @@
+id: 252
+code: null
+title: "Chevron d'expand : clic mort pile sur l'icône d'un epic + unifier le design substacks↔epics"
+status: done
+tags:
+  - ui
+  - dashboard
+  - ds
+size: null
+detail: >-
+  Deux choses sur le chevron d'expand. (1) BUG : cliquer PILE sur l'icône chevron d'un epic ne
+  déplie pas — le SVG chevron (décoration non positionnée) intercepte le clic au lieu de le laisser
+  filer au calque Collapsible.Trigger (absolute inset-0) posé dessous (EpicRow). Fix :
+  pointer-events-none sur les décorations (chevron toujours décoratif, le toggle vit dans le
+  trigger). (2) DESIGN : unifier le chevron des sous-tâches (TaskRow, bouton rounded px-0.5
+  hover:bg-neutral-200) sur le chevron NU des epics. Retirer la boîte de hover, garder la zone
+  cliquable.
+refs:
+  - src/components/EpicRow.tsx
+  - src/components/TaskRow.tsx
+  - src/components/glyphs.tsx
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-10T14:21:06"
+startedAt: "2026-07-10T14:21:08"
+updatedAt: "2026-07-10T16:54:15"
+completedAt: "2026-07-10"
+commit: c56e78a
+outcome: >-
+  Deux fixes sur le chevron d'expand. (1) BUG corrigé : cliquer pile sur l'icône chevron d'un epic
+  ne dépliait pas — le SVG chevron (décoration non positionnée) captait le clic au lieu de le
+  laisser filer au calque Collapsible.Trigger absolute inset-0 dessous. Fix : pointer-events-none
+  par DÉFAUT sur le glyphe Chevron (glyphs.tsx) — il est toujours décoratif, le toggle vit dans un
+  trigger, donc bénin dans les 5 usages (TaskRow, EpicRow, EpicBand, DocsTree, RoadmapColumns,
+  RoadmapGraph) — + pointer-events-none sur les autres décorations nues d'EpicRow (glyphe epic
+  wrappé, spans compte/barre) pour que TOUTE la ligne déplie sauf le nom éditable. (2) DESIGN unifié
+  : le chevron des sous-tâches (TaskRow) perd sa boîte de hover (rounded + hover:bg-neutral-200)
+  pour matcher le chevron nu des epics ; zone cliquable gardée (self-stretch px-0.5), le survol de
+  la ligne fait l'affordance comme sur un epic.
+verification: >-
+  Vrai clic navigateur (playwright-core + chrome-headless-shell) sur le dashboard live : clic pile
+  au centre du chevron 11×11 de l'epic « brand-identity » → data-panel-open false→true (avant le fix
+  : mort). tsc 0 ; 434 tests verts (fix layout/pointer-events non testable en jsdom, d'où la vérif
+  navigateur). Capture DS : epic « logo » déplié + son membre #253 avec chevron de sous-tâche nu
+  identique au chevron epic, aucune régression visuelle.
+release: null
