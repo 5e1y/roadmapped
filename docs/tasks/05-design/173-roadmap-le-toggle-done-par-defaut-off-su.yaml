@@ -1,0 +1,25 @@
+id: 247
+kind: quick
+code: null
+title: >-
+  Roadmap : le toggle 'done' par défaut OFF sur la Roadmap (l'historique encombre ; done à la
+  demande)
+status: todo
+tags:
+  - dashboard
+  - ux
+  - roadmap
+size: null
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-09T18:25:46"
+updatedAt: "2026-07-09T18:25:46"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

@@ -1,0 +1,33 @@
+id: 240
+kind: quick
+code: null
+title: >-
+  BUG onboarding : init dans un repo SANS package.json → devDep roadmapped non ajoutée → npm install
+  ne matérialise pas node_modules/roadmapped → .mcp.json + hooks pointent vers un fichier inexistant
+  → MCP connection échoue. Fix : init détecte l'absence de package.json et échoue clair (ou crée un
+  minimal)
+status: done
+tags:
+  - publish
+  - onboarding
+size: null
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-09T18:25:45"
+startedAt: "2026-07-09T18:27:37"
+updatedAt: "2026-07-10T09:54:02"
+completedAt: "2026-07-10"
+commit: 0a1a02c
+outcome: >-
+  runInit détecte l'absence de package.json hôte et abandonne AVANT tout wiring
+  (mergeMcpEntry/installGuardHook), avec un message clair (npm init -y puis re-init). Évite l'état à
+  moitié câblé qui cassait le MCP (.mcp.json/hooks pointant vers node_modules/roadmapped
+  inexistant).
+verification: >-
+  Testé réel : repo sans package.json → abandon, aucun .mcp.json ni config écrit ; avec package.json
+  → init complet. install.test 29 verts (dont le nouveau test d'abort). tsc 0.
+release: null

@@ -1,0 +1,25 @@
+id: 243
+kind: quick
+code: null
+title: >-
+  Roadmap : replier les epics DONE dans la bande d'epics (24 epics, la plupart terminés → bande
+  obèse qui prend ~1/3 de l'écran)
+status: todo
+tags:
+  - dashboard
+  - ux
+  - roadmap
+size: null
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-09T18:25:46"
+updatedAt: "2026-07-09T18:25:46"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

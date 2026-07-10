@@ -1,0 +1,28 @@
+id: 241
+kind: quick
+code: null
+title: >-
+  Doctrine worktrees dans le skill (references/delegation.md) : ouvrir le ticket AVANT de créer un
+  worktree — roadmapped vit sur main, les changements de tâches dans un worktree sont invisibles
+  jusqu'au merge
+status: done
+tags:
+  - skill
+size: null
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-09T18:25:46"
+startedAt: "2026-07-09T18:28:28"
+updatedAt: "2026-07-10T09:54:02"
+completedAt: "2026-07-10"
+commit: d0f9797
+outcome: >-
+  Doctrine ajoutée à references/delegation.md : ouvrir/start le ticket dans main AVANT de créer un
+  worktree (roadmapped vit sur main, les tâches d'un worktree sont invisibles jusqu'au merge) ;
+  l'agent worktree travaille le code, pas les tickets ; on done dans main après intégration.
+verification: null
+release: null

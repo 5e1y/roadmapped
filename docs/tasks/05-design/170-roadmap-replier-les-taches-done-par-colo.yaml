@@ -1,0 +1,25 @@
+id: 244
+kind: quick
+code: null
+title: >-
+  Roadmap : replier les tâches DONE par colonne (« + N done ») au lieu de toutes les afficher
+  barrées — colonnes imbuvables quand done affichés
+status: todo
+tags:
+  - dashboard
+  - ux
+  - roadmap
+size: null
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-09T18:25:46"
+updatedAt: "2026-07-09T18:25:46"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
