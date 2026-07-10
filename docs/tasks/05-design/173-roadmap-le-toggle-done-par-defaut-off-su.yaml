@@ -4,7 +4,7 @@ code: null
 title: >-
   Roadmap : le toggle 'done' par défaut OFF sur la Roadmap (l'historique encombre ; done à la
   demande)
-status: in_progress
+status: done
 tags:
   - dashboard
   - ux
@@ -18,9 +18,12 @@ epic: roadmap-readability
 source: ai
 createdAt: "2026-07-09T18:25:46"
 startedAt: "2026-07-10T10:30:57"
-updatedAt: "2026-07-10T10:34:51"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+updatedAt: "2026-07-10T10:50:48"
+completedAt: "2026-07-10"
+commit: 2930d5a
+outcome: >-
+  Toggle 'done' OFF par défaut sur la Roadmap : useShowDone(localStorage) → useState(false) de
+  session dans RoadmapView, passé aux 2 modes (colonnes + graph). Done caché à chaque arrivée sur la
+  vue.
+verification: "Dashboard réel : Roadmap s'ouvre sans les done (viewport dédié au travail en cours)."
 release: null

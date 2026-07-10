@@ -4,7 +4,7 @@ code: null
 title: >-
   Roadmap : replier les tâches DONE par colonne (« + N done ») au lieu de toutes les afficher
   barrées — colonnes imbuvables quand done affichés
-status: in_progress
+status: done
 tags:
   - dashboard
   - ux
@@ -18,9 +18,13 @@ epic: roadmap-readability
 source: ai
 createdAt: "2026-07-09T18:25:46"
 startedAt: "2026-07-10T10:30:57"
-updatedAt: "2026-07-10T10:34:50"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+updatedAt: "2026-07-10T10:50:49"
+completedAt: "2026-07-10"
+commit: 2930d5a
+outcome: >-
+  Tâches DONE repliées par colonne : Column reçoit open/done séparés, les done derrière un repli
+  Collapsible « N done » (replié par défaut, session, seulement si toggle done ON).
+verification: >-
+  Capture done-ON : chaque colonne = ses ouvertes + une ligne discrète « N done », zéro carte barrée
+  d'office.
 release: null
