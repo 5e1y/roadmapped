@@ -1,0 +1,20 @@
+id: 270
+code: null
+title: "Theme toggle : pas de retour explicite au mode « système » après un choix manuel (3e état)"
+status: todo
+tags:
+  - debt
+size: null
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-10T22:25:34"
+updatedAt: "2026-07-10T22:25:34"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
