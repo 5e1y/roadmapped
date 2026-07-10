@@ -1,7 +1,7 @@
 id: 227
 code: null
 title: Bouton « Report an issue » dans le header de l'app → GitHub new issue
-status: todo
+status: done
 tags:
   - engineering
   - dashboard
@@ -21,9 +21,22 @@ dependsOn:
 epic: community-github
 source: ai
 createdAt: "2026-07-09T13:55:55"
-updatedAt: "2026-07-09T13:56:06"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+startedAt: "2026-07-10T22:35:10"
+updatedAt: "2026-07-10T22:36:38"
+completedAt: "2026-07-10"
+commit: 095947e
+outcome: >-
+  Bouton « Report an issue » ajouté au cluster droit de ViewHeader : lien externe icône-seule (Bug
+  de Trinil, size 12) vers https://github.com/5e1y/roadmapped/issues/new?template=bug_report.yml (le
+  form bug livré en #223), target _blank + rel noopener noreferrer, aria-label + title « Report an
+  issue ». Placé entre LiveActivityMenu et ThemeToggle, même idiome DS que le toggle (rounded-md
+  border border-neutral-300 bg-white px-2 py-1 text-neutral-600 hover:bg-neutral-100) — discret,
+  theme-agnostic (tokens). Inline dans ViewHeader, pas de nouveau fichier (ponytail : un lien ne
+  mérite pas un composant). Le template pré-sélectionné = bug_report.yml (nom réel du fichier, pas
+  bug-report.yml du détail du ticket).
+verification: >-
+  tsc 0 ; 437 tests verts. Vérif navigateur : le lien est présent (getByRole link « Report an issue
+  on GitHub » = 1), href = /issues/new?template=bug_report.yml exact, target=_blank. Capture du
+  header : bouton bug rendu entre Activity et le toggle lune, style bordé cohérent avec le reste du
+  cluster.
 release: null
