@@ -77,8 +77,11 @@ export function TaskRow({ task }: { task: TaskNode }) {
         {/* Chevron = toggle des sous-tâches, rendu UNIQUEMENT si la tâche en a. Pas de
             spacer fantôme sinon (#97) : les lignes sans sous-tâche s'alignent à gauche. */}
         {hasSubs && (
+          // Chevron NU, aligné sur les epics (#252) : plus de boîte de hover
+          // (rounded + bg-neutral-200) — la zone reste cliquable (self-stretch
+          // px-0.5), le survol de la LIGNE suffit comme affordance, comme un epic.
           <Collapsible.Trigger
-            className="flex shrink-0 items-center self-stretch rounded px-0.5 hover:bg-neutral-200"
+            className="flex shrink-0 items-center self-stretch px-0.5"
             aria-label={open ? 'Collapse subtasks' : 'Expand subtasks'}
             onClick={(e) => e.stopPropagation()}
           >

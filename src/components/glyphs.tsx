@@ -5,12 +5,18 @@ import type { TaskNode } from '../lib/tasks'
  * Chevron d'affordance expand/collapse (trinil-react). La classe `.chev`
  * (index.css) le fait pivoter de 90° quand l'ancêtre trigger porte
  * `data-panel-open` (état Base UI).
+ *
+ * `pointer-events-none` : le chevron est TOUJOURS décoratif — le toggle vit dans
+ * un trigger (bouton qui l'enveloppe, ou calque plein-rang posé dessous). Sans
+ * ça, cliquer PILE sur le SVG dans un epic (chevron nu sur calque `absolute
+ * inset-0`) était intercepté et ne dépliait pas (#252) ; le rendre transparent
+ * aux clics les laisse filer au trigger dans les deux modèles.
  */
 export function Chevron() {
   // ⚠️ trinil-react 1.3.9 inverse ChevronLeft/ChevronRight (le path de
   // « Right » pointe à gauche) : on importe ChevronLeft pour pointer à DROITE
   // fermé. À simplifier quand la lib sera corrigée (signalé à Rémi).
-  return <ChevronLeft size={11} className="chev shrink-0 text-neutral-500" />
+  return <ChevronLeft size={11} className="chev pointer-events-none shrink-0 text-neutral-500" />
 }
 
 /**
