@@ -1,5 +1,5 @@
 import { Popover } from '@base-ui/react/popover'
-import { ChevronDown } from 'trinil-react'
+import { ChevronDown, Bug } from 'trinil-react'
 import { type ReactNode } from 'react'
 import { useTree } from '../state/TreeContext'
 import { useView, type View } from '../state/ViewContext'
@@ -72,6 +72,18 @@ export function ViewHeader({ meta, children }: {
             non null) — présente sur les 4 vues, dismiss de session module-level. */}
         <UpdateNotice />
         <LiveActivityMenu />
+        {/* Report an issue (#227) : canalise les feedbacks users vers le form bug
+            GitHub (#223). Lien externe icône-seule, même idiome que le toggle. */}
+        <a
+          href="https://github.com/5e1y/roadmapped/issues/new?template=bug_report.yml"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Report an issue on GitHub"
+          title="Report an issue"
+          className="flex items-center rounded-md border border-neutral-300 bg-white px-2 py-1 text-neutral-600 transition-colors hover:bg-neutral-100"
+        >
+          <Bug size={12} className="my-0.5" />
+        </a>
         {/* Bascule clair/sombre (#269) : dernier élément du chrome d'app, avant
             les contrôles propres à la vue (filtres, recherche, + task). */}
         <ThemeToggle />
