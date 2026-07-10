@@ -1,0 +1,24 @@
+id: 254
+code: null
+title: "Oiseau : impossible de se poser sur les derniers encarts blancs"
+status: in_progress
+tags: []
+size: null
+heat: 60
+detail: >-
+  Sur la home, l'oiseau ne se pose pas sur les dernières cartes/encarts blancs (bas de page). Diag
+  probable : perchoirs rognés par le filtre plein-écran/dédoublonnage, ou hors viewport, ou segment
+  trop court après clipping. Fix dans roadmapped-bird.js (détection des perchoirs). Repo site.
+refs: []
+links: []
+dependsOn: []
+epic: site-v2
+source: ai
+createdAt: "2026-07-10T22:04:13"
+startedAt: "2026-07-10T22:05:29"
+updatedAt: "2026-07-10T22:05:29"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

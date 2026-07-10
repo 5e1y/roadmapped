@@ -1,0 +1,21 @@
+id: 267
+code: null
+title: Animations d'apparition au scroll
+status: todo
+tags: []
+size: null
+detail: >-
+  Ajouter des animations d'apparition (reveal au scroll) sur les sections/cartes, sobres, respectant
+  prefers-reduced-motion.
+refs: []
+links: []
+dependsOn: []
+epic: site-v2
+source: ai
+createdAt: "2026-07-10T22:04:50"
+updatedAt: "2026-07-10T22:04:50"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

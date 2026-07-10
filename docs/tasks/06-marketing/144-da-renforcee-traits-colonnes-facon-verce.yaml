@@ -1,0 +1,23 @@
+id: 265
+code: null
+title: "DA renforcée : traits/colonnes façon Vercel + fond pixel-art (clin d'œil oiseau)"
+status: todo
+tags: []
+size: null
+heat: 45
+detail: >-
+  Pousser la direction artistique : grands traits et colonnes toujours visibles façon Vercel,
+  patterns pixel-art aléatoires dans le fond (rappel à l'oiseau/pixel art). Cohérent avec le reste
+  de la DA.
+refs: []
+links: []
+dependsOn: []
+epic: site-v2
+source: ai
+createdAt: "2026-07-10T22:04:45"
+updatedAt: "2026-07-10T22:04:45"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

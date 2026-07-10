@@ -1,0 +1,19 @@
+id: 268
+code: null
+title: Toggle clair/sombre sur le site
+status: todo
+tags: []
+size: null
+detail: Ajouter un switch mode clair/mode sombre (en plus du prefers-color-scheme actuel), persisté.
+refs: []
+links: []
+dependsOn: []
+epic: site-v2
+source: ai
+createdAt: "2026-07-10T22:04:51"
+updatedAt: "2026-07-10T22:04:51"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

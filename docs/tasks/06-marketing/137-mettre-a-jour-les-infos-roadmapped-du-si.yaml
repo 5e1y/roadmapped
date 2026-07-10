@@ -1,0 +1,22 @@
+id: 258
+code: null
+title: Mettre à jour les infos « roadmapped » du site
+status: in_progress
+tags: []
+size: null
+detail: >-
+  Actualiser ce qui est périmé sur le site (état du produit, commandes, liens, features récentes)
+  pour refléter la version actuelle.
+refs: []
+links: []
+dependsOn: []
+epic: site-v2
+source: ai
+createdAt: "2026-07-10T22:04:24"
+startedAt: "2026-07-10T22:05:31"
+updatedAt: "2026-07-10T22:05:31"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

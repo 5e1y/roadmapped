@@ -1,0 +1,21 @@
+id: 262
+code: null
+title: Icônes sur « what's in the folder »
+status: todo
+tags: []
+size: null
+detail: >-
+  Ajouter des icônes aux entrées de la section « what's in the folder » (les feature-cards /
+  fichiers YAML listés) pour la rendre plus lisible et visuelle.
+refs: []
+links: []
+dependsOn: []
+epic: site-v2
+source: ai
+createdAt: "2026-07-10T22:04:37"
+updatedAt: "2026-07-10T22:04:37"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

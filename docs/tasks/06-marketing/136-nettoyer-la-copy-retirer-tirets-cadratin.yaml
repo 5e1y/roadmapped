@@ -1,0 +1,22 @@
+id: 257
+code: null
+title: "Nettoyer la copy : retirer tirets cadratins + tics de rédaction IA"
+status: in_progress
+tags: []
+size: null
+detail: >-
+  Retirer les — (em dashes) et les habitudes de copy IA (formules toutes faites, « not X, but Y »,
+  triades, etc.). Ton direct, humain, aligné tone-of-voice Rémi.
+refs: []
+links: []
+dependsOn: []
+epic: site-v2
+source: ai
+createdAt: "2026-07-10T22:04:23"
+startedAt: "2026-07-10T22:05:30"
+updatedAt: "2026-07-10T22:05:30"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
