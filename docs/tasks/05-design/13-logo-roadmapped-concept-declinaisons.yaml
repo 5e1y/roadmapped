@@ -1,7 +1,7 @@
 id: 212
 code: null
 title: Logo Roadmapped — concept + déclinaisons
-status: todo
+status: done
 tags:
   - owner-remi
   - design
@@ -13,15 +13,29 @@ detail: >-
   n'aimait pas l'ancien mark (3 barres, retiré de la HP #208). Point de départ possible : le langage
   visuel du dashboard (monochrome + accent bleu, glyphes de statut). Alimente ensuite les assets de
   marque (favicon, og, app icons) et la charte.
-refs: []
+refs:
+  - src/components/BirdMascot.tsx
+  - src/components/ViewHeader.tsx
+  - src/lib/birdFrames.ts
+  - index.html
 links: []
 dependsOn: []
 epic: brand-identity
 source: ai
 createdAt: "2026-07-09T13:54:49"
-updatedAt: "2026-07-09T13:54:49"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+startedAt: "2026-07-10T16:46:54"
+updatedAt: "2026-07-10T16:55:30"
+completedAt: "2026-07-10"
+commit: 3425ae2
+outcome: >-
+  Mascotte oiseau = logo Roadmapped. Concept + sprite pixel-art 16×12 (4 couleurs, dessiné par Rémi)
+  + 5 anims frame-by-frame (idle/walk/fly/peck/hop, via Fable). Déclinaisons livrées dans l'app :
+  mascotte animée au canvas dans le header à gauche du titre (idle/peck aléatoire toutes les ~6s,
+  pas de suivi curseur), favicon oiseau (pose repos), GIF picage 3s en boucle transparente dans le
+  README. Homepage (suit curseur + se pose sur les divs) = ticket #253 séparé, délégué à Fable (repo
+  externe roadmapped-site).
+verification: >-
+  tsc -b clean + vite build OK (405 modules, favicon inline 2.56kB). Rendu sprite vérifié
+  visuellement (favicon SVG + montage du GIF sur fond sombre : transparence OK, cycle de picage
+  lisible). Logique du header identique au chemin de rendu validé.
 release: null
