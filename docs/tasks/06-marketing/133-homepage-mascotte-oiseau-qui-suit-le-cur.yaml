@@ -1,0 +1,27 @@
+id: 253
+code: null
+title: "Homepage : mascotte oiseau qui suit le curseur & se pose sur les divs (mini-jeu)"
+status: in_progress
+tags: []
+size: null
+heat: 55
+detail: >-
+  Le mini-jeu complet issu du proto (artifact f4bb3946) porté sur la homepage roadmapped.work.
+  L'oiseau suit le curseur (vol lent/damp, décollage par saut, réception, plané en descente,
+  battement rapide en montée) et se POSE sur les bords hauts des divs de la page (sections/cartes)
+  comme sols, + bas de fenêtre. Repos = peck/idle aléatoire. Vit dans le repo externe
+  5e1y/roadmapped-site (Cloudflare Pages) → livrable = module autonome (JS/TS) + démo, à intégrer
+  là-bas. Délégué à Fable 5.
+refs: []
+links: []
+dependsOn: []
+epic: logo
+source: ai
+createdAt: "2026-07-10T16:48:48"
+startedAt: "2026-07-10T16:49:44"
+updatedAt: "2026-07-10T16:49:44"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
