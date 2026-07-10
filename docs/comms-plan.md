@@ -2,7 +2,7 @@
 
 **Statut : plan de travail (relu sous l'angle voix, #19).** Ton, canaux et prérequis sont
 arrêtés ; les **objectifs chiffrés** (§Objectifs) restent des cibles à calibrer selon le
-signal réel du J0 — pas des engagements. Domaine acquis : **roadmapped.work** (Cloudflare).
+signal réel du J0 — pas des engagements. Domaine acquis : **roadmapped.dev** (Cloudflare).
 
 ## Ton
 
@@ -47,7 +47,7 @@ exacts sont le livrable de la tâche #20.
 ## Prérequis au J0 (bloquants, cf. dépendances des tâches)
 
 Repo GitHub public avec CI verte et README à jour (#13, README fait #11) · site déployé sur
-**roadmapped.work** via Cloudflare Pages (#18 — repo site branché par Rémi) · skill publié
+**roadmapped.dev** via Cloudflare Pages (#18 — repo site branché par Rémi) · skill publié
 sur le marketplace (#15) · captures/GIF frais du dashboard poli (dépend de #134, capture
 obsolète) · ce plan approuvé.
 

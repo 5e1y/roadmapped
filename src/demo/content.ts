@@ -46,7 +46,7 @@ read this document inside the demo, that ticket is doing its job.
 `,
   'tone-of-voice.md': `# Tone of voice
 
-The house rules for every word on roadmapped.work — enforced by an agent
+The house rules for every word on roadmapped.dev — enforced by an agent
 that re-reads the copy and files tickets about it.
 
 1. **Direct.** Say the thing. "It's a folder of YAML files."

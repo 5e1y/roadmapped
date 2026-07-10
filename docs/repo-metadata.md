@@ -9,7 +9,7 @@ voice guide bans superlatives); these are for search, not for show.
 > Project management as flat files in your repo. YAML tasks, a computed roadmap,
 > driven by your AI agent. No database, no SaaS. MIT.
 
-Website field: `https://roadmapped.work`
+Website field: `https://roadmapped.dev`
 
 ## Topics (GitHub topics — lowercase, hyphenated)
 

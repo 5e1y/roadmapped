@@ -20,7 +20,7 @@ viennent de [docs/comms-plan.md](./comms-plan.md).
 | Tools MCP | **13** | `scripts/mcp-server.mjs` (mêmes verbes, sans audit/guard) |
 | Dépendances runtime | **7** | `package.json` → `dependencies` |
 | Licence | **MIT** | `LICENSE` |
-| Site | **roadmapped.work** | comms-plan (Cloudflare) |
+| Site | **roadmapped.dev** | comms-plan (Cloudflare) |
 
 **Interdit d'usage** : toute durée de développement (« trois semaines », « deux jours ») —
 l'historique git local ne permet pas de l'attester proprement. On compte, on ne chronomètre pas.
@@ -174,7 +174,7 @@ respecte.
 
 ```
 Le repo : [GITHUB]
-Le site : https://roadmapped.work — pas de cookie, pas de tracking, et aucune
+Le site : https://roadmapped.dev — pas de cookie, pas de tracking, et aucune
 newsletter ne vous attend au tournant.
 ```
 
@@ -212,7 +212,7 @@ A well-organized folder, which is more than I can say for most of my ideas.
 **Commentaire (le lien)**
 
 ```
-Repo: [GITHUB] · Site: https://roadmapped.work
+Repo: [GITHUB] · Site: https://roadmapped.dev
 No newsletter is lying in wait.
 ```
 
@@ -293,7 +293,7 @@ backlog is the changelog. It's all in the repo.
 ```
 MIT. Free. 239 tests, 7 runtime dependencies, 0 servers.
 
-https://roadmapped.work
+https://roadmapped.dev
 [GITHUB]
 
 It's a folder. But it's a very good folder.
@@ -396,7 +396,7 @@ It's MIT and free — no premium tier waiting behind a toggle. What it is not:
 a Jira replacement for a 40-person org. It's for solo devs and small teams
 who already live in their repo and don't want another tab.
 
-Repo: [GITHUB] · Site: https://roadmapped.work
+Repo: [GITHUB] · Site: https://roadmapped.dev
 
 Feedback very welcome, especially the unkind kind — it gets filed as a task
 in the public backlog, which is the most accountability I've ever had on a
@@ -464,7 +464,7 @@ recorded by the agent, all public in the repo. MIT, local-only, no server.
 There's an MCP server exposing the same 14 commands if you'd rather wire it
 as tools.
 
-Repo: [GITHUB] · Site: https://roadmapped.work
+Repo: [GITHUB] · Site: https://roadmapped.dev
 
 Most interested in feedback on the skill design (the decision ladder and the
 token rules took more iterations than the app itself). The agent that built

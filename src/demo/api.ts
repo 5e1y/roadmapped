@@ -2,7 +2,7 @@ import { demoTree } from './tree'
 import { DEMO_DOCS, DEMO_DOC_CONTENT, DEMO_NOTE } from './content'
 
 /*
- * Shim d'API DÉMO (#148) — le dashboard embarqué sur roadmapped.work.
+ * Shim d'API DÉMO (#148) — le dashboard embarqué sur roadmapped.dev.
  *
  * Le client ne connaît le serveur QUE par fetch('/api/…') : intercepter fetch
  * suffit donc à faire tourner l'app entière sans serveur, sans toucher une
