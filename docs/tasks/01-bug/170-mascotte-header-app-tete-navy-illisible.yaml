@@ -1,0 +1,27 @@
+id: 271
+code: null
+title: "Mascotte header app : tête navy illisible en dark mode → theme-aware"
+status: done
+tags: []
+size: null
+heat: 45
+detail: >-
+  BirdMascot (header de l'app) a une palette fixe : la tête navy #0F1225 se fond sur fond sombre en
+  dark mode (#269). La rendre theme-aware via useTheme() : en dark, éclaircir le navy (KK) pour que
+  la tête reste lisible ; en clair, inchangé.
+refs: []
+links: []
+dependsOn: []
+epic: brand-identity
+source: ai
+createdAt: "2026-07-10T22:48:51"
+startedAt: "2026-07-10T22:49:17"
+updatedAt: "2026-07-10T22:50:40"
+completedAt: "2026-07-10"
+commit: "8238163"
+outcome: >-
+  BirdMascot theme-aware : useTheme() ; en dark la calotte navy (KK) est éclaircie en #b4c2dd
+  (lisible sur le header sombre #171717, distincte du corps blanc), inchangée en clair. Re-bake au
+  changement de thème (theme dans les deps de l'effet).
+verification: tsc -b clean. Swap conditionnel sur le theme du hook, autres couleurs inchangées.
+release: null
