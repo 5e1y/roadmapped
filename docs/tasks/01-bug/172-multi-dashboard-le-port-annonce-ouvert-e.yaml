@@ -1,0 +1,46 @@
+id: 274
+code: null
+title: "Multi-dashboard : le port annoncé/ouvert est faux quand 5173 est pris → ouvre le mauvais repo"
+status: done
+tags:
+  - ui
+  - dashboard
+  - multi-repo
+size: null
+detail: >-
+  serve.ts listenWithRetry : le callback de server.listen(port, cb) reste attaché comme listener
+  'listening' quand le port échoue (EADDRINUSE). Au bind réussi du port suivant, TOUS les callbacks
+  accumulés se déclenchent, le premier (le port échoué) résout la Promise → on annonce/ouvre le
+  mauvais port. Symptôme : lancer le dashboard de ZineKit alors que 5173 sert déjà Roadmapped →
+  ZineKit bind bien 5174 mais imprime/ouvre 5173 → le navigateur affiche Roadmapped. Fix :
+  n'utiliser que server.once('listening') + lire server.address().port (port réel), retirer le
+  listener 'listening' pendant retry.
+refs:
+  - src/server/serve.ts
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-10T23:50:19"
+startedAt: "2026-07-10T23:50:23"
+updatedAt: "2026-07-10T23:53:55"
+completedAt: "2026-07-10"
+commit: 966d560
+outcome: >-
+  Bug multi-dashboard corrigé : le dashboard d'un 2e repo annonçait/ouvrait le mauvais port → le
+  navigateur affichait le mauvais repo (symptôme exact de Rémi : lancé depuis ZineKit, ça ouvrait
+  Roadmapped). Cause : dans serve.ts listenWithRetry, le callback passé à server.listen(port, cb)
+  reste attaché comme listener 'listening' même quand le port échoue (EADDRINUSE) ; au bind RÉUSSI
+  du port suivant, tous les callbacks accumulés se déclenchent et le premier (port échoué, ex. 5173)
+  résout la Promise → on annonçait 5173 alors que le serveur écoutait sur 5174. Fix : gérer
+  'listening'/'error' à la main (server.once + retrait explicite du listener 'listening' pendant le
+  retry) et résoudre avec le port RÉELLEMENT lié via server.address().port (pas la variable
+  capturée). listenWithRetry exporté + 2 tests de régression (saute le port occupé & annoncé==réel ;
+  rejette si plage pleine).
+verification: >-
+  Repro live AVANT fix : Roadmapped sur 5173 (prod), lancement dashboard données ZineKit → imprimait
+  « http://localhost:5173/ (ZineKit) » alors que 5174 servait ZineKit (donc navigateur →
+  Roadmapped). APRÈS fix (même scénario) : imprime « http://localhost:5174/ (ZineKit) » = le port
+  qui sert réellement ZineKit. tsc 0 ; 439 tests verts (+2 : serve.test.ts vérifie l'invariant
+  port-annoncé==port-lié via de vrais sockets, et le rejet plage pleine).
+release: null
