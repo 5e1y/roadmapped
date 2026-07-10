@@ -3,7 +3,7 @@ import { Search } from 'trinil-react'
 import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
 import { type TaskNode } from '../lib/tasks'
-import { TaskList, MiniZone, sortOpen, sortDone } from './TaskColumns'
+import { TaskList, sortOpen, sortDone } from './TaskColumns'
 
 import { useTagFilter, useTypeFilter } from '../state/filters'
 import { ViewHeader } from './ViewHeader'
@@ -48,7 +48,7 @@ function RemovableChip({ label, onRemove, ariaLabel }: { label: string; onRemove
  * dans la sidebar et s'applique aussi).
  */
 export function Backlog() {
-  const { tree, errors, loading, loadError, reload } = useTree()
+  const { tree, errors, loading, loadError } = useTree()
   const { openCreateTask, top } = usePanel()
   const [tagFilter, setTagFilter] = useTagFilter()
   const [typeFilter, setTypeFilter] = useTypeFilter()
@@ -125,10 +125,9 @@ export function Backlog() {
 
   // Ordre = TEMPÉRATURE décroissante (jalons v2) : le backlog sert la file la plus
   // chaude d'abord, comme `next`. Les epics s'ancrent sur leur membre le plus chaud.
-  const openAll = all.filter((t) => t.status !== 'done' && matches(t))
-  // Les quick vivent dans la zone Mini ; les task dans « To do ».
-  const quicks = sortOpen(openAll.filter((t) => t.kind === 'quick'))
-  const open = sortOpen(openAll.filter((t) => t.kind !== 'quick'))
+  // #250 : plus de zone « Mini » — les ex-quick sont des task ordinaires et
+  // rejoignent la liste « To do », déjà triée par température.
+  const open = sortOpen(all.filter((t) => t.status !== 'done' && matches(t)))
   const done = sortDone(all.filter((t) => t.status === 'done' && matches(t)))
 
   // « + tâche » : Feature par défaut (modifiable dans le panneau de création).
@@ -217,7 +216,6 @@ export function Backlog() {
         <div className="relative min-h-0 flex-1 overflow-y-auto">
           <div className="mx-auto max-w-3xl px-6 py-8">
             <div className="flex flex-col gap-8">
-              {(quicks.length > 0 || !q) && <MiniZone quicks={quicks} reload={reload} />}
               {/* Epics (#135) : lignes-groupe repliables DANS la liste — plus de vue
                   alternative « par epic » (#133 rejeté), le groupe est le défaut. */}
               <TaskList open={open} done={done} tree={tree} filtered={Boolean(q || tagFilter.length)} />

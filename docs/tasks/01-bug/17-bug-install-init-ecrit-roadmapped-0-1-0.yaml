@@ -1,5 +1,4 @@
 id: 199
-kind: quick
 code: null
 title: >-
   BUG install : init écrit roadmapped@^0.1.0 (registre npm non publié) → npm install 404 chez

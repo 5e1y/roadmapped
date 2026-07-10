@@ -35,7 +35,7 @@ type GNode =
   | { key: string; kind: 'epic'; slug: string; title: string; tasks: TaskNode[] }
 
 /** Prérequis manquant SANS carte propre (#138) : rangé dans un nœud-epic (titre
-    connu) ou réellement hors vue (done masqué / quick) — epicTitle null. */
+    connu) ou réellement hors vue (done masqué) — epicTitle null. */
 interface HiddenPrereq {
   id: number
   epicTitle: string | null
@@ -105,7 +105,7 @@ const epicHeight = (n: Extract<GNode, { kind: 'epic' }>, expandedEpics: string[]
   expandedEpics.includes(n.slug) ? CARD_H + 1 + n.tasks.length * MEMBER_H + 4 : CARD_H
 
 /**
- * Sélection des nœuds + arêtes (logique conservée de la v1) : quick exclus,
+ * Sélection des nœuds + arêtes (logique conservée de la v1) :
  * done masqués sauf s'ils sont prérequis transitifs d'un ticket visible,
  * membres d'epic fusionnés en nœuds-groupe. Le PLACEMENT, lui, est parti dans
  * graphLayout (dagre) — plus aucune colonne par stage ici.
@@ -115,8 +115,8 @@ function buildGraphModel(tree: TaskTree, showDone: boolean, expandedEpics: strin
   const avail = computeAvailability(tree)
   // « Build Stage » → chip « Build » : la métadonnée reste courte sur la carte.
   const stageChip = new Map(sections.map((s) => [s.key, s.title.replace(/\s*Stage$/i, '')]))
-  // Tâches candidates = premier niveau des sections actives (quick exclus).
-  let taskEntries = sections.flatMap((s) => s.tasks.filter((t) => t.kind !== 'quick').map((t) => ({ task: t, sectionKey: s.key })))
+  // Tâches candidates = premier niveau des sections actives.
+  let taskEntries = sections.flatMap((s) => s.tasks.map((t) => ({ task: t, sectionKey: s.key })))
   if (!showDone) {
     // Done masqués SAUF s'ils sont dépendances (transitives) d'un ticket
     // visible — les arêtes du graphe restent intègres.

@@ -3,7 +3,7 @@ code: null
 title: >-
   Retirer le kind « quick » — le type de colonne + size suffisent, le split quick/task est du bruit
   (décision Rémi)
-status: todo
+status: in_progress
 tags:
   - engineering
   - model
@@ -37,7 +37,8 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-10T10:36:56"
-updatedAt: "2026-07-10T10:36:56"
+startedAt: "2026-07-10T11:19:40"
+updatedAt: "2026-07-10T11:19:40"
 completedAt: null
 commit: null
 outcome: null

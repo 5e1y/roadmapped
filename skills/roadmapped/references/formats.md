@@ -76,7 +76,7 @@ Worked edge cases:
 
 ```yaml
 id: 42                    # allocated by the CLI from _meta.yaml — never chosen by hand
-kind: quick               # ADDITIVE — absent = task (default). quick = mini-ticket; milestone = MILESTONE (see § Milestones)
+kind: milestone           # ADDITIVE — absent = task (default). milestone = MILESTONE (see § Milestones). ('quick' removed #250.)
 code: B3                  # optional, short human code (null otherwise)
 title: "Task title"
 status: todo              # todo | in_progress | done — NOTHING else

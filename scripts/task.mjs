@@ -146,7 +146,7 @@ Reading
 Writing (id allocated from _meta.yaml; validated after EVERY write, full rollback on error)
   add --type <type> --title <t> [--detail <d>] [--tags a,b] [--heat 0-100]
       [--size S|M|L] [--code <c>] [--refs a,b] [--links 1,2]
-      [--depends-on 1,2] [--epic <slug>] [--kind task|quick|milestone]
+      [--depends-on 1,2] [--epic <slug>] [--kind task|milestone]
       [--blocks 1,2] [--source ai|user] [--json]
                             --type is the NATURE (section slug, e.g. 02-feature) — REQUIRED
                             (--section / --stage still accepted as aliases);
@@ -155,8 +155,8 @@ Writing (id allocated from _meta.yaml; validated after EVERY write, full rollbac
                             --blocks 1,2 = adds the new task to the dependsOn
                             of the tasks named (the ergonomic inverse of --depends-on)
   quick "<title>" [--type <t>] [--tags a,b] [--heat 0-100] [--start] [--json]
-                            mini-ticket: title suffices (default type = 1st open one);
-                            at done, --outcome required but --verification optional
+                            rapid-create alias for a task: title suffices
+                            (default type = 1st open one). Creates a plain task (#250).
   start <id>                status → in_progress
   done <id> [--commit <sha>] [--outcome <o>] [--verification <v>] [--release <r>] [--resolve-feedback all|1,3]
                             status → done + completedAt=today + delivery record
@@ -194,8 +194,8 @@ const CMD_USAGE = {
   done: 'Usage: done <id> [--commit <sha>] [--outcome <o>] [--verification <v>] [--release <r>] [--suggest-refs] [--resolve-feedback all|1,3]',
   feedback: 'Usage: feedback <id> "<text>" [--author <name>]',
   roadmap: 'Usage: roadmap [--json]',
-  add: 'Usage: add --type <type> --title <t> [--detail <d>] [--tags a,b] [--heat 0-100] [--size S|M|L]\n        [--code <c>] [--refs a,b] [--links 1,2] [--depends-on 1,2] [--epic <slug>]\n        [--kind task|quick|milestone] [--blocks 1,2] [--source ai|user] [--json]  (--section/--stage = aliases of --type)',
-  quick: 'Usage: quick "<title>" [--type <t>] [--tags a,b] [--heat 0-100] [--start] [--json]',
+  add: 'Usage: add --type <type> --title <t> [--detail <d>] [--tags a,b] [--heat 0-100] [--size S|M|L]\n        [--code <c>] [--refs a,b] [--links 1,2] [--depends-on 1,2] [--epic <slug>]\n        [--kind task|milestone] [--blocks 1,2] [--source ai|user] [--json]  (--section/--stage = aliases of --type)',
+  quick: 'Usage: quick "<title>" [--type <t>] [--tags a,b] [--heat 0-100] [--start] [--json]  (rapid-create alias for a task)',
   update: 'Usage: update <id> [--title ...] [--detail ...] [--status ...] [--heat 0-100|--no-heat] [--tags a,b] [--refs a,b]\n        [--links 1,2] [--depends-on 1,2] [--epic <slug>] [--size ...] [--code ...] [--outcome ...] …',
 }
 
@@ -378,8 +378,8 @@ function cmdAdd(flags) {
   const section = sectionFromFlags(flags)
   if (!section) fail('Missing required flag: --type (the nature/section, e.g. 02-feature)', CMD_USAGE.add)
   const heat = parseHeat(flags.heat, CMD_USAGE.add)
-  if (typeof flags.kind === 'string' && !['task', 'quick', 'milestone'].includes(flags.kind)) {
-    fail(`--kind invalid: "${flags.kind}" (expected task, quick, or milestone).`, CMD_USAGE.add)
+  if (typeof flags.kind === 'string' && !['task', 'milestone'].includes(flags.kind)) {
+    fail(`--kind invalid: "${flags.kind}" (expected task or milestone; 'quick' removed #250 — use a plain task).`, CMD_USAGE.add)
   }
   // --blocks 1,2 (sucre jalon, #133) : la nouvelle tâche est AJOUTÉE aux dependsOn
   // des tâches citées — l'inverse ergonomique de --depends-on. Ids vérifiés AVANT
@@ -423,6 +423,8 @@ function cmdAdd(flags) {
   if (flags.json && res.ok) console.log(JSON.stringify(res.task, null, 2))
 }
 
+// `quick` : alias de création RAPIDE d'une task (#250 — le kind 'quick' a disparu ;
+// la commande survit par rétrocompat, mais crée un task ordinaire avec des défauts).
 function cmdQuick(flags, positional) {
   rejectUnknownFlags(flags, ['type', 'section', 'stage', 'heat', 'tags', 'start', 'json'], CMD_USAGE.quick)
   const title = positional[0]
@@ -433,17 +435,16 @@ function cmdQuick(flags, positional) {
   // Type par défaut = le premier type "open". tree.sections est déjà trié par préfixe.
   const section = sectionFromFlags(flags)
     ?? readTree(ROOT).sections.find((s) => s.status === 'open')?.key
-  if (!section) fail('No "open" type to host the quick — specify --type.', CMD_USAGE.quick)
+  if (!section) fail('No "open" type to host the task — specify --type.', CMD_USAGE.quick)
   const res = addTask(ROOT, {
     section,
     title,
     heat,
     tags: typeof flags.tags === 'string' ? splitList(flags.tags) : [],
-    kind: 'quick',
   })
   report(res, null) // exit on failure
   const id = res.task.id
-  if (!flags.json) console.log(`#${id} created (quick).`)
+  if (!flags.json) console.log(`#${id} created.`)
   if (flags.start) {
     report(startTask(ROOT, id), null)
     if (!flags.json) console.log(`#${id} started.`)

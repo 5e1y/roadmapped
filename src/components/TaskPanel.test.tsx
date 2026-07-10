@@ -27,7 +27,7 @@ describe('relItemOf (#125 — aperçu des combobox de relations)', () => {
     expect(item.preview?.status).toBe('done')
   })
 
-  it('conserve le kind (glyphe jalon/quick côté rendu)', () => {
+  it('conserve le kind (glyphe jalon côté rendu)', () => {
     expect(relItemOf({ ...base, kind: 'milestone' }).preview?.kind).toBe('milestone')
   })
 })

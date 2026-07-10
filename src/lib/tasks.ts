@@ -67,13 +67,13 @@ export interface Temperature {
 export interface TaskNode {
   id: number
   /**
-   * Nature du ticket : 'task' (défaut, cérémonie complète), 'quick' (mini-ticket :
-   * titre+type suffisent, outcome requis mais verification facultative au done)
-   * ou 'milestone' (JALON : une tâche-cible que d'autres verrouillent via dependsOn —
-   * aucune sémantique de lock nouvelle, computeAvailability suffit ; rendu diamant).
+   * Nature du ticket : 'task' (défaut) ou 'milestone' (JALON : une tâche-cible que
+   * d'autres verrouillent via dependsOn — aucune sémantique de lock nouvelle,
+   * computeAvailability suffit ; rendu diamant). Le kind 'quick' a été supprimé (#250) :
+   * il était redondant avec `size` (S/M/L) une fois les colonnes passées par TYPE.
    * ADDITIF : absent d'un YAML = 'task' (rétrocompat totale, aucun YAML existant ne change).
    */
-  kind: 'task' | 'quick' | 'milestone'
+  kind: 'task' | 'milestone'
   code: string | null
   title: string
   status: 'todo' | 'in_progress' | 'done'
@@ -205,7 +205,7 @@ function toTaskNode(raw: any, file: string): TaskNode {
   return {
     id: raw.id,
     // ADDITIF : kind absent = 'task'. Une valeur invalide remonte telle quelle
-    // (ex: 'mega') et validate.ts la rejette — pas de coercion silencieuse.
+    // (ex: 'mega' ou l'ex-'quick' #250) et validate.ts la rejette — pas de coercion silencieuse.
     kind: raw.kind ?? 'task',
     code: raw.code ?? null,
     title: raw.title,

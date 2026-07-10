@@ -158,12 +158,12 @@ export function withLock<T>(tasksDir: string, fn: () => T): T {
 function dumpTask(raw: Record<string, unknown>): string {
   const ordered: Record<string, unknown> = {}
   for (const key of FIELD_ORDER) {
-    // kind est ADDITIF : on ne l'écrit QUE si ≠ task (quick ou milestone). Un task
-    // (le défaut) reste sans champ kind — sinon `kind ?? null` forcerait "kind: null"
-    // sur tous les YAML existants (violation de la rétrocompat). Position (après id)
-    // garantie par FIELD_ORDER quand présent.
+    // kind est ADDITIF : on ne l'écrit QUE si = milestone. Un task (le défaut) reste
+    // sans champ kind — sinon `kind ?? null` forcerait "kind: null" sur tous les YAML
+    // existants (violation de la rétrocompat). L'ex-'quick' (#250) n'est plus jamais
+    // écrit. Position (après id) garantie par FIELD_ORDER quand présent.
     if (key === 'kind') {
-      if (raw.kind === 'quick' || raw.kind === 'milestone') ordered.kind = raw.kind
+      if (raw.kind === 'milestone') ordered.kind = raw.kind
       continue
     }
     // heat ADDITIF (#230/#231) : écrit seulement s'il est un nombre > 0. Absent = froid
@@ -293,8 +293,8 @@ export interface AddTaskInput {
   title: string
   /** Seed de priorité (#230/#231) : 0–100, OPTIONNEL. Absent = froid. Validé après écriture. */
   heat?: number | null
-  /** 'quick' (mini-ticket) ou 'milestone' (jalon) ; absent/'task' = ticket normal (kind omis du YAML). */
-  kind?: 'task' | 'quick' | 'milestone'
+  /** 'milestone' (jalon) ; absent/'task' = ticket normal (kind omis du YAML). Ex-'quick' supprimé (#250). */
+  kind?: 'task' | 'milestone'
   detail?: string | null
   tags?: string[]
   size?: string | null
@@ -345,8 +345,8 @@ function addTaskImpl(tasksDir: string, input: AddTaskInput): MutationResult {
     typeof v === 'string' && v !== '' ? v : null
   const raw = {
     id: nextId,
-    // 'task' par défaut : dumpTask omet alors le champ (rétrocompat). Seuls quick/milestone sont écrits.
-    kind: input.kind === 'quick' || input.kind === 'milestone' ? input.kind : 'task',
+    // 'task' par défaut : dumpTask omet alors le champ (rétrocompat). Seul milestone est écrit.
+    kind: input.kind === 'milestone' ? input.kind : 'task',
     code: str(input.code),
     title: input.title,
     status: 'todo',
@@ -441,14 +441,14 @@ function doneTaskImpl(tasksDir: string, id: number, opts: DoneOpts): MutationRes
   const hit = findTask(tree, id)
   if (!hit) return { ok: false, errors: [`Aucune tâche #${id}.`], notFound: true }
   const t = hit.task
-  const finalOutcome = typeof opts.outcome === 'string' ? opts.outcome : t.outcome
-  if (t.kind === 'quick' && (finalOutcome === null || finalOutcome === undefined || finalOutcome.trim() === '')) {
-    return { ok: false, errors: [`#${id} est un quick : --outcome requis au done (l'outcome tient lieu de vérification).`] }
-  }
   const warnings: string[] = []
+  // #250 : plus d'exception « outcome requis / verification facultative pour un quick »
+  // — la verification est ENCOURAGÉE mais non bloquante pour toutes les tâches, aucun
+  // done ne bloque désormais sur l'outcome (la légèreté du done trivial est préservée
+  // sans kind dédié).
   // Anti-exploration (spec §4) : une task livrée sans refs = le prochain lecteur
   // explorera. Discipline rendue visible, pas punitive → warning, jamais un échec.
-  // Les quick ET les jalons (kind milestone : un marqueur, pas du travail) sont exemptés.
+  // Les jalons (kind milestone : un marqueur, pas du travail) sont exemptés.
   if (t.kind === 'task' && t.refs.length === 0) {
     warnings.push(`#${id} terminée sans refs — ticket sans refs = le prochain lecteur explorera. Ajoute des refs (fichiers/specs) pour ancrer le contexte.`)
   }

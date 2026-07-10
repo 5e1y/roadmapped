@@ -1,5 +1,4 @@
 id: 202
-kind: quick
 code: null
 title: >-
   BUG dashboard écran blanc en host-install : Vite ne pré-bundle pas le stack CJS React (deps hôte

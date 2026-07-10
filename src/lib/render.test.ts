@@ -17,15 +17,12 @@ const tree = (tasks: TaskNode[]): TaskTree => {
 }
 
 describe('taskLine', () => {
-  it('glyphe + id + titre + chips (size/heat/quick/tags ; team retirée #230)', () => {
+  it('glyphe + id + titre + chips (size/heat/tags ; team retirée #230)', () => {
     expect(taskLine(task(1, { size: 'M', tags: ['ux'] }), '')).toBe('[ ] #1   T1  (M ux)')
   })
   it('un heat > 0 porte le chip « heat N » (absent = froid, aucun chip)', () => {
     expect(taskLine(task(1, { heat: 80 }), '')).toBe('[ ] #1   T1  (heat 80)')
     expect(taskLine(task(1, { heat: 0 }), '')).toBe('[ ] #1   T1')
-  })
-  it('un quick porte le chip quick', () => {
-    expect(taskLine(task(2, { kind: 'quick' }), '')).toContain('(quick)')
   })
   it('un jalon porte le chip milestone (#133)', () => {
     expect(taskLine(task(3, { kind: 'milestone' }), '')).toContain('(milestone)')

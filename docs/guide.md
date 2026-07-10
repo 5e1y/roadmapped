@@ -297,9 +297,9 @@ $ npx roadmapped show 214
   dates: created 2026-07-09T13:54:57 · source ai
 ```
 
-Note the last line of the first example: for a `quick` task, `brief` prints `done
-<id> --commit <sha> --outcome "…"` (no `--verification` slot) since a quick only
-requires `--outcome` at `done`. Meta fields (`heat`, `kind`, `epic`, `size`, `tags`)
+Note the last line: `brief` prints a ready-to-paste `done <id> --commit <sha>
+--outcome "…" --verification "…"` reminder — `--verification` is encouraged but
+never blocking at `done`, for every task. Meta fields (`heat`, `kind`, `epic`, `size`, `tags`)
 each only appear when set — `#218` has no `heat` and is a plain `task`, so neither
 shows.
 
@@ -475,7 +475,7 @@ OK — 9 sections (220 tasks), nextId=238.
 ```
 add --type <type> --title <t> [--detail <d>] [--tags a,b] [--heat 0-100]
     [--size S|M|L] [--code <c>] [--refs a,b] [--links 1,2] [--depends-on 1,2]
-    [--epic <slug>] [--kind task|quick|milestone] [--blocks 1,2]
+    [--epic <slug>] [--kind task|milestone] [--blocks 1,2]
     [--source ai|user] [--json]   (--section/--stage are accepted aliases of --type)
 ```
 
@@ -501,7 +501,7 @@ $ npx roadmapped add --type 02-feature --title "Missing team old flag" --team en
 Unknown flag: --team
 Usage: add --type <type> --title <t> [--detail <d>] [--tags a,b] [--heat 0-100] [--size S|M|L]
         [--code <c>] [--refs a,b] [--links 1,2] [--depends-on 1,2] [--epic <slug>]
-        [--kind task|quick|milestone] [--blocks 1,2] [--source ai|user] [--json]  (--section/--stage = aliases of --type)
+        [--kind task|milestone] [--blocks 1,2] [--source ai|user] [--json]  (--section/--stage = aliases of --type)
 
 $ npx roadmapped add --title "No type given" --size S
 Missing required flag: --type (the nature/section, e.g. 02-feature)
@@ -524,28 +524,28 @@ $ npx roadmapped add --type 02-feature --title "App public v1 shipped" \
 and #2) — the ergonomic inverse of `--depends-on`; ids are checked to exist BEFORE
 anything is written.
 
-### `quick "<title>"` — a mini-ticket, half the ceremony
+### `quick "<title>"` — a rapid-create alias for a task
 
 ```
 quick "<title>" [--type <t>] [--tags a,b] [--heat 0-100] [--start] [--json]
 ```
 
-For work too small to deserve a full task: a one-line fix, a copy tweak. Only
+For work too small to deserve the full `add` form: a one-line fix, a copy tweak. Only
 `--title` (positional) is required — `--type` defaults to the first `open` type if
-omitted, no `detail`, no `refs`, no `size` gate to think about. It writes `kind:
-quick` onto the task (see [§5](#5-yaml-formats)); `--start` chains a `start` in the
-same call. At `done`, a quick only requires `--outcome` — `--verification` is
-optional, because for a one-line fix the outcome *is* the verification.
+omitted, no `detail`, no `refs`, no `size` to think about. It creates a plain,
+ordinary `task` (see [§5](#5-yaml-formats)) — `quick` is purely a rapid-create
+shortcut, not a distinct kind; `--start` chains a `start` in the same call. At `done`,
+`--verification` is encouraged but never blocking — the same as for any task.
 
 ```console
 $ npx roadmapped quick
 quick: title required (1st positional argument, in quotes).
-Usage: quick "<title>" [--type <t>] [--tags a,b] [--heat 0-100] [--start] [--json]
+Usage: quick "<title>" [--type <t>] [--tags a,b] [--heat 0-100] [--start] [--json]  (rapid-create alias for a task)
 ```
 
 ```console
 $ npx roadmapped quick "Fix chevron alignment mobile nav" --type 05-design --start
-#3 created (quick).
+#3 created.
 #3 started.
 ```
 
@@ -777,7 +777,7 @@ The field order below is canonical (the CLI writes it this way).
 | Field | Type | Meaning |
 |---|---|---|
 | `id` | int | Allocated by the CLI from `_meta.yaml`. Never chosen by hand, never reused. |
-| `kind` | `task` \| `quick` \| `milestone` | **Additive, omitted from the YAML for the default** (`task`). `quick` skips `refs`/`detail` gates and only requires `--outcome` (no `--verification`) at `done`; `milestone` is a target other tasks lock onto via `dependsOn` (`add --kind milestone --blocks 1,2`), rendered as a diamond. Never set by hand: created via `quick`/`add --kind`, read via `show`/`brief`/`list --json`. |
+| `kind` | `task` \| `milestone` | **Additive, omitted from the YAML for the default** (`task`). Only `milestone` ever materializes this field: a target other tasks lock onto via `dependsOn` (`add --kind milestone --blocks 1,2`), rendered as a diamond. Never set by hand: created via `add --kind`, read via `show`/`brief`/`list --json`. (`quick` creates a plain `task`, not a distinct kind.) |
 | `code` | string \| null | Optional short human code (e.g. `B3`). |
 | `title` | string | The task title. |
 | `status` | `todo` \| `in_progress` \| `done` | Nothing else is valid. |
@@ -801,8 +801,7 @@ Enforced invariants: ids unique globally; every `dependsOn` id exists; no
 self-dependency; the `dependsOn` graph is acyclic; any `epic` is a lowercase/digit/hyphen
 slug or null; `heat` absent/null or a number in `[0, 100]` with ≤ 2 decimals; **`team`
 is forbidden** on any active task (removed from the model — `_archive/` keeps its old
-`team:` and is never re-validated); `kind` is one of `task`/`quick`/`milestone`; a
-`quick` cannot have `size: L`; a `quick` cannot be marked `done` without an `outcome`.
+`team:` and is never re-validated); `kind` is one of `task`/`milestone`.
 
 ```yaml
 id: 42
@@ -829,16 +828,16 @@ verification: null
 release: null
 ```
 
-A `quick` file is the same shape minus the ceremony — `kind: quick` is the only extra
-field, `detail`/`refs`/`dependsOn` stay empty, and `verification` can legitimately
-stay `null` even once `done`:
+A `milestone` file is the same shape with one extra field — `kind: milestone` is the
+only addition (`task`, the default, omits `kind` entirely). `--blocks` populates the
+`dependsOn` of the tasks it gates, so the milestone's own `dependsOn` can stay empty:
 
 ```yaml
 id: 69
-kind: quick
+kind: milestone
 code: null
-title: "Fix chevron alignment mobile nav"
-status: done
+title: "App public v1 shipped"
+status: todo
 tags: []
 size: null
 heat: null
@@ -849,9 +848,9 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-07"
-completedAt: "2026-07-07"
+completedAt: null
 commit: null
-outcome: "Mobile nav chevron re-centered vertically."
+outcome: null
 verification: null
 release: null
 ```
@@ -998,8 +997,8 @@ uninitialised repo.
 Written into the skill's core, run before creating anything:
 
 1. **Does this change even deserve to exist?** If not, create nothing.
-2. **Does a `quick` suffice** (isolated fix, size S, no decision to arbitrate)? →
-   `quick "…" [--type <t>] [--start]`, `done <id> --outcome "…"` alone closes it.
+2. **Is it a title-only fix** (isolated, nothing to fill in, no decision to arbitrate)? →
+   the `quick "…" [--type <t>] [--start]` fast path, then `done <id> --outcome "…"` closes it.
 3. **Otherwise, does one task suffice?** → `add`, the normal cycle below.
 4. **Otherwise** (multi-task, an architecture choice to settle): spec first, **then**
    the tasks (`references/planning.md`) — the hard gate from §1 of that reference.
@@ -1016,8 +1015,8 @@ Written into the skill's core, run before creating anything:
    *before* coding.
 3. **Verify the real artifact** — the file produced, the pixel rendered, the command
    run. Not just a typecheck.
-4. **Record** — `done <id> --commit <sha> --outcome "…" --verification "…"` for a
-   task (`--outcome` alone for a `quick` — it *is* the verification). The outcome says
+4. **Record** — `done <id> --commit <sha> --outcome "…" --verification "…"`.
+   `--verification` is encouraged but never blocking, on every task. The outcome says
    what shipped in one user-facing sentence; the verification says what was
    *observed*, never "it works". The task stays `done` in its type — the done
    backlog is the changelog.
@@ -1037,15 +1036,16 @@ proof before claiming success) are in the core's prohibitions below.
 - Do **not** touch `_meta.yaml` or reuse an id.
 - Do **not** write a status outside `todo|in_progress|done`, or a size outside
   `S|M|L`.
-- Do **not** `done` without an honest `--outcome`, and for a `task` (not a `quick`) a
-  `--verification` you actually ran — never "it should work".
+- Do **not** `done` without an honest `--outcome`, nor claim a `--verification` you
+  did not actually run — never "it should work" (verification is encouraged on every
+  task but never blocking).
 - Do **not** create markdown checklist plans or a parallel progress ledger — plans
   are `dependsOn` tasks, tracking is their status.
 - Do **not** code non-trivial work (ladder rung 4) before the spec is approved, fix a
   bug without understanding the root cause, or stack a fourth patch on an approach
   that failed three times.
 - Do **not** create a 10th type, rename a type, write a `team` field (removed), or a
-  `kind` outside `task | quick | milestone`.
+  `kind` outside `task | milestone`.
 - Do **not** reorder `_epics.yaml` expecting it to change priority — it doesn't;
   use `--heat` or a dependency.
 
@@ -1098,11 +1098,11 @@ locks is the agent's discipline; the dashboard and `next` simply never *offer* l
 work.
 
 **`quick` or `add`? Which one do I use?**
-Run the [decision ladder](#the-decision-ladder--stop-at-the-first-rung-that-holds):
-isolated fix, size S, nothing to decide → `quick`. Anything needing `detail`, `refs`,
-`dependsOn`, or a size beyond S → `add`. Validation enforces the boundary from one
-side (`kind: quick` + `size: L` is rejected) but not the other — nothing stops using
-`add` for a one-liner, it is just more ceremony than the work needs.
+Purely an ergonomic choice — both create an ordinary `task`, so this is a fast-path
+question, not a ceremony or kind difference. `quick` is the title-only route: an
+isolated fix with nothing to fill in beyond a title. Reach for `add` the moment you
+want to set `detail`, `refs`, `dependsOn`, a `size`, or any other field up front —
+nothing stops using `add` for a one-liner, it is just more to type than the work needs.
 
 **How do I make a task more urgent?**
 Set `--heat` on it (`add --heat`/`update --heat`, 0–100), or make another task

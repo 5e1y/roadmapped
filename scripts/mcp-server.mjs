@@ -214,14 +214,14 @@ export function makeTools(ROOT) {
   // (heat hors bornes, cycle, section absente) revient en isError avec le message du noyau.
   {
     name: 'add',
-    description: 'Creates a task. type (nature/section) REQUIRED. For a mini-ticket, prefer quick; kind milestone = MILESTONE (lock via dependsOn).',
+    description: 'Creates a task. type (nature/section) REQUIRED. For a rapid title-only task use quick; kind milestone = MILESTONE (lock via dependsOn).',
     inputSchema: {
       type: 'object',
       properties: {
         section: S.section,
         title: { type: 'string' },
         heat: S.heat,
-        kind: { type: 'string', enum: ['task', 'quick', 'milestone'], description: 'default task; milestone = milestone (rendered as diamond, target of dependsOn)' },
+        kind: { type: 'string', enum: ['task', 'milestone'], description: 'default task; milestone = milestone (rendered as diamond, target of dependsOn)' },
         detail: { type: 'string' },
         tags: { type: 'array', items: { type: 'string' } },
         size: { type: 'string', enum: ['S', 'M', 'L'] },
@@ -268,7 +268,7 @@ export function makeTools(ROOT) {
   },
   {
     name: 'quick',
-    description: 'Creates a mini-ticket (kind:quick): title suffices (default type = 1st open one). --start chains the start. At done, outcome is required but verification is optional.',
+    description: 'Rapid-create alias for a task (#250 — kind:quick removed): title suffices (default type = 1st open one). --start chains the start.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -284,8 +284,8 @@ export function makeTools(ROOT) {
       // type nu ("feature") → section canonique via TYPES ; sinon défaut = 1er type open.
       const canon = a.type ? (TYPES.find((t) => t.slug === a.type || t.slug.replace(/^\d+-/, '') === a.type)?.slug) : undefined
       const section = canon ?? readTree(ROOT).sections.find((s) => s.status === 'open')?.key
-      if (!section) return fail('No "open" type to host the quick — specify type.')
-      const res = addTask(ROOT, { section, title: a.title, heat: a.heat, tags: splitList(a.tags), kind: 'quick' })
+      if (!section) return fail('No "open" type to host the task — specify type.')
+      const res = addTask(ROOT, { section, title: a.title, heat: a.heat, tags: splitList(a.tags) })
       if (!res.ok) return fromRes(res)
       if (a.start) {
         const s = startTask(ROOT, res.task.id)
@@ -293,7 +293,7 @@ export function makeTools(ROOT) {
       }
       const tree = readTree(ROOT)
       const hit = findTask(tree, res.task.id)
-      return ok(`#${res.task.id} created (quick)${a.start ? ' and started' : ''}.`, hit.task)
+      return ok(`#${res.task.id} created${a.start ? ' and started' : ''}.`, hit.task)
     },
   },
   {
@@ -304,7 +304,7 @@ export function makeTools(ROOT) {
   },
   {
     name: 'done',
-    description: 'Logs a delivery (→ done). Without commit, the app fills in HEAD. outcome = what was delivered; verification = what was OBSERVED (optional for a quick).',
+    description: 'Logs a delivery (→ done). Without commit, the app fills in HEAD. outcome = what was delivered; verification = what was OBSERVED (encouraged, non-blocking).',
     inputSchema: {
       type: 'object',
       properties: {

@@ -1,5 +1,4 @@
 id: 141
-kind: quick
 code: null
 title: >-
   Bug Backlog : on peut scroller toute la vue dans le vide (elle remonte) — régression

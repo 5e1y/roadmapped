@@ -16,8 +16,8 @@ Flat YAML/markdown files under `docs/tasks/` are the ONLY source of truth (no pa
 **Feedback vs quick (#149) — the same-scope exception.** A note on a task that isn't a change yet → `feedback <id> "…"` (captured, no ticket). When you ACT on it: SAME scope (finishing the same thing) → **reopen** the task (`start <id>`) and re-`done` with a new commit — git keeps every commit, the task carries the journal, no twin ticket. NEW scope (a different concern) → a `quick`, as always. `sitrep` flags done tasks with open feedback.
 
 1. Does this change even deserve to exist? If not, create nothing.
-2. Does a `quick` suffice (isolated fix, size S, no decisions to make)? → `quick`, done with `--outcome` alone.
-3. Otherwise, does a single task suffice? → `add`, normal cycle.
+2. Isolated fix, size S, nothing to decide? → `quick "<title>"` (the rapid title-only way to create a task).
+3. Otherwise, does a single task with full context suffice? → `add`, normal cycle.
 4. Otherwise (multi-task, architecture calls to make): spec first, THEN the tasks (`references/planning.md`).
 
 ## Which type? — first match wins (the deliverable's NATURE, never its purpose or who does it)
@@ -40,7 +40,7 @@ There's no "do this column first" and no "epics in priority order" (an epic is a
 
 ## The cycle
 
-`sitrep` (the state of the world in 1 call — THE 1st move of a session) → `take [--type t]` (claims + starts + briefs in 1 call) → work (`detail` + `refs`) → verify the REAL artefact (not just the typecheck) → `done <id> --outcome "…" --verification "…"` (`--commit` auto-fills to HEAD; for a `quick`: `--outcome` alone suffices).
+`sitrep` (the state of the world in 1 call — THE 1st move of a session) → `take [--type t]` (claims + starts + briefs in 1 call) → work (`detail` + `refs`) → verify the REAL artefact (not just the typecheck) → `done <id> --outcome "…" --verification "…"` (`--commit` auto-fills to HEAD; `--verification` is encouraged but non-blocking on every task — `--outcome` alone still closes a trivial one).
 
 Two guard mechanics to internalise: (1) a unit must be `in_progress` BEFORE you commit its work — `take`/`start`/`quick --start` first, or the commit is refused. (2) `done` mutates the task YAML, so that YAML is left uncommitted — commit it as a task-log-only follow-up (`chore: consigne — done #<id>`); the guard exempts commits that touch ONLY `docs/tasks/`.
 
@@ -54,8 +54,8 @@ A deliberate shortcut (known ceiling, upgrade path) gets logged as `quick "<the 
 - `take [--type t] [--json]` — next + start + brief, THE command to open work.
 - `brief <id>` — dense execution context (titled deps/related, refs + anchor excerpts & staleness flag, `done` reminder).
 - `next [--count N] [--type t] [--json]` — the work queue, temperature-sorted — CONSUME as-is.
-- `quick "<title>" [--type t] [--tags a,b] [--heat 0-100] [--start] [--json]` — mini-ticket, minimal ceremony (type defaults to the first open one).
-- `add --type <type> --title <t> [--detail d] [--tags a,b] [--heat 0-100] [--refs a,b] [--depends-on 1,2] [--epic slug] [--kind task|quick|milestone] [--blocks 1,2] [--json]` — create a task (`--type` = the exact folder slug, e.g. `02-feature` — REQUIRED; `--epic` = cross-type grouping, unordered; `--kind milestone` + `--blocks` = a milestone that locks the cited tasks via their dependsOn).
+- `quick "<title>" [--type t] [--tags a,b] [--heat 0-100] [--start] [--json]` — rapid-create alias for a task: title suffices (type defaults to the first open one).
+- `add --type <type> --title <t> [--detail d] [--tags a,b] [--heat 0-100] [--refs a,b] [--depends-on 1,2] [--epic slug] [--kind task|milestone] [--blocks 1,2] [--json]` — create a task (`--type` = the exact folder slug, e.g. `02-feature` — REQUIRED; `--epic` = cross-type grouping, unordered; `--kind milestone` + `--blocks` = a milestone that locks the cited tasks via their dependsOn).
 - `start <id>` — todo → in_progress.
 - `done <id> [--commit sha] [--outcome o] [--verification v] [--release r] [--suggest-refs] [--resolve-feedback all|1,3]` — log completion (commit auto=HEAD; `--suggest-refs` suggests refs from the diff, to confirm; `--resolve-feedback` closes open feedback items).
 - `feedback <id> "<text>" [--author name]` — capture a note on a task WITHOUT a ticket (#149). Same scope → reopen (`start <id>`) + re-`done`; new scope → a `quick`.

@@ -1,5 +1,4 @@
 id: 242
-kind: quick
 code: null
 title: >-
   Retirer le FilterMenu 'All types' du header Backlog — redondant : le radar pose le filtre, le

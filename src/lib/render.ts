@@ -61,7 +61,7 @@ export function renderRef(ref: string, createdAt: string): string {
 /**
  * LE contexte d'exécution complet et dense d'une tâche (équivalent CLI du « brief
  * agent »). Zéro navigation : deps/liées/sous-tâches titrées, refs + extraits/fraîcheur,
- * rappel done en pied (verification omise pour un quick).
+ * rappel done en pied.
  */
 export function briefText(tree: TaskTree, hit: FoundTask): string {
   const t = hit.task
@@ -78,11 +78,7 @@ export function briefText(tree: TaskTree, hit: FoundTask): string {
   if (t.dependsOn.length) { out.push('depends on:'); for (const d of t.dependsOn) out.push(`  ${refLine(tree, d)}`) }
   if (t.links.length) { out.push('linked:'); for (const l of t.links) out.push(`  ${refLine(tree, l)}`) }
   if (t.subtasks.length) { out.push('subtasks:'); for (const s of t.subtasks) out.push(`  ${refLine(tree, s.id)}`) }
-  out.push(
-    t.kind === 'quick'
-      ? `done ${t.id} --commit <sha> --outcome "…"`
-      : `done ${t.id} --commit <sha> --outcome "…" --verification "…"`,
-  )
+  out.push(`done ${t.id} --commit <sha> --outcome "…" --verification "…"`)
   return out.join('\n')
 }
 

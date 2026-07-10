@@ -1,5 +1,4 @@
 id: 232
-kind: quick
 code: null
 title: >-
   Fix ancienneté : date seule (completedAt) parsée en UTC minuit → décalage jusqu'à ~24h (« 22h ago
