@@ -163,7 +163,7 @@ export function ToastViewport() {
         <Toast.Root
           key={toast.id}
           toast={toast}
-          className="rounded-md border border-neutral-200 bg-white px-3 py-2.5 shadow-lg transition-opacity duration-150 data-[ending]:opacity-0 data-[starting]:opacity-0 motion-reduce:transition-none"
+          className="border border-neutral-200 bg-white px-3 py-2.5 shadow-lg transition-opacity duration-150 data-[ending]:opacity-0 data-[starting]:opacity-0 motion-reduce:transition-none"
         >
           {/* Aligné sur le popup Activity (filet neutral-200, shadow-lg, rounded-md,
               monochrome) — un petit Check accent signale la tâche bouclée (l'accent
