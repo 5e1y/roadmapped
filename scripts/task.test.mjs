@@ -221,49 +221,53 @@ describe('CLI erreurs autoportantes — usage exact de la commande fautive (#65)
   })
 })
 
-describe('CLI quick — mini-tickets (#66)', () => {
-  it('cycle complet en 2 commandes : quick --start puis done --outcome (sans verification) → OK', () => {
+describe('CLI quick — alias de création rapide d\'une task (#250 — kind quick supprimé)', () => {
+  it('cycle complet en 2 commandes : quick --start puis done --outcome → OK, crée une TASK', () => {
     const created = runTask(['quick', 'fix chevron', '--start'])
     expect(created.code).toBe(0)
-    expect(created.stdout).toMatch(/#2 created \(quick\)/)
+    expect(created.stdout).toMatch(/#2 created\./)
+    expect(created.stdout).not.toMatch(/quick/) // le message ne parle plus de quick
     expect(created.stdout).toMatch(/#2 started/)
     const done = runTask(['done', '2', '--outcome', 'chevron redressé'])
     expect(done.code).toBe(0)
     // Type par défaut = 1er type open : dans ce sandbox les 9 sont open → 01-bug.
     const t = load(readFileSync(join(tasksDir, '01-bug', '01-fix-chevron.yaml'), 'utf8'))
-    expect(t.kind).toBe('quick')
+    expect(t.kind ?? 'task').toBe('task') // kind omis du YAML (task par défaut)
     expect(t.status).toBe('done')
     expect(t.outcome).toBe('chevron redressé')
-    expect(t.verification).toBeNull() // facultative pour un quick
+    expect(t.verification).toBeNull() // encouragée mais non bloquante
   })
 
-  it('quick sans type → atterrit dans le premier type open (01-bug ici)', () => {
+  it('quick sans type → atterrit dans le premier type open (01-bug ici), en task', () => {
     const r = runTask(['quick', 'petit truc'])
     expect(r.code).toBe(0)
-    expect(r.stdout).toMatch(/#2 created \(quick\)/)
+    expect(r.stdout).toMatch(/#2 created\./)
     const t = load(readFileSync(join(tasksDir, '01-bug', '01-petit-truc.yaml'), 'utf8'))
-    expect(t.kind).toBe('quick')
+    expect(t.kind ?? 'task').toBe('task')
+    expect(t).not.toHaveProperty('kind') // jamais matérialisé pour une task
   })
 
-  it('done d\'un quick SANS outcome échoue (outcome requis)', () => {
+  it('done SANS outcome NE bloque PLUS (plus de requis propre au quick)', () => {
     runTask(['quick', 'sans issue', '--start'])
     const r = runTask(['done', '2'])
-    expect(r.code).not.toBe(0)
-    expect(r.stderr).toMatch(/outcome/)
+    expect(r.code).toBe(0)
+    const t = load(readFileSync(join(tasksDir, '01-bug', '01-sans-issue.yaml'), 'utf8'))
+    expect(t.status).toBe('done')
   })
 
-  it('quick en size L est refusé (via update size L → rollback)', () => {
+  it('une task créée via quick PEUT passer en size L (plus de garde-fou quick/L)', () => {
     runTask(['quick', 'gros truc'])
     const r = runTask(['update', '2', '--size', 'L'])
-    expect(r.code).not.toBe(0)
-    expect(r.stderr).toMatch(/quick.*L|L.*quick/)
+    expect(r.code).toBe(0)
+    const t = load(readFileSync(join(tasksDir, '01-bug', '01-gros-truc.yaml'), 'utf8'))
+    expect(t.size).toBe('L')
   })
 
   it('quick apparaît dans la file next (servi comme une task)', () => {
     runTask(['quick', 'à prendre'])
     const r = runTask(['next', '--count', '5', '--json'])
     const arr = JSON.parse(r.stdout)
-    expect(arr.some((t) => t.id === 2 && t.kind === 'quick')).toBe(true)
+    expect(arr.some((t) => t.id === 2 && (t.kind ?? 'task') === 'task')).toBe(true)
   })
 })
 

@@ -1,5 +1,4 @@
 id: 240
-kind: quick
 code: null
 title: >-
   BUG onboarding : init dans un repo SANS package.json → devDep roadmapped non ajoutée → npm install

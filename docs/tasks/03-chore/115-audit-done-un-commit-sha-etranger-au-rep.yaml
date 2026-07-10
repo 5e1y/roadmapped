@@ -1,5 +1,4 @@
 id: 143
-kind: quick
 code: null
 title: >-
   Audit/done : un commit sha étranger au repo (travail dans un autre repo, ex. site) devient une

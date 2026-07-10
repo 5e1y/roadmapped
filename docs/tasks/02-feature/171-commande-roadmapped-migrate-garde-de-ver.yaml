@@ -1,5 +1,4 @@
 id: 248
-kind: quick
 code: null
 title: >-
   Commande roadmapped migrate + garde de version : industrialiser migrate-types.mjs en commande

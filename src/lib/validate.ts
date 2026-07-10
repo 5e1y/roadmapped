@@ -18,18 +18,13 @@ function validateTask(task: TaskNode, path: string, errors: string[]) {
   if (!task.title) errors.push(`${path}: title manquant`)
   if (!TASK_STATUSES.includes(task.status)) errors.push(`${path}: status invalide (${task.status})`)
   if (!SIZES.includes(task.size)) errors.push(`${path}: size invalide (${task.size})`)
-  // kind : 'task' | 'quick' | 'milestone' (toTaskNode met 'task' par défaut ; une
-  // valeur brute invalide remonte telle quelle et est rejetée ici).
-  if (!['task', 'quick', 'milestone'].includes(task.kind)) errors.push(`${path}: kind invalide (${task.kind}) — attendu task, quick ou milestone`)
-  // Garde-fou : un quick reste un mini-ticket. Size L = trop gros = c'est un ticket.
-  if (task.kind === 'quick' && task.size === 'L') {
-    errors.push(`${path}: un quick ne peut pas être en size L (si c'est gros, c'est un ticket, pas un quick)`)
-  }
-  // Requis outcome-quick : porté par la VALIDATION (pas seulement doneTask) pour
-  // couvrir AUSSI le done du dashboard (PATCH status=done via updateTask, qui ne
-  // passe pas par doneTask).
-  if (task.kind === 'quick' && task.status === 'done' && !task.outcome) {
-    errors.push(`${path}: un quick terminé exige un outcome (l'outcome tient lieu de vérification)`)
+  // kind : 'task' | 'milestone' (toTaskNode met 'task' par défaut ; une valeur brute
+  // invalide remonte telle quelle et est rejetée ici). L'ex-'quick' (#250) est
+  // explicitement rejeté sur une tâche active — message dédié pour guider la migration.
+  if ((task.kind as string) === 'quick') {
+    errors.push(`${path}: kind 'quick' supprimé du modèle (#250) — utilise task (le type de colonne + size suffisent)`)
+  } else if (!['task', 'milestone'].includes(task.kind)) {
+    errors.push(`${path}: kind invalide (${task.kind}) — attendu task ou milestone`)
   }
   // heat (#230/#231) : seed de priorité OPTIONNEL. Absent/null = valide (froid).
   // Sinon : nombre fini, 0 ≤ heat ≤ 100, au plus 2 décimales.

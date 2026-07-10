@@ -197,7 +197,7 @@ export interface RelPreview {
   id: number
   title: string
   status: 'todo' | 'in_progress' | 'done'
-  kind: 'task' | 'quick' | 'milestone'
+  kind: 'task' | 'milestone'
   /** Stage court (« build », « gtm »…) dérivé du dossier de la tâche. */
   stage: string
 }
@@ -252,7 +252,7 @@ export function Select({
   disabled?: boolean
   /** Peau camouflée (ghostCls) — pour les champs permanents du panneau. */
   ghost?: boolean
-  /** Variante compacte du corps des vues (MiniZone) : hauteur réduite
+  /** Variante compacte du corps des vues : hauteur réduite
       (py-1, text-xs) — rounded 4px comme tout contrôle du corps (design.md §1). */
   compact?: boolean
   'aria-label'?: string

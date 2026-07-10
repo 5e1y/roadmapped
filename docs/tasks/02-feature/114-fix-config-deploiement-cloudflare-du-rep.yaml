@@ -1,5 +1,4 @@
 id: 142
-kind: quick
 code: null
 title: >-
   Fix config déploiement Cloudflare du repo site (wrangler.jsonc — Worker roadmapped-site déjà

@@ -63,7 +63,7 @@ describe('MCP — tools de lecture (#91)', () => {
   })
 
   it('list --tag debt filtre le ledger de dette', () => {
-    addTask(dir, { section: '02-feature', title: 'Dette assumée', tags: ['debt'], kind: 'quick' }) // #2
+    addTask(dir, { section: '02-feature', title: 'Dette assumée', tags: ['debt'] }) // #2
     const r = makeTools(dir).find((t) => t.name === 'list').handler({ tag: 'debt' })
     expect(r.content[0].text).toMatch(/Dette assumée/)
     expect(r.content[0].text).not.toMatch(/#1 {2}/)
@@ -84,9 +84,9 @@ describe('MCP — tools d’écriture (#92)', () => {
     expect(makeTools(dir).find((t) => t.name === 'validate').handler({}).structuredContent.ok).toBe(true)
   })
 
-  it('quick --start crée un mini-ticket in_progress', () => {
+  it('quick --start crée une TASK in_progress (alias rapide, #250)', () => {
     const r = tool('quick').handler({ title: 'Fix rapide', start: true })
-    expect(r.structuredContent.kind).toBe('quick')
+    expect(r.structuredContent.kind).toBe('task')
     expect(r.structuredContent.status).toBe('in_progress')
   })
 
@@ -109,11 +109,11 @@ describe('MCP — tools d’écriture (#92)', () => {
     expect(makeTools(dir).find((t) => t.name === 'next').handler({ count: 9 }).content[0].text).toBe(before)
   })
 
-  it('done d’un quick sans outcome → isError (message du noyau)', () => {
+  it('done sans outcome NE bloque PLUS (plus de requis propre au quick, #250)', () => {
     const q = tool('quick').handler({ title: 'Sans outcome', start: true })
     const r = tool('done').handler({ id: q.structuredContent.id })
-    expect(r.isError).toBe(true)
-    expect(r.content[0].text).toMatch(/outcome requis/)
+    expect(r.isError).toBeFalsy()
+    expect(r.structuredContent.task.status).toBe('done')
   })
 })
 

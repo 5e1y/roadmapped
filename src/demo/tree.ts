@@ -54,7 +54,6 @@ release: null
 
   // ------------------------------------------------------------ 09-business
   'docs/tasks/09-business/01-name-check-roadmapped-work.yaml': `id: 2
-kind: "quick"
 title: "Name check: roadmapped.work"
 status: "done"
 tags:
@@ -295,7 +294,6 @@ release: null
 
   // ------------------------------------------------------------ 01-bug
   'docs/tasks/01-bug/01-kill-the-horizontal-scroll.yaml': `id: 11
-kind: "quick"
 title: "Kill the horizontal scroll on mobile"
 status: "done"
 tags:

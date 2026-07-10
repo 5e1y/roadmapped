@@ -159,15 +159,23 @@ describe('start / done', () => {
   })
 })
 
-describe('kind quick (mini-tickets)', () => {
-  it('addTask kind: quick écrit "kind: quick" juste après id', () => {
-    const res = add({ title: 'Fix chevron', kind: 'quick' } as any)
+describe('kind (task | milestone, #250 — quick supprimé)', () => {
+  it('addTask kind: milestone écrit "kind: milestone" juste après id', () => {
+    const res = add({ title: 'Jalon v1', kind: 'milestone' })
     expect(res.ok).toBe(true)
     if (!res.ok) return
-    expect((res.task as any).kind).toBe('quick')
-    const yamlText = readFileSync(join(dir, SEC, '01-fix-chevron.yaml'), 'utf8')
+    expect(res.task?.kind).toBe('milestone')
+    const yamlText = readFileSync(join(dir, SEC, '01-jalon-v1.yaml'), 'utf8')
     expect(yamlText.indexOf('kind:')).toBeGreaterThan(yamlText.indexOf('id:'))
     expect(yamlText.indexOf('kind:')).toBeLessThan(yamlText.indexOf('title:'))
+  })
+
+  it('addTask ne matérialise JAMAIS "kind: quick" (le kind quick est retombé sur task)', () => {
+    const res = add({ title: 'Ex quick', kind: 'quick' as any })
+    expect(res.ok).toBe(true)
+    if (!res.ok) return
+    expect(res.task?.kind).toBe('task')
+    expect(readFileSync(join(dir, SEC, '01-ex-quick.yaml'), 'utf8')).not.toContain('kind:')
   })
 
   it('une tâche normale (kind absent) ne matérialise JAMAIS "kind: null" dans le YAML', () => {
@@ -179,22 +187,17 @@ describe('kind quick (mini-tickets)', () => {
     expect(readFileSync(join(dir, SEC, '01-normale.yaml'), 'utf8')).not.toContain('kind:')
   })
 
-  it('doneTask sur un quick EXIGE un outcome (verification facultative)', () => {
-    add({ title: 'Q', kind: 'quick' } as any)
+  it('doneTask sans outcome NE bloque PLUS (plus d\'exception quick) — verification non bloquante', () => {
+    add({ title: 'Trivial', refs: ['src/x.ts'] }) // refs pour éviter le warning refs
     startTask(dir, 1)
-    const sansOutcome = doneTask(dir, 1, {})
-    expect(sansOutcome.ok).toBe(false)
-    if (sansOutcome.ok) return
-    expect(sansOutcome.errors.some((e) => e.includes('outcome'))).toBe(true)
-    // avec outcome seul (pas de verification) → OK
-    const avec = doneTask(dir, 1, { outcome: 'chevron droit' })
-    expect(avec.ok).toBe(true)
-    if (!avec.ok) return
-    expect(sectionOf(avec.tree).tasks[0].outcome).toBe('chevron droit')
-    expect(sectionOf(avec.tree).tasks[0].verification).toBeNull()
+    const res = doneTask(dir, 1, {})
+    expect(res.ok).toBe(true)
+    if (!res.ok) return
+    expect(sectionOf(res.tree).tasks[0].status).toBe('done')
+    expect(sectionOf(res.tree).tasks[0].verification).toBeNull()
   })
 
-  it('doneTask sur une task (non quick) SANS refs → succès + warning non bloquant', () => {
+  it('doneTask sur une task SANS refs → succès + warning non bloquant', () => {
     add({ title: 'Sans refs' }) // refs vides par défaut
     const res = doneTask(dir, 1, { outcome: 'livré' })
     expect(res.ok).toBe(true)

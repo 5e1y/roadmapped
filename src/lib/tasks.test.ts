@@ -144,14 +144,14 @@ describe('buildTaskTree — kind (mini-tickets & jalons)', () => {
     expect(buildTaskTree(files).sections[0].tasks[0].kind).toBe('task')
   })
 
-  it('kind: quick lu quand présent', () => {
+  it('kind legacy/inconnu (ex-quick #250) lu VERBATIM au parse — la coercion est refusée, validate le rejette', () => {
     const files = {
       '/docs/tasks/_meta.yaml': 'nextId: 2\n',
       '/docs/tasks/01-x/_section.yaml': 'title: "X"\nstatus: open\n',
       '/docs/tasks/01-x/01-t.yaml':
         'id: 1\nkind: quick\ntitle: "T"\nstatus: todo\nsource: ai\ncreatedAt: "2026-07-07"\n',
     }
-    expect(buildTaskTree(files).sections[0].tasks[0].kind).toBe('quick')
+    expect(buildTaskTree(files).sections[0].tasks[0].kind as string).toBe('quick')
   })
 
   it('kind: milestone lu quand présent (jalon, #133)', () => {

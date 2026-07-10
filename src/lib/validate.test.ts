@@ -204,17 +204,18 @@ describe('validateTaskTree — deps & epics', () => {
   })
 })
 
-describe('validateTaskTree — kind quick (mini-tickets)', () => {
+describe('validateTaskTree — kind (task | milestone, #250 — quick supprimé)', () => {
   const meta = '/docs/tasks/_meta.yaml'
   const base = (id: number, extra = '') =>
     `id: ${id}\ntitle: "T${id}"\nstatus: todo\nsource: ai\ncreatedAt: "2026-07-07"\n${extra}`
 
-  it('accepte kind: quick', () => {
+  it('REJETTE kind: quick sur une tâche active (message dédié #250)', () => {
     const files = {
       [meta]: 'nextId: 2\n', ...stageSectionFiles(),
       '/docs/tasks/02-feature/01-t.yaml': base(1, 'kind: quick\n'),
     }
-    expect(validateTaskTree(buildTaskTree(files))).toEqual([])
+    const errs = validateTaskTree(buildTaskTree(files))
+    expect(errs.some((e) => e.includes('quick') && e.includes('#250'))).toBe(true)
   })
 
   it('rejette un kind inconnu', () => {
@@ -225,6 +226,15 @@ describe('validateTaskTree — kind quick (mini-tickets)', () => {
     expect(validateTaskTree(buildTaskTree(files)).some((e) => e.includes('kind'))).toBe(true)
   })
 
+  it('accepte kind: task (défaut) et kind absent', () => {
+    const files = {
+      [meta]: 'nextId: 3\n', ...stageSectionFiles(),
+      '/docs/tasks/02-feature/01-t.yaml': base(1, 'kind: task\n'),
+      '/docs/tasks/02-feature/02-t.yaml': base(2),
+    }
+    expect(validateTaskTree(buildTaskTree(files))).toEqual([])
+  })
+
   it('accepte kind: milestone (jalon, #133)', () => {
     const files = {
       [meta]: 'nextId: 2\n', ...stageSectionFiles(),
@@ -233,36 +243,19 @@ describe('validateTaskTree — kind quick (mini-tickets)', () => {
     expect(validateTaskTree(buildTaskTree(files))).toEqual([])
   })
 
-  it('rejette un quick en size L (garde-fou : si c\'est gros, c\'est un ticket)', () => {
+  it('un task done SANS outcome est valide (plus de requis outcome propre au quick)', () => {
     const files = {
       [meta]: 'nextId: 2\n', ...stageSectionFiles(),
-      '/docs/tasks/02-feature/01-t.yaml': base(1, 'kind: quick\nsize: L\n'),
-    }
-    expect(validateTaskTree(buildTaskTree(files)).some((e) => e.includes('quick') && e.includes('L'))).toBe(true)
-  })
-
-  it('accepte un quick en size S ou M', () => {
-    const files = {
-      [meta]: 'nextId: 2\n', ...stageSectionFiles(),
-      '/docs/tasks/02-feature/01-t.yaml': base(1, 'kind: quick\nsize: S\n'),
+      '/docs/tasks/02-feature/01-t.yaml':
+        'id: 1\ntitle: "T"\nstatus: done\nsource: ai\ncreatedAt: "2026-07-07"\ncompletedAt: "2026-07-07"\n',
     }
     expect(validateTaskTree(buildTaskTree(files))).toEqual([])
   })
 
-  it('rejette un quick done SANS outcome (le requis vit dans la validation, couvre le dashboard)', () => {
+  it('un task en size L est valide (plus de garde-fou quick/L)', () => {
     const files = {
       [meta]: 'nextId: 2\n', ...stageSectionFiles(),
-      '/docs/tasks/02-feature/01-t.yaml':
-        'id: 1\nkind: quick\ntitle: "T"\nstatus: done\nsource: ai\ncreatedAt: "2026-07-07"\ncompletedAt: "2026-07-07"\n',
-    }
-    expect(validateTaskTree(buildTaskTree(files)).some((e) => e.includes('outcome'))).toBe(true)
-  })
-
-  it('accepte un quick done AVEC outcome (verification facultative)', () => {
-    const files = {
-      [meta]: 'nextId: 2\n', ...stageSectionFiles(),
-      '/docs/tasks/02-feature/01-t.yaml':
-        'id: 1\nkind: quick\ntitle: "T"\nstatus: done\nsource: ai\ncreatedAt: "2026-07-07"\ncompletedAt: "2026-07-07"\noutcome: "chevron corrigé"\n',
+      '/docs/tasks/02-feature/01-t.yaml': base(1, 'size: L\n'),
     }
     expect(validateTaskTree(buildTaskTree(files))).toEqual([])
   })
