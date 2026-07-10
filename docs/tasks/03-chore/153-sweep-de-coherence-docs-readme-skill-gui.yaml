@@ -1,0 +1,54 @@
+id: 273
+code: null
+title: Sweep de cohérence docs (README, skill, guide) + spec de MAJ du site marketing
+status: done
+tags:
+  - docs
+  - publish
+  - consistency
+size: null
+detail: >-
+  Aligner tous les docs annexes sur la réalité actuelle après les gros changements récents : modèle
+  jalons v2 (9 TYPES + température, plus de stages/teams/quick), dashboard COMPILÉ servi par un
+  serveur node (plus Vite dev, install 109→31 Mo), Node-only v1, dark mode + toggle, issue forms +
+  bouton Report. Livrables : (1) une spec de handoff dans docs/specs/ pour l'agent du site
+  5e1y/roadmapped-site (surtout le 'comment ça marche') ; (2) corriger README.md, docs/guide.md, le
+  skill roadmapped, la USAGE du bin, install.mjs — toute mention périmée (8-stage skeleton, teams,
+  Vite dev, 109 Mo, quick).
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-10T23:32:37"
+startedAt: "2026-07-10T23:32:41"
+updatedAt: "2026-07-10T23:40:16"
+completedAt: "2026-07-10"
+commit: 5b1f602
+outcome: >-
+  Sweep de cohérence des docs annexes + spec de handoff pour l'agent du site. (1) docs/guide.md :
+  corrigé les périmés « comment ça marche » — install GitHub-only (npm install --save-dev
+  github:5e1y/roadmapped, plus le registre npm), dashboard PRÉBUILT (nuance sur « no build step » :
+  CLI/MCP en .ts brut mais dashboard buildé), 4 vues + tabs header + toggle thème (plus « three-view
+  app / left sidebar »), serveur local qui auto-incrémente (plus « Vite auto-increment »), install
+  ~30 Mo. (2) docs/site-copy.md (copy canonique du site) : CTA + Quickstart en forme github: +
+  prérequis Node ; Features réécrites (1 folder/type × 9, priorité=température pas de dates, roadmap
+  computed, agent-first+validated, app locale live clair/sombre install légère) ; « How it works »
+  enrichi du serveur local + live SSE + rien d'hébergé — ton de voix Rémi préservé. (3) bin USAGE +
+  scripts/install.mjs : « 8-stage skeleton » → « 9-type skeleton ». (4) docs/design.md : « team
+  badge on Roadmap cards » + « mini quick-add » → exemples actuels (chips code/size, TempBadge ;
+  epic title inline + heat input). (5) README : nouveau point « Why » sur l'install légère
+  (dashboard prébuilt, ~30 Mo, Node ≥22.18). (6) NEW docs/specs/2026-07-11-site-update-handoff.md :
+  brief complet pour l'agent de 5e1y/roadmapped-site — sources de vérité (site-copy.md,
+  tone-of-voice.md, guide.md), les 6 changements produit (types+température, GitHub-only, install
+  légère, dashboard local/live/pas-SaaS-ni-natif, Node-only, dark mode + script anti-flash pour la
+  démo), checklist de suppression (npm/stages/teams/dates/download/SaaS), messages à mettre,
+  SEO/meta, critères de fini. Skill vérifié déjà à jour (grep : aucun vite/109/sidebar/build-step ;
+  note Node en place) → aucun changement.
+verification: >-
+  Grep de résiduels sur README/bin/install/guide/site-copy/design : « 8-stage » 0, « install
+  roadmapped » (registre) 0, « Vite dev/three-view/left sidebar/no build step » 0 dans guide+site, «
+  team badge/mini quick-add » 0 dans design. Confirmé que install.mjs scaffolde bien les 9 types
+  canoniques (pas un bug, juste le commentaire était périmé) et que --stage/--section restent des
+  alias acceptés (guide correct). Docs uniquement — tsc/tests non impactés.
+release: null
