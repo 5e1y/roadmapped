@@ -37,8 +37,14 @@ Then:
    reads your existing plans, roadmaps, TODOs and specs and converts them into the backlog,
    with your sign-off on the mapping. From there, `npx roadmapped <cmd>` drives everything.
 
-> Needs a repo with a `package.json` (the hooks and MCP entry live in `node_modules/roadmapped/`).
-> Node ≥ 22.18.
+> **Requirements:** Node ≥ 22.18 in the host repo. Roadmapped installs itself as a dev
+> dependency, so the repo needs a `package.json` (the guard hook, `SessionStart` hook and
+> MCP entry all resolve through `node_modules/roadmapped/`).
+>
+> **Non-Node repo (Python, Go, Rust…)?** Add a minimal `package.json` at the root
+> (`npm init -y` is enough — Roadmapped only uses it to install itself), or track the project
+> from a sibling Node repo. First-class non-Node support (an npx fallback or a standalone
+> launcher) is on the roadmap, not in v1.
 
 ## Why
 
