@@ -29,6 +29,8 @@ export function BirdMascot({ scale = 2, gap = 6000 }: { scale?: number; gap?: nu
 
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
+    // Le logo regarde à DROITE (décision Rémi). Les frames canoniques sont
+    // dessinées face à gauche -> on miroir horizontalement au rendu (x inversé).
     const draw = (anim: BirdAnim, fi: number) => {
       ctx.clearRect(0, 0, cols * scale, rows * scale)
       const grid = anim.frames[fi]
@@ -38,7 +40,7 @@ export function BirdMascot({ scale = 2, gap = 6000 }: { scale?: number; gap?: nu
           const col = BIRD_PALETTE[line[c]]
           if (col) {
             ctx.fillStyle = col
-            ctx.fillRect(c * scale, r * scale, scale, scale)
+            ctx.fillRect((anim.cols - 1 - c) * scale, r * scale, scale, scale)
           }
         }
       }
