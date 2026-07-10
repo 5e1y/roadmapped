@@ -45,6 +45,8 @@ Plumbing (host repo):
              .claude/ skill, .mcp.json entry, chained guard hook) — idempotent
   upgrade    update the tool's files (skill, MCP, hook) —
              NEVER touches docs/tasks/ or roadmapped.config.json
+  migrate    upgrade an OLD-model backlog (stages+teams) to the type-based
+             model — idempotent, no-op if already migrated
   dashboard  launch the dashboard (Vite dev + write API) on the current repo
 
 Any other command is proxied to the task management CLI:`
@@ -55,6 +57,13 @@ switch (cmd) {
     const { runInit, runUpgrade } = await importPkg('scripts/install.mjs')
     ;(cmd === 'init' ? runInit : runUpgrade)()
     break
+  }
+
+  case 'migrate': {
+    // Migration du modèle (#248) : ancien backlog (stages+team+quick) → jalons par
+    // type. Idempotent. Tourne dans le repo HÔTE (cwd préservé), loader TS pour TYPES.
+    const r = spawnSync(process.execPath, nodeTs('migrate.mjs', rest), { stdio: 'inherit' })
+    process.exit(r.status ?? 1)
   }
 
   case 'dashboard': {

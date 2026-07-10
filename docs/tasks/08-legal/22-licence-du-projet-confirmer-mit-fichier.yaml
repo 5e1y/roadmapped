@@ -1,7 +1,7 @@
 id: 217
 code: null
 title: "Licence du projet : confirmer MIT, fichier LICENSE (holder, année), cohérence README/site"
-status: todo
+status: done
 tags:
   - legal
   - publish
@@ -17,9 +17,19 @@ dependsOn: []
 epic: legal-readiness
 source: ai
 createdAt: "2026-07-09T13:55:15"
-updatedAt: "2026-07-09T13:55:15"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+startedAt: "2026-07-10T11:26:23"
+updatedAt: "2026-07-10T11:26:32"
+completedAt: "2026-07-10"
+commit: 2c3d8ce
+outcome: >-
+  Vérification de cohérence — aucun changement de code requis, tout est déjà aligné : LICENSE = MIT,
+  « Copyright (c) 2026 Rémi Courtillon » (titulaire + année corrects) ; package.json `license: MIT`
+  ; README badge shields MIT + footer « [MIT](./LICENSE) © Rémi Courtillon » ; mention « MIT
+  licensed » dans le pitch. Le site (roadmapped.work) vit dans le repo externe 5e1y/roadmapped-site
+  et sa copy « MIT » a été posée lors de la révision HP (#208). Ticket clos par confirmation (pas de
+  refs modifiées, d'où l'absence de commit dédié — le commit ref pointe l'audit jumeau #218).
+verification: >-
+  Lecture directe des 4 sources : fichier LICENSE (l.1-3), package.json (champ license), README.md
+  (l.3 badge, l.104 footer, l.51 pitch) — MIT + Rémi Courtillon + 2026 partout, zéro incohérence
+  (pas de package.json sans champ license).
 release: null

@@ -1,7 +1,7 @@
 id: 219
 code: null
 title: "Attributions tierces : NOTICE / THIRD-PARTY si requis"
-status: todo
+status: done
 tags:
   - legal
   - publish
@@ -16,9 +16,23 @@ dependsOn:
 epic: legal-readiness
 source: ai
 createdAt: "2026-07-09T13:55:22"
-updatedAt: "2026-07-09T13:56:06"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+startedAt: "2026-07-10T11:27:54"
+updatedAt: "2026-07-10T11:28:04"
+completedAt: "2026-07-10"
+commit: 2c3d8ce
+outcome: >-
+  Tranché par l'audit #218 : AUCUN fichier NOTICE / THIRD-PARTY n'est requis pour Roadmapped. Raison
+  : on distribue en SOURCE via npm/GitHub (github:5e1y/roadmapped en devDep) — npm conserve le
+  LICENSE de chaque paquet dans node_modules/, donc les avis et attributions (y compris caniuse-lite
+  en CC-BY-4.0, lightningcss en MPL-2.0) voyagent automatiquement avec l'installation. Un NOTICE
+  agrégé ne deviendrait obligatoire que si l'on livrait un artefact bundlé/minifié unique où les
+  avis d'origine seraient perdus — ce n'est pas le cas (le dashboard est bâti par Vite chez l'hôte,
+  à partir des sources installées). Décision documentée dans
+  docs/specs/2026-07-10-audit-licences-deps.md (section « Attributions »). Pas de nouveau fichier
+  créé (ponytail : ne pas ajouter un NOTICE vide « pour la forme »).
+verification: >-
+  Cohérent avec l'audit #218 : les 277 paquets embarquent leur propre LICENSE dans node_modules
+  (vérifié sur react, caniuse-lite, lightningcss). Aucune licence n'exige d'attribution DANS un
+  artefact distribué distinct de la copie du paquet — condition non déclenchée par notre mode de
+  distribution (source).
 release: null

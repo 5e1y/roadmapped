@@ -1,7 +1,7 @@
 id: 220
 code: null
 title: "Politique de contribution : DCO/CLA ou clause claire (droits sur les contributions)"
-status: todo
+status: done
 tags:
   - legal
   - publish
@@ -16,9 +16,20 @@ dependsOn: []
 epic: legal-readiness
 source: ai
 createdAt: "2026-07-09T13:55:26"
-updatedAt: "2026-07-09T13:55:26"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+startedAt: "2026-07-10T11:27:04"
+updatedAt: "2026-07-10T11:27:29"
+completedAt: "2026-07-10"
+commit: 0484f62
+outcome: >-
+  Cadre légal des contributions posé : DCO plutôt que CLA (décision — mainteneur solo, projet MIT :
+  le CLA/cession de droits est disproportionné, le DCO donne la provenance sans paperasse ni infra).
+  CONTRIBUTING.md gagne une section « Licensing of contributions » : (1) inbound=outbound explicite
+  — toute PR est licenciée au projet sous MIT ; (2) DCO via `git commit -s` (Signed-off-by), lien
+  vers developercertificate.org, consigne name/email cohérents. Template de PR : case à cocher «
+  commits signés (DCO) ». Non enforced en CI pour l'instant (friction basse ; une GitHub App DCO
+  pourra durcir plus tard si le volume de PR le justifie).
+verification: >-
+  CONTRIBUTING.md relu (section ajoutée avant « Reporting issues », ancre
+  #licensing-of-contributions correcte) ; PULL_REQUEST_TEMPLATE.md relu (ligne DCO ajoutée à la
+  checklist, lien relatif ../CONTRIBUTING.md valide depuis .github/).
 release: null

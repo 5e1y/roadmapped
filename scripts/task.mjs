@@ -18,9 +18,10 @@ import { existsSync, realpathSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { loadPaths } from '../src/lib/paths.ts'
 import {
-  treeWithErrors, readTree, findTask,
+  treeWithErrors, readTree, findTask, loadFiles,
   addTask, startTask, doneTask, updateTask, addFeedback,
 } from '../src/lib/taskWrites.ts'
+import { detectLegacyModel } from '../src/lib/validate.ts'
 import { computeAvailability, activeTasks, nextQueue, globalProgress, epicProgress, allEpics } from '../src/lib/roadmap.ts'
 // Rendu partagé (#90) : CLI et serveur MCP consomment le MÊME code (src/lib/render.ts).
 import { git, taskLine, refLine, briefText, sitrepText, unloggedCommits, auditCommits, auditText, stalePassepartout, todayStr } from '../src/lib/render.ts'
@@ -215,6 +216,13 @@ function epicFromFlags(flags) {
 // ---------------------------------------------------------------- commandes
 
 function cmdValidate() {
+  // Garde de version (#248) : AVANT le schéma, repérer l'ancien modèle et sortir
+  // sur un message actionnable plutôt qu'un mur d'erreurs (« lance migrate »).
+  const legacy = detectLegacyModel(loadFiles(ROOT))
+  if (legacy) {
+    console.error(legacy)
+    process.exit(1)
+  }
   const { tree, errors } = treeWithErrors(ROOT)
   if (errors.length > 0) {
     console.error(`${errors.length} error(s):`)
