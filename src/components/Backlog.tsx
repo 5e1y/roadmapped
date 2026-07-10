@@ -6,7 +6,7 @@ import { type TaskNode } from '../lib/tasks'
 import { TaskList, MiniZone, sortOpen, sortDone } from './TaskColumns'
 
 import { useTagFilter, useTypeFilter } from '../state/filters'
-import { ViewHeader, FilterMenu } from './ViewHeader'
+import { ViewHeader } from './ViewHeader'
 import { TagGraph } from './TagGraph'
 import { TypesRadar } from './TypesRadar'
 import { tagGraph } from '../lib/tagGraph'
@@ -117,14 +117,10 @@ export function Backlog() {
     (tagFilter.length === 0 || tagFilter.some((tag) => t.tags.includes(tag))) &&
     (q === '' || t.title.toLowerCase().includes(q) || `#${t.id}`.includes(q))
 
-  // Filtre TYPE (#235, remplace l'ex-filtre team) : les 9 types canoniques,
-  // multi-sélection, compteur = tickets ouverts du type.
+  // Libellés de type pour les chips de filtre actif (#242 : le filtre type se pose
+  // via le RADAR, s'affiche/se retire via les chips du subheader — plus de dropdown
+  // redondant dans le header).
   const sections = tree.sections.filter((s) => s.status !== 'abandoned')
-  const typeOptions = sections.map((s) => ({
-    value: s.key,
-    label: s.title,
-    count: s.tasks.filter((t) => t.status !== 'done').length,
-  }))
   const typeLabel = new Map(sections.map((s) => [s.key, s.title]))
 
   // Ordre = TEMPÉRATURE décroissante (jalons v2) : le backlog sert la file la plus
@@ -147,15 +143,6 @@ export function Backlog() {
     <div className="flex h-full flex-col">
       {/* Header unifié (modèle Roadmap) : filtres en dropdowns, hauteur = panneau. */}
       <ViewHeader meta={`${plural(open.length, 'open')} · ${plural(done.length, 'done')}`}>
-        {/* Filtre par TYPE (#235) — même dropdown canonique que l'ex-filtre team. */}
-        <FilterMenu
-          allLabel="All types"
-          aria-label="Filter by type"
-          options={typeOptions}
-          selected={typeFilter}
-          onChange={setTypeFilter}
-          multiple
-        />
         <div className="relative w-56">
           <Search size={13} className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-neutral-500" />
           <input
