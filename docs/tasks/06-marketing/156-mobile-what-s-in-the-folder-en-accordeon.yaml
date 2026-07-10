@@ -1,7 +1,7 @@
 id: 287
 code: null
 title: "Mobile : « What's in the folder » en accordéon (1er ouvert, un seul à la fois)"
-status: in_progress
+status: done
 tags: []
 size: null
 detail: >-
@@ -17,9 +17,14 @@ epic: site-v3
 source: ai
 createdAt: "2026-07-11T00:33:23"
 startedAt: "2026-07-11T00:33:44"
-updatedAt: "2026-07-11T00:33:44"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+updatedAt: "2026-07-11T00:54:33"
+completedAt: "2026-07-11"
+commit: 0a220ad
+outcome: >-
+  Mobile : « What's in the folder » en accordéon (button aria-expanded, région masquée) : première
+  entrée ouverte par défaut, une seule ouverte à la fois. Desktop : grille de cartes inchangée.
+  Cartes toujours peintes (perchoirs oiseau préservés).
+verification: >-
+  grep : accordion/aria-expanded présents ; JS OK. Comportement one-open à valider en preview
+  mobile.
 release: null

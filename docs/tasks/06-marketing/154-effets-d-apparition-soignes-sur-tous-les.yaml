@@ -1,7 +1,7 @@
 id: 284
 code: null
 title: Effets d'apparition soignés sur tous les éléments
-status: in_progress
+status: done
 tags: []
 size: null
 detail: >-
@@ -17,9 +17,12 @@ epic: site-v3
 source: ai
 createdAt: "2026-07-11T00:33:11"
 startedAt: "2026-07-11T00:33:43"
-updatedAt: "2026-07-11T00:33:43"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+updatedAt: "2026-07-11T00:54:28"
+completedAt: "2026-07-11"
+commit: 0a220ad
+outcome: >-
+  Reveals soignés sur tous les éléments (sections, cartes, titres, CTA, étapes, footer) : fade +
+  rise + stagger léger, easing ~0.5-0.6s, via IntersectionObserver. prefers-reduced-motion respecté
+  (tout visible, pas d'anim, pas de flash). Éléments perchoirs non laissés à opacity 0.
+verification: JS inline OK ; pattern html.js-reveal conservé (anti-flash).
 release: null
