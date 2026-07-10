@@ -21,7 +21,6 @@ if (major < 22 || (major === 22 && minor < 18)) {
 const { spawnSync } = await import('node:child_process')
 const { fileURLToPath, pathToFileURL } = await import('node:url')
 const { dirname, join, resolve } = await import('node:path')
-const { createRequire } = await import('node:module')
 
 // Root of the PACKAGE (where this bin lives) — NOT the host repo (= cwd walked up, cf. paths.ts).
 const packageDir = resolve(dirname(fileURLToPath(import.meta.url)), '..')
@@ -47,7 +46,7 @@ Plumbing (host repo):
              NEVER touches docs/tasks/ or roadmapped.config.json
   migrate    upgrade an OLD-model backlog (stages+teams) to the type-based
              model — idempotent, no-op if already migrated
-  dashboard  launch the dashboard (Vite dev + write API) on the current repo
+  dashboard  launch the dashboard (local server + write API) on the current repo
 
 Any other command is proxied to the task management CLI:`
 
@@ -80,52 +79,39 @@ switch (cmd) {
     const { notifyIfOutdated } = await importPkg('src/lib/updateNotifier.ts')
     await notifyIfOutdated(packageDir, hostRoot).catch(() => {})
 
-    // Idempotent (#153/#203): if a dashboard already serves THIS SAME repo on the
-    // default port, don't launch a 2nd instance — no-op + URL. We probe /api/tree
-    // and compare its hostRoot (#204). Three cases:
-    //   - same hostRoot        → legit idempotence, no-op.
-    //   - different hostRoot    → another repo's dashboard owns 5173; we let vite
-    //                             start and auto-increment (5174…) so both coexist.
-    //   - not our shape / down  → we start normally.
-    // ponytail: probes port 5173 only (the dashboard's home); a 3rd repo whose
-    // dashboard migrated to 5174 isn't detected as "already open" → a duplicate
-    // instance for that repo may start on 5175. Rare, harmless. Upgrade = sweep
-    // 5173-5180.
-    const DASH_PORT = 5173
-    try {
-      const res = await fetch(`http://localhost:${DASH_PORT}/api/tree`, { signal: AbortSignal.timeout(500) })
-      const body = res.ok ? await res.json().catch(() => null) : null
-      if (body && typeof body.ok === 'boolean' && body.hostRoot === hostRoot) {
-        console.log(`roadmapped dashboard: already open → http://localhost:${DASH_PORT}/`)
-        process.exit(0)
-      }
-    } catch { /* nothing listening (or another app) → we start normally */ }
-    let viteBin
-    try {
-      // 'vite/bin/vite.js' is not an exported subpath: we resolve package.json
-      // (which is exported) then the bin field — robust to npm/pnpm hoisting.
-      const vitePkg = createRequire(join(packageDir, 'package.json')).resolve('vite/package.json')
-      const { bin } = JSON.parse((await import('node:fs')).readFileSync(vitePkg, 'utf8'))
-      viteBin = join(dirname(vitePkg), typeof bin === 'string' ? bin : bin.vite)
-    } catch {
-      console.error('roadmapped dashboard: vite not found — run `npm install` in the host repo (roadmapped must be installed as a local dependency).')
-      process.exit(1)
+    // Options : --no-open (défaut = ouvre le navigateur), --port N.
+    const open = !rest.includes('--no-open')
+    const portIdx = rest.findIndex((a) => a === '--port')
+    const portArg = portIdx >= 0 && rest[portIdx + 1] ? Number(rest[portIdx + 1]) : undefined
+
+    // Idempotent (#153/#203/#204) : si un dashboard sert DÉJÀ CE repo (même hostRoot),
+    // pas de 2e instance — no-op + URL. On BALAYE 5173-5183 (pas seulement 5173) :
+    // un dashboard d'un AUTRE repo a pu migrer sur 5174… — sinon on louperait notre
+    // propre instance et on en ouvrirait un doublon (l'ancien ponytail, corrigé ici).
+    // Autre repo sur un port → serve.ts prendra le premier libre (coexistence).
+    const ports = portArg ? [portArg] : Array.from({ length: 11 }, (_, i) => 5173 + i)
+    const hits = await Promise.all(ports.map(async (p) => {
+      try {
+        const res = await fetch(`http://localhost:${p}/api/tree`, { signal: AbortSignal.timeout(500) })
+        const body = res.ok ? await res.json().catch(() => null) : null
+        return body && typeof body.ok === 'boolean' && body.hostRoot === hostRoot ? p : null
+      } catch { return null }
+    }))
+    const mine = hits.find((p) => p !== null)
+    if (mine) {
+      console.log(`roadmapped dashboard: already open → http://localhost:${mine}/`)
+      process.exit(0)
     }
-    // Auto-open the browser (#152): --open by DEFAULT — "boom, the window opens".
-    // --no-open (our escape hatch, absent from vite) is stripped before passing the
-    // args to vite; an explicit --open from the user is respected.
-    const noOpen = rest.includes('--no-open')
-    const cleanRest = rest.filter((a) => a !== '--no-open')
-    const hasOpen = cleanRest.some((a) => a === '--open' || a.startsWith('--open='))
-    const openArg = noOpen || hasOpen ? [] : ['--open']
-    // cwd = host repo + ROADMAPPED_ROOT: the data (tasks/docs) is anchored to the
-    // host; --config points at the package's vite.config.ts (root = package).
-    const r = spawnSync(process.execPath, [viteBin, '--config', join(packageDir, 'vite.config.ts'), ...openArg, ...cleanRest], {
-      stdio: 'inherit',
-      cwd: hostRoot,
-      env: { ...process.env, ROADMAPPED_ROOT: hostRoot },
-    })
-    process.exit(r.status ?? 1)
+
+    // Serveur prod IN-PROCESS (#200) : plus de spawn Vite. Le loader amaro étant déjà
+    // enregistré (register-ts en tête du bin), on importe le .ts directement. serve.ts
+    // sert dist/ + monte l'API. ROADMAPPED_ROOT posé AVANT l'import (loadPaths le lit).
+    process.env.ROADMAPPED_ROOT = hostRoot
+    const { startDashboard } = await importPkg('src/server/serve.ts')
+    await startDashboard({ open, port: portArg })
+    // PAS de process.exit : le handle du serveur HTTP garde le process vivant
+    // (Ctrl-C termine). `break` évite le fall-through dans le case help.
+    break
   }
 
   case undefined:

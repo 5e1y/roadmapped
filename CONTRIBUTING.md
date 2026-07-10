@@ -19,6 +19,8 @@ npm run validate      # validate the YAML task backlog under docs/tasks/
 
 Run `npm run test` and `npm run build` before opening a pull request — CI runs both on every push and pull request.
 
+The dashboard is shipped **pre-built**: `dist/` is committed and served as-is (the host never runs Vite). So the git hooks — the commit guard *and* an auto-rebuild of `dist/` when you touch front-end files — are wired on your first `npm run dev`. To wire them manually: `git config core.hooksPath scripts/githooks`. CI is the hard lock: it fails a PR whose `dist/` is stale.
+
 ## Project philosophy
 
 Roadmapped has no database. Understanding these principles will make your contributions fit naturally into the codebase:

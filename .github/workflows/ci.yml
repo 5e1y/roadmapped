@@ -21,3 +21,12 @@ jobs:
       - run: npx tsc --noEmit
       - run: npx vitest run
       - run: npm run build
+      # dist/ frais (#200) : le build est commité (option A). Si le bundle produit
+      # diffère du dist/ commité, le src a changé sans rebuild → on bloque.
+      # --porcelain attrape aussi les assets hashés nouveaux/supprimés, pas que les modifiés.
+      - run: |
+          if [ -n "$(git status --porcelain dist)" ]; then
+            echo "::error::dist/ périmé — lancez 'npm run build' et commitez dist/."
+            git status --porcelain dist
+            exit 1
+          fi

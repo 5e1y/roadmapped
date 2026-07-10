@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { computeAvailability, missingPrereqs, graphLayout, graphNeighborhood, epicProgress, globalProgress, allEpics, activeTasks, slugify, reverseDependents, depState, nextQueue, type GraphInput } from './roadmap'
+import { computeAvailability, missingPrereqs, graphNeighborhood, epicProgress, globalProgress, allEpics, activeTasks, slugify, reverseDependents, depState, nextQueue } from './roadmap'
+import { graphLayout, type GraphInput } from './graphLayout'
 import type { TaskTree, TaskNode, SectionNode } from './tasks'
 
 /** Fabrique une tâche minimale ; les champs non pertinents prennent des défauts. */
