@@ -5,7 +5,7 @@ import { join, basename } from 'node:path'
 import { loadPaths, packageRoot, type RoadmappedPaths } from '../lib/paths'
 import { checkUpdate, UPDATE_REPO, type UpdateStatus } from '../lib/updateNotifier'
 import {
-  treeWithErrors, addTask, updateTask, deleteTask,
+  treeWithErrors, addTask, updateTask, deleteTask, moveTask,
   updateSection, saveEpics, type MutationResult,
 } from '../lib/taskWrites'
 import { attachTemperatures } from '../lib/roadmap'
@@ -154,8 +154,14 @@ export function runAction(paths: RoadmappedPaths, action: ApiAction): ApiRespons
       }
       case 'createTask':
         return fromMutation(addTask(tasksDir, action.body ?? {}))
-      case 'patchTask':
-        return fromMutation(updateTask(tasksDir, action.id, action.body ?? {}))
+      case 'patchTask': {
+        // Changer le TYPE = déplacer le fichier (#251) : si le body porte `type`
+        // (ou `section`), c'est un déplacement ; sinon un patch de champs classique.
+        const body = action.body ?? {}
+        const newType = typeof body.type === 'string' ? body.type
+          : typeof body.section === 'string' ? body.section : null
+        return fromMutation(newType ? moveTask(tasksDir, action.id, newType) : updateTask(tasksDir, action.id, body))
+      }
       case 'deleteTask':
         return fromMutation(deleteTask(tasksDir, action.id))
       case 'patchSection':
