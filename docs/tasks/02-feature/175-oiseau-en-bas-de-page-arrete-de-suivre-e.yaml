@@ -1,0 +1,33 @@
+id: 285
+code: null
+title: "Oiseau : en bas de page, arrête de suivre et se perche sur le R du footer"
+status: done
+tags: []
+size: null
+heat: 45
+detail: >-
+  Quand l'utilisateur atteint le BAS de la page, l'oiseau cesse de suivre le curseur et retourne se
+  percher sur le R du wordmark footer (perchoir existant), et y reste. Il reprend le suivi quand on
+  remonte (hystérésis). Détection bas de page (scroll near bottom). Fichier :
+  site/roadmapped-bird.js (comportement). Branche site-polish.
+refs: []
+links: []
+dependsOn: []
+epic: site-v3
+source: ai
+createdAt: "2026-07-11T00:33:15"
+startedAt: "2026-07-11T00:33:44"
+updatedAt: "2026-07-11T00:36:49"
+completedAt: "2026-07-11"
+commit: e887aed
+outcome: >-
+  Oiseau : en bas de page, cesse de suivre le curseur et va se percher sur le R du footer. Détection
+  bas de page avec hystérésis (entre à ≤24px du bas, ressort au-delà de 160px). Quand atBottom, la
+  cible (tx,ty) est forcée sur le centre de #footer-perch chaque frame → la logique vol+atterrissage
+  existante l'y amène et il s'y pose (repos idle/peck ensuite). Reprend le suivi curseur en
+  remontant. Cleanup du listener scroll dans destroy(). Garde si #footer-perch absent (dépend du
+  chantier #286 qui pose l'id).
+verification: >-
+  node --check + import ESM OK (initBird exporté). Logique atBottom/override branchée ; le perchoir
+  #footer-perch est fourni par #286 (Fable, en cours). Rendu live à valider en preview.
+release: null
