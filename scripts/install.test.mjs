@@ -255,6 +255,16 @@ describe('installGuardHook — CHAÎNAGE, jamais de clobber (décision verrouill
 })
 
 describe('runInit — orchestration idempotente', () => {
+  // #240 : init exige un package.json hôte (sinon MCP/hooks pointeraient dans le vide).
+  beforeEach(() => writeFileSync(join(host, 'package.json'), '{"name":"host","private":true}\n'))
+
+  it('sans package.json hôte : ABANDONNE avant d\'écrire quoi que ce soit de câblé (#240)', () => {
+    rmSync(join(host, 'package.json'))
+    runInit({ hostRoot: host, packageDir: repoRoot, log: silent })
+    expect(existsSync(join(host, '.mcp.json'))).toBe(false) // pas de wiring cassé
+    expect(existsSync(join(host, 'roadmapped.config.json'))).toBe(false) // abandon total, rien créé
+  })
+
   it('pose tout, et un second passage ne change RIEN (snapshot identique)', () => {
     runInit({ hostRoot: host, packageDir: repoRoot, log: silent })
     expect(existsSync(join(host, 'roadmapped.config.json'))).toBe(true)
@@ -279,6 +289,7 @@ describe('runInit — orchestration idempotente', () => {
 })
 
 describe('runUpgrade — additive, jamais destructive', () => {
+  beforeEach(() => writeFileSync(join(host, 'package.json'), '{"name":"host","private":true}\n')) // #240
   it('recopie skill/MCP/hook mais ne touche ni docs/tasks ni la config', () => {
     runInit({ hostRoot: host, packageDir: repoRoot, log: silent })
     // L'utilisateur travaille : il modifie sa config, son backlog, ET (à tort) le skill.
@@ -306,6 +317,7 @@ function hostEnv() {
 describe('dispatcher bin/roadmapped.mjs — un repo hôte lit SES tâches, pas celles de l’install (#123)', () => {
   it('init depuis l’hôte puis add/list : la tâche vit chez l’HÔTE, le backlog du paquet est intact', () => {
     const metaBefore = readFileSync(join(repoRoot, 'docs', 'tasks', '_meta.yaml'), 'utf8')
+    writeFileSync(join(host, 'package.json'), '{"name":"host","private":true}\n') // #240 : init l'exige
     // Le "paquet installé" = ce repo ; le bin est lancé avec cwd = repo hôte vierge.
     let r = spawnSync('node', [binPath, 'init'], { cwd: host, encoding: 'utf8', env: hostEnv() })
     expect(r.status).toBe(0)

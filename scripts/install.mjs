@@ -259,6 +259,20 @@ function packageScripts(hostRoot, packageDir) {
 export function runInit({ hostRoot = findHostRoot(), packageDir = packageRoot(), log = console.log } = {}) {
   const { selfHost, mcpArgs, guardCommand, sitrepCommand } = packageScripts(hostRoot, packageDir)
   log(`roadmapped init — host root: ${hostRoot}${selfHost ? ' (self-host)' : ''}`)
+  // Garde d'onboarding (#240) : sans package.json hôte, la devDep roadmapped ne peut
+  // être ajoutée → `npm install` ne matérialise PAS node_modules/roadmapped → le
+  // .mcp.json et le hook git écrits ci-dessous pointeraient vers un fichier inexistant
+  // (MCP connection qui échoue, hook cassé). On ABANDONNE AVANT d'écrire quoi que ce
+  // soit de cassé, avec une consigne claire — plutôt que de laisser un état à moitié
+  // câblé. (Self-host exempté : le repo de l'outil a son propre package.json.)
+  if (!selfHost && !existsSync(join(hostRoot, 'package.json'))) {
+    log(`✗ roadmapped init aborted — no package.json at ${hostRoot}.`)
+    log('  Roadmapped installs itself as a devDependency (node_modules/roadmapped) that the')
+    log('  MCP server and the git guard reference. Without a package.json there is nowhere to')
+    log('  install it, and the wiring would point at a file that never exists.')
+    log('  → Run `npm init -y` (or your package manager\'s init) first, then `npx roadmapped init` again.')
+    return
+  }
   ensureConfig(hostRoot, log)
   const { tasksDir } = loadPathsAt(hostRoot)
   ensureSkeleton(tasksDir, log)
