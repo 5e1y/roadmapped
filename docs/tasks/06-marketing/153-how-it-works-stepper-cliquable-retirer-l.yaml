@@ -1,0 +1,26 @@
+id: 283
+code: null
+title: "How it works : stepper cliquable + retirer les aperçus (4 steps seuls)"
+status: in_progress
+tags: []
+size: null
+heat: 50
+detail: >-
+  Rendre la section pinned NAVIGABLE : cliquer une étape (ou des puces/points) saute à cette étape
+  (met à jour la progression/scroll). ET alléger : RETIRER les aperçus/visuels latéraux (arbre
+  fichiers, snippet CLI, diff git, mini-board) — ne garder QUE les 4 steps (titre + texte). « On
+  lâche du lest. » Garder le pin + scroll, le fallback empilé, et un perchoir peint pour l'oiseau si
+  besoin. Fichiers : site/index.html, site/style.css (+ JS stepper). Branche site-polish.
+refs: []
+links: []
+dependsOn: []
+epic: site-v3
+source: ai
+createdAt: "2026-07-11T00:33:08"
+startedAt: "2026-07-11T00:33:43"
+updatedAt: "2026-07-11T00:33:43"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

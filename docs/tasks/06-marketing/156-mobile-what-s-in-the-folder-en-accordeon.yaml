@@ -1,0 +1,25 @@
+id: 287
+code: null
+title: "Mobile : « What's in the folder » en accordéon (1er ouvert, un seul à la fois)"
+status: in_progress
+tags: []
+size: null
+detail: >-
+  Sur mobile, la section « what's in the folder » (les 8 feature-cards) devient un accordéon :
+  entrées dépliables, la PREMIÈRE ouverte par défaut, une seule ouverte à la fois (ouvrir une
+  referme les autres). Accessible (button/aria-expanded, détails masqués). Sur desktop : garder la
+  grille de cartes actuelle. Fichiers : site/index.html, site/style.css (+ JS accordéon). Ne pas
+  casser les perchoirs (cartes peintes).
+refs: []
+links: []
+dependsOn: []
+epic: site-v3
+source: ai
+createdAt: "2026-07-11T00:33:23"
+startedAt: "2026-07-11T00:33:44"
+updatedAt: "2026-07-11T00:33:44"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

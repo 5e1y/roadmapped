@@ -1,0 +1,27 @@
+id: 286
+code: null
+title: "Mobile : wordmark « Roadmapped » sur 2 lignes (Road / mapped) en fill"
+status: in_progress
+tags: []
+size: null
+heat: 45
+detail: >-
+  Sur mobile (petits écrans), le wordmark géant se casse en 2 lignes « Road » puis « mapped »,
+  chacune remplissant la largeur (fill). Vaut pour le hero ET le footer (idem). Le perchoir du R
+  (départ oiseau hero) doit rester valide (le R est en tête de la 1re ligne « Road »). Approche
+  possible : 2 <text>/2 SVG affichés en media query mobile, ou wordmark responsive. Fichiers :
+  site/index.html, site/style.css (+ script wordmark si besoin de re-mesurer). Ne pas casser la
+  mesure du R.
+refs: []
+links: []
+dependsOn: []
+epic: site-v3
+source: ai
+createdAt: "2026-07-11T00:33:19"
+startedAt: "2026-07-11T00:33:44"
+updatedAt: "2026-07-11T00:33:44"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

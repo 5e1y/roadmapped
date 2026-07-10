@@ -1,0 +1,25 @@
+id: 284
+code: null
+title: Effets d'apparition soignés sur tous les éléments
+status: in_progress
+tags: []
+size: null
+detail: >-
+  Étendre/soigner les reveals au scroll sur TOUS les éléments (sections, cartes, titres, CTA, etc.)
+  : fade + rise, léger stagger, timing agréable. Respecter prefers-reduced-motion (tout visible, pas
+  d'anim). Ne pas casser les perchoirs oiseau (un élément à opacity 0 pré-reveal ne doit pas être
+  visé — garder le pattern déjà en place). Fichiers : site/index.html, site/style.css (+ JS
+  IntersectionObserver).
+refs: []
+links: []
+dependsOn: []
+epic: site-v3
+source: ai
+createdAt: "2026-07-11T00:33:11"
+startedAt: "2026-07-11T00:33:43"
+updatedAt: "2026-07-11T00:33:43"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
