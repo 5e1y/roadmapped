@@ -1,7 +1,7 @@
 id: 257
 code: null
 title: "Nettoyer la copy : retirer tirets cadratins + tics de rédaction IA"
-status: in_progress
+status: done
 tags: []
 size: null
 detail: >-
@@ -14,9 +14,12 @@ epic: site-v2
 source: ai
 createdAt: "2026-07-10T22:04:23"
 startedAt: "2026-07-10T22:05:30"
-updatedAt: "2026-07-10T22:05:30"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+updatedAt: "2026-07-10T22:15:30"
+completedAt: "2026-07-10"
+commit: 476a025
+outcome: >-
+  Tous les tirets cadratins visibles retirés (title/meta/JSON-LD/hero/demo/cards/how/footer),
+  remplacés par ponctuation vraie ou reformulation. Négations creuses simplifiées. Restent 2 « — »
+  dans un commentaire dev (hors copy).
+verification: "grep : 0 &mdash; ; 2 — résiduels en commentaire seulement."
 release: null

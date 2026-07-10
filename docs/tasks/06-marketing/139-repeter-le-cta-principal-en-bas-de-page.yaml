@@ -1,7 +1,7 @@
 id: 260
 code: null
 title: Répéter le CTA principal en bas de page
-status: in_progress
+status: done
 tags: []
 size: null
 detail: >-
@@ -14,9 +14,11 @@ epic: site-v2
 source: ai
 createdAt: "2026-07-10T22:04:28"
 startedAt: "2026-07-10T22:05:31"
-updatedAt: "2026-07-10T22:05:31"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+updatedAt: "2026-07-10T22:15:36"
+completedAt: "2026-07-10"
+commit: 476a025
+outcome: >-
+  Section #cta-final ajoutée juste avant le footer (« Still reading? That's the whole pitch. ») avec
+  le même pattern CTA que le hero.
+verification: "#cta-final présent (grep)."
 release: null

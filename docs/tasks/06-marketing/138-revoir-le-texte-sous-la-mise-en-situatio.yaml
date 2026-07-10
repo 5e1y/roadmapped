@@ -1,7 +1,7 @@
 id: 259
 code: null
 title: Revoir le texte sous la mise en situation (demo caption)
-status: in_progress
+status: done
 tags: []
 size: null
 detail: >-
@@ -14,9 +14,11 @@ epic: site-v2
 source: ai
 createdAt: "2026-07-10T22:04:26"
 startedAt: "2026-07-10T22:05:31"
-updatedAt: "2026-07-10T22:05:31"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+updatedAt: "2026-07-10T22:15:34"
+completedAt: "2026-07-10"
+commit: 476a025
+outcome: >-
+  Demo caption réécrite : clarifie ce que montre chaque fenêtre et pourquoi les clics sont bloqués
+  (seules les écritures le sont), clin d'œil #10 gardé.
+verification: .demo-caption mise à jour dans index.html.
 release: null
