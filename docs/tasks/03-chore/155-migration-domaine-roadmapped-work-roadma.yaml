@@ -1,0 +1,35 @@
+id: 288
+code: null
+title: Migration domaine roadmapped.work → roadmapped.dev
+status: done
+tags: []
+size: null
+heat: 40
+detail: >-
+  Passer le domaine public de roadmapped.work à roadmapped.dev (meilleur pour un outil dev : TLD
+  dev, HSTS-preload/HTTPS forcé). Code : remplacer roadmapped.work → roadmapped.dev côté app
+  (package.json homepage, README, docs) et côté site (canonical, og:url, og:image, twitter:image,
+  liens). Cloudflare (fait par Rémi) : ajouter roadmapped.dev en custom domain sur le projet Pages +
+  garder roadmapped.work en redirection 301. Part site à faire après le merge du polish (Fable édite
+  index.html).
+refs: []
+links: []
+dependsOn: []
+epic: site-v3
+source: ai
+createdAt: "2026-07-11T00:42:56"
+startedAt: "2026-07-11T00:43:27"
+updatedAt: "2026-07-11T00:56:30"
+completedAt: "2026-07-11"
+commit: dabf1f9
+outcome: >-
+  Domaine migré vers roadmapped.dev partout dans le code. App (commit ab323d0) : package.json
+  homepage, docs comms, src/demo/*. Site (commit dabf1f9) : canonical, og:url, og:image,
+  twitter:image, JSON-LD url, mentions dans la copy + roadmapped-bird.js ; démo rebuildée avec .dev.
+  Reste côté infra (Rémi, hors code) : la Redirect Rule .work→.dev nécessite un DNS record PROXIED à
+  la racine de roadmapped.work (cause de l'Error 1016 : aucun enregistrement à la racine). .dev sert
+  le site (200 OK).
+verification: >-
+  grep littéral : 0 roadmapped.work restant côté site (index/style/bird/demo). curl : roadmapped.dev
+  = 200 OK ; roadmapped.work = pas de résolution DNS à la racine (fix infra à faire par Rémi).
+release: null

@@ -1,7 +1,7 @@
 id: 283
 code: null
 title: "How it works : stepper cliquable + retirer les aperçus (4 steps seuls)"
-status: in_progress
+status: done
 tags: []
 size: null
 heat: 50
@@ -18,9 +18,15 @@ epic: site-v3
 source: ai
 createdAt: "2026-07-11T00:33:08"
 startedAt: "2026-07-11T00:33:43"
-updatedAt: "2026-07-11T00:33:43"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+updatedAt: "2026-07-11T00:54:25"
+completedAt: "2026-07-11"
+commit: 0a220ad
+outcome: >-
+  How it works allégé : les 4 aperçus/visuels latéraux retirés, on ne garde que les 4 steps
+  (numéro+titre+texte). Navigation cliquable (clic sur étape/puce saute à l'étape, scroll
+  programmatique vers le quart de piste). Pin+scroll et fallback empilé conservés. Perchoir oiseau
+  reporté (les .how-visuals ayant disparu) sur un élément peint restant.
+verification: >-
+  Scripts inline node --check OK, HTML équilibré (parser). Rendu du clic/scroll à valider en
+  preview.
 release: null

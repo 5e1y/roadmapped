@@ -1,7 +1,7 @@
 id: 286
 code: null
 title: "Mobile : wordmark « Roadmapped » sur 2 lignes (Road / mapped) en fill"
-status: in_progress
+status: done
 tags: []
 size: null
 heat: 45
@@ -19,9 +19,14 @@ epic: site-v3
 source: ai
 createdAt: "2026-07-11T00:33:19"
 startedAt: "2026-07-11T00:33:44"
-updatedAt: "2026-07-11T00:33:44"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+updatedAt: "2026-07-11T00:54:31"
+completedAt: "2026-07-11"
+commit: 0a220ad
+outcome: >-
+  Mobile : wordmark « Roadmapped » sur 2 lignes « Road » / « mapped », chacune en fill (bord à
+  bord). Vaut hero + footer ; desktop inchangé (1 ligne). id="footer-perch" posé sur le R du footer
+  (utilisé par l'oiseau #285). Le R du hero reste perchoir valide en mobile (tête de la ligne Road).
+verification: >-
+  grep : footer-perch présent, markup 2-lignes présent ; scripts OK. Mesure du R et rendu mobile à
+  valider en preview.
 release: null
