@@ -1,0 +1,45 @@
+id: 250
+code: null
+title: >-
+  Retirer le kind « quick » — le type de colonne + size suffisent, le split quick/task est du bruit
+  (décision Rémi)
+status: todo
+tags:
+  - engineering
+  - model
+  - simplification
+size: M
+detail: >-
+  Décision Rémi : depuis les colonnes par TYPE, le couple quick/task ne porte plus qu'un niveau de
+  cérémonie redondant avec `size` (S/M/L) et impose une micro-décision à chaque création
+  (bikeshedding). On le supprime. `kind` devient `task | milestone` (on GARDE milestone : il
+  verrouille des tâches via dependsOn, sémantique distincte). Chantier : (1) tasks.ts : kind sans
+  'quick', défaut 'task'. (2) validate.ts : rejeter kind 'quick' sur les actives (l'archive garde le
+  sien, non re-validée). (3) Migration : les quick existants → task (script jetable, git mv pas
+  nécessaire, juste réécrire kind ; ou omettre kind=task par défaut). (4) taskWrites/CLI : la
+  commande `quick` devient un alias de `add` (rétrocompat) ou disparaît avec warning ; retirer
+  l'exception « --verification optionnel pour quick » → verification ENCOURAGÉE mais non bloquante
+  pour tous (préserver la légèreté du done trivial sans un kind dédié). (5) UI : retirer la zone «
+  Mini » du Backlog (les ex-quick rejoignent la liste To-do triée par température) + le glyphe quick
+  + le one-click-done de la zone Mini (à préserver comme affordance de done sur toute tâche si on y
+  tient). (6) Skill/docs : retirer quick partout, l'échelle de décision devient type + size. Voisin
+  : c'est un mini-jalons (kind au lieu de stage+team) mais bien plus petit.
+refs:
+  - src/lib/tasks.ts
+  - src/lib/validate.ts
+  - src/lib/taskWrites.ts
+  - src/components/TaskColumns.tsx
+  - src/components/Backlog.tsx
+  - scripts/task.mjs
+  - skills/roadmapped/SKILL.md
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-10T10:36:56"
+updatedAt: "2026-07-10T10:36:56"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
