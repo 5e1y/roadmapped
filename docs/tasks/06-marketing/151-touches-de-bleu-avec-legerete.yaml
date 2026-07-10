@@ -1,7 +1,7 @@
 id: 279
 code: null
 title: Touches de bleu, avec légèreté
-status: in_progress
+status: done
 tags: []
 size: null
 detail: >-
@@ -16,9 +16,13 @@ epic: site-v3
 source: ai
 createdAt: "2026-07-10T23:57:05"
 startedAt: "2026-07-11T00:01:27"
-updatedAt: "2026-07-11T00:01:27"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+updatedAt: "2026-07-11T00:15:09"
+completedAt: "2026-07-11"
+commit: 4b32403
+outcome: >-
+  Touches de bleu, parcimonie (doctrine assouplie et documentée en tête du CSS) : points de trame
+  teintés bleu, halo diffus derrière le wordmark hero (--halo ~8-10%), lignes de la grille de
+  colonnes légèrement bleuies (--grid-line), numéros d'étape 01-04 + bord actif du stepper en
+  --accent, lignes + du diff en accent (pas de vert). Zéro orange UI (réservé oiseau).
+verification: Accents via tokens, cohérents clair/sombre.
 release: null

@@ -1,7 +1,7 @@
 id: 278
 code: null
 title: "Fond : trame de points (halftone) — remplace le pixel-art"
-status: in_progress
+status: done
 tags: []
 size: null
 detail: >-
@@ -17,9 +17,13 @@ epic: site-v3
 source: ai
 createdAt: "2026-07-10T23:57:02"
 startedAt: "2026-07-11T00:01:27"
-updatedAt: "2026-07-11T00:01:27"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+updatedAt: "2026-07-11T00:15:05"
+completedAt: "2026-07-11"
+commit: 4b32403
+outcome: >-
+  Fond = trame de points halftone : body::before radial-gradient(circle, --dot 1px, transparent
+  1.6px), background-size 24px, masque vertical (plus dense en haut derrière le hero, estompé en
+  bas), fixed z-index:-1 pointer-events:none. --px-tile supprimé des 3 blocs de tokens. Clair :
+  --dot navy-bleu 14% ; sombre : bleu clair 10%.
+verification: "grep : 0 résidu px-tile, radial-gradient présent. Calque sous le contenu, ne croise pas l'oiseau."
 release: null

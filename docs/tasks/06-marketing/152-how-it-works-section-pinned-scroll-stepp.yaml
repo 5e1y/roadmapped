@@ -1,7 +1,7 @@
 id: 280
 code: null
 title: "« How it works » : section pinned + scroll stepper (4 étapes)"
-status: in_progress
+status: done
 tags: []
 size: null
 heat: 50
@@ -20,9 +20,17 @@ epic: site-v3
 source: ai
 createdAt: "2026-07-10T23:57:09"
 startedAt: "2026-07-11T00:01:28"
-updatedAt: "2026-07-11T00:01:28"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+updatedAt: "2026-07-11T00:15:13"
+completedAt: "2026-07-11"
+commit: 4b32403
+outcome: >-
+  « How it works » = section pinnée + stepper. Piste .how-scroll[data-stepper] > .how-pin sticky ; 4
+  étapes (flux réel) + 4 visuels (arbre fichiers, snippet CLI, diff git, mini-board). Progression
+  pilotée au scroll (rAF, quart courant), étape active mise en avant / autres estompées.
+  html.js-stepper posé par JS seulement si écran ≥62rem/36rem ET pas de reduced-motion ; sinon
+  fallback : 4 étapes + 4 visuels empilés lisibles, aucune piste géante. Perchoir data-bird-perch
+  déplacé sur .how-visuals (cadre peint constant).
+verification: >-
+  node --check des 6 scripts inline OK (Fable) ; markup stepper présent (grep) ; fallback scopé sous
+  html.js-stepper. Rendu du pin/crossfade à valider à l'œil en preview.
 release: null
