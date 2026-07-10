@@ -4,7 +4,7 @@ code: null
 title: >-
   Roadmap : replier les tâches DONE par colonne (« + N done ») au lieu de toutes les afficher
   barrées — colonnes imbuvables quand done affichés
-status: todo
+status: in_progress
 tags:
   - dashboard
   - ux
@@ -14,10 +14,11 @@ detail: null
 refs: []
 links: []
 dependsOn: []
-epic: null
+epic: roadmap-readability
 source: ai
 createdAt: "2026-07-09T18:25:46"
-updatedAt: "2026-07-09T18:25:46"
+startedAt: "2026-07-10T10:30:57"
+updatedAt: "2026-07-10T10:34:50"
 completedAt: null
 commit: null
 outcome: null
