@@ -4,7 +4,7 @@ code: null
 title: >-
   Roadmap : rendre la bande d'epics compacte/repliable (toggle, hauteur bornée, scroll interne) —
   elle ne doit pas manger l'espace des colonnes
-status: in_progress
+status: done
 tags:
   - dashboard
   - ux
@@ -18,9 +18,12 @@ epic: roadmap-readability
 source: ai
 createdAt: "2026-07-09T18:25:46"
 startedAt: "2026-07-10T10:30:57"
-updatedAt: "2026-07-10T10:34:50"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+updatedAt: "2026-07-10T10:50:49"
+completedAt: "2026-07-10"
+commit: 2930d5a
+outcome: >-
+  Bande d'epics compacte/repliable : Base UI Collapsible (trigger « Epics N · M done », repli
+  persisté), hauteur bornée max-h-32 + scroll interne, cartes compactes (EpicCard w-48). Ne mange
+  plus l'espace des colonnes.
+verification: "Captures : bande compacte, scrolle en interne sans pousser les colonnes."
 release: null

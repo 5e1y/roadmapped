@@ -4,7 +4,7 @@ code: null
 title: >-
   Roadmap : passe de densité/lisibilité générale quand beaucoup de tickets (espacements, troncature,
   hauteur de carte, perf de scroll)
-status: in_progress
+status: done
 tags:
   - dashboard
   - ux
@@ -18,9 +18,12 @@ epic: roadmap-readability
 source: ai
 createdAt: "2026-07-09T18:25:46"
 startedAt: "2026-07-10T10:30:57"
-updatedAt: "2026-07-10T10:34:50"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+updatedAt: "2026-07-10T10:50:49"
+completedAt: "2026-07-10"
+commit: 2930d5a
+outcome: >-
+  Passe de densité/lisibilité : cartes py-2 gap-1, note de section clampée à 2 lignes (une note
+  longue gonflait la rangée subgrid de toutes les colonnes ; intégrale dans le title). ponytail: pas
+  de virtualisation sans problème mesuré.
+verification: "Captures : colonnes aérées, lisibles à fort volume."
 release: null

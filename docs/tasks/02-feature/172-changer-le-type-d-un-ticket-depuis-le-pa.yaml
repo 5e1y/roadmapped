@@ -1,0 +1,42 @@
+id: 251
+code: null
+title: >-
+  Changer le type d'un ticket depuis le panneau (déplacer entre dossiers-types) — impossible après
+  création
+status: done
+tags:
+  - dashboard
+  - engineering
+size: M
+detail: >-
+  Manque signalé par Rémi : le panneau édite tous les champs SAUF le type (= la section/dossier). Le
+  type ne peut donc pas changer après création. Fix : (1) taskWrites : moveTask(tasksDir, id,
+  newSection) sous lock — écrit le YAML dans docs/tasks/<newSection>/<filename> + supprime l'ancien
+  via commitWrites (pattern deleteTask), gère le dossier-jumeau de sous-tâches, valide newSection ∈
+  TYPES, no-op si même section. (2) api.ts : patchTask détecte body.type/section → moveTask (sinon
+  updateTask comme avant). (3) UI TaskPanel : un Select des 9 types (titre du type courant dérivé de
+  task.file) qui PATCH {type}. La température (base) suit automatiquement le nouveau type.
+refs:
+  - src/lib/taskWrites.ts
+  - src/server/api.ts
+  - src/components/TaskPanel.tsx
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-10T10:39:26"
+startedAt: "2026-07-10T10:39:39"
+updatedAt: "2026-07-10T10:48:48"
+completedAt: "2026-07-10"
+commit: 382d505
+outcome: >-
+  On peut changer le type d'un ticket depuis le panneau. Backend moveTask(id, newSection) sous lock
+  : déplace le fichier vers docs/tasks/<newType>/ (write neuf + delete ancien via commitWrites,
+  dossier-jumeau de sous-tâches compris), valide newSection ∈ 9 types, no-op si déjà dedans. API :
+  patchTask route vers moveTask si body.type. UI : Select des 9 types dans le panneau (défaut = type
+  courant). La base de température suit automatiquement le nouveau type.
+verification: >-
+  e2e dashboard réel : throwaway 02-feature (base 14) → PATCH {type:05-design} → fichier déplacé en
+  05-design/, base température → 12 ; type inconnu « 99-bogus » rejeté (message clair). tsc 0, 50
+  tests taskWrites (dont 3 moveTask), guard/validate OK (9 sections).
+release: null
