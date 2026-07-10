@@ -76,7 +76,7 @@ Roadmapped is an npm package: the tool lives in `node_modules/roadmapped/`, the
 *data* (backlog, config) lives at the root of **your** repo. Install and scaffold:
 
 ```bash
-npm install --save-dev roadmapped
+npm install --save-dev github:5e1y/roadmapped   # sourced from GitHub — never published to npm
 npx roadmapped init          # config + 9-type skeleton + skill + MCP entry + guard hook
 npx roadmapped dashboard     # dashboard on http://localhost:5173
 npx roadmapped --help
@@ -89,9 +89,12 @@ hook keeps running, the guard is appended after it; `core.hooksPath` is never
 modified. `npx roadmapped upgrade` refreshes the tool-owned files (skill, MCP
 entry, hook) and never touches `docs/tasks/` or your config.
 
-Node **≥ 22.18** is required — it runs the TypeScript imports natively (the package
-ships raw `.ts`, no build step; inside `node_modules` a small loader based on
-`amaro`, Node's own type-stripping engine, fills the gap).
+Node **≥ 22.18** is required — it runs the TypeScript imports natively. The CLI, MCP
+server and hooks ship as raw `.ts` (inside `node_modules` a small loader based on
+`amaro`, Node's own type-stripping engine, fills the gap); the **dashboard ships
+pre-built** (a compiled bundle in `dist/`), so the host pulls none of the front-end
+build tooling — the install stays light (~30 MB, dominated by the MCP SDK), not the
+~110 MB an embedded build toolchain would cost.
 
 Inside the Roadmapped repository itself (self-hosting), `npm install` + `npm run dev`
 and `node scripts/task.mjs <command>` keep working unchanged.
@@ -125,9 +128,11 @@ defaults.
 
 ## 3. Dashboard tour
 
-`npx roadmapped dashboard` serves a three-view app. The left sidebar switches between **Backlog**,
-**Roadmap** and **Docs**; the last view is remembered across reloads. Clicking any
-task anywhere opens a **side panel** on the right.
+`npx roadmapped dashboard` starts a small local server that serves the pre-built app
+(no Vite at runtime) and opens your browser. Header tabs switch between four views —
+**Backlog**, **Roadmap**, **Docs** and **Notepad**; the last one is remembered across
+reloads. The header also carries a light/dark theme toggle and a "report an issue"
+link. Clicking any task anywhere opens a **side panel** on the right.
 
 ### One package, many repos
 
@@ -139,7 +144,7 @@ is prefixed with the repo name — so several open dashboards stay distinguishab
 
 Working on two repos at once just works: run `npx roadmapped dashboard` in each. The
 first takes port **5173**; the second sees that 5173 already serves a *different* repo and
-lets Vite auto-increment to **5174** (and so on). Launching twice in the *same* repo is a
+lets the local server auto-increment to **5174** (and so on, up to 5183). Launching twice in the *same* repo is a
 no-op — it just reopens the existing window. Need a fixed port for the second repo:
 `npx roadmapped dashboard --port 5174`.
 

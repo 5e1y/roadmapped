@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Install plumbing inside a HOST repo (spec 2026-07-08-distribution, §3-4).
-// `roadmapped init`   : config + 8-stage skeleton + skill + MCP entry + guard hook.
+// `roadmapped init`   : config + 9-type skeleton + skill + MCP entry + guard hook.
 // `roadmapped upgrade`: re-copies the TOOL-OWNED files (skill, MCP, hook) — NEVER
 //                       touches docs/tasks/ or roadmapped.config.json.
 //
