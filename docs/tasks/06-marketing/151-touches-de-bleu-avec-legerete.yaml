@@ -1,0 +1,24 @@
+id: 279
+code: null
+title: Touches de bleu, avec légèreté
+status: in_progress
+tags: []
+size: null
+detail: >-
+  Assouplir la doctrine v2 : bleu comme accent de DA en plus des états, mais parcimonieux
+  (halos/traits/points de trame teintés, filets, détails). Orange reste réservé à l'oiseau. Fichier
+  : site/style.css. Voir spec D5.
+refs:
+  - docs/specs/2026-07-10-site-v3.md
+links: []
+dependsOn: []
+epic: site-v3
+source: ai
+createdAt: "2026-07-10T23:57:05"
+startedAt: "2026-07-11T00:01:27"
+updatedAt: "2026-07-11T00:01:27"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

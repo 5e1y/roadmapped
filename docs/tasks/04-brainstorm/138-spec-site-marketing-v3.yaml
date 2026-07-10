@@ -1,0 +1,31 @@
+id: 275
+code: null
+title: Spec — site marketing v3
+status: done
+tags: []
+size: null
+detail: >-
+  Spec de la refonte v3 du site (hero valeur/interface, full-bleed + grilles, trame de points, bleu
+  léger, How it works pinned, rebuild démo, synchro thème iframe). Doc :
+  docs/specs/2026-07-10-site-v3.md.
+refs:
+  - docs/specs/2026-07-10-site-v3.md
+links: []
+dependsOn: []
+epic: site-v3
+source: ai
+createdAt: "2026-07-10T23:56:51"
+startedAt: "2026-07-10T23:57:40"
+updatedAt: "2026-07-10T23:58:02"
+completedAt: "2026-07-10"
+commit: "8420512"
+outcome: >-
+  Spec site v3 écrite et validée par Rémi : docs/specs/2026-07-10-site-v3.md. 8 décisions (D1 hero
+  valeur=interface/vue d'ensemble sur les plans IA + copy « roadmap.md is dead / all hail task.yaml
+  », D2 wordmark medium, D3 full-bleed+grilles, D4 trame de points, D5 bleu léger, D6 How it works
+  pinned, D7 rebuild démo, D8 synchro thème iframe). Découpée en 7 tickets (#276-#282, epic
+  site-v3).
+verification: >-
+  Spec relue (pas de TBD, scope explicite, alternatives écartées documentées) ; direction hero et
+  interaction How-it-works validées par Rémi avant découpage.
+release: null

@@ -1,0 +1,25 @@
+id: 278
+code: null
+title: "Fond : trame de points (halftone) — remplace le pixel-art"
+status: in_progress
+tags: []
+size: null
+detail: >-
+  Remplacer la tuile pixel-art par une trame de points fins réguliers (dot-grid/halftone) façon réf
+  fournie (dégradé + fins points). Rendu CSS (radial-gradient répété), faible opacité, espacement
+  régulier, léger dégradé d'opacité possible. Clair/sombre, z-index:-1, ne gêne ni lecture ni
+  oiseau. Fichier : site/style.css. Voir spec D4.
+refs:
+  - docs/specs/2026-07-10-site-v3.md
+links: []
+dependsOn: []
+epic: site-v3
+source: ai
+createdAt: "2026-07-10T23:57:02"
+startedAt: "2026-07-11T00:01:27"
+updatedAt: "2026-07-11T00:01:27"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

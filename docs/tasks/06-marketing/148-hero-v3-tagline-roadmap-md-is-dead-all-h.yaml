@@ -1,0 +1,34 @@
+id: 276
+code: null
+title: "Hero v3 : tagline « roadmap.md is dead / all hail task.yaml » + wordmark medium"
+status: done
+tags: []
+size: null
+heat: 55
+detail: >-
+  Titre/hook : « The roadmap.md is dead. All hail the task.yaml. » (filenames en monospace
+  minuscule). Sous-titre : « Transform your repo into your task management tool. Visualize your
+  backlog, what's finished, and what's planned up ahead, and lead your development to success with a
+  true big-picture view, powered by a Monday/Jira/Linear-like live project management dashboard. »
+  Wordmark géant Roadmapped conservé mais poids bold→medium/semibold (~500-600). Répercuter le
+  positionnement (dashboard live, vue d'ensemble sur les plans IA) sur meta description. Fichier :
+  site/index.html (+ style.css pour le poids). Voir spec D1/D2.
+refs:
+  - docs/specs/2026-07-10-site-v3.md
+links: []
+dependsOn: []
+epic: site-v3
+source: ai
+createdAt: "2026-07-10T23:56:55"
+startedAt: "2026-07-10T23:57:41"
+updatedAt: "2026-07-11T00:00:39"
+completedAt: "2026-07-11"
+commit: 575bfa3
+outcome: >-
+  Hero v3 : tagline « The roadmap.md is dead. All hail the task.yaml. » (filenames monospace,
+  task.yaml en couleur d'accent) ; sous-titre validé qui pose la valeur (transformer le repo en
+  outil de gestion de tâches, dashboard live façon Monday/Jira/Linear, vue d'ensemble backlog/fait/à
+  venir sur les plans que l'agent écrit). Wordmark géant conservé, poids 800→600 (medium/semibold).
+  Title + og/twitter + meta description + JSON-LD réalignés sur le positionnement.
+verification: JSON-LD re-parsé OK. Copy corrigée (heil→hail, orthographe). Rendu à valider en preview.
+release: null

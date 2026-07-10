@@ -1,0 +1,28 @@
+id: 280
+code: null
+title: "« How it works » : section pinned + scroll stepper (4 étapes)"
+status: in_progress
+tags: []
+size: null
+heat: 50
+detail: >-
+  Section sticky qui se fige pendant que les 4 étapes défilent une par une au scroll (progression
+  IntersectionObserver/scroll-progress). Visuel/anim d'étape d'un côté, texte de l'autre. 4 étapes =
+  flux réel (agent transforme intention/roadmap.md en tickets tracés → lit/écrit via CLI+skill → tu
+  review le diff → dashboard live donne la vue d'ensemble). Fallback reduced-motion / sans JS : 4
+  étapes empilées lisibles, sans pin. Fichiers : site/index.html, site/style.css (+ JS inline). Voir
+  spec D6.
+refs:
+  - docs/specs/2026-07-10-site-v3.md
+links: []
+dependsOn: []
+epic: site-v3
+source: ai
+createdAt: "2026-07-10T23:57:09"
+startedAt: "2026-07-11T00:01:28"
+updatedAt: "2026-07-11T00:01:28"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
