@@ -18,15 +18,16 @@ epic: site-v3
 source: ai
 createdAt: "2026-07-11T00:33:08"
 startedAt: "2026-07-11T00:33:43"
-updatedAt: "2026-07-11T00:54:25"
+updatedAt: "2026-07-11T01:18:00"
 completedAt: "2026-07-11"
-commit: 0a220ad
+commit: 205705d
 outcome: >-
-  How it works allégé : les 4 aperçus/visuels latéraux retirés, on ne garde que les 4 steps
-  (numéro+titre+texte). Navigation cliquable (clic sur étape/puce saute à l'étape, scroll
-  programmatique vers le quart de piste). Pin+scroll et fallback empilé conservés. Perchoir oiseau
-  reporté (les .how-visuals ayant disparu) sur un élément peint restant.
+  Correction feedback Rémi : les aperçus ne devaient disparaître que sur mobile. Restaurés sur
+  DESKTOP (les 4 : arbre fichiers, terminal CLI, diff git, mini-board) en colonne droite du stepper
+  (.how-stage 2-col + régime pinné, un visuel actif à la fois, synchronisé au scroll ET au clic
+  d'étape). Masqués sous 62rem → mobile/tablette = 4 étapes seules en une colonne. Navigation
+  cliquable conservée.
 verification: >-
-  Scripts inline node --check OK, HTML équilibré (parser). Rendu du clic/scroll à valider en
-  preview.
+  node --check scripts OK, CSS 172/172, HTML balancé, 4 how-visual présents, visuals.forEach dans
+  setStep. Rendu desktop/mobile à valider en preview.
 release: null

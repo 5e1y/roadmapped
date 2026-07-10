@@ -17,14 +17,15 @@ epic: site-v3
 source: ai
 createdAt: "2026-07-11T00:33:23"
 startedAt: "2026-07-11T00:33:44"
-updatedAt: "2026-07-11T00:54:33"
+updatedAt: "2026-07-11T01:18:03"
 completedAt: "2026-07-11"
-commit: 0a220ad
+commit: 205705d
 outcome: >-
-  Mobile : « What's in the folder » en accordéon (button aria-expanded, région masquée) : première
-  entrée ouverte par défaut, une seule ouverte à la fois. Desktop : grille de cartes inchangée.
-  Cartes toujours peintes (perchoirs oiseau préservés).
+  Dépliement de l'accordéon mobile ANIMÉ (feedback Rémi) : transition grid-template-rows 0fr↔1fr
+  (insensible à la hauteur du contenu) via classe .is-open sur la carte, gated par html.js-accordion
+  (sans JS : tout déplié, fallback préservé). Corps replié passé en inert (hors focus/AT).
+  prefers-reduced-motion → pas de transition. Remplace le hidden sec précédent.
 verification: >-
-  grep : accordion/aria-expanded présents ; JS OK. Comportement one-open à valider en preview
-  mobile.
+  node --check OK, plus de it.body.hidden, is-open toggle + js-accordion gate présents. Animation à
+  valider en preview mobile.
 release: null
