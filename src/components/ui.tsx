@@ -163,18 +163,22 @@ export function ToastViewport() {
         <Toast.Root
           key={toast.id}
           toast={toast}
-          className="border border-l-4 border-neutral-900 bg-white px-3 py-2 shadow-sm data-[ending]:opacity-0 data-[starting]:opacity-0"
+          className="rounded-md border border-neutral-200 bg-white px-3 py-2.5 shadow-lg transition-opacity duration-150 data-[ending]:opacity-0 data-[starting]:opacity-0 motion-reduce:transition-none"
         >
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0">
+          {/* Aligné sur le popup Activity (filet neutral-200, shadow-lg, rounded-md,
+              monochrome) — un petit Check accent signale la tâche bouclée (l'accent
+              est ici légitime : point d'attention). Fini la boîte à bordure noire. */}
+          <div className="flex items-start gap-2">
+            <Check size={12} className="mt-px shrink-0 text-accent" aria-hidden="true" />
+            <div className="min-w-0 flex-1">
               <Toast.Title className="text-xs font-semibold text-neutral-900" />
-              <Toast.Description className="mt-0.5 text-xs text-neutral-700" />
+              <Toast.Description className="mt-0.5 text-xs text-neutral-600" />
             </div>
             <Toast.Close
               aria-label="Close"
-              className="shrink-0 rounded p-0.5 text-neutral-500 hover:text-neutral-700"
+              className="shrink-0 rounded p-0.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700"
             >
-<Cross size={10} />
+              <Cross size={10} />
             </Toast.Close>
           </div>
         </Toast.Root>

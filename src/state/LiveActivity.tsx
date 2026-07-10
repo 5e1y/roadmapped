@@ -132,8 +132,12 @@ export function LiveActivityProvider({ children }: { children: ReactNode }) {
   if ((window as unknown as { __ROADMAPPED_STATIC__?: boolean }).__ROADMAPPED_STATIC__) {
     return <>{children}</>
   }
+  // timeout 9 s + limit 5 (#249) : le défaut Base UI (5 s / 3) faisait rater les toasts
+  // (« je ne les vois pas toujours ») — un « task finished » doit rester assez longtemps
+  // pour être vu, et plusieurs done rapprochés ne doivent pas s'écraser. Base UI met
+  // l'auto-dismiss en pause au survol ; l'historique complet reste dans le panneau Activity.
   return (
-    <Toast.Provider>
+    <Toast.Provider timeout={9000} limit={5}>
       <LiveActivityInner>{children}</LiveActivityInner>
     </Toast.Provider>
   )
