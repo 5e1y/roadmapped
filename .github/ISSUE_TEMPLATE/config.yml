@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions & ideas
+    url: https://github.com/5e1y/roadmapped/discussions
+    about: Open-ended questions, ideas and show-and-tell live in Discussions — not the issue tracker.
+  - name: User guide
+    url: https://github.com/5e1y/roadmapped/blob/main/docs/guide.md
+    about: Installation, dashboard tour, full CLI reference and YAML formats.
