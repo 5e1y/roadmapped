@@ -31,11 +31,11 @@ open source, MIT.
 
 **Primary CTA**
 
-> Get started — `npm install`
+> Get started — `npx github:5e1y/roadmapped init`
 
 **Under the CTA**
 
-> There's no step 2. We checked.
+> Straight from GitHub. Nothing to publish, nothing to sign up for. There's no step 2. We checked.
 
 **Secondary link**
 
@@ -67,24 +67,31 @@ the agent recording a task from the CLI.*
 **Cards**
 
 1. **Backlog that lives in git**
-   > Sections and tasks under `docs/tasks/`. Full CRUD from the dashboard or the
-   > CLI. Every task is a YAML file you can diff, review, and blame — because it
-   > is one.
+   > One folder per type — nine of them (bug, feature, chore, design, legal,
+   > business, and the rest). Every task is a YAML file you can diff, review, and
+   > blame — because it is one. Full CRUD from the dashboard or the CLI.
 
-2. **Roadmap with no dates to lie about**
-   > Your sections become milestones. `done` / `available` / `locked` states are
-   > computed from the dependency graph on every read, never stored. Nothing to
-   > drift out of sync, because there's no second copy.
+2. **Priority is a temperature, not a deadline**
+   > No dates to lie about, no stages to pretend you're in. Each task runs a
+   > temperature that rises with age and with how much it blocks — so `next`
+   > hands your agent the thing that actually matters, computed, every time.
 
-3. **Agent-first, by design**
+3. **Roadmap with nothing to drift**
+   > `done` / `available` / `locked` are computed from the dependency graph on
+   > every read, never stored. There's no second copy to fall out of sync,
+   > because there's no second copy.
+
+4. **Agent-first, by design**
    > A CLI (`npx roadmapped`) and a Claude skill so your agent creates specs,
    > tasks and dependencies in the correct schema — and records what it ships
-   > with more discipline than most of us manage.
+   > with more discipline than most of us manage. Every write goes through one
+   > validator; on error it rolls back; ids are never reused. Git is the audit log.
 
-4. **Validated writes, honest history**
-   > Every write — from the dashboard or the CLI — goes through the same
-   > validator. On error, the change rolls back. Ids are never reused. Your git
-   > history is the audit log.
+5. **A local app, not a tab you log into**
+   > The dashboard is a small server that runs from your repo and serves a
+   > pre-built app — it updates live as your agent writes, no reload. Installing
+   > it pulls ~30 MB, not a front-end toolchain. Light and dark, because your
+   > eyes.
 
 ---
 
@@ -100,6 +107,12 @@ the agent recording a task from the CLI.*
 > docs rendered straight from your `docs/` folder. The dashboard and the CLI
 > read and write the same data through the same validator — never a second,
 > parallel schema hiding somewhere.
+>
+> The dashboard isn't hosted anywhere. `npx roadmapped dashboard` starts a small
+> server on your machine that serves a pre-built app and watches your files —
+> your agent records a task from the CLI, and the open dashboard reflects it
+> live, no refresh. Run it in two repos at once; each takes its own port. Close
+> the tab and nothing phones home, because there's nowhere to phone.
 >
 > Yes, it's a folder of YAML files. No, it's not a database. That's kind of the
 > point.
@@ -132,14 +145,15 @@ the agent recording a task from the CLI.*
 **Body**
 
 ```bash
-npx roadmapped init       # scaffold docs/tasks/ in your repo
-npx roadmapped dashboard  # open the dashboard in your browser
-npx roadmapped --help     # the CLI your agent (or you) drives
+npx --yes github:5e1y/roadmapped init   # scaffold docs/tasks/ + the Claude skill + git guard
+npm install                             # pull it in — the dashboard ships pre-built, so this is light
+npx roadmapped dashboard                # open it in your browser
 ```
 
 **Under the block**
 
-> Point your AI agent at the Claude skill and it takes it from there.
+> Needs Node ≥ 22.18 and a `package.json`. That's the whole list. Point your AI
+> agent at the Claude skill and it takes it from there.
 
 ---
 

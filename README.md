@@ -56,6 +56,8 @@ Then:
   tasks and dependencies in the correct schema — and records what it ships.
 - **Local and yours.** Your data stays on your machine, in your repo. Not out of principle —
   we simply don't have a server to send it to. Deleting your account is `rm -rf`.
+- **Light.** The dashboard ships pre-built, so installing Roadmapped pulls ~30 MB into your
+  repo — not a full front-end build toolchain. Node ≥ 22.18 and a `package.json`; that's it.
 - **Free, and actually free.** MIT licensed. No pricing page, no seats, no "contact sales."
 
 > Yes, it's a folder of YAML files. No, it's not a database. That's kind of the point.

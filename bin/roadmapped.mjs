@@ -40,7 +40,7 @@ const nodeTs = (script, args) => [
 const USAGE = `Usage: roadmapped <command>
 
 Plumbing (host repo):
-  init       install Roadmapped in the current repo (config, 8-stage skeleton,
+  init       install Roadmapped in the current repo (config, 9-type skeleton,
              .claude/ skill, .mcp.json entry, chained guard hook) — idempotent
   upgrade    update the tool's files (skill, MCP, hook) —
              NEVER touches docs/tasks/ or roadmapped.config.json
