@@ -4,9 +4,10 @@ import { usePanel } from '../state/PanelContext'
 import { usePersistentStrings, usePersistentStringFlag } from '../state/uiPersist'
 import {
   computeAvailability, missingPrereqs, reverseDependents, allEpics, epicProgress,
-  graphLayout, graphNeighborhood,
-  type Availability, type GraphInput, type GraphPoint,
+  graphNeighborhood,
+  type Availability,
 } from '../lib/roadmap'
+import { graphLayout, type GraphInput, type GraphPoint } from '../lib/graphLayout'
 import { LockLocked } from 'trinil-react'
 import { Chevron, EpicGlyph, KindGlyph } from './glyphs'
 import { Chip } from './Chip'

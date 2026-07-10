@@ -1,4 +1,23 @@
 #!/bin/sh
 # Garde roadmapped (#100) : tout changement du repo = une unité roadmapped.
 # Refuse un commit produit sans tâche in_progress. Échappatoire : git commit --no-verify.
+
+# dist/ frais (#200) : si des fichiers du PÉRIMÈTRE FRONT sont stagés (ce qui entre
+# dans le bundle — src/ hors src/server/, index.html, vite.config.ts, package-lock),
+# on reconstruit dist/ et on le stage : le build SERVI doit toujours refléter le src
+# commité. La CI est le verrou dur (elle échoue si dist est périmé) ; ceci n'est que
+# le confort local. Échappatoire : SKIP_DIST=1 git commit …
+if [ "$SKIP_DIST" != "1" ]; then
+  front=$(git diff --cached --name-only \
+    | grep -E '^(index\.html|vite\.config\.ts|package-lock\.json|src/)' \
+    | grep -vE '^src/server/')
+  if [ -n "$front" ]; then
+    if npm run build >/dev/null 2>&1; then
+      git add dist
+    else
+      echo "⚠ dist/ non reconstruit (npm run build a échoué) — la CI bloquera si dist est périmé." >&2
+    fi
+  fi
+fi
+
 exec node scripts/task.mjs guard

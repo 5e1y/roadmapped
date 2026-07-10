@@ -1,19 +1,19 @@
-import type { Plugin, Connect } from 'vite'
+import type { Plugin } from 'vite'
 import type { ServerResponse, IncomingMessage } from 'node:http'
 import { watch, readdirSync } from 'node:fs'
 import { join, basename } from 'node:path'
-import { loadPaths, packageRoot, type RoadmappedPaths } from '../lib/paths'
-import { checkUpdate, UPDATE_REPO, type UpdateStatus } from '../lib/updateNotifier'
+import { loadPaths, packageRoot, type RoadmappedPaths } from '../lib/paths.ts'
+import { checkUpdate, UPDATE_REPO, type UpdateStatus } from '../lib/updateNotifier.ts'
 import {
   treeWithErrors, addTask, updateTask, deleteTask, moveTask,
   updateSection, saveEpics, type MutationResult,
-} from '../lib/taskWrites'
-import { attachTemperatures } from '../lib/roadmap'
-import { buildDocsTree, readDocContent, unsafeDocPath } from './docs'
+} from '../lib/taskWrites.ts'
+import { attachTemperatures } from '../lib/roadmap.ts'
+import { buildDocsTree, readDocContent, unsafeDocPath } from './docs.ts'
 import {
   listNotes, readNote, createNote, writeNote, archiveNote, deleteNote, revealPath, ensureNotesSetup,
   type NoteResult,
-} from './notes'
+} from './notes.ts'
 
 export type ApiAction =
   | { type: 'getTree' }
@@ -216,8 +216,10 @@ function readJsonBody(req: IncomingMessage): Promise<any> {
   })
 }
 
-export function roadmappedApi(): Plugin {
-  const paths = loadPaths()
+// L'API en Node PUR (#200) : un middleware (req,res,next) monté par le serveur prod
+// autonome (serve.ts) ET par le plugin Vite (roadmappedApi, en bas). Un seul code,
+// deux hôtes — la logique (watcher fs, SSE, routes) ne dépend que de node:http.
+export function createApiMiddleware(paths: RoadmappedPaths) {
   // MAJ dispo (#211) : sondée UNE fois au boot (async, non bloquant — checkUpdate
   // fait le git ls-remote hors du chemin de rendu), puis injectée dans le payload
   // getTree pour une notif IN-APP designée. null = à jour / indéterminable / clone
@@ -239,12 +241,11 @@ export function roadmappedApi(): Plugin {
     if (debounce) clearTimeout(debounce)
     debounce = setTimeout(broadcast, 80) // coalesce la salve d'events fs d'une écriture
   }
-  return {
-    name: 'roadmapped-api',
-    configureServer(server) {
-      // Notepad (#87) : au boot, docs/notes/ existe et est gitignoré. repoRoot = cwd du
-      // serveur de dev. Best-effort — jamais bloquant si le FS refuse.
-      try { ensureNotesSetup(paths.docsDir, process.cwd()) } catch { /* non bloquant */ }
+  // Notepad (#87) : au boot, docs/notes/ existe et est gitignoré. repoRoot = paths.root
+  // (en dev, Vite forçait le cwd au repo hôte via le spawn ; le serveur prod tourne
+  // in-process, cwd = là où l'utilisateur a tapé la commande → paths.root est fiable).
+  // Best-effort — jamais bloquant si le FS refuse.
+  try { ensureNotesSetup(paths.docsDir, paths.root) } catch { /* non bloquant */ }
       // File-watch (#147) : fs.watch natif récursif sur tasksDir/docsDir. Toute écriture
       // (agent, CLI, autre onglet) déclenche un signal SSE débouncé.
       // ponytail: recursive:true couvre macOS/Windows ; sous Linux il jette
@@ -264,7 +265,7 @@ export function roadmappedApi(): Plugin {
           } catch { /* dir absent : rien à surveiller */ }
         }
       }
-      server.middlewares.use(async (req: Connect.IncomingMessage, res: ServerResponse, next) => {
+  return async (req: IncomingMessage, res: ServerResponse, next: () => void) => {
         const url = new URL(req.url ?? '/', 'http://localhost')
         if (!url.pathname.startsWith('/api/')) return next()
 
@@ -302,7 +303,16 @@ export function roadmappedApi(): Plugin {
         res.statusCode = status
         res.setHeader('Content-Type', 'application/json')
         res.end(JSON.stringify(out))
-      })
+  }
+}
+
+// Coquille plugin Vite (#200) : notre atelier de dev (`npm run dev`) monte le MÊME
+// middleware. L'hôte ne lance plus jamais Vite — c'est serve.ts qui l'utilise en prod.
+export function roadmappedApi(): Plugin {
+  return {
+    name: 'roadmapped-api',
+    configureServer(server) {
+      server.middlewares.use(createApiMiddleware(loadPaths()))
     },
   }
 }
