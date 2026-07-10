@@ -13,3 +13,4 @@ for features), or the issue this fixes.
 - [ ] Build passes locally (`npm run build`)
 - [ ] Feature work references a spec in `docs/specs/`
 - [ ] New behavior is covered by tests
+- [ ] Commits are signed off (`git commit -s`) per the [DCO](../CONTRIBUTING.md#licensing-of-contributions)
