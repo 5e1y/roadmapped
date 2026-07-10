@@ -1,0 +1,60 @@
+name: Bug report
+description: Something isn't behaving as promised
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Roadmapped is just files — the more precisely you pin the repro, the faster it's fixed.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What went wrong, and what you expected instead.
+      placeholder: Ran `npx roadmapped dashboard`, got a white screen. Expected the backlog.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: The exact commands or clicks. A repro we can run is worth ten descriptions.
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Roadmapped version / commit
+      description: The `roadmapped` SHA in your host `package-lock.json` (GitHub-sourced install), or the header of `npx roadmapped --help`.
+    validations:
+      required: true
+  - type: input
+    id: node
+    attributes:
+      label: Node version
+      description: Output of `node -v` (Roadmapped needs ≥ 22.18).
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: OS
+      placeholder: macOS 15.5 / Ubuntu 24.04 / Windows 11
+  - type: textarea
+    id: context
+    attributes:
+      label: Logs / screenshots
+      description: Anything else — terminal output, a screenshot, the offending task YAML.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before you file
+      options:
+        - label: I searched existing issues and this isn't a duplicate
+          required: true
+        - label: I'm on a supported setup (Node ≥ 22.18, a repo with a package.json)
+          required: true
