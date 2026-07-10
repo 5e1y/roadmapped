@@ -1,0 +1,25 @@
+id: 277
+code: null
+title: Première partie full-bleed + grille de colonnes visible
+status: in_progress
+tags: []
+size: null
+detail: >-
+  Hero + démo passent en pleine largeur (retirer le cap --container-max sur ces 2 sections). Garder
+  les rails/colonnes façon Vercel VISIBLES en full-bleed : grille de colonnes régulière sur toute la
+  largeur (filets verticaux répétés) au lieu de 2 filets aux bords. Reste des sections : conteneur
+  centré inchangé. Fichiers : site/index.html, site/style.css. Voir spec D3.
+refs:
+  - docs/specs/2026-07-10-site-v3.md
+links: []
+dependsOn: []
+epic: site-v3
+source: ai
+createdAt: "2026-07-10T23:56:59"
+startedAt: "2026-07-11T00:01:26"
+updatedAt: "2026-07-11T00:01:26"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

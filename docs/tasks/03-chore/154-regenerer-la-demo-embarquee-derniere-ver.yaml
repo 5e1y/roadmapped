@@ -1,0 +1,29 @@
+id: 281
+code: null
+title: Régénérer la démo embarquée (dernière version de l'app)
+status: done
+tags: []
+size: null
+heat: 55
+detail: >-
+  npm run build:demo dans le repo app → dist-demo/ → recopier dans site/demo/ (remplace l'ancienne
+  build). La démo embarque alors la dernière app (dark mode #269 inclus). Vérifier que le bundle
+  démo tourne (index.html + assets). Repos : app (build) + site (copie). Voir spec D7.
+refs:
+  - docs/specs/2026-07-10-site-v3.md
+  - vite.demo.config.ts
+links: []
+dependsOn: []
+epic: site-v3
+source: ai
+createdAt: "2026-07-10T23:57:13"
+startedAt: "2026-07-11T00:01:28"
+updatedAt: "2026-07-11T00:03:02"
+completedAt: "2026-07-11"
+commit: "0212477"
+outcome: >-
+  Démo embarquée régénérée : npm run build:demo (416 modules, dernière app avec dark mode #269) →
+  dist-demo → recopiée dans site/demo/ (index.html + assets). Fini la vieille build ; la démo
+  reflète l'app actuelle.
+verification: Build OK (vite), site/demo/index.html + assets présents après copie.
+release: null

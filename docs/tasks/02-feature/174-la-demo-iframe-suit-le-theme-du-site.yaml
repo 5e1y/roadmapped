@@ -1,0 +1,26 @@
+id: 282
+code: null
+title: La démo iframe suit le thème du site
+status: todo
+tags: []
+size: null
+detail: >-
+  Quand le site bascule clair/sombre, l'iframe démo (/demo/, même origine) bascule aussi. Site :
+  passe le thème à l'iframe (query ?theme= au chargement + mise à jour au toggle via
+  data-theme/postMessage). App : index.demo.html lit ce thème (script anti-flash miroir de l'app) et
+  pose data-theme sur son html. Dépend du rebuild démo (#281). Repos app (index.demo.html) + site.
+  Voir spec D8.
+refs:
+  - docs/specs/2026-07-10-site-v3.md
+links: []
+dependsOn:
+  - 281
+epic: site-v3
+source: ai
+createdAt: "2026-07-10T23:57:40"
+updatedAt: "2026-07-10T23:57:40"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
