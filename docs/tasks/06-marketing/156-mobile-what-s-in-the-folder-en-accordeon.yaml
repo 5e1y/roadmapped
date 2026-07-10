@@ -17,15 +17,12 @@ epic: site-v3
 source: ai
 createdAt: "2026-07-11T00:33:23"
 startedAt: "2026-07-11T00:33:44"
-updatedAt: "2026-07-11T01:18:03"
+updatedAt: "2026-07-11T01:24:27"
 completedAt: "2026-07-11"
-commit: 205705d
+commit: b553eea
 outcome: >-
-  Dépliement de l'accordéon mobile ANIMÉ (feedback Rémi) : transition grid-template-rows 0fr↔1fr
-  (insensible à la hauteur du contenu) via classe .is-open sur la carte, gated par html.js-accordion
-  (sans JS : tout déplié, fallback préservé). Corps replié passé en inert (hors focus/AT).
-  prefers-reduced-motion → pas de transition. Remplace le hidden sec précédent.
-verification: >-
-  node --check OK, plus de it.body.hidden, is-open toggle + js-accordion gate présents. Animation à
-  valider en preview mobile.
+  Feedback Rémi : la carte entière du dépliant est cliquable en mobile (plus seulement la tête).
+  Listener sur .feature-card (gardé mobile-only via mq), bouton conservé pour le clavier, clic qui
+  bulle → un seul toggle. cursor:pointer sur toute la carte en mobile.
+verification: node --check OK ; listener sur .card, ancien listener bouton retiré (grep).
 release: null

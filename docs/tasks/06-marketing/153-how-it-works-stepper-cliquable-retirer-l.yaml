@@ -18,16 +18,12 @@ epic: site-v3
 source: ai
 createdAt: "2026-07-11T00:33:08"
 startedAt: "2026-07-11T00:33:43"
-updatedAt: "2026-07-11T01:18:00"
+updatedAt: "2026-07-11T01:24:24"
 completedAt: "2026-07-11"
-commit: 205705d
+commit: b553eea
 outcome: >-
-  Correction feedback Rémi : les aperçus ne devaient disparaître que sur mobile. Restaurés sur
-  DESKTOP (les 4 : arbre fichiers, terminal CLI, diff git, mini-board) en colonne droite du stepper
-  (.how-stage 2-col + régime pinné, un visuel actif à la fois, synchronisé au scroll ET au clic
-  d'étape). Masqués sous 62rem → mobile/tablette = 4 étapes seules en une colonne. Navigation
-  cliquable conservée.
-verification: >-
-  node --check scripts OK, CSS 172/172, HTML balancé, 4 how-visual présents, visuals.forEach dans
-  setStep. Rendu desktop/mobile à valider en preview.
+  Feedback Rémi : les 4 points pinned sont cliquables sur toute leur surface (plus seulement le
+  titre). Listener déplacé du bouton titre vers le <li>.how-step entier ; le bouton reste le
+  contrôle clavier, son clic bulle → un seul goTo. cursor:pointer sur toute l'étape.
+verification: node --check OK ; listener sur <li>, ancien listener bouton retiré (grep).
 release: null
