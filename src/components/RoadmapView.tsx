@@ -1,28 +1,23 @@
 import { useState } from 'react'
 import { EyeClosed, EyeOpen } from 'trinil-react'
 import { useTree } from '../state/TreeContext'
-import { usePersistentFlag } from '../state/uiPersist'
 import { ViewHeader } from './ViewHeader'
 import { RoadmapColumns, GlobalProgress } from './RoadmapColumns'
 import { RoadmapGraph } from './RoadmapGraph'
 
 /**
- * Tickets terminés MASQUÉS par défaut dans la Roadmap (décision Rémi) —
- * préférence partagée Colonnes/Graphe et persistée. Le Graphe garde les done
- * qui sont dépendances (transitives) de tickets affichés : arêtes intègres.
- */
-export function useShowDone(): [boolean, (v: boolean) => void] {
-  return usePersistentFlag('roadmap:showDone', 1)
-}
-
-/**
  * Vue Roadmap = les sections du backlog vues comme des jalons (une colonne
  * par section, ordre de priorité NN). Deux modes : Colonnes / Graphe.
+ *
+ * Tickets terminés MASQUÉS par défaut, « done à la demande » (#247) : état de
+ * SESSION (pas persisté — un coup d'œil d'historique, pas une préférence),
+ * partagé Colonnes/Graphe via props. Le Graphe garde les done qui sont
+ * dépendances (transitives) de tickets affichés : arêtes intègres.
  */
 export function RoadmapView() {
   const { tree, errors, loading, loadError } = useTree()
   const [mode, setMode] = useState<'columns' | 'graph'>('columns')
-  const [showDone, setShowDone] = useShowDone()
+  const [showDone, setShowDone] = useState(false)
 
   if (loading && !tree) {
     return <div className="mx-auto max-w-3xl px-6 py-8 text-sm text-neutral-500">Loading…</div>
@@ -77,7 +72,7 @@ export function RoadmapView() {
         </div>
       </ViewHeader>
       <div className="min-h-0 flex-1 overflow-auto">
-        {mode === 'columns' ? <RoadmapColumns /> : <RoadmapGraph />}
+        {mode === 'columns' ? <RoadmapColumns showDone={showDone} /> : <RoadmapGraph showDone={showDone} />}
       </div>
     </div>
   )

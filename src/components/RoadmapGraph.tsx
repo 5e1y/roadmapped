@@ -12,7 +12,6 @@ import { Chevron, EpicGlyph, KindGlyph } from './glyphs'
 import { Chip } from './Chip'
 import { epicStatusOf } from './EpicRow'
 import type { TaskTree, TaskNode } from '../lib/tasks'
-import { useShowDone } from './RoadmapView'
 import { useZoomPan, ZOOM_STEP } from './useZoomPan'
 
 const CARD_W = 248, CARD_H = 72
@@ -216,7 +215,7 @@ const EDGE_STROKE: Record<EdgeTone, string> = { default: '#737373', strong: '#17
 const EDGE_MARKER: Record<EdgeTone, string> = { default: 'url(#rm-arrow)', strong: 'url(#rm-arrow-strong)', dim: 'url(#rm-arrow-dim)' }
 
 /** Vue achievement : layout FLUX-DE-DÉPENDANCES (dagre, prérequis → dépendant). */
-export function RoadmapGraph() {
+export function RoadmapGraph({ showDone }: { showDone: boolean }) {
   const { tree } = useTree()
   if (!tree) return null
   const sections = tree.sections.filter((s) => s.status !== 'abandoned')
@@ -227,11 +226,10 @@ export function RoadmapGraph() {
       </div>
     )
   }
-  return <GraphCanvas tree={tree} />
+  return <GraphCanvas tree={tree} showDone={showDone} />
 }
 
-function GraphCanvas({ tree }: { tree: TaskTree }) {
-  const [showDone] = useShowDone()
+function GraphCanvas({ tree, showDone }: { tree: TaskTree; showDone: boolean }) {
   // Épics dépliés (partagé avec les cartes EpicGraphNode) : la hauteur d'un nœud
   // déplié participe au layout, le composant racine doit donc s'y abonner.
   const [expandedEpics] = usePersistentStrings('graph:epics')
