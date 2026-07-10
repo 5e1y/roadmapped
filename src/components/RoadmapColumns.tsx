@@ -1,15 +1,15 @@
 import { useState } from 'react'
+import { Collapsible } from '@base-ui/react/collapsible'
 import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
 import { computeAvailability, missingPrereqs, reverseDependents, globalProgress, type Availability } from '../lib/roadmap'
 import { EditPen, LockLocked } from 'trinil-react'
-import { KindGlyph } from './glyphs'
+import { Chevron, KindGlyph } from './glyphs'
 import { Chip } from './Chip'
 import { TempBadge, rowTemperature } from './Temperature'
 import { EpicBand, epicBandItems } from './EpicBand'
 import { countTasksDeep, SECTION_STATUS_LABEL } from '../lib/tasks'
 import type { SectionNode, TaskNode } from '../lib/tasks'
-import { useShowDone } from './RoadmapView'
 
 function ProgressBar({ done, total }: { done: number; total: number }) {
   const pct = total === 0 ? 0 : Math.round((done / total) * 100)
@@ -47,8 +47,9 @@ function TaskCard({ task, state, missing, blocksCount = 0 }: { task: TaskNode; s
   const subs = task.subtasks.length > 0 ? countTasksDeep(task.subtasks) : null
   const temp = rowTemperature(task)
   return (
+    // Densité (#246) : py-2 / gap-1 — la carte gagne ~6px sans perdre une info.
     <button type="button" onClick={() => openTask(task.id)} title={task.title}
-      className={`relative -mt-px flex w-full flex-col gap-1.5 px-3 py-2.5 text-left first:mt-0 ${skin}`}>
+      className={`relative -mt-px flex w-full flex-col gap-1 px-3 py-2 text-left first:mt-0 ${skin}`}>
       <div className="flex items-start gap-2">
         <span className="flex h-5 shrink-0 items-center">
           {state === 'locked'
@@ -90,19 +91,23 @@ function TaskCard({ task, state, missing, blocksCount = 0 }: { task: TaskNode; s
  * colonnes, quelle que soit la longueur des notes. Les rangées vides gardent
  * un placeholder pour ne pas décaler les suivantes.
  * `scope` = les tâches comptées (filtre epic appliqué, done compris) ;
- * `tasks` = les cartes rendues (toggle « done » appliqué en plus).
+ * `open` = les cartes rendues à plat ; `done` = les terminées, repliées
+ * derrière « + N done » (#244) — [] quand le toggle done global est OFF.
  */
-function Column({ section, scope, tasks, avail, blocksOf }: {
+function Column({ section, scope, open, done, avail, blocksOf }: {
   section: SectionNode
   scope: TaskNode[]
-  tasks: TaskNode[]
+  open: TaskNode[]
+  done: TaskNode[]
   avail: Map<number, Availability>
   blocksOf: (t: TaskNode) => number
 }) {
+  // Dépli des done de LA colonne : état de session, replié par défaut.
+  const [doneOpen, setDoneOpen] = useState(false)
   const { openSection } = usePanel()
   // Compteurs et barre = le périmètre RÉEL de la colonne (scope) ; les cartes
   // rendues = visible (les done masqués ne changent pas la progression affichée).
-  const { done, total } = countTasksDeep(scope)
+  const { done: doneCount, total } = countTasksDeep(scope)
   const empty = scope.length === 0
   const statusLabel = section.status !== 'open' ? SECTION_STATUS_LABEL[section.status] : null
   return (
@@ -133,25 +138,47 @@ function Column({ section, scope, tasks, avail, blocksOf }: {
           </button>
           {statusLabel && !empty && <Chip label={statusLabel} />}
           {/* Compteur porteur de sens même à 0/0 : plancher neutral-500 (audit #108). */}
-          <span className="font-mono text-xs text-neutral-500">{done}/{total}</span>
+          <span className="font-mono text-xs text-neutral-500">{doneCount}/{total}</span>
         </span>
       </div>
-      {/* Type vide = estompé : ni note ni barre, l'espace va aux types peuplés. */}
+      {/* Type vide = estompé : ni note ni barre, l'espace va aux types peuplés.
+          Note CLAMPÉE à 2 lignes (#246) : une note longue gonflait la rangée
+          subgrid de TOUTES les colonnes — l'intégrale vit dans le title. */}
       {section.note && !empty ? (
-        <p className="text-xs leading-relaxed text-neutral-500">{section.note}</p>
+        <p className="line-clamp-2 text-xs leading-relaxed text-neutral-500" title={section.note}>{section.note}</p>
       ) : (
         <div aria-hidden />
       )}
-      <div className="self-end">{!empty && <ProgressBar done={done} total={total} />}</div>
+      <div className="self-end">{!empty && <ProgressBar done={doneCount} total={total} />}</div>
       {/* Cartes accolées (gap 0, bordures fusionnées par -mt-px) : liste dense,
           à PLAT — plus de carte-groupe d'epic dans les colonnes (#235) : le
           transversal vit dans la bande d'epics au-dessus, chaque tâche chez
           son type. Les cartes à liseré fort (sélection) passent au-dessus
           (z-10) pour que leur bordure ne soit pas mangée par la suivante. */}
       <div className="flex min-w-0 flex-col pt-1.5">
-        {tasks.map((task) => (
+        {open.map((task) => (
           <TaskCard key={task.id} task={task} state={avail.get(task.id) ?? 'available'} missing={missingPrereqs(task, avail)} blocksCount={blocksOf(task)} />
         ))}
+        {/* Repli « + N done » (#244) : l'historique de la colonne à la demande,
+            jamais N cartes barrées d'office. Rendu seulement toggle done ON. */}
+        {done.length > 0 && (
+          <Collapsible.Root open={doneOpen} onOpenChange={setDoneOpen}>
+            <Collapsible.Trigger
+              title={doneOpen ? 'Fold the completed tasks of this column' : 'Unfold the completed tasks of this column'}
+              className="-mt-px flex w-full items-center gap-1.5 border border-neutral-200 bg-white px-3 py-1.5 text-left text-xs text-neutral-500 hover:bg-neutral-50 hover:text-neutral-700"
+            >
+              <Chevron />
+              {done.length} done
+            </Collapsible.Trigger>
+            <Collapsible.Panel>
+              <div className="-mt-px flex min-w-0 flex-col">
+                {done.map((task) => (
+                  <TaskCard key={task.id} task={task} state={avail.get(task.id) ?? 'available'} missing={missingPrereqs(task, avail)} blocksCount={blocksOf(task)} />
+                ))}
+              </div>
+            </Collapsible.Panel>
+          </Collapsible.Root>
+        )}
       </div>
     </div>
   )
@@ -163,9 +190,8 @@ function Column({ section, scope, tasks, avail, blocksOf }: {
  * Le filtre epic (clic sur une carte de la bande) restreint les 9 colonnes
  * aux membres de cet epic ; les compteurs/barres suivent le périmètre filtré.
  */
-export function RoadmapColumns() {
+export function RoadmapColumns({ showDone }: { showDone: boolean }) {
   const { tree } = useTree()
-  const [showDone] = useShowDone()
   // Filtre epic : état de session (pas persisté — un filtre de lecture, pas une préférence).
   const [epicFilter, setEpicFilter] = useState<string | null>(null)
   if (!tree) return null
@@ -174,18 +200,22 @@ export function RoadmapColumns() {
   // « bloque N » des jalons : dépendants inverses, calculé une fois par carte jalon.
   const blocksOf = (t: TaskNode) => (t.kind === 'milestone' ? reverseDependents(tree, t.id).length : 0)
 
-  // Bande d'epics : les terminés suivent le toggle « done » (repli, comme les
-  // cartes) — sauf celui éventuellement sélectionné, jamais escamoté sous son
-  // propre filtre. Le filtre d'un epic disparu (rename/reload) est ignoré.
-  const band = epicBandItems(tree).filter(
-    (i) => showDone || i.status !== 'done' || i.slug === epicFilter,
-  )
+  // Bande d'epics (#243) : les non-terminés en cartes ; les 100 % done vivent
+  // derrière le repli « + N done » de la bande, et SEULEMENT toggle done ON
+  // (cohérence : un done caché = epic all-done caché). L'epic sélectionné
+  // reste en carte, jamais escamoté sous son propre filtre. Le filtre d'un
+  // epic disparu (rename/reload) est ignoré.
+  const band = epicBandItems(tree)
+  const openBand = band.filter((i) => i.status !== 'done' || i.slug === epicFilter)
+  const doneBand = showDone ? band.filter((i) => i.status === 'done' && i.slug !== epicFilter) : []
   const selected = epicFilter !== null && band.some((i) => i.slug === epicFilter) ? epicFilter : null
 
   const scopeOf = (s: SectionNode) =>
     selected === null ? s.tasks : s.tasks.filter((t) => t.epic === selected)
-  const visibleOf = (s: SectionNode) =>
-    scopeOf(s).filter((t) => showDone || t.status !== 'done')
+  // Cartes à plat = les non-terminées ; les done vont au repli par colonne
+  // (#244) quand le toggle done global les rend visibles, sinon nulle part.
+  const openOf = (s: SectionNode) => scopeOf(s).filter((t) => t.status !== 'done')
+  const doneOf = (s: SectionNode) => (showDone ? scopeOf(s).filter((t) => t.status === 'done') : [])
 
   // Largeurs par colonne : un type vide (ou vidé par le filtre epic) est
   // resserré — les 9 colonnes restent visibles sans voler l'espace.
@@ -193,13 +223,13 @@ export function RoadmapColumns() {
 
   return (
     <div className="flex h-full flex-col">
-      <EpicBand items={band} selected={selected} onSelect={setEpicFilter} />
+      <EpicBand items={openBand} doneItems={doneBand} selected={selected} onSelect={setEpicFilter} />
       <div
         className="roadmap-cols-scroll grid min-h-0 flex-1 grid-flow-col grid-rows-[auto_auto_auto_1fr] gap-x-4 gap-y-1.5 overflow-x-auto px-6 pb-6"
         style={{ gridTemplateColumns: template }}
       >
         {sections.map((s) => (
-          <Column key={s.key} section={s} scope={scopeOf(s)} tasks={visibleOf(s)} avail={avail} blocksOf={blocksOf} />
+          <Column key={s.key} section={s} scope={scopeOf(s)} open={openOf(s)} done={doneOf(s)} avail={avail} blocksOf={blocksOf} />
         ))}
       </div>
     </div>
