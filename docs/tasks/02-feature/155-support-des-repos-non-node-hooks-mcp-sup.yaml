@@ -1,7 +1,7 @@
 id: 201
 code: null
 title: "Support des repos NON-Node : hooks/MCP supposent package.json + node_modules/roadmapped"
-status: todo
+status: done
 tags:
   - publish
 size: null
@@ -17,9 +17,21 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-09T02:15:35"
-updatedAt: "2026-07-10T10:34:05"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+startedAt: "2026-07-10T11:41:39"
+updatedAt: "2026-07-10T11:41:54"
+completedAt: "2026-07-10"
+commit: 82e2dd3
+outcome: >-
+  Tranché avec Rémi (option c) : Roadmapped est Node-only pour v1, on le documente au lieu de
+  l'implémenter. README : bloc « Requirements » explicite (Node ≥ 22.18 + package.json hôte, car
+  install en devDep → hooks+MCP résolvent via node_modules/roadmapped/) + escape hatch pour repo
+  non-Node (Python/Go/Rust) : `npm init -y` d'un package.json minimal, ou suivi depuis un repo Node
+  voisin. setup.md du skill (lu par l'agent à l'install) : même note en §0. Support non-Node de
+  première classe (fallback npx = option a, ou launcher autonome = option b) explicitement marqué «
+  roadmap, pas v1 » aux deux endroits. Aucun code : YAGNI, zéro utilisateur non-Node avéré avant
+  launch.
+verification: >-
+  README.md relu (bloc Requirements + non-Node sous la section install) ; setup.md §0 relu (note
+  prérequis avant « host root »). Cohérent avec la garde Node ≥ 22.18 déjà présente dans
+  bin/roadmapped.mjs (échec clair si Node trop vieux).
 release: null
