@@ -5,6 +5,7 @@ import { useTree } from '../state/TreeContext'
 import { useView, type View } from '../state/ViewContext'
 import { LiveActivityMenu } from './LiveActivityMenu'
 import { UpdateNotice } from './UpdateNotice'
+import { BirdMascot } from './BirdMascot'
 
 const NAV: { id: View; label: string }[] = [
   { id: 'backlog', label: 'Backlog' },
@@ -35,7 +36,8 @@ export function ViewHeader({ meta, children }: {
             plusieurs sont ouverts. Le × séparateur en graisse Light (décision Rémi) ;
             le repo tronque, marque + × ne rétrécissent pas. Sans repoName (build démo
             statique, avant 1er /api/tree) : marque seule, pas de × orphelin. */}
-        <h1 className="flex min-w-0 items-baseline gap-1.5 text-sm tracking-tight">
+        <h1 className="flex min-w-0 items-center gap-1.5 text-sm tracking-tight">
+          <BirdMascot />
           <span className="shrink-0 font-semibold text-neutral-900">Roadmapped</span>
           {repoName && (
             <>
