@@ -20,6 +20,7 @@ import { Markdown } from './Markdown'
 import { OPEN_DOC_EVENT } from '../lib/events'
 import { markTaskSeen } from '../state/seenTasks'
 import type { TaskNode, TaskTree } from '../lib/tasks'
+import { TYPES } from '../lib/tasks'
 
 /**
  * Panneau de tâche v2 « lecture d'abord » (spec docs/specs/2026-07-07-task-panel.md)
@@ -54,6 +55,9 @@ const SIZE_ITEMS: SelectItem[] = [
   { value: 'M', label: 'M' },
   { value: 'L', label: 'L' },
 ]
+
+/** Les 9 types (#251) : changer le type déplace le ticket dans le dossier du type. */
+const TYPE_ITEMS: SelectItem[] = TYPES.map((t) => ({ value: t.slug, label: t.title }))
 
 /** Deux valeurs (potentiellement listes) diffèrent-elles ? Comparaison structurelle, null-safe. */
 const changed = (a: unknown, b: unknown) => JSON.stringify(a ?? null) !== JSON.stringify(b ?? null)
@@ -555,6 +559,22 @@ function TaskPanelBody({ id }: { id: number }) {
             <DoneForm task={task} busy={pending} onCancel={() => setDoneOpen(false)} onSubmit={finishDone} />
           </Collapsible.Panel>
         </Collapsible.Root>
+      </div>
+
+      {/* Type (#251) : la NATURE du ticket = son dossier. Le changer DÉPLACE le
+          fichier (moveTask côté API) ; la base de température suit le nouveau type.
+          key={file} : le Select se remonte sur la nouvelle valeur après déplacement. */}
+      <div className="flex flex-col gap-0.5">
+        <SectionLabel>Type</SectionLabel>
+        <Select
+          ghost
+          aria-label="Type"
+          key={`type-${task.file}`}
+          defaultValue={task.file.split('/')[2] ?? ''}
+          items={TYPE_ITEMS}
+          onValueChange={(v) => void save('type', v !== task.file.split('/')[2], { type: v })}
+        />
+        <FieldError errs={errors.type} />
       </div>
 
       {/* Métadonnées : champs ghost permanents, étiquetés. */}

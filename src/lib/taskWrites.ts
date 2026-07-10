@@ -7,6 +7,7 @@ import yaml from 'js-yaml'
 import { buildTaskTree } from './tasks.ts'
 import { validateTaskTree, validateIdUniquenessAcrossFiles } from './validate.ts'
 import type { TaskTree, TaskNode, TaskFileMap, FeedbackItem } from './tasks'
+import { TYPES } from './tasks.ts'
 
 export const FIELD_ORDER = [
   'id', 'kind', 'code', 'title', 'status', 'tags', 'size', 'heat', 'detail',
@@ -544,6 +545,53 @@ function listFilesRecursive(dir: string): string[] {
 
 export function deleteTask(tasksDir: string, id: number): MutationResult {
   return withLock(tasksDir, () => deleteTaskImpl(tasksDir, id))
+}
+
+/** Déplace une tâche de premier niveau vers un autre TYPE (#251). Le type EST le
+ *  dossier ; changer le type = déplacer le fichier (write neuf + delete ancien),
+ *  dossier-jumeau de sous-tâches compris. No-op si déjà dans ce type. La base de
+ *  température suit automatiquement (dérivée de la nouvelle section). */
+export function moveTask(tasksDir: string, id: number, newSection: string): MutationResult {
+  return withLock(tasksDir, () => moveTaskImpl(tasksDir, id, newSection))
+}
+
+function moveTaskImpl(tasksDir: string, id: number, newSection: string): MutationResult {
+  if (!TYPES.some((t) => t.slug === newSection)) {
+    return { ok: false, errors: [`Type inconnu : ${newSection} — attendu l'un des 9 types canoniques.`] }
+  }
+  const tree = readTree(tasksDir)
+  const hit = findTask(tree, id)
+  if (!hit) return { ok: false, errors: [`Aucune tâche #${id}.`], notFound: true }
+  const rel = hit.task.file.replace(/^docs\/tasks\//, '')
+  const parts = rel.split('/')
+  if (parts.length !== 2) {
+    return { ok: false, errors: [`#${id} est une sous-tâche — son type suit son parent ; déplace le parent.`] }
+  }
+  if (parts[0] === newSection) return { ok: true, tree } // déjà dans ce type
+
+  const filename = parts[1]
+  const absOld = absPathOf(tasksDir, hit.task.file)
+  const prevContent = readFileSync(absOld, 'utf8')
+  const raw = yaml.load(prevContent) as Record<string, unknown>
+  raw.updatedAt = now()
+  const absNew = join(tasksDir, newSection, filename)
+  const ops: Op[] = [
+    { absPath: absNew, content: dumpTask(raw), prevContent: null },
+    { absPath: absOld, content: null, prevContent },
+  ]
+  // Dossier-jumeau de sous-tâches (rare) : le déplacer avec son parent.
+  const base = filename.replace(/\.yaml$/, '')
+  const twinOld = join(dirname(absOld), base)
+  const twinNew = join(tasksDir, newSection, base)
+  if (existsSync(twinOld) && statSync(twinOld).isDirectory()) {
+    for (const abs of listFilesRecursive(twinOld)) {
+      ops.push({ absPath: join(twinNew, relative(twinOld, abs)), content: readFileSync(abs, 'utf8'), prevContent: null })
+      ops.push({ absPath: abs, content: null, prevContent: readFileSync(abs, 'utf8') })
+    }
+  }
+  const res = commitWrites(tasksDir, ops)
+  if (res.ok && existsSync(twinOld)) rmSync(twinOld, { recursive: true, force: true })
+  return res
 }
 
 function deleteTaskImpl(tasksDir: string, id: number): MutationResult {

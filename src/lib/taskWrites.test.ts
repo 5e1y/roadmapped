@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync, writeFileSync, existsSync, readFileSync, mkdirSync
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import {
-  addTask, updateTask, startTask, doneTask, deleteTask, addFeedback,
+  addTask, updateTask, startTask, doneTask, deleteTask, moveTask, addFeedback,
   updateSection, readTree, findTask, saveEpics, withLock,
 } from './taskWrites'
 import { seedStages } from './stageFixtures'
@@ -531,5 +531,32 @@ describe('saveEpics', () => {
     add({ title: 'T', epic: 'socle' }) // #1 sur "socle"
     const res = saveEpics(dir, { epics: [] })
     expect(res.ok).toBe(true) // l'epic devient simplement auto-découvert
+  })
+})
+
+describe('moveTask (#251) — changer le type déplace le fichier', () => {
+  it('déplace la tâche dans le dossier du nouveau type', () => {
+    const c = add(); if (!c.ok) return; const created = c.task!
+    expect(created.file).toContain('02-feature/')
+    const res = moveTask(dir, created.id, '05-design')
+    expect(res.ok).toBe(true)
+    if (!res.ok) return
+    const moved = findTask(res.tree, created.id)!.task
+    expect(moved.file).toContain('05-design/')
+    expect(moved.file).not.toContain('02-feature/')
+    expect(existsSync(join(dir, '02-feature', '01-tache.yaml'))).toBe(false) // ancien fichier supprimé
+  })
+  it('rejette un type inconnu, laisse la tâche en place', () => {
+    const c = add(); if (!c.ok) return; const created = c.task!
+    const res = moveTask(dir, created.id, '99-bogus')
+    expect(res.ok).toBe(false)
+    expect(findTask(readTree(dir), created.id)!.task.file).toContain('02-feature/')
+  })
+  it('no-op si déjà dans le type', () => {
+    const c = add(); if (!c.ok) return; const created = c.task!
+    const res = moveTask(dir, created.id, SEC)
+    expect(res.ok).toBe(true)
+    if (!res.ok) return
+    expect(findTask(res.tree, created.id)!.task.file).toContain('02-feature/')
   })
 })
