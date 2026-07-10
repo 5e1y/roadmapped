@@ -5,7 +5,7 @@ import '../index.css'
 import { installDemoApi } from './api'
 
 /*
- * Entrée DÉMO (#148) — le bundle embarqué sur roadmapped.work.
+ * Entrée DÉMO (#148) — le bundle embarqué sur roadmapped.dev.
  * Le shim est posé AVANT le premier render : TreeProvider fetch('/api/tree')
  * au montage et doit tomber sur la démo, jamais sur le réseau.
  * Tout le reste est l'App normale, à l'identique.

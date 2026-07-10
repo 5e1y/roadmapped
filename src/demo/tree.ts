@@ -1,7 +1,7 @@
 import { buildTaskTree, type TaskFileMap, type TaskTree } from '../lib/tasks'
 
 /*
- * Le backlog DÉMO (#148) — celui qui s'affiche sur roadmapped.work.
+ * Le backlog DÉMO (#148) — celui qui s'affiche sur roadmapped.dev.
  *
  * Quatrième mur assumé : ces tickets sont les étapes (à peine romancées) de la
  * construction de la homepage qui les affiche. Le format est le VRAI format —
@@ -54,7 +54,7 @@ release: null
 
   // ------------------------------------------------------------ 09-business
   'docs/tasks/09-business/01-name-check-roadmapped-work.yaml': `id: 2
-title: "Name check: roadmapped.work"
+title: "Name check: roadmapped.dev"
 status: "done"
 tags:
   - "site"
