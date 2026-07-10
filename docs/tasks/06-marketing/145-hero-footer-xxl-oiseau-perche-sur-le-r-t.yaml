@@ -1,7 +1,7 @@
 id: 266
 code: null
 title: Hero & footer XXL + oiseau perché sur le R (texte SVG), header retiré
-status: todo
+status: done
 tags: []
 size: null
 heat: 60
@@ -16,9 +16,19 @@ dependsOn: []
 epic: site-v2
 source: ai
 createdAt: "2026-07-10T22:04:49"
-updatedAt: "2026-07-10T22:04:49"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+startedAt: "2026-07-10T22:34:48"
+updatedAt: "2026-07-10T22:48:49"
+completedAt: "2026-07-10"
+commit: ce14824
+outcome: >-
+  Hero & footer XXL : wordmark « Roadmapped » en SVG pleine largeur (hero + footer), header supprimé
+  au profit d'une .corner-nav fixe (lien GitHub + toggle thème conservés). Oiseau démarre POSÉ sur
+  le R du hero (perchoir invisible ancré via mesure TextMetrics de l'encre du R), attend 1s puis
+  suit le curseur ; voyage entre le R du hero et celui du footer. roadmapped-bird.js : nouvelles
+  options startPerchSelector + startDelayMs, comportement historique intact sinon. Fallback propre
+  (vieux moteurs / reload en milieu de page → entrée par le haut).
+verification: >-
+  node --check module + 5 scripts inline OK ; balises équilibrées ; CSS 122/122 ; plus de
+  .site-header/.hero-title ; repo app intouché (périmètre verrouillé). Rendu réel à valider en
+  preview (desktop+mobile, clair+sombre).
 release: null

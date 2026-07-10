@@ -1,0 +1,29 @@
+id: 272
+code: null
+title: "Oiseau du site : theme-aware (tête navy illisible en dark)"
+status: done
+tags: []
+size: null
+heat: 45
+detail: >-
+  roadmapped-bird.js a une palette fixe : la tête navy se fond sur le thème sombre du site
+  (#0a0a0a). Rendre le module theme-aware : lire data-theme sur documentElement, éclaircir le navy
+  (KK) en dark, re-baker les sprites au changement de thème (observer data-theme + matchMedia). Repo
+  site.
+refs: []
+links: []
+dependsOn: []
+epic: site-v2
+source: ai
+createdAt: "2026-07-10T22:48:54"
+startedAt: "2026-07-10T22:49:18"
+updatedAt: "2026-07-10T22:52:37"
+completedAt: "2026-07-10"
+commit: 81f65c5
+outcome: >-
+  Oiseau du site theme-aware : PAL effective selon data-theme (KK navy → #b4c2dd en dark, lisible
+  sur #0a0a0a, distinct du corps blanc), re-bake des sprites au changement de thème
+  (MutationObserver sur data-theme + matchMedia), cleanup dans destroy(). Géométrie inchangée
+  (FLY0/APEXCY intacts). Override o.palette.KK reste prioritaire.
+verification: node --check + import ESM OK (initBird exporté). Swap conditionnel + observer branchés.
+release: null
