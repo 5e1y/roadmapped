@@ -1,7 +1,7 @@
 id: 277
 code: null
 title: Première partie full-bleed + grille de colonnes visible
-status: in_progress
+status: done
 tags: []
 size: null
 detail: >-
@@ -17,9 +17,15 @@ epic: site-v3
 source: ai
 createdAt: "2026-07-10T23:56:59"
 startedAt: "2026-07-11T00:01:26"
-updatedAt: "2026-07-11T00:01:26"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+updatedAt: "2026-07-11T00:15:01"
+completedAt: "2026-07-11"
+commit: 4b32403
+outcome: >-
+  Hero + démo en full-bleed (max-width levé sur ces sections, lisibilité tenue par les caps en ch du
+  texte). Les 2 filets aux bords deviennent une grille de colonnes régulière (--grid-step clamp
+  7.5-10rem) peinte derrière hero+demo, continue d'une section à l'autre. Reste de la page :
+  conteneur centré 84rem. Grille masquée sous 48rem.
+verification: >-
+  grep : grid-step présent, full-bleed OK ; balises équilibrées (parser). Rendu à valider en
+  preview.
 release: null

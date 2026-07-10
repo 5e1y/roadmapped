@@ -1,7 +1,7 @@
 id: 282
 code: null
 title: La démo iframe suit le thème du site
-status: todo
+status: done
 tags: []
 size: null
 detail: >-
@@ -18,9 +18,17 @@ dependsOn:
 epic: site-v3
 source: ai
 createdAt: "2026-07-10T23:57:40"
-updatedAt: "2026-07-10T23:57:40"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+startedAt: "2026-07-11T00:15:31"
+updatedAt: "2026-07-11T00:17:55"
+completedAt: "2026-07-11"
+commit: ed830ea
+outcome: >-
+  La démo iframe suit le thème du site. App (commit df60c8f) : index.demo.html lit ?theme=dark|light
+  du parent (script anti-flash) → data-theme sur la démo, sinon prefers-color-scheme. Site (commit
+  ed830ea) : l'iframe charge avec demo/?theme=<courant> (pas de flash au bon thème d'emblée) et se
+  met à jour en LIVE au toggle via contentDocument.data-theme (même origine), + listener load pour
+  couvrir le lazy-load. Démo rebuildée avec le script embarqué.
+verification: >-
+  Build démo OK, script thème présent dans site/demo/index.html (vérifié). Câblage toggle→iframe en
+  place. Rendu live (bascule réelle de l'iframe) à valider en preview.
 release: null
