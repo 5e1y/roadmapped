@@ -1,0 +1,22 @@
+id: 261
+code: null
+title: CTA = prompt prêt-à-copier pour l'agent (au lieu de 2× le lien GitHub)
+status: in_progress
+tags: []
+size: null
+detail: >-
+  Les CTA principaux dupliquent le même lien GitHub. Option : le CTA copie un prompt déjà rédigé à
+  donner à son agent. OU gros bouton = lien GitHub + à côté le prompt à copier.
+refs: []
+links: []
+dependsOn: []
+epic: site-v2
+source: ai
+createdAt: "2026-07-10T22:04:30"
+startedAt: "2026-07-10T22:05:31"
+updatedAt: "2026-07-10T22:05:31"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

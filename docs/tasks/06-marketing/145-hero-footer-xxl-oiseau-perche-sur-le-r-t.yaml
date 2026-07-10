@@ -1,0 +1,24 @@
+id: 266
+code: null
+title: Hero & footer XXL + oiseau perché sur le R (texte SVG), header retiré
+status: todo
+tags: []
+size: null
+heat: 60
+detail: >-
+  Hero bien plus stylé : « Roadmapped » prend toute la largeur de l'écran, oiseau posté en haut du
+  R, attend une seconde sur place puis se met à suivre la souris. Footer idem (gros Roadmapped +
+  oiseau qui se re-perche sur le R). Passer le texte en SVG pour le contrôle. Supprimer le header
+  (le hero géant le remplace) et repenser la nav en conséquence.
+refs: []
+links: []
+dependsOn: []
+epic: site-v2
+source: ai
+createdAt: "2026-07-10T22:04:49"
+updatedAt: "2026-07-10T22:04:49"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

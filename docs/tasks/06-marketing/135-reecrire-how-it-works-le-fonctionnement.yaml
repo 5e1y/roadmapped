@@ -1,0 +1,25 @@
+id: 256
+code: null
+title: Réécrire « How it works » — le fonctionnement, pas l'orga des fichiers
+status: in_progress
+tags: []
+size: null
+heat: 50
+detail: >-
+  Le titre dit « How it works » mais la section décrit comment le produit est organisé en fichiers →
+  en désaccord avec le titre. Réécrire pour vraiment expliquer le fonctionnement, ex : « Convert
+  long roadmaps.md into clear traceable tickets and a clear overview of your project… ». Le flux :
+  agent lit/écrit les YAML, tu review le diff, dashboard live.
+refs: []
+links: []
+dependsOn: []
+epic: site-v2
+source: ai
+createdAt: "2026-07-10T22:04:19"
+startedAt: "2026-07-10T22:05:30"
+updatedAt: "2026-07-10T22:05:30"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

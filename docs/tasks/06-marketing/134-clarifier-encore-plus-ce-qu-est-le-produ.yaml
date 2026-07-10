@@ -1,0 +1,23 @@
+id: 255
+code: null
+title: Clarifier encore plus ce qu'EST le produit (hero + intro)
+status: in_progress
+tags: []
+size: null
+heat: 50
+detail: >-
+  La home doit dire plus clairement ce qu'est Roadmapped, tout de suite. Renforcer le hero + l'intro
+  pour qu'un visiteur comprenne le produit en 3 secondes.
+refs: []
+links: []
+dependsOn: []
+epic: site-v2
+source: ai
+createdAt: "2026-07-10T22:04:16"
+startedAt: "2026-07-10T22:05:29"
+updatedAt: "2026-07-10T22:05:29"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

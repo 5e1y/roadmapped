@@ -1,0 +1,22 @@
+id: 259
+code: null
+title: Revoir le texte sous la mise en situation (demo caption)
+status: in_progress
+tags: []
+size: null
+detail: >-
+  Attention au texte sous la mise en situation (le bloc démo terminal+dashboard) : à
+  revoir/clarifier.
+refs: []
+links: []
+dependsOn: []
+epic: site-v2
+source: ai
+createdAt: "2026-07-10T22:04:26"
+startedAt: "2026-07-10T22:05:31"
+updatedAt: "2026-07-10T22:05:31"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
