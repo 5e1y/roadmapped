@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { validateTaskTree, validateIdUniquenessAcrossFiles } from './validate'
+import { validateTaskTree, validateIdUniquenessAcrossFiles, detectLegacyModel } from './validate'
 import { buildTaskTree } from './tasks'
 import { stageSectionFiles } from './stageFixtures'
 
@@ -398,5 +398,40 @@ describe('validateTaskTree — 9 types canoniques + heat (#230)', () => {
       '/docs/tasks/02-feature/01-t.yaml': okTask(1, 'heat: 12.345\n'),
     }
     expect(validateTaskTree(buildTaskTree(files)).some((e) => e.includes('heat'))).toBe(true)
+  })
+})
+
+describe('detectLegacyModel (#248 garde de version)', () => {
+  const task = (id: number, extra = '') =>
+    `id: ${id}\ntitle: "T"\nstatus: todo\ntags: []\nsource: ai\ncreatedAt: "2026-07-06"\n${extra}`
+
+  it('renvoie null sur un backlog déjà v2', () => {
+    expect(detectLegacyModel({
+      '/docs/tasks/_meta.yaml': 'nextId: 2\n',
+      '/docs/tasks/02-feature/01-t.yaml': task(1),
+    })).toBeNull()
+  })
+
+  it('détecte un ancien dossier-stage', () => {
+    const msg = detectLegacyModel({ '/docs/tasks/04-build/01-t.yaml': task(1) })
+    expect(msg).toContain('roadmapped migrate')
+    expect(msg).toContain('anciens dossiers-stages')
+  })
+
+  it('détecte un champ team: sur une tâche active', () => {
+    const msg = detectLegacyModel({ '/docs/tasks/02-feature/01-t.yaml': task(1, 'team: engineering\n') })
+    expect(msg).toContain('team:')
+  })
+
+  it('détecte kind: quick', () => {
+    const msg = detectLegacyModel({ '/docs/tasks/02-feature/01-t.yaml': task(1, 'kind: quick\n') })
+    expect(msg).toContain('kind: quick')
+  })
+
+  it('ignore l\'archive (jamais re-validée)', () => {
+    expect(detectLegacyModel({
+      '/docs/tasks/_archive/04-build/01-t.yaml': task(1, 'team: engineering\n'),
+      '/docs/tasks/02-feature/01-t.yaml': task(2),
+    })).toBeNull()
   })
 })

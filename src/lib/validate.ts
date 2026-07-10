@@ -205,6 +205,45 @@ export function validateTaskTree(tree: {
 // L'unicité des ids et le contrat nextId sont GLOBAUX (un id reste réservé à vie,
 // même après suppression). Ce passage lit le TaskFileMap brut, sans passer par
 // buildTaskTree, pour vérifier ces deux invariants sur TOUT docs/tasks/.
+/** Les 8 dossiers-sections de l'ancien modèle (stages) — disparus en jalons v2. */
+const LEGACY_SECTIONS = ['01-idea', '02-initial', '03-identity', '04-build', '05-gtm', '06-launch', '07-scale', '08-mature']
+
+/**
+ * Garde de version (#248) : un backlog de l'ANCIEN modèle (stages + teams, ou
+ * `kind: quick`) échoue aujourd'hui sur un mur d'erreurs de schéma (chaque
+ * dossier « non canonique » + chaque `team:` interdit). On le détecte AVANT
+ * pour rendre UN message actionnable — « lance `roadmapped migrate` » — plutôt
+ * qu'une avalanche cryptique. Retourne le message, ou null si déjà v2.
+ * L'archive (_archive/, jamais re-validée) est ignorée.
+ */
+export function detectLegacyModel(files: TaskFileMap): string | null {
+  let oldFolders = 0, teamFields = 0, quickKinds = 0
+  for (const [path, content] of Object.entries(files)) {
+    if (path.includes('/_archive/')) continue
+    const filename = path.split('/').pop() ?? ''
+    if (filename.startsWith('_')) continue
+    const raw = yaml.load(content) as { id?: unknown; team?: unknown; kind?: unknown } | null
+    if (!raw || typeof raw.id !== 'number') continue
+    if (LEGACY_SECTIONS.some((s) => path.includes(`/${s}/`))) oldFolders++
+    if ('team' in raw && raw.team != null) teamFields++
+    if (raw.kind === 'quick') quickKinds++
+  }
+  if (oldFolders === 0 && teamFields === 0 && quickKinds === 0) return null
+  const signals = [
+    oldFolders && `${oldFolders} tâche(s) dans les anciens dossiers-stages`,
+    teamFields && `${teamFields} champ(s) team:`,
+    quickKinds && `${quickKinds} kind: quick`,
+  ].filter(Boolean).join(', ')
+  return [
+    `Ce backlog utilise l'ANCIEN modèle Roadmapped (${signals}).`,
+    `Le modèle « jalons par type » l'a remplacé (9 types, plus de stages/teams, plus de kind quick).`,
+    ``,
+    `  →  Migre-le d'une commande :   npx roadmapped migrate`,
+    ``,
+    `La migration déplace tes tâches vers les 9 types, retire team:/kind: quick, et revalide.`,
+  ].join('\n')
+}
+
 export function validateIdUniquenessAcrossFiles(files: TaskFileMap): string[] {
   const errors: string[] = []
   const seenIds = new Map<number, string>()

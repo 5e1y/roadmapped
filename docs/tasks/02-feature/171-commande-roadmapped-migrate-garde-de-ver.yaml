@@ -5,7 +5,7 @@ title: >-
   CLI/bin, + un message clair quand validate rejette un ancien modèle (8 stages/team) au lieu de
   casser en silence. La notif de MAJ pointe vers un changement CASSANT sans chemin de migration pour
   les repos existants
-status: todo
+status: in_progress
 tags:
   - publish
   - onboarding
@@ -18,7 +18,8 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-10T10:00:20"
-updatedAt: "2026-07-10T10:00:20"
+startedAt: "2026-07-10T11:34:54"
+updatedAt: "2026-07-10T11:34:54"
 completedAt: null
 commit: null
 outcome: null

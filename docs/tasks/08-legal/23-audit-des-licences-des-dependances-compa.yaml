@@ -1,7 +1,7 @@
 id: 218
 code: null
 title: Audit des licences des dépendances (compat MIT, attributions requises)
-status: todo
+status: done
 tags:
   - legal
   - publish
@@ -17,9 +17,22 @@ dependsOn: []
 epic: legal-readiness
 source: ai
 createdAt: "2026-07-09T13:55:19"
-updatedAt: "2026-07-09T13:55:19"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+startedAt: "2026-07-10T11:24:32"
+updatedAt: "2026-07-10T11:26:14"
+completedAt: "2026-07-10"
+commit: 2c3d8ce
+outcome: >-
+  Audit complet des 277 paquets de l'arbre node_modules : 242 MIT, 15 ISC, 7 Apache-2.0, 4 BSD-3, 3
+  BSD-2, 2 MPL-2.0, 1 MIT-0, 1 Python-2.0, 1 CC-BY-4.0, 1 UNKNOWN. AUCUN GPL/LGPL/AGPL → compatible
+  distribution MIT sans réserve. Cas documentés : lightningcss (MPL-2.0, build, non modifié → OK),
+  caniuse-lite (CC-BY-4.0, données build, attribution portée par son propre LICENSE → OK), argparse
+  (Python-2.0 → OK), @csstools/color-helpers (MIT-0 → OK). Aucun NOTICE agrégé requis (distribution
+  en source via npm, les LICENSE voyagent avec l'install). Seul suivi : trinil-react (notre paquet)
+  sort en license UNKNOWN → poser license:MIT dans SON repo (hors périmètre). Livrable :
+  docs/specs/2026-07-10-audit-licences-deps.md.
+verification: >-
+  Scan reproductible (walk de node_modules lisant chaque package.json.license). Recoupé :
+  react/react-dom MIT, @base-ui/react MIT, tailwind MIT, vite MIT, marked MIT, js-yaml MIT,
+  @modelcontextprotocol/sdk MIT, @dagrejs/dagre MIT. Grep copyleft (GPL|LGPL|AGPL) = 0
+  correspondance dans les champs license.
 release: null
