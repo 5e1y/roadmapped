@@ -1,0 +1,55 @@
+id: 269
+code: null
+title: Mode sombre + switch dans le header
+status: done
+tags:
+  - ui
+  - dashboard
+  - ds
+  - dark-mode
+size: null
+detail: >-
+  Thème sombre pour toute l'app, basculable par un switch (Base UI) dans le header. Défaut =
+  prefers-color-scheme, choix mémorisé (localStorage), appliqué via data-theme sur <html>. Levier :
+  Tailwind v4 expose --color-* en variables CSS → les redéfinir sous :root[data-theme=dark] retourne
+  l'app sans toucher les composants. Prérequis : tokeniser les hex en dur d'index.css (doc-prose
+  #171717/#e5e5e5/#f5f5f5/#525252, focus #171717, scrollbar #737373, body #fafafa/#171717) + les
+  strokes SVG en dur des glyphes (#737373). Spec design par Fable, dev par moi.
+refs:
+  - src/index.css
+  - src/components/glyphs.tsx
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-10T22:05:52"
+startedAt: "2026-07-10T22:06:09"
+updatedAt: "2026-07-10T22:25:52"
+completedAt: "2026-07-10"
+commit: 97baddc
+outcome: >-
+  Mode sombre complet + switch dans le header. Approche « jeu de valeurs » (spec Fable) : les tokens
+  --color-* redéfinis sous :root[data-theme=dark] dans index.css, Tailwind v4 lit var() → toute
+  l'app bascule sans aucun dark: variant ni classe conditionnelle. Tri-couche inversé (page #0f0f0f
+  / carte #171717 / filets #303030 / encre #f5f5f5, jamais #fff), accent éclairci #3b82f6 (le
+  #2563eb ne tenait que 3,5:1 sur la carte), accent-tint sombre #1c2636 opaque, ombres densifiées
+  via --tw-shadow-color ciblé sur .shadow-sm/.shadow-lg (@property inherits:false). Tokenisation
+  exhaustive des hex en dur : index.css (body, .doc-prose, focus, scrollbars), glyphs (strokes
+  todo), RoadmapGraph (EDGE_STROKE + 3 markers), TypesRadar (grille), Temperature (piste). Nouveau
+  token --color-page scindé de neutral-50. État : src/state/theme.ts SANS provider (source = <html
+  data-theme> + localStorage ui:theme, remount-safe ; défaut prefers-color-scheme ; suivi live de
+  l'OS tant qu'aucun choix explicite, figé au 1er clic). ThemeToggle = Base UI Toggle + icônes
+  Trinil Sun/Moon, monté dans ViewHeader entre LiveActivityMenu et children. Anti-flash : script
+  inline synchrone dans index.html posant data-theme avant le 1er paint. design.md §1 amendé
+  (colonne sombre + règle « hex en dur interdit »). Dette consignée #270 (pas de 3e état « système
+  »). NON couvert (à la livraison) : répliquer le script anti-flash dans 5e1y/roadmapped-site pour
+  la démo.
+verification: >-
+  tsc 0 ; 437 tests verts (+3 resolveTheme : stocké>système, valeurs inconnues→système, casse).
+  Captures navigateur (playwright + chrome-headless-shell) en sombre : Backlog (tri-couche,
+  radar/tag-graph, thermomètres accent, done atténués), Roadmap colonnes ET graphe (arêtes
+  pointillées grises + markers + nœuds), Docs .doc-prose (titres bordés, code sur fond sombre bordé,
+  tableau en-tête+filets, sélection accent-tint). data-theme=dark au boot confirmé (anti-flash OK).
+  Toggle : clic dark→light, data-theme + localStorage=light. Aucun hex de style résiduel (grep
+  composants+css vide hors tokens/mascotte exemptée).
+release: null
