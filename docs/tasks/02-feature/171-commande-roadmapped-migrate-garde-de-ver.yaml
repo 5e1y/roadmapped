@@ -5,7 +5,7 @@ title: >-
   CLI/bin, + un message clair quand validate rejette un ancien modèle (8 stages/team) au lieu de
   casser en silence. La notif de MAJ pointe vers un changement CASSANT sans chemin de migration pour
   les repos existants
-status: in_progress
+status: done
 tags:
   - publish
   - onboarding
@@ -19,9 +19,26 @@ epic: null
 source: ai
 createdAt: "2026-07-10T10:00:20"
 startedAt: "2026-07-10T11:34:54"
-updatedAt: "2026-07-10T11:34:54"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+updatedAt: "2026-07-10T11:35:24"
+completedAt: "2026-07-10"
+commit: b2f6c13
+outcome: >-
+  Chemin de migration + garde de version pour le changement cassant jalons-v2 (la notif de MAJ
+  pointait vers un modèle cassant sans issue). DEUX livrables : (1) Garde — detectLegacyModel(files)
+  dans validate.ts repère les 3 signaux d'ancien modèle (tâches dans les 8 vieux dossiers-stages,
+  champ team:, kind: quick) et renvoie UN message actionnable « lance npx roadmapped migrate » ;
+  câblée en tête de cmdValidate (sort avant le mur d'erreurs de schéma). Ignore _archive/. (2)
+  Commande — scripts/migrate.mjs industrialise l'ancien migrate-types.mjs (jetable, worktree) :
+  idempotente (no-op explicite si déjà v2), déplace vers les 9 types (classify par team+tags),
+  retire team: ET kind: quick (nouveau vs l'ancien script), PRÉSERVE les _section.yaml existants
+  (baseHeat custom non écrasé), migre l'archive en miroir (champs conservés), revalide et écrit
+  migration-report.txt. Verbe `migrate` dans bin (proxy nodeTs, cwd hôte préservé) + ligne d'usage.
+  migrate-types.mjs supprimé.
+verification: >-
+  tsc 0 ; 434 tests verts (+5 detectLegacyModel : v2→null, vieux dossier / team / quick détectés,
+  archive ignorée). Live sur ce repo (déjà v2) : migrate = no-op propre, aucun migration-report.txt
+  écrit, validate OK. Live sur fixture ANCIEN-MODÈLE jetable (04-build/05-gtm, team + kind:quick) :
+  garde validate affiche le bon message (« 2 tâches vieux dossiers, 2 team:, 1 quick ») ; migrate
+  déplace #1 eng+quick→02-feature (team/kind retirés), #2 marketing+posts→07-communication, supprime
+  les vieux dossiers, recrée les 9 _section.yaml, re-validate = OK 9 sections.
 release: null
