@@ -4,7 +4,7 @@ code: null
 title: >-
   Roadmap : rendre la bande d'epics compacte/repliable (toggle, hauteur bornée, scroll interne) —
   elle ne doit pas manger l'espace des colonnes
-status: todo
+status: in_progress
 tags:
   - dashboard
   - ux
@@ -14,10 +14,11 @@ detail: null
 refs: []
 links: []
 dependsOn: []
-epic: null
+epic: roadmap-readability
 source: ai
 createdAt: "2026-07-09T18:25:46"
-updatedAt: "2026-07-09T18:25:46"
+startedAt: "2026-07-10T10:30:57"
+updatedAt: "2026-07-10T10:34:50"
 completedAt: null
 commit: null
 outcome: null

@@ -4,7 +4,7 @@ code: null
 title: >-
   Éditer le heat (seed de priorité) depuis le panneau de tâche — GhostInput ; aujourd'hui affichage
   seul
-status: todo
+status: done
 tags:
   - dashboard
 size: null
@@ -15,9 +15,16 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-09T17:58:49"
-updatedAt: "2026-07-09T17:58:49"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+startedAt: "2026-07-10T10:31:54"
+updatedAt: "2026-07-10T10:34:38"
+completedAt: "2026-07-10"
+commit: 79b9f46
+outcome: >-
+  Le panneau de tâche gagne un champ « boost » (heat 0–100) dans la section Temperature : édite le
+  seed manuel (tiers HUMAIN de la température). Vide = froid (null), NaN → erreur inline, l'API
+  valide bornes/décimales. Boucle la feature température : on peut désormais POSER la priorité
+  depuis l'UI, plus seulement en CLI.
+verification: >-
+  End-to-end sur dashboard réel : PATCH heat=60 sur #201 → température 14,15° → 34,15° (seed
+  60/3=20) ; heat=150 → rejeté (« heat hors bornes ») ; heat=null → froid. tsc 0.
 release: null
