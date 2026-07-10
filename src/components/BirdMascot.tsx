@@ -1,5 +1,12 @@
 import { useEffect, useRef } from 'react'
 import { BIRD_PALETTE, BIRD_IDLE, BIRD_PECK, type BirdAnim } from '../lib/birdFrames'
+import { useTheme } from '../state/theme'
+
+// En dark mode (#269) le header passe sur fond sombre (--color-white → #171717) :
+// la calotte navy #0F1225 s'y fond. On l'éclaircit alors en un bleu-ardoise clair
+// (KK), lisible sur sombre et distinct du corps blanc. Les autres couleurs (corps
+// blanc, gris, bec orange) ressortent déjà sur les deux fonds.
+const KK_DARK = '#b4c2dd'
 
 /**
  * La mascotte Roadmapped (#212) dans le header, à gauche du titre. Pixel art
@@ -10,8 +17,10 @@ import { BIRD_PALETTE, BIRD_IDLE, BIRD_PECK, type BirdAnim } from '../lib/birdFr
  */
 export function BirdMascot({ scale = 2, gap = 6000 }: { scale?: number; gap?: number }) {
   const ref = useRef<HTMLCanvasElement>(null)
+  const [theme] = useTheme()
 
   useEffect(() => {
+    const PALETTE = theme === 'dark' ? { ...BIRD_PALETTE, KK: KK_DARK } : BIRD_PALETTE
     const canvas = ref.current
     if (!canvas) return
     const ctx = canvas.getContext('2d')
@@ -37,7 +46,7 @@ export function BirdMascot({ scale = 2, gap = 6000 }: { scale?: number; gap?: nu
       for (let r = 0; r < anim.rows; r++) {
         const line = grid[r].split(' ')
         for (let c = 0; c < anim.cols; c++) {
-          const col = BIRD_PALETTE[line[c]]
+          const col = PALETTE[line[c]]
           if (col) {
             ctx.fillStyle = col
             ctx.fillRect((anim.cols - 1 - c) * scale, r * scale, scale, scale)
@@ -88,7 +97,7 @@ export function BirdMascot({ scale = 2, gap = 6000 }: { scale?: number; gap?: nu
     }
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
-  }, [scale, gap])
+  }, [scale, gap, theme])
 
   return <canvas ref={ref} aria-hidden="true" className="shrink-0" />
 }
