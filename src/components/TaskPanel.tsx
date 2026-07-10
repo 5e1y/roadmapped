@@ -588,8 +588,8 @@ function TaskPanelBody({ id }: { id: number }) {
       {/* Température (#235) : le POURQUOI de la priorité — thermomètre coloré
           (seule exception couleur du DS, décision Rémi) + valeur à 2 décimales
           + décomposition en trois tiers (auto = blocages transitifs + âge,
-          base = nature du type, seed = champ heat). Lecture seule : calculée
-          par l'API, jamais éditée ici. */}
+          base = nature du type, seed = champ heat). La VALEUR est calculée (lecture
+          seule) ; le SEED `heat` (#237) est le seul levier manuel, éditable ici. */}
       {task.temperature && (
         <div className="flex flex-col gap-0.5">
           <SectionLabel>Temperature</SectionLabel>
@@ -598,6 +598,29 @@ function TaskPanelBody({ id }: { id: number }) {
             <span className="font-mono text-sm text-neutral-900">{formatTemp(task.temperature.value, 2)}</span>
             <span className="font-mono text-[11px] text-neutral-500">{tempBreakdown(task.temperature)}</span>
           </div>
+          {/* Boost manuel (#237) : le seed `heat` 0–100 (le tiers HUMAIN, /3 dans la
+              température). Vide = froid. NaN → erreur inline ; l'API valide 0–100 / 2 déc. */}
+          <div className="mt-0.5 flex items-center gap-1.5 px-1.5 py-0.5">
+            <label htmlFor="task-heat" className="text-[11px] text-neutral-500">boost</label>
+            <GhostInput
+              id="task-heat"
+              key={task.heat ?? 'none'}
+              defaultValue={task.heat != null ? String(task.heat) : ''}
+              inputMode="decimal"
+              placeholder="0–100"
+              aria-label="Manual priority boost (heat seed, 0–100)"
+              className="w-20 font-mono text-xs"
+              onBlur={(e) => {
+                const raw = e.target.value.trim()
+                if (raw === '') { void save('heat', changed(task.heat, null), { heat: null }); return }
+                const n = Number(raw)
+                if (Number.isNaN(n)) { setErr('heat', ['heat must be a number between 0 and 100']); return }
+                void save('heat', changed(task.heat, n), { heat: n })
+              }}
+            />
+            <SavedTick show={savedIn('heat')} />
+          </div>
+          <FieldError errs={errors.heat} />
         </div>
       )}
 
