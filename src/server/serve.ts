@@ -70,15 +70,25 @@ function serveStatic(distDir: string, req: IncomingMessage, res: ServerResponse)
   res.end('Not Found')
 }
 
-/** listen avec auto-incrément de port sur EADDRINUSE (ce que Vite offrait). */
-function listenWithRetry(
+/** listen avec auto-incrément de port sur EADDRINUSE (ce que Vite offrait). Exporté pour #274. */
+export function listenWithRetry(
   server: ReturnType<typeof createServer>, start: number, max: number,
 ): Promise<number> {
   return new Promise((resolvePort, reject) => {
+    // ⚠️ NE PAS utiliser le callback de server.listen(port, cb) : ce callback reste
+    // attaché comme listener 'listening' même quand le port échoue (EADDRINUSE), et se
+    // déclenche au bind RÉUSSI du port suivant → on annoncerait le mauvais port (#274).
+    // On gère 'listening'/'error' à la main (once + retrait explicite) et on lit le port
+    // RÉELLEMENT lié via server.address().
     const tryPort = (port: number) => {
+      const onListening = () => {
+        server.removeListener('error', onError)
+        const addr = server.address()
+        resolvePort(typeof addr === 'object' && addr ? addr.port : port)
+      }
       const onError = (e: NodeJS.ErrnoException) => {
+        server.removeListener('listening', onListening)
         if (e.code === 'EADDRINUSE' && port < max) {
-          server.removeListener('error', onError)
           tryPort(port + 1)
         } else if (e.code === 'EADDRINUSE') {
           reject(new Error(
@@ -87,11 +97,9 @@ function listenWithRetry(
           ))
         } else reject(e)
       }
+      server.once('listening', onListening)
       server.once('error', onError)
-      server.listen(port, 'localhost', () => {
-        server.removeListener('error', onError)
-        resolvePort(port)
-      })
+      server.listen(port, 'localhost')
     }
     tryPort(start)
   })
