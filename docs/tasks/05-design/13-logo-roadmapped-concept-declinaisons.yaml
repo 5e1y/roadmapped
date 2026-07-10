@@ -24,18 +24,14 @@ epic: brand-identity
 source: ai
 createdAt: "2026-07-09T13:54:49"
 startedAt: "2026-07-10T16:46:54"
-updatedAt: "2026-07-10T16:55:30"
+updatedAt: "2026-07-10T16:59:29"
 completedAt: "2026-07-10"
-commit: 3425ae2
+commit: f3234ed
 outcome: >-
-  Mascotte oiseau = logo Roadmapped. Concept + sprite pixel-art 16×12 (4 couleurs, dessiné par Rémi)
-  + 5 anims frame-by-frame (idle/walk/fly/peck/hop, via Fable). Déclinaisons livrées dans l'app :
-  mascotte animée au canvas dans le header à gauche du titre (idle/peck aléatoire toutes les ~6s,
-  pas de suivi curseur), favicon oiseau (pose repos), GIF picage 3s en boucle transparente dans le
-  README. Homepage (suit curseur + se pose sur les divs) = ticket #253 séparé, délégué à Fable (repo
-  externe roadmapped-site).
+  Feedback Rémi : mascotte tournée vers la DROITE. Miroir horizontal appliqué au rendu des 3
+  déclinaisons (header BirdMascot, favicon index.html, GIF README) ; frames canoniques inchangées
+  (regard à gauche). Reste : logo animé header (idle/peck ~6s), favicon repos, GIF picage 3s.
 verification: >-
-  tsc -b clean + vite build OK (405 modules, favicon inline 2.56kB). Rendu sprite vérifié
-  visuellement (favicon SVG + montage du GIF sur fond sombre : transparence OK, cycle de picage
-  lisible). Logique du header identique au chemin de rendu validé.
+  tsc -b clean. Favicon + GIF régénérés miroir et vérifiés (URI/pixels). Header : x inversé
+  (cols-1-c) dans la boucle de dessin.
 release: null
