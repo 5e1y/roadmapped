@@ -230,11 +230,13 @@ export function EpicRow({ slug, title, tasks, progress, persistKey }: {
           className="absolute inset-0 h-full w-full"
         />
         <Chevron />
-        <EpicGlyph status={status} />
+        {/* pointer-events-none : décoration posée SUR le calque-trigger — sans ça,
+            cliquer pile dessus n'atteint pas le trigger (même cause que #252). */}
+        <span className="pointer-events-none flex shrink-0"><EpicGlyph status={status} /></span>
         <EpicTitleInput slug={slug} title={title} onError={setRenameError} done={status === 'done'} />
         {/* aria-hidden : la même info vit dans le nom accessible du trigger. */}
-        <span aria-hidden className="shrink-0 text-[11px] text-neutral-500">{countLabel}</span>
-        <span aria-hidden className="ml-auto flex shrink-0 items-center gap-1.5">
+        <span aria-hidden className="pointer-events-none shrink-0 text-[11px] text-neutral-500">{countLabel}</span>
+        <span aria-hidden className="pointer-events-none ml-auto flex shrink-0 items-center gap-1.5">
           <EpicProgressBar done={progress.done} total={progress.total} />
           <span
             className="font-mono text-[11px] text-neutral-500"
