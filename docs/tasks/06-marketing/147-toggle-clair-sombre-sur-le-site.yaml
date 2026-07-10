@@ -1,7 +1,7 @@
 id: 268
 code: null
 title: Toggle clair/sombre sur le site
-status: todo
+status: done
 tags: []
 size: null
 detail: Ajouter un switch mode clair/mode sombre (en plus du prefers-color-scheme actuel), persisté.
@@ -11,9 +11,13 @@ dependsOn: []
 epic: site-v2
 source: ai
 createdAt: "2026-07-10T22:04:51"
-updatedAt: "2026-07-10T22:04:51"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+startedAt: "2026-07-10T22:16:19"
+updatedAt: "2026-07-10T22:33:09"
+completedAt: "2026-07-10"
+commit: e72c76c
+outcome: >-
+  Toggle clair/sombre du SITE : bouton soleil/lune à côté du lien GitHub, persistance localStorage
+  appliquée avant paint, cascade tokens (:root[data-theme] surcharge la media query dans les 2
+  sens), meta theme-color mis à jour. (Distinct du #269 app dashboard, non demandé ici.)
+verification: "grep : data-theme/ui:theme présents dans index.html du site ; node --check du script OK."
 release: null

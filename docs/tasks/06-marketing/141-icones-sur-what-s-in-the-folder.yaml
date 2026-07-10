@@ -1,7 +1,7 @@
 id: 262
 code: null
 title: Icônes sur « what's in the folder »
-status: todo
+status: done
 tags: []
 size: null
 detail: >-
@@ -13,9 +13,13 @@ dependsOn: []
 epic: site-v2
 source: ai
 createdAt: "2026-07-10T22:04:37"
-updatedAt: "2026-07-10T22:04:37"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+startedAt: "2026-07-10T22:16:18"
+updatedAt: "2026-07-10T22:32:54"
+completedAt: "2026-07-10"
+commit: e72c76c
+outcome: >-
+  8 icônes SVG inline (trait 1.5, currentColor, caps carrés, zéro radius) posées à droite du nom de
+  fichier YAML de chaque feature-card, dans un .feature-head flex. Iconographie liée au contenu.
+  Cartes toujours peintes (perchoir oiseau OK).
+verification: "grep : 8 cartes, 4 perchoirs intacts."
 release: null
