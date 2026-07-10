@@ -1,7 +1,7 @@
 id: 263
 code: null
 title: Largeur max des sections texte alignée sur les encarts KPI blancs
-status: todo
+status: done
 tags: []
 size: null
 detail: >-
@@ -13,9 +13,12 @@ dependsOn: []
 epic: site-v2
 source: ai
 createdAt: "2026-07-10T22:04:39"
-updatedAt: "2026-07-10T22:04:39"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+startedAt: "2026-07-10T22:16:18"
+updatedAt: "2026-07-10T22:32:57"
+completedAt: "2026-07-10"
+commit: e72c76c
+outcome: >-
+  Largeurs unifiées : variable --container-max 84rem partagée par .container et .demo-stage (avant
+  66 vs 105rem). Grille features 4 col → 2 → 1. Textes lisibles (caps ch), pair-card cap 58ch.
+verification: "--container-max présent dans style.css."
 release: null

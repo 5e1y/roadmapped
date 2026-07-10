@@ -1,7 +1,7 @@
 id: 264
 code: null
 title: Trancher la direction des accents bleus (palette vs mascotte)
-status: todo
+status: done
 tags: []
 size: null
 detail: >-
@@ -13,9 +13,13 @@ dependsOn: []
 epic: site-v2
 source: ai
 createdAt: "2026-07-10T22:04:42"
-updatedAt: "2026-07-10T22:04:42"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+startedAt: "2026-07-10T22:16:19"
+updatedAt: "2026-07-10T22:33:00"
+completedAt: "2026-07-10"
+commit: e72c76c
+outcome: >-
+  Doctrine bleu documentée en tête de style.css : le bleu = état/interaction UNIQUEMENT (liens,
+  focus, sélection, statut in_progress, filet callout, sigil $ des eyebrows). link-arrow unifié en
+  accent. Teinte inchangée (réglage 1 token). Zéro orange UI (réservé oiseau).
+verification: Usages bleu rationalisés dans style.css.
 release: null

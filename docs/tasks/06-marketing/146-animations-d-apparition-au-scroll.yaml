@@ -1,7 +1,7 @@
 id: 267
 code: null
 title: Animations d'apparition au scroll
-status: todo
+status: done
 tags: []
 size: null
 detail: >-
@@ -13,9 +13,13 @@ dependsOn: []
 epic: site-v2
 source: ai
 createdAt: "2026-07-10T22:04:50"
-updatedAt: "2026-07-10T22:04:50"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+startedAt: "2026-07-10T22:16:19"
+updatedAt: "2026-07-10T22:33:06"
+completedAt: "2026-07-10"
+commit: e72c76c
+outcome: >-
+  Reveals au scroll : fade + translateY(14px) via IntersectionObserver sur 9 cibles. Garde-fou :
+  classe html.js-reveal posée avant paint seulement si IO + pas de reduced-motion (pas de flash) ;
+  sinon tout visible. Cartes de grille non animées (éviter la dalle --rule).
+verification: reveal dans style.css + JS inline node --check OK.
 release: null
