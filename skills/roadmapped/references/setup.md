@@ -4,6 +4,8 @@ Goal: when Roadmapped has just been installed, the agent takes charge of the pro
 
 ## 0. Detection and paths
 
+Requirements: Node ≥ 22.18 and a `package.json` in the host repo (Roadmapped installs itself as a dev dependency; the guard/SessionStart hooks and MCP entry resolve through `node_modules/roadmapped/`). Non-Node repo (Python/Go/Rust)? Add a minimal `package.json` (`npm init -y`) or track from a sibling Node repo — first-class non-Node support is roadmap, not v1.
+
 The host root = the current repo: the CLI walks up from cwd to the first folder holding `roadmapped.config.json` (or `.git`), and resolves `tasksDir`/`docsDir` there (defaults `docs/tasks`, `docs`, relative to that root). Verify the config points to the right place BEFORE any command, or the CLI will work in the wrong place.
 
 Setup is required if `docs/tasks/_meta.yaml` doesn't exist. If it exists, the repo is already initialized — NEVER redo the setup (you'd overwrite real state).
