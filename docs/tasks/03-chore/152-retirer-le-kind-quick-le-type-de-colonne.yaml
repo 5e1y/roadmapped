@@ -3,7 +3,7 @@ code: null
 title: >-
   Retirer le kind « quick » — le type de colonne + size suffisent, le split quick/task est du bruit
   (décision Rémi)
-status: in_progress
+status: done
 tags:
   - engineering
   - model
@@ -38,9 +38,21 @@ epic: null
 source: ai
 createdAt: "2026-07-10T10:36:56"
 startedAt: "2026-07-10T11:19:40"
-updatedAt: "2026-07-10T11:19:40"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+updatedAt: "2026-07-10T11:19:57"
+completedAt: "2026-07-10"
+commit: a059ad2
+outcome: >-
+  Kind « quick » supprimé (décision Rémi) : kind = task|milestone (milestone gardé). validate
+  rejette kind:quick actif (archive intacte). 54 quicks migrés → task. La commande/outil `quick`
+  devient un ALIAS de création rapide d'un task (rétrocompat, titre suffit). done : l'exception «
+  outcome requis pour quick » retirée → aucune tâche ne bloque sur l'outcome (verification
+  encouragée mais non bloquante partout — juste retiré la distinction, rien rendu obligatoire). UI :
+  zone Mini du Backlog retirée (ex-quick dans To-do trié par température). Skill+guide : quick
+  retiré, échelle de décision = type + size. Réalisé par opus, révisé + mergé live (pas de worktree
+  : aucun déplacement de dossier).
+verification: >-
+  tsc 0, 429 tests verts (adaptés : validate rejette quick, quick CLI crée task, done sans outcome
+  ne bloque plus). validate OK (234 tâches, 0 quick actif). Dashboard réel : plus de zone Mini
+  (liste To-do unique triée température) ; `quick "titre"` en CLI → task (kind absent). Nettoyé les
+  ids de test (nextId=252).
 release: null
