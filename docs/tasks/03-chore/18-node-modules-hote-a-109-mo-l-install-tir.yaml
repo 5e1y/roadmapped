@@ -3,7 +3,7 @@ code: null
 title: >-
   node_modules hôte à 109 Mo : l'install tire vite/react/tailwind (deps du dashboard) dans chaque
   repo utilisateur
-status: todo
+status: done
 tags:
   - publish
   - perf
@@ -20,9 +20,38 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-09T02:15:34"
-updatedAt: "2026-07-09T02:15:34"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+startedAt: "2026-07-10T22:54:55"
+updatedAt: "2026-07-10T23:22:29"
+completedAt: "2026-07-10"
+commit: 996b6ec
+outcome: >-
+  Le dashboard n'est plus servi par Vite dev : on livre le BUILD compilé (option A, spec Fable
+  docs/specs/2026-07-11-dashboard-build.md). Install hôte 109→31 Mo (−72%, cible ≤40 dépassée).
+  Chantier : (1) deps runtime réduites à 3 (js-yaml, amaro, @modelcontextprotocol/sdk), tout le
+  front en devDependencies (npm n'installe pas les devDeps d'une dep git). (2) Scission dagre :
+  nouveau src/lib/graphLayout.ts (graphLayout()+dagre, importé par le seul composant Graphe) →
+  roadmap.ts (tiré par CLI/MCP/serveur au runtime) n'entraîne plus dagre. (3) src/server/serve.ts :
+  serveur node:http autonome (zéro dep) servant dist/ (anti-traversal, content-types, cache
+  immutable /assets, fallback SPA) + l'API ; api.ts extrait en createApiMiddleware(paths) réutilisé
+  par serve.ts ET le plugin Vite (npm run dev conservé). Auto-incrément de port 5173-5183. (4) bin
+  dashboard : import in-process de serve.ts, plus de spawn Vite ; sonde d'idempotence balayant
+  5173-5183 ; --port. (5) prepare SUPPRIMÉ (piège npm git-deps : forçait l'install des devDeps au
+  pack) → predev câble les hooks. (6) dist/ commité (hors .gitignore, dans files) ; garde-fou triple
+  anti-dist-périmé : CI bloquante (git status --porcelain dist), hook pre-commit auto-réparant
+  (rebuild+add dist si périmètre front stagé), check runtime dist/index.html. Corollaire : l'écran
+  blanc host-install #202 disparaît structurellement (bundle figé au build, l'hôte n'a plus React).
+  Correctifs découverts au passage : api.ts value-imports sans .ts (cassaient hors Vite) → .ts
+  ajouté ; ensureNotesSetup process.cwd()→paths.root ; bin fall-through corrigé par break (le handle
+  serveur garde le process vivant).
+verification: >-
+  tsc 0 ; 437 tests verts (dont api.test.ts routeApi/runAction + roadmap/temperature après la
+  scission). Serveur prod testé sur :5199 (isolé du dev :5173) : / → 200 text/html, /api/tree
+  ok:true+repoName+hostRoot, asset hashé → 200 cache immutable, SPA fallback → 200, 404 asset
+  manquant, /api/events → 200 text/event-stream. SSE LIVE prouvé : touch d'un YAML tâche → « event:
+  change » avec le chemin dans le flux. Bundle prod MONTE : Playwright sur :5199 → React monté,
+  #root peuplé, ZÉRO erreur console, capture identique au dev (header/radar/backlog/dark). Install
+  réelle mesurée (npm pack + install --omit=dev) : node_modules hôte 31 Mo, aucun
+  react/vite/@base-ui/dagre/tailwind/trinil/marked, dist/index.html présent dans le paquet,
+  index.html/vite.config/src-demo exclus. Hook pre-commit auto-testé (il a rebuild+staged dist à ce
+  commit). grep dagre = graphLayout.ts seul.
 release: null
