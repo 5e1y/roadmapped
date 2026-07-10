@@ -18,17 +18,19 @@ epic: null
 source: ai
 createdAt: "2026-07-10T10:27:00"
 startedAt: "2026-07-10T10:28:43"
-updatedAt: "2026-07-10T10:30:22"
+updatedAt: "2026-07-10T10:56:08"
 completedAt: "2026-07-10"
-commit: 60bc41c
+commit: 1e46ead
 outcome: >-
-  Toasts « Task finished! » fiabilisés + restylés. Fiabilité : Toast.Provider passe à timeout 9s +
-  limit 5 (le défaut Base UI 5s/3 faisait rater la fenêtre — « je ne les vois pas toujours » ; pause
-  au survol conservée, historique complet dans le panneau Activity). UI : la boîte à bordure noire
-  épaisse (dénotait du DS) → langage du popup Activity (filet neutral-200, shadow-lg, rounded-md,
-  monochrome) + petit Check accent = tâche bouclée. Le trigger (fire sur chaque transition → done,
-  dédup par seq) était déjà fiable — le problème était la durée d'affichage.
-verification: >-
-  tsc 0 (valide l'API Toast.Provider timeout/limit), 54 tests state+components verts. Restyle =
-  copie du langage du popup Activity déjà vérifié (toast transitoire, non capturable en headless).
+  Coins du toast passés en carrés (retrait de rounded-md) — cohérent avec le DS (popups
+  Activity/Filtre carrés) et la DA voulue par Rémi.
+verification: tsc 0. Classe Toast.Root sans rounded-md, filet neutral-200 conservé.
 release: null
+feedback:
+  - date: "2026-07-10T10:55:42"
+    author: user
+    text: >-
+      Bords des toasts : les vouloir DROITS (carrés), pas arrondis — question de DA. (Cohérent avec
+      le DS : les popups Activity/Filtre ont des coins carrés ; le rounded-md du toast était une
+      incohérence.)
+    resolved: true
