@@ -23,6 +23,10 @@
      de rendu). Plancher informatif : 500 sur fond clair, 600 sur fond gris
      (design.md §1) ; 300/400 = décoratif et disabled uniquement. */
   --color-white: #fff;
+  /* Fond du body — SCINDÉ de neutral-50 (#269) : en sombre la page passe SOUS la
+     carte, alors que hover:bg-neutral-50 (survol de rangée sur carte) doit rester
+     PLUS clair qu'elle. En clair les deux valent ~#fafafa. */
+  --color-page: #fafafa;
   --color-neutral-50: oklch(0.985 0 0);
   --color-neutral-100: oklch(0.97 0 0);
   --color-neutral-200: oklch(0.922 0 0);
@@ -36,15 +40,57 @@
 }
 
 /*
+ * MODE SOMBRE (#269) : le thème n'est qu'un JEU DE VALEURS — les utilitaires
+ * Tailwind lisent var(--color-*), redéfinir les tokens retourne l'app entière
+ * (zéro `dark:` variant, zéro changement de composant hors tokenisation des hex).
+ * Posé par data-theme sur <html> (script anti-flash dans index.html, état dans
+ * src/state/theme.ts). Tri-couche INVERSÉ, pas naïf : page #0f0f0f / carte #171717
+ * (l'encre du clair devient la surface) / filets #303030 ; encre #f5f5f5 (jamais
+ * #fff — pas de halo). Le cœur de l'échelle réutilise les oklch canoniques en
+ * miroir (900↔ ancien 50, etc. — zéro dérive de rendu). Spec complète :
+ * docs/specs/2026-07-10-dark-mode.md.
+ *
+ * CSS non-layered → gagne sur le @theme (émis dans @layer theme) quel que soit
+ * l'ordre. color-scheme rend sombres les widgets système (scrollbars natives,
+ * inputs, fond par défaut des popovers).
+ */
+:root { color-scheme: light; }
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-accent: #3b82f6;        /* #2563eb ne tient que 3,5:1 sur la carte */
+  --color-accent-tint: #1c2636;   /* accent 14 % dans la carte, OPAQUE (graphe) */
+
+  --color-white: oklch(0.205 0 0);       /* carte #171717 */
+  --color-page: oklch(0.168 0 0);        /* page ≈ #0f0f0f (sous la carte) */
+  --color-neutral-50: oklch(0.24 0 0);   /* hover rangée — > carte */
+  --color-neutral-100: oklch(0.269 0 0);
+  --color-neutral-200: oklch(0.31 0 0);  /* LES filets */
+  --color-neutral-300: oklch(0.371 0 0);
+  --color-neutral-400: oklch(0.556 0 0);
+  --color-neutral-500: oklch(0.708 0 0); /* plancher texte : 7,1:1 sur carte */
+  --color-neutral-600: oklch(0.78 0 0);  /* plancher sur fond gris (100/200) */
+  --color-neutral-700: oklch(0.87 0 0);
+  --color-neutral-800: oklch(0.922 0 0);
+  --color-neutral-900: oklch(0.97 0 0);  /* L'ENCRE #f5f5f5 */
+}
+/* Ombres densifiées en sombre : le défaut (noir 10 %) est invisible sur fond
+   sombre. --tw-shadow-color est @property{inherits:false} → cibler la classe
+   porteuse, PAS :root (l'override ne se propagerait pas). La séparation nette est
+   déjà portée par les `border-neutral-200` présents sur tous les popups/toasts. */
+:root[data-theme="dark"] .shadow-sm { --tw-shadow-color: rgb(0 0 0 / 0.45); }
+:root[data-theme="dark"] .shadow-lg { --tw-shadow-color: rgb(0 0 0 / 0.6); }
+
+/*
  * Palette propre au dashboard : monochrome, volontairement minuscule.
  * AUCUN import du DS de l'app parente (l'ex-import de tokens.css posait
  * `overflow: hidden` + `user-select: none` sur body — correct pour un éditeur
  * canvas, catastrophique pour une page document scrollable).
- * Trois couches : page #fafafa / carte #ffffff / filets #e5e5e5. Encre #171717.
+ * Trois couches : page #fafafa / carte #ffffff / filets var(--color-neutral-200). Encre var(--color-neutral-900).
  */
 body {
-  background-color: #fafafa;
-  color: #171717;
+  background-color: var(--color-page);
+  color: var(--color-neutral-900);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -123,13 +169,13 @@ body {
  */
 .roadmap-cols-scroll {
   scrollbar-width: thin;
-  scrollbar-color: #737373 transparent;
+  scrollbar-color: var(--color-neutral-500) transparent;
 }
 .roadmap-cols-scroll::-webkit-scrollbar {
   height: 8px;
 }
 .roadmap-cols-scroll::-webkit-scrollbar-thumb {
-  background: #737373;
+  background: var(--color-neutral-500);
 
 }
 .roadmap-cols-scroll::-webkit-scrollbar-track {
@@ -138,13 +184,13 @@ body {
 
 /*
  * Rendu markdown de la Vue Docs (lecteur seul, `marked` → HTML brut injecté).
- * Fait maison, monochrome strict (encre #171717, filets #e5e5e5, fond
- * neutre #f5f5f5 pour le code) — pas de plugin @tailwindcss/typography.
+ * Fait maison, monochrome strict (encre var(--color-neutral-900), filets var(--color-neutral-200), fond
+ * neutre var(--color-neutral-100) pour le code) — pas de plugin @tailwindcss/typography.
  */
 .doc-prose {
   font-size: 0.9375rem;
   line-height: 1.7;
-  color: #171717;
+  color: var(--color-neutral-900);
 }
 .doc-prose > *:first-child {
   margin-top: 0;
@@ -155,13 +201,13 @@ body {
 .doc-prose h4 {
   font-weight: 600;
   letter-spacing: -0.01em;
-  color: #171717;
+  color: var(--color-neutral-900);
 }
 .doc-prose h1 {
   font-size: 1.75rem;
   margin: 0 0 1rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid #e5e5e5;
+  border-bottom: 1px solid var(--color-neutral-200);
 }
 .doc-prose h2 {
   font-size: 1.375rem;
@@ -199,16 +245,16 @@ body {
 .doc-prose code {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.85em;
-  background: #f5f5f5;
-  border: 1px solid #e5e5e5;
+  background: var(--color-neutral-100);
+  border: 1px solid var(--color-neutral-200);
 
   padding: 0.1em 0.35em;
 }
 .doc-prose pre {
   margin: 1rem 0;
   padding: 0.875rem 1rem;
-  background: #f5f5f5;
-  border: 1px solid #e5e5e5;
+  background: var(--color-neutral-100);
+  border: 1px solid var(--color-neutral-200);
 
   overflow-x: auto;
 }
@@ -222,8 +268,8 @@ body {
 .doc-prose blockquote {
   margin: 1rem 0;
   padding: 0.25rem 0 0.25rem 1rem;
-  border-left: 2px solid #e5e5e5;
-  color: #525252;
+  border-left: 2px solid var(--color-neutral-200);
+  color: var(--color-neutral-600);
 }
 .doc-prose table {
   display: block;
@@ -236,23 +282,23 @@ body {
 }
 .doc-prose th,
 .doc-prose td {
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--color-neutral-200);
   padding: 0.4rem 0.6rem;
   text-align: left;
 }
 .doc-prose th {
-  background: #f5f5f5;
+  background: var(--color-neutral-100);
   font-weight: 600;
 }
 .doc-prose a {
-  color: #171717;
+  color: var(--color-neutral-900);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 .doc-prose hr {
   margin: 1.5rem 0;
   border: none;
-  border-top: 1px solid #e5e5e5;
+  border-top: 1px solid var(--color-neutral-200);
 }
 .doc-prose img {
   max-width: 100%;
@@ -261,7 +307,7 @@ body {
 /* Focus clavier lisible partout (audit UX) — monochrome, offset pour rester
    visible aussi autour des surfaces sombres (nav active). */
 :focus-visible {
-  outline: 2px solid #171717;
+  outline: 2px solid var(--color-neutral-900);
   outline-offset: 2px;
 }
 

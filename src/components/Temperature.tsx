@@ -50,7 +50,7 @@ export function ThermoGlyph({ value, size = 12, className = '' }: {
       aria-hidden="true"
       className={`shrink-0 ${className}`}
     >
-      <rect x="3.9" y="1.2" width="2.2" height="9" rx="1.1" fill="#e5e5e5" />
+      <rect x="3.9" y="1.2" width="2.2" height="9" rx="1.1" fill="var(--color-neutral-200)" />
       <rect x="3.9" y={yTop} width="2.2" height={11 - yTop} rx="1.1" fill={color} />
       <circle cx="5" cy="11" r="2.5" fill={color} />
     </svg>

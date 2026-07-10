@@ -51,11 +51,11 @@ export function TypesRadar({ counts, selected, onSelect }: {
     <div className="relative aspect-square w-full" role="group" aria-label="Charge par type">
       <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="absolute inset-[15%] h-[70%] w-[70%] overflow-visible" aria-hidden="true">
         {Array.from({ length: RINGS }, (_, k) => (
-          <polygon key={k} points={ringPath(((k + 1) / RINGS) * R)} fill="none" stroke="#d4d4d4" strokeWidth={1} vectorEffect="non-scaling-stroke" />
+          <polygon key={k} points={ringPath(((k + 1) / RINGS) * R)} fill="none" stroke="var(--color-neutral-300)" strokeWidth={1} vectorEffect="non-scaling-stroke" />
         ))}
         {TYPE_META.map((_, i) => {
           const [x, y] = vertex(i, R)
-          return <line key={i} x1={CX} y1={CY} x2={x} y2={y} stroke="#d4d4d4" strokeWidth={1} vectorEffect="non-scaling-stroke" />
+          return <line key={i} x1={CX} y1={CY} x2={x} y2={y} stroke="var(--color-neutral-300)" strokeWidth={1} vectorEffect="non-scaling-stroke" />
         })}
         <polygon points={poly} fill="var(--color-accent)" fillOpacity={0.12} stroke="var(--color-accent)" strokeWidth={2} strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
         {TYPE_META.map((t, i) => {

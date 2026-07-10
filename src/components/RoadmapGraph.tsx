@@ -211,7 +211,7 @@ function buildGraphModel(tree: TaskTree, showDone: boolean, expandedEpics: strin
 /** Ton d'une arête sous surlignage : sur le chemin amont/aval, hors chemin, neutre. */
 type EdgeTone = 'default' | 'strong' | 'dim'
 
-const EDGE_STROKE: Record<EdgeTone, string> = { default: '#737373', strong: '#171717', dim: '#e5e5e5' }
+const EDGE_STROKE: Record<EdgeTone, string> = { default: 'var(--color-neutral-500)', strong: 'var(--color-neutral-900)', dim: 'var(--color-neutral-200)' }
 const EDGE_MARKER: Record<EdgeTone, string> = { default: 'url(#rm-arrow)', strong: 'url(#rm-arrow-strong)', dim: 'url(#rm-arrow-dim)' }
 
 /** Vue achievement : layout FLUX-DE-DÉPENDANCES (dagre, prérequis → dépendant). */
@@ -309,13 +309,13 @@ function GraphCanvas({ tree, showDone }: { tree: TaskTree; showDone: boolean }) 
           <svg className="pointer-events-none absolute inset-0" width={layout.width} height={layout.height}>
             <defs>
               <marker id="rm-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                <path d="M0 0 L8 4 L0 8 z" fill="#737373" />
+                <path d="M0 0 L8 4 L0 8 z" fill="var(--color-neutral-500)" />
               </marker>
               <marker id="rm-arrow-strong" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                <path d="M0 0 L8 4 L0 8 z" fill="#171717" />
+                <path d="M0 0 L8 4 L0 8 z" fill="var(--color-neutral-900)" />
               </marker>
               <marker id="rm-arrow-dim" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                <path d="M0 0 L8 4 L0 8 z" fill="#e5e5e5" />
+                <path d="M0 0 L8 4 L0 8 z" fill="var(--color-neutral-200)" />
               </marker>
             </defs>
             {model.edges.map(({ from, to }) => {

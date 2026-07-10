@@ -5,6 +5,7 @@ import { useTree } from '../state/TreeContext'
 import { useView, type View } from '../state/ViewContext'
 import { LiveActivityMenu } from './LiveActivityMenu'
 import { UpdateNotice } from './UpdateNotice'
+import { ThemeToggle } from './ThemeToggle'
 import { BirdMascot } from './BirdMascot'
 
 const NAV: { id: View; label: string }[] = [
@@ -71,6 +72,9 @@ export function ViewHeader({ meta, children }: {
             non null) — présente sur les 4 vues, dismiss de session module-level. */}
         <UpdateNotice />
         <LiveActivityMenu />
+        {/* Bascule clair/sombre (#269) : dernier élément du chrome d'app, avant
+            les contrôles propres à la vue (filtres, recherche, + task). */}
+        <ThemeToggle />
         {children}
       </div>
     </header>

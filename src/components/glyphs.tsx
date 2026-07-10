@@ -49,7 +49,7 @@ export function MilestoneGlyph({ status }: { status: TaskNode['status'] }) {
           <path d="M5 1.1 L1.1 5 L5 8.9 Z" fill="currentColor" />
         </>
       ) : (
-        <path d="M5 1.1 L8.9 5 L5 8.9 L1.1 5 Z" fill="none" stroke="#737373" strokeWidth="1" />
+        <path d="M5 1.1 L8.9 5 L5 8.9 L1.1 5 Z" fill="none" stroke="var(--color-neutral-500)" strokeWidth="1" />
       )}
     </svg>
   )
@@ -80,7 +80,7 @@ export function EpicGlyph({ status }: { status: TaskNode['status'] }) {
           <rect x="1.5" y="1.5" width="3.5" height="7" fill="currentColor" />
         </>
       ) : (
-        <rect x="1.5" y="1.5" width="7" height="7" fill="none" stroke="#737373" strokeWidth="1" />
+        <rect x="1.5" y="1.5" width="7" height="7" fill="none" stroke="var(--color-neutral-500)" strokeWidth="1" />
       )}
     </svg>
   )
@@ -113,7 +113,7 @@ export function StatusGlyph({ status }: { status: TaskNode['status'] }) {
           <path d="M5 1.25 A3.75 3.75 0 0 0 5 8.75 Z" fill="currentColor" />
         </>
       ) : (
-        <circle cx="5" cy="5" r="3.75" fill="none" stroke="#737373" strokeWidth="1" />
+        <circle cx="5" cy="5" r="3.75" fill="none" stroke="var(--color-neutral-500)" strokeWidth="1" />
       )}
     </svg>
   )
