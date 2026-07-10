@@ -16,14 +16,16 @@ reserved for active elements and points of attention. Its rarity makes it spotta
 Everything else is neutral. **No semantic colors** (no amber, no red) — error and
 destructive states are expressed through an emphatic monochrome register (see §3).
 
-| Token | Value | Role |
-|---|---|---|
-| `--color-accent` | #2563eb | Active, selection, in_progress (5.17:1 on white — compliant) |
-| `--color-accent-tint` | #eef3fd | Opaque selection background (+ left accent rule) |
-| page | #fafafa (neutral-50) | THE page background, inherited from the body, **never redeclared** |
-| card | #ffffff | "Card" surfaces: list sides, cards, panels, popups |
-| rule | #e5e5e5 (neutral-200) | NON-interactive separator borders |
-| ink | #171717 (neutral-900) | Primary text |
+| Token | Light | Dark (#269) | Role |
+|---|---|---|---|
+| `--color-accent` | #2563eb | #3b82f6 | Active, selection, in_progress (5.17:1 on white ; #2563eb only 3.5:1 on the dark card → lightened) |
+| `--color-accent-tint` | #eef3fd | #1c2636 | Opaque selection background (+ left accent rule) |
+| `--color-page` | #fafafa | ≈#0f0f0f | THE body background — its OWN token (split from neutral-50: in dark the page sits *under* the card, while `hover:bg-neutral-50` must stay *above* it) |
+| card (`--color-white`) | #ffffff | #171717 | "Card" surfaces: list sides, cards, panels, popups. In dark the light ink becomes the surface |
+| rule (`neutral-200`) | #e5e5e5 | ≈#303030 | NON-interactive separator borders |
+| ink (`neutral-900`) | #171717 | #f5f5f5 | Primary text (never #fff in dark — no halo) |
+
+**Dark mode is a set of values, not a parallel theme (#269).** The whole neutral scale + `--color-white`/`--color-page`/accent are redefined under `:root[data-theme="dark"]` (index.css) — Tailwind v4 utilities read `var(--color-*)`, so every component flips with zero `dark:` variant and zero conditional class. **Corollary: a hardcoded hex is a dark-mode bug** — all colors live in tokens (SVG glyphs/graph/radar included). The core scale mirrors the canonical oklch values (900 ↔ old 50…), so light rendering is unchanged. Toggle in the header, default = `prefers-color-scheme`, anti-flash script in `index.html`. Full spec: `docs/specs/2026-07-10-dark-mode.md`.
 
 ### Gray scale — the contrast rule (audit #108)
 

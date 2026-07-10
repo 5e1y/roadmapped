@@ -106,7 +106,7 @@ tags:
   - "site"
   - "design"
 size: "S"
-detail: "One accent color, used rarely enough to mean something. Light and dark via prefers-color-scheme — no toggle to maintain, the OS already has one."
+detail: "One accent color, used rarely enough to mean something. Dark mode follows your OS — and there's a toggle for the contrarians."
 refs:
   - "design.md"
 links: []
