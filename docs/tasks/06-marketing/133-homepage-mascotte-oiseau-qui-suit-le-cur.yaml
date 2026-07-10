@@ -1,7 +1,7 @@
 id: 253
 code: null
 title: "Homepage : mascotte oiseau qui suit le curseur & se pose sur les divs (mini-jeu)"
-status: in_progress
+status: done
 tags: []
 size: null
 heat: 55
@@ -19,9 +19,20 @@ epic: logo
 source: ai
 createdAt: "2026-07-10T16:48:48"
 startedAt: "2026-07-10T16:49:44"
-updatedAt: "2026-07-10T16:49:44"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+updatedAt: "2026-07-10T17:34:30"
+completedAt: "2026-07-10"
+commit: 9ca1f7d
+outcome: >-
+  Mascotte oiseau live sur la homepage roadmapped.work : suit le curseur (vol lent/damp, décollage
+  par saut, réception, plané/battement), se pose sur les éléments réellement peints de la page
+  (cartes, boutons, panneaux, chips de code — seuil de largeur abaissé pour les petits éléments),
+  repos peck/idle aléatoire. Overlay fixed pointer-events:none. Module ESM autonome
+  roadmapped-bird.js + init dans index.html. Bonus même commit : favicon + image OG du site passés à
+  la mascotte, ancien tiret bleu retiré. Sans shadow portée (retour Rémi). Livré dans le repo
+  externe 5e1y/roadmapped-site (commit 9ca1f7d), auto-déployé.
+verification: >-
+  Module : node --check + import ESM OK (initBird exporté). Filtre perchoirs durci (visible +
+  réellement peint + dédoublonnage) validé par simulation headless de Fable (7 assertions). Poussé
+  sur main du site → Cloudflare Pages auto-deploy sur push. Rendu live à valider à l'œil sur
+  roadmapped.work par Rémi.
+release: roadmapped-site @ 9ca1f7d (Cloudflare Pages, auto-deploy on push to main)
