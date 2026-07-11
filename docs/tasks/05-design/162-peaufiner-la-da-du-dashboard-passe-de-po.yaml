@@ -1,7 +1,7 @@
 id: 215
 code: null
 title: Peaufiner la DA du dashboard — passe de polish UI
-status: todo
+status: done
 tags:
   - design
   - dashboard
@@ -11,15 +11,30 @@ detail: >-
   Passe de raffinement visuel sur le dashboard existant : cohérence des espacements/rythmes, états
   (hover/focus/empty/loading), micro-interactions, alignements, densité, contraste. Rester dans le
   DS (monochrome + accent rare, Base UI). Distinct des features : ici on polit l'existant.
-refs: []
+refs:
+  - src/components/RoadmapColumns.tsx
+  - src/components/ui.tsx
+  - src/index.css
 links: []
 dependsOn: []
 epic: brand-identity
 source: ai
 createdAt: "2026-07-09T13:55:01"
-updatedAt: "2026-07-09T13:55:01"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+startedAt: "2026-07-11T12:40:39"
+updatedAt: "2026-07-11T12:51:39"
+completedAt: "2026-07-11T12:51:14"
+commit: b35ff6b
+outcome: >-
+  Passe de polish DA du dashboard (déléguée à Fable 5, consigne de retenue). 11 composants, +31/-28
+  lignes, purement cosmétique. Corrections : (1) bug dark-mode réel — header sticky de colonne
+  bg-neutral-50 → bg-page (neutral-50 plus clair que la page en sombre depuis le split #269 → bande
+  grise au-dessus des cartes ; clair inchangé) ; (2) micro-texte porteur de sens 10px→11px
+  (DocsTree, NotepadView, LiveActivityMenu, TypesRadar) ; (3) Toast.Close text-neutral-400→500
+  (plancher de contraste) ; (4) transitions hover/focus manquantes sur contrôles persistants +
+  cartes (Backlog, EpicBand, RoadmapColumns/Graph, ui.tsx) ; (5) rounded sur boutons UpdateNotice ;
+  (6) hover-gris incohérents unifiés vers 700. 5 raffinements de goût signalés mais NON appliqués
+  (retenue).
+verification: >-
+  npx tsc --noEmit exit 0 (clean) ; npx vitest run 30 fichiers / 444 tests verts ; git diff vérifié
+  = uniquement className/transition/token/commentaires, zéro ligne de logique.
 release: null

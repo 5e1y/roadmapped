@@ -1,7 +1,7 @@
 id: 15
 code: null
 title: Publier le skill sur le marketplace Claude
-status: todo
+status: in_progress
 tags:
   - skill
   - open-source
@@ -21,8 +21,26 @@ dependsOn:
 epic: lancement
 source: user
 createdAt: "2026-07-07"
+startedAt: "2026-07-11T12:22:30"
+updatedAt: "2026-07-11T12:27:04"
 completedAt: null
 commit: null
 outcome: null
 verification: null
 release: null
+feedback:
+  - date: "2026-07-11T12:27:04"
+    author: claude
+    text: >-
+      Manifestes .claude-plugin/{plugin.json,marketplace.json} créés et commités (3a703d7).
+      Marketplace auto-hébergé, github-only ; version omise → SHA git = version. Vérifié : `claude
+      plugin validate .` OK (1 warning version, volontaire) + `claude plugin marketplace add <path>`
+      reconnaît le plugin. RESTE À FAIRE (côté Rémi, hors de portée de l'agent) : (1) push vers
+      GitHub pour rendre `/plugin marketplace add 5e1y/roadmapped` public ; (2) test de recette en
+      session Claude FRAÎCHE : `/plugin install roadmapped@roadmapped` + confirmer le déclenchement
+      du skill. OPTIONNEL : soumission au community marketplace (formulaire
+      platform.claude.com/plugins/submit, lié au compte Rémi) — candidat à un ticket séparé si
+      souhaité. Décision de scope : plugin = skill SEUL (un plugin ne peut pas livrer
+      CLI/guard-git/scaffold dans le node_modules du repo cible ; la phase setup du skill amorce le
+      reste via npx github:init).
+    resolved: false
