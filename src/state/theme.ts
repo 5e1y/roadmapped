@@ -12,6 +12,8 @@ import { useCallback, useSyncExternalStore } from 'react'
  * synchrones. Tout accès localStorage est défensif (mode privé / SSR).
  */
 export type Theme = 'light' | 'dark'
+/** Préférence de l'utilisateur (#270) : 'system' = pas de choix figé, on suit l'OS. */
+export type ThemeMode = 'system' | 'light' | 'dark'
 const KEY = 'ui:theme'
 
 /**
@@ -44,6 +46,27 @@ export function setTheme(t: Theme): void {
   applyTheme(t)
 }
 
+/** Mode stocké (#270) : 'dark'/'light' = choix figé ; tout le reste = suivi système. */
+function currentMode(): ThemeMode {
+  let stored: string | null = null
+  try { stored = localStorage.getItem(KEY) } catch { /* privé/SSR */ }
+  return stored === 'dark' || stored === 'light' ? stored : 'system'
+}
+
+/** Le 3e état (#270) : 'system' efface le choix figé et rebascule live sur l'OS. */
+export function setMode(mode: ThemeMode): void {
+  if (mode !== 'system') return setTheme(mode)
+  try { localStorage.removeItem(KEY) } catch { /* privé/SSR */ }
+  const systemDark = typeof matchMedia === 'function' && matchMedia('(prefers-color-scheme: dark)').matches
+  applyTheme(systemDark ? 'dark' : 'light')
+}
+
+/** Cycle du toggle : système → clair → sombre → système. */
+export const THEME_MODES: ThemeMode[] = ['system', 'light', 'dark']
+export function nextMode(m: ThemeMode): ThemeMode {
+  return THEME_MODES[(THEME_MODES.indexOf(m) + 1) % THEME_MODES.length]
+}
+
 // Tant qu'AUCUN choix explicite n'est stocké, on suit l'OS à chaud (un changement
 // de thème système se reflète sans reload). Le 1er clic fige le choix → on cesse.
 const mq = typeof matchMedia === 'function' ? matchMedia('(prefers-color-scheme: dark)') : null
@@ -61,4 +84,14 @@ export function useTheme(): [Theme, (t: Theme) => void] {
     () => 'light' as Theme, // getServerSnapshot (SSR) — jamais atteint côté client
   )
   return [theme, useCallback((t: Theme) => setTheme(t), [])]
+}
+
+/** Mode (#270) pour le toggle 3 états — distinct de useTheme qui rend le thème RÉSOLU. */
+export function useThemeMode(): [ThemeMode, (m: ThemeMode) => void] {
+  const mode = useSyncExternalStore(
+    (fn) => { listeners.add(fn); return () => { listeners.delete(fn) } },
+    currentMode,
+    () => 'system' as ThemeMode,
+  )
+  return [mode, useCallback((m: ThemeMode) => setMode(m), [])]
 }
