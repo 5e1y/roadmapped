@@ -53,7 +53,9 @@ export function RoadmapView() {
           aria-pressed={showDone}
           title={showDone ? 'Hide done tickets' : 'Show done tickets'}
           className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs transition-colors ${
-            showDone ? 'border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100' : 'border-neutral-300 bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+            // #176 : état ON = langage « actif » du dashboard (accent-tint + filet accent,
+            // design.md §3.2), pas un fond gris ambigu. OFF = repos neutre.
+            showDone ? 'border-accent bg-accent-tint text-neutral-900' : 'border-neutral-300 bg-white text-neutral-600 hover:bg-neutral-100'
           }`}
         >
           {showDone ? <EyeOpen size={12} /> : <EyeClosed size={12} />}
