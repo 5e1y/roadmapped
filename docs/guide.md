@@ -73,11 +73,46 @@ keeping a parallel checklist, you are fighting the tool.
 ## 2. Installation in a host repo
 
 Roadmapped is an npm package: the tool lives in `node_modules/roadmapped/`, the
-*data* (backlog, config) lives at the root of **your** repo. Install and scaffold:
+*data* (backlog, config) lives at the root of **your** repo. It installs **three
+ways** — all three converge on the same wired state, and every install
+auto-updates itself from GitHub HEAD in the background, so you stay current
+without reinstalling. GitHub stays the single source of truth; npm mirrors it
+automatically.
+
+**Requirements**: Node ≥ 22.18 (details below) and a `package.json` in the host
+repo — Roadmapped installs itself as a devDependency; a non-Node repo just needs
+a minimal one via `npm init -y`.
+
+**Method 1 — Claude Code plugin** (easiest inside Claude Code):
+
+```
+/plugin marketplace add 5e1y/roadmapped
+/plugin install roadmapped@roadmapped
+```
+
+Then reload/restart, and tell the agent: "let's set up Roadmapped" — the skill
+runs the setup itself.
+
+**Method 2 — npm** (bare `npx roadmapped` works — the package is published on npm):
 
 ```bash
-npm install --save-dev github:5e1y/roadmapped   # sourced from GitHub — never published to npm
-npx roadmapped init          # config + 9-type skeleton + skill + MCP entry + guard hook
+npx roadmapped init   # scaffolds docs/tasks/, the skill, the .mcp.json entry, the git guard + SessionStart hooks, and adds the devDependency
+npm install           # materializes node_modules/roadmapped → activates the hooks + MCP
+```
+
+Then restart the Claude Code session.
+
+**Method 3 — straight from GitHub** (no npm registry needed):
+
+```bash
+npx --yes github:5e1y/roadmapped init
+npm install
+```
+
+After install you drive everything with `npx roadmapped <command>`, the MCP
+tools, or the Claude skill:
+
+```bash
 npx roadmapped dashboard     # dashboard on http://localhost:5173
 npx roadmapped --help
 ```

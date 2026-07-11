@@ -7,7 +7,7 @@ description: Roadmapped project management — use BEFORE modifying any file in 
 
 ## Compass
 
-Flat YAML/markdown files under `docs/tasks/` are the ONLY source of truth (no parallel plan). 9 fixed, immutable TYPES (`01-bug` → `09-business` = the NATURE of the work, one dashboard column each — never a "when", never a team). Priority is a computed TEMPERATURE, not a stage rank and not an epic order (epics are unordered groupings). The `npx roadmapped <command>` CLI — or the roadmapped MCP tools if loaded (same core, same guarantees) — is your ONLY write interface — never hand-edit a YAML the CLI covers. (In the Roadmapped repo itself, `node scripts/task.mjs <command>` remains equivalent.)
+Flat YAML/markdown files under `docs/tasks/` are the ONLY source of truth (no parallel plan). 9 fixed, immutable TYPES (`01-bug` → `09-business` = the NATURE of the work, one dashboard column each — never a "when", never a team). Priority is a computed TEMPERATURE, not a stage rank and not an epic order (epics are unordered groupings). The `npx roadmapped <command>` CLI — installable via npm, GitHub (`github:5e1y/roadmapped`), or the Claude Code plugin — or the roadmapped MCP tools if loaded (same core, same guarantees) — is your ONLY write interface — never hand-edit a YAML the CLI covers. (In the Roadmapped repo itself, `node scripts/task.mjs <command>` remains equivalent.)
 
 ## Decision ladder — stop at the first matching row
 
