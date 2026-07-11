@@ -18,7 +18,7 @@ epic: legal-readiness
 source: ai
 createdAt: "2026-07-09T13:55:29"
 startedAt: "2026-07-11T12:38:09"
-updatedAt: "2026-07-11T12:39:55"
+updatedAt: "2026-07-11T13:34:43"
 completedAt: null
 commit: null
 outcome: null
@@ -56,4 +56,26 @@ feedback:
       DÉCISIONS RESTANTES (owner-remi) : réserver npm + org GitHub `roadmapped` (défensif,
       gratuit/quasi) ; décider .io/.co en défensif ; clearance trademark formelle + dépôt éventuel.
       Aucun blocage rédhibitoire identifié.
+    resolved: false
+  - date: "2026-07-11T13:34:43"
+    author: claude
+    text: >-
+      « RÉSERVE TOUT » — aucune réservation n'est faisable par l'agent (comptes/paiement/web-UI).
+      Mode d'emploi pour Rémi :
+
+      1. npm `roadmapped` (LIBRE) : `npm login` puis publier un STUB pour tenir le nom. ⚠️ Tension
+      avec la décision github-only/no-npm-publish (mémoire) : un stub défensif (package minimal dont
+      le README dit « install via github:5e1y/roadmapped ») HOLD le nom sans en faire un canal de
+      distribution. À trancher : soit tu acceptes ce stub défensif, soit tu laisses le nom libre
+      (github-only assumé). Je ne l'ai pas fait (ne pas contredire la décision sans ton aval).
+
+      2. Org GitHub `roadmapped` (LIBRE) : création web-only → github.com/organizations/plan
+      (gratuit). Ensuite tu peux transférer 5e1y/roadmapped dans l'org ou garder le repo perso.
+
+      3. Domaines : `.io` et `.co` LIBRES → enregistre chez ton registrar (Cloudflare, cohérent avec
+      .dev/.work). `.ai` expire le 2026-07-13 (2 jours) — backorder possible si tu le veux, sinon il
+      retombera peut-être libre. `.com` (2015) et `.ai` (tiers) = pas dispo à l'amiable.
+
+      4. Trademark : aucun « Roadmapped » enregistré trouvé → si dépôt, clearance formelle classes
+      Nice 9+42 (avec conseil).
     resolved: false

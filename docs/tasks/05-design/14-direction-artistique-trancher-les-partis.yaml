@@ -3,7 +3,7 @@ code: null
 title: >-
   Direction artistique : trancher les partis-pris de marque (palette étendue, style visuel, ton
   graphique)
-status: todo
+status: done
 tags:
   - owner-remi
   - design
@@ -20,9 +20,18 @@ dependsOn: []
 epic: brand-identity
 source: ai
 createdAt: "2026-07-09T13:54:53"
-updatedAt: "2026-07-09T13:54:53"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+startedAt: "2026-07-11T13:32:55"
+updatedAt: "2026-07-11T13:34:08"
+completedAt: "2026-07-11T13:34:08"
+commit: 3d72fe5
+outcome: >-
+  Direction artistique tranchée par Rémi : ACCENT. La marque garde la ligne minimale existante —
+  monochrome (échelle neutral oklch) + accent rare exprimé via le langage accent-tint
+  (bg-accent-tint + filet accent pour l'état « actif », design.md §3.2). PAS de palette étendue, pas
+  de nouveau style graphique. Conséquence appliquée immédiatement : #176 (toggle show-done) migré du
+  gris-comme-état vers accent-tint. Cette décision cadre les futurs choix visuels (déclinaisons,
+  site) : accent-led, sobre, anti-fioriture.
+verification: >-
+  Décision explicite de Rémi (« #213 accent »). Consignée comme référence de DA ; matérialisée dans
+  le code via #176.
 release: null

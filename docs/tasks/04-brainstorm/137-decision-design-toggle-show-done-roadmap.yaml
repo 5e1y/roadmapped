@@ -3,7 +3,7 @@ code: null
 title: >-
   Décision design : toggle show-done (RoadmapView:61) signale son état par un fond gris —
   gris-comme-état vs langage accent-tint. À trancher par Rémi
-status: todo
+status: done
 tags:
   - debt
   - design-system
@@ -15,8 +15,17 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-08T18:27:48"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+startedAt: "2026-07-11T13:32:54"
+updatedAt: "2026-07-11T13:34:03"
+completedAt: "2026-07-11T13:34:03"
+commit: 284b874
+outcome: >-
+  Toggle show-done (RoadmapView) : état ON passé au langage « actif » du dashboard (border-accent +
+  bg-accent-tint + texte neutral-900, design.md §3.2) au lieu d'un fond gris ambigu ; OFF = repos
+  neutre (border-neutral-300 bg-white). Suite directe de la décision DA #213 = accent. Corrige aussi
+  le ressenti inversé (l'ancien ON en bg-white paraissait éteint, l'OFF gris paraissait pressé).
+  Debt design-system résorbée.
+verification: >-
+  npx tsc --noEmit exit 0. Pattern accent-tint aligné sur TagGraph/TypesRadar/DocsTree (langage
+  actif documenté). Changement purement className.
 release: null

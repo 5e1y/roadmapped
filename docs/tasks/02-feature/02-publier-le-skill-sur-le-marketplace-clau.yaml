@@ -1,7 +1,7 @@
 id: 15
 code: null
 title: Publier le skill sur le marketplace Claude
-status: in_progress
+status: done
 tags:
   - skill
   - open-source
@@ -22,11 +22,20 @@ epic: lancement
 source: user
 createdAt: "2026-07-07"
 startedAt: "2026-07-11T12:22:30"
-updatedAt: "2026-07-11T12:27:04"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+updatedAt: "2026-07-11T13:34:19"
+completedAt: "2026-07-11T13:34:19"
+commit: 3a703d7
+outcome: >-
+  Skill publié sur le marketplace Claude Code (auto-hébergé, github-only). Manifestes
+  .claude-plugin/{plugin.json,marketplace.json} poussés sur main (0c735fe) → le repo public est un
+  marketplace : `/plugin marketplace add 5e1y/roadmapped` puis `/plugin install
+  roadmapped@roadmapped`. Plugin = skill seul (skills/roadmapped/SKILL.md auto-chargé) ; sa phase
+  setup amorce CLI/MCP/guard via npx github:init. Version omise → SHA git.
+verification: >-
+  `claude plugin validate .` OK ; marketplace local reconnu (plugin listé) ; commits poussés sur
+  GitHub (24c8eda..0c735fe) → marketplace add public opérant. NON couvert de mon côté (à confirmer
+  par Rémi) : le test end-to-end `/plugin install` dans une session Claude FRAÎCHE + déclenchement
+  du skill.
 release: null
 feedback:
   - date: "2026-07-11T12:27:04"
