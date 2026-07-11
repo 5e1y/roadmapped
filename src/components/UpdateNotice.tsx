@@ -44,7 +44,7 @@ function CopyCommandButton({ command }: { command: string }) {
       type="button"
       onClick={() => void copy()}
       aria-label={copied ? 'Copied' : 'Copy upgrade command'}
-      className="flex shrink-0 items-center gap-1 self-stretch border border-neutral-300 bg-white px-2 text-[11px] text-neutral-700 transition-colors hover:bg-neutral-100"
+      className="flex shrink-0 items-center gap-1 self-stretch rounded border border-neutral-300 bg-white px-2 text-[11px] text-neutral-700 transition-colors hover:bg-neutral-100"
     >
       {copied ? <Check size={10} className="shrink-0" /> : <Copy size={10} className="shrink-0" />}
       {copied ? 'copied' : 'copy'}
@@ -142,7 +142,7 @@ function UpdateNoticeInner({ update }: { update: { installed: string; remote: st
                   type="button"
                   onClick={() => void runUpdate()}
                   disabled={phase === 'updating'}
-                  className="flex items-center justify-center gap-1.5 border border-neutral-900 bg-neutral-900 px-2.5 py-1.5 text-xs font-medium text-white transition-colors hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-70"
+                  className="flex items-center justify-center gap-1.5 rounded border border-neutral-900 bg-neutral-900 px-2.5 py-1.5 text-xs font-medium text-white transition-colors hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   <Download size={11} className="shrink-0" />
                   {phase === 'updating' ? 'Updating & restarting…' : 'Update & restart'}

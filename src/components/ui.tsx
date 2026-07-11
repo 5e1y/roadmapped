@@ -84,7 +84,7 @@ export function ErrorBanner({ errors }: { errors: string[] }) {
   return (
     <div role="alert" className="border border-l-4 border-neutral-900 bg-neutral-100 px-3 py-2 text-xs text-neutral-800">
       <div className="mb-1 flex items-center gap-1.5 font-semibold text-neutral-900">
-<Warning size={12} className="shrink-0" />
+        <Warning size={12} className="shrink-0" />
         Error
       </div>
       <ul className="flex flex-col gap-1">
@@ -176,7 +176,7 @@ export function ToastViewport() {
             </div>
             <Toast.Close
               aria-label="Close"
-              className="shrink-0 rounded p-0.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700"
+              className="shrink-0 rounded p-0.5 text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-700"
             >
               <Cross size={10} />
             </Toast.Close>
@@ -266,11 +266,11 @@ export function Select({
     >
       <BaseSelect.Trigger
         aria-label={ariaLabel}
-        className={`${ghost ? `${ghostCls} text-sm` : compact ? 'w-full rounded border border-neutral-300 bg-white px-2.5 py-1 text-xs text-neutral-700 focus:border-neutral-900 focus:outline-none' : fieldCls} flex items-center justify-between gap-2 text-left data-[disabled]:bg-neutral-50 data-[disabled]:text-neutral-500 ${ghost ? 'data-[disabled]:bg-transparent' : ''}`}
+        className={`${ghost ? `${ghostCls} text-sm` : compact ? 'w-full rounded border border-neutral-300 bg-white px-2.5 py-1 text-xs text-neutral-700 transition-colors focus:border-neutral-900 focus:outline-none' : fieldCls} flex items-center justify-between gap-2 text-left data-[disabled]:bg-neutral-50 data-[disabled]:text-neutral-500 ${ghost ? 'data-[disabled]:bg-transparent' : ''}`}
       >
         <BaseSelect.Value />
         <BaseSelect.Icon className="shrink-0 text-neutral-500">
-<ChevronDown size={10} />
+          <ChevronDown size={10} />
         </BaseSelect.Icon>
       </BaseSelect.Trigger>
       <BaseSelect.Portal>

@@ -90,7 +90,7 @@ export function TypesRadar({ counts, selected, onSelect }: {
           >
             <Icon size={11} className={active ? 'text-accent' : 'text-neutral-500'} />
             {t.label}
-            <span className={`font-mono text-[10px] ${active ? 'text-accent' : 'text-neutral-500'}`}>
+            <span className={`font-mono text-[11px] ${active ? 'text-accent' : 'text-neutral-500'}`}>
               {counts.get(t.key) ?? 0}
             </span>
           </button>

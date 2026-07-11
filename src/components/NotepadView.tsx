@@ -252,7 +252,7 @@ export function NotepadView() {
                 <button type="button" onClick={() => openNote(n.slug)} className="min-w-0 flex-1 truncate text-left">
                   {n.title || n.slug}
                 </button>
-                <span className="shrink-0 font-mono text-[10px] text-neutral-500" title={absoluteDate(n.modified)}>{relativeTime(n.modified)}</span>
+                <span className="shrink-0 font-mono text-[11px] text-neutral-500" title={absoluteDate(n.modified)}>{relativeTime(n.modified)}</span>
                 {/* Action destructive : confirmation (pattern window.confirm de
                     TaskPanel.remove) ; révélée au survol ET au focus (design.md §3.4). */}
                 <button
@@ -262,7 +262,7 @@ export function NotepadView() {
                   }}
                   title="Delete note"
                   aria-label={`Delete note ${n.title || n.slug}`}
-                  className="shrink-0 text-neutral-500 opacity-0 hover:text-neutral-700 focus-visible:opacity-100 group-hover:opacity-100"
+                  className="shrink-0 text-neutral-500 opacity-0 transition-opacity hover:text-neutral-700 focus-visible:opacity-100 group-hover:opacity-100"
                 >✕</button>
               </div>
             ))}

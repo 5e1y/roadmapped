@@ -68,7 +68,7 @@ function LiveActivityMenuInner({ activity }: { activity: LiveActivityState }) {
         <Pulse size={11} className="text-neutral-500" />
         Activity
         {unread > 0 && (
-          <span className="pulse-live flex min-w-4 items-center justify-center rounded bg-accent px-1 text-[10px] font-semibold text-white">
+          <span className="pulse-live flex min-w-4 items-center justify-center rounded bg-accent px-1 text-[11px] font-semibold text-white">
             {unread > 99 ? '99+' : unread}
           </span>
         )}

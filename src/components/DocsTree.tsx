@@ -85,7 +85,7 @@ function DocsTreeFile({
       {/* .md implicite (tout l'arbre en est) — le nom brut reste en tooltip. */}
       <span className="min-w-0 flex-1 truncate">{node.name.replace(/\.md$/, '')}</span>
       {node.createdAt && (
-        <span className="shrink-0 font-mono text-[10px] text-neutral-500" title={absoluteDate(node.createdAt)}>{relativeTime(node.createdAt)}</span>
+        <span className="shrink-0 font-mono text-[11px] text-neutral-500" title={absoluteDate(node.createdAt)}>{relativeTime(node.createdAt)}</span>
       )}
     </button>
   )

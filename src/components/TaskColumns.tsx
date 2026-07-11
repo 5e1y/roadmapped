@@ -72,7 +72,7 @@ export function TaskList({ open, done, tree, filtered }: {
               <button
                 type="button"
                 onClick={() => setShowAll(true)}
-                className="w-full px-4 py-2.5 text-center text-xs text-neutral-500 hover:bg-neutral-50 hover:text-neutral-800"
+                className="w-full px-4 py-2.5 text-center text-xs text-neutral-500 hover:bg-neutral-50 hover:text-neutral-700"
               >
                 Show {hidden} more
               </button>
