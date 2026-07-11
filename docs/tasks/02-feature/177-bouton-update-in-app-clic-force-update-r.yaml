@@ -1,0 +1,36 @@
+id: 295
+code: null
+title: "Bouton Update in-app : clic = force update + restart (au lieu de copier la commande)"
+status: in_progress
+tags: []
+size: null
+heat: 80
+detail: >-
+  Reprend UpdateNotice (#211) : le popover affichait une commande à copier ; désormais le bouton
+  FORCE l'update et relance le dashboard au clic. Serveur : route POST /api/update dans le
+  middleware createApiMiddleware (à côté du SSE) — re-vérifie checkUpdate (null si à
+  jour/self-host/offline → 409, protège le npm run dev de Rémi), répond {restarting:true}, puis
+  restartWithUpdate(hostRoot) = spawn détaché 'npm install github:REPO && npx roadmapped upgrade &&
+  npx roadmapped dashboard --no-open' (env ROADMAPPED_ROOT) et process.exit(0) pour libérer le port
+  (le parent quitte AVANT que l'enfant rebinde ; l'install ne prend pas de port). Front
+  (UpdateNotice.tsx) : bouton 'Update & restart' → POST → état updating → poll /api/tree (catch les
+  erreurs pendant le downtime) jusqu'au retour du nouveau serveur → location.reload(). Downtime
+  ~30s-2min assumé, overlay explicite. Nouveau helper restartWithUpdate dans updateNotifier.ts
+  (voisin de runUpdate/autoUpdate #294). Suit #294 (auto-update en fond) : ici c'est le déclencheur
+  MANUEL immédiat + restart.
+refs:
+  - src/components/UpdateNotice.tsx
+  - src/server/api.ts
+  - src/lib/updateNotifier.ts
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-11T10:36:01"
+startedAt: "2026-07-11T10:36:05"
+updatedAt: "2026-07-11T10:36:05"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

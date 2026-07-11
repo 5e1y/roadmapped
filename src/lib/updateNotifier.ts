@@ -126,6 +126,19 @@ function runUpdate(hostRoot: string): void {
   child.unref()
 }
 
+/** Update + RESTART du dashboard (#295, bouton in-app) : comme runUpdate, mais
+ *  ré-lance ensuite `npx roadmapped dashboard --no-open` sur le même repo. L'appelant
+ *  (POST /api/update) fait process.exit JUSTE APRÈS pour libérer le port : le parent
+ *  meurt pendant que l'enfant fait l'install (sans port), puis l'enfant rebinde le
+ *  port libre. ROADMAPPED_ROOT explicite → l'enfant sert bien le même repo. */
+export function restartWithUpdate(hostRoot: string): void {
+  const child = spawn(
+    `npm install github:${REPO} && npx roadmapped upgrade && npx roadmapped dashboard --no-open`,
+    { cwd: hostRoot, env: { ...process.env, ROADMAPPED_ROOT: hostRoot }, detached: true, stdio: 'ignore', shell: true },
+  )
+  child.unref()
+}
+
 /**
  * Auto-MAJ à l'ouverture (#294 — supersede la notif #207) : si le commit installé
  * est en retard sur main, APPLIQUE la MAJ en TÂCHE DE FOND (non bloquant : la

@@ -3,7 +3,7 @@ import type { ServerResponse, IncomingMessage } from 'node:http'
 import { watch, readdirSync } from 'node:fs'
 import { join, basename } from 'node:path'
 import { loadPaths, packageRoot, type RoadmappedPaths } from '../lib/paths.ts'
-import { checkUpdate, UPDATE_REPO, type UpdateStatus } from '../lib/updateNotifier.ts'
+import { checkUpdate, restartWithUpdate, UPDATE_REPO, type UpdateStatus } from '../lib/updateNotifier.ts'
 import {
   treeWithErrors, addTask, updateTask, deleteTask, moveTask,
   updateSection, saveEpics, type MutationResult,
@@ -284,6 +284,26 @@ export function createApiMiddleware(paths: RoadmappedPaths) {
           req.on('close', () => { clearInterval(keepAlive); clients.delete(res) })
           return
         }
+
+        // Force update + restart (#295) : le bouton in-app POST ici. Re-vérifie qu'une
+        // MAJ est dispo (null = à jour / clone de dev self-host / offline → 409, ce qui
+        // protège aussi le `npm run dev` de l'auteur). Sinon répond, PUIS relance
+        // l'updater détaché + coupe CE process (libère le port pour le nouveau serveur).
+        if (url.pathname === '/api/update' && method === 'POST') {
+          const u = await checkUpdate(packageRoot(), paths.root)
+          res.setHeader('Content-Type', 'application/json')
+          if (!u) {
+            res.statusCode = 409
+            res.end(JSON.stringify({ ok: false, reason: 'up to date, dev clone, or offline' }))
+            return
+          }
+          res.statusCode = 200
+          res.end(JSON.stringify({ ok: true, restarting: true }))
+          // Laisse la réponse partir avant de quitter ; l'enfant détaché survit.
+          setTimeout(() => { try { restartWithUpdate(paths.root) } finally { process.exit(0) } }, 150)
+          return
+        }
+
         const body =
           method === 'POST' || method === 'PATCH' || method === 'PUT'
             ? await readJsonBody(req)
