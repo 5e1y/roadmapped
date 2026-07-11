@@ -28,24 +28,27 @@ epic: null
 source: ai
 createdAt: "2026-07-11T17:37:07"
 startedAt: "2026-07-11T17:37:27"
-updatedAt: "2026-07-11T17:47:09"
-completedAt: "2026-07-11T17:47:09"
-commit: e01b77a
+updatedAt: "2026-07-11T18:40:59"
+completedAt: "2026-07-11T18:40:59"
+commit: 6770b7a
 outcome: >-
-  Spec d'intégration Graphify écrite (docs/specs/graphify-kb.md, 384 l., Fable). Verdict clé :
-  Graphify = 100% Python (MIT, pip graphifyy), MAIS son binaire ne génère pas (sous-cmds
-  install/hook/benchmark) — la pipeline est orchestrée par l'AGENT via le skill ; sortie =
-  graphify-out/graph.json (node-link NetworkX). Archi retenue : le dashboard LIT le JSON, l'agent
-  GÉNÈRE → zéro Python dans les deps npm, jamais dans package.json, dégradation propre si absent.
-  graph.json reste dans graphify-out/ (pas sous docs/), chemin configurable (kbGraph). Serveur :
-  src/server/kb.ts + GET /api/kb. Rendu : layout force-directed maison (kbLayout.ts ~150l, précédent
-  layoutTagGraph) + useZoomPan réutilisé + SVG façon TagGraph (pas dagre, pas l'iframe navy). UI =
-  placement (b) confirmé : sous-onglet de la Vue Docs, toggle « Documents / Knowledge base » calqué
-  ligne à ligne sur le segmented Columns/Graph de RoadmapView. Plan 4 phases, 1er slice ~1j (lecture
-  seule + empty state pédagogique + dogfood sur le repo). 4 décisions listées pour Rémi (git de
-  graphify-out, périmètre, libellé toggle, roadmapped kb).
+  Spec réécrite pour l'intégration PROFONDE de Graphify (docs/specs/graphify-kb.md, 382 l.). VERDICT
+  PYTHON = pas trop lourd, GO option (b) : détecter Python ≥3.10 + install de graphifyy dans un env
+  isolé (uv tool install → pipx → venv), ~28 Mo téléchargés / ~80-120 Mo disque (numpy domine), le
+  paquet npm ne bouge PAS ; piège évité = l'extra Leiden graspologic (200 Mo+ scipy/sklearn/…) non
+  installé, fallback clustering python-louvain (0,2 Mo). Bundler un runtime Python = rejeté. Étape
+  ensureGraphify dans init : idempotente, dégradée si pas de Python (log + continue), consentement
+  TTY séparé pour l'install (~28 Mo) et la génération (coûte des tokens, jamais faite par
+  install.mjs), gitignore graphify-out/, marche sur les 3 voies. TICKETS⇄GRAPHE dérivé : correction
+  — Graphify n'indexe PAS les .yaml (les tickets ne sont pas des nœuds), MAIS le champ refs (déjà au
+  schéma) joint refs⇄source_file → src/lib/kbLink.ts (pur) donne le voisinage KB d'un ticket +
+  l'index inverse, ZÉRO champ kbLinks, schéma/validation intacts. UI = « Connected in the knowledge
+  base » dans TaskPanel + « Tickets touching this » dans l'inspecteur de nœud. Placement (b)
+  sous-onglet Docs confirmé. PLAN 4 phases : slice 1 (~1,5j) = viewer KB + kbLink + voisinage
+  TaskPanel SANS toucher l'install (prouver la valeur d'abord) ; phase 3 = Python dans l'install (le
+  plus risqué, en dernier). 6 décisions listées pour Rémi.
 verification: >-
-  docs/specs/graphify-kb.md présent (21 Ko, 7 sections), commité e01b77a ; aucun fichier de code
-  touché (git status : seul le spec + docs/tasks). Sources Graphify vérifiées par l'agent (repo
-  Graphify-Labs/graphify, __main__.py, échantillon graph.json réel).
+  docs/specs/graphify-kb.md réécrit (382 l., 9 sections, +352/-354), commité 6770b7a ; aucun fichier
+  de code touché. Poids Python chiffré sur les wheels PyPI réelles par l'agent. Correction
+  .yaml-non-indexés vérifiée sur detect.py de Graphify.
 release: null
