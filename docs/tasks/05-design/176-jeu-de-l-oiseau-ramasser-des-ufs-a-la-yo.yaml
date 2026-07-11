@@ -28,15 +28,15 @@ epic: null
 source: ai
 createdAt: "2026-07-11T15:51:43"
 startedAt: "2026-07-11T15:51:52"
-updatedAt: "2026-07-11T16:49:20"
-completedAt: "2026-07-11T16:49:20"
-commit: fc97fd5
+updatedAt: "2026-07-11T17:12:14"
+completedAt: "2026-07-11T17:12:14"
+commit: 8acfcaa
 outcome: >-
-  Retours Rémi appliqués (v2) : nid+œufs à la même échelle pixel que l'oiseau, œufs spawnés
-  uniquement sur surfaces perchables, ramassage au sol seulement (pose puis saut de joie), z-order
-  nid→oiseau→œufs, particules grossies. Mergé + poussé sur main du repo site (fc97fd5), déployé.
+  Retours Rémi v3 : bug suivi vertical corrigé (traîne suit l'oiseau en vol), vitesse+anims ×1.25,
+  œufs & nid remontés (posent pile sur le bord), z-order œufs<oiseau<nid, plus de perchage sur
+  textes surlignés. Poussé sur main du repo site (8acfcaa).
 verification: >-
-  node --check OK ; Playwright headless (deviceScaleFactor 3) 0 erreur console/page ; screenshots
-  validés : œufs petits (grille oiseau) + traîne, nid zoomé confirme z-order nid
-  derrière/oiseau/œufs devant.
+  node --check OK ; Playwright headless 0 erreur console ; screenshots : v3-fly confirme la traîne
+  verticale en vol, v3-nest confirme z-order (œufs derrière l'oiseau, nid devant), egg-on-perch
+  montre l'œuf calé sur le bord.
 release: null
