@@ -1,0 +1,41 @@
+id: 294
+code: null
+title: >-
+  Auto-update à l'ouverture : APPLIQUER la MAJ GitHub (skill+MCP+app), pas seulement notifier —
+  supersede #207
+status: in_progress
+tags: []
+size: null
+heat: 85
+detail: >-
+  Rémi veut qu'à l'ouverture de roadmapped dans un repo, TOUT se mette à jour auto depuis GitHub
+  (skill + MCP + app entière). Inverse la décision #207 (notify-only, 'jamais muter les deps sans
+  consentement') — consentement explicite de Rémi, assumé et documenté. Réutilise l'infra existante
+  : checkUpdate() (updateNotifier.ts) détecte déjà le retard (SHA installé via package-lock vs git
+  ls-remote HEAD, cache 24h, timeout 2s, no-op self-host/offline). AJOUTER autoUpdate(packageDir,
+  hostRoot, run?) : si en retard -> ligne 'updating X->Y in background' + spawn DÉTACHÉ (shell) 'npm
+  install github:5e1y/roadmapped && npx roadmapped upgrade' (npm install = MAJ CLI+MCP+app depuis
+  node_modules/roadmapped ; upgrade = recopie skill+references + re-merge MCP/hooks). Modèle décidé
+  : BACKGROUND, actif au prochain open (le hook agent ne peut pas bloquer sur un install
+  multi-minutes). Verrou anti-doublon INFLIGHT (tmpdir, TTL 10min) pour ne pas relancer un install
+  en cours. Câblage : (1) cmdSitrep (task.mjs) — le hook SessionStart lance task.mjs sitrep
+  directement ; (2) bin dashboard — remplace notifyIfOutdated par autoUpdate. Param 'run' injectable
+  pour tester sans spawner npm. Tests : up-to-date -> run pas appelé ; outdated+pas de verrou -> run
+  1x ; verrou frais -> pas de 2e run (via ROADMAPPED_FAKE_UPDATE). Limite de vérif : le vrai npm
+  install github ne se teste pas en self-host (checkUpdate y renvoie null).
+refs:
+  - src/lib/updateNotifier.ts
+  - scripts/task.mjs
+  - bin/roadmapped.mjs
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-11T10:13:32"
+startedAt: "2026-07-11T10:13:36"
+updatedAt: "2026-07-11T10:13:36"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

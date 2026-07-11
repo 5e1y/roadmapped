@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
-import { execFile, execFileSync } from 'node:child_process'
+import { execFile, execFileSync, spawn } from 'node:child_process'
 
 /*
  * MAJ auto de l'app (#207) — notify-only, distribution GitHub-only (jamais npm).
@@ -14,7 +14,9 @@ import { execFile, execFileSync } from 'node:child_process'
 const REPO = '5e1y/roadmapped'
 const REMOTE = `https://github.com/${REPO}.git`
 const CACHE = join(tmpdir(), 'roadmapped-update-check.json')
+const INFLIGHT = join(tmpdir(), 'roadmapped-update-inflight.json')
 const DAY_MS = 24 * 60 * 60 * 1000
+const INFLIGHT_TTL_MS = 10 * 60 * 1000
 const TIMEOUT_MS = 2000
 
 /** Repo GitHub de distribution — l'UI in-app en a besoin pour les liens/commandes. */
@@ -111,4 +113,42 @@ export async function notifyIfOutdated(packageDir: string, hostRoot: string): Pr
     `\nroadmapped: a newer version is available on GitHub (${u.installed} → ${u.remote})\n` +
     `  npm install github:${REPO} && npx roadmapped upgrade\n`,
   )
+}
+
+/** Lance en tâche de fond détachée l'update complet : `npm install github:<repo>`
+ *  (met à jour CLI+MCP+app depuis node_modules/roadmapped) PUIS `npx roadmapped
+ *  upgrade` (recopie skill+references, re-merge MCP/hooks). shell:true pour le `&&`
+ *  + la portabilité ; detached+unref pour survivre à la fin du process appelant. */
+function runUpdate(hostRoot: string): void {
+  const child = spawn(`npm install github:${REPO} && npx roadmapped upgrade`, {
+    cwd: hostRoot, detached: true, stdio: 'ignore', shell: true,
+  })
+  child.unref()
+}
+
+/**
+ * Auto-MAJ à l'ouverture (#294 — supersede la notif #207) : si le commit installé
+ * est en retard sur main, APPLIQUE la MAJ en TÂCHE DE FOND (non bloquant : la
+ * session courante reste rapide, la nouvelle version est active au prochain open).
+ * No-op si à jour / self-host / offline (checkUpdate). Verrou INFLIGHT (TTL 10 min)
+ * anti-doublon : checkUpdate voit encore l'ancien SHA tant que npm n'a pas réécrit
+ * le lock, donc sans verrou chaque open relancerait un install. `run` injectable
+ * pour les tests (évite de spawner npm pour de vrai). Silencieux sur toute erreur.
+ */
+export async function autoUpdate(
+  packageDir: string,
+  hostRoot: string,
+  run: (hostRoot: string) => void = runUpdate,
+): Promise<void> {
+  try {
+    const u = await checkUpdate(packageDir, hostRoot)
+    if (!u) return
+    try {
+      const m = JSON.parse(readFileSync(INFLIGHT, 'utf8')) as { remote: string; startedAt: number }
+      if (m.remote === u.remote && Date.now() - m.startedAt < INFLIGHT_TTL_MS) return // install déjà en cours
+    } catch { /* pas de verrou → on lance */ }
+    try { writeFileSync(INFLIGHT, JSON.stringify({ remote: u.remote, startedAt: Date.now() })) } catch { /* FS RO */ }
+    console.log(`\nroadmapped: updating ${u.installed} → ${u.remote} in the background — active on the next run.\n`)
+    run(hostRoot)
+  } catch { /* jamais bloquant : on retentera au prochain open */ }
 }

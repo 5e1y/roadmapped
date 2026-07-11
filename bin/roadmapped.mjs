@@ -72,12 +72,12 @@ switch (cmd) {
     const envRoot = process.env.ROADMAPPED_ROOT
     const hostRoot = envRoot && envRoot.trim() !== '' ? resolve(envRoot) : findHostRoot()
 
-    // MAJ auto (#207) : notify-only si le commit installé est en retard sur main
-    // (distribution GitHub-only). Lit le SHA installé dans le package-lock de
-    // l'hôte, le compare à git ls-remote HEAD. Borné ~2 s, caché 1×/jour, silencieux
-    // sur toute erreur, sauté dans un clone de dev (packageDir/.git). Jamais bloquant.
-    const { notifyIfOutdated } = await importPkg('src/lib/updateNotifier.ts')
-    await notifyIfOutdated(packageDir, hostRoot).catch(() => {})
+    // Auto-MAJ (#294, supersede la notif #207) : si le commit installé est en retard
+    // sur main (distribution GitHub-only), APPLIQUE la MAJ en tâche de fond (npm
+    // install github + roadmapped upgrade) — actif au prochain lancement. Borné ~2 s,
+    // caché 1×/jour, silencieux, sauté en clone de dev (packageDir/.git). Non bloquant.
+    const { autoUpdate } = await importPkg('src/lib/updateNotifier.ts')
+    await autoUpdate(packageDir, hostRoot).catch(() => {})
 
     // Options : --no-open (défaut = ouvre le navigateur), --port N.
     const open = !rest.includes('--no-open')
