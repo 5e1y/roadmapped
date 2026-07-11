@@ -1,0 +1,36 @@
+id: 299
+code: null
+title: >-
+  MAJ doc d'install sur le site marketing (roadmapped-site/index.html) : 3 méthodes
+  plugin/npm/github
+status: done
+tags:
+  - site
+  - install
+  - homepage
+size: null
+heat: 78
+detail: >-
+  Refléter sur la home publique roadmapped.dev les 3 voies d'install (plugin Claude Code, npm,
+  github), cohérent avec docs/site-copy.md. Repo externe 5e1y/roadmapped-site (Cloudflare Pages).
+  Section install/terminal de index.html. Ton Rémi (pince-sans-rire, anti-marketing).
+refs: []
+links: []
+dependsOn: []
+epic: install-methods
+source: ai
+createdAt: "2026-07-11T15:04:23"
+startedAt: "2026-07-11T15:05:00"
+updatedAt: "2026-07-11T15:10:07"
+completedAt: "2026-07-11T15:10:07"
+commit: "2892679"
+outcome: >-
+  Site marketing (roadmapped-site/index.html, repo externe) : section Quickstart montre les 3
+  méthodes d'install (plugin Claude Code, npm, github), avec le markup/classes existants
+  (code-comment) et le under-block requirements (Node ≥22.18 + package.json + auto-update depuis
+  github). Poussé sur 5e1y/roadmapped-site (commit 2892679) → déploiement Cloudflare Pages. Cohérent
+  avec docs/site-copy.md (#298). Épic install-methods.
+verification: >-
+  Passe de vérif Fable : Quickstart (L421-436) = 3 méthodes exactes conformes à la source de vérité,
+  HTML vérifié programmatiquement (0 balise non fermée/mal appariée). Commit poussé.
+release: null

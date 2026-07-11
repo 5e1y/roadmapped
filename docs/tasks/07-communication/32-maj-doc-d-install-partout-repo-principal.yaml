@@ -1,0 +1,48 @@
+id: 298
+code: null
+title: >-
+  MAJ doc d'install partout (repo principal) : README, docs/guide, docs/site-copy, skill (SKILL.md +
+  setup.md) — 3 méthodes plugin/npm/github
+status: done
+tags:
+  - docs
+  - install
+  - onboarding
+size: null
+heat: 78
+detail: >-
+  Depuis #297 (npm publié) + #15 (plugin marketplace) + #296 (setup github: + npm install), il y a
+  maintenant 3 voies d'install : (1) plugin Claude Code (/plugin marketplace add 5e1y/roadmapped +
+  /plugin install roadmapped@roadmapped), (2) npm (npx roadmapped init + npm install — bare marche
+  maintenant), (3) github (npx github:5e1y/roadmapped init + npm install). Toutes convergent,
+  auto-update #294 depuis github HEAD. Mettre à jour la section install de README, guide, site-copy,
+  et le skill (setup.md peut repasser au bare `npx roadmapped init` maintenant que c'est sur npm,
+  github en fallback). Cohérence = une source de vérité unique. Voix : README/site-copy = ton Rémi ;
+  guide/skill = neutre technique.
+refs: []
+links: []
+dependsOn: []
+epic: install-methods
+source: ai
+createdAt: "2026-07-11T15:04:20"
+startedAt: "2026-07-11T15:05:00"
+updatedAt: "2026-07-11T15:10:03"
+completedAt: "2026-07-11T15:10:03"
+commit: 472c956
+outcome: >-
+  Doc d'install mise à jour partout dans le repo principal (orchestré par Fable en 6 sous-agents
+  parallèles + 1 passe de vérif cohérence, relu et corrigé à la main). 5 fichiers, source de vérité
+  unique = 3 méthodes convergentes : (1) plugin Claude Code /plugin marketplace add 5e1y/roadmapped
+  + /plugin install roadmapped@roadmapped ; (2) npm npx roadmapped init + npm install ; (3) github
+  npx --yes github:5e1y/roadmapped init + npm install. README (section install réécrite + Quickstart
+  en bare npx, mentions « never published to npm » supprimées + badge Node déjà là), docs/guide.md
+  §2 (3 méthodes + requirements + auto-update), docs/site-copy.md (Quickstart 3 méthodes + hero CTA
+  corrigé de github: vers bare npx roadmapped init, et « Nothing to publish » retiré car faux
+  maintenant), SKILL.md (1 clause : CLI installable via npm/GitHub/plugin), setup.md (bare npx
+  roadmapped primary, github pinné en fallback, garde le npm install + restart de #296). Épic
+  install-methods.
+verification: >-
+  git diff limité aux 5 fichiers attendus. Passe de vérif Fable : 5/6 conformes d'emblée, 2 écarts
+  sur le hero de site-copy.md (CTA github-only + « Nothing to publish ») corrigés à la main avant
+  commit. Commandes vérifiées identiques à la source de vérité sur toutes les surfaces.
+release: null
