@@ -155,9 +155,9 @@ Writing (id allocated from _meta.yaml; validated after EVERY write, full rollbac
                             --kind milestone = MILESTONE (lock via dependsOn, rendered as diamond);
                             --blocks 1,2 = adds the new task to the dependsOn
                             of the tasks named (the ergonomic inverse of --depends-on)
-  quick "<title>" [--type <t>] [--tags a,b] [--heat 0-100] [--start] [--json]
-                            rapid-create alias for a task: title suffices
-                            (default type = 1st open one). Creates a plain task (#250).
+  quick "<title>" --type <t> [--tags a,b] [--heat 0-100] [--start] [--json]
+                            rapid-create alias for a task: title + type suffice.
+                            --type is REQUIRED (#293 — no silent default). Plain task (#250).
   start <id>                status → in_progress
   done <id> [--commit <sha>] [--outcome <o>] [--verification <v>] [--release <r>] [--resolve-feedback all|1,3]
                             status → done + completedAt=today + delivery record
@@ -196,7 +196,7 @@ const CMD_USAGE = {
   feedback: 'Usage: feedback <id> "<text>" [--author <name>]',
   roadmap: 'Usage: roadmap [--json]',
   add: 'Usage: add --type <type> --title <t> [--detail <d>] [--tags a,b] [--heat 0-100] [--size S|M|L]\n        [--code <c>] [--refs a,b] [--links 1,2] [--depends-on 1,2] [--epic <slug>]\n        [--kind task|milestone] [--blocks 1,2] [--source ai|user] [--json]  (--section/--stage = aliases of --type)',
-  quick: 'Usage: quick "<title>" [--type <t>] [--tags a,b] [--heat 0-100] [--start] [--json]  (rapid-create alias for a task)',
+  quick: 'Usage: quick "<title>" --type <t> [--tags a,b] [--heat 0-100] [--start] [--json]  (--type REQUIRED, #293)',
   update: 'Usage: update <id> [--title ...] [--detail ...] [--status ...] [--heat 0-100|--no-heat] [--tags a,b] [--refs a,b]\n        [--links 1,2] [--depends-on 1,2] [--epic <slug>] [--size ...] [--code ...] [--outcome ...] …',
 }
 
@@ -448,10 +448,10 @@ function cmdQuick(flags, positional) {
     fail('quick: title required (1st positional argument, in quotes).', CMD_USAGE.quick)
   }
   const heat = parseHeat(flags.heat, CMD_USAGE.quick)
-  // Type par défaut = le premier type "open". tree.sections est déjà trié par préfixe.
+  // #293 : --type OBLIGATOIRE. Le défaut silencieux (1er type "open") encourageait
+  // le dump non catégorisé — quick reste rapide (titre + type), mais typé.
   const section = sectionFromFlags(flags)
-    ?? readTree(ROOT).sections.find((s) => s.status === 'open')?.key
-  if (!section) fail('No "open" type to host the task — specify --type.', CMD_USAGE.quick)
+  if (!section) fail('quick: --type is required (categorise even quick tasks, e.g. --type 01-bug).', CMD_USAGE.quick)
   const res = addTask(ROOT, {
     section,
     title,

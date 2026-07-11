@@ -9,16 +9,21 @@ description: Roadmapped project management — use BEFORE modifying any file in 
 
 Flat YAML/markdown files under `docs/tasks/` are the ONLY source of truth (no parallel plan). 9 fixed, immutable TYPES (`01-bug` → `09-business` = the NATURE of the work, one dashboard column each — never a "when", never a team). Priority is a computed TEMPERATURE, not a stage rank and not an epic order (epics are unordered groupings). The `npx roadmapped <command>` CLI — or the roadmapped MCP tools if loaded (same core, same guarantees) — is your ONLY write interface — never hand-edit a YAML the CLI covers. (In the Roadmapped repo itself, `node scripts/task.mjs <command>` remains equivalent.)
 
-## Decision ladder — stop at the first rung that holds
+## Decision ladder — stop at the first matching row
 
-**Every repo change = one roadmapped unit, no exceptions.** `done` is a boundary, not a lid: feedback, a rework, a review fix → each gets its own `quick`. "ASAP" is never a reason to skip the `quick` — the `quick` IS the fast path (~2 commands). Only artefact-free exchange (question, explanation, status) stays conversational.
+**Every repo change = one roadmapped unit, no exceptions.** `done` is a boundary, not a lid (a rework/review-fix gets its own unit); "ASAP" is never a reason to skip it — logging IS the fast path (~2 commands). Only artefact-free exchange (question, explanation, status) stays conversational. **Before creating anything, check it isn't already tracked**: one `list --type <t> --status todo` (or `next --type <t>`) — a self-contained call (allowed below), NOT a priority recompute (forbidden); don't conflate the two uses of "reading the backlog".
 
-**Feedback vs quick (#149) — the same-scope exception.** A note on a task that isn't a change yet → `feedback <id> "…"` (captured, no ticket). When you ACT on it: SAME scope (finishing the same thing) → **reopen** the task (`start <id>`) and re-`done` with a new commit — git keeps every commit, the task carries the journal, no twin ticket. NEW scope (a different concern) → a `quick`, as always. `sitrep` flags done tasks with open feedback.
+| The work is… | do this — do NOT default to a fresh isolated ticket |
+|---|---|
+| doesn't deserve to exist | nothing |
+| a note/change on an **existing** ticket | **open** → `feedback <id> "…"` · **done + same scope** → reopen (`start <id>`) + re-`done` · **done + new scope** → a `quick` |
+| a **slice** of a ticket, meaningless on its own | a **subtask** of it (`references/formats.md`) |
+| part of a **named effort**, or you're filing **3+ related** tickets | give each its own type + the **same `--epic <slug>`** (grouping — does NOT prioritise) |
+| an **isolated** size-S fix, nothing to decide | `quick "<title>" --type <t>` |
+| a standalone unit with real context | `add --type <t> …`, normal cycle |
+| multi-task, architecture calls to make | spec first (`references/planning.md`), THEN the tasks |
 
-1. Does this change even deserve to exist? If not, create nothing. **Then, before `add`/`quick`, check no open ticket already covers this scope** — one `list --type <t> --status todo` (or `next --type <t>`) is enough. This is a self-contained CLI call (allowed below), NOT a priority recompute (forbidden) — dont conflate the two uses of "reading the backlog".
-2. Isolated fix, size S, nothing to decide? → `quick "<title>"` (the rapid title-only way to create a task).
-3. Otherwise, does a single task with full context suffice? → `add`, normal cycle.
-4. Otherwise (multi-task, architecture calls to make): spec first, THEN the tasks (`references/planning.md`).
+`feedback` (#149) captures a remark WITHOUT a ticket; git keeps every commit, the task carries the journal — prefer it to a twin ticket. `sitrep` flags done tasks with open feedback.
 
 ## Which type? — first match wins (the deliverable's NATURE, never its purpose or who does it)
 
@@ -36,7 +41,7 @@ A `kind: milestone` (a target other tasks lock onto via `dependsOn`) still gets 
 
 ## Priority — temperature, never a stage or epic order
 
-There's no "do this column first" and no "epics in priority order" (an epic is an unordered grouping, always). `next` serves tasks by a computed **temperature** = automatic (transitive downstream blockers + age) + the type's base heat (`baseHeat` in `_section.yaml`, fixed per type) + an optional manual seed. **To prioritize a task: give it `--heat` (0–100, `add`/`update`) OR make something depend on it** (a dependency heats its blocker). A naturally hot ticket (old, blocking, high-base-heat type) can and should outrank a manually maxed `--heat` — the seed weighs in, it doesn't override.
+There's no "do this column first" and no "epics in priority order" (an epic is an unordered grouping, always). `next` serves tasks by a computed **temperature** (downstream blockers + age + the type's base heat + an optional manual seed). **To prioritize a task: give it `--heat` (0–100, `add`/`update`) OR make something depend on it** (a dependency heats its blocker). A naturally hot ticket can outrank a manually maxed `--heat`. Full formula: `references/formats.md`.
 
 ## The cycle
 
@@ -54,7 +59,7 @@ A deliberate shortcut (known ceiling, upgrade path) gets logged as `quick "<the 
 - `take [--type t] [--json]` — next + start + brief, THE command to open work.
 - `brief <id>` — dense execution context (titled deps/related, refs + anchor excerpts & staleness flag, `done` reminder).
 - `next [--count N] [--type t] [--json]` — the work queue, temperature-sorted — CONSUME as-is.
-- `quick "<title>" [--type t] [--tags a,b] [--heat 0-100] [--start] [--json]` — rapid-create alias for a task: title suffices (type defaults to the first open one).
+- `quick "<title>" --type <t> [--tags a,b] [--heat 0-100] [--start] [--json]` — rapid title-first task; `--type` is REQUIRED (categorise even the quick ones — no silent default).
 - `add --type <type> --title <t> [--detail d] [--tags a,b] [--heat 0-100] [--refs a,b] [--depends-on 1,2] [--epic slug] [--kind task|milestone] [--blocks 1,2] [--json]` — create a task (`--type` = the exact folder slug, e.g. `02-feature` — REQUIRED; `--epic` = cross-type grouping, unordered; `--kind milestone` + `--blocks` = a milestone that locks the cited tasks via their dependsOn).
 - `start <id>` — todo → in_progress.
 - `done <id> [--commit sha] [--outcome o] [--verification v] [--release r] [--suggest-refs] [--resolve-feedback all|1,3]` — log completion (commit auto=HEAD; `--suggest-refs` suggests refs from the diff, to confirm; `--resolve-feedback` closes open feedback items).
@@ -84,4 +89,4 @@ For `sitrep`/`take`/`brief`/`next`/`quick`/`add`/`start`/`done`: open NO referen
 
 ## Router — open a reference ONLY on this exact trigger
 
-Breaking down a spec / planning → `references/planning.md` · first setup of a repo (`docs/tasks/_meta.yaml` missing) → `references/setup.md` · hand-editing a YAML (subtasks, uncovered cases) → `references/formats.md` · delegating to subagents → `references/delegation.md`.
+Breaking down a spec / planning → `references/planning.md` · first setup of a repo (`docs/tasks/_meta.yaml` missing) → `references/setup.md` · **creating a subtask, or hand-editing a YAML** (uncovered cases, formats) → `references/formats.md` · delegating to subagents → `references/delegation.md`.

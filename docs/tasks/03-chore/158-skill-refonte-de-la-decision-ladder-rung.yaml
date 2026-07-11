@@ -1,0 +1,41 @@
+id: 293
+code: null
+title: >-
+  Skill: refonte de la decision ladder (rungs epic/subtask/feedback, table 5 lignes) + quick --type
+  obligatoire
+status: in_progress
+tags: []
+size: null
+heat: 75
+detail: >-
+  Audit (agent) : SKILL.md ~2000 tokens, pas trop long — le problème est l'ASYMÉTRIE de la surface
+  de décision. quick est sur-représenté (rung 2 + défaut de type silencieux :57) ; epic et subtask
+  N'ONT AUCUN RUNG dans la ladder (epic = juste un flag+interdit, subtask = seulement en référence
+  derrière un trigger Router trompeur 'hand-editing a YAML') ; feedback n'est pas l'issue explicite
+  du rung dedup. Résultat prévisible : un agent met tout en quick, jamais d'epic ni de feedback.
+  Fixes (P1, à longueur ÉGALE ou MOINDRE en coupant les redondances type-tree ×4 / temperature ×3 /
+  Compass) : (1) rung 1 dedup -> issue explicite : ticket ouvert=feedback, done+même scope=reopen,
+  done+nouveau scope=quick ; (2) ajouter rung epic (3+ tickets pour un même résultat -> --epic) et
+  rung subtask (tranche non-autonome d'un ticket) ; (3) quick --type OBLIGATOIRE (retirer le défaut
+  1st-open-type) côté CLI (cmdQuick) + MCP (tool quick) + tests + doc ; (4) table de décision 5
+  lignes en tête (quick/add/epic/feedback/subtask, 1 déclencheur/ligne) ; (5) réparer le trigger
+  Router subtasks (par intention, pas 'hand-edit YAML') + ajouter les règles de décision aux
+  §Epics/§Subtasks de formats.md. NB SKILL.md = hardlink (.claude/skills + skills), une édition
+  couvre les deux.
+refs:
+  - skills/roadmapped/SKILL.md
+  - skills/roadmapped/references/formats.md
+  - scripts/task.mjs
+  - scripts/mcp-server.mjs
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-11T09:42:08"
+startedAt: "2026-07-11T09:42:13"
+updatedAt: "2026-07-11T09:42:13"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
