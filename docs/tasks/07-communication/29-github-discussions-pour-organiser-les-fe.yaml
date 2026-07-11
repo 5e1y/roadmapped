@@ -1,7 +1,7 @@
 id: 224
 code: null
 title: GitHub Discussions pour organiser les feedbacks + catégories
-status: todo
+status: done
 tags:
   - support
   - publish
@@ -17,9 +17,20 @@ dependsOn: []
 epic: community-github
 source: ai
 createdAt: "2026-07-09T13:55:45"
-updatedAt: "2026-07-09T13:55:45"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+startedAt: "2026-07-11T12:57:52"
+updatedAt: "2026-07-11T12:58:12"
+completedAt: "2026-07-11T12:58:12"
+commit: 10ef4ff
+outcome: >-
+  GitHub Discussions activées sur 5e1y/roadmapped (gh api PATCH has_discussions=true → confirmé
+  true). Répare le lien « Questions & ideas » de .github/ISSUE_TEMPLATE/config.yml qui pointait déjà
+  vers /discussions (lien mort jusqu'ici). Catégories par défaut retenues (couvrent le tri des
+  feedbacks) : Announcements, General, Ideas (features), Q&A (aide), Show and tell, Polls. Choix
+  ponytail : pas de catégorie custom via GraphQL — Ideas + Q&A + General canalisent déjà les
+  feedbacks, et blank_issues_enabled=false pousse déjà les questions/idées vers Discussions. Ajout
+  d'une catégorie « Feedback » possible en 1 clic UI si Rémi le souhaite (non fait, YAGNI).
+verification: >-
+  gh api graphql discussionCategories : 6 catégories par défaut présentes ; has_discussions=true
+  renvoyé par l'API PATCH. Lien config.yml → github.com/5e1y/roadmapped/discussions désormais
+  résolu.
 release: null
