@@ -1,0 +1,37 @@
+id: 297
+code: null
+title: >-
+  Distribution npm : publier le vrai package roadmapped + CI d'auto-publish depuis GitHub (un seul
+  point de maintenance)
+status: in_progress
+tags:
+  - distribution
+  - npm
+  - ci
+  - publish
+size: null
+heat: 75
+detail: >-
+  Décision Rémi 2026-07-11 : OK pour npm tant que ça se maj en auto depuis github (pas de double
+  maintenance). Revient sur la décision github-only du 2026-07-09. Montage : (1) 1er npm publish de
+  roadmapped@x (nom libre) → npm i / npx roadmapped marchent, plus d'E404 bare ; (2) GitHub Action
+  on push main (paths package.json) qui publie SEULEMENT si la version n'est pas déjà sur npm → bump
+  de version = seul signal ; (3) l'auto-update #294 garde chaque install à jour depuis github HEAD
+  quelle que soit la source. Gestes uniques Rémi : créer un npm Automation token + l'ajouter en
+  secret repo NPM_TOKEN. À suivre (non bloquant) : install.mjs pourrait passer la devDep de github:
+  à ^version une fois sur npm (l.96-100) ; MAJ README/setup pour offrir npm i comme voie simple ;
+  vérifier la cohabitation #294 (update github HEAD) avec une install npm. Sécurise aussi le nom npm
+  de #221.
+refs: []
+links: []
+dependsOn: []
+epic: lancement
+source: ai
+createdAt: "2026-07-11T14:09:00"
+startedAt: "2026-07-11T14:09:03"
+updatedAt: "2026-07-11T14:09:03"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
