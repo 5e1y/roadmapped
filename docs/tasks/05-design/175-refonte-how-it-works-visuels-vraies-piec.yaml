@@ -4,7 +4,7 @@ title: >-
   Refonte How-it-works : visuels = vraies pièces isolées de l'UI de l'app (peuplées démo) +
   auto-advance (barre bleue à gauche, hover-slow) au lieu du pin-scroll + 4 points perchables par
   l'oiseau
-status: done
+status: in_progress
 tags:
   - site
   - ux
@@ -32,8 +32,8 @@ epic: null
 source: ai
 createdAt: "2026-07-11T15:34:25"
 startedAt: "2026-07-11T15:34:30"
-updatedAt: "2026-07-11T16:09:45"
-completedAt: "2026-07-11T16:09:45"
+updatedAt: "2026-07-11T16:17:47"
+completedAt: null
 commit: 6def455
 outcome: >-
   Ajustements post-review Rémi sur la refonte How-it-works (Fable 5, relu + déployé). (1) CONTEXTE

@@ -1,7 +1,7 @@
 id: 302
 code: null
 title: "Jeu de l'oiseau : ramasser des œufs (a la Yoshi) et les empiler dans le nid du footer"
-status: in_progress
+status: done
 tags:
   - oiseau
   - jeu
@@ -18,16 +18,25 @@ detail: >-
   reapparaissent ; on reramasse, on redepose ; la pile monte, entassee facon cartoon, peut depasser
   l'ecran. Assets egg.svg/nest.svg copies a la racine du repo site, a embarquer pixel-perfect
   nearest-neighbor a l'echelle SCALE. Confie a Fable sur demande explicite de Remi.
-refs: []
+refs:
+  - ../roadmapped-site/roadmapped-bird.js
+  - ../roadmapped-site/egg.svg
+  - ../roadmapped-site/nest.svg
 links: []
 dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-11T15:51:43"
 startedAt: "2026-07-11T15:51:52"
-updatedAt: "2026-07-11T15:51:52"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+updatedAt: "2026-07-11T16:20:36"
+completedAt: "2026-07-11T16:20:29"
+commit: 97a7091
+outcome: >-
+  Jeu greffé dans roadmapped-bird.js (branche bird-egg-game du repo site, non mergée) : œufs dans
+  l'UI, saut+confettis dorés/bleus au ramassage, traîne Yoshi, nid sur le R, empilage cartoon sans
+  plafond, boucle de réapparition. Réalisé par Fable.
+verification: >-
+  node --check OK ; Playwright headless 5 scénarios 0 erreur console (défaut→pile 10,
+  reduced-motion=jeu off, thème sombre) ; 4 screenshots validés visuellement (tour de 10 crève le
+  footer, oiseau dans le nid pixel-perfect).
 release: null
