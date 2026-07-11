@@ -3,6 +3,7 @@
 <img src="./docs/assets/bird-peck.gif" alt="La mascotte Roadmapped picore" align="right" width="84" />
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
+![Node](https://img.shields.io/badge/node-%E2%89%A522.18-blue.svg)
 
 **Your repo is already your project management tool. We just added the interface.**
 
