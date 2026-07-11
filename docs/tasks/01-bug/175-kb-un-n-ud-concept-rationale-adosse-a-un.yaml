@@ -1,0 +1,30 @@
+id: 307
+code: null
+title: >-
+  KB : un nœud concept/rationale adossé à un docs/*.md s'ouvre en OS-reveal au lieu du viewer Docs
+  (routage par file_type au lieu de l'extension)
+status: done
+tags:
+  - kb
+  - graphify
+size: null
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-11T19:40:56"
+startedAt: "2026-07-11T19:40:56"
+updatedAt: "2026-07-11T19:41:29"
+completedAt: "2026-07-11T19:41:29"
+commit: 9cf4b52
+outcome: >-
+  Routage source d'un nœud KB corrigé : openKbNodeSource ouvrait la Vue Docs seulement si
+  file_type==='document'. Or Graphify pose file_type sur la NATURE du nœud
+  (concept/rationale/document), pas du fichier — donc un nœud concept/rationale adossé à un
+  docs/*.md tombait en OS-reveal. Condition changée : tout node.sourceFile en docs/*.md →
+  OPEN_DOC_EVENT, quel que soit file_type ; le reste (code/autre) → reveal. Bug révélé par le vrai
+  graphe (82 nœuds concept/rationale).
+verification: npx tsc --noEmit exit 0. Changement de condition d'une ligne, aucun autre code touché.
+release: null

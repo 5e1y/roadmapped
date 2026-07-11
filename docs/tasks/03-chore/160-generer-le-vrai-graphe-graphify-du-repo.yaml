@@ -1,0 +1,52 @@
+id: 306
+code: null
+title: Générer le VRAI graphe Graphify du repo Roadmapped (dogfood) + le committer
+status: done
+tags:
+  - kb
+  - graphify
+  - dogfood
+size: null
+heat: 85
+detail: >-
+  Go explicite de Rémi (graphe complet, coût tokens accepté). Installer graphifyy en env isolé (uv
+  tool install → pipx → venv, SANS l'extra Leiden/graspologic — fallback python-louvain, cf spec).
+  Exécuter la vraie pipeline Graphify (pilotée par l'agent via skill.md, le binaire ne génère pas)
+  sur /Users/rcourtillon/Documents/Roadmapped : code (AST Tree-sitter, ~73 fichiers src+scripts) +
+  extraction sémantique des 45 docs .md. Sortie = graphify-out/graph.json au schéma node-link que
+  src/server/kb.ts lit (nodes {id,label,file_type,source_file,source_location,community}, links
+  {source,target,relation,confidence,weight}). Vérifier que normalizeGraph l'accepte + que le viewer
+  l'affiche (des centaines de nœuds attendus, pas 14). Puis on le COMMITE (décision Rémi). Remplace
+  la fixture locale. Ne pas toucher au code de l'app.
+refs:
+  - docs/specs/graphify-kb.md
+  - src/server/kb.ts
+links: []
+dependsOn: []
+epic: knowledge-base
+source: ai
+createdAt: "2026-07-11T19:25:50"
+startedAt: "2026-07-11T19:25:54"
+updatedAt: "2026-07-11T19:40:34"
+completedAt: "2026-07-11T19:40:34"
+commit: 998d3b0
+outcome: >-
+  Vrai graphe Graphify du repo généré et committé (dogfood). Install : graphifyy 0.9.12 dans un venv
+  dédié (pas d'uv/pipx sur la machine), Python 3.12, SANS l'extra Leiden (fallback clustering
+  Louvain NetworkX). Pipeline exécutée fidèlement au skill.md via les modules Python (le binaire ne
+  génère pas) : detect → AST Tree-sitter (113 fichiers TS/TSX/MJS → 731 nœuds code,
+  déterministe/gratuit) + extraction sémantique des 41 docs .md par 2 sous-agents parallèles
+  (prompts extraction-spec verbatim → 138 nœuds doc/concept/rationale) → merge + cluster + export.
+  RÉSULTAT : graphify-out/graph.json = 869 nœuds, 2214 arêtes, 46 communautés (~988K).
+  normalizeGraph (kb.ts) le lit sans perte : 869/869 nœuds, 2214/2214 arêtes, 0 orphelin, 0 NaN, 0
+  chemin absolu. Liage : 52/102 chemins distincts de refs de tickets résolvent vers un nœud
+  (src/lib/roadmap.ts→24 nœuds, tasks.ts→22, docs/design.md→7). Coût ~381k tokens (41 docs, ~82k
+  mots). Committé graph.json (décision Rémi) ; cache/ + GRAPH_REPORT.md gitignorés. Scope : les 298
+  YAML de tickets exclus de l'extraction (cohérent avec le liage dérivé via refs). Remplace la
+  fixture de preview.
+verification: >-
+  Vérif indépendante : python3 sur graph.json → 869 nœuds / 2214 arêtes / 46 communautés, file_type
+  {code 731, rationale 82, concept 42, document 14}, source_file repo-relatifs réels
+  (scripts/install.mjs…). Ce n'est plus la fixture 14-nœuds. graph.json committé (998d3b0, 988K),
+  cache/+report bien ignorés (git status propre).
+release: null
