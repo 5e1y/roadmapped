@@ -1,0 +1,51 @@
+id: 303
+code: null
+title: >-
+  Spec : intégrer Graphify (knowledge base) dans le dashboard Roadmapped — archi + UI (onglet « kb »
+  vs sous-onglet Docs « Documents / Knowledge base »)
+status: done
+tags:
+  - kb
+  - graphify
+  - spec
+size: null
+heat: 80
+detail: >-
+  Demande Rémi : intégrer Graphify (github.com/safishamsi/graphify, graphify.net — skill open-source
+  qui transforme code+docs en knowledge graph interrogeable, Tree-sitter/NetworkX/Leiden) comme
+  FEATURE du dashboard. Deux placements proposés : (a) onglet « kb » dans les tabs du haut, ou (b)
+  sous-onglet dans Docs, toggle « Documents / Knowledge base » (comme colonnes/graph dans Roadmap —
+  cf RoadmapView). Inconnues à trancher : Graphify est Python, Roadmapped React/Node → où vit le
+  graphe (fichier généré dans le repo ?), comment on le génère (CLI/hook ?), dépendance Python
+  acceptable ou réimplémentation ?, comment on rend/interroge le graphe côté dashboard, licence
+  Graphify, périmètre du graphe (docs/tasks + code ?). Spec Fable = comprendre Graphify à fond +
+  l'archi actuelle des tabs/views + proposer archi d'intégration, trancher UI (préférence Rémi =
+  sous-onglet Docs), plan par phases + 1er slice minimal + effort/risques. SPEC AVANT BUILD.
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-11T17:37:07"
+startedAt: "2026-07-11T17:37:27"
+updatedAt: "2026-07-11T17:47:09"
+completedAt: "2026-07-11T17:47:09"
+commit: e01b77a
+outcome: >-
+  Spec d'intégration Graphify écrite (docs/specs/graphify-kb.md, 384 l., Fable). Verdict clé :
+  Graphify = 100% Python (MIT, pip graphifyy), MAIS son binaire ne génère pas (sous-cmds
+  install/hook/benchmark) — la pipeline est orchestrée par l'AGENT via le skill ; sortie =
+  graphify-out/graph.json (node-link NetworkX). Archi retenue : le dashboard LIT le JSON, l'agent
+  GÉNÈRE → zéro Python dans les deps npm, jamais dans package.json, dégradation propre si absent.
+  graph.json reste dans graphify-out/ (pas sous docs/), chemin configurable (kbGraph). Serveur :
+  src/server/kb.ts + GET /api/kb. Rendu : layout force-directed maison (kbLayout.ts ~150l, précédent
+  layoutTagGraph) + useZoomPan réutilisé + SVG façon TagGraph (pas dagre, pas l'iframe navy). UI =
+  placement (b) confirmé : sous-onglet de la Vue Docs, toggle « Documents / Knowledge base » calqué
+  ligne à ligne sur le segmented Columns/Graph de RoadmapView. Plan 4 phases, 1er slice ~1j (lecture
+  seule + empty state pédagogique + dogfood sur le repo). 4 décisions listées pour Rémi (git de
+  graphify-out, périmètre, libellé toggle, roadmapped kb).
+verification: >-
+  docs/specs/graphify-kb.md présent (21 Ko, 7 sections), commité e01b77a ; aucun fichier de code
+  touché (git status : seul le spec + docs/tasks). Sources Graphify vérifiées par l'agent (repo
+  Graphify-Labs/graphify, __main__.py, échantillon graph.json réel).
+release: null
