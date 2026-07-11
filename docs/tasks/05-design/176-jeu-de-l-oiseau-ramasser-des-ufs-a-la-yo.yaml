@@ -1,0 +1,33 @@
+id: 302
+code: null
+title: "Jeu de l'oiseau : ramasser des œufs (a la Yoshi) et les empiler dans le nid du footer"
+status: in_progress
+tags:
+  - oiseau
+  - jeu
+  - site
+  - fable
+size: null
+heat: 80
+detail: >-
+  Easter-egg interactif sur roadmapped-site, greffe dans roadmapped-bird.js (overlay canvas
+  existant). Des oeufs (egg.svg) apparaissent dans l'UI ; quand l'oiseau s'approche d'un oeuf ->
+  anim jump (hop/TAKEOFF_SEQ) + burst de particules dorees & bleues (charte) ; l'oeuf ramasse SUIT
+  l'oiseau a la Yoshi. En bas de page (#285) l'oiseau se perche sur le R du footer : y placer le nid
+  (nest.svg) ; pose dans le nid -> les oeufs s'empilent de facon comique. Puis de nouveaux oeufs
+  reapparaissent ; on reramasse, on redepose ; la pile monte, entassee facon cartoon, peut depasser
+  l'ecran. Assets egg.svg/nest.svg copies a la racine du repo site, a embarquer pixel-perfect
+  nearest-neighbor a l'echelle SCALE. Confie a Fable sur demande explicite de Remi.
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-11T15:51:43"
+startedAt: "2026-07-11T15:51:52"
+updatedAt: "2026-07-11T15:51:52"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

@@ -32,29 +32,24 @@ epic: null
 source: ai
 createdAt: "2026-07-11T15:34:25"
 startedAt: "2026-07-11T15:34:30"
-updatedAt: "2026-07-11T15:50:55"
-completedAt: "2026-07-11T15:50:55"
-commit: 1c9b883
+updatedAt: "2026-07-11T16:09:45"
+completedAt: "2026-07-11T16:09:45"
+commit: 6def455
 outcome: >-
-  Refonte complète de #how-it-works du site (Fable 5, relu + vérifié + déployé). (1) VISUELS : les 4
-  mockups ASCII remplacés par des pièces ISOLÉES de la vraie UI de l'app, reproduites en HTML/CSS
-  statique sur les variables du site (theme-aware, mapping tokens app→site documenté dans le CSS, 0
-  couleur en dur, SVG en currentColor/var) — 01 backlog TaskRow (glyphe d'état, #id, thermomètre «
-  41,3° », chip size), 02 popup LiveActivity, 03 TaskPanel done (bloc Log
-  outcome/verification/commit), 04 colonnes RoadmapColumns (barre de progression accent, cartes à
-  filets fusionnés). Famille de classes .ui-*. (2) INTERACTION : pin-scroll 100vh entièrement
-  supprimé (.how-scroll/.how-pin/data-stepper/js-stepper) ; auto-advance minuté — barre accent
-  verticale .how-fill calée sur l'étape active, remplissage STEP_MS=5,5s puis étape suivante en
-  boucle ; ralenti ×0.25 au survol de .how-steps (pas de hard-pause) ; clic-pour-sauter conservé ;
-  rAF gated par IntersectionObserver ; prefers-reduced-motion respecté (pas d'auto-advance, piste
-  masquée, clic seul moteur) ; sans JS tout s'empile. (3) OISEAU : data-bird-perch déplacé sur
-  chacun des 4 .how-step (9 perchoirs réels au total, les autres intacts). Copy des étapes enrichie
-  + eyebrow « git diff … +status: done ». Diff limité à la section.
+  Ajustements post-review Rémi sur la refonte How-it-works (Fable 5, relu + déployé). (1) CONTEXTE
+  D'APP : chaque pièce extraite est désormais encadrée d'un chrome de dashboard .ui-frame — barre
+  d'onglets Backlog/Roadmap/Docs (onglet actif contextualisé par pièce : Backlog pour 01-03, Roadmap
+  pour 04) + pastille Activity (allumée sur le visuel 02) + rail de sidebar estompé, la pièce au
+  centre → « découpé dans le vrai outil » au lieu d'un widget flottant. (2) HAUTEUR ÉGALE :
+  .how-stage en align-items:stretch → la fenêtre de droite fait exactement la hauteur du bloc entier
+  des 4 points, .ui-frame en flex:1. (3) CALLOUT ALIGNÉ : .how-lane dé-grillé (la piste devient un
+  rail absolu left:0 inset, hors flux) → le panneau des étapes démarre pile au bord gauche du
+  container, aligné avec le callout du dessous (bonus : le rail accent inset reprend le vocabulaire
+  du filet bleu du callout). Vars du site uniquement, perchoirs des 4 points intacts.
 verification: >-
-  Live après déploiement Cloudflare : roadmapped.dev sert .how-fill + 24 occurrences .ui-* ; 0 reste
-  de pin-scroll (vérifié source poussée ET live après stabilisation edges). Pré-commit : HTMLParser
-  0 balise orpheline/non fermée, CSS accolades 236/236, scripts inline parsés (vm.Script OK), aucune
-  couleur en dur dans .how-*/.ui-*, 4 data-bird-perch sur les .how-step, ancien régime 0 résidu. NON
-  vérifié par moi (pas de navigateur) : le rendu pixel/animation exact — à valider visuellement par
-  Rémi.
+  Live après déploiement : roadmapped.dev sert 4 .ui-frame-bar + align-items:stretch dans le CSS
+  (vérifié source poussée ET live après stabilisation edges — le 0 initial était du lag de
+  propagation). Pré-commit : HTMLParser 0 orpheline/non fermée, CSS accolades 249/249, aucune
+  couleur en dur dans le diff, 4 data-bird-perch intacts, responsive nettoyé. Rendu visuel final à
+  valider par Rémi.
 release: null
