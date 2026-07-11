@@ -1,7 +1,7 @@
 id: 222
 code: null
 title: "Config du repo GitHub 5e1y/roadmapped : description, topics, About, social preview, badges"
-status: todo
+status: done
 tags:
   - support
   - publish
@@ -17,9 +17,18 @@ dependsOn: []
 epic: community-github
 source: ai
 createdAt: "2026-07-09T13:55:37"
-updatedAt: "2026-07-09T13:55:37"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+startedAt: "2026-07-11T13:32:55"
+updatedAt: "2026-07-11T13:34:24"
+completedAt: "2026-07-11T13:34:24"
+commit: 3d72fe5
+outcome: >-
+  Config repo GitHub 5e1y/roadmapped. Déjà en place (constaté) : description (dans le ton),
+  homepageUrl=roadmapped.dev, 14 topics pertinents (agentic, claude-code, flat-file, local-first,
+  yaml…). Ajouté ce tour : badge Node ≥22.18 dans le README (à côté du MIT, registre bleu, sans
+  badge-spam vu le ton anti-marketing). RESTE (owner-remi) : social preview image — Rémi fait
+  l'image de son côté, puis upload en 1 clic dans Settings→General→Social preview (mutualisable avec
+  l'og image #216).
+verification: >-
+  gh repo view : description/topics/homepageUrl confirmés présents. README : badge Node ajouté et
+  poussé (3d72fe5). Social preview : non fait (dépend de l'image de Rémi).
 release: null
