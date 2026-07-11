@@ -16,7 +16,8 @@
 
 import { existsSync, realpathSync } from 'node:fs'
 import { join, relative } from 'node:path'
-import { loadPaths } from '../src/lib/paths.ts'
+import { loadPaths, packageRoot } from '../src/lib/paths.ts'
+import { autoUpdate } from '../src/lib/updateNotifier.ts'
 import {
   treeWithErrors, readTree, findTask, loadFiles,
   addTask, startTask, doneTask, updateTask, addFeedback,
@@ -27,7 +28,7 @@ import { computeAvailability, activeTasks, nextQueue, globalProgress, epicProgre
 import { git, taskLine, refLine, briefText, sitrepText, unloggedCommits, auditCommits, auditText, stalePassepartout, todayStr } from '../src/lib/render.ts'
 import { TYPES } from '../src/lib/tasks.ts'
 
-const { tasksDir: ROOT } = loadPaths()
+const { tasksDir: ROOT, root: HOST_ROOT } = loadPaths()
 
 // ---------------------------------------------------------------- arguments
 
@@ -626,10 +627,14 @@ function cmdGuard(flags) {
   }
 }
 
-function cmdSitrep(flags) {
+async function cmdSitrep(flags) {
   rejectUnknownFlags(flags, [], CMD_USAGE.sitrep)
   const { tree, errors } = treeWithErrors(ROOT)
   console.log(sitrepText(tree, errors, unloggedCommits(tree)))
+  // #294 : sitrep = l'ouverture de session (hook SessionStart) → point d'accroche de
+  // l'auto-MAJ. Non bloquant, no-op si à jour/self-host/offline. Après la sortie
+  // sitrep pour ne pas la retarder ; la ligne « updating… » s'affiche dessous.
+  await autoUpdate(packageRoot(), HOST_ROOT)
 }
 
 function cmdAudit(flags) {
@@ -708,7 +713,7 @@ switch (cmd) {
     cmdBrief(needId(), flags)
     break
   case 'sitrep':
-    cmdSitrep(flags)
+    await cmdSitrep(flags)
     break
   case 'audit':
     cmdAudit(flags)
