@@ -28,15 +28,15 @@ epic: null
 source: ai
 createdAt: "2026-07-11T15:51:43"
 startedAt: "2026-07-11T15:51:52"
-updatedAt: "2026-07-11T16:20:36"
-completedAt: "2026-07-11T16:20:29"
-commit: 97a7091
+updatedAt: "2026-07-11T16:49:20"
+completedAt: "2026-07-11T16:49:20"
+commit: fc97fd5
 outcome: >-
-  Jeu greffé dans roadmapped-bird.js (branche bird-egg-game du repo site, non mergée) : œufs dans
-  l'UI, saut+confettis dorés/bleus au ramassage, traîne Yoshi, nid sur le R, empilage cartoon sans
-  plafond, boucle de réapparition. Réalisé par Fable.
+  Retours Rémi appliqués (v2) : nid+œufs à la même échelle pixel que l'oiseau, œufs spawnés
+  uniquement sur surfaces perchables, ramassage au sol seulement (pose puis saut de joie), z-order
+  nid→oiseau→œufs, particules grossies. Mergé + poussé sur main du repo site (fc97fd5), déployé.
 verification: >-
-  node --check OK ; Playwright headless 5 scénarios 0 erreur console (défaut→pile 10,
-  reduced-motion=jeu off, thème sombre) ; 4 screenshots validés visuellement (tour de 10 crève le
-  footer, oiseau dans le nid pixel-perfect).
+  node --check OK ; Playwright headless (deviceScaleFactor 3) 0 erreur console/page ; screenshots
+  validés : œufs petits (grille oiseau) + traîne, nid zoomé confirme z-order nid
+  derrière/oiseau/œufs devant.
 release: null
