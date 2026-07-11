@@ -31,11 +31,11 @@ open source, MIT.
 
 **Primary CTA**
 
-> Get started — `npx github:5e1y/roadmapped init`
+> Get started — `npx roadmapped init`
 
 **Under the CTA**
 
-> Straight from GitHub. Nothing to publish, nothing to sign up for. There's no step 2. We checked.
+> One command in — npm, GitHub, or the Claude Code plugin, your call. Nothing to sign up for. There's no step 2. We checked.
 
 **Secondary link**
 
@@ -144,6 +144,30 @@ the agent recording a task from the CLI.*
 
 **Body**
 
+> Three ways in. They all end up in the same wired-up repo, and every install
+> keeps itself current from GitHub in the background — you don't reinstall, ever.
+
+**As a Claude Code plugin** — the short route if you're already there:
+
+```
+/plugin marketplace add 5e1y/roadmapped
+/plugin install roadmapped@roadmapped
+```
+
+> Reload, then tell your agent "let's set up Roadmapped" — the skill runs the
+> setup itself.
+
+**Via npm:**
+
+```bash
+npx roadmapped init   # scaffolds docs/tasks/, the skill, the MCP entry, the hooks
+npm install           # activates the hooks + MCP
+```
+
+> Then restart the Claude Code session.
+
+**Straight from GitHub** — no npm registry involved:
+
 ```bash
 npx --yes github:5e1y/roadmapped init   # scaffold docs/tasks/ + the Claude skill + git guard
 npm install                             # pull it in — the dashboard ships pre-built, so this is light
@@ -152,8 +176,9 @@ npx roadmapped dashboard                # open it in your browser
 
 **Under the block**
 
-> Needs Node ≥ 22.18 and a `package.json`. That's the whole list. Point your AI
-> agent at the Claude skill and it takes it from there.
+> Needs Node ≥ 22.18 and a `package.json` (`npm init -y` covers a non-Node
+> repo). That's the whole list. Point your AI agent at the Claude skill and it
+> takes it from there.
 
 ---
 

@@ -19,18 +19,35 @@ Give your AI coding agent (Claude Code and friends) this repo and one instructio
 
 > **Install Roadmapped in my repo:** https://github.com/5e1y/roadmapped
 
-Everything runs straight from GitHub — nothing needs to be on npm. From your repo's root,
-the agent runs, in order:
+Three ways in. All three converge on the same wired state, and every install keeps itself
+current from GitHub HEAD in the background — no reinstalling.
+
+**Claude Code plugin** — the easiest inside Claude Code:
+
+```
+/plugin marketplace add 5e1y/roadmapped
+/plugin install roadmapped@roadmapped
+```
+
+**npm** — from your repo's root:
 
 ```bash
-npx --yes github:5e1y/roadmapped init   # scaffold + skill + git guard + .mcp.json + CLAUDE.md
-npm install                             # pull roadmapped from GitHub → node_modules (activates hooks + MCP)
+npx roadmapped init   # scaffold + skill + .mcp.json + git guard + SessionStart hooks + devDependency
+npm install           # materialize node_modules/roadmapped → activates the hooks + MCP
 ```
+
+**Straight from GitHub** — same thing, no npm registry involved:
+
+```bash
+npx --yes github:5e1y/roadmapped init
+npm install
+```
+
+GitHub stays the single source of truth; npm mirrors it automatically.
 
 `init` is idempotent. It lays down the `docs/tasks/` skeleton, the Claude skill in
 `.claude/skills/`, a git pre-commit guard, an `.mcp.json` entry, a `CLAUDE.md` block, and
-adds `roadmapped` as a devDependency **sourced from GitHub** (`github:5e1y/roadmapped`) — so
-`npm install` resolves without the package ever being published to npm.
+adds `roadmapped` as a devDependency.
 
 Then:
 
@@ -65,13 +82,12 @@ Then:
 
 ## Quickstart
 
-In any repo you want to manage (until the npm package is published, run it straight from
-GitHub with `github:5e1y/roadmapped`):
+In any repo you want to manage:
 
 ```bash
-npx --yes github:5e1y/roadmapped init       # scaffold docs/tasks/, the skill, the git guard
-npx --yes github:5e1y/roadmapped dashboard  # open the dashboard in your browser
-npx --yes github:5e1y/roadmapped --help     # the CLI your agent (or you) drives
+npx roadmapped init       # scaffold docs/tasks/, the skill, the git guard
+npx roadmapped dashboard  # open the dashboard in your browser
+npx roadmapped --help     # the CLI your agent (or you) drives
 ```
 
 `init` also drops a Claude skill into `.claude/` and an `.mcp.json` entry, so your AI
