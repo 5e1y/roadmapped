@@ -10,6 +10,7 @@ import {
 } from '../lib/taskWrites.ts'
 import { attachTemperatures } from '../lib/roadmap.ts'
 import { buildDocsTree, readDocContent, unsafeDocPath } from './docs.ts'
+import { readKbGraph } from './kb.ts'
 import {
   listNotes, readNote, createNote, writeNote, archiveNote, deleteNote, revealPath, ensureNotesSetup,
   type NoteResult,
@@ -24,6 +25,7 @@ export type ApiAction =
   | { type: 'putEpics'; body: any }
   | { type: 'getDocsTree' }
   | { type: 'getDocContent'; path: string }
+  | { type: 'getKb' }
   | { type: 'listNotes' }
   | { type: 'createNote'; body: any }
   | { type: 'readNote'; slug: string }
@@ -64,6 +66,9 @@ export function routeApi(method: string, rawUrl: string, body: any): ApiAction {
       return { type: 'getDocContent', path: path as string }
     }
   }
+
+  // Knowledge base (#kb) : lecture seule du graphe Graphify. Route sans paramètre.
+  if (seg[0] === 'kb' && seg.length === 1 && method === 'GET') return { type: 'getKb' }
 
   if (seg[0] === 'tasks') {
     if (seg.length === 1 && method === 'POST') {
@@ -174,6 +179,13 @@ export function runAction(paths: RoadmappedPaths, action: ApiAction): ApiRespons
         const res = readDocContent(docsDir, action.path)
         if (!res.ok) return { status: res.status, payload: { ok: false, errors: [res.error] } }
         return { status: 200, payload: { ok: true, content: res.content } }
+      }
+      case 'getKb': {
+        // `root` accompagne le graphe : le client joint source_file (repo-relatif)
+        // au root pour révéler un fichier code (POST /api/reveal, chemin absolu).
+        const res = readKbGraph(paths.kbGraphFile)
+        if (!res.ok) return { status: res.status, payload: { ok: false, errors: [res.error] } }
+        return { status: 200, payload: { ok: true, graph: res.graph, root: paths.root } }
       }
       case 'listNotes':
         return { status: 200, payload: { ok: true, notes: listNotes(docsDir) } }

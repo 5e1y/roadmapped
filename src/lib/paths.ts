@@ -5,6 +5,8 @@ import { resolve, isAbsolute, dirname, join } from 'node:path'
 export interface RoadmappedConfig {
   tasksDir?: string
   docsDir?: string
+  /** Chemin du graphe Graphify (Knowledge base, #kb). Défaut graphify-out/graph.json. */
+  kbGraph?: string
 }
 
 export interface RoadmappedPaths {
@@ -16,6 +18,9 @@ export interface RoadmappedPaths {
   tasksDir: string
   /** Chemin absolu du dossier des docs. */
   docsDir: string
+  /** Chemin absolu du graphe Graphify (Knowledge base) — LU seulement (l'agent le
+   *  génère via `/graphify`). Défaut root/graphify-out/graph.json. */
+  kbGraphFile: string
 }
 
 // Défauts relatifs à la racine du repo HÔTE. L'ancien défaut '../docs/tasks'
@@ -25,6 +30,7 @@ export interface RoadmappedPaths {
 const DEFAULTS: Required<RoadmappedConfig> = {
   tasksDir: 'docs/tasks',
   docsDir: 'docs',
+  kbGraph: 'graphify-out/graph.json',
 }
 
 // Rétrocompat renommage 2026-07 : l'ancien nom à un seul p reste lu s'il est seul.
@@ -71,6 +77,7 @@ export function resolvePaths(root: string, config: RoadmappedConfig): Roadmapped
     root: resolve(root),
     tasksDir: one(config.tasksDir, DEFAULTS.tasksDir),
     docsDir: one(config.docsDir, DEFAULTS.docsDir),
+    kbGraphFile: one(config.kbGraph, DEFAULTS.kbGraph),
   }
 }
 

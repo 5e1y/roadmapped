@@ -1,0 +1,38 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {},
+  "nodes": [
+    { "id": "docsview", "label": "DocsView.tsx", "file_type": "code", "source_file": "src/components/DocsView.tsx", "source_location": "L26", "community": 0 },
+    { "id": "docstree", "label": "DocsTree.tsx", "file_type": "code", "source_file": "src/components/DocsTree.tsx", "source_location": "L13", "community": 0 },
+    { "id": "usedocstree", "label": "useDocsTree", "file_type": "code", "source_file": "src/state/useDocsTree.ts", "source_location": "L13", "community": 0 },
+    { "id": "kbview", "label": "KbView.tsx", "file_type": "code", "source_file": "src/components/KbView.tsx", "source_location": "L1", "community": 0 },
+    { "id": "kbgraph", "label": "KbGraph.tsx", "file_type": "code", "source_file": "src/components/KbGraph.tsx", "source_location": "L1", "community": 0 },
+    { "id": "kblayout", "label": "kbLayout", "file_type": "code", "source_file": "src/lib/kbLayout.ts", "source_location": "L44", "community": 1 },
+    { "id": "kblink", "label": "buildKbLinkIndex", "file_type": "code", "source_file": "src/lib/kbLink.ts", "source_location": "L45", "community": 1 },
+    { "id": "kbserver", "label": "readKbGraph", "file_type": "code", "source_file": "src/server/kb.ts", "source_location": "L130", "community": 1 },
+    { "id": "api", "label": "routeApi", "file_type": "code", "source_file": "src/server/api.ts", "source_location": "L42", "community": 1 },
+    { "id": "refextract", "label": "parseRef", "file_type": "code", "source_file": "src/lib/refExtract.ts", "source_location": "L20", "community": 1 },
+    { "id": "usezoompan", "label": "useZoomPan", "file_type": "code", "source_file": "src/components/useZoomPan.ts", "source_location": "L1", "community": 2 },
+    { "id": "taskpanel", "label": "TaskPanel.tsx", "file_type": "code", "source_file": "src/components/TaskPanel.tsx", "source_location": "L297", "community": 2 },
+    { "id": "spec", "label": "graphify-kb spec", "file_type": "document", "source_file": "docs/specs/graphify-kb.md", "source_location": "L1", "community": 1, "rationale": "Liage tickets⇄graphe dérivé du champ refs, aucun kbLinks dans le YAML." },
+    { "id": "design", "label": "design.md", "file_type": "document", "source_file": "docs/design.md", "source_location": "L1", "community": 2 }
+  ],
+  "links": [
+    { "source": "docsview", "target": "docstree", "relation": "imports_from", "confidence": "EXTRACTED", "weight": 1.0 },
+    { "source": "docsview", "target": "usedocstree", "relation": "imports_from", "confidence": "EXTRACTED", "weight": 1.0 },
+    { "source": "docsview", "target": "kbview", "relation": "imports_from", "confidence": "EXTRACTED", "weight": 1.0 },
+    { "source": "kbview", "target": "kbgraph", "relation": "imports_from", "confidence": "EXTRACTED", "weight": 1.0 },
+    { "source": "kbview", "target": "kbserver", "relation": "calls", "confidence": "INFERRED", "weight": 1.0 },
+    { "source": "kbgraph", "target": "kblayout", "relation": "imports_from", "confidence": "EXTRACTED", "weight": 2.0 },
+    { "source": "kbgraph", "target": "usezoompan", "relation": "imports_from", "confidence": "EXTRACTED", "weight": 1.0 },
+    { "source": "kbserver", "target": "api", "relation": "imported_by", "confidence": "EXTRACTED", "weight": 1.0 },
+    { "source": "kblink", "target": "refextract", "relation": "imports_from", "confidence": "EXTRACTED", "weight": 1.0 },
+    { "source": "kblink", "target": "kbserver", "relation": "uses_type", "confidence": "INFERRED", "weight": 1.0 },
+    { "source": "taskpanel", "target": "kblink", "relation": "calls", "confidence": "INFERRED", "weight": 1.0 },
+    { "source": "taskpanel", "target": "usezoompan", "relation": "unrelated", "confidence": "AMBIGUOUS", "weight": 0.5 },
+    { "source": "spec", "target": "kblink", "relation": "describes", "confidence": "INFERRED", "weight": 1.0 },
+    { "source": "spec", "target": "kbserver", "relation": "describes", "confidence": "INFERRED", "weight": 1.0 },
+    { "source": "design", "target": "taskpanel", "relation": "governs", "confidence": "INFERRED", "weight": 1.0 }
+  ]
+}
