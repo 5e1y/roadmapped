@@ -145,7 +145,7 @@ Degenerate cases, both sane: an empty graph + no seeds still stratifies by `base
 
 ### Epics — cross-type grouping (`epic` field), UNORDERED
 
-An **epic** groups the tasks of a single large project ACROSS types (e.g. "graph revamp" = its spec + its tasks + its later fixes). It's a simple shared slug (`epic: graph-revamp`) — no declaration required (auto-discovery). **An epic groups, it never orders or prioritizes** — there is no "epic priority"; `_epics.yaml`'s file order is cosmetic only. The dashboard offers a "group by epic" mode in the Backlog, and the task panel edits the field (combobox + create-on-the-fly).
+An **epic** groups the tasks of a single large project ACROSS types (e.g. "graph revamp" = its spec + its tasks + its later fixes). It's a simple shared slug (`epic: graph-revamp`) — no declaration required (auto-discovery). **When to reach for one:** you're filing 3+ tickets that serve one named deliverable/effort → give each its type and the same `--epic <slug>`, instead of leaving them as loose isolated tickets. A lone task needs no epic. **An epic groups, it never orders or prioritizes** — there is no "epic priority"; `_epics.yaml`'s file order is cosmetic only. The dashboard offers a "group by epic" mode in the Backlog, and the task panel edits the field (combobox + create-on-the-fly).
 
 `_epics.yaml` (optional) declares readable titles:
 
@@ -166,6 +166,8 @@ A **milestone** is a target task other tasks depend on: `add --kind milestone --
 Free-form markdown but always: context/objective, decisions made (and discarded alternatives), explicit scope AND out-of-scope, done criteria. A spec is validated by the user BEFORE the tasks that reference it are created.
 
 ## Subtasks
+
+**When to reach for one:** the piece is a *slice* of one parent ticket — meaningless or untestable on its own (e.g. "phase 2 of the migration"). If it stands alone, or is a different concern, it's a top-level ticket (or a `feedback` on an existing one) — NOT a subtask. Don't split a lone task into subtasks for the sake of it.
 
 A twin folder with the same name as the task file (see directory tree). The CLI doesn't create them directly: create the task via `add` in the type folder (the id is allocated cleanly), then **`mv`** (not `git mv` — the file was just created, it's untracked and `git mv` fails) the file into the twin folder, then `validate`. NEVER consume `nextId` by hand. The parent's status is never recomputed from its subtasks (deliberate decision).
 

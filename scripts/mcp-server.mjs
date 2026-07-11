@@ -268,7 +268,7 @@ export function makeTools(ROOT) {
   },
   {
     name: 'quick',
-    description: 'Rapid-create alias for a task (#250 — kind:quick removed): title suffices (default type = 1st open one). --start chains the start.',
+    description: 'Rapid-create alias for a task (#250 — kind:quick removed): title + type suffice. type is REQUIRED (#293 — no silent default). --start chains the start.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -278,13 +278,12 @@ export function makeTools(ROOT) {
         tags: { type: 'array', items: { type: 'string' } },
         start: { type: 'boolean', description: 'start immediately (todo → in_progress)' },
       },
-      required: ['title'], additionalProperties: false,
+      required: ['title', 'type'], additionalProperties: false,
     },
     handler: (a) => {
-      // type nu ("feature") → section canonique via TYPES ; sinon défaut = 1er type open.
-      const canon = a.type ? (TYPES.find((t) => t.slug === a.type || t.slug.replace(/^\d+-/, '') === a.type)?.slug) : undefined
-      const section = canon ?? readTree(ROOT).sections.find((s) => s.status === 'open')?.key
-      if (!section) return fail('No "open" type to host the task — specify type.')
+      // #293 : type OBLIGATOIRE (plus de défaut silencieux). type nu ("feature") → section canonique.
+      const section = TYPES.find((t) => t.slug === a.type || t.slug.replace(/^\d+-/, '') === a.type)?.slug
+      if (!section) return fail(`quick: unknown type "${a.type}" — expected one of the 9 canonical types (e.g. 01-bug).`)
       const res = addTask(ROOT, { section, title: a.title, heat: a.heat, tags: splitList(a.tags) })
       if (!res.ok) return fromRes(res)
       if (a.start) {

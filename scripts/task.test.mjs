@@ -223,14 +223,13 @@ describe('CLI erreurs autoportantes — usage exact de la commande fautive (#65)
 
 describe('CLI quick — alias de création rapide d\'une task (#250 — kind quick supprimé)', () => {
   it('cycle complet en 2 commandes : quick --start puis done --outcome → OK, crée une TASK', () => {
-    const created = runTask(['quick', 'fix chevron', '--start'])
+    const created = runTask(['quick', 'fix chevron', '--type', '01-bug', '--start'])
     expect(created.code).toBe(0)
     expect(created.stdout).toMatch(/#2 created\./)
     expect(created.stdout).not.toMatch(/quick/) // le message ne parle plus de quick
     expect(created.stdout).toMatch(/#2 started/)
     const done = runTask(['done', '2', '--outcome', 'chevron redressé'])
     expect(done.code).toBe(0)
-    // Type par défaut = 1er type open : dans ce sandbox les 9 sont open → 01-bug.
     const t = load(readFileSync(join(tasksDir, '01-bug', '01-fix-chevron.yaml'), 'utf8'))
     expect(t.kind ?? 'task').toBe('task') // kind omis du YAML (task par défaut)
     expect(t.status).toBe('done')
@@ -238,17 +237,22 @@ describe('CLI quick — alias de création rapide d\'une task (#250 — kind qui
     expect(t.verification).toBeNull() // encouragée mais non bloquante
   })
 
-  it('quick sans type → atterrit dans le premier type open (01-bug ici), en task', () => {
+  it('quick SANS --type → refusé (#293 : plus de défaut silencieux)', () => {
     const r = runTask(['quick', 'petit truc'])
+    expect(r.code).toBe(1)
+    expect(r.stderr).toMatch(/--type is required/)
+  })
+
+  it('quick --type typé → crée la task dans le bon type', () => {
+    const r = runTask(['quick', 'petit truc', '--type', '01-bug'])
     expect(r.code).toBe(0)
     expect(r.stdout).toMatch(/#2 created\./)
     const t = load(readFileSync(join(tasksDir, '01-bug', '01-petit-truc.yaml'), 'utf8'))
-    expect(t.kind ?? 'task').toBe('task')
     expect(t).not.toHaveProperty('kind') // jamais matérialisé pour une task
   })
 
   it('done SANS outcome NE bloque PLUS (plus de requis propre au quick)', () => {
-    runTask(['quick', 'sans issue', '--start'])
+    runTask(['quick', 'sans issue', '--type', '01-bug', '--start'])
     const r = runTask(['done', '2'])
     expect(r.code).toBe(0)
     const t = load(readFileSync(join(tasksDir, '01-bug', '01-sans-issue.yaml'), 'utf8'))
@@ -256,7 +260,7 @@ describe('CLI quick — alias de création rapide d\'une task (#250 — kind qui
   })
 
   it('une task créée via quick PEUT passer en size L (plus de garde-fou quick/L)', () => {
-    runTask(['quick', 'gros truc'])
+    runTask(['quick', 'gros truc', '--type', '01-bug'])
     const r = runTask(['update', '2', '--size', 'L'])
     expect(r.code).toBe(0)
     const t = load(readFileSync(join(tasksDir, '01-bug', '01-gros-truc.yaml'), 'utf8'))
@@ -264,7 +268,7 @@ describe('CLI quick — alias de création rapide d\'une task (#250 — kind qui
   })
 
   it('quick apparaît dans la file next (servi comme une task)', () => {
-    runTask(['quick', 'à prendre'])
+    runTask(['quick', 'à prendre', '--type', '01-bug'])
     const r = runTask(['next', '--count', '5', '--json'])
     const arr = JSON.parse(r.stdout)
     expect(arr.some((t) => t.id === 2 && (t.kind ?? 'task') === 'task')).toBe(true)
@@ -325,7 +329,7 @@ describe('CLI concurrence — verrou global de mutation (#83)', () => {
 
 describe('CLI list — filtre --tag : le ledger de dette requêtable (#72)', () => {
   it('ne renvoie que les tâches portant le tag demandé', () => {
-    runTask(['quick', 'Raccourci assumé', '--tags', 'debt']) // #2
+    runTask(['quick', 'Raccourci assumé', '--type', '01-bug', '--tags', 'debt']) // #2
     const r = runTask(['list', '--tag', 'debt'])
     expect(r.code).toBe(0)
     expect(r.stdout).toMatch(/Raccourci assumé/)
@@ -352,7 +356,7 @@ describe('CLI sitrep — l\'état du monde en ≤30 lignes (#70)', () => {
   })
 
   it('signale la dette ouverte (#debt) en alerte', () => {
-    runTask(['quick', 'Dette ouverte', '--tags', 'debt']) // #2 todo
+    runTask(['quick', 'Dette ouverte', '--type', '01-bug', '--tags', 'debt']) // #2 todo
     const r = runTask(['sitrep'])
     expect(r.stdout).toMatch(/open debt item\(s\).*#2/)
   })

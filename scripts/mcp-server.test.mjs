@@ -85,7 +85,7 @@ describe('MCP — tools d’écriture (#92)', () => {
   })
 
   it('quick --start crée une TASK in_progress (alias rapide, #250)', () => {
-    const r = tool('quick').handler({ title: 'Fix rapide', start: true })
+    const r = tool('quick').handler({ title: 'Fix rapide', type: '01-bug', start: true })
     expect(r.structuredContent.kind).toBe('task')
     expect(r.structuredContent.status).toBe('in_progress')
   })
@@ -110,7 +110,7 @@ describe('MCP — tools d’écriture (#92)', () => {
   })
 
   it('done sans outcome NE bloque PLUS (plus de requis propre au quick, #250)', () => {
-    const q = tool('quick').handler({ title: 'Sans outcome', start: true })
+    const q = tool('quick').handler({ title: 'Sans outcome', type: '01-bug', start: true })
     const r = tool('done').handler({ id: q.structuredContent.id })
     expect(r.isError).toBeFalsy()
     expect(r.structuredContent.task.status).toBe('done')
@@ -140,7 +140,7 @@ describe('MCP — invariant de sortie (#95)', () => {
     check(tool('done').handler({ id: 1, outcome: 'x', verification: 'y' }))
     check(tool('add').handler({ section: '02-feature', title: 'T' }))                 // #2
     check(tool('update').handler({ id: 2, detail: 'd' }))
-    check(tool('quick').handler({ title: 'Q' }))                                      // #3
+    check(tool('quick').handler({ title: 'Q', type: '01-bug' }))                      // #3
     check(tool('start').handler({ id: 2 }))
     check(tool('take').handler({ type: 'legal' }))  // file vide → l'ancien cas structured:null
     check(tool('next').handler({ type: 'legal' }))  // file vide → l'ancien cas structured:[]
