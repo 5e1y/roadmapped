@@ -1,0 +1,37 @@
+id: 296
+code: null
+title: >-
+  Setup skill E404 en install-plugin : setup.md lance `npx roadmapped init` (bare) sans `npm
+  install` → CLI introuvable (pas sur npm, pas de node_modules). Aligner sur le flow README (`npx
+  github:5e1y/roadmapped init` + `npm install`)
+status: done
+tags:
+  - skill
+  - onboarding
+size: null
+heat: 70
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-11T14:03:15"
+startedAt: "2026-07-11T14:03:15"
+updatedAt: "2026-07-11T14:04:43"
+completedAt: "2026-07-11T14:04:43"
+commit: d943286
+outcome: >-
+  Setup du skill aligné sur le flow README. Bug (remonté par le test d'install-plugin de Rémi en
+  repo frais VU-DS5) : references/setup.md étape 3.1 lançait `npx roadmapped init` (bare) → E404 car
+  le package est github-only (pas sur npm) et node_modules/roadmapped n'existe pas encore ; aucun
+  `npm install` n'était documenté. Fix : étape 1 réécrite en 2 commandes ordonnées — `npx --yes
+  github:5e1y/roadmapped init` (CLI depuis GitHub, ajoute la devDep) PUIS `npm install` (matérialise
+  node_modules → guard/SessionStart/MCP résolvent, et bare `npx roadmapped` résout localement) +
+  restart de session. Fallback documenté : `npx github:5e1y/roadmapped <cmd>` avant le npm install.
+  Reste github-only (aucune publication npm requise pour corriger).
+verification: >-
+  `npx --yes github:5e1y/roadmapped --help` → OK (l'invocation github: recommandée fonctionne). Le
+  flow complet init+`npm install`+`npx roadmapped` est déjà prouvé opérationnel par l'install
+  ZineKit de Rémi (dashboard :5174, upgrade, auto-update OK).
+release: null
