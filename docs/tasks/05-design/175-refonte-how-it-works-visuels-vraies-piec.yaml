@@ -1,0 +1,60 @@
+id: 301
+code: null
+title: >-
+  Refonte How-it-works : visuels = vraies pièces isolées de l'UI de l'app (peuplées démo) +
+  auto-advance (barre bleue à gauche, hover-slow) au lieu du pin-scroll + 4 points perchables par
+  l'oiseau
+status: done
+tags:
+  - site
+  - ux
+  - homepage
+  - bird
+size: null
+heat: 82
+detail: >-
+  Feedback Rémi. Section #how-it-works du site (roadmapped-site). 3 changements : (1) VISUELS :
+  remplacer les 4 mockups .how-visual (arbre/terminal/diff/board ASCII) par de vraies PIÈCES ISOLÉES
+  de l'UI de l'app (extraites de src/components/ du repo principal : TaskRow, LiveActivityMenu,
+  TaskPanel, RoadmapColumns/Graph…), reproduites en HTML/CSS statique theme-aware, peuplées de
+  contenu démo — « comme l'iframe mais des morceaux du puzzle isolés » pour faire le lien avec le
+  vrai outil. (2) INTERACTION : supprimer le pin-scroll 100vh (.how-pin/.how-scroll[data-stepper],
+  script inline L778) ; à la place un AUTO-ADVANCE minuté avec une barre bleue à gauche qui
+  progresse par étape puis switch à la suivante (boucle) ; RALENTIR la progression quand la souris
+  est dans la zone des 4 points (.how-steps) ; garder le clic-pour-sauter. (3) OISEAU : rendre
+  chacun des 4 points perchable (data-bird-perch par point, cf roadmapped-bird.js). Mapping proposé
+  01 backlog+TaskRows / 02 LiveActivity / 03 TaskPanel done / 04 board-graph. Voix Rémi, accent-led,
+  responsive, valide.
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-11T15:34:25"
+startedAt: "2026-07-11T15:34:30"
+updatedAt: "2026-07-11T15:50:55"
+completedAt: "2026-07-11T15:50:55"
+commit: 1c9b883
+outcome: >-
+  Refonte complète de #how-it-works du site (Fable 5, relu + vérifié + déployé). (1) VISUELS : les 4
+  mockups ASCII remplacés par des pièces ISOLÉES de la vraie UI de l'app, reproduites en HTML/CSS
+  statique sur les variables du site (theme-aware, mapping tokens app→site documenté dans le CSS, 0
+  couleur en dur, SVG en currentColor/var) — 01 backlog TaskRow (glyphe d'état, #id, thermomètre «
+  41,3° », chip size), 02 popup LiveActivity, 03 TaskPanel done (bloc Log
+  outcome/verification/commit), 04 colonnes RoadmapColumns (barre de progression accent, cartes à
+  filets fusionnés). Famille de classes .ui-*. (2) INTERACTION : pin-scroll 100vh entièrement
+  supprimé (.how-scroll/.how-pin/data-stepper/js-stepper) ; auto-advance minuté — barre accent
+  verticale .how-fill calée sur l'étape active, remplissage STEP_MS=5,5s puis étape suivante en
+  boucle ; ralenti ×0.25 au survol de .how-steps (pas de hard-pause) ; clic-pour-sauter conservé ;
+  rAF gated par IntersectionObserver ; prefers-reduced-motion respecté (pas d'auto-advance, piste
+  masquée, clic seul moteur) ; sans JS tout s'empile. (3) OISEAU : data-bird-perch déplacé sur
+  chacun des 4 .how-step (9 perchoirs réels au total, les autres intacts). Copy des étapes enrichie
+  + eyebrow « git diff … +status: done ». Diff limité à la section.
+verification: >-
+  Live après déploiement Cloudflare : roadmapped.dev sert .how-fill + 24 occurrences .ui-* ; 0 reste
+  de pin-scroll (vérifié source poussée ET live après stabilisation edges). Pré-commit : HTMLParser
+  0 balise orpheline/non fermée, CSS accolades 236/236, scripts inline parsés (vm.Script OK), aucune
+  couleur en dur dans .how-*/.ui-*, 4 data-bird-perch sur les .how-step, ancien régime 0 résidu. NON
+  vérifié par moi (pas de navigateur) : le rendu pixel/animation exact — à valider visuellement par
+  Rémi.
+release: null
