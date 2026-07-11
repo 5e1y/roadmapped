@@ -3,7 +3,7 @@ code: null
 title: >-
   Auto-update à l'ouverture : APPLIQUER la MAJ GitHub (skill+MCP+app), pas seulement notifier —
   supersede #207
-status: in_progress
+status: done
 tags: []
 size: null
 heat: 85
@@ -33,9 +33,16 @@ epic: null
 source: ai
 createdAt: "2026-07-11T10:13:32"
 startedAt: "2026-07-11T10:13:36"
-updatedAt: "2026-07-11T10:13:36"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+updatedAt: "2026-07-11T10:17:27"
+completedAt: "2026-07-11T10:17:27"
+commit: 7b31cf0
+outcome: >-
+  À l'ouverture (sitrep/dashboard), roadmapped applique la MAJ GitHub complète (CLI+MCP+app+skill)
+  en tâche de fond si en retard sur main — plus seulement une notif. Non bloquant, actif au prochain
+  open, verrou anti-doublon.
+verification: >-
+  vitest 443/443 (dont 3 tests autoUpdate : no-op self-host, apply 1x, verrou anti-doublon — via run
+  injecté, jamais de vrai npm), tsc clean. sitrep self-host réel = no-op silencieux, exit propre.
+  LIMITE : le vrai npm install github non exercé en self-host (checkUpdate y renvoie null par
+  design) — à valider sur un repo consommateur après push.
 release: null
