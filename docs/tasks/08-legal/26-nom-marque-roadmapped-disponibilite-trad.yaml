@@ -18,7 +18,7 @@ epic: legal-readiness
 source: ai
 createdAt: "2026-07-09T13:55:29"
 startedAt: "2026-07-11T12:38:09"
-updatedAt: "2026-07-11T13:34:43"
+updatedAt: "2026-07-11T14:53:04"
 completedAt: null
 commit: null
 outcome: null
@@ -78,4 +78,13 @@ feedback:
 
       4. Trademark : aucun « Roadmapped » enregistré trouvé → si dépôt, clearance formelle classes
       Nice 9+42 (avec conseil).
+    resolved: false
+  - date: "2026-07-11T14:53:04"
+    author: claude
+    text: >-
+      npm : le nom `roadmapped` est désormais SÉCURISÉ — le vrai package est publié
+      (roadmapped@0.1.0) via #297, plus juste réservé. Restent, côté Rémi : org GitHub `roadmapped`
+      (web-only), domaines .io/.co (achat), clearance trademark. ⚠️ Rappel sécurité : révoquer le
+      1er token npm exposé en clair (npm_wUrr…) s'il ne l'est pas déjà — le NPM_TOKEN actif du repo
+      est un autre token, propre.
     resolved: false
