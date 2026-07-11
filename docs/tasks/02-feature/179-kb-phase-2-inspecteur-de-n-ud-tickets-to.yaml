@@ -1,0 +1,63 @@
+id: 305
+code: null
+title: >-
+  KB phase 2 : inspecteur de nœud (« Tickets touching this ») + recherche + filtres
+  (communauté/type/inferred) + watch live + cache partagé
+status: done
+tags:
+  - kb
+  - graphify
+  - feature
+size: null
+heat: 80
+detail: >-
+  Phase 2 de docs/specs/graphify-kb.md, sur le slice 1 (#304). Toujours SANS toucher install/Python.
+  (1) Inspecteur de nœud dans le SidePanel au clic sur un nœud du KbGraph : label, fichier,
+  communauté, rationale, ET « Tickets touching this » (réutilise ticketsOfNode de kbLink) → clic
+  ticket = openTask ; (2) recherche client dans le header KB (filtre/surbrillance des nœuds par
+  label + fit sur résultats) ; (3) filtres FilterMenu : communauté, file_type, masquer les arêtes
+  INFERRED/AMBIGUOUS (la communauté n'est aujourd'hui que dans stats — l'exposer en filtre, pas en
+  couleur, DA respectée) ; (4) watch live SSE sur graph.json + chip de staleness (regarde comment
+  docs/live activity gèrent le SSE existant) ; (5) cache KB partagé — useKbGraph refait un fetch par
+  montage de TaskPanel aujourd'hui, dédupliquer (store module-level ou contexte, comme les autres
+  états partagés). tsc clean + vitest vert, réutiliser les patterns existants (SidePanel,
+  FilterMenu, useZoomPan, le SSE live). Ne pas régresser slice 1.
+refs:
+  - docs/specs/graphify-kb.md
+  - src/components/KbGraph.tsx
+  - src/lib/kbLink.ts
+  - src/components/SidePanel.tsx
+links: []
+dependsOn: []
+epic: knowledge-base
+source: ai
+createdAt: "2026-07-11T19:08:07"
+startedAt: "2026-07-11T19:08:10"
+updatedAt: "2026-07-11T19:22:02"
+completedAt: "2026-07-11T19:22:02"
+commit: 54765f2
+outcome: >-
+  KB phase 2 livrée (Fable, relu). Sur le slice 1, sans toucher install/Python. Créés :
+  src/state/KbContext.tsx (cache KB partagé : un seul /api/kb + refetch/staleness pilotés par SSE,
+  remplace le refetch par montage) ; src/lib/kbFilter.ts (PUR : communityOptions labellisées par
+  god-node, fileTypeOptions, applyFilters, matchNodes) +test (8) ; src/components/KbNodePanel.tsx
+  (inspecteur de nœud dans SidePanel : label, source cliquable, community, rationale, « Tickets
+  touching this ») ; src/components/kbSource.ts (nav nœud→source partagée
+  code→reveal/doc→OPEN_DOC_EVENT). Modifiés : useZoomPan.ts (+boxTransform/fitBox purs,
+  fit-to-résultats) +test (3) ; PanelContext.tsx (entrée kb-node + openKbNode) ; SidePanel.tsx (gère
+  kb-node) ; App.tsx (KbProvider autour du Shell + PanelHost rend KbNodePanel) ; api.ts (le watcher
+  SSE surveille aussi dirname(kbGraphFile)=graphify-out/, dégradé si absent) ; KbView.tsx (toolbar
+  recherche + 2 FilterMenu + toggle inferred + chip staleness) ; KbGraph.tsx (applique filtres,
+  surbrillance recherche + fitBox, clic nœud→openKbNode) ; TaskPanel.tsx (KbConnections via useKb +
+  openKbNodeSource). Supprimé : useKbGraph.ts (remplacé par KbContext). Réutilise les patterns
+  existants (PanelContext/SidePanel, FilterMenu, /api/events comme TreeContext, Eye idiom de
+  RoadmapView). Communauté = filtre, pas couleur (DA). Slice 1 non régressé. Reste phase 3 (Python
+  dans l'install) intacte.
+verification: >-
+  npx tsc --noEmit exit 0 ; npx vitest run 34 fichiers / 474 tests verts (dont kbFilter 8 +
+  boxTransform 3). git status : uniquement des fichiers src/ attendus (+ suppression useKbGraph.ts),
+  rien côté schéma/install/scripts. SSE serveur : diff confirme dirname(kbGraphFile) ajouté aux dirs
+  surveillés. NON vérifié par moi (pas de navigateur) : inspecteur/recherche/filtres/live en rendu
+  réel — à valider par Rémi dans son dev server (l'échantillon graphify-out/graph.json local peuple
+  la vue).
+release: null
