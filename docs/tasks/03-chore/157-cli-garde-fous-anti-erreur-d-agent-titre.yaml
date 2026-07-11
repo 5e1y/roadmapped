@@ -3,7 +3,7 @@ code: null
 title: >-
   CLI: garde-fous anti-erreur d'agent (titre dans start/done/update, warning start-on-done) + étape
   anti-doublon dans le skill
-status: in_progress
+status: done
 tags: []
 size: S
 heat: 65
@@ -13,16 +13,22 @@ detail: >-
   "titre" -> statut), pas juste id+statut — le seul fix qui aurait évité l'échec 2; (2) start sur
   une tâche déjà done émet un warning visible avant réouverture; (3) SKILL.md: étape anti-doublon
   obligatoire avant add/quick, distinguée de la Golden anti-token rule.
-refs: []
+refs:
+  - scripts/task.mjs
+  - skills/roadmapped/SKILL.md
 links: []
 dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-11T08:53:34"
 startedAt: "2026-07-11T08:53:40"
-updatedAt: "2026-07-11T08:55:39"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+updatedAt: "2026-07-11T09:19:52"
+completedAt: "2026-07-11"
+commit: e089286
+outcome: >-
+  start/done/update affichent le titre (#N "titre" → statut) ; start-on-done émet un ⚠ avant
+  réouverture ; SKILL.md ajoute l'étape anti-doublon avant add/quick, distinguée de la Golden rule.
+verification: >-
+  Testé en live : update/start #291 affichent le titre ; start #290 (done) affiche '⚠ was done since
+  2026-07-11 — reopening' puis #290 restauré à HEAD ; validate OK.
 release: null
