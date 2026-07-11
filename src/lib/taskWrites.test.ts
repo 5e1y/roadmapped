@@ -360,7 +360,7 @@ describe('updateTask — estampillage completedAt', () => {
     const done = updateTask(dir, 1, { status: 'done' })
     expect(done.ok).toBe(true)
     if (!done.ok) return
-    expect(sectionOf(done.tree).tasks[0].completedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+    expect(sectionOf(done.tree).tasks[0].completedAt).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/) // #292 datetime
 
     const reopened = updateTask(dir, 1, { status: 'todo' })
     expect(reopened.ok).toBe(true)

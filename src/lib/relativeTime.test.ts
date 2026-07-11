@@ -23,13 +23,16 @@ describe('relativeTime (#126)', () => {
   it('entrée non parsable → renvoyée telle quelle', () => {
     expect(relativeTime('pas-une-date', NOW)).toBe('pas-une-date')
   })
-  // Régression : une DATE SEULE (completedAt = today()) était parsée en UTC minuit
-  // → décalage du fuseau (« 22 hours ago » pour aujourd'hui). Doit être minuit LOCAL.
-  // TZ-indépendant : la date seule et son datetime-local minuit doivent coïncider.
-  it('date seule « YYYY-MM-DD » parsée en minuit LOCAL (pas UTC)', () => {
-    const midnightLocal = Date.parse('2026-07-08T00:00:00')
-    expect(relativeTime('2026-07-08', midnightLocal)).toBe('just now')
-    expect(Date.parse('2026-07-08T00:00:00')).toBe(new Date(2026, 6, 8).getTime())
+  // #292 : une DATE SEULE ne porte que le jour — jamais d'heures/minutes (« 10 hours
+  // ago » pour aujourd'hui était le bug). Granularité JOUR calendaire, TZ-indépendant :
+  // quelle que soit l'heure du jour, une date seule d'aujourd'hui = « today ».
+  it('date seule : granularité jour (« today », jamais des heures)', () => {
+    expect(relativeTime('2026-07-08', NOW)).toBe('today') // NOW = midi ; jadis « 12 hours ago »
+    expect(relativeTime('2026-07-08', Date.parse('2026-07-08T23:59:00'))).toBe('today')
+    expect(relativeTime('2026-07-08', Date.parse('2026-07-08T00:00:01'))).toBe('today')
+    expect(relativeTime('2026-07-07', NOW)).toBe('1 day ago')
+    expect(relativeTime('2026-07-05', NOW)).toBe('3 days ago')
+    expect(relativeTime('2026-06-24', NOW)).toBe('2 weeks ago')
   })
 })
 

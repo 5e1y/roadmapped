@@ -31,6 +31,24 @@ function toMs(input: string | number): number {
 
 /** « X time ago » en anglais. Renvoie l'entrée brute si non parsable. */
 export function relativeTime(input: string | number, now: number = Date.now()): string {
+  // Une DATE SEULE (« YYYY-MM-DD », ex. un vieux completedAt) ne porte QUE le jour :
+  // l'exprimer en heures/minutes invente une précision qu'elle n'a pas (« 10 hours
+  // ago » pour aujourd'hui). On la compare en JOURS CALENDAIRES locaux et on ne
+  // descend jamais sous le jour. Les datetimes (now()) gardent la granularité fine.
+  if (typeof input === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(input)) {
+    const [y, mo, d] = input.split('-').map(Number)
+    const n = new Date(now)
+    const days = Math.round(
+      (new Date(y, mo - 1, d).getTime() - new Date(n.getFullYear(), n.getMonth(), n.getDate()).getTime()) / 86_400_000,
+    )
+    if (days === 0) return 'today'
+    const diffSec = days * 86_400
+    for (const [unit, secs] of UNITS) {
+      if (unit === 'hour') break // jamais sous le jour pour une date seule
+      if (Math.abs(diffSec) >= secs) return RTF.format(Math.round(diffSec / secs), unit)
+    }
+    return 'today'
+  }
   const then = toMs(input)
   if (Number.isNaN(then)) return String(input)
   const diffSec = Math.round((then - now) / 1000) // négatif = passé
