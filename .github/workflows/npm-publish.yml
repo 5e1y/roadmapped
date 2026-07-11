@@ -1,0 +1,33 @@
+name: Publish to npm
+
+# github is the single source of truth. This mirrors it to npm automatically:
+# on every push to main that touches package.json, publish IF the version is new.
+# Bumping "version" in package.json is the only signal — no tags, no manual npm.
+# Needs a repo secret NPM_TOKEN (an npm "Automation" token, which bypasses 2FA).
+
+on:
+  push:
+    branches: [main]
+    paths: ['package.json']
+  workflow_dispatch: {} # allow a manual first publish from the Actions tab
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+      - name: Publish if the version is not already on npm
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if npm view "roadmapped@$VERSION" version >/dev/null 2>&1; then
+            echo "roadmapped@$VERSION is already on npm — nothing to publish."
+          else
+            echo "Publishing roadmapped@$VERSION…"
+            npm publish
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
