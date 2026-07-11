@@ -18,9 +18,24 @@ dependsOn:
 epic: brand-identity
 source: ai
 createdAt: "2026-07-09T13:55:03"
-updatedAt: "2026-07-09T13:56:05"
+updatedAt: "2026-07-11T12:53:14"
 completedAt: null
 commit: null
 outcome: null
 verification: null
 release: null
+feedback:
+  - date: "2026-07-11T12:53:14"
+    author: claude
+    text: >-
+      SCOPE (constat 2026-07-11) : index.html de CE repo = dashboard local (SPA Vite servie par
+      `roadmapped dashboard`), aucune URL publiquement crawlée. Donc : og:image réelle + twitter
+      card = SANS objet ici (aucun crawler ne voit un localhost) → ces assets appartiennent au SITE
+      public, qui vit dans le repo EXTERNE 5e1y/roadmapped-site (cf. mémoire
+      homepage-lives-in-external-repo — ne pas recréer le site ici). Le favicon est DÉJÀ livré (SVG
+      inline oiseau #212, scalable toutes tailles). apple-touch-icon/manifest PWA = valeur quasi
+      nulle sur un dashboard de dev local. RECOMMANDATION : traiter #216 (og image réelle +
+      déclinaisons sociales) dans le repo roadmapped-site quand on y travaille, PAS ici. Si Rémi
+      veut malgré tout un apple-touch-icon.png + web manifest côté app, c'est faisable en 20 min à
+      partir de birdFrames.ts — mais candidat à couper (YAGNI).
+    resolved: false

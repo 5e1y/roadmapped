@@ -1,7 +1,7 @@
 id: 225
 code: null
 title: "Gouvernance repo : CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, PR template"
-status: todo
+status: done
 tags:
   - support
   - publish
@@ -11,16 +11,29 @@ detail: >-
   Fichiers de gouvernance communautaire : CONTRIBUTING.md (comment contribuer, flow roadmapped,
   exigences), CODE_OF_CONDUCT.md, SECURITY.md (comment signaler une faille),
   .github/PULL_REQUEST_TEMPLATE.md. Coordonner avec la politique de contribution (legal #220).
-refs: []
+refs:
+  - SECURITY.md
+  - CONTRIBUTING.md
+  - CODE_OF_CONDUCT.md
+  - .github/PULL_REQUEST_TEMPLATE.md
 links: []
 dependsOn:
   - 220
 epic: community-github
 source: ai
 createdAt: "2026-07-09T13:55:48"
-updatedAt: "2026-07-09T13:56:07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+startedAt: "2026-07-11T12:53:39"
+updatedAt: "2026-07-11T12:55:42"
+completedAt: "2026-07-11T12:55:36"
+commit: 9e48bd1
+outcome: >-
+  Gouvernance repo complétée. Constat : CONTRIBUTING.md, CODE_OF_CONDUCT.md (Contributor Covenant
+  v2.1, email Rémi) et .github/PULL_REQUEST_TEMPLATE.md existaient DÉJÀ et sont complets/exacts
+  (DCO, specs-first, dist pré-buildé) — non touchés. Seul gap : SECURITY.md, créé. Contenu : double
+  canal de report (GitHub private advisory + email), ack sous 7j, pas de bug bounty, supported =
+  main (github-only, versionné par commit), scope honnête (pas de serveur/DB/télémétrie ; surface
+  locale CLI/MCP/hooks/markdown dashboard).
+verification: >-
+  git status : SECURITY.md ajouté et commité (9e48bd1) ; les 3 fichiers préexistants relus et jugés
+  adéquats, laissés intacts. Fichier à la racine → auto-surfacé par l'onglet Security de GitHub.
 release: null
