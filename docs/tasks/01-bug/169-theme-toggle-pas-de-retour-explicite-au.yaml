@@ -1,7 +1,7 @@
 id: 270
 code: null
 title: "Theme toggle : pas de retour explicite au mode « système » après un choix manuel (3e état)"
-status: todo
+status: done
 tags:
   - debt
 size: null
@@ -12,9 +12,17 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-10T22:25:34"
-updatedAt: "2026-07-10T22:25:34"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+startedAt: "2026-07-11T12:19:12"
+updatedAt: "2026-07-11T12:22:22"
+completedAt: "2026-07-11T12:22:22"
+commit: 4eda9dc
+outcome: >-
+  Toggle de thème passé en 3 états (système → clair → sombre → système). Le mode « système » efface
+  le choix figé en localStorage → le listener matchMedia reprend le suivi live de l'OS. Bouton
+  cyclique (au lieu du Toggle binaire Base UI), icône = mode courant (Desktop/Sun/Moon). API:
+  nextMode() + setMode()/useThemeMode() dans state/theme.ts. Aucun changement index.html (le script
+  anti-flash traitait déjà l'absence de clé = système). Debt #270 résorbée.
+verification: >-
+  tsc --noEmit clean ; vitest run theme.test.ts 4/4 (dont nouveau test nextMode: cycle complet
+  système→clair→sombre→système).
 release: null
