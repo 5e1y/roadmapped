@@ -1,0 +1,24 @@
+id: 289
+code: null
+title: sitemap.xml + robots.txt pour le site (GSC)
+status: done
+tags: []
+size: null
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-11T01:05:30"
+startedAt: "2026-07-11T01:05:30"
+updatedAt: "2026-07-11T01:06:14"
+completedAt: "2026-07-11"
+commit: 47b2544
+outcome: >-
+  sitemap.xml (1 URL : https://roadmapped.dev/ ; la démo /demo/ est noindex → hors sitemap) +
+  robots.txt (allow-all, ligne Sitemap:, démo laissée crawlable pour que son noindex soit vu) à la
+  racine du site. Servis tels quels par Cloudflare Pages sur roadmapped.dev/sitemap.xml et
+  /robots.txt.
+verification: XML validé (xml.dom.minidom parse OK). Poussé sur main → déploiement Pages. À soumettre dans GSC.
+release: null

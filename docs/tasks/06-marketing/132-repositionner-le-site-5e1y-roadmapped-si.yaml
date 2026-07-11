@@ -3,21 +3,44 @@ code: null
 title: >-
   Repositionner le site 5e1y/roadmapped-site : la copy raconte encore idée→mature, la passer au
   modèle 9-types + température
-status: todo
+status: done
 tags:
   - homepage
   - seo
 size: null
-detail: null
-refs: []
+detail: >-
+  index.html (roadmapped-site) décrit encore l'ancien modèle : carte Features #2 dit "Eight fixed
+  stages, from idea to mature, are your milestones", le pas 1 de How-it-works dit "filed in the
+  right stage folder", l'arbre de fichiers illustratif montre 01-idea/04-build/08-mature avec la
+  note "fixed stages, always this order", et les exemples terminal/diff pointent
+  docs/tasks/04-build/17-dark-mode.yaml. Rien ne mentionne la température (0-100, âge + blocages),
+  le vrai moteur de priorité depuis #233/#234. Le Quickstart ne mentionne pas non plus le poids
+  d'install (~30 Mo, vérifié docs/specs/2026-07-11-dashboard-build.md). Aucune mention npm
+  problématique trouvée (déjà propre, cf audit). Porter la copy de docs/site-copy.md (carte 2, déjà
+  à jour) et le handoff docs/specs/2026-07-11-site-update-handoff.md (points 1 et 3) dans
+  roadmapped-site/index.html : réécrire la carte Features #2, remplacer stage->type partout (arbre
+  de fichiers, aria-labels, pas 1), corriger les 2 chemins d'exemple 04-build/17-dark-mode.yaml ->
+  02-feature/17-dark-mode.yaml, ajouter la mention ~30 Mo dans le paragraphe sous le Quickstart.
+refs:
+  - docs/site-copy.md
+  - docs/specs/2026-07-11-site-update-handoff.md
 links: []
 dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-09T18:13:45"
-updatedAt: "2026-07-09T18:13:45"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+startedAt: "2026-07-11T08:39:57"
+updatedAt: "2026-07-11T08:41:03"
+completedAt: "2026-07-11"
+commit: 762e5b5
+outcome: >-
+  Site : carte Features "roadmap" réécrite (température 0-100 = âge + blocages, plus de "8 stages
+  idée→mature"), arbre de fichiers/aria-labels/chemins d'exemple passés aux 9 types réels (01-bug,
+  02-feature...), mention du poids d'install (~30 Mo, dashboard pré-compilé) ajoutée sous le
+  Quickstart. Audit npm : rien à corriger, déjà propre.
+verification: >-
+  Diff relu ligne à ligne avant commit ; grep -i stage/npm sur index.html après édition pour
+  confirmer qu'il ne reste que les mentions légitimes (classes CSS demo-stage/how-stage, et "not a
+  stage rank" qui est la nouvelle phrase intentionnelle). Poussé sur roadmapped-site/main,
+  déploiement Cloudflare Pages déclenché.
 release: null

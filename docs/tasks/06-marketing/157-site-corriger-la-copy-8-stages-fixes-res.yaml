@@ -1,0 +1,38 @@
+id: 290
+code: null
+title: >-
+  Site : corriger la copy "8 stages fixes" restée dans Features/How-it-works (modèle réel = 9 types
+  + température) + mention poids install
+status: done
+tags: []
+size: null
+heat: 40
+detail: >-
+  index.html (roadmapped-site) décrit encore l'ancien modèle : carte Features #2 dit "Eight fixed
+  stages, from idea to mature, are your milestones", le pas 1 de How-it-works dit "filed in the
+  right stage folder", l'arbre de fichiers illustratif montre 01-idea/04-build/08-mature avec la
+  note "fixed stages, always this order", et les exemples terminal/diff pointent
+  docs/tasks/04-build/17-dark-mode.yaml. Rien ne mentionne la température (0-100, âge + blocages)
+  qui est le vrai moteur de priorité depuis #233/#234. Le Quickstart ne mentionne pas non plus le
+  poids d'install (~30 Mo, vérifié docs/specs/2026-07-11-dashboard-build.md). Aucune mention npm
+  problématique trouvée (déjà propre). Porter la copy de docs/site-copy.md (carte 2, déjà à jour) et
+  le handoff docs/specs/2026-07-11-site-update-handoff.md (point 1 et 3) dans
+  roadmapped-site/index.html : réécrire la carte Features #2, remplacer stage->type partout (arbre
+  de fichiers, aria-labels, pas 1), corriger les 2 chemins d'exemple 04-build/17-dark-mode.yaml ->
+  02-feature/17-dark-mode.yaml, ajouter la mention ~30 Mo dans le paragraphe sous le Quickstart.
+refs:
+  - docs/site-copy.md
+  - docs/specs/2026-07-11-site-update-handoff.md
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-11T08:36:50"
+updatedAt: "2026-07-11T08:39:52"
+completedAt: "2026-07-11"
+commit: 2df0f4b
+outcome: >-
+  Doublon de #239 identifié après coup (le vrai ticket pour cette copy existait déjà depuis le
+  2026-07-09) — travail unifié sous #239, aucun changement produit propre à ce ticket.
+verification: null
+release: null
