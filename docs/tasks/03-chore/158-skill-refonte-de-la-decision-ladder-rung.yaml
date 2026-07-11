@@ -3,7 +3,7 @@ code: null
 title: >-
   Skill: refonte de la decision ladder (rungs epic/subtask/feedback, table 5 lignes) + quick --type
   obligatoire
-status: in_progress
+status: done
 tags: []
 size: null
 heat: 75
@@ -33,9 +33,14 @@ epic: null
 source: ai
 createdAt: "2026-07-11T09:42:08"
 startedAt: "2026-07-11T09:42:13"
-updatedAt: "2026-07-11T09:42:13"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+updatedAt: "2026-07-11T09:47:37"
+completedAt: "2026-07-11T09:47:37"
+commit: 0e2d10b
+outcome: >-
+  Decision ladder du skill réécrite en table couvrant feedback/subtask/epic/quick/add/spec ;
+  feedback = issue explicite du dedup ; règles QUAND ajoutées à formats.md ; quick --type
+  obligatoire (CLI + MCP), fin du défaut de type silencieux.
+verification: >-
+  Suite complète 440/440 verte (dont task.test + mcp-server.test mis à jour), tsc --noEmit clean.
+  quick sans --type sur le vrai repo refusé (exit 1, aucune écriture).
 release: null
