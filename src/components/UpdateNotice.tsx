@@ -54,6 +54,9 @@ function CopyCommandButton({ command }: { command: string }) {
 
 function UpdateNoticeInner({ update }: { update: { installed: string; remote: string; repo: string } }) {
   const [dismissed, setDismissed] = useState(dismissedThisSession)
+  // #295 : le clic FORCE l'update + restart. idle → updating (le serveur se coupe et
+  // revient) → reload auto ; error → on retombe sur la commande manuelle.
+  const [phase, setPhase] = useState<'idle' | 'updating' | 'error'>('idle')
   if (dismissed) return null
 
   const dismiss = () => {
@@ -63,6 +66,29 @@ function UpdateNoticeInner({ update }: { update: { installed: string; remote: st
 
   const compareUrl = `https://github.com/${update.repo}/compare/${update.installed}...${update.remote}`
   const command = `npm install github:${update.repo} && npx roadmapped upgrade`
+
+  const runUpdate = async () => {
+    setPhase('updating')
+    try {
+      const res = await fetch('/api/update', { method: 'POST' })
+      if (!res.ok) return setPhase('error') // 409 = à jour / clone de dev / offline
+    } catch {
+      return setPhase('error')
+    }
+    // Le serveur se coupe puis rebinde le même port avec la nouvelle version. On sonde
+    // /api/tree (qui échoue pendant le downtime d'install) et on recharge dès son
+    // retour. Abandon après ~5 min → l'utilisateur relance à la main.
+    const deadline = Date.now() + 5 * 60 * 1000
+    const poll = async () => {
+      if (Date.now() > deadline) return setPhase('error')
+      try {
+        const r = await fetch('/api/tree', { cache: 'no-store' })
+        if (r.ok) return window.location.reload()
+      } catch { /* serveur down pendant le restart → on continue à sonder */ }
+      window.setTimeout(() => void poll(), 1500)
+    }
+    window.setTimeout(() => void poll(), 2000) // laisse le vieux serveur se couper d'abord
+  }
 
   return (
     <Popover.Root>
@@ -99,14 +125,34 @@ function UpdateNoticeInner({ update }: { update: { installed: string; remote: st
                 <ArrowRight size={9} className="shrink-0 text-neutral-400" aria-hidden="true" />
                 <span className="font-semibold text-neutral-900" title="latest on main">{update.remote}</span>
               </div>
-              <div className="flex items-stretch gap-1.5">
-                {/* break-all : la commande entière reste visible (pas de scroll
-                    horizontal caché dans un popup de 320px). */}
-                <code className="min-w-0 flex-1 break-all border border-neutral-200 bg-neutral-50 px-2 py-1.5 font-mono text-[11px] leading-relaxed text-neutral-800">
-                  {command}
-                </code>
-                <CopyCommandButton command={command} />
-              </div>
+              {phase === 'error' ? (
+                <div className="flex flex-col gap-1.5">
+                  <p className="text-[11px] text-neutral-500">Couldn’t start the update. Run it manually:</p>
+                  <div className="flex items-stretch gap-1.5">
+                    {/* break-all : la commande entière reste visible (pas de scroll
+                        horizontal caché dans un popup de 320px). */}
+                    <code className="min-w-0 flex-1 break-all border border-neutral-200 bg-neutral-50 px-2 py-1.5 font-mono text-[11px] leading-relaxed text-neutral-800">
+                      {command}
+                    </code>
+                    <CopyCommandButton command={command} />
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => void runUpdate()}
+                  disabled={phase === 'updating'}
+                  className="flex items-center justify-center gap-1.5 border border-neutral-900 bg-neutral-900 px-2.5 py-1.5 text-xs font-medium text-white transition-colors hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  <Download size={11} className="shrink-0" />
+                  {phase === 'updating' ? 'Updating & restarting…' : 'Update & restart'}
+                </button>
+              )}
+              {phase === 'updating' && (
+                <p className="text-[11px] text-neutral-500 motion-safe:animate-pulse">
+                  The dashboard restarts with the new version — this page reloads automatically.
+                </p>
+              )}
             </div>
             <Popover.Close
               render={<button type="button" />}
