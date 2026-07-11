@@ -1,0 +1,47 @@
+id: 300
+code: null
+title: >-
+  Refonte UX de la Quickstart du site : copie par commande individuelle + séparation claire des 3
+  méthodes d'install
+status: done
+tags:
+  - site
+  - ux
+  - install
+size: null
+heat: 80
+detail: >-
+  Feedback Rémi sur #299 : la Quickstart (un seul <pre code-block avec les 3 méthodes en
+  commentaires) a une UX faible — impossible de copier une commande précise, méthodes mal séparées.
+  Refonte : (1) chaque commande copiable individuellement (réutiliser .btn-copy + data-copy-text,
+  handler délégué déjà en place ~L597, aucune modif JS) ; (2) séparer visuellement les 3 techniques
+  (plugin Claude Code / npm / github) en blocs/cartes labellisés. Réutiliser les primitifs existants
+  (.prompt-copy = tag+texte+bouton, .code-block, vars CSS). Garder les commandes exactes (source de
+  vérité #298). Voix Rémi, esthétique terminal minimale, theme-aware, responsive, HTML valide. Repo
+  externe 5e1y/roadmapped-site.
+refs: []
+links: []
+dependsOn: []
+epic: install-methods
+source: ai
+createdAt: "2026-07-11T15:15:55"
+startedAt: "2026-07-11T15:15:58"
+updatedAt: "2026-07-11T15:21:39"
+completedAt: "2026-07-11T15:21:39"
+commit: d3fda6f
+outcome: >-
+  Refonte UX de la Quickstart du site (Fable 5, relu + vérifié). L'ancien bloc unique `<pre
+  code-block>` remplacé par 4 blocs distincts `.install-method` : « Claude Code plugin », « or npm
+  », « or Straight from GitHub » (le « or » muet = alternatives, pas étapes), + « After install »
+  (filet accent inset = convergence). Chaque commande = une `.cmd-row` copiable individuellement
+  (bouton .btn-copy dédié + data-copy-text exact + aria-label ; sigil $ hors payload). Réutilise le
+  mécanisme de copie existant (handler JS délégué INCHANGÉ) et le vocabulaire filet du site. Ajout
+  de 10 classes CSS (vars uniquement → theme-aware light/dark). Responsive (flex-wrap +
+  overflow-wrap), a11y (section/h3 + aria-labels + focus-visible). Commandes inchangées (source de
+  vérité #298). Répond au feedback : copie par commande + séparation claire des 3 techniques.
+verification: >-
+  Live après déploiement Cloudflare : roadmapped.dev sert 4 blocs install-method + 8 cmd-row.
+  Pré-commit : HTMLParser 0 balise orpheline/non fermée, CSS 185/185 accolades, 8 data-copy-text =
+  commandes exactes, aucune couleur en dur (vars only), JS 0 ligne modifiée, les 2 .prompt-copy
+  hero/final-CTA intacts.
+release: null
