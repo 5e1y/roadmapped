@@ -28,15 +28,14 @@ epic: null
 source: ai
 createdAt: "2026-07-11T15:51:43"
 startedAt: "2026-07-11T15:51:52"
-updatedAt: "2026-07-11T17:12:14"
-completedAt: "2026-07-11T17:12:14"
-commit: 8acfcaa
+updatedAt: "2026-07-11T17:31:40"
+completedAt: "2026-07-11T17:31:40"
+commit: fce35a4
 outcome: >-
-  Retours Rémi v3 : bug suivi vertical corrigé (traîne suit l'oiseau en vol), vitesse+anims ×1.25,
-  œufs & nid remontés (posent pile sur le bord), z-order œufs<oiseau<nid, plus de perchage sur
-  textes surlignés. Poussé sur main du repo site (8acfcaa).
+  Œufs stables au resize : chaque œuf posé est ancré à son élément-perchoir (el+fx) et lit le rect
+  vivant chaque frame (helper eggPos), comme le nid. Gère resize+reflow+scroll, supprime toute
+  dépendance scrollX/Y sur les œufs. Poussé sur main (fce35a4).
 verification: >-
-  node --check OK ; Playwright headless 0 erreur console ; screenshots : v3-fly confirme la traîne
-  verticale en vol, v3-nest confirme z-order (œufs derrière l'oiseau, nid devant), egg-on-perch
-  montre l'œuf calé sur le bord.
+  node --check OK ; Playwright headless 0 erreur console ; test resize 1280→900 (cartes 4col→2×2,
+  gros reflow) : les œufs restent collés à leurs perchoirs (rs-before/rs-after), aucun œuf stranded.
 release: null
