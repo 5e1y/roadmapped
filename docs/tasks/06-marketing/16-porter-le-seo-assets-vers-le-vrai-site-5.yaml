@@ -1,7 +1,7 @@
 id: 198
 code: null
 title: Porter le SEO + assets vers le vrai site (5e1y/roadmapped-site)
-status: todo
+status: done
 tags:
   - seo
   - homepage
@@ -21,9 +21,24 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-09T01:42:47"
-updatedAt: "2026-07-09T01:42:47"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+startedAt: "2026-07-11T13:38:17"
+updatedAt: "2026-07-11T13:38:52"
+completedAt: "2026-07-11T13:38:52"
+commit: 6cf4a27
+outcome: >-
+  SEO porté + audité sur le vrai site 5e1y/roadmapped-site (commit roadmapped-site@6cf4a27, poussé →
+  déployé Cloudflare Pages). CONSTAT clé : l'essentiel du SEO était DÉJÀ en place sur le site
+  (title, description, canonical roadmapped.dev, OG complet avec og.png 1200×630 réelle, Twitter
+  card, theme-color, favicon oiseau, JSON-LD SoftwareApplication correct
+  codeRepository=5e1y/roadmapped + MIT + Node≥22.18, robots.txt, sitemap.xml — via #289 et le
+  travail homepage). RESTAIT + fait ce tour : (1) llms.txt ABSENT → réécrit à jour (l'ancien
+  brouillon site/ parlait de « 8 stages » et pointait roadmapped.work/remicourtillon — périmés ;
+  nouveau : 9 types fixes, priorité=température, github-only, Node≥22.18) ; (2) complétude OG :
+  og:site_name + og:image:width/height (dims réelles vérifiées 1200×630) + og:image:alt. Audit :
+  head propre, lang=en, viewport, skip-link a11y, JSON-LD valide — rien de cassé à corriger.
+  L'og-image.html template historique n'a PAS été porté (Rémi refait une image stylée de son côté,
+  cf #216/#222 social preview).
+verification: >-
+  Live vérifié après déploiement : GET roadmapped.dev/llms.txt → 200 ; home contient les 3 balises
+  og:site_name/og:image:width/og:image:alt ; robots.txt/sitemap.xml/og.png → 200.
 release: null
