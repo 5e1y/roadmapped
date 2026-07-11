@@ -2,6 +2,7 @@ import { useEffect, useState, type MouseEvent } from 'react'
 import { renderMarkdown } from './Markdown'
 import { ViewHeader } from './ViewHeader'
 import { DocsTree } from './DocsTree'
+import { KbView } from './KbView'
 import { ErrorBanner } from './ui'
 import { useDocsTree } from '../state/useDocsTree'
 
@@ -27,6 +28,10 @@ export function DocsView({ path, onSelectDoc }: { path: string | null; onSelectD
   const [content, setContent] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // Deux lentilles sur la connaissance du repo : Documents / Knowledge base
+  // (#kb), calqué sur le segmented Columns/Graph de RoadmapView. État de SESSION
+  // (non persisté) — un coup d'œil, pas une préférence.
+  const [mode, setMode] = useState<'documents' | 'kb'>('documents')
 
   useEffect(() => {
     if (!path) {
@@ -91,13 +96,40 @@ export function DocsView({ path, onSelectDoc }: { path: string | null; onSelectD
   }
 
   const docs = useDocsTree()
+
+  // Segmented « Documents / Knowledge base » (copie ligne à ligne de RoadmapView).
+  const modeToggle = (
+    <div className="flex overflow-hidden rounded-md border border-neutral-300">
+      {(['documents', 'kb'] as const).map((m) => (
+        <button key={m} type="button" onClick={() => setMode(m)}
+          aria-pressed={mode === m}
+          className={`px-3 py-1 text-xs transition-colors ${
+            mode === m ? 'bg-neutral-900 text-white' : 'bg-white text-neutral-600 hover:bg-neutral-100'
+          }`}>
+          {m === 'documents' ? 'Documents' : 'Knowledge base'}
+        </button>
+      ))}
+    </div>
+  )
+
+  // Mode Knowledge base : canvas plein (pas de flanc « Fichiers »), même gabarit
+  // vue-pleine que la Vue Graphe de la Roadmap.
+  if (mode === 'kb') {
+    return (
+      <div className="flex h-full flex-col">
+        <ViewHeader>{modeToggle}</ViewHeader>
+        <div className="min-h-0 flex-1"><KbView /></div>
+      </div>
+    )
+  }
+
   // Arbre des fichiers en FLANC GAUCHE (même gabarit que le radar du Backlog) —
   // la sidebar n'existe plus (décision Rémi).
   const shell = (body: React.ReactNode) => (
     // Tri-couche (design.md §3.1) : la racine hérite du #fafafa du body ;
     // le flanc gauche est une surface « carte » bg-white (modèle radar Backlog).
     <div className="flex h-full flex-col">
-      <ViewHeader meta={path ?? undefined} />
+      <ViewHeader meta={path ?? undefined}>{modeToggle}</ViewHeader>
       <div className="flex min-h-0 flex-1">
         <div className="flex w-[420px] shrink-0 flex-col border-r border-neutral-200 bg-white py-2">
           <div className="shrink-0 px-4 pb-1.5 text-[11px] font-medium text-neutral-500">Fichiers</div>

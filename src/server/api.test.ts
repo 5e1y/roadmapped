@@ -123,7 +123,7 @@ describe('runAction — getTree expose le repo hôte (#204)', () => {
     // root est un chemin nommé arbitraire — c'est son basename qu'on vérifie.
     const root = '/somewhere/cool-repo'
     const res = runAction(
-      { root, tasksDir: join(process.cwd(), 'docs/tasks'), docsDir: join(process.cwd(), 'docs') },
+      { root, tasksDir: join(process.cwd(), 'docs/tasks'), docsDir: join(process.cwd(), 'docs'), kbGraphFile: join(process.cwd(), 'graphify-out/graph.json') },
       { type: 'getTree' },
     )
     const payload = res.payload as { ok: boolean; hostRoot: string; repoName: string }
@@ -135,7 +135,7 @@ describe('runAction — getTree expose le repo hôte (#204)', () => {
 
 describe('runAction — Notepad CRUD + sécurité reveal (#86)', () => {
   let docsDir: string
-  const paths = () => ({ root: '/unused', tasksDir: '/unused', docsDir })
+  const paths = () => ({ root: '/unused', tasksDir: '/unused', docsDir, kbGraphFile: '/unused/graph.json' })
   const run = (method: string, url: string, body: unknown = null) =>
     runAction(paths(), routeApi(method, url, body))
   beforeEach(() => { docsDir = mkdtempSync(join(tmpdir(), 'roadmapped-notes-')) })

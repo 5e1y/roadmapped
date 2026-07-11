@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react'
 import { Toast } from '@base-ui/react/toast'
 import { Check, Cross, LockLocked } from 'trinil-react'
 import { Collapsible } from '@base-ui/react/collapsible'
@@ -19,6 +19,9 @@ import {
 import { Markdown } from './Markdown'
 import { OPEN_DOC_EVENT } from '../lib/events'
 import { markTaskSeen } from '../state/seenTasks'
+import { useKbGraph } from '../state/useKbGraph'
+import { buildKbLinkIndex } from '../lib/kbLink'
+import type { KbNode } from '../server/kb'
 import type { TaskNode, TaskTree } from '../lib/tasks'
 import { TYPES } from '../lib/tasks'
 
@@ -225,6 +228,67 @@ function RefLine({ refPath, onRemove }: { refPath: string; onRemove?: () => void
         <div className="min-w-0 flex-1 truncate px-1.5 py-0.5 font-mono text-xs text-neutral-600" title={refPath}>{refPath}</div>
       )}
       {onRemove && <RemoveButton label={`Remove ${refPath}`} onClick={onRemove} />}
+    </div>
+  )
+}
+
+/**
+ * Voisinage KB d'une tâche (#kb) — 100 % DÉRIVÉ du champ `refs` (joint au
+ * source_file des nœuds Graphify, cf. kbLink). AUCUN champ ajouté au YAML.
+ * Dégradation propre : rien affiché si le graphe est absent ou si la tâche n'a
+ * aucune ref matchée. Clic : nœud doc `.md` → Vue Docs (OPEN_DOC_EVENT) ; nœud
+ * code / autre fichier → reveal OS (best-effort, chemin absolu = root + source_file).
+ */
+function KbConnections({ tree, taskId }: { tree: TaskTree; taskId: number }) {
+  const { close } = usePanel()
+  const { graph, root } = useKbGraph()
+  const hood = useMemo(
+    () => (graph ? buildKbLinkIndex(tree, graph.nodes, graph.edges).neighborhoodOf(taskId) : null),
+    [graph, tree, taskId],
+  )
+  if (!hood || (hood.direct.length === 0 && hood.neighbors.length === 0)) return null
+
+  const openNode = (n: KbNode) => {
+    if (!n.sourceFile) return
+    if (n.fileType === 'document' && n.sourceFile.startsWith('docs/') && n.sourceFile.endsWith('.md')) {
+      window.dispatchEvent(new CustomEvent(OPEN_DOC_EVENT, { detail: n.sourceFile.replace(/^docs\//, '') }))
+      close()
+      return
+    }
+    if (!root) return
+    // reveal OS best-effort (chemin absolu sous le HOME, validé côté serveur).
+    void fetch('/api/reveal', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path: `${root}/${n.sourceFile}` }),
+    }).catch(() => { /* reveal indisponible : sans effet, pas d'erreur bloquante */ })
+  }
+
+  const Row = ({ n }: { n: KbNode }) => (
+    <button
+      type="button"
+      onClick={() => openNode(n)}
+      disabled={!n.sourceFile}
+      title={n.sourceFile ?? n.label}
+      className="group flex w-full items-center gap-2 px-1.5 py-1 text-left text-sm hover:bg-neutral-100 disabled:cursor-default disabled:hover:bg-transparent"
+    >
+      <span className="min-w-0 flex-1 truncate text-neutral-800">{n.label}</span>
+      <span className="shrink-0 font-mono text-[11px] text-neutral-500">{n.fileType}</span>
+      {n.sourceLocation && <span className="shrink-0 font-mono text-[11px] text-neutral-400">{n.sourceLocation}</span>}
+    </button>
+  )
+
+  return (
+    <div className="flex flex-col gap-1">
+      <SectionLabel>Connected in the knowledge base</SectionLabel>
+      <div className="flex flex-col">
+        {hood.direct.map((n) => <Row key={n.id} n={n} />)}
+        {hood.neighbors.length > 0 && (
+          <>
+            <div className="px-1.5 pt-1 text-[11px] text-neutral-400">via 1 hop</div>
+            {hood.neighbors.map((n) => <Row key={n.id} n={n} />)}
+          </>
+        )}
+      </div>
     </div>
   )
 }
@@ -794,6 +858,9 @@ function TaskPanelBody({ id }: { id: number }) {
         </div>
         <FieldError errs={errors.refs} />
       </div>
+
+      {/* Knowledge base (#kb) : voisinage dérivé des refs — masqué si pas de graphe. */}
+      <KbConnections tree={tree} taskId={id} />
 
       {/* Feedback (#149) : retours capturés SANS ticket. Chaque item = texte,
           auteur · date, état résolu ; bascule résolu/rouvrir d'un bouton ;
