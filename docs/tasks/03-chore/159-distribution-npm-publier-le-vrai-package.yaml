@@ -3,7 +3,7 @@ code: null
 title: >-
   Distribution npm : publier le vrai package roadmapped + CI d'auto-publish depuis GitHub (un seul
   point de maintenance)
-status: in_progress
+status: done
 tags:
   - distribution
   - npm
@@ -22,16 +22,31 @@ detail: >-
   à ^version une fois sur npm (l.96-100) ; MAJ README/setup pour offrir npm i comme voie simple ;
   vérifier la cohabitation #294 (update github HEAD) avec une install npm. Sécurise aussi le nom npm
   de #221.
-refs: []
+refs:
+  - .github/workflows/npm-publish.yml
+  - package.json
+  - scripts/install.mjs
 links: []
 dependsOn: []
 epic: lancement
 source: ai
 createdAt: "2026-07-11T14:09:00"
 startedAt: "2026-07-11T14:09:03"
-updatedAt: "2026-07-11T14:09:03"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+updatedAt: "2026-07-11T14:53:01"
+completedAt: "2026-07-11T14:52:56"
+commit: 67eb04c
+outcome: >-
+  Distribution npm en place. roadmapped@0.1.0 publié sur npm (registry 200, `npm view` OK, `npx
+  roadmapped --help` depuis npm sans github/node_modules fonctionne → l'E404 bare est mort). Montage
+  : github reste la source unique ; CI GitHub Actions (.github/workflows/npm-publish.yml) publie sur
+  push main touchant package.json SEULEMENT si la version est nouvelle (bump = seul signal) ; secret
+  repo NPM_TOKEN (Automation token). Le 1er publish a été fait PAR la CI (workflow_dispatch) —
+  publish manuel impossible car 2FA npm = passkey (pas d'OTP CLI). L'auto-update runtime #294 garde
+  chaque install à jour depuis github HEAD quelle que soit la source. Sécurise le nom npm de #221.
+  NB sécurité : un 1er token avait été exposé en clair (collé comme nom de secret) → signalé à Rémi
+  pour révocation, secret junk supprimé, NPM_TOKEN reposé proprement via l'UI web.
+verification: >-
+  Run CI 29153352272 = success. curl registry.npmjs.org/roadmapped → 200 ; npm view roadmapped
+  version → 0.1.0 ; `npm exec --yes roadmapped@0.1.0 -- --help` dans un dossier vierge → affiche
+  l'usage du CLI (preuve que npx depuis npm marche end-to-end).
 release: null
