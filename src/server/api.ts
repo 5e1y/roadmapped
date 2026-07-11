@@ -1,7 +1,7 @@
 import type { Plugin } from 'vite'
 import type { ServerResponse, IncomingMessage } from 'node:http'
 import { watch, readdirSync } from 'node:fs'
-import { join, basename } from 'node:path'
+import { join, basename, dirname } from 'node:path'
 import { loadPaths, packageRoot, type RoadmappedPaths } from '../lib/paths.ts'
 import { checkUpdate, restartWithUpdate, UPDATE_REPO, type UpdateStatus } from '../lib/updateNotifier.ts'
 import {
@@ -263,7 +263,11 @@ export function createApiMiddleware(paths: RoadmappedPaths) {
       // ponytail: recursive:true couvre macOS/Windows ; sous Linux il jette
       // (ERR_FEATURE_UNAVAILABLE) → on retombe sur un watch des sous-dossiers immédiats
       // (les 9 types), suffisant pour tasksDir. Upgrade Linux profond = chokidar.
-      for (const dir of [paths.tasksDir, paths.docsDir]) {
+      // #kb (phase 2) : graphify-out/ (dir du graphe) est surveillé aussi — sa
+      // régénération (agent /graphify) pousse un SSE que le KbProvider capte.
+      // Absent tant que le graphe n'a jamais été généré : les watch throw →
+      // avalés par le try/catch (comme un dir manquant), sans casser le reste.
+      for (const dir of [paths.tasksDir, paths.docsDir, dirname(paths.kbGraphFile)]) {
         try {
           watch(dir, { recursive: true }, (_e, f) => { if (f) schedule(String(f)) })
         } catch {

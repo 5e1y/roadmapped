@@ -52,6 +52,22 @@ export function fitTransform(contentW: number, contentH: number, vpW: number, vp
   }
 }
 
+/**
+ * Recentre + zoome sur une BOÎTE du contenu (coordonnées contenu). Sert au
+ * « fit sur les résultats » de la recherche KB : la bbox des nœuds matchés est
+ * centrée dans le viewport, avec ~20 % de marge. Contrairement à fitTransform,
+ * ça PEUT grossir (jusqu'à ZOOM_MAX) — on veut zoomer sur un petit sous-ensemble.
+ */
+export function boxTransform(
+  box: { x: number; y: number; w: number; h: number }, vpW: number, vpH: number,
+): ZoomPanTransform {
+  if (box.w <= 0 || box.h <= 0 || vpW <= 0 || vpH <= 0) return { scale: 1, tx: 0, ty: 0 }
+  const scale = clampScale(Math.min(vpW / (box.w * 1.2), vpH / (box.h * 1.2)))
+  const cx = box.x + box.w / 2
+  const cy = box.y + box.h / 2
+  return { scale, tx: vpW / 2 - cx * scale, ty: vpH / 2 - cy * scale }
+}
+
 /** Borne la translation : le contenu garde au moins KEEP_VISIBLE px à l'écran. */
 export function clampPan(t: ZoomPanTransform, contentW: number, contentH: number, vpW: number, vpH: number): ZoomPanTransform {
   if (vpW <= 0 || vpH <= 0) return t
@@ -79,6 +95,8 @@ export interface ZoomPan {
   /** Zoom par facteur, ancré au centre du viewport (boutons + / −). */
   zoomBy: (factor: number) => void
   fit: () => void
+  /** Recentre/zoome sur une boîte du contenu ; null = fit du contenu entier. */
+  fitBox: (box: { x: number; y: number; w: number; h: number } | null) => void
   reset: () => void
 }
 
@@ -150,6 +168,15 @@ export function useZoomPan(contentW: number, contentH: number): ZoomPan {
     setTransform(fitTransform(content.current.w, content.current.h, el.clientWidth, el.clientHeight))
   }, [])
 
+  const fitBox = useCallback((box: { x: number; y: number; w: number; h: number } | null) => {
+    const el = viewportRef.current
+    if (!el) return
+    const t = box
+      ? boxTransform(box, el.clientWidth, el.clientHeight)
+      : fitTransform(content.current.w, content.current.h, el.clientWidth, el.clientHeight)
+    setTransform(clampPan(t, content.current.w, content.current.h, el.clientWidth, el.clientHeight))
+  }, [])
+
   const reset = useCallback(() => setTransform({ scale: 1, tx: 0, ty: 0 }), [])
 
   // A11y : le viewport est focusable (tabIndex=0 côté composant) — flèches =
@@ -176,6 +203,6 @@ export function useZoomPan(contentW: number, contentH: number): ZoomPan {
   return {
     viewportRef, transform, panning,
     handlers: { onPointerDown, onPointerMove, onPointerUp: endDrag, onPointerCancel: endDrag, onKeyDown },
-    zoomBy, fit, reset,
+    zoomBy, fit, fitBox, reset,
   }
 }

@@ -36,7 +36,9 @@ export function SidePanel({
       ? `task:${top.id}`
       : top.type === 'section'
         ? `section:${top.key}`
-        : `create:${top.section}`
+        : top.type === 'kb-node'
+          ? `kb-node:${top.nodeId}`
+          : `create:${top.section}`
     : ''
 
   useEffect(() => {

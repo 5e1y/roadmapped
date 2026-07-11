@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { zoomAt, fitTransform, clampPan, clampScale, ZOOM_MIN, ZOOM_MAX } from './useZoomPan'
+import { zoomAt, fitTransform, boxTransform, clampPan, clampScale, ZOOM_MIN, ZOOM_MAX } from './useZoomPan'
 
 describe('zoomAt (zoom vers le curseur)', () => {
   it('le point du contenu sous l’ancre reste fixe à l’écran', () => {
@@ -43,6 +43,25 @@ describe('fitTransform (« Ajuster »)', () => {
 
   it('dimensions dégénérées → transform neutre', () => {
     expect(fitTransform(0, 0, 800, 600)).toEqual({ scale: 1, tx: 0, ty: 0 })
+  })
+})
+
+describe('boxTransform (fit sur les résultats de recherche)', () => {
+  it('centre la boîte dans le viewport', () => {
+    // Boîte 100×100 en (200,200) → centre (250,250) ; viewport 800×600.
+    const t = boxTransform({ x: 200, y: 200, w: 100, h: 100 }, 800, 600)
+    expect(t.tx + 250 * t.scale).toBeCloseTo(400) // le centre X de la boîte tombe au centre du viewport
+    expect(t.ty + 250 * t.scale).toBeCloseTo(300)
+  })
+
+  it('PEUT grossir un petit sous-ensemble (jusqu’à ZOOM_MAX), contrairement à fit', () => {
+    const t = boxTransform({ x: 0, y: 0, w: 40, h: 40 }, 800, 600)
+    expect(t.scale).toBeGreaterThan(1)
+    expect(t.scale).toBeLessThanOrEqual(ZOOM_MAX)
+  })
+
+  it('boîte dégénérée → transform neutre', () => {
+    expect(boxTransform({ x: 0, y: 0, w: 0, h: 0 }, 800, 600)).toEqual({ scale: 1, tx: 0, ty: 0 })
   })
 })
 
