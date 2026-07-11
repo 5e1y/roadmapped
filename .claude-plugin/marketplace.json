@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "roadmapped",
+  "description": "Roadmapped — file-driven project management for AI agents, distributed straight from GitHub.",
+  "owner": {
+    "name": "Rémi Courtillon",
+    "url": "https://github.com/5e1y"
+  },
+  "plugins": [
+    {
+      "name": "roadmapped",
+      "source": "./",
+      "description": "File-driven project management for AI agents — every repo change becomes one tracked unit in flat YAML, driven by a CLI + MCP. Setup bootstraps the full stack from GitHub (github-only, no npm).",
+      "category": "productivity"
+    }
+  ]
+}
