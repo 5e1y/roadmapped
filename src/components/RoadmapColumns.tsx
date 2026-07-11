@@ -41,7 +41,7 @@ function TaskCard({ task, state, missing, blocksCount = 0 }: { task: TaskNode; s
   // les disponibles n'ont PLUS de contour fort (décision Rémi batch 2).
   const skin = isOpenInPanel
     ? 'border border-neutral-200 bg-accent-tint shadow-[inset_2px_0_0_var(--color-accent)]'
-    : 'border border-neutral-200 bg-white hover:z-10 hover:border-neutral-400'
+    : 'border border-neutral-200 bg-white transition-colors hover:z-10 hover:border-neutral-400'
   const dim = state === 'done' || state === 'locked'
   const titleCls = task.status === 'done' ? 'text-neutral-500 line-through' : dim ? 'text-neutral-500' : 'text-neutral-900'
   const subs = task.subtasks.length > 0 ? countTasksDeep(task.subtasks) : null
@@ -116,7 +116,10 @@ function Column({ section, scope, open, done, avail, blocksOf }: {
     <div className="grid row-span-4 min-w-0 grid-rows-subgrid">
       {/* Rangée titre collante : le contexte (titre + compteur) survit au scroll
           vertical. Le pt-5 du conteneur vit ici pour que rien ne dépasse au-dessus. */}
-      <div className="group sticky top-0 z-20 flex items-baseline justify-between gap-2 bg-neutral-50 pb-0.5 pt-5">
+      {/* bg-page (pas neutral-50) : le header colle sur la PAGE — depuis le split
+          page/neutral-50 (#269), neutral-50 est plus clair que la page en sombre
+          et dessinait une bande. En clair les deux valent ~#fafafa. */}
+      <div className="group sticky top-0 z-20 flex items-baseline justify-between gap-2 bg-page pb-0.5 pt-5">
         <span
           className={`min-w-0 truncate text-sm font-semibold tracking-tight ${empty ? 'text-neutral-500' : 'text-neutral-900'}`}
           title={section.title}

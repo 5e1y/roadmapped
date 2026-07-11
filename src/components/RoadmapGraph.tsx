@@ -276,13 +276,13 @@ function GraphCanvas({ tree, showDone }: { tree: TaskTree; showDone: boolean }) 
       {/* Contrôles de zoom (épinglés, ne défilent pas avec le graphe) */}
       <div className="absolute right-3 top-3 z-10 flex items-center overflow-hidden rounded-md border border-neutral-300 bg-white shadow-sm">
         <button type="button" onClick={() => zp.zoomBy(1 / ZOOM_STEP)} aria-label="Zoom out"
-          className="px-2.5 py-1 text-sm text-neutral-600 hover:bg-neutral-100">−</button>
+          className="px-2.5 py-1 text-sm text-neutral-600 transition-colors hover:bg-neutral-100">−</button>
         <button type="button" onClick={zp.fit}
-          className="border-l border-neutral-200 px-2.5 py-1 text-xs text-neutral-600 hover:bg-neutral-100">Fit</button>
+          className="border-l border-neutral-200 px-2.5 py-1 text-xs text-neutral-600 transition-colors hover:bg-neutral-100">Fit</button>
         <button type="button" onClick={zp.reset} aria-label="Reset zoom to 100%"
-          className="border-l border-neutral-200 px-2.5 py-1 text-xs text-neutral-600 hover:bg-neutral-100">100 %</button>
+          className="border-l border-neutral-200 px-2.5 py-1 text-xs text-neutral-600 transition-colors hover:bg-neutral-100">100 %</button>
         <button type="button" onClick={() => zp.zoomBy(ZOOM_STEP)} aria-label="Zoom in"
-          className="border-l border-neutral-200 px-2.5 py-1 text-sm text-neutral-600 hover:bg-neutral-100">+</button>
+          className="border-l border-neutral-200 px-2.5 py-1 text-sm text-neutral-600 transition-colors hover:bg-neutral-100">+</button>
       </div>
 
       {/* Viewport : overflow-hidden, drag = pan (le pointerdown sur une carte
@@ -382,7 +382,7 @@ function GraphCard({ model, task, pos, dimmed, focused, onHoverChange }: NodeChr
     ? 'border border-neutral-200 bg-accent-tint shadow-[inset_2px_0_0_var(--color-accent)]'
     : focused
       ? 'border border-neutral-900 bg-white'
-      : 'border border-neutral-200 bg-white hover:border-neutral-400'
+      : 'border border-neutral-200 bg-white transition-colors hover:border-neutral-400'
   const dim = state === 'done' || state === 'locked'
   const titleCls = task.status === 'done' ? 'text-neutral-500 line-through' : dim ? 'text-neutral-500' : 'text-neutral-900'
   return (
@@ -456,7 +456,7 @@ function EpicGraphNode({ epic, pos, avail, dimmed, focused, onHoverChange }: Nod
   const pct = progress.total === 0 ? 0 : Math.round((progress.done / progress.total) * 100)
   return (
     <div
-      className={`absolute border bg-white ${focused ? 'border-neutral-900' : 'border-neutral-200 hover:border-neutral-400'}`}
+      className={`absolute border bg-white transition-colors ${focused ? 'border-neutral-900' : 'border-neutral-200 hover:border-neutral-400'}`}
       style={{ left: pos.x, top: pos.y, width: pos.w }}
       onPointerEnter={() => onHoverChange(true)}
       onPointerLeave={() => onHoverChange(false)}
