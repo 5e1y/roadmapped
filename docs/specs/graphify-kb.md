@@ -368,8 +368,13 @@ liage inverse → puis l'install Python (le plus risqué, une fois la valeur pro
 
 ## 9. Décisions qui restent à Rémi
 
-1. **Git** : `graphify-out/` entièrement gitignoré (reco), ou committer
-   `graph.json` seul (KB partagée post-clone, diffs lourds assumés) ?
+1. **Git** : ~~gitignoré ?~~ **TRANCHÉ (Rémi, 2026-07-11) : on COMMITE le graphe.**
+   `graph.json` est de la donnée versionnée (comme `dist/`) → visible post-clone,
+   diffs lourds assumés. Raison : Roadmapped est open source ET se dogfoode
+   lui-même, donc tout part sur GitHub de toute façon ; la KB du repo est un
+   démo vivant. Conséquence : l'étape init N'AJOUTE PAS `graphify-out/` au
+   `.gitignore` (au plus le wiki/report `.md` volumineux, à confirmer). Défaut
+   app = committable ; un user privé reste libre de gitignorer chez lui.
 2. **Environnement Python** : imposer un ordre (uv → pipx → venv, reco) ou forcer
    un seul mécanisme ? Accepte-t-on d'écrire `pythonBin` dans la config si venv ?
 3. **Consentement génération** : prompt TTY à l'init (reco) suffit, ou opt-out
