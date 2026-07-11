@@ -1,0 +1,63 @@
+id: 304
+code: null
+title: >-
+  KB slice 1 : viewer knowledge base (sous-onglet Docs) + liage tickets⇄graphe (kbLink + voisinage
+  TaskPanel)
+status: done
+tags:
+  - kb
+  - graphify
+  - feature
+size: null
+heat: 82
+detail: >-
+  Phase 1 de la spec docs/specs/graphify-kb.md (intégration profonde Graphify). Livrable, SANS
+  toucher à l'install/Python : (1) src/server/kb.ts (lit + normalise graphify-out/graph.json
+  node-link NetworkX, chemin config kbGraph) + route GET /api/kb ; (2) src/lib/kbLayout.ts
+  (force-directed maison, précédent layoutTagGraph) + src/components/KbGraph.tsx (SVG façon
+  TagGraph, useZoomPan réutilisé, taille ∝ degré, arêtes INFERRED pointillées) ; (3) toggle «
+  Documents / Knowledge base » dans DocsView, calqué ligne à ligne sur le segmented Columns/Graph de
+  RoadmapView (state session, non persisté) ; (4) empty state pédagogique si graph.json absent ; (5)
+  src/lib/kbLink.ts (pur, testé) : join refs⇄source_file → voisinage KB d'un ticket + index inverse,
+  ZÉRO champ YAML, schéma intact ; (6) section « Connected in the knowledge base » dans TaskPanel
+  (clic code→reveal, doc→OPEN_DOC_EVENT). Tester sur une fixture graph.json réaliste (le vrai graphe
+  généré = étape suivante consentie). Décision Rémi : on COMMITE le graphe (pas de gitignore). tsc
+  clean + vitest vert (dont test kbLink).
+refs:
+  - docs/specs/graphify-kb.md
+  - src/components/RoadmapView.tsx
+  - src/components/DocsView.tsx
+  - src/components/TaskPanel.tsx
+  - src/components/TagGraph.tsx
+links: []
+dependsOn: []
+epic: knowledge-base
+source: ai
+createdAt: "2026-07-11T18:47:17"
+startedAt: "2026-07-11T18:47:24"
+updatedAt: "2026-07-11T19:02:55"
+completedAt: "2026-07-11T19:02:55"
+commit: 293be99
+outcome: >-
+  KB slice 1 livrée (Fable, code de prod, relu). Le dashboard LIT le graphe, l'agent génère
+  (install/Python = phase 3, pas touché). Créés : src/server/kb.ts (read+normalize défensif du
+  node-link) +kb.test.ts (8), route GET /api/kb dans api.ts ; src/lib/kbLayout.ts (force-directed
+  pur déterministe, radius ∝ √degré) +test (4) ; src/lib/kbLink.ts (PUR : join refs⇄source_file →
+  voisinage KB d'un ticket + index inverse nœud→tickets, dérivé, zéro champ YAML) +test (7) ;
+  src/components/KbGraph.tsx (SVG façon TagGraph, useZoomPan réutilisé, arêtes INFERRED/AMBIGUOUS
+  pointillées, hover→voisinage, garde >1500 nœuds) ; KbView.tsx (états loading/error 422/empty +
+  empty state pédagogique + stats) ; src/state/useKbGraph.ts (hook GET /api/kb) ; fixture
+  src/lib/__fixtures__/kbGraph.sample.json (14 nœuds, vrais chemins). Modifiés : paths.ts (clé
+  config kbGraph, défaut graphify-out/graph.json), api.ts (+action getKb), DocsView.tsx (toggle «
+  Documents / Knowledge base » calqué ligne à ligne sur RoadmapView, state session), TaskPanel.tsx
+  (section « Connected in the knowledge base », code→reveal via root du payload,
+  doc→OPEN_DOC_EVENT). Communauté = réservée filtre phase 2 (pas couleur, DA respectée). Aucun
+  changement schéma/validation/install/scripts. Placement (b) sous-onglet Docs. Décision Rémi : on
+  commite le vrai graphe (pas de gitignore).
+verification: >-
+  npx tsc --noEmit exit 0 ; npx vitest run 33 fichiers / 463 tests verts (dont les 19 nouveaux
+  kb/kbLayout/kbLink). git status : uniquement des fichiers src/ attendus, rien côté
+  schéma/install/scripts. Échantillon posé en graphify-out/graph.json (local, non committé) pour
+  preview. NON vérifié par moi (pas de navigateur) : le rendu visuel du graphe + le toggle en vrai —
+  à valider par Rémi dans son dev server.
+release: null
