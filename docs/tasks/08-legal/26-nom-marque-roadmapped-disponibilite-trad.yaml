@@ -1,7 +1,7 @@
 id: 221
 code: null
 title: "Nom & marque « Roadmapped » : disponibilité (trademark, org GitHub/npm, domaine)"
-status: todo
+status: in_progress
 tags:
   - owner-remi
   - legal
@@ -17,9 +17,43 @@ dependsOn: []
 epic: legal-readiness
 source: ai
 createdAt: "2026-07-09T13:55:29"
-updatedAt: "2026-07-09T13:55:29"
+startedAt: "2026-07-11T12:38:09"
+updatedAt: "2026-07-11T12:39:55"
 completedAt: null
 commit: null
 outcome: null
 verification: null
 release: null
+feedback:
+  - date: "2026-07-11T12:39:55"
+    author: claude
+    text: >-
+      BILAN DISPONIBILITÉ « Roadmapped » (recherche 2026-07-11, vérifiable) :
+
+      • npm `roadmapped` : LIBRE (registry.npmjs.org → 404).
+
+      • GitHub org `roadmapped` : LIBRE (api.github.com/users/roadmapped → 404 ; on utilise `5e1y`
+      aujourd'hui).
+
+      • roadmapped.dev : À NOUS (Cloudflare, domaine actif depuis migration #288).
+
+      • roadmapped.work : À NOUS (Cloudflare, créé 2026-07-07, abandonné au profit de .dev).
+
+      • roadmapped.com : TIERS (créé 2015-10, registrar Annulet LLC, exp. 2026-10-03).
+
+      • roadmapped.ai : TIERS (NameCheap, exp. 2026-07-13 — dans 2 jours, pourrait tomber, à
+      surveiller).
+
+      • roadmapped.io : LIBRE. • roadmapped.co : LIBRE.
+
+      • roadmapped.app : indéterminé (pas de A record, whois .app restreint — vérifier chez un
+      registrar).
+
+      • Trademark « Roadmapped » : AUCUN enregistrement trouvé (USPTO, Justia, Trademarkia, EUIPO).
+      Signal préliminaire favorable MAIS ce n'est PAS une clearance formelle — un vrai search
+      classes Nice 9 (logiciel) + 42 (SaaS) s'impose avant tout dépôt.
+
+      DÉCISIONS RESTANTES (owner-remi) : réserver npm + org GitHub `roadmapped` (défensif,
+      gratuit/quasi) ; décider .io/.co en défensif ; clearance trademark formelle + dépôt éventuel.
+      Aucun blocage rédhibitoire identifié.
+    resolved: false
