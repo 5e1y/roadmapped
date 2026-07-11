@@ -354,6 +354,14 @@ function report(res, successMessage) {
   return res
 }
 
+// #291 — confirmation d'une mutation : `#N "titre"`, jamais l'id nu. Un id sans
+// titre est illisible et masque une cible erronée (post-mortem 2026-07-11 : un
+// `start` sur le mauvais id a réussi silencieusement, aucun titre pour le trahir).
+function labelOf(tree, id) {
+  const hit = findTask(tree, id)
+  return hit ? `#${id} "${hit.task.title}"` : `#${id}`
+}
+
 /**
  * `--type`/`--section`/`--stage` désignent tous LA nature (= le dossier de section).
  * `--type` est le mot du modèle ; les deux autres restent des alias rétrocompat.
@@ -464,7 +472,14 @@ function cmdQuick(flags, positional) {
 }
 
 function cmdStart(id) {
-  report(startTask(ROOT, id), `#${id} started (in_progress).`)
+  // #291 : statut AVANT mutation — rouvrir une tâche done est légitime (flow feedback),
+  // mais le faire en silence masque un start sur la mauvaise cible (post-mortem).
+  const before = findTask(readTree(ROOT), id)
+  const res = report(startTask(ROOT, id), null)
+  console.log(`${labelOf(res.tree, id)} → in_progress.`)
+  if (before?.task.status === 'done') {
+    console.error(`⚠ was done${before.task.completedAt ? ` since ${before.task.completedAt}` : ''} — reopening.`)
+  }
 }
 
 /**
@@ -522,8 +537,9 @@ function cmdDone(id, flags) {
       release: typeof flags.release === 'string' ? flags.release : undefined,
       resolveFeedback,
     }),
-    `#${id} done.${commit && typeof flags.commit !== 'string' ? ` commit=${commit} (HEAD).` : ''}`,
+    null,
   )
+  console.log(`${labelOf(res.tree, id)} done.${commit && typeof flags.commit !== 'string' ? ` commit=${commit} (HEAD).` : ''}`)
   // Non-blocking warnings (e.g. task delivered with no refs) → stderr, success preserved.
   if (res.ok && res.warnings) for (const w of res.warnings) console.error(`⚠ ${w}`)
   // --suggest-refs: lists the diff for CONFIRMATION, never applied (spec caution).
@@ -560,7 +576,8 @@ function cmdUpdate(id, flags) {
   if (typeof flags['depends-on'] === 'string') patch.dependsOn = parseDeps(flags['depends-on'], CMD_USAGE.update)
   const epic = epicFromFlags(flags)
   if (typeof epic === 'string') patch.epic = nullable(epic)
-  report(updateTask(ROOT, id, patch), `#${id} updated.`)
+  const res = report(updateTask(ROOT, id, patch), null)
+  console.log(`${labelOf(res.tree, id)} updated.`)
 }
 
 // Garde pre-commit (#100, spec 2026-07-08-process-enforcement) : tout changement du

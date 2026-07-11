@@ -15,7 +15,7 @@ Flat YAML/markdown files under `docs/tasks/` are the ONLY source of truth (no pa
 
 **Feedback vs quick (#149) — the same-scope exception.** A note on a task that isn't a change yet → `feedback <id> "…"` (captured, no ticket). When you ACT on it: SAME scope (finishing the same thing) → **reopen** the task (`start <id>`) and re-`done` with a new commit — git keeps every commit, the task carries the journal, no twin ticket. NEW scope (a different concern) → a `quick`, as always. `sitrep` flags done tasks with open feedback.
 
-1. Does this change even deserve to exist? If not, create nothing.
+1. Does this change even deserve to exist? If not, create nothing. **Then, before `add`/`quick`, check no open ticket already covers this scope** — one `list --type <t> --status todo` (or `next --type <t>`) is enough. This is a self-contained CLI call (allowed below), NOT a priority recompute (forbidden) — dont conflate the two uses of "reading the backlog".
 2. Isolated fix, size S, nothing to decide? → `quick "<title>"` (the rapid title-only way to create a task).
 3. Otherwise, does a single task with full context suffice? → `add`, normal cycle.
 4. Otherwise (multi-task, architecture calls to make): spec first, THEN the tasks (`references/planning.md`).
@@ -69,7 +69,7 @@ Anchoring a ref (opt-in): `file#symbol` (robust, resolved by grep at serve time)
 
 ## Golden anti-token rule
 
-For `sitrep`/`take`/`brief`/`next`/`quick`/`add`/`start`/`done`: open NO reference — the CLI is self-contained (`--help` and error messages guide you). Consume the queue served by `next`/`take` as-is, never RECOMPUTE priority by re-reading the backlog.
+For `sitrep`/`take`/`brief`/`next`/`quick`/`add`/`start`/`done`: open NO reference — the CLI is self-contained (`--help` and error messages guide you). Consume the queue served by `next`/`take` as-is, never RECOMPUTE priority by re-reading the backlog. (This bans recomputing PRIORITY by hand — it does NOT ban the dedup check of ladder step 1: a `list`/`next` to confirm no existing ticket covers a scope is required, not forbidden.)
 
 ## Forbidden
 

@@ -1,0 +1,28 @@
+id: 291
+code: null
+title: >-
+  CLI: garde-fous anti-erreur d'agent (titre dans start/done/update, warning start-on-done) + étape
+  anti-doublon dans le skill
+status: in_progress
+tags: []
+size: S
+heat: 65
+detail: >-
+  Suite post-mortem 2026-07-11 (agent sonnet: doublon #290/#239 + start 157 destructeur). 3 fixes
+  fort impact: (1) start/done/update affichent le titre de la tâche dans leur confirmation (#N
+  "titre" -> statut), pas juste id+statut — le seul fix qui aurait évité l'échec 2; (2) start sur
+  une tâche déjà done émet un warning visible avant réouverture; (3) SKILL.md: étape anti-doublon
+  obligatoire avant add/quick, distinguée de la Golden anti-token rule.
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-11T08:53:34"
+startedAt: "2026-07-11T08:53:40"
+updatedAt: "2026-07-11T08:55:39"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
