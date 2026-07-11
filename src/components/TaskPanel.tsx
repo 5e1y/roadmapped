@@ -19,8 +19,9 @@ import {
 import { Markdown } from './Markdown'
 import { OPEN_DOC_EVENT } from '../lib/events'
 import { markTaskSeen } from '../state/seenTasks'
-import { useKbGraph } from '../state/useKbGraph'
+import { useKb } from '../state/KbContext'
 import { buildKbLinkIndex } from '../lib/kbLink'
+import { openKbNodeSource } from './kbSource'
 import type { KbNode } from '../server/kb'
 import type { TaskNode, TaskTree } from '../lib/tasks'
 import { TYPES } from '../lib/tasks'
@@ -241,32 +242,17 @@ function RefLine({ refPath, onRemove }: { refPath: string; onRemove?: () => void
  */
 function KbConnections({ tree, taskId }: { tree: TaskTree; taskId: number }) {
   const { close } = usePanel()
-  const { graph, root } = useKbGraph()
+  const { graph, root } = useKb()
   const hood = useMemo(
     () => (graph ? buildKbLinkIndex(tree, graph.nodes, graph.edges).neighborhoodOf(taskId) : null),
     [graph, tree, taskId],
   )
   if (!hood || (hood.direct.length === 0 && hood.neighbors.length === 0)) return null
 
-  const openNode = (n: KbNode) => {
-    if (!n.sourceFile) return
-    if (n.fileType === 'document' && n.sourceFile.startsWith('docs/') && n.sourceFile.endsWith('.md')) {
-      window.dispatchEvent(new CustomEvent(OPEN_DOC_EVENT, { detail: n.sourceFile.replace(/^docs\//, '') }))
-      close()
-      return
-    }
-    if (!root) return
-    // reveal OS best-effort (chemin absolu sous le HOME, validé côté serveur).
-    void fetch('/api/reveal', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ path: `${root}/${n.sourceFile}` }),
-    }).catch(() => { /* reveal indisponible : sans effet, pas d'erreur bloquante */ })
-  }
-
   const Row = ({ n }: { n: KbNode }) => (
     <button
       type="button"
-      onClick={() => openNode(n)}
+      onClick={() => openKbNodeSource(n, root, close)}
       disabled={!n.sourceFile}
       title={n.sourceFile ?? n.label}
       className="group flex w-full items-center gap-2 px-1.5 py-1 text-left text-sm hover:bg-neutral-100 disabled:cursor-default disabled:hover:bg-transparent"

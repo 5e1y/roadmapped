@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react'
 import { TreeProvider, useTree } from './state/TreeContext'
 import { PanelProvider, usePanel } from './state/PanelContext'
 import { ViewProvider, type View } from './state/ViewContext'
+import { KbProvider } from './state/KbContext'
 import { SidePanel } from './components/SidePanel'
 import { Backlog } from './components/Backlog'
 import { TaskPanel } from './components/TaskPanel'
+import { KbNodePanel } from './components/KbNodePanel'
 import { CreateTaskPanel, SectionPanel } from './components/SectionPanel'
 import { RoadmapView } from './components/RoadmapView'
 import { DocsView } from './components/DocsView'
@@ -39,6 +41,13 @@ function PanelHost() {
     return (
       <SidePanel title="New task" onClose={close}>
         <CreateTaskPanel key={target.section} section={target.section} />
+      </SidePanel>
+    )
+  }
+  if (target.kind === 'kb-node') {
+    return (
+      <SidePanel title="Knowledge node" onClose={close}>
+        <KbNodePanel key={target.nodeId} nodeId={target.nodeId} />
       </SidePanel>
     )
   }
@@ -123,9 +132,11 @@ export default function App() {
             ouverture) vit au-dessus de Shell — il survit aux remontages de
             ViewHeader (une instance par vue). Le déclencheur, lui, est rendu
             par ViewHeader (LiveActivityMenu). */}
-        <LiveActivityProvider>
-          <Shell />
-        </LiveActivityProvider>
+        <KbProvider>
+          <LiveActivityProvider>
+            <Shell />
+          </LiveActivityProvider>
+        </KbProvider>
       </PanelProvider>
     </TreeProvider>
   )

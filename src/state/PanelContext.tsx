@@ -8,6 +8,7 @@ export type PanelEntry =
   | { type: 'task'; id: number }
   | { type: 'create-task'; section: string }
   | { type: 'section'; key: string }
+  | { type: 'kb-node'; nodeId: string }
 
 /**
  * Cible courante « à plat » (le sommet de la pile), discriminée par `kind`.
@@ -17,6 +18,7 @@ export type PanelTarget =
   | { kind: 'task'; id: number }
   | { kind: 'create-task'; section: string }
   | { kind: 'section'; dir: string }
+  | { kind: 'kb-node'; nodeId: string }
   | null
 
 export interface PanelState {
@@ -29,6 +31,8 @@ export interface PanelState {
   openTask: (id: number) => void
   openCreateTask: (section: string) => void
   openSection: (key: string) => void
+  /** Ouvre l'inspecteur d'un nœud de la Knowledge base (#kb). */
+  openKbNode: (nodeId: string) => void
   /** Dépile un cran ; si la pile n'en a qu'un, ferme le panneau. */
   back: () => void
   /** Vide la pile (ferme le panneau). */
@@ -41,6 +45,7 @@ function sameEntry(a: PanelEntry, b: PanelEntry): boolean {
   if (a.type === 'task' && b.type === 'task') return a.id === b.id
   if (a.type === 'section' && b.type === 'section') return a.key === b.key
   if (a.type === 'create-task' && b.type === 'create-task') return a.section === b.section
+  if (a.type === 'kb-node' && b.type === 'kb-node') return a.nodeId === b.nodeId
   return false
 }
 
@@ -48,6 +53,7 @@ function toTarget(top: PanelEntry | null): PanelTarget {
   if (top === null) return null
   if (top.type === 'task') return { kind: 'task', id: top.id }
   if (top.type === 'create-task') return { kind: 'create-task', section: top.section }
+  if (top.type === 'kb-node') return { kind: 'kb-node', nodeId: top.nodeId }
   return { kind: 'section', dir: top.key }
 }
 
@@ -67,13 +73,14 @@ export function PanelProvider({ children }: { children: ReactNode }) {
   const openTask = useCallback((id: number) => push({ type: 'task', id }), [push])
   const openCreateTask = useCallback((section: string) => push({ type: 'create-task', section }), [push])
   const openSection = useCallback((key: string) => push({ type: 'section', key }), [push])
+  const openKbNode = useCallback((nodeId: string) => push({ type: 'kb-node', nodeId }), [push])
   const back = useCallback(() => setStack((prev) => (prev.length <= 1 ? [] : prev.slice(0, -1))), [])
   const close = useCallback(() => setStack([]), [])
 
   const value = useMemo<PanelState>(() => {
     const top = stack.length ? stack[stack.length - 1] : null
-    return { stack, top, target: toTarget(top), openTask, openCreateTask, openSection, back, close }
-  }, [stack, openTask, openCreateTask, openSection, back, close])
+    return { stack, top, target: toTarget(top), openTask, openCreateTask, openSection, openKbNode, back, close }
+  }, [stack, openTask, openCreateTask, openSection, openKbNode, back, close])
 
   return <PanelContext.Provider value={value}>{children}</PanelContext.Provider>
 }
