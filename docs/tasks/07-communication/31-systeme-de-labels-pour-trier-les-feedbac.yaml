@@ -1,7 +1,7 @@
 id: 226
 code: null
 title: Système de labels pour trier les feedbacks (bug/feature/question/priorité)
-status: todo
+status: done
 tags:
   - support
   - publish
@@ -17,9 +17,18 @@ dependsOn: []
 epic: community-github
 source: ai
 createdAt: "2026-07-09T13:55:51"
-updatedAt: "2026-07-09T13:55:51"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+startedAt: "2026-07-11T12:57:04"
+updatedAt: "2026-07-11T12:57:31"
+completedAt: "2026-07-11T12:57:31"
+commit: 1e04ec1
+outcome: >-
+  Labels de tri des feedbacks posés sur 5e1y/roadmapped via gh. Constat : les types demandés
+  existaient déjà en défaut GitHub (bug, question, enhancement=feature idiomatique, documentation,
+  good first issue, help wanted). Gap réel = l'axe PRIORITÉ + un tag feedback. Ajoutés : `priority:
+  high` (b60205), `priority: medium` (fbca04), `priority: low` (0e8a16), `feedback` (c5def5, pour
+  les retours issus des Discussions). Minimal et additif — aucun label existant modifié/supprimé.
+  Réversible (gh label delete).
+verification: >-
+  gh label list --repo 5e1y/roadmapped : les 4 nouveaux labels présents et corrects
+  (nom/couleur/description vérifiés dans la sortie).
 release: null
