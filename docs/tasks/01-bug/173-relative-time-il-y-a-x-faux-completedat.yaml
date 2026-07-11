@@ -1,0 +1,35 @@
+id: 292
+code: null
+title: "Relative-time « il y a X » faux : completedAt stocké en date seule (fix incomplet de #84)"
+status: in_progress
+tags: []
+size: null
+heat: 80
+detail: >-
+  Cause racine (agent, repro TZ Paris) : completedAt est stampé par today() (date seule
+  '2026-07-11') alors que createdAt/startedAt/updatedAt utilisent now() (datetime local). Le helper
+  relativeTime ancre une date seule à minuit local (fix #232) mais sans heure -> 'completed X ago'
+  décalé du nb d'heures depuis minuit, Math.round bascule d'un jour. Ex: tâche bouclée il y a 2 min
+  -> '10 hours ago'. Fix incomplet de #84 qui n'a porté QUE createdAt en datetime. Deux edits: (1)
+  taskWrites.ts:457 et :524 today()->now() (précision forward). (2) relativeTime.ts: pour une DATE
+  SEULE, borner la granularité au JOUR (diff en jours calendaires locaux: 0 -> 'today', sinon
+  day/week/month/year) — exprimer une date seule en heures invente une précision qu'elle n'a pas. Ça
+  corrige AUSSI les ~342 valeurs legacy date-seule (82 createdAt + 260 completedAt) sans fabriquer
+  d'heures (supersede la 'micro-migration'). MAJ relativeTime.test.ts (comportement date-seule
+  change).
+refs:
+  - src/lib/taskWrites.ts
+  - src/lib/relativeTime.ts
+  - src/lib/relativeTime.test.ts
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-11T09:39:27"
+startedAt: "2026-07-11T09:39:31"
+updatedAt: "2026-07-11T09:39:31"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

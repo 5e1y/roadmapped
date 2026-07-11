@@ -454,7 +454,10 @@ function doneTaskImpl(tasksDir: string, id: number, opts: DoneOpts): MutationRes
   }
   const res = patchActive(tasksDir, id, (raw) => {
     raw.status = 'done'
-    raw.completedAt = today()
+    // #292 : datetime local (comme createdAt/startedAt), pas date seule — sinon
+    // relativeTime ne peut afficher que le jour (« completed today » au lieu de
+    // « 2 hours ago »). #84 avait porté createdAt en datetime mais oublié celui-ci.
+    raw.completedAt = now()
     if (typeof opts.commit === 'string') raw.commit = opts.commit
     if (typeof opts.outcome === 'string') raw.outcome = opts.outcome
     if (typeof opts.verification === 'string') raw.verification = opts.verification
@@ -521,7 +524,7 @@ function updateTaskImpl(tasksDir: string, id: number, patch: UpdateTaskPatch): M
     // de livraison), un retour en arrière la retire — sauf si l'appelant a
     // fourni completedAt explicitement.
     if (patch.completedAt === undefined && patch.status !== undefined && patch.status !== prevStatus) {
-      if (patch.status === 'done' && raw.completedAt == null) raw.completedAt = today()
+      if (patch.status === 'done' && raw.completedAt == null) raw.completedAt = now() // #292 datetime, cf. doneTask
       else if (patch.status !== 'done') raw.completedAt = null
     }
   })
