@@ -1,7 +1,7 @@
 id: 295
 code: null
 title: "Bouton Update in-app : clic = force update + restart (au lieu de copier la commande)"
-status: in_progress
+status: done
 tags: []
 size: null
 heat: 80
@@ -28,9 +28,16 @@ epic: null
 source: ai
 createdAt: "2026-07-11T10:36:01"
 startedAt: "2026-07-11T10:36:05"
-updatedAt: "2026-07-11T10:36:05"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+updatedAt: "2026-07-11T10:40:02"
+completedAt: "2026-07-11T10:40:02"
+commit: 2f2b74c
+outcome: >-
+  Le bouton Update du header exécute la MAJ au clic (POST /api/update → npm install github + upgrade
+  + relance dashboard) et recharge la page quand le serveur revient. Fallback commande manuelle si
+  échec. Garde-fou : 409 en clone de dev/à jour/offline.
+verification: >-
+  tsc clean, vitest 443/443, npm run build OK, dist committé. Test live : dashboard jetable sur
+  :5199, POST /api/update → HTTP 409 {ok:false} (self-host protégé, aucun restart ni npm install),
+  serveur resté up. LIMITE : le flux complet click→install→restart→reload non exerçable en self-host
+  (409 par design) — à valider sur un repo consommateur après push.
 release: null
