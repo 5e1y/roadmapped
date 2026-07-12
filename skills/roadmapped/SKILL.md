@@ -45,13 +45,13 @@ There's no "do this column first" and no "epics in priority order" (an epic is a
 
 ## The cycle
 
-`sitrep` (the state of the world in 1 call — THE 1st move of a session) → `take [--type t]` (claims + starts + briefs in 1 call) → work (`detail` + `refs`) → verify the REAL artefact (not just the typecheck) → `done <id> --outcome "…" --verification "…"` (`--commit` auto-fills to HEAD; `--verification` is encouraged but non-blocking on every task — `--outcome` alone still closes a trivial one).
+`sitrep` (the state of the world in 1 call — THE 1st move of a session) → `take [--type t]` (claims + starts + briefs in 1 call; the brief embeds the task's **KB neighborhood** (#325) — the files and symbols its refs touch, per the knowledge graph) → orient from that map — anything still to locate goes through the graph (`kb_neighborhood`/`kb_search`, CLI `roadmapped kb …`), NOT blind grep → work (`detail` + `refs`) → verify the REAL artefact (not just the typecheck) → `done <id> --outcome "…" --verification "…"` (`--commit` auto-fills to HEAD; `--verification` is encouraged but non-blocking on every task — `--outcome` alone still closes a trivial one).
 
 Two guard mechanics to internalise: (1) a unit must be `in_progress` BEFORE you commit its work — `take`/`start`/`quick --start` first, or the commit is refused. (2) `done` mutates the task YAML, so that YAML is left uncommitted — commit it as a task-log-only follow-up (`chore: consigne — done #<id>`); the guard exempts commits that touch ONLY `docs/tasks/`.
 
-## Know what a task touches — before exploring blind
+## Graph first — locating code is a graph query, not a grep
 
-Before working a non-trivial task, read its **KB neighborhood**: the code and docs it touches — derived from its `refs` and the project's knowledge graph (built by **Graphify**, committed at `graphify-out/graph.json`). One call points you at the right files instead of grepping the repo cold. MCP: `kb_neighborhood { id }`, `kb_search { query }`, `kb_node { id }` (+ tickets touching a node). CLI: `roadmapped kb neighborhood <id>` · `kb search "<query>"` · `kb doctor`. The dashboard renders the same graph (Docs tab → Knowledge base toggle). No graph yet → the tools say so; generate it with `/graphify .`.
+The knowledge graph (built by **Graphify**, committed at `graphify-out/graph.json`) indexes the repo's code and docs; one query costs a few hundred tokens where exploratory Grep/Read costs thousands — up to ~70% of exploration tokens saved. The brief already hands you the task's neighborhood; anything beyond it ("where does X live, what touches X, which tickets hit this file") is one MCP `kb_neighborhood { id }` · `kb_search { query }` · `kb_node { id }` — CLI: `roadmapped kb neighborhood <id>` · `kb search "<query>"` · `kb node <nodeId>` · `kb doctor`. Grep/Read are for what the graph doesn't hold: exact strings, current values, the files you're about to edit. No graph yet → the tools say so; propose `/graphify .` to the user (one-time, uses sub-agents).
 
 ## Accepted debt = a `quick` tagged `debt`
 
@@ -78,7 +78,7 @@ Anchoring a ref (opt-in): `file#symbol` (robust, resolved by grep at serve time)
 
 ## Golden anti-token rule
 
-For `sitrep`/`take`/`brief`/`next`/`quick`/`add`/`start`/`done`: open NO reference — the CLI is self-contained (`--help` and error messages guide you). Consume the queue served by `next`/`take` as-is, never RECOMPUTE priority by re-reading the backlog. (This bans recomputing PRIORITY by hand — it does NOT ban the dedup check of ladder step 1: a `list`/`next` to confirm no existing ticket covers a scope is required, not forbidden.)
+For `sitrep`/`take`/`brief`/`next`/`quick`/`add`/`start`/`done`: open NO reference — the CLI is self-contained (`--help` and error messages guide you). Consume the queue served by `next`/`take` as-is, never RECOMPUTE priority by re-reading the backlog. This bans REDOING computed work by hand — recomputing priority, re-scanning the backlog — NOT the two reads that exist to save tokens: the dedup check of ladder step 1 (a `list`/`next` to confirm no ticket covers a scope — required), and querying the KB graph (`kb_*` / `roadmapped kb` — the same principle pointed at code: the index before the raw read; encouraged, that IS the economy).
 
 ## Forbidden
 
@@ -90,6 +90,7 @@ For `sitrep`/`take`/`brief`/`next`/`quick`/`add`/`start`/`done`: open NO referen
 - ❌ Reordering `_epics.yaml` to "prioritize" — epics don't order anything; use `--heat` or a dependency instead.
 - ❌ Coding anything non-trivial (rung 4) without an approved spec first.
 - ❌ Creating a parallel markdown plan file — a plan IS tasks chained by `dependsOn`.
+- ❌ Grepping/reading the codebase blind when the knowledge graph answers ("where does X live, what touches X") — query it first (`kb_*` / `roadmapped kb`); it's there for exactly that, and it's the token economy.
 
 ## Router — open a reference ONLY on this exact trigger
 
