@@ -1,45 +1,49 @@
 import { useEffect, useRef, type ReactNode } from 'react'
 import { ArrowLeft, Cross } from 'trinil-react'
-import { usePanel } from '../state/PanelContext'
 
 /**
- * Coquille du panneau latéral droit : largeur fixe 380px, fond blanc, filet à
- * gauche. Fermeture par Esc, par le ✕ de l'en-tête, ou remontée de la pile de
- * navigation par le ← / Esc.
+ * Coquille d'un panneau latéral droit : largeur fixe 380px, fond blanc, filet
+ * à gauche. Entièrement pilotée par PROPS (découplée de PanelContext, #313) :
+ * PanelHost peut en rendre DEUX côte à côte (mode double kb-node + task) sans
+ * qu'elles se marchent dessus.
  *
- * Esc en cascade, en phase de CAPTURE (on passe avant Base UI, donc le popup
- * éventuel est encore monté quand on décide) :
- *  1. un popup Base UI (Select/Combobox, role=listbox) est ouvert → on ne fait
- *     rien, Base UI le referme lui-même ;
- *  2. un champ du panneau a le focus → Esc = blur (ce qui déclenche la
- *     sauvegarde au blur) SANS remonter — la saisie n'est jamais perdue ;
- *  3. sinon → back() : dépile un cran, et ferme le panneau si la pile est à un.
- * Focus : mémorisé à l'ouverture, déplacé sur le conteneur (à l'ouverture ET à
- * chaque changement de sommet de pile, sauf si un champ autoFocus l'a déjà
- * pris), restauré au déclencheur à la fermeture.
+ * - `onClose` : le ✕ de l'en-tête.
+ * - `onBack` : le ← de l'en-tête (absent = pas de flèche).
+ * - Esc en cascade, en phase de CAPTURE (on passe avant Base UI, donc le popup
+ *   éventuel est encore monté quand on décide) :
+ *    1. un popup Base UI (Select/Combobox, role=listbox) est ouvert → on ne
+ *       fait rien, Base UI le referme lui-même ;
+ *    2. un champ DE CE panneau a le focus → Esc = blur (ce qui déclenche la
+ *       sauvegarde au blur) SANS remonter — la saisie n'est jamais perdue ;
+ *    3. le focus est dans CE panneau (#118) → `onEscape` (défaut :
+ *       onBack ?? onClose). En mode double, PanelHost passe `back` aux DEUX
+ *       panneaux : Esc vise toujours le panneau primaire (le ticket de droite).
+ * - `primary` (défaut true) : seul le panneau primaire capte le focus sur son
+ *   conteneur (à l'ouverture ET à chaque changement de `focusKey`, sauf si un
+ *   champ autoFocus l'a déjà pris). Le déclencheur d'ouverture est mémorisé au
+ *   montage et restauré au démontage (sauf s'il a disparu : isConnected, #118).
  */
 export function SidePanel({
   title,
+  focusKey,
   onClose,
+  onBack,
+  onEscape,
+  primary = true,
   children,
 }: {
   title: string
+  /** Clé stable du cran rendu : re-déclenche le focus du conteneur quand elle change. */
+  focusKey: string
   onClose: () => void
+  onBack?: () => void
+  /** Cible de l'étape 3 d'Esc. Défaut : onBack ?? onClose. */
+  onEscape?: () => void
+  primary?: boolean
   children: ReactNode
 }) {
   const asideRef = useRef<HTMLElement>(null)
-  const { stack, top, back } = usePanel()
-  const canGoBack = stack.length > 1
-  // Clé stable du sommet : re-déclenche le focus du conteneur à chaque navigation.
-  const topKey = top
-    ? top.type === 'task'
-      ? `task:${top.id}`
-      : top.type === 'section'
-        ? `section:${top.key}`
-        : top.type === 'kb-node'
-          ? `kb-node:${top.nodeId}`
-          : `create:${top.section}`
-    : ''
+  const escape = onEscape ?? onBack ?? onClose
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -57,16 +61,16 @@ export function SidePanel({
         el.blur()
         return
       }
-      // 3. Ne dépile QUE si le focus est dans le panneau (#118) : un Esc frappé
+      // 3. Ne remonte QUE si le focus est dans le panneau (#118) : un Esc frappé
       //    depuis un champ hors panneau fermait le panneau hors du champ de vision.
       if (!asideRef.current?.contains(el)) return
       e.preventDefault()
-      back()
+      escape()
     }
     // Capture : on s'exécute avant les listeners Base UI (popup encore monté).
     window.addEventListener('keydown', onKey, true)
     return () => window.removeEventListener('keydown', onKey, true)
-  }, [back])
+  }, [escape])
 
   // Mémorise le déclencheur à l'ouverture, le restaure à la fermeture — sauf s'il
   // a été démonté entre-temps (tâche supprimée : isConnected, #118).
@@ -75,13 +79,16 @@ export function SidePanel({
     return () => { if (trigger?.isConnected) trigger.focus?.() }
   }, [])
 
-  // Focus sur le conteneur à l'ouverture ET à chaque changement de sommet de
-  // pile — sauf si un champ autoFocus du contenu a déjà pris le focus.
+  // Focus sur le conteneur à l'ouverture ET à chaque changement de cran rendu
+  // (focusKey) — sauf si un champ autoFocus du contenu a déjà pris le focus.
+  // Seul le panneau PRIMAIRE capte le focus (en mode double : le ticket de
+  // droite ; puis le nœud quand il redevient seul).
   useEffect(() => {
+    if (!primary) return
     if (asideRef.current && !asideRef.current.contains(document.activeElement)) {
       asideRef.current.focus()
     }
-  }, [topKey])
+  }, [focusKey, primary])
 
   return (
     <aside
@@ -93,10 +100,10 @@ export function SidePanel({
     >
       <header className="flex h-12 shrink-0 items-center justify-between border-b border-neutral-200 px-4">
         <div className="flex min-w-0 items-center gap-2">
-          {canGoBack && (
+          {onBack && (
             <button
               type="button"
-              onClick={back}
+              onClick={onBack}
               aria-label="Back"
               className="rounded p-1 text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-700"
             >

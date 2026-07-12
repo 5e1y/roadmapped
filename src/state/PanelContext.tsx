@@ -49,6 +49,34 @@ function sameEntry(a: PanelEntry, b: PanelEntry): boolean {
   return false
 }
 
+/**
+ * Mode double (#313) : un task ouvert DEPUIS un kb-node — le cran sous le
+ * sommet est un kb-node et le sommet est un task. PanelHost rend alors DEUX
+ * panneaux côte à côte : l'inspecteur de nœud à gauche, le ticket à droite.
+ */
+export function isDualStack(stack: PanelEntry[]): boolean {
+  return (
+    stack.length >= 2 &&
+    stack[stack.length - 1].type === 'task' &&
+    stack[stack.length - 2].type === 'kb-node'
+  )
+}
+
+/**
+ * Transition de pile pour une ouverture (pure, testée) :
+ *  - pile vide → initialise ;
+ *  - cran identique au sommet → no-op (double-clic, relance) ;
+ *  - task poussé en mode double → REMPLACE le task de droite (#313), le nœud
+ *    reste à gauche — pas d'empilement en profondeur ;
+ *  - sinon → empile.
+ */
+export function pushEntry(stack: PanelEntry[], entry: PanelEntry): PanelEntry[] {
+  if (stack.length === 0) return [entry]
+  if (sameEntry(stack[stack.length - 1], entry)) return stack
+  if (entry.type === 'task' && isDualStack(stack)) return [...stack.slice(0, -1), entry]
+  return [...stack, entry]
+}
+
 function toTarget(top: PanelEntry | null): PanelTarget {
   if (top === null) return null
   if (top.type === 'task') return { kind: 'task', id: top.id }
@@ -61,13 +89,10 @@ export function PanelProvider({ children }: { children: ReactNode }) {
   const [stack, setStack] = useState<PanelEntry[]>([])
 
   // Empile le cran quand le panneau est déjà ouvert ; l'initialise sinon.
-  // No-op si le cran demandé est déjà au sommet (double-clic, relance).
+  // No-op si le cran demandé est déjà au sommet ; remplace le task de droite
+  // en mode double — toute la logique vit dans pushEntry (pure, testée).
   const push = useCallback((entry: PanelEntry) => {
-    setStack((prev) => {
-      if (prev.length === 0) return [entry]
-      if (sameEntry(prev[prev.length - 1], entry)) return prev
-      return [...prev, entry]
-    })
+    setStack((prev) => pushEntry(prev, entry))
   }, [])
 
   const openTask = useCallback((id: number) => push({ type: 'task', id }), [push])

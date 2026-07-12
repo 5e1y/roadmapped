@@ -12,7 +12,9 @@ import { KindGlyph } from './glyphs'
  * SidePanel (même pile de navigation que l'inspection de tâche). Réutilise le
  * cache KB partagé (useKb) + l'index de liage (kbLink) : label, fichier source
  * (cliquable → reveal/Docs), communauté, rationale, ET les tickets qui touchent
- * ce nœud (`ticketsOfNode`) — chacun ouvre le TaskPanel EN EMPILANT (openTask).
+ * ce nœud (`ticketsOfNode`) — chacun ouvre le TaskPanel À CÔTÉ (openTask, mode
+ * double #313) : le nœud reste à gauche, le ticket s'affiche à droite ; cliquer
+ * un autre ticket remplace celui de droite (pushEntry, PanelContext).
  */
 export function KbNodePanel({ nodeId }: { nodeId: string }) {
   const { tree } = useTree()
