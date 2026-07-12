@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { EyeOpen, EyeClosed } from 'trinil-react'
 import { useKb } from '../state/KbContext'
 import { KbGraph } from './KbGraph'
+import { KbDisplayMenu } from './KbDisplayMenu'
 import { FilterMenu } from './ViewHeader'
 import { ErrorBanner } from './ui'
 import { communityOptions, fileTypeOptions, type KbFilters } from '../lib/kbFilter'
@@ -99,6 +100,9 @@ export function KbView() {
           {hideInferred ? <EyeClosed size={12} /> : <EyeOpen size={12} />}
           inferred
         </button>
+        {/* Réglages d'affichage (#318) : params de la sim de forces, live +
+            persistés (ui:kb-graph-params) — pill accent quand customisés. */}
+        <KbDisplayMenu />
 
         <div className="ml-auto flex items-center gap-3 font-mono text-[11px] text-neutral-500">
           {stale && (

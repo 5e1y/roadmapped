@@ -17,6 +17,20 @@ import type { KbLayoutInput, KbPlaced } from './kbLayout'
  *   (~3 s à 60 fps) pour ne pas brûler le CPU ; `kick` la réchauffe (filtre),
  *   `setAlphaTarget` la maintient chaude (drag, cf. d3.drag).
  *
+ * #317 — ENTRÉE PROGRESSIVE : la sim peut démarrer avec seulement un PRÉFIXE
+ * actif des nœuds (`initialReveal`), le reste entrant par `reveal(count)`.
+ * Les nœuds pas encore entrés n'existent NI dans `placed` (donc pas dans le
+ * DOM) NI dans les forces (répulsion, ressorts, intégration bornés au
+ * préfixe) : la charge du montage monte en douceur au lieu de saturer la
+ * 1re frame. Un entrant spawne près du barycentre de ses voisins déjà entrés
+ * (cohérent avec la « génération qui s'écarte »), et chaque lot réchauffe.
+ *
+ * #318 — PARAMS INJECTÉS : `KB_SIM` = les DÉFAUTS centralisés ;
+ * `createKbSim(input, params?)` fusionne défauts + override partiel
+ * (resolveKbSimParams) et `setParams` ré-applique un override À CHAUD
+ * (re-dérive rayons/charges/ressorts, positions et vélocités intactes) —
+ * c'est le moteur du panneau « Display » de KbView.
+ *
  * La boîte de contenu est FIXE (côté ∝ √n, calculé à la création) : pas de
  * recadrage par frame — la caméra (useZoomPan/fitBox) suit la bbox des nœuds.
  * Les KbPlaced du Map `placed` sont MUTÉS en place à chaque tick : le rendu
@@ -24,53 +38,144 @@ import type { KbLayoutInput, KbPlaced } from './kbLayout'
  * mémos React qui tiennent le Map restent stables.
  */
 
-/** Parité DA avec kbLayout : tailles de pastille ∝ √degré. */
-const R_MIN = 5
-const R_MAX = 22
 /** Marge dure : les positions sont bornées dans [PAD, side−PAD]. */
 const PAD = 28
+/** Angle d'or — placements phyllotaxiques déterministes (génération, spawns). */
+const GOLDEN = 2.399963229728653
 
-export const KB_SIM = {
+/** Paramètres de la sim — tous numériques, tous overridables (#318). */
+export interface KbSimParams {
   /** Sous ce seuil (et sans alphaTarget), la sim est considérée stabilisée. */
-  ALPHA_MIN: 0.001,
-  /** Refroidissement ~180 ticks (≈3 s à 60 fps) : 1 − ALPHA_MIN^(1/180). */
-  ALPHA_DECAY: 1 - Math.pow(0.001, 1 / 180),
+  ALPHA_MIN: number
+  /** Refroidissement par tick : 1 − ALPHA_MIN^(1/ticks) (défaut ~180 ticks ≈ 3 s). */
+  ALPHA_DECAY: number
   /** Frottement : part de vélocité conservée par tick (d3 velocityDecay 0.4). */
-  VELOCITY_KEEP: 0.6,
+  VELOCITY_KEEP: number
   /** Longueur de ressort au repos (px) — resserrée par le poids de l'arête. */
-  LINK_DIST: 55,
+  LINK_DIST: number
   /** Charge répulsive par nœud : base + part ∝ rayon (les hubs poussent plus). */
+  CHARGE_BASE: number
+  CHARGE_PER_R: number
+  /** Force de centrage (× alpha) vers le milieu de la boîte. */
+  CENTER_K: number
+  /** Tolérance Barnes-Hut θ — au-delà, une région = une charge agrégée. */
+  THETA: number
+  /** Distances de coupure de la répulsion (²) : anti-singularité / portée max. */
+  DIST_MIN2: number
+  DIST_MAX2: number
+  /** Rayon de la phyllotaxie de départ (le « petit nuage » de la génération). */
+  CLUSTER_R: number
+  /** Réchauffe au morph (filtre) et à l'entrée d'un lot de reveal (#317). */
+  MORPH_ALPHA: number
+  /** alphaTarget pendant un drag (d3.drag) : la sim reste vivante sous le doigt. */
+  DRAG_TARGET: number
+  /** Parité DA avec kbLayout : tailles de pastille ∝ √degré, bornées [R_MIN, R_MAX]. */
+  R_MIN: number
+  R_MAX: number
+}
+
+/** Les DÉFAUTS centralisés (#318) — la source de vérité des réglages. */
+export const KB_SIM: Readonly<KbSimParams> = {
+  ALPHA_MIN: 0.001,
+  ALPHA_DECAY: 1 - Math.pow(0.001, 1 / 180),
+  VELOCITY_KEEP: 0.6,
+  LINK_DIST: 55,
   CHARGE_BASE: -40,
   CHARGE_PER_R: -5,
-  /** Force de centrage (× alpha) vers le milieu de la boîte. */
   CENTER_K: 0.05,
-  /** Barnes-Hut : θ² (θ = 0.9) — au-delà, une région = une charge agrégée. */
-  THETA2: 0.81,
-  /** Distances de coupure de la répulsion (²) : anti-singularité / portée max. */
+  THETA: 0.9,
   DIST_MIN2: 1,
   DIST_MAX2: 640_000, // 800 px
-  /** Rayon de la phyllotaxie de départ (le « petit nuage » de la génération). */
   CLUSTER_R: 4,
-  /** Réchauffe au morph (changement de filtre) : les nœuds se REPLACENT. */
   MORPH_ALPHA: 0.45,
-  /** alphaTarget pendant un drag (d3.drag) : la sim reste vivante sous le doigt. */
   DRAG_TARGET: 0.3,
+  R_MIN: 5,
+  R_MAX: 22,
+}
+
+/**
+ * Bornes dures des params CUSTOMISABLES (panneau Display + persistance #318) :
+ * tout ce qui vient de localStorage passe par sanitizeKbSimOverrides — un JSON
+ * trafiqué ou corrompu ne peut pas produire une sim dégénérée.
+ */
+export const KB_SIM_LIMITS = {
+  LINK_DIST: [10, 200],
+  CHARGE_BASE: [-300, 0],
+  CENTER_K: [0, 0.5],
+  VELOCITY_KEEP: [0.05, 0.98],
+  ALPHA_DECAY: [0.002, 0.3],
+  THETA: [0.3, 1.6],
+  R_MIN: [1, 16],
+  R_MAX: [8, 48],
 } as const
 
+/** Fusion défauts + override partiel — les valeurs non numériques/finies sont ignorées. */
+export function resolveKbSimParams(overrides?: Partial<KbSimParams>): KbSimParams {
+  const p: KbSimParams = { ...KB_SIM }
+  if (overrides) {
+    for (const k of Object.keys(KB_SIM) as Array<keyof KbSimParams>) {
+      const v = overrides[k]
+      if (typeof v === 'number' && Number.isFinite(v)) p[k] = v
+    }
+  }
+  return p
+}
+
+/**
+ * Désinfecte un override venu de l'EXTÉRIEUR (localStorage) : objet requis,
+ * seules les clés customisables (KB_SIM_LIMITS) passent, valeurs numériques
+ * finies uniquement, clampées aux bornes.
+ */
+export function sanitizeKbSimOverrides(raw: unknown): Partial<KbSimParams> {
+  const out: Partial<KbSimParams> = {}
+  if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) return out
+  for (const key of Object.keys(KB_SIM_LIMITS) as Array<keyof typeof KB_SIM_LIMITS>) {
+    const v = (raw as Record<string, unknown>)[key]
+    if (typeof v !== 'number' || !Number.isFinite(v)) continue
+    const [lo, hi] = KB_SIM_LIMITS[key]
+    out[key] = Math.min(hi, Math.max(lo, v))
+  }
+  return out
+}
+
+export interface KbSimOptions {
+  /**
+   * #317 — démarre avec SEULEMENT les `initialReveal` premiers nœuds actifs
+   * (préfixe de l'ordre d'input — passer par orderByDegree pour hubs d'abord),
+   * le reste entre par `reveal(count)`. Omis = tout d'emblée.
+   */
+  initialReveal?: number
+}
+
 export interface KbSim {
-  /** Positions courantes — objets MUTÉS en place à chaque tick (identités stables). */
+  /** Positions courantes — objets MUTÉS en place à chaque tick (identités stables).
+   *  #317 : ne contient QUE les nœuds déjà entrés (revealed). */
   readonly placed: Map<string, KbPlaced>
   readonly width: number
   readonly height: number
   readonly alpha: number
   /** true quand alpha < ALPHA_MIN : la boucle rAF peut s'arrêter. */
   readonly settled: boolean
+  /** #317 — nœuds déjà ENTRÉS (préfixe actif) / total du sous-graphe. */
+  readonly revealed: number
+  readonly total: number
   /** Avance la sim de `steps` ticks (défaut 1). */
   tick(steps?: number): void
   /** Réchauffe : alpha = max(alpha, a) — redémarre une sim refroidie. */
   kick(a: number): void
   /** Plancher d'alpha maintenu (drag) ; 0 = laisse refroidir. */
   setAlphaTarget(t: number): void
+  /**
+   * #317 — fait ENTRER les nœuds jusqu'à l'indice `count` (monotone, clampé au
+   * total). Un entrant spawne près du barycentre de ses voisins déjà entrés
+   * (sinon garde sa place de phyllotaxie) ; chaque lot réchauffe (MORPH_ALPHA).
+   */
+  reveal(count: number): void
+  /**
+   * #318 — remplace l'override de params À CHAUD (fusionné aux défauts) :
+   * re-dérive rayons, charges et ressorts — positions et vélocités intactes.
+   */
+  setParams(overrides?: Partial<KbSimParams>): void
   /** Épingle un nœud à (x, y) — il ne bouge plus, les voisins réagissent. */
   pin(id: string, x: number, y: number): void
   unpin(id: string): void
@@ -78,6 +183,7 @@ export interface KbSim {
    * Change le sous-graphe (filtre) : les survivants GARDENT position et
    * vélocité, les entrants apparaissent près du barycentre de leurs voisins
    * déjà placés (sinon au centre), et la sim est réchauffée (MORPH_ALPHA).
+   * Après un morph, la vue est ENTIÈREMENT révélée (reveal sans objet).
    */
   morph(input: KbLayoutInput): void
 }
@@ -151,19 +257,22 @@ function accumulate(q: Quad, x: Float64Array, y: Float64Array, strength: Float64
   if (w > 0) { q.cx = sx / w; q.cy = sy / w } else { q.cx = q.x0; q.cy = q.y0 }
 }
 
+/** Coupures de répulsion pré-dérivées des params (une fois par passe). */
+interface RepelCut { theta2: number; min2: number; max2: number }
+
 function applyQuad(
   q: Quad, i: number,
   x: Float64Array, y: Float64Array, vx: Float64Array, vy: Float64Array,
-  strength: Float64Array, alpha: number,
+  strength: Float64Array, alpha: number, cut: RepelCut,
 ): void {
   let dx = q.cx - x[i]
   let dy = q.cy - y[i]
   let d2 = dx * dx + dy * dy
   // Critère de Barnes-Hut : région assez lointaine ⇒ une seule charge agrégée.
-  if (q.size * q.size < KB_SIM.THETA2 * d2) {
-    if (d2 < KB_SIM.DIST_MAX2 && q.charge !== 0) {
+  if (q.size * q.size < cut.theta2 * d2) {
+    if (d2 < cut.max2 && q.charge !== 0) {
       if (d2 === 0) { dx = jiggle(i); dy = jiggle(i + 1); d2 = dx * dx + dy * dy }
-      if (d2 < KB_SIM.DIST_MIN2) d2 = Math.sqrt(KB_SIM.DIST_MIN2 * d2)
+      if (d2 < cut.min2) d2 = Math.sqrt(cut.min2 * d2)
       const w = (q.charge * alpha) / d2
       vx[i] += dx * w
       vy[i] += dy * w
@@ -177,21 +286,22 @@ function applyQuad(
       let ddx = x[j] - x[i]
       let ddy = y[j] - y[i]
       let l = ddx * ddx + ddy * ddy
-      if (l >= KB_SIM.DIST_MAX2) continue
+      if (l >= cut.max2) continue
       if (l === 0) { ddx = jiggle(i + j); ddy = jiggle(i - j); l = ddx * ddx + ddy * ddy }
-      if (l < KB_SIM.DIST_MIN2) l = Math.sqrt(KB_SIM.DIST_MIN2 * l)
+      if (l < cut.min2) l = Math.sqrt(cut.min2 * l)
       const w = (strength[j] * alpha) / l
       vx[i] += ddx * w
       vy[i] += ddy * w
     }
     return
   }
-  for (const kid of q.kids!) if (kid) applyQuad(kid, i, x, y, vx, vy, strength, alpha)
+  for (const kid of q.kids!) if (kid) applyQuad(kid, i, x, y, vx, vy, strength, alpha, cut)
 }
 
 /**
  * Répulsion (charge) Barnes-Hut sur `n` points — exportée SEULE pour être
- * testée contre la version naïve O(n²) (tolérance θ).
+ * testée contre la version naïve O(n²) (tolérance θ). `p` : params (#318),
+ * défauts KB_SIM si omis.
  */
 export function applyRepulsion(
   n: number,
@@ -199,6 +309,7 @@ export function applyRepulsion(
   strength: Float64Array,
   vx: Float64Array, vy: Float64Array,
   alpha: number,
+  p: Pick<KbSimParams, 'THETA' | 'DIST_MIN2' | 'DIST_MAX2'> = KB_SIM,
 ): void {
   if (n < 2) return
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
@@ -212,7 +323,8 @@ export function applyRepulsion(
   const root = makeQuad(minX, minY, size)
   for (let i = 0; i < n; i++) insert(root, i, x, y, 0)
   accumulate(root, x, y, strength)
-  for (let i = 0; i < n; i++) applyQuad(root, i, x, y, vx, vy, strength, alpha)
+  const cut: RepelCut = { theta2: p.THETA * p.THETA, min2: p.DIST_MIN2, max2: p.DIST_MAX2 }
+  for (let i = 0; i < n; i++) applyQuad(root, i, x, y, vx, vy, strength, alpha, cut)
 }
 
 /* ------------------------------------------------------------------ */
@@ -233,8 +345,27 @@ function degreesOf(input: KbLayoutInput): Map<string, number> {
   return deg
 }
 
+/**
+ * Ordre d'ENTRÉE de la génération (#317) : hubs d'abord (degré décroissant,
+ * départage par id — déterministe, jamais Math.random). Le reveal progressif
+ * active un PRÉFIXE de cet ordre : la structure (hubs) se pose d'abord, les
+ * feuilles rejoignent le réseau au fil des lots.
+ */
+export function orderByDegree(input: KbLayoutInput): KbLayoutInput {
+  const deg = degreesOf(input)
+  const nodes = [...input.nodes].sort((a, b) =>
+    (deg.get(b.id) ?? 0) - (deg.get(a.id) ?? 0) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
+  )
+  return { nodes, edges: input.edges }
+}
+
 /** Ressorts (indices, distance au repos, raideur 1/min(deg), biais par degré — d3-link). */
-function buildLinks(input: KbLayoutInput, index: Map<string, number>, deg: Map<string, number>): Link[] {
+function buildLinks(
+  input: KbLayoutInput,
+  index: Map<string, number>,
+  deg: Map<string, number>,
+  p: KbSimParams,
+): Link[] {
   const valid = input.edges.filter(
     (e) => e.source !== e.target && index.has(e.source) && index.has(e.target),
   )
@@ -247,20 +378,26 @@ function buildLinks(input: KbLayoutInput, index: Map<string, number>, deg: Map<s
     const w = e.weight ?? 1
     return {
       s, t,
-      dist: KB_SIM.LINK_DIST * (1 - 0.25 * (w / maxW)),
+      dist: p.LINK_DIST * (1 - 0.25 * (w / maxW)),
       strength: 1 / Math.min(ds, dt),
       bias: ds / (ds + dt),
     }
   })
 }
 
-export function createKbSim(input: KbLayoutInput): KbSim {
+export function createKbSim(
+  input: KbLayoutInput,
+  params?: Partial<KbSimParams>,
+  opts?: KbSimOptions,
+): KbSim {
+  let P = resolveKbSimParams(params)
   // Boîte FIXE ∝ √n (calée sur la vue de création — les morphs restent dedans).
   const side = Math.max(600, 110 * Math.sqrt(Math.max(1, input.nodes.length)))
   const cx = side / 2
   const cy = side / 2
 
   let n = 0
+  let curInput = input
   let ids: string[] = []
   let index = new Map<string, number>()
   let x = new Float64Array(0)
@@ -270,19 +407,47 @@ export function createKbSim(input: KbLayoutInput): KbSim {
   let fx = new Float64Array(0) // NaN = libre
   let fy = new Float64Array(0)
   let strength = new Float64Array(0)
+  let radii: number[] = []
+  let degArr: number[] = []
+  let maxDeg = 1
   let links: Link[] = []
   const placed = new Map<string, KbPlaced>()
 
+  // #317 — préfixe ACTIF : seuls les indices < active existent (forces,
+  // intégration, placed). Les links sont TRIÉS par extrémité max : les liens
+  // actifs (deux bouts entrés) forment toujours le préfixe [0, activeLinks).
+  let active = 0
+  let activeLinks = 0
+  let adjIdx: number[][] | null = null
+
   let alpha = 1
   let alphaTarget = 0
+
+  const sortLinks = (): void => {
+    links.sort((a, b) => Math.max(a.s, a.t) - Math.max(b.s, b.t))
+  }
+  const advanceLinks = (from: number): number => {
+    let i = from
+    while (i < links.length && Math.max(links[i].s, links[i].t) < active) i++
+    return i
+  }
+  /** Adjacence par indices, construite à la demande (spawns du reveal). */
+  const ensureAdj = (): number[][] => {
+    if (!adjIdx) {
+      adjIdx = Array.from({ length: n }, () => [] as number[])
+      for (const l of links) { adjIdx[l.s].push(l.t); adjIdx[l.t].push(l.s) }
+    }
+    return adjIdx
+  }
 
   /** (Re)construit l'état pour `input` ; `keep` = positions/vélocités héritées. */
   const build = (
     inp: KbLayoutInput,
     keep: Map<string, { x: number; y: number; vx: number; vy: number }> | null,
   ): void => {
+    curInput = inp
     const deg = degreesOf(inp)
-    const maxDeg = Math.max(1, ...deg.values())
+    maxDeg = Math.max(1, ...deg.values())
     n = inp.nodes.length
     ids = inp.nodes.map((d) => d.id)
     index = new Map(ids.map((id, i) => [id, i]))
@@ -290,15 +455,21 @@ export function createKbSim(input: KbLayoutInput): KbSim {
     vx = new Float64Array(n); vy = new Float64Array(n)
     fx = new Float64Array(n).fill(NaN); fy = new Float64Array(n).fill(NaN)
     strength = new Float64Array(n)
-    links = buildLinks(inp, index, deg)
+    links = buildLinks(inp, index, deg, P)
+    sortLinks()
+    adjIdx = null
+    active = n
+    activeLinks = links.length
 
-    const radii = new Array<number>(n)
+    radii = new Array<number>(n)
+    degArr = new Array<number>(n)
     const survivors = new Array<boolean>(n).fill(false)
     const entrants: number[] = []
     for (let i = 0; i < n; i++) {
       const d = deg.get(ids[i]) ?? 0
-      radii[i] = R_MIN + (R_MAX - R_MIN) * Math.sqrt(d / maxDeg)
-      strength[i] = KB_SIM.CHARGE_BASE + KB_SIM.CHARGE_PER_R * radii[i]
+      degArr[i] = d
+      radii[i] = P.R_MIN + (P.R_MAX - P.R_MIN) * Math.sqrt(d / maxDeg)
+      strength[i] = P.CHARGE_BASE + P.CHARGE_PER_R * radii[i]
       const prev = keep?.get(ids[i])
       if (prev) {
         x[i] = prev.x; y[i] = prev.y; vx[i] = prev.vx; vy[i] = prev.vy
@@ -307,8 +478,8 @@ export function createKbSim(input: KbLayoutInput): KbSim {
         entrants.push(i)
       } else {
         // Génération : petit nuage phyllotaxique au centre (déterministe).
-        const r0 = KB_SIM.CLUSTER_R * Math.sqrt(i + 0.5)
-        const a0 = i * 2.399963229728653 // angle d'or
+        const r0 = P.CLUSTER_R * Math.sqrt(i + 0.5)
+        const a0 = i * GOLDEN
         x[i] = cx + r0 * Math.cos(a0)
         y[i] = cy + r0 * Math.sin(a0)
       }
@@ -316,18 +487,14 @@ export function createKbSim(input: KbLayoutInput): KbSim {
 
     if (entrants.length > 0) {
       // Adjacence (indices) pour placer chaque entrant près de ses voisins survivants.
-      const adj = new Map<number, number[]>()
-      for (const l of links) {
-        let a = adj.get(l.s); if (!a) adj.set(l.s, (a = [])); a.push(l.t)
-        let b = adj.get(l.t); if (!b) adj.set(l.t, (b = [])); b.push(l.s)
-      }
+      const adj = ensureAdj()
       let e = 0
       for (const i of entrants) {
         let sx = 0, sy = 0, c = 0
-        for (const j of adj.get(i) ?? []) {
+        for (const j of adj[i]) {
           if (survivors[j]) { sx += x[j]; sy += y[j]; c++ }
         }
-        const a0 = e * 2.399963229728653
+        const a0 = e * GOLDEN
         const off = 16 + 8 * (e % 3)
         const bx = c > 0 ? sx / c : cx
         const by = c > 0 ? sy / c : cy
@@ -344,9 +511,9 @@ export function createKbSim(input: KbLayoutInput): KbSim {
       const id = ids[i]
       const p = placed.get(id)
       if (p) {
-        p.x = x[i]; p.y = y[i]; p.r = radii[i]; p.degree = deg.get(id) ?? 0
+        p.x = x[i]; p.y = y[i]; p.r = radii[i]; p.degree = degArr[i]
       } else {
-        placed.set(id, { id, x: x[i], y: y[i], r: radii[i], degree: deg.get(id) ?? 0 })
+        placed.set(id, { id, x: x[i], y: y[i], r: radii[i], degree: degArr[i] })
       }
     }
   }
@@ -354,8 +521,16 @@ export function createKbSim(input: KbLayoutInput): KbSim {
   build(input, null)
   if (n === 0) alpha = 0
 
+  // #317 — génération staggered : on RÉDUIT au préfixe initial demandé, le
+  // reste (retiré de placed → pas de DOM, pas de forces) entrera par reveal().
+  if (opts?.initialReveal !== undefined && opts.initialReveal < n) {
+    active = Math.max(0, Math.floor(opts.initialReveal))
+    for (let i = active; i < n; i++) placed.delete(ids[i])
+    activeLinks = advanceLinks(0)
+  }
+
   const syncPlaced = (): void => {
-    for (let i = 0; i < n; i++) {
+    for (let i = 0; i < active; i++) {
       const p = placed.get(ids[i])!
       p.x = x[i]
       p.y = y[i]
@@ -363,10 +538,11 @@ export function createKbSim(input: KbLayoutInput): KbSim {
   }
 
   const iterate = (): void => {
-    alpha += (alphaTarget - alpha) * KB_SIM.ALPHA_DECAY
+    alpha += (alphaTarget - alpha) * P.ALPHA_DECAY
 
     // Ressorts (d3-link : cible et source se partagent la correction par biais).
-    for (const l of links) {
+    for (let li = 0; li < activeLinks; li++) {
+      const l = links[li]
       let dx = x[l.t] + vx[l.t] - x[l.s] - vx[l.s]
       let dy = y[l.t] + vy[l.t] - y[l.s] - vy[l.s]
       if (dx === 0 && dy === 0) { dx = jiggle(l.s + l.t); dy = jiggle(l.s - l.t) }
@@ -378,14 +554,14 @@ export function createKbSim(input: KbLayoutInput): KbSim {
       vy[l.s] += dy * k * (1 - l.bias)
     }
 
-    applyRepulsion(n, x, y, strength, vx, vy, alpha)
+    applyRepulsion(active, x, y, strength, vx, vy, alpha, P)
 
     // Centrage doux + intégration (velocity Verlet à la d3).
-    const keep = KB_SIM.VELOCITY_KEEP
-    const ck = KB_SIM.CENTER_K * alpha
+    const keep = P.VELOCITY_KEEP
+    const ck = P.CENTER_K * alpha
     const lo = PAD
     const hi = side - PAD
-    for (let i = 0; i < n; i++) {
+    for (let i = 0; i < active; i++) {
       if (!Number.isNaN(fx[i])) {
         x[i] = fx[i]; y[i] = fy[i]; vx[i] = 0; vy[i] = 0
         continue
@@ -406,17 +582,57 @@ export function createKbSim(input: KbLayoutInput): KbSim {
     width: side,
     height: side,
     get alpha() { return alpha },
-    get settled() { return alpha < KB_SIM.ALPHA_MIN },
+    get settled() { return alpha < P.ALPHA_MIN },
+    get revealed() { return active },
+    get total() { return n },
     tick(steps = 1) {
       if (n === 0) { alpha = 0; return }
       for (let s = 0; s < steps; s++) {
-        if (alpha < KB_SIM.ALPHA_MIN && alphaTarget === 0) break
+        if (alpha < P.ALPHA_MIN && alphaTarget === 0) break
         iterate()
       }
       syncPlaced()
     },
     kick(a: number) { alpha = Math.max(alpha, a) },
     setAlphaTarget(t: number) { alphaTarget = t },
+    reveal(count: number) {
+      const target = Math.min(n, Math.floor(count))
+      if (target <= active) return
+      const adj = ensureAdj()
+      for (let i = active; i < target; i++) {
+        // Spawn près du barycentre de ses voisins DÉJÀ entrés (j < i : entrés à
+        // un lot précédent, ou plus tôt dans CE lot) — sinon la place de
+        // phyllotaxie posée à la génération fait foi (déterministe).
+        let sx = 0, sy = 0, c = 0
+        for (const j of adj[i]) if (j < i) { sx += x[j]; sy += y[j]; c++ }
+        if (c > 0) {
+          const a0 = i * GOLDEN
+          const off = 16 + 8 * (i % 3)
+          x[i] = sx / c + off * Math.cos(a0)
+          y[i] = sy / c + off * Math.sin(a0)
+        }
+        vx[i] = 0; vy[i] = 0
+        placed.set(ids[i], { id: ids[i], x: x[i], y: y[i], r: radii[i], degree: degArr[i] })
+      }
+      active = target
+      activeLinks = advanceLinks(activeLinks)
+      // Un lot qui entre réchauffe : les entrants doivent encore se placer.
+      alpha = Math.max(alpha, P.MORPH_ALPHA)
+    },
+    setParams(overrides?: Partial<KbSimParams>) {
+      P = resolveKbSimParams(overrides)
+      // Re-dérive TOUT ce qui dépend des params — positions/vélocités intactes.
+      for (let i = 0; i < n; i++) {
+        radii[i] = P.R_MIN + (P.R_MAX - P.R_MIN) * Math.sqrt(degArr[i] / maxDeg)
+        strength[i] = P.CHARGE_BASE + P.CHARGE_PER_R * radii[i]
+        const p = placed.get(ids[i])
+        if (p) p.r = radii[i]
+      }
+      links = buildLinks(curInput, index, new Map(ids.map((id, i) => [id, degArr[i]])), P)
+      sortLinks()
+      adjIdx = null
+      activeLinks = advanceLinks(0)
+    },
     pin(id: string, px: number, py: number) {
       const i = index.get(id)
       if (i === undefined) return
@@ -433,11 +649,13 @@ export function createKbSim(input: KbLayoutInput): KbSim {
       fy[i] = NaN
     },
     morph(inp: KbLayoutInput) {
+      // Seuls les nœuds RÉVÉLÉS survivent avec leur position — un morph pendant
+      // le reveal traite les non-entrés comme des entrants (près des voisins).
       const keep = new Map<string, { x: number; y: number; vx: number; vy: number }>()
-      for (let i = 0; i < n; i++) keep.set(ids[i], { x: x[i], y: y[i], vx: vx[i], vy: vy[i] })
+      for (let i = 0; i < active; i++) keep.set(ids[i], { x: x[i], y: y[i], vx: vx[i], vy: vy[i] })
       build(inp, keep)
       if (n === 0) { alpha = 0; return }
-      alpha = Math.max(alpha, KB_SIM.MORPH_ALPHA)
+      alpha = Math.max(alpha, P.MORPH_ALPHA)
     },
   }
 }

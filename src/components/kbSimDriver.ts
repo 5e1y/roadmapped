@@ -1,4 +1,4 @@
-import { createKbSim, KB_SIM, type KbSim } from '../lib/kbSim'
+import { createKbSim, KB_SIM, orderByDegree, type KbSim, type KbSimParams } from '../lib/kbSim'
 import { edgePaths, type KbSceneEdge } from '../lib/kbScene'
 import type { KbLayoutInput } from '../lib/kbLayout'
 
@@ -10,13 +10,30 @@ import type { KbLayoutInput } from '../lib/kbLayout'
  * React ne rend la scène qu'aux VRAIS changements (filtre, survol, recherche)
  * — jamais 869 nœuds réconciliés 60×/s (prolonge l'optim #308).
  *
+ * #317 — GÉNÉRATION STAGGERED : monter 869 <g> d'un coup + simuler tout dès la
+ * 1re frame saturait le main thread (~2 s de lag à l'ouverture). La sim démarre
+ * avec un lot initial (hubs d'abord — orderByDegree), puis la boucle fait
+ * ENTRER le reste par lots (revealTarget, cadence en ticks — déterministe) :
+ * charge DOM et forces montent en douceur sur ~1 s. `onReveal` prévient le
+ * composant qu'un lot est entré (il re-rend pour monter les nouveaux <g>).
+ *
  * La boucle s'ARRÊTE d'elle-même quand la sim est stabilisée (alpha decay) et
- * repart au drag (`beginDrag`/`dragTo`, alphaTarget façon d3.drag) ou au
- * changement de sous-graphe (`morphTo`, réchauffe). `onFrame` est le crochet
- * caméra du composant (auto-fit pendant la génération).
+ * repart au drag (`beginDrag`/`dragTo`, alphaTarget façon d3.drag), au
+ * changement de sous-graphe (`morphTo`, réchauffe) ou au tuning live
+ * (`applyParams`, #318). `onFrame` est le crochet caméra du composant
+ * (auto-fit pendant la génération).
  */
 
 const fmt = (v: number): string => String(Math.round(v * 10) / 10)
+
+/** #317 — cadence d'entrée de la génération : lot initial, puis +BATCH nœuds
+ *  tous les EVERY ticks → 869 nœuds entrés en ~57 ticks (~1 s à 60 fps). */
+const REVEAL = { INITIAL: 90, BATCH: 110, EVERY: 8 } as const
+
+/** Cible de reveal après `ticks` ticks de sim — pure, testée à part. */
+export function revealTarget(ticks: number, total: number): number {
+  return Math.min(total, REVEAL.INITIAL + Math.floor(ticks / REVEAL.EVERY) * REVEAL.BATCH)
+}
 
 type EdgeSlot = 'solid' | 'dashed' | 'focusSolid' | 'focusDashed'
 
@@ -31,14 +48,26 @@ export class KbSimDriver {
   private focus: string | null = null
   private raf = 0
   private lastT = 0
+  /** #317 — ticks de sim écoulés (cadence du reveal, indépendante du fps réel). */
+  private ticks = 0
   private disposed = false
   /** Crochet caméra (auto-fit) — posé par KbGraph, appelé après chaque frame. */
   onFrame: (() => void) | null = null
+  /** #317 — un lot de nœuds vient d'ENTRER : le composant re-rend (monte les <g>). */
+  onReveal: (() => void) | null = null
 
-  constructor(viewKey: object, input: KbLayoutInput, edges: readonly KbSceneEdge[]) {
+  constructor(
+    viewKey: object,
+    input: KbLayoutInput,
+    edges: readonly KbSceneEdge[],
+    params?: Partial<KbSimParams>,
+  ) {
     this.appliedView = viewKey
     this.edges = edges
-    this.sim = createKbSim(input)
+    // #317 — hubs d'abord (ordre déterministe) et seul le lot initial actif :
+    // le reste entre par reveal() dans la boucle. En dessous de INITIAL nœuds,
+    // tout est là dès la 1re frame (initialReveal clampe).
+    this.sim = createKbSim(orderByDegree(input), params, { initialReveal: REVEAL.INITIAL })
   }
 
   /**
@@ -109,6 +138,17 @@ export class KbSimDriver {
       // stabilisation (~3 s), pas le nombre de frames. Plafonné à 3 (onglet gelé).
       const steps = this.lastT > 0 ? Math.max(1, Math.min(3, Math.round((t - this.lastT) / 16.7))) : 1
       this.lastT = t
+      // #317 — entrée progressive : cadencée en TICKS (pas en frames) pour que
+      // la durée d'entrée (~1 s) tienne aussi à 30 fps. Reveal AVANT le tick :
+      // les entrants du lot sont intégrés puis écrits dans ce même frame.
+      if (this.sim.revealed < this.sim.total) {
+        this.ticks += steps
+        const target = revealTarget(this.ticks, this.sim.total)
+        if (target > this.sim.revealed) {
+          this.sim.reveal(target)
+          this.onReveal?.()
+        }
+      }
       this.sim.tick(steps)
       this.sync()
       this.onFrame?.()
@@ -127,6 +167,18 @@ export class KbSimDriver {
     this.disposed = true
     this.els.clear()
     this.onFrame = null
+    this.onReveal = null
+  }
+
+  /**
+   * #318 — tuning LIVE : applique un override de params à chaud (fusionné aux
+   * défauts par la sim), réchauffe (le graphe se réorganise sous le slider) et
+   * relance la boucle si elle s'était endormie.
+   */
+  applyParams(overrides: Partial<KbSimParams>): void {
+    this.sim.setParams(overrides)
+    this.sim.kick(KB_SIM.MORPH_ALPHA)
+    this.start()
   }
 
   /** Début de drag : épingle le nœud sur place, sim maintenue chaude (d3.drag). */
