@@ -22,9 +22,9 @@ beforeEach(() => {
 afterEach(() => rmSync(dir, { recursive: true, force: true }))
 
 describe('MCP — tools de lecture (#91)', () => {
-  it('expose les 14 tools (8 lecture + 6 écriture)', () => {
+  it('expose les 17 tools (8 lecture + 3 KB + 6 écriture)', () => {
     expect(tools.map((t) => t.name).sort()).toEqual(
-      ['add', 'brief', 'done', 'feedback', 'list', 'next', 'quick', 'roadmap', 'show', 'sitrep', 'start', 'take', 'update', 'validate'],
+      ['add', 'brief', 'done', 'feedback', 'kb_neighborhood', 'kb_node', 'kb_search', 'list', 'next', 'quick', 'roadmap', 'show', 'sitrep', 'start', 'take', 'update', 'validate'],
     )
   })
 

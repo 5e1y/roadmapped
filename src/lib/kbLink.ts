@@ -1,4 +1,4 @@
-import { parseRef } from './refExtract'
+import { parseRef } from './refExtract.ts'
 import type { KbNode, KbEdge } from '../server/kb'
 import type { TaskTree, TaskNode } from './tasks'
 

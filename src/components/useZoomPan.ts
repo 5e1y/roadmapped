@@ -109,12 +109,41 @@ export function useZoomPan(contentW: number, contentH: number): ZoomPan {
   content.current = { w: contentW, h: contentH }
   const drag = useRef<{ pointerId: number; x: number; y: number } | null>(null)
 
+  // Coalescence rAF (#308) : molette et pointermove peuvent tirer plusieurs
+  // événements PAR FRAME — chaque setTransform re-rendait le graphe hôte. Les
+  // deltas s'accumulent dans un ref (base = dernier pending, pas le state), un
+  // seul setState par frame. Sans rAF (jsdom) : application synchrone.
+  const transformRef = useRef(transform)
+  transformRef.current = transform
+  const pending = useRef<ZoomPanTransform | null>(null)
+  const rafId = useRef(0)
+
+  const flush = useCallback(() => {
+    rafId.current = 0
+    if (pending.current) {
+      setTransform(pending.current)
+      pending.current = null
+    }
+  }, [])
+
+  useEffect(() => () => {
+    if (rafId.current && typeof cancelAnimationFrame === 'function') cancelAnimationFrame(rafId.current)
+  }, [])
+
   const apply = useCallback((fn: (prev: ZoomPanTransform) => ZoomPanTransform) => {
-    setTransform((prev) => {
-      const el = viewportRef.current
-      const next = fn(prev)
-      return el ? clampPan(next, content.current.w, content.current.h, el.clientWidth, el.clientHeight) : next
-    })
+    const el = viewportRef.current
+    const next = fn(pending.current ?? transformRef.current)
+    pending.current = el
+      ? clampPan(next, content.current.w, content.current.h, el.clientWidth, el.clientHeight)
+      : next
+    if (typeof requestAnimationFrame !== 'function') { flush(); return }
+    if (!rafId.current) rafId.current = requestAnimationFrame(flush)
+  }, [flush])
+
+  /** Pose une transform ABSOLUE : annule tout delta en attente (fit/reset). */
+  const commit = useCallback((t: ZoomPanTransform) => {
+    pending.current = null
+    setTransform(t)
   }, [])
 
   // Molette = zoom vers le curseur. Listener NATIF non-passif : React attache
@@ -165,8 +194,8 @@ export function useZoomPan(contentW: number, contentH: number): ZoomPan {
   const fit = useCallback(() => {
     const el = viewportRef.current
     if (!el) return
-    setTransform(fitTransform(content.current.w, content.current.h, el.clientWidth, el.clientHeight))
-  }, [])
+    commit(fitTransform(content.current.w, content.current.h, el.clientWidth, el.clientHeight))
+  }, [commit])
 
   const fitBox = useCallback((box: { x: number; y: number; w: number; h: number } | null) => {
     const el = viewportRef.current
@@ -174,10 +203,10 @@ export function useZoomPan(contentW: number, contentH: number): ZoomPan {
     const t = box
       ? boxTransform(box, el.clientWidth, el.clientHeight)
       : fitTransform(content.current.w, content.current.h, el.clientWidth, el.clientHeight)
-    setTransform(clampPan(t, content.current.w, content.current.h, el.clientWidth, el.clientHeight))
-  }, [])
+    commit(clampPan(t, content.current.w, content.current.h, el.clientWidth, el.clientHeight))
+  }, [commit])
 
-  const reset = useCallback(() => setTransform({ scale: 1, tx: 0, ty: 0 }), [])
+  const reset = useCallback(() => commit({ scale: 1, tx: 0, ty: 0 }), [commit])
 
   // A11y : le viewport est focusable (tabIndex=0 côté composant) — flèches =
   // pan, + / − = zoom, 0 = réinitialiser (politique a11y du repo).

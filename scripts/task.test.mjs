@@ -44,6 +44,9 @@ function buildSandbox() {
   mkdirSync(join(sandbox, 'scripts'))
   cpSync(join(repoRoot, 'scripts', 'task.mjs'), join(sandbox, 'scripts', 'task.mjs'))
   cpSync(join(repoRoot, 'src', 'lib'), join(sandbox, 'src', 'lib'), { recursive: true })
+  // #309 : le CLI `kb` lit le graphe via src/server/kb.ts (readKbGraph) — le sandbox
+  // doit donc embarquer src/server aussi (kb.ts n'importe que node:fs).
+  cpSync(join(repoRoot, 'src', 'server'), join(sandbox, 'src', 'server'), { recursive: true })
   symlinkSync(join(repoRoot, 'node_modules'), join(sandbox, 'node_modules'))
 
   tasksDir = join(sandbox, 'tasks')

@@ -1,0 +1,74 @@
+import type { KbPlaced } from './kbLayout'
+
+/**
+ * Géométrie de SCÈNE de la Knowledge base (#308) — pur, testé à part du rendu.
+ *
+ * Le goulot du SVG à 2214 arêtes était le DOM : une <line> React par arête =
+ * 2214 éléments réconciliés à chaque survol. Ici les arêtes sont AGRÉGÉES en
+ * 2 chaînes de path (plein = EXTRACTED, pointillé = INFERRED/AMBIGUOUS) : le
+ * navigateur trace le même dessin, React ne réconcilie que 2 nœuds DOM.
+ */
+
+export interface KbSceneEdge {
+  source: string
+  target: string
+  /** EXTRACTED = trait plein ; le reste (INFERRED/AMBIGUOUS) = pointillés. */
+  confidence: string
+}
+
+const fmt = (v: number): string => String(Math.round(v * 100) / 100)
+
+/**
+ * Agrège les arêtes en 2 attributs `d` (plein / pointillé). `only` restreint
+ * aux arêtes touchant CE nœud (surcouche de survol). Les arêtes dont une
+ * extrémité n'est pas placée sont ignorées (parité avec l'ancien rendu).
+ */
+export function edgePaths(
+  edges: readonly KbSceneEdge[],
+  placed: ReadonlyMap<string, KbPlaced>,
+  only?: string,
+): { solid: string; dashed: string } {
+  let solid = ''
+  let dashed = ''
+  for (const e of edges) {
+    if (only !== undefined && e.source !== only && e.target !== only) continue
+    const a = placed.get(e.source)
+    const b = placed.get(e.target)
+    if (!a || !b) continue
+    const seg = `M${fmt(a.x)} ${fmt(a.y)}L${fmt(b.x)} ${fmt(b.y)}`
+    if (e.confidence === 'EXTRACTED') solid += seg
+    else dashed += seg
+  }
+  return { solid, dashed }
+}
+
+/** Adjacence non-dirigée (voisinage à 1 saut du survol). */
+export function buildAdjacency(edges: readonly { source: string; target: string }[]): Map<string, Set<string>> {
+  const m = new Map<string, Set<string>>()
+  const link = (a: string, b: string) => {
+    const s = m.get(a)
+    if (s) s.add(b)
+    else m.set(a, new Set([b]))
+  }
+  for (const e of edges) {
+    link(e.source, e.target)
+    link(e.target, e.source)
+  }
+  return m
+}
+
+/**
+ * Ordre d'apparition du reveal progressif : les HUBS d'abord (degré
+ * décroissant, id croissant à égalité — déterministe), regroupés par LOTS de
+ * `batchSize`. Renvoie l'indice de lot par nœud — le composant le pose en
+ * variable CSS (`--kb-d`), le stagger est ensuite 100 % CSS (zéro re-render).
+ */
+export function revealDelays(placed: ReadonlyMap<string, KbPlaced>, batchSize: number): Map<string, number> {
+  const size = Math.max(1, batchSize)
+  const sorted = [...placed.values()].sort(
+    (a, b) => b.degree - a.degree || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
+  )
+  const out = new Map<string, number>()
+  for (let i = 0; i < sorted.length; i++) out.set(sorted[i].id, Math.floor(i / size))
+  return out
+}

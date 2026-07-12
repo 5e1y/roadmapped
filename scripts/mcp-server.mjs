@@ -23,6 +23,8 @@ import {
 import { computeAvailability, activeTasks, nextQueue, globalProgress, epicProgress, allEpics } from '../src/lib/roadmap.ts'
 import { briefText, sitrepText, taskLine, refLine, git, unloggedCommits } from '../src/lib/render.ts'
 import { TYPES } from '../src/lib/tasks.ts'
+import { readKbGraph } from '../src/server/kb.ts'
+import { kbNeighborhood, neighborhoodText, kbSearch, searchText, kbNode, nodeText } from '../src/lib/kbQuery.ts'
 
 // ------------------------------------------------------------------ helpers de sortie
 // Règle (#95) : structuredContent SEULEMENT quand l'objet est la charge utile (écriture →
@@ -73,7 +75,17 @@ function showText(hit, tree) {
 // Chaque tool : name, description (courte), inputSchema (la doc), handler (renvoie ok/fail).
 // ROOT injecté (factory) → testable sur un sandbox sans le vrai backlog.
 // #91 = lecture ; #92 poussera les tools d'écriture dans ce même tableau.
-export function makeTools(ROOT) {
+export function makeTools(ROOT, KB_GRAPH_FILE) {
+  // Chargement du knowledge graph (Graphify), partagé par les 3 outils KB.
+  // Dégradation propre : chemin inconnu (appel hors `roadmapped`), fichier absent
+  // (pas encore généré) ou illisible → un message clair au lieu d'un crash.
+  const loadKb = () => {
+    if (!KB_GRAPH_FILE) return { ok: false, msg: 'Knowledge graph path unknown (run through the roadmapped MCP server).' }
+    const res = readKbGraph(KB_GRAPH_FILE)
+    if (!res.ok) return { ok: false, msg: `graph.json unreadable: ${res.error} — regenerate with Graphify: /graphify . --update` }
+    if (!res.graph) return { ok: false, msg: 'No knowledge graph yet. Generate it with Graphify: `pip install graphifyy && graphify install`, then `/graphify .` at the repo root.' }
+    return { ok: true, graph: res.graph }
+  }
   return [
   {
     name: 'sitrep',
@@ -206,6 +218,61 @@ export function makeTools(ROOT) {
       return errors.length === 0
         ? ok('OK — validation passed.', { ok: true, errors: [] })
         : fail(`${errors.length} error(s):\n${errors.map((e) => `  - ${e}`).join('\n')}`)
+    },
+  },
+
+  // ---------------------------------------------------------------- knowledge graph (#309)
+  // Le LIAGE tâche⇄graphe que le MCP GÉNÉRIQUE de Graphify (query_graph/get_neighbors/
+  // shortest_path) n'a pas : ces outils joignent les `refs` des tâches au source_file
+  // des nœuds (kbLink) et exposent l'index inverse. Lecture seule du graphe committé
+  // (graphify-out/graph.json), via readKbGraph/kbQuery — mêmes fonctions pures que le CLI.
+  {
+    name: 'kb_neighborhood',
+    description: 'The knowledge-graph nodes a task touches: the code/doc files it references (via refs) + their 1-hop neighbors (what those files import/call/cite). Run BEFORE exploring a non-trivial task blind — it points at the right files in one call. Graph built by Graphify.',
+    inputSchema: S.id,
+    handler: ({ id }) => {
+      const kb = loadKb()
+      if (!kb.ok) return fail(kb.msg)
+      const tree = readTree(ROOT)
+      const hit = findTask(tree, id)
+      if (!hit) return fail(`No task #${id}.`)
+      const nb = kbNeighborhood(tree, kb.graph, id)
+      return ok(neighborhoodText(id, hit.task.title, nb), { direct: nb.direct, neighbors: nb.neighbors })
+    },
+  },
+  {
+    name: 'kb_search',
+    description: 'Search the knowledge graph for nodes whose label or file matches a query — locate a symbol/concept and the file it lives in. Complements Graphify\'s own query_graph (this one is label-exact, structured).',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'substring matched against node label and source_file' },
+        limit: { type: 'number', description: 'max results (default 40)' },
+      },
+      required: ['query'], additionalProperties: false,
+    },
+    handler: ({ query, limit }) => {
+      const kb = loadKb()
+      if (!kb.ok) return fail(kb.msg)
+      const { hits, total } = kbSearch(kb.graph, query, typeof limit === 'number' ? limit : undefined)
+      return ok(searchText(query, hits, total), { total, hits })
+    },
+  },
+  {
+    name: 'kb_node',
+    description: 'Detail of a knowledge-graph node (label, source file, community, rationale) PLUS "tickets touching this" — the tasks whose refs cite this node\'s file. The inverse of kb_neighborhood. Use kb_search to find a node id.',
+    inputSchema: {
+      type: 'object',
+      properties: { id: { type: 'string', description: 'node id (e.g. src_lib_roadmap_nextqueue) — from kb_search' } },
+      required: ['id'], additionalProperties: false,
+    },
+    handler: ({ id }) => {
+      const kb = loadKb()
+      if (!kb.ok) return fail(kb.msg)
+      const tree = readTree(ROOT)
+      const detail = kbNode(tree, kb.graph, id)
+      if (!detail) return fail(`No KB node "${id}". Find one with kb_search "<label>".`)
+      return ok(nodeText(detail, (tid) => findTask(tree, tid)?.task.title ?? null), detail)
     },
   },
 
@@ -403,7 +470,7 @@ export function buildServer(tools) {
 
 // Only starts the transport when run as a binary (not on test import).
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const { tasksDir: ROOT } = loadPaths()
-  await buildServer(makeTools(ROOT)).connect(new StdioServerTransport())
+  const { tasksDir: ROOT, kbGraphFile } = loadPaths()
+  await buildServer(makeTools(ROOT, kbGraphFile)).connect(new StdioServerTransport())
   process.stderr.write('roadmapped MCP server ready (stdio).\n')
 }
