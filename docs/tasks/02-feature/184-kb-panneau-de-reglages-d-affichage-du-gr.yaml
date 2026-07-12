@@ -1,0 +1,62 @@
+id: 318
+code: null
+title: >-
+  KB : panneau de réglages d'affichage du graphe (forces/tolérance/groupage…) + persistance
+  localStorage — pour tuner puis exposer aux users
+status: done
+tags:
+  - kb
+  - graphify
+  - renderer
+  - ux
+  - settings
+size: null
+heat: 80
+detail: >-
+  Demande Rémi. Exposer les paramètres de la sim de forces (kbSim : force de charge/répulsion,
+  distance des ressorts/lien, centrage, θ Barnes-Hut, friction, alpha decay, taille des nœuds,
+  distance max… + éventuellement seuils de groupage/communauté) dans un PANNEAU DE RÉGLAGES
+  d'affichage accessible depuis la vue KB. But immédiat : DEV — Rémi tune en live pour trouver les
+  bons paramètres (il les renverra, je les mettrai par défaut). But durable : le panneau RESTE dans
+  l'app pour que les users customisent leur graphe. Sliders/inputs live (la sim se réchauffe et
+  applique à chaud). PERSISTANCE : sauver les derniers réglages côté user en localStorage (comme les
+  autres prefs UI, ex. ui:theme) → survivent reload + fermeture du dashboard ; bouton « reset
+  defaults ». Ne pas casser reduced-motion. Base UI, DA, theme-aware. tsc + tests verts. kbSim doit
+  accepter des params injectés (defaults centralisés, overridables).
+refs:
+  - src/lib/kbSim.ts
+  - src/components/KbView.tsx
+  - src/components/KbGraph.tsx
+  - src/state/uiPersist.ts
+links: []
+dependsOn:
+  - 317
+epic: knowledge-base
+source: ai
+createdAt: "2026-07-12T15:53:25"
+startedAt: "2026-07-12T15:53:29"
+updatedAt: "2026-07-12T16:19:17"
+completedAt: "2026-07-12T16:19:17"
+commit: ac91c43
+outcome: >-
+  Panneau de réglages d'affichage du graphe KB + persistance (Fable). Refactor : KB_SIM devient des
+  defaults typés (KbSimParams) ; createKbSim(input, params?) fusionne defaults + override partiel
+  (resolveKbSimParams) ; sim.setParams() ré-applique à chaud (re-dérive rayons/charges/ressorts,
+  positions/vélocités intactes). Panneau KbDisplayMenu.tsx : bouton pill « Display » (icône
+  SlidersHorizontal) dans la toolbar KbView (Popover Base UI, idiome FilterMenu), 8 sliders + valeur
+  mono, live : Spring length (LINK_DIST), Repulsion (CHARGE_BASE), Centering (CENTER_K), Friction
+  (1−VELOCITY_KEEP), Settle time en ticks (↔ALPHA_DECAY), Theta (Barnes-Hut), Node radius min/max.
+  Live-apply : slider → store → driver.applyParams → setParams + kick(0.45) + relance rAF (vérifié :
+  LINK_DIST 55→120 réorganise). Persistance : store dédié src/state/kbSimParams.ts, clé localStorage
+  ui:kb-graph-params, seul le DIFF vs défauts stocké (valeur remise au défaut disparaît),
+  sanitize+clamp (KB_SIM_LIMITS) au boot, défensif mode privé ; bouton Reset defaults efface la clé.
+  Tint accent quand des réglages custom sont actifs. 100% tokens, theme-aware. But : Rémi tune en
+  live → renvoie les valeurs → je les fige comme défauts ; panneau conservé pour les users. Écart
+  assumé : sous reduced-motion (layout statique) les sliders sont sans effet.
+verification: >-
+  npx tsc --noEmit clean ; npx vitest run 543/543 (dont fusion defaults+override, sanitize,
+  orderByDegree, stagger driver). CDP : slider LINK_DIST 55→120 → localStorage {"LINK_DIST":120} +
+  réorganisation ; Reset → stored null ; theme dark OK. Non-régression KB vérifiée
+  (survol/clic+zoom/filtre-morph/recherche/drag/arêtes inferred/carte). Workflow tuning à dérouler
+  par Rémi : ouvrir Display, régler, me renvoyer les valeurs.
+release: null
