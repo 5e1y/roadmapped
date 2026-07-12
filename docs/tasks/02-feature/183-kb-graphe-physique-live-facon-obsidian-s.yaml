@@ -3,7 +3,7 @@ code: null
 title: >-
   KB : graphe physique LIVE façon Obsidian — simulation de forces continue, nœuds qui se déplacent
   (pas de switch), drag interactif, « génération » animée à l'ouverture au lieu d'un fade
-status: in_progress
+status: done
 tags:
   - kb
   - graphify
@@ -40,9 +40,34 @@ epic: knowledge-base
 source: ai
 createdAt: "2026-07-12T15:12:46"
 startedAt: "2026-07-12T15:12:59"
-updatedAt: "2026-07-12T15:12:59"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+updatedAt: "2026-07-12T15:52:24"
+completedAt: "2026-07-12T15:52:24"
+commit: "8742772"
+outcome: >-
+  Graphe KB vivant façon Obsidian (Fable, vérifié CDP sur le vrai graphe 869n/2214a). Remplace
+  layout figé+reveal par une simulation de forces LIVE. kbSim.ts (nouveau, pur, 11 tests) :
+  répulsion Barnes-Hut (quadtree reconstruit/tick, θ=0.9, O(n log n)), ressorts d3-link (raideur
+  1/min(deg)), centrage, velocity-Verlet friction 0.6, alpha decay ~180 ticks/3s puis arrêt
+  (alpha<0.001) ; DÉTERMINISTE (0 Math.random, jiggle haché sur l'index) ; API warm/pin/unpin/morph.
+  kbSimDriver.ts (nouveau) : boucle rAF impérative, tick + setAttribute directs (transform des <g>,
+  d des 2 <path> agrégés + surcouche survol), compensation cadence (2-3 ticks/frame si <60fps) →
+  React ne réconcilie JAMAIS pendant la sim (KbPlaced mutés en place, mémos stables). COMPORTEMENTS
+  : génération = nuage phyllotaxique central → expansion ~3s, caméra suit la bbox vivante (fitBox
+  maxScale) jusqu'à 1re interaction ; morph au filtre = survivants gardent position+vélocité (mêmes
+  objets), entrants au barycentre des voisins + pop CSS, réchauffe alpha 0.45, zéro téléportation ;
+  drag = capture différée 4px (parité #312, clic simple ouvre l'inspecteur), nœud épinglé sous
+  curseur (inverse pan/zoom), alphaTarget 0.3, relâché→rejoint la sim, stopPropagation (pan du fond
+  coexiste) ; reduced-motion = pipeline figé d'avant (tranches+cache+préchauffage) intact, rendu
+  d'emblée. SVG impératif gardé (perf le permet, hit-test DOM natif conservé). Modifs : KbGraph.tsx
+  (recâblage), useZoomPan.ts (fitBox maxScale sur bbox vivante), kbScene.ts (revealDelays retiré),
+  index.css (kb-in réservé aux entrants morph), KbContext.tsx (préchauffage réservé reduced-motion).
+verification: >-
+  npx tsc --noEmit clean ; npx vitest run 39 fichiers / 524 tests verts (11 nouveaux kbSim : BH vs
+  naïf, decay, pin, morph, déterminisme) ; npm run build OK. Perf mesurée CDP (869n/2214a) : tick
+  sim 1,23ms moy, génération 117fps moy p95 9ms, drag 118fps, stabilisation ~3s puis 0 CPU au repos.
+  Non-régression CDP (captures) : clic→inspecteur+zoom125, drag n'ouvre pas l'inspecteur,
+  survol→voisinage, recherche fit, filtres morph, pan/zoom fond, carte graphify, thèmes,
+  tailles∝degré/arêtes inférées pointillées. Périmètre : rien touché
+  serveur/schéma/install/scripts/ViewHeader. Rendu réel (génération/drag) à valider par Rémi dans
+  son dev server.
 release: null
