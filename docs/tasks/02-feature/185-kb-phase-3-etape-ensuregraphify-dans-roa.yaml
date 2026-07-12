@@ -41,7 +41,7 @@ epic: knowledge-base
 source: ai
 createdAt: "2026-07-12T16:49:01"
 startedAt: "2026-07-12T16:49:04"
-updatedAt: "2026-07-12T17:00:43"
+updatedAt: "2026-07-12T17:43:06"
 completedAt: "2026-07-12T17:00:43"
 commit: 1c5f3a2
 outcome: >-
@@ -68,3 +68,12 @@ verification: >-
   interne→init OK, upgrade re-tente sans changement). Smoke réel bin dans hôte jetable non-TTY :
   exit 0, docs/tasks créé, kb skip propre. Aucune install réelle dans les tests (exec mocké).
 release: null
+feedback:
+  - date: "2026-07-12T17:43:06"
+    author: claude
+    text: >-
+      SUPERSEDED par #324 (2026-07-12) : le comportement opt-in/défaut-Non livré ici a été REVERSÉ
+      suite à la décision Rémi « Graphify par défaut, c'est le cœur ». #324 = install par défaut
+      (opt-out --no-kb) + bootstrap uv + MCP natif. La mécanique ensureGraphify de #322 (détection
+      Python, env isolé, non-blocage) reste la base ; seul le défaut a basculé Non→Oui.
+    resolved: false

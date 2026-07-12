@@ -1,0 +1,66 @@
+id: 325
+code: null
+title: >-
+  KB load-bearing dans le cycle CLI : voisinage KB embarqué d'office dans take/brief + ligne KB
+  (+staleness) dans sitrep + nudge --update dans done + kb refresh (AST) + kb doctor seuils
+status: done
+tags:
+  - kb
+  - graphify
+  - cli
+  - agent
+size: null
+heat: 92
+detail: >-
+  Cœur de l'ancrage (docs/specs/graphify-anchoring.md P0/P2) : rendre la KB LOAD-BEARING dans
+  scripts/task.mjs (le CLI take/brief/sitrep/done/kb). Reco P0 = le levier n°1 : (1) take ET brief
+  EMBARQUENT d'office le voisinage KB de la tâche (via kbQuery/kbLink : nœuds code/docs connectés
+  aux refs, directs + 1 saut) — l'agent reçoit la carte SANS avoir à y penser, dégradation propre si
+  graph absent. (2) sitrep : une ligne KB (graphe présent ? nb nœuds ? + STALENESS : périmé si ≥N
+  commits depuis la génération / absent = « graphe pas encore généré, lance /graphify . ») — c'est
+  le marqueur de 1re génération (sitrep est injecté à chaque SessionStart). (3) done : nudge « pense
+  à /graphify . --update » si le graphe est périmé. (4) `roadmapped kb refresh` : régénération
+  code-only via l'AST (0 token LLM) si faisable en appelant graphify, sinon rappelle la commande.
+  (5) `kb doctor` : seuil de staleness + exit codes propres. Réutiliser kb.ts/kbLink/kbQuery via
+  register-ts (pas réimplémenter). Ne pas régresser take/brief/sitrep/done existants (tests). tsc +
+  tests verts.
+refs:
+  - docs/specs/graphify-anchoring.md
+  - scripts/task.mjs
+  - src/lib/kbQuery.ts
+  - src/lib/kbLink.ts
+  - src/server/kb.ts
+links: []
+dependsOn: []
+epic: knowledge-base
+source: ai
+createdAt: "2026-07-12T17:20:53"
+startedAt: "2026-07-12T17:21:08"
+updatedAt: "2026-07-12T17:42:58"
+completedAt: "2026-07-12T17:42:58"
+commit: 4408b54
+outcome: >-
+  KB load-bearing dans le cycle CLI (le levier n°1). take ET brief EMBARQUENT d'office le voisinage
+  KB de la tâche : section « Knowledge base — what this task touches (from its refs) » avec directs
+  (bornés 12, round-robin par source_file pour ne pas que les 40 symboles d'un fichier mangent les
+  slots) + voisins 1 saut (bornés 8, par degré décroissant), chacun label [type] file:ligne ; via
+  kbQuery.boundNeighborhood/briefNeighborhoodText + buildKbLinkIndex (pas de réimpl) ; refs sans
+  nœud → section omise. sitrep : ligne KB (nb nœuds + staleness = built_at_commit du graphe vs HEAD
+  via git rev-list --count, périmé ≥10 commits ; absent → « not generated yet → /graphify . » ; pas
+  de git → freshness unknown). done : nudge stderr non bloquant si périmé. kb refresh → graphify
+  update [--force] (AST code-only 0 token LLM, invocateur vérifié cli.py amont ; résolution
+  kb.graphifyBin → graphify PATH → python -m graphify ; introuvable → imprime la commande, exit 0).
+  kb doctor → --max-behind N (défaut 10) + exit codes 0 frais/inconnu, 1 illisible, 2 absent, 3
+  périmé. Nouveaux modules purs kbStatus.ts (staleness+rendus) + kbCycle.ts (composition Node fs+git
+  partagée CLI/MCP). render.ts briefText/sitrepText gagnent un param KB optionnel (rétro-compat).
+  server/kb.ts expose builtAtCommit. MCP take/brief/sitrep héritent (makeTools +3e param HOST_ROOT).
+  Opt-out (kb:false) → silence total. Dégradation propre si graphe absent (1 ligne, exit 0).
+verification: >-
+  npx tsc --noEmit clean ; npx vitest run 598/598 (41 fichiers ; nouveaux : kbStatus 13, kbQuery +6,
+  task.test « KB load-bearing » +15). Smoke RÉEL : `brief 305` affiche 12 directs + 8 voisins avec
+  file:ligne ; `sitrep` → « KB: 869 nodes · ⚠ stale (built at f3e1796, 28 commits behind HEAD) →
+  /graphify . --update » ; `kb doctor` exit 3 (périmé), exit 0 avec --max-behind 100. Tous les tests
+  take/brief/sitrep/done/next existants passent inchangés. Écarts : nudge « refs hors graphe » (spec
+  B.3) hors périmètre ; nudge done CLI-only (MCP renvoie warnings noyau) ; kb refresh vérifié via
+  branche instructions réelle + faux binaire (graphify pas installé sur la machine).
+release: null
