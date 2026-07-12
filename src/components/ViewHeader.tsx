@@ -1,5 +1,5 @@
 import { Popover } from '@base-ui/react/popover'
-import { ChevronDown, Bug } from 'trinil-react'
+import { ChevronDown, Bug, Check } from 'trinil-react'
 import { type ReactNode } from 'react'
 import { useTree } from '../state/TreeContext'
 import { useView, type View } from '../state/ViewContext'
@@ -122,10 +122,15 @@ export function FilterMenu({ allLabel, options, selected, onChange, multiple = f
 
   return (
     <Popover.Root>
+      {/* Trigger : langage « actif » DS des pills bordées (cf. bouton inferred du
+          KB, TagGraph/TypesRadar) — bord accent COMPLET + tint, jamais un demi-
+          filet inset qui jurait avec le rounded-md (#311). */}
       <Popover.Trigger
         aria-label={ariaLabel}
-        className={`flex items-center gap-1.5 rounded-md border border-neutral-300 px-2.5 py-1 text-xs transition-colors hover:bg-neutral-100 ${
-          selected.length > 0 ? 'bg-accent-tint text-neutral-900 shadow-[inset_2px_0_0_var(--color-accent)]' : 'bg-white text-neutral-600'
+        className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs transition-colors ${
+          selected.length > 0
+            ? 'border-accent bg-accent-tint text-neutral-900'
+            : 'border-neutral-300 bg-white text-neutral-600 hover:bg-neutral-100'
         }`}
       >
         {label}
@@ -133,44 +138,54 @@ export function FilterMenu({ allLabel, options, selected, onChange, multiple = f
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Positioner sideOffset={4} align="end" className="z-50">
-          <Popover.Popup className="w-56 border border-neutral-200 bg-white py-1 shadow-sm">
-            {options.map((o) => {
-              const active = selected.includes(o.value)
-              const onClick = () => {
-                if (multiple) onChange(active ? selected.filter((v) => v !== o.value) : [...selected, o.value])
-                else onChange(active ? [] : [o.value])
-              }
-              const cls = `flex w-full items-baseline justify-between gap-2 px-2.5 py-1.5 text-left text-xs hover:bg-neutral-100 ${
-                active ? 'bg-accent-tint font-medium text-neutral-900 shadow-[inset_2px_0_0_var(--color-accent)]'
-                : o.count === 0 ? 'text-neutral-500' : 'text-neutral-600'
-              }`
-              const body = (
-                <>
-                  <span className="min-w-0 truncate">{o.label}</span>
-                  {o.count !== undefined && (
-                    <span className="shrink-0 font-mono text-[11px] text-neutral-500">{o.count}</span>
-                  )}
-                </>
-              )
-              // Multi : un <button> SIMPLE — le popup reste ouvert pour enchaîner
-              // les choix. JAMAIS `Popover.Close disabled` (design.md §2 : il rend
-              // l'option inerte — le disabled atterrit sur le <button> du DOM).
-              // Simple : Popover.Close, le choix referme.
-              return multiple ? (
-                <button key={o.value} type="button" onClick={onClick} aria-pressed={active} className={cls}>
-                  {body}
-                </button>
-              ) : (
-                <Popover.Close key={o.value} render={<button type="button" />} onClick={onClick} aria-pressed={active} className={cls}>
-                  {body}
-                </Popover.Close>
-              )
-            })}
+          <Popover.Popup className="w-56 overflow-hidden rounded-md border border-neutral-200 bg-white shadow-sm">
+            {/* Hauteur bornée + scroll : 46 communautés ne doivent pas remplir
+                l'écran (#311). Le pied « Clear » reste ÉPINGLÉ sous la liste. */}
+            <div className="max-h-[60vh] overflow-y-auto py-1">
+              {options.map((o) => {
+                const active = selected.includes(o.value)
+                const onClick = () => {
+                  if (multiple) onChange(active ? selected.filter((v) => v !== o.value) : [...selected, o.value])
+                  else onChange(active ? [] : [o.value])
+                }
+                // Coche = signal principal de sélection (le fond léger ne suffit
+                // pas, retour Rémi). Alignement [coche] label … count : slot de
+                // coche à largeur fixe pour aligner les labels, coché ou non.
+                const cls = `flex w-full items-center gap-2 px-2.5 py-1.5 text-left text-xs hover:bg-neutral-100 ${
+                  active ? 'bg-accent-tint font-medium text-neutral-900'
+                  : o.count === 0 ? 'text-neutral-500' : 'text-neutral-600'
+                }`
+                const body = (
+                  <>
+                    <span className="flex w-3.5 shrink-0 justify-center" aria-hidden="true">
+                      {active && <Check size={12} className="text-accent" />}
+                    </span>
+                    <span className="min-w-0 flex-1 truncate">{o.label}</span>
+                    {o.count !== undefined && (
+                      <span className="shrink-0 font-mono text-[11px] text-neutral-500">{o.count}</span>
+                    )}
+                  </>
+                )
+                // Multi : un <button> SIMPLE — le popup reste ouvert pour enchaîner
+                // les choix. JAMAIS `Popover.Close disabled` (design.md §2 : il rend
+                // l'option inerte — le disabled atterrit sur le <button> du DOM).
+                // Simple : Popover.Close, le choix referme.
+                return multiple ? (
+                  <button key={o.value} type="button" onClick={onClick} aria-pressed={active} className={cls}>
+                    {body}
+                  </button>
+                ) : (
+                  <Popover.Close key={o.value} render={<button type="button" />} onClick={onClick} aria-pressed={active} className={cls}>
+                    {body}
+                  </Popover.Close>
+                )
+              })}
+            </div>
             {selected.length > 0 && (
               <Popover.Close
                 render={<button type="button" />}
                 onClick={() => onChange([])}
-                className="mt-1 flex w-full border-t border-neutral-100 px-2.5 py-1.5 text-left text-xs text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700"
+                className="flex w-full border-t border-neutral-100 px-2.5 py-1.5 text-left text-xs text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700"
               >
                 Clear filter
               </Popover.Close>

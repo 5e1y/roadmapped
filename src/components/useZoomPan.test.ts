@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { zoomAt, fitTransform, boxTransform, clampPan, clampScale, ZOOM_MIN, ZOOM_MAX } from './useZoomPan'
+import { zoomAt, fitTransform, boxTransform, centerTransform, clampPan, clampScale, ZOOM_MIN, ZOOM_MAX } from './useZoomPan'
 
 describe('zoomAt (zoom vers le curseur)', () => {
   it('le point du contenu sous l’ancre reste fixe à l’écran', () => {
@@ -62,6 +62,28 @@ describe('boxTransform (fit sur les résultats de recherche)', () => {
 
   it('boîte dégénérée → transform neutre', () => {
     expect(boxTransform({ x: 0, y: 0, w: 0, h: 0 }, 800, 600)).toEqual({ scale: 1, tx: 0, ty: 0 })
+  })
+})
+
+describe('centerTransform (zoom-sur-nœud du clic, #311)', () => {
+  it('place le point du contenu AU CENTRE du viewport, au scale demandé', () => {
+    const t = centerTransform({ x: 300, y: 200 }, 1.25, 800, 600)
+    expect(t.scale).toBe(1.25)
+    expect(t.tx + 300 * t.scale).toBeCloseTo(400) // point.x → centre viewport
+    expect(t.ty + 200 * t.scale).toBeCloseTo(300) // point.y → centre viewport
+  })
+
+  it('borne le scale à [ZOOM_MIN, ZOOM_MAX]', () => {
+    expect(centerTransform({ x: 0, y: 0 }, 99, 800, 600).scale).toBe(ZOOM_MAX)
+    expect(centerTransform({ x: 0, y: 0 }, 0.001, 800, 600).scale).toBe(ZOOM_MIN)
+  })
+
+  it('reste centré quel que soit le scale (le centrage ne dépend pas du zoom)', () => {
+    for (const s of [1.25, 2]) {
+      const t = centerTransform({ x: 120, y: 90 }, s, 1000, 400)
+      expect(t.tx + 120 * t.scale).toBeCloseTo(500)
+      expect(t.ty + 90 * t.scale).toBeCloseTo(200)
+    }
   })
 })
 
