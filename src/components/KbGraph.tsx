@@ -6,6 +6,7 @@ import { applyFilters, matchNodes, truncate, filterKey, KB_MAX_NODES, type KbFil
 import { cachedKbLayout, ensureKbLayout, layoutInput } from '../lib/kbLayoutCache'
 import { edgePaths, buildAdjacency, nodesBox } from '../lib/kbScene'
 import { KbSimDriver } from './kbSimDriver'
+import { readKbSimOverrides, useKbSimOverrides } from '../state/kbSimParams'
 import type { KbGraph as KbGraphData, KbNode, KbEdge } from '../server/kb'
 
 /**
@@ -67,15 +68,28 @@ export function KbGraph({ graph, filters, query }: { graph: KbGraphData; filters
   const truncated = view.nodes.length < filtered.nodes.length
 
   // ---- Moteur LIVE : un pilote par (montage, graphe) — l'arrivée sur la vue
-  // relance la « génération ». Les changements de filtre passent par morphTo.
+  // relance la « génération » (staggered #317 : le pilote fait entrer les
+  // nœuds par lots, hubs d'abord). Les changements de filtre passent par
+  // morphTo. Les réglages persistés (#318) sont injectés à la création.
   const driver = useMemo(
-    () => (reduced ? null : new KbSimDriver(view, layoutInput(view), view.edges)),
+    () => (reduced ? null : new KbSimDriver(view, layoutInput(view), view.edges, readKbSimOverrides())),
     // La vue de CRÉATION suffit : les vues suivantes arrivent via morphTo (mémo shown).
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [graph, reduced],
   )
   const driverRef = useRef(driver)
   driverRef.current = driver
+
+  // #317 — un lot de reveal vient d'entrer : re-render pour MONTER les nouveaux
+  // <g> (le Map placed a grandi ; NodesLayer est memo → l'epoch le débloque).
+  const [revealEpoch, setRevealEpoch] = useState(0)
+
+  // #318 — tuning LIVE : chaque écriture du store de réglages (panneau Display)
+  // est poussée au driver, qui ré-applique à chaud et réchauffe la sim.
+  const paramOverrides = useKbSimOverrides()
+  useEffect(() => {
+    driver?.applyParams(paramOverrides)
+  }, [driver, paramOverrides])
   // Nœuds de la GÉNÉRATION initiale : PAS de pop CSS d'insertion — 869
   // animations `kb-in` simultanées coûtaient des frames à 100 ms+ au montage
   // (mesuré #316), et l'expansion du nuage EST déjà l'entrée en scène. Seuls
@@ -226,6 +240,10 @@ export function KbGraph({ graph, filters, query }: { graph: KbGraphData; filters
       const box = nodesBox(driver.sim.placed)
       if (box) zpRef.current.fitBox(box, 1)
     }
+    // #317 — chaque lot entré déclenche un render (montage des nouveaux <g>).
+    // La caméra, elle, suit déjà frame à frame (onFrame fitte la bbox des
+    // seuls nœuds entrés — fit progressif pendant la génération).
+    driver.onReveal = () => setRevealEpoch((e) => e + 1)
     driver.start()
     return () => driver.stop()
   }, [driver])
@@ -338,6 +356,7 @@ export function KbGraph({ graph, filters, query }: { graph: KbGraphData; filters
                 placed={shown.nodes}
                 driver={driver}
                 initialIds={initialIds}
+                epoch={revealEpoch}
                 focus={focus}
                 adj={adj}
                 matches={matches}
@@ -431,6 +450,9 @@ const NodesLayer = memo(function NodesLayer({
   driver: KbSimDriver | null
   /** Nœuds de la génération initiale — pas de pop `kb-in` (perf + redondant). */
   initialIds: ReadonlySet<string>
+  /** #317 — compteur de lots entrés : casse le memo pour MONTER les nouveaux
+   *  <g> (le Map `placed`, muté en place, garde la même identité). Pas lu. */
+  epoch: number
   focus: string | null
   adj: Map<string, Set<string>>
   matches: Set<string>

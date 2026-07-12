@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest'
-import { createKbSim, applyRepulsion, KB_SIM } from './kbSim'
+import {
+  createKbSim, applyRepulsion, orderByDegree,
+  KB_SIM, KB_SIM_LIMITS, resolveKbSimParams, sanitizeKbSimOverrides,
+} from './kbSim'
 import type { KbLayoutInput } from './kbLayout'
 import { normalizeGraph } from '../server/kb'
 import sample from './__fixtures__/kbGraph.sample.json'
@@ -246,5 +249,163 @@ describe('createKbSim (#316 — sim live)', () => {
     expect(sim.placed.size).toBe(0)
     expect(sim.width).toBeGreaterThan(0)
     sim.tick(10) // ne jette pas
+  })
+})
+
+describe('params injectés (#318 — defaults + overrides)', () => {
+  it('resolveKbSimParams : sans override = copie des défauts', () => {
+    const p = resolveKbSimParams()
+    expect(p).toEqual({ ...KB_SIM })
+    expect(p).not.toBe(KB_SIM)
+  })
+
+  it('fusionne un override PARTIEL, ignore undefined et non-finis', () => {
+    const p = resolveKbSimParams({
+      LINK_DIST: 90,
+      CHARGE_BASE: Number.NaN,
+      CENTER_K: undefined,
+      THETA: Infinity,
+    })
+    expect(p.LINK_DIST).toBe(90)
+    expect(p.CHARGE_BASE).toBe(KB_SIM.CHARGE_BASE)
+    expect(p.CENTER_K).toBe(KB_SIM.CENTER_K)
+    expect(p.THETA).toBe(KB_SIM.THETA)
+    expect(p.R_MAX).toBe(KB_SIM.R_MAX)
+  })
+
+  it('sanitize : rejette tout ce qui n\'est pas un objet de nombres finis sur des clés connues', () => {
+    expect(sanitizeKbSimOverrides(null)).toEqual({})
+    expect(sanitizeKbSimOverrides('x')).toEqual({})
+    expect(sanitizeKbSimOverrides([1, 2])).toEqual({})
+    // Clé inconnue, valeur string, NaN, clé non-customisable : tout tombe.
+    expect(sanitizeKbSimOverrides({ LINK_DIST: '90', CHARGE_BASE: NaN, WAT: 5, ALPHA_MIN: 0.5 })).toEqual({})
+  })
+
+  it('sanitize : clampe aux bornes KB_SIM_LIMITS (localStorage trafiqué)', () => {
+    const o = sanitizeKbSimOverrides({ LINK_DIST: 9999, CHARGE_BASE: -9999, THETA: 0, R_MAX: 12 })
+    expect(o.LINK_DIST).toBe(KB_SIM_LIMITS.LINK_DIST[1])
+    expect(o.CHARGE_BASE).toBe(KB_SIM_LIMITS.CHARGE_BASE[0])
+    expect(o.THETA).toBe(KB_SIM_LIMITS.THETA[0])
+    expect(o.R_MAX).toBe(12)
+  })
+
+  it('createKbSim(input, params) : l\'override CHANGE la physique (LINK_DIST)', () => {
+    const a = createKbSim(star())
+    const b = createKbSim(star(), { LINK_DIST: 150 })
+    a.tick(150)
+    b.tick(150)
+    const hubToA = (s: ReturnType<typeof createKbSim>) => {
+      const h = s.placed.get('hub')!
+      const q = s.placed.get('a')!
+      return Math.hypot(h.x - q.x, h.y - q.y)
+    }
+    // Ressorts plus longs ⇒ voisins plus loin du hub à l'équilibre.
+    expect(hubToA(b)).toBeGreaterThan(hubToA(a))
+  })
+
+  it('setParams à chaud : re-dérive rayons/charges, positions et vélocités INTACTES', () => {
+    const sim = createKbSim(star())
+    sim.tick(60)
+    const before = new Map([...sim.placed].map(([id, p]) => [id, { x: p.x, y: p.y }]))
+    const hubR = sim.placed.get('hub')!.r
+    sim.setParams({ R_MAX: 40 })
+    // Rayon re-dérivé sur les objets placed (mêmes identités — mémos React stables).
+    expect(sim.placed.get('hub')!.r).toBeGreaterThan(hubR)
+    for (const [id, p] of sim.placed) {
+      expect(p.x).toBe(before.get(id)!.x)
+      expect(p.y).toBe(before.get(id)!.y)
+    }
+    // La sim continue de tourner sainement avec les nouveaux params.
+    sim.kick(0.5)
+    sim.tick(60)
+    for (const p of sim.placed.values()) {
+      expect(Number.isFinite(p.x)).toBe(true)
+      expect(Number.isFinite(p.y)).toBe(true)
+    }
+  })
+
+  it('setParams() sans argument : retour aux défauts', () => {
+    const sim = createKbSim(star(), { R_MAX: 40 })
+    const withOverride = sim.placed.get('hub')!.r
+    sim.setParams()
+    expect(sim.placed.get('hub')!.r).toBeLessThan(withOverride)
+    expect(sim.placed.get('hub')!.r).toBeLessThanOrEqual(KB_SIM.R_MAX)
+  })
+})
+
+describe('entrée progressive (#317 — reveal staggered)', () => {
+  it('orderByDegree : hubs d\'abord, départage par id, arêtes intactes', () => {
+    const o = orderByDegree(star())
+    expect(o.nodes.map((n) => n.id)).toEqual(['hub', 'c', 'd', 'a', 'b', 'e', 'lone'])
+    expect(o.edges).toEqual(star().edges)
+  })
+
+  it('initialReveal : seuls les premiers nœuds EXISTENT (placed, forces)', () => {
+    const sim = createKbSim(orderByDegree(star()), undefined, { initialReveal: 3 })
+    expect(sim.revealed).toBe(3)
+    expect(sim.total).toBe(7)
+    expect(sim.placed.size).toBe(3)
+    expect(sim.placed.has('hub')).toBe(true)
+    expect(sim.placed.has('lone')).toBe(false)
+    sim.tick(50)
+    // Les non-entrés ne rejoignent pas d'eux-mêmes.
+    expect(sim.placed.size).toBe(3)
+    for (const p of sim.placed.values()) {
+      expect(Number.isFinite(p.x)).toBe(true)
+      expect(Number.isFinite(p.y)).toBe(true)
+    }
+  })
+
+  it('reveal : monotone, clampé, spawn PRÈS d\'un voisin déjà entré, réchauffe', () => {
+    const sim = createKbSim(orderByDegree(star()), undefined, { initialReveal: 1 })
+    ticksToSettle(sim)
+    expect(sim.settled).toBe(true)
+    const hub = sim.placed.get('hub')!
+    sim.reveal(2) // fait entrer 'c' — voisin direct du hub
+    expect(sim.revealed).toBe(2)
+    const c = sim.placed.get('c')!
+    expect(Math.hypot(c.x - hub.x, c.y - hub.y)).toBeLessThan(40)
+    // Le lot réchauffe : une sim refroidie repart.
+    expect(sim.settled).toBe(false)
+    // Monotone : jamais de retour en arrière.
+    sim.reveal(1)
+    expect(sim.revealed).toBe(2)
+    // Clampé au total, tout le monde finit dans placed.
+    sim.reveal(99)
+    expect(sim.revealed).toBe(7)
+    expect(sim.placed.size).toBe(7)
+    sim.tick(200)
+    for (const p of sim.placed.values()) {
+      expect(Number.isFinite(p.x)).toBe(true)
+      expect(p.x).toBeGreaterThanOrEqual(0)
+      expect(p.x).toBeLessThanOrEqual(sim.width)
+      expect(p.y).toBeGreaterThanOrEqual(0)
+      expect(p.y).toBeLessThanOrEqual(sim.height)
+    }
+  })
+
+  it('déterministe avec le MÊME calendrier de reveal', () => {
+    const mk = () => createKbSim(orderByDegree(inputFromSample()), undefined, { initialReveal: 4 })
+    const run = (s: ReturnType<typeof mk>) => {
+      s.tick(10); s.reveal(8); s.tick(10); s.reveal(14); s.tick(60)
+    }
+    const a = mk()
+    const b = mk()
+    run(a)
+    run(b)
+    expect(a.placed.size).toBe(b.placed.size)
+    for (const [id, p] of a.placed) {
+      const q = b.placed.get(id)!
+      expect(q.x).toBe(p.x)
+      expect(q.y).toBe(p.y)
+    }
+  })
+
+  it('morph pendant le reveal : la nouvelle vue est ENTIÈREMENT révélée', () => {
+    const sim = createKbSim(orderByDegree(star()), undefined, { initialReveal: 2 })
+    sim.tick(10)
+    sim.morph(star())
+    expect(sim.revealed).toBe(sim.total)
+    expect(sim.placed.size).toBe(7)
   })
 })
