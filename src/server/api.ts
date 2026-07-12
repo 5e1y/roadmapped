@@ -231,7 +231,14 @@ function readJsonBody(req: IncomingMessage): Promise<any> {
 // L'API en Node PUR (#200) : un middleware (req,res,next) monté par le serveur prod
 // autonome (serve.ts) ET par le plugin Vite (roadmappedApi, en bas). Un seul code,
 // deux hôtes — la logique (watcher fs, SSE, routes) ne dépend que de node:http.
-export function createApiMiddleware(paths: RoadmappedPaths) {
+/** opts.onClientCountChange (#330) : notifié à chaque connexion/déconnexion SSE
+ *  avec le nombre d'onglets encore ouverts. UNIQUEMENT câblé par startDashboard
+ *  (prod) pour l'auto-shutdown à la fermeture de la fenêtre — le plugin dev Vite
+ *  ne le passe pas, donc `npm run dev` (l'atelier) n'est jamais tué. */
+export function createApiMiddleware(
+  paths: RoadmappedPaths,
+  opts: { onClientCountChange?: (openTabs: number) => void } = {},
+) {
   // MAJ dispo (#211) : sondée UNE fois au boot (async, non bloquant — checkUpdate
   // fait le git ls-remote hors du chemin de rendu), puis injectée dans le payload
   // getTree pour une notif IN-APP designée. null = à jour / indéterminable / clone
@@ -296,8 +303,13 @@ export function createApiMiddleware(paths: RoadmappedPaths) {
           })
           res.write(': connected\n\n')
           clients.add(res)
+          opts.onClientCountChange?.(clients.size)
           const keepAlive = setInterval(() => res.write(': keep-alive\n\n'), 25000)
-          req.on('close', () => { clearInterval(keepAlive); clients.delete(res) })
+          req.on('close', () => {
+            clearInterval(keepAlive)
+            clients.delete(res)
+            opts.onClientCountChange?.(clients.size)
+          })
           return
         }
 
