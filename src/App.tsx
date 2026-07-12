@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { TreeProvider, useTree } from './state/TreeContext'
-import { PanelProvider, usePanel } from './state/PanelContext'
+import { PanelProvider, usePanel, isDualStack, type PanelEntry } from './state/PanelContext'
 import { ViewProvider, type View } from './state/ViewContext'
 import { KbProvider } from './state/KbContext'
 import { SidePanel } from './components/SidePanel'
@@ -25,36 +25,76 @@ function MainView({ view, docPath, onSelectDoc }: {
   return <DocsView path={docPath} onSelectDoc={onSelectDoc} />
 }
 
+/** Titre d'en-tête d'un cran de pile. */
+function entryTitle(entry: PanelEntry): string {
+  if (entry.type === 'task') return `Task #${entry.id}`
+  if (entry.type === 'create-task') return 'New task'
+  if (entry.type === 'kb-node') return 'Knowledge node'
+  return 'Section'
+}
+
+/** Clé stable d'un cran : re-déclenche le focus du SidePanel quand elle change. */
+function entryKey(entry: PanelEntry): string {
+  if (entry.type === 'task') return `task:${entry.id}`
+  if (entry.type === 'create-task') return `create:${entry.section}`
+  if (entry.type === 'kb-node') return `kb-node:${entry.nodeId}`
+  return `section:${entry.key}`
+}
+
+/** Contenu d'un cran. key : les champs sont non contrôlés (defaultValue) —
+    sans remontage le panneau garderait les valeurs du cran précédent. */
+function entryContent(entry: PanelEntry) {
+  if (entry.type === 'task') return <TaskPanel key={entry.id} id={entry.id} />
+  if (entry.type === 'create-task') return <CreateTaskPanel key={entry.section} section={entry.section} />
+  if (entry.type === 'kb-node') return <KbNodePanel key={entry.nodeId} nodeId={entry.nodeId} />
+  return <SectionPanel key={entry.key} dir={entry.key} />
+}
+
+/**
+ * Panneau(x) à droite de <main>. Mode simple : UN SidePanel rend le sommet de
+ * pile, comme toujours. Mode DOUBLE (#313, pile = [.., kb-node, task]) : DEUX
+ * SidePanel côte à côte — l'inspecteur de nœud à GAUCHE (rendu en premier), le
+ * ticket ouvert depuis lui à DROITE. Les keys sont stables ("panel" pour le
+ * panneau persistant, "panel-task" pour celui de droite) : le panneau de
+ * gauche garde son instance — donc son scroll et son déclencheur de focus —
+ * en entrant/sortant du mode double.
+ *
+ * Fermetures en mode double : ✕/←/Esc du ticket (droite, primaire) → back()
+ * dépile le task, retour au nœud seul ; ✕ du nœud (gauche) → close() tout.
+ */
 function PanelHost() {
-  const { target, close } = usePanel()
-  if (!target) return null
-  if (target.kind === 'task') {
-    return (
-      <SidePanel title={`Task #${target.id}`} onClose={close}>
-        {/* key : les champs sont non contrôlés (defaultValue) — sans remontage
-            le panneau garderait les valeurs de la tâche précédente. */}
-        <TaskPanel key={target.id} id={target.id} />
-      </SidePanel>
-    )
-  }
-  if (target.kind === 'create-task') {
-    return (
-      <SidePanel title="New task" onClose={close}>
-        <CreateTaskPanel key={target.section} section={target.section} />
-      </SidePanel>
-    )
-  }
-  if (target.kind === 'kb-node') {
-    return (
-      <SidePanel title="Knowledge node" onClose={close}>
-        <KbNodePanel key={target.nodeId} nodeId={target.nodeId} />
-      </SidePanel>
-    )
-  }
+  const { stack, top, back, close } = usePanel()
+  if (!top) return null
+
+  const dual = isDualStack(stack)
+  // Cran du panneau persistant : le sommet, ou le kb-node sous le task en mode double.
+  const main = dual ? stack[stack.length - 2] : top
+
   return (
-    <SidePanel title="Section" onClose={close}>
-      <SectionPanel key={target.dir} dir={target.dir} />
-    </SidePanel>
+    <>
+      <SidePanel
+        key="panel"
+        title={entryTitle(main)}
+        focusKey={entryKey(main)}
+        primary={!dual}
+        onClose={close}
+        onBack={!dual && stack.length > 1 ? back : undefined}
+        onEscape={back}
+      >
+        {entryContent(main)}
+      </SidePanel>
+      {dual && (
+        <SidePanel
+          key="panel-task"
+          title={entryTitle(top)}
+          focusKey={entryKey(top)}
+          onClose={back}
+          onBack={back}
+        >
+          {entryContent(top)}
+        </SidePanel>
+      )}
+    </>
   )
 }
 
