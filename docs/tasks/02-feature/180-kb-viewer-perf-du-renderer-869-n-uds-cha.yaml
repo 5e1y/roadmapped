@@ -1,0 +1,61 @@
+id: 308
+code: null
+title: >-
+  KB viewer : perf du renderer (869 nœuds) + chargement progressif (nœuds qui apparaissent) + carte
+  flottante « powered by graphify » (lien graphify.net)
+status: done
+tags:
+  - kb
+  - graphify
+  - perf
+  - ux
+size: null
+heat: 83
+detail: >-
+  Retour Rémi sur le vrai graphe (rendu « insane » mais lourd). (1) PERF : optimiser KbGraph.tsx
+  pour 869 nœuds/2214 arêtes en SVG (mémoïser layout/filtres, throttle hover/zoom via useZoomPan,
+  culling hors-viewport, réduire les re-renders, éventuellement rendu edges allégé) — garder la DA.
+  (2) CHARGEMENT PROGRESSIF : supprimer le délai clic→apparition ; on arrive DIRECTEMENT sur la page
+  et les nœuds apparaissent AU FUR ET À MESURE (reveal progressif/incrémental, pas de spinner
+  bloquant puis pop). (3) CARTE « powered by graphify » : petite carte flottante haut-centré OU
+  bas-centré au-dessus de la vue KB, « powered by » + logo Graphify (hexagone bleu filaire, à
+  recréer en SVG inline fidèle) + le mot « graphify » à côté (l'icône n'a pas de texte), lien vers
+  https://graphify.net/ (target=_blank rel=noopener). Sobre, DA app, theme-aware. Tester sur le vrai
+  graphe committé graphify-out/graph.json.
+refs:
+  - src/components/KbGraph.tsx
+  - src/components/KbView.tsx
+  - src/components/useZoomPan.ts
+  - src/lib/kbLayout.ts
+links: []
+dependsOn: []
+epic: knowledge-base
+source: ai
+createdAt: "2026-07-12T13:41:17"
+startedAt: "2026-07-12T13:41:49"
+updatedAt: "2026-07-12T14:07:54"
+completedAt: "2026-07-12T14:07:54"
+commit: b1fa489
+outcome: >-
+  KB renderer optimisé + chargement progressif + carte Graphify (Fable, vérifié en Chrome headless
+  CDP contre le vrai graphe 869n/2214a). PERF : layout passé de 550ms bloquants à 75 tranches ≤8ms
+  (positions strictement identiques, testé), caché par (graphe,filtres) au niveau module +
+  PRÉCHAUFFÉ dès le fetch de graph.json → SVG monté ~35ms au clic sur l'onglet ; arêtes 2214 <line>
+  → 2 <path> agrégés (DOM SVG ~4800→2610) ; pan/zoom sans réconciliation React (scène en couches
+  React.memo + transform CSS sur conteneur, deltas molette/drag coalescés en 1 setState/frame,
+  ~8ms/frame) — culling DOM écarté à raison (forcerait un re-render/frame). CHARGEMENT PROGRESSIF :
+  arrivée directe (toolbar/stats/carte immédiates) + fit auto, nœuds révélés par lots de 45 (hubs
+  d'abord) via stagger 100% CSS (--kb-d), arêtes en fondu, ~900ms ; filtres ensuite instantanés ;
+  prefers-reduced-motion → tout immédiat. CARTE « powered by graphify » bas-centrée, <a
+  href=graphify.net target=_blank rel=noopener>, logo hexagone filaire recréé en SVG inline (bleu
+  #2563eb, seule couleur en dur légitime) + mot « graphify », chrome en tokens (theme-aware
+  clair+sombre), pointer-events limités. Nouveaux : kbLayoutCache.ts, kbScene.ts (+tests). Modifiés
+  : kbLayout.ts (stepper), kbFilter.ts (truncate/filterKey), KbGraph.tsx, useZoomPan.ts (coalescence
+  rAF), KbContext.tsx (préchauffe), index.css (anims .kb-in).
+verification: >-
+  npx tsc --noEmit clean ; npx vitest run 502/502 (37 fichiers, dont kbScene/kbLayoutCache +
+  kbLayout parité bit-à-bit) ; npm run build OK. Agent a piloté Chrome headless : reveal
+  45→405→675→869 nœuds entre t=190 et t=800ms, survol→voisinage, recherche (24 lit/845 dim +
+  recentrage), filtre inferred, clic→inspecteur — 4 screenshots. Rendu visuel final à valider par
+  Rémi.
+release: null

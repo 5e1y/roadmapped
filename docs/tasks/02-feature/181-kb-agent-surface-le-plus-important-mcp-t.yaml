@@ -1,0 +1,59 @@
+id: 309
+code: null
+title: >-
+  KB agent surface (LE plus important) : MCP tools + skill + CLI `roadmapped kb` pour que les agents
+  UTILISENT le graphe
+status: done
+tags:
+  - kb
+  - graphify
+  - mcp
+  - skill
+  - cli
+size: null
+heat: 88
+detail: >-
+  Demande phare de Rémi : que les agents utilisent vraiment le knowledge graph. (1) MCP : ajouter
+  des outils dans scripts/mcp-server.mjs (hook makeTools()/buildServer()) task-centrés qui apportent
+  le liage Roadmapped que le MCP générique de Graphify n'a pas — ex. kb_neighborhood(taskId) (nœuds
+  code/doc connectés via kbLink), kb_search(query) (nœuds par label), kb_node(id) (détail + tickets
+  touching). Réutiliser src/server/kb.ts + src/lib/kbLink.ts via register-ts.mjs (pas
+  réimplémenter). (2) SKILL : ajouter au SKILL.md une consigne courte et à forte valeur — avant de
+  bosser une tâche, consulter son voisinage KB (via MCP/CLI) pour trouver le code/docs qu'elle
+  touche. (3) CLI : `roadmapped kb <sub>` dans le CLI (scripts/task.mjs) — neighborhood <taskId>,
+  search <query>, doctor (graphe présent/à jour). Documenter la division avec le MCP natif de
+  Graphify (graphify.serve). Ne pas toucher à l'étape d'install (séparée). tsc + tests verts,
+  réutiliser les patterns MCP/CLI existants.
+refs:
+  - scripts/mcp-server.mjs
+  - scripts/task.mjs
+  - skills/roadmapped/SKILL.md
+  - src/lib/kbLink.ts
+  - src/server/kb.ts
+links: []
+dependsOn: []
+epic: knowledge-base
+source: ai
+createdAt: "2026-07-12T13:41:29"
+startedAt: "2026-07-12T13:41:49"
+updatedAt: "2026-07-12T14:08:03"
+completedAt: "2026-07-12T14:08:03"
+commit: b1fa489
+outcome: >-
+  Surface agent KB livrée (Fable) — les agents utilisent le graphe. MCP (scripts/mcp-server.mjs, 3
+  outils task-centrés que le MCP générique de Graphify n'a pas) :
+  kb_neighborhood{id:number}→code/docs qu'une tâche touche (direct + 1 saut, via kbLink
+  refs⇄source_file) ; kb_search{query,limit?}→nœuds par label ; kb_node{id}→détail + « tickets
+  touching this » (ticketsOfNode). Dégradation propre si graph.json absent (pointe vers /graphify
+  .). CLI (scripts/task.mjs) : roadmapped kb neighborhood/search/node/doctor (doctor affiche
+  869n/2214a/46comm + staleness vs HEAD). SKILL.md : bloc « Know what a task touches — before
+  exploring blind » (consulter le voisinage KB avant de grep à l'aveugle ; crédit Graphify). Nouveau
+  src/lib/kbQuery.ts (pur, testé, 6 tests) = couche de requête partagée MCP+CLI réutilisant
+  buildKbLinkIndex + matchNodes (join PAS réimplémenté). MCP et CLI importent le TS via
+  register-ts.mjs. Bug latent corrigé : imports extensionless dans kbLink.ts (crashait en load Node
+  brut).
+verification: >-
+  npx tsc --noEmit clean ; npx vitest run 502/502 (dont kbQuery 6 + mcp tool-count 14→17 + CLI
+  sandbox). kb doctor exécuté en réel : « 869 nodes · 2214 edges · 46 communities », staleness
+  détectée. Division avec Graphify natif documentée (le nôtre = pont tâche⇄graphe).
+release: null
