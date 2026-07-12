@@ -1,0 +1,82 @@
+id: 323
+code: null
+title: >-
+  Analyse : Graphify par DÉFAUT à l'install (bootstrap Python via uv) + audit de l'ancrage profond
+  skill/MCP/CLI pour que les agents naviguent par le graphe (économie tokens ~70%)
+status: done
+tags:
+  - kb
+  - graphify
+  - spec
+  - install
+size: null
+heat: 90
+detail: >-
+  Décision Rémi (2026-07-12) : Graphify n'est PAS un opt-in, c'est le CŒUR de Roadmapped — il réduit
+  ~70% la conso de tokens en aidant les agents à naviguer la codebase. Le visualiseur est un gadget
+  ; la vraie valeur = le graphe comme couche de navigation par réflexe pour tout agent. Reverser
+  #322 (défaut Non → défaut OUI/auto). Analyse Fable en 2 volets :
+
+
+  VOLET A — INSTALL PAR DÉFAUT (robuste, le plus léger possible). Concevoir l'install auto de
+  Python+Graphify à `roadmapped init` PAR DÉFAUT (plus de prompt défaut-Non). Mécanisme recommandé à
+  évaluer : `uv` (installe Python géré + `uv tool install graphifyy` en une passe, rapide). Chiffrer
+  les tailles RÉELLES (uv binaire + CPython managé + graphifyy env, sans Leiden) — Rémi estime ~30
+  Mo « rien du tout vs les gains », vérifier l'ordre de grandeur réel et l'assumer. Bootstrap uv si
+  absent. Cross-platform (mac/linux/win). Fallbacks (uv→pipx→venv, système Python). Reste NON
+  bloquant si vraiment impossible (rare), mais le DÉFAUT = ça s'installe. Toujours pas de génération
+  auto du graphe par install.mjs (acte d'agent) — MAIS voir volet B pour déclencher la 1re
+  génération au plus tôt. Distinguer bundle-npm (lourd, écarté) vs install-init-via-uv (retenu).
+
+
+  VOLET B — ANCRAGE PROFOND (le vrai sujet). Auditer HONNÊTEMENT à quel point Graphify est
+  réellement câblé pour que les agents l'utilisent : le skill SKILL.md (1 seul bloc aujourd'hui —
+  insuffisant ?), les 3 outils MCP (kb_neighborhood/search/node), le CLI `roadmapped kb`. Vérifier
+  la vraie mécanique d'économie de tokens de Graphify (comment il fait, le ~70% est-il étayé — lire
+  les sources graphify). Proposer un plan pour que l'agent passe par le graphe PAR RÉFLEXE : ex.
+  consigne forte dans le skill (« avant de grep/lire, interroge le graphe »), workflow
+  take→kb_neighborhood systématique, 1re génération du graphe déclenchée tôt (setup/1re session),
+  rafraîchissement, exposer le MCP graphify natif (query_graph sémantique) en plus des outils
+  task-centrés, garde-fous quand le graphe manque/périmé. Livrer : constats + recommandations
+  priorisées + ce qui devient des tickets d'implémentation. SPEC/ANALYSE, pas de code. Écrire dans
+  docs/specs/graphify-kb.md (section « Ancrage & install par défaut ») ou un nouveau doc.
+refs:
+  - docs/specs/graphify-kb.md
+  - scripts/install.mjs
+  - skills/roadmapped/SKILL.md
+  - scripts/mcp-server.mjs
+  - scripts/task.mjs
+links: []
+dependsOn: []
+epic: knowledge-base
+source: ai
+createdAt: "2026-07-12T17:10:55"
+startedAt: "2026-07-12T17:11:00"
+updatedAt: "2026-07-12T17:20:16"
+completedAt: "2026-07-12T17:20:16"
+commit: 3714d65
+outcome: >-
+  Analyse livrée (docs/specs/graphify-anchoring.md, 373 l., supersede §2.2b/2.3/5.2/9 de
+  graphify-kb.md). VOLET A install par défaut : chaîne uv-first — uv présent → uv tool install
+  graphifyy (uv télécharge un CPython géré si absent, cross-platform vérifié) ; uv absent →
+  installer uv via asset GitHub épinglé+checksum dans ~/.roadmapped/bin (pas de curl|sh) ; puis pipx
+  ; puis venv système. Chemins absolus en config (kb.uvBin/pythonBin/graphifyBin). Tailles mesurées
+  : dev avec uv ~28Mo (le « ~30Mo » de Rémi exact, cas nominal), machine nue ~85Mo download/250Mo
+  disque (pire cas assumé, one-shot, 0 dans npm ; bundle-npm reconfirmé rédhibitoire). Opt-OUT
+  (--no-kb + kb:false config) au lieu d'opt-in ; skip si CI. 1re génération : install.mjs sans agent
+  → 3 déclencheurs (setup demande 1×, absence de graph.json = marqueur porté par une ligne KB dans
+  sitrep, nudge dans take/brief). VOLET B ancrage : ~70% = « 71.5× fewer tokens/query » claimé par
+  le README Graphify (corpus 52 fichiers) → honnêtement ~70% des tokens d'EXPLORATION
+  (localiser/tracer/re-lire), pas la session (l'agent lit ce qu'il édite) ; atouts réels =
+  régénération code-only 0 token LLM (AST) + graphe persistant. CONSTAT : plomberie complète
+  (kb.ts/kbLink/kbQuery, 3 MCP, CLI, graphe committé) mais RIEN load-bearing — take/brief/sitrep
+  ignorent la KB, skill 1 bloc hors-cycle, Golden rule travaille CONTRE, MCP natif graphify (7
+  outils serve.py) non branché. Recos : P0 = voisinage KB embarqué d'office dans take/brief +
+  install défaut ; P1 = règle graph-first SKILL.md + amender Golden rule + enregistrer MCP natif
+  graphify ; P2 = garde-fous fraîcheur (sitrep stale, nudge done, kb refresh AST) + mesure dogfood.
+  11 tickets proposés (§B.4).
+verification: >-
+  docs/specs/graphify-anchoring.md écrit (23Ko), commité 3714d65 ; aucun code touché. Sources
+  Graphify vérifiées par l'agent (README 71.5×, serve.py 7 outils, doc uv python-downloads automatic
+  + matrice plateformes). Tailles mesurées sur GitHub Releases 2026-07-12.
+release: null
