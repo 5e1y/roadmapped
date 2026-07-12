@@ -79,18 +79,3 @@ export function buildAdjacency(edges: readonly { source: string; target: string 
   return m
 }
 
-/**
- * Ordre d'apparition du reveal progressif : les HUBS d'abord (degré
- * décroissant, id croissant à égalité — déterministe), regroupés par LOTS de
- * `batchSize`. Renvoie l'indice de lot par nœud — le composant le pose en
- * variable CSS (`--kb-d`), le stagger est ensuite 100 % CSS (zéro re-render).
- */
-export function revealDelays(placed: ReadonlyMap<string, KbPlaced>, batchSize: number): Map<string, number> {
-  const size = Math.max(1, batchSize)
-  const sorted = [...placed.values()].sort(
-    (a, b) => b.degree - a.degree || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
-  )
-  const out = new Map<string, number>()
-  for (let i = 0; i < sorted.length; i++) out.set(sorted[i].id, Math.floor(i / size))
-  return out
-}

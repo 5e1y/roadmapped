@@ -59,13 +59,17 @@ export function fitTransform(contentW: number, contentH: number, vpW: number, vp
  * Recentre + zoome sur une BOÎTE du contenu (coordonnées contenu). Sert au
  * « fit sur les résultats » de la recherche KB : la bbox des nœuds matchés est
  * centrée dans le viewport, avec ~20 % de marge. Contrairement à fitTransform,
- * ça PEUT grossir (jusqu'à ZOOM_MAX) — on veut zoomer sur un petit sous-ensemble.
+ * ça PEUT grossir (jusqu'à `maxScale`, ZOOM_MAX par défaut) — on veut zoomer
+ * sur un petit sous-ensemble. `maxScale: 1` = sémantique « ajuster » (#316,
+ * fit de la bbox VIVANTE des nœuds : la boîte de layout de la sim est fixe,
+ * elle ne colle plus au dessin).
  */
 export function boxTransform(
   box: { x: number; y: number; w: number; h: number }, vpW: number, vpH: number,
+  maxScale: number = ZOOM_MAX,
 ): ZoomPanTransform {
   if (box.w <= 0 || box.h <= 0 || vpW <= 0 || vpH <= 0) return { scale: 1, tx: 0, ty: 0 }
-  const scale = clampScale(Math.min(vpW / (box.w * 1.2), vpH / (box.h * 1.2)))
+  const scale = clampScale(Math.min(vpW / (box.w * 1.2), vpH / (box.h * 1.2), maxScale))
   const cx = box.x + box.w / 2
   const cy = box.y + box.h / 2
   return { scale, tx: vpW / 2 - cx * scale, ty: vpH / 2 - cy * scale }
@@ -111,8 +115,9 @@ export interface ZoomPan {
   /** Zoom par facteur, ancré au centre du viewport (boutons + / −). */
   zoomBy: (factor: number) => void
   fit: () => void
-  /** Recentre/zoome sur une boîte du contenu ; null = fit du contenu entier. */
-  fitBox: (box: { x: number; y: number; w: number; h: number } | null) => void
+  /** Recentre/zoome sur une boîte du contenu (bornée à `maxScale` s'il est
+   *  fourni) ; null = fit de la boîte de contenu entière. */
+  fitBox: (box: { x: number; y: number; w: number; h: number } | null, maxScale?: number) => void
   /**
    * Centre un point du contenu au milieu du viewport à `scale` (au moins ce que
    * l'appelant passe), en TRANSITION DOUCE — instantané sous prefers-reduced-
@@ -272,12 +277,12 @@ export function useZoomPan(contentW: number, contentH: number): ZoomPan {
     commit(fitTransform(content.current.w, content.current.h, el.clientWidth, el.clientHeight))
   }, [commit, cancelTween])
 
-  const fitBox = useCallback((box: { x: number; y: number; w: number; h: number } | null) => {
+  const fitBox = useCallback((box: { x: number; y: number; w: number; h: number } | null, maxScale?: number) => {
     const el = viewportRef.current
     if (!el) return
     cancelTween()
     const t = box
-      ? boxTransform(box, el.clientWidth, el.clientHeight)
+      ? boxTransform(box, el.clientWidth, el.clientHeight, maxScale)
       : fitTransform(content.current.w, content.current.h, el.clientWidth, el.clientHeight)
     commit(clampPan(t, content.current.w, content.current.h, el.clientWidth, el.clientHeight))
   }, [commit, cancelTween])

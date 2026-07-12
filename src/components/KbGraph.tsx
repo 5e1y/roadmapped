@@ -1,49 +1,59 @@
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type { KbLayoutResult, KbPlaced } from '../lib/kbLayout'
 import { useZoomPan, ZOOM_STEP } from './useZoomPan'
 import { usePanel } from '../state/PanelContext'
 import { applyFilters, matchNodes, truncate, filterKey, KB_MAX_NODES, type KbFilters } from '../lib/kbFilter'
 import { cachedKbLayout, ensureKbLayout, layoutInput } from '../lib/kbLayoutCache'
-import { edgePaths, buildAdjacency, revealDelays, nodesBox } from '../lib/kbScene'
+import { edgePaths, buildAdjacency, nodesBox } from '../lib/kbScene'
+import { KbSimDriver } from './kbSimDriver'
 import type { KbGraph as KbGraphData, KbNode, KbEdge } from '../server/kb'
 
 /**
- * Rendu de la Knowledge base (#kb) : graphe force-directed (kbLayout, PAS dagre)
- * dessiné en SVG, façon TagGraph — pastilles ∝ degré, monochrome + accent. Zoom/
- * pan = hook maison réutilisé (useZoomPan). Arêtes EXTRACTED en trait plein,
- * INFERRED/AMBIGUOUS en pointillés (l'audit trail de Graphify rendu visible). La
- * COMMUNAUTÉ n'est PAS une couleur (c'est un filtre) : la rareté de l'accent est
- * préservée.
+ * Rendu de la Knowledge base (#kb) : graphe force-directed dessiné en SVG —
+ * pastilles ∝ degré, monochrome + accent, arêtes EXTRACTED pleines /
+ * INFERRED-AMBIGUOUS pointillées (l'audit trail de Graphify rendu visible).
+ * La COMMUNAUTÉ n'est PAS une couleur (c'est un filtre) : la rareté de
+ * l'accent est préservée. Zoom/pan = hook maison (useZoomPan).
  *
- * Phase 2 : les filtres (community/type/inferred) restreignent le sous-graphe
- * affiché ; la recherche surligne les nœuds matchés, atténue le reste et RECENTRE
- * (fitBox) sur les résultats. Survol d'un nœud = voisinage à 1 saut en accent ;
- * CLIC = ouvre l'inspecteur (SidePanel, pile de navigation).
+ * #316 — le graphe est VIVANT, façon Obsidian : une SIMULATION DE FORCES LIVE
+ * (lib/kbSim — Barnes-Hut O(n log n), ressorts, centrage, alpha decay)
+ * remplace le layout figé + reveal CSS :
+ * - ARRIVÉE = « génération » : les nœuds partent en petit nuage au centre et
+ *   on VOIT le réseau s'écarter puis se stabiliser (~3 s) ; la caméra suit
+ *   (auto-fit) tant que l'utilisateur n'a pas pris la main ;
+ * - FILTRE = morph : les survivants GLISSENT vers leur nouvel équilibre (la
+ *   sim continue depuis les positions courantes), les entrants apparaissent
+ *   près de leurs voisins et rejoignent — pas de switch sec ;
+ * - DRAG d'un nœud : épinglé sous le curseur, les voisins réagissent par les
+ *   ressorts ; relâché, il rejoint la sim. Le pan du fond coexiste (seuil de
+ *   4 px, capture différée — même politique que le fix #312) ;
+ * - la sim se refroidit et S'ARRÊTE (zéro CPU au repos), redémarre au drag /
+ *   au filtre ; sous prefers-reduced-motion : AUCUNE animation — layout
+ *   pré-calculé en tranches (kbLayoutCache), rendu figé, comme avant.
  *
- * #308 — taillé pour le VRAI graphe Graphify (869 nœuds / 2214 arêtes) :
- * - le layout est calculé EN TRANCHES et caché par (graphe, filtres)
- *   (kbLayoutCache) — plus de gel du main thread, retour instantané sur l'onglet ;
- * - les arêtes sont AGRÉGÉES en 2 <path> (kbScene.edgePaths) au lieu de 2214
- *   <line> ; la surbrillance du survol est une petite surcouche dédiée ;
- * - la scène SVG est découpée en couches React.memo qui IGNORENT la transform :
- *   pan/zoom = un style CSS sur le conteneur, zéro réconciliation des ~900
- *   éléments (c'est pour ça qu'il n'y a PAS de culling DOM : il forcerait un
- *   re-render par frame de pan, le navigateur clippe déjà la peinture) ;
- * - à l'arrivée, les nœuds APPARAISSENT PAR LOTS (hubs d'abord) via une
- *   animation CSS staggerée (--kb-d) — un seul render, coupée sous
- *   prefers-reduced-motion. Les changements de filtres restent instantanés.
+ * Perf (869 nœuds / 2214 arêtes à 60 fps) : React ne réconcilie JAMAIS la
+ * scène pendant la sim — la boucle rAF (kbSimDriver) écrit directement les
+ * transform des <g> nœuds et le `d` des 2 <path> d'arêtes agrégées (#308).
+ * Les couches restent des React.memo qui ignorent le pan/zoom (transform CSS
+ * sur le conteneur).
  */
 
 const LABEL_LIMIT = 60
-/** Reveal : taille de lot et cadence — total ~0,9 s sur 869 nœuds. */
-const REVEAL_BATCH = 45
-const REVEAL_STEP_MS = 30 // doit refléter le calc() de .kb-in (index.css)
-const REVEAL_ANIM_MS = 300
 /** Zoom plancher au clic d'un nœud (au moins ça — on garde plus si déjà zoomé). */
 const NODE_ZOOM = 1.25
+/** Seuil (px, |dx|+|dy|) avant qu'un pointerdown sur un nœud devienne un DRAG :
+ *  en-deçà, c'est un clic → inspecteur. Parité avec le pan du fond (#312). */
+const NODE_DRAG_THRESHOLD = 4
+
+const prefersReducedMotion = (): boolean =>
+  typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches
 
 export function KbGraph({ graph, filters, query }: { graph: KbGraphData; filters: KbFilters; query: string }) {
   const { openKbNode } = usePanel()
+
+  // Politique de mouvement figée AU MONTAGE : sim live par défaut, pipeline
+  // statique (layout pré-calculé, aucune animation) sous prefers-reduced-motion.
+  const [reduced] = useState(prefersReducedMotion)
 
   // Filtres → sous-graphe, puis troncature défensive. Mémo par clé STABLE
   // (les tableaux de filtres changent d'identité à chaque render de KbView).
@@ -56,13 +66,49 @@ export function KbGraph({ graph, filters, query }: { graph: KbGraphData; filters
   const view = useMemo(() => truncate(filtered, KB_MAX_NODES), [filtered])
   const truncated = view.nodes.length < filtered.nodes.length
 
-  // Layout asynchrone (tranches) + cache module par (graphe, filtres). Pendant
-  // un recalcul (changement de filtre), l'ANCIEN layout reste affiché : les
-  // nœuds survivants gardent leur place, puis se recalent — pas d'écran vide.
-  const layout = useKbLayout(graph, fKey, view)
-  const lastRef = useRef<{ graph: KbGraphData; layout: KbLayoutResult } | null>(null)
-  if (layout) lastRef.current = { graph, layout }
-  const shown = layout ?? (lastRef.current?.graph === graph ? lastRef.current.layout : null)
+  // ---- Moteur LIVE : un pilote par (montage, graphe) — l'arrivée sur la vue
+  // relance la « génération ». Les changements de filtre passent par morphTo.
+  const driver = useMemo(
+    () => (reduced ? null : new KbSimDriver(view, layoutInput(view), view.edges)),
+    // La vue de CRÉATION suffit : les vues suivantes arrivent via morphTo (mémo shown).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [graph, reduced],
+  )
+  const driverRef = useRef(driver)
+  driverRef.current = driver
+  // Nœuds de la GÉNÉRATION initiale : PAS de pop CSS d'insertion — 869
+  // animations `kb-in` simultanées coûtaient des frames à 100 ms+ au montage
+  // (mesuré #316), et l'expansion du nuage EST déjà l'entrée en scène. Seuls
+  // les ENTRANTS d'un morph (poignée de nœuds) popent.
+  const initialIds = useMemo(
+    () => new Set(view.nodes.map((n) => n.id)),
+    // Même cycle de vie que le pilote : la vue de création.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [driver],
+  )
+
+  // Auto-fit de la caméra pendant la génération / un morph — coupé dès que
+  // l'utilisateur prend la main (pointer/molette/clavier/boutons de zoom).
+  const interactedRef = useRef(false)
+  const markInteracted = useCallback(() => { interactedRef.current = true }, [])
+
+  // ---- Moteur STATIQUE (reduced-motion) : cache module + calcul en tranches.
+  const staticLayout = useKbStaticLayout(reduced ? graph : null, fKey, view)
+  const lastStaticRef = useRef<{ graph: KbGraphData; layout: KbLayoutResult } | null>(null)
+  if (staticLayout) lastStaticRef.current = { graph, layout: staticLayout }
+
+  // `shown` : positions courantes. Live = le Map MUTÉ de la sim (identité
+  // stable, le pilote écrit dedans à chaque tick) ; morphTo est idempotent par
+  // vue (appelable d'un useMemo, StrictMode compris). Statique = ancien layout
+  // affiché pendant un recalcul de filtre (pas d'écran vide).
+  const simShown = useMemo(() => {
+    if (!driver) return null
+    if (driver.morphTo(view, layoutInput(view), view.edges)) interactedRef.current = false
+    return { nodes: driver.sim.placed, width: driver.sim.width, height: driver.sim.height }
+  }, [driver, view])
+  const shown: KbLayoutResult | null = driver
+    ? simShown
+    : staticLayout ?? (lastStaticRef.current?.graph === graph ? lastStaticRef.current.layout : null)
 
   const zp = useZoomPan(shown?.width ?? 0, shown?.height ?? 0)
 
@@ -96,7 +142,10 @@ export function KbGraph({ graph, filters, query }: { graph: KbGraphData; filters
   scaleRef.current = zp.transform.scale
   const zpRef = useRef(zp)
   zpRef.current = zp
+  // Un drag de nœud qui vient de finir ne doit PAS compter comme un clic.
+  const justDraggedRef = useRef(false)
   const onNodeClick = useCallback((id: string) => {
+    if (justDraggedRef.current) return
     openKbNode(id)
     const p = shownRef.current?.nodes.get(id)
     if (!p) return
@@ -108,60 +157,125 @@ export function KbGraph({ graph, filters, query }: { graph: KbGraphData; filters
     else center()
   }, [openKbNode])
 
+  // DRAG d'un nœud (#316, live seulement) : capture DIFFÉRÉE au seuil (#312) —
+  // un simple clic reste un clic. Au-delà : le nœud est épinglé sous le curseur
+  // (coordonnées contenu = inverse du pan/zoom), la sim chauffe (alphaTarget),
+  // les voisins suivent par les ressorts. Relâché : il rejoint la sim.
+  const onNodePointerDown = useCallback((id: string, e: React.PointerEvent<SVGCircleElement>) => {
+    const drv = driverRef.current
+    if (!drv || e.button !== 0) return
+    // Le pan du fond ne doit pas s'armer sur un nœud — mais le capture-phase du
+    // viewport (markInteracted) a déjà coupé l'auto-fit, comme attendu.
+    e.stopPropagation()
+    const el = e.currentTarget
+    const s = { pointerId: e.pointerId, sx: e.clientX, sy: e.clientY, active: false }
+    const move = (ev: PointerEvent) => {
+      if (ev.pointerId !== s.pointerId) return
+      if (!s.active) {
+        if (Math.abs(ev.clientX - s.sx) + Math.abs(ev.clientY - s.sy) < NODE_DRAG_THRESHOLD) return
+        s.active = true
+        try { el.setPointerCapture(s.pointerId) } catch { /* pointeur déjà relâché */ }
+        drv.beginDrag(id)
+      }
+      const vp = zpRef.current.viewportRef.current
+      if (!vp) return
+      const rect = vp.getBoundingClientRect()
+      const { scale, tx, ty } = zpRef.current.transform
+      drv.dragTo(id, (ev.clientX - rect.left - tx) / scale, (ev.clientY - rect.top - ty) / scale)
+    }
+    const end = (ev: PointerEvent) => {
+      if (ev.pointerId !== s.pointerId) return
+      window.removeEventListener('pointermove', move)
+      window.removeEventListener('pointerup', end)
+      window.removeEventListener('pointercancel', end)
+      if (s.active) {
+        drv.endDrag(id)
+        // Le `click` part APRÈS le pointerup : on l'avale, puis on relâche le flag.
+        justDraggedRef.current = true
+        setTimeout(() => { justDraggedRef.current = false }, 0)
+      }
+    }
+    window.addEventListener('pointermove', move)
+    window.addEventListener('pointerup', end)
+    window.addEventListener('pointercancel', end)
+  }, [])
+
   const searching = query.trim() !== ''
   const matches = useMemo(() => matchNodes(view.nodes, query), [view, query])
+  const searchingRef = useRef(searching)
+  searchingRef.current = searching
 
-  // Arêtes agrégées : 2 <path> pour TOUT le graphe (mémo indépendant du survol).
-  const basePaths = useMemo(() => (shown ? edgePaths(view.edges, shown.nodes) : null), [view, shown])
+  // Arêtes agrégées côté React : pipeline STATIQUE seulement — en live c'est le
+  // pilote qui possède les attributs `d` (React ne les écrit jamais).
+  const basePaths = useMemo(
+    () => (!driver && shown ? edgePaths(view.edges, shown.nodes) : null),
+    [driver, view, shown],
+  )
   const focusPaths = useMemo(
-    () => (shown && focus !== null ? edgePaths(view.edges, shown.nodes, focus) : null),
-    [view, shown, focus],
+    () => (!driver && shown && focus !== null ? edgePaths(view.edges, shown.nodes, focus) : null),
+    [driver, view, shown, focus],
   )
 
-  // Reveal progressif : uniquement à l'ARRIVÉE sur la vue (premier layout du
-  // montage) — les changements de filtres ensuite restent instantanés.
-  const [revealing, setRevealing] = useState(true)
-  const hasLayout = shown !== null
+  // Boucle de sim : démarrée au montage (génération), stoppée au démontage.
+  // Le crochet caméra suit la bbox VIVANTE des nœuds tant que l'utilisateur
+  // n'a pas interagi et qu'aucune recherche ne cadre déjà ses résultats.
   useEffect(() => {
-    if (!hasLayout) return
-    const batches = Math.ceil((lastRef.current?.layout.nodes.size ?? 0) / REVEAL_BATCH)
-    const t = setTimeout(() => setRevealing(false), batches * REVEAL_STEP_MS + REVEAL_ANIM_MS + 100)
-    return () => clearTimeout(t)
-    // Une seule bascule false→true possible : l'effet ne rejoue pas ensuite.
-  }, [hasLayout])
-  const delays = useMemo(
-    () => (revealing && shown ? revealDelays(shown.nodes, REVEAL_BATCH) : null),
-    [revealing, shown],
-  )
+    if (!driver) return
+    driver.onFrame = () => {
+      if (interactedRef.current || searchingRef.current) return
+      const box = nodesBox(driver.sim.placed)
+      if (box) zpRef.current.fitBox(box, 1)
+    }
+    driver.start()
+    return () => driver.stop()
+  }, [driver])
 
-  // Re-centrage (#311) : le graphe reste CENTRÉ dans le viewport à chaque
-  // changement de SET VISIBLE — arrivée (premier `shown`), filtre (nouveau
-  // `shown`), recherche (nouveaux `matches`). Recherche active → fit la bbox
-  // des résultats ; sinon fit le sous-graphe visible entier (fitBox(null) =
-  // toute la boîte de layout, qui EST la bbox des nœuds visibles). Ne dépend
-  // que de [shown, matches] : jamais rejoué au pan/zoom/survol → l'utilisateur
-  // garde la main (grab/pan) tant qu'il ne change pas filtre/recherche. Fit
-  // instantané (pas d'anim) — conforme reduced-motion sans cas particulier.
+  // Après chaque render qui change la scène (montage, morph) : une passe
+  // d'écriture DOM AVANT la peinture — les entrants/refs fraîchement montés
+  // reçoivent leurs positions sans attendre la frame suivante.
+  useLayoutEffect(() => { driverRef.current?.sync() }, [view])
+
+  // La surcouche de survol (arêtes accent du voisinage) est dessinée par le
+  // pilote en live — elle suit les nœuds pendant la sim.
+  useEffect(() => { driver?.setFocus(focus) }, [driver, focus])
+
+  // Re-centrage (#311) : recherche active → fit la bbox des résultats (peut
+  // zoomer) ; sinon fit du sous-graphe visible (borné à 100 %). En live la
+  // boîte de layout est FIXE (sim) : on fit la bbox réelle des nœuds ; en
+  // statique, fitBox(null) = la boîte de layout, qui EST cette bbox. Jamais
+  // rejoué au pan/zoom/survol — l'utilisateur garde la main.
   useEffect(() => {
     if (!shown) return
-    const box = matches.size > 0 ? nodesBox(shown.nodes, matches) : null
-    zp.fitBox(matches.size > 0 ? box : null)
+    if (matches.size > 0) {
+      const box = nodesBox(shown.nodes, matches)
+      if (box) zp.fitBox(box)
+    } else if (driver) {
+      zp.fitBox(nodesBox(shown.nodes), 1)
+    } else {
+      zp.fitBox(null)
+    }
     // fitBox est stable ; zp change d'identité à chaque render → hors deps.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shown, matches])
 
   const { scale, tx, ty } = zp.transform
 
+  const fitAll = () => {
+    markInteracted()
+    if (driver && shownRef.current) zp.fitBox(nodesBox(shownRef.current.nodes), 1)
+    else zp.fit()
+  }
+
   return (
     <div className="relative h-full w-full">
       <div className="absolute right-3 top-3 z-10 flex items-center overflow-hidden rounded-md border border-neutral-300 bg-white shadow-sm">
-        <button type="button" onClick={() => zp.zoomBy(1 / ZOOM_STEP)} aria-label="Zoom out"
+        <button type="button" onClick={() => { markInteracted(); zp.zoomBy(1 / ZOOM_STEP) }} aria-label="Zoom out"
           className="px-2.5 py-1 text-sm text-neutral-600 transition-colors hover:bg-neutral-100">−</button>
-        <button type="button" onClick={zp.fit}
+        <button type="button" onClick={fitAll}
           className="border-l border-neutral-200 px-2.5 py-1 text-xs text-neutral-600 transition-colors hover:bg-neutral-100">Fit</button>
-        <button type="button" onClick={zp.reset} aria-label="Reset zoom to 100%"
+        <button type="button" onClick={() => { markInteracted(); zp.reset() }} aria-label="Reset zoom to 100%"
           className="border-l border-neutral-200 px-2.5 py-1 text-xs text-neutral-600 transition-colors hover:bg-neutral-100">100 %</button>
-        <button type="button" onClick={() => zp.zoomBy(ZOOM_STEP)} aria-label="Zoom in"
+        <button type="button" onClick={() => { markInteracted(); zp.zoomBy(ZOOM_STEP) }} aria-label="Zoom in"
           className="border-l border-neutral-200 px-2.5 py-1 text-sm text-neutral-600 transition-colors hover:bg-neutral-100">+</button>
       </div>
 
@@ -182,7 +296,7 @@ export function KbGraph({ graph, filters, query }: { graph: KbGraphData; filters
         ref={zp.viewportRef}
         tabIndex={0}
         role="application"
-        aria-label="Knowledge graph — drag to pan, scroll wheel or + and − to zoom"
+        aria-label="Knowledge graph — drag the background to pan, drag a node to move it, scroll wheel or + and − to zoom"
         className={`absolute inset-0 select-none overflow-hidden ${zp.panning ? 'cursor-grabbing' : 'cursor-grab'}`}
         style={{ touchAction: 'none' }}
         onPointerDown={zp.handlers.onPointerDown}
@@ -190,6 +304,9 @@ export function KbGraph({ graph, filters, query }: { graph: KbGraphData; filters
         onPointerUp={zp.handlers.onPointerUp}
         onPointerCancel={zp.handlers.onPointerCancel}
         onKeyDown={zp.handlers.onKeyDown}
+        onPointerDownCapture={markInteracted}
+        onWheelCapture={markInteracted}
+        onKeyDownCapture={markInteracted}
       >
         {shown && (
           <div
@@ -203,25 +320,31 @@ export function KbGraph({ graph, filters, query }: { graph: KbGraphData; filters
             }}
           >
             <svg className="absolute inset-0" width={shown.width} height={shown.height}>
-              {basePaths && (
-                <EdgesLayer solid={basePaths.solid} dashed={basePaths.dashed} dim={focus !== null} revealing={revealing} />
-              )}
-              {focusPaths && (
-                <g pointerEvents="none" stroke="var(--color-neutral-900)" strokeOpacity={0.8} strokeWidth={1.5} fill="none">
-                  {focusPaths.solid && <path d={focusPaths.solid} vectorEffect="non-scaling-stroke" />}
-                  {focusPaths.dashed && <path d={focusPaths.dashed} strokeDasharray="3 3" vectorEffect="non-scaling-stroke" />}
-                </g>
+              {driver ? (
+                <LiveEdgesLayer driver={driver} dim={focus !== null} />
+              ) : (
+                <>
+                  {basePaths && <EdgesLayer solid={basePaths.solid} dashed={basePaths.dashed} dim={focus !== null} />}
+                  {focusPaths && (
+                    <g pointerEvents="none" stroke="var(--color-neutral-900)" strokeOpacity={0.8} strokeWidth={1.5} fill="none">
+                      {focusPaths.solid && <path d={focusPaths.solid} vectorEffect="non-scaling-stroke" />}
+                      {focusPaths.dashed && <path d={focusPaths.dashed} strokeDasharray="3 3" vectorEffect="non-scaling-stroke" />}
+                    </g>
+                  )}
+                </>
               )}
               <NodesLayer
                 nodes={view.nodes}
                 placed={shown.nodes}
+                driver={driver}
+                initialIds={initialIds}
                 focus={focus}
                 adj={adj}
                 matches={matches}
                 searching={searching}
-                delays={delays}
                 onFocus={setFocus}
                 onOpen={onNodeClick}
+                onNodeDown={onNodePointerDown}
               />
             </svg>
           </div>
@@ -232,33 +355,34 @@ export function KbGraph({ graph, filters, query }: { graph: KbGraphData; filters
 }
 
 /**
- * Layout asynchrone : lit le cache module (synchrone), sinon rejoint/lance un
- * job en tranches (kbLayoutCache — partagé avec le préchauffage de KbContext).
+ * Layout STATIQUE asynchrone (reduced-motion) : lit le cache module
+ * (synchrone), sinon rejoint/lance un job en tranches (kbLayoutCache — partagé
+ * avec le préchauffage de KbContext). `graph: null` = pipeline live, inactif.
  */
-function useKbLayout(
-  graph: KbGraphData,
+function useKbStaticLayout(
+  graph: KbGraphData | null,
   fKey: string,
   view: { nodes: KbNode[]; edges: KbEdge[] },
 ): KbLayoutResult | null {
   const [ready, setReady] = useState<{ key: string; layout: KbLayoutResult } | null>(null)
   const viewRef = useRef(view)
   viewRef.current = view
-  const cached = cachedKbLayout(graph, fKey)
+  const cached = graph ? cachedKbLayout(graph, fKey) : null
   useEffect(() => {
-    if (cachedKbLayout(graph, fKey)) return
+    if (!graph || cachedKbLayout(graph, fKey)) return
     return ensureKbLayout(graph, fKey, layoutInput(viewRef.current), (layout) => setReady({ key: fKey, layout }))
   }, [graph, fKey])
+  if (!graph) return null
   return cached ?? (ready?.key === fKey ? ready.layout : null)
 }
 
-/** Les 2214 arêtes de base = 2 <path>. Ne re-rend que si le graphe ou l'état
- *  binaire dim/reveal change — jamais pendant le pan/zoom. */
+/** Les 2214 arêtes de base = 2 <path> (pipeline statique — React écrit `d`).
+ *  Ne re-rend que si le graphe ou l'état binaire dim change. */
 const EdgesLayer = memo(function EdgesLayer({
-  solid, dashed, dim, revealing,
-}: { solid: string; dashed: string; dim: boolean; revealing: boolean }) {
+  solid, dashed, dim,
+}: { solid: string; dashed: string; dim: boolean }) {
   return (
     <g
-      className={revealing ? 'kb-edges-in' : undefined}
       pointerEvents="none"
       fill="none"
       stroke={dim ? 'var(--color-neutral-200)' : 'var(--color-neutral-500)'}
@@ -271,18 +395,49 @@ const EdgesLayer = memo(function EdgesLayer({
   )
 })
 
+/**
+ * Arêtes du pipeline LIVE : React monte 4 <path> VIDES (base plein/pointillé +
+ * surcouche de survol) et n'écrit JAMAIS leurs `d` — le pilote les possède et
+ * les met à jour à chaque tick. Seuls les props de trait (dim) passent par
+ * React. `kb-edges-in` : fondu d'entrée à l'arrivée (CSS, une fois).
+ */
+const LiveEdgesLayer = memo(function LiveEdgesLayer({ driver, dim }: { driver: KbSimDriver; dim: boolean }) {
+  return (
+    <>
+      <g
+        className="kb-edges-in"
+        pointerEvents="none"
+        fill="none"
+        stroke={dim ? 'var(--color-neutral-200)' : 'var(--color-neutral-500)'}
+        strokeOpacity={dim ? 0.6 : 0.8}
+        strokeWidth={1}
+      >
+        <path ref={(el) => driver.attachPath('solid', el)} vectorEffect="non-scaling-stroke" />
+        <path ref={(el) => driver.attachPath('dashed', el)} strokeDasharray="3 3" vectorEffect="non-scaling-stroke" />
+      </g>
+      <g pointerEvents="none" stroke="var(--color-neutral-900)" strokeOpacity={0.8} strokeWidth={1.5} fill="none">
+        <path ref={(el) => driver.attachPath('focusSolid', el)} vectorEffect="non-scaling-stroke" />
+        <path ref={(el) => driver.attachPath('focusDashed', el)} strokeDasharray="3 3" vectorEffect="non-scaling-stroke" />
+      </g>
+    </>
+  )
+})
+
 const NodesLayer = memo(function NodesLayer({
-  nodes, placed, focus, adj, matches, searching, delays, onFocus, onOpen,
+  nodes, placed, driver, initialIds, focus, adj, matches, searching, onFocus, onOpen, onNodeDown,
 }: {
   nodes: KbNode[]
   placed: ReadonlyMap<string, KbPlaced>
+  driver: KbSimDriver | null
+  /** Nœuds de la génération initiale — pas de pop `kb-in` (perf + redondant). */
+  initialIds: ReadonlySet<string>
   focus: string | null
   adj: Map<string, Set<string>>
   matches: Set<string>
   searching: boolean
-  delays: Map<string, number> | null
   onFocus: (id: string | null) => void
   onOpen: (id: string) => void
+  onNodeDown: (id: string, e: React.PointerEvent<SVGCircleElement>) => void
 }) {
   const inHood = (id: string): boolean =>
     focus === null || id === focus || (adj.get(focus)?.has(id) ?? false)
@@ -309,20 +464,27 @@ const NodesLayer = memo(function NodesLayer({
         const p = placed.get(node.id)
         if (!p) return null
         const tone = nodeFill(node.id)
-        const delay = delays?.get(node.id)
-        const reveal = delay !== undefined
         return (
-          <g key={node.id}>
+          // Le <g> porte la POSITION (transform) : en live, le pilote la met à
+          // jour à chaque tick via la ref — cercle et label bougent ensemble,
+          // React ne réconcilie rien. Un render React (survol, recherche)
+          // relit les positions COURANTES du Map muté : jamais de retour en
+          // arrière. `kb-in` : pop d'insertion des ENTRANTS d'un morph.
+          <g
+            key={node.id}
+            transform={`translate(${p.x} ${p.y})`}
+            ref={driver ? (el) => driver.registerNode(node.id, el) : undefined}
+          >
             <circle
-              cx={p.x} cy={p.y} r={p.r}
-              className={reveal ? 'kb-in cursor-pointer' : 'cursor-pointer'}
-              style={reveal ? ({ '--kb-d': delay } as React.CSSProperties) : undefined}
+              cx={0} cy={0} r={p.r}
+              className={driver && !initialIds.has(node.id) ? 'kb-in cursor-pointer' : 'cursor-pointer'}
               fill="var(--color-accent)"
               fillOpacity={tone.fill}
               stroke="var(--color-accent)"
               strokeOpacity={tone.stroke}
               strokeWidth={1.5}
               vectorEffect="non-scaling-stroke"
+              onPointerDown={driver ? (e) => onNodeDown(node.id, e) : undefined}
               onPointerEnter={() => onFocus(node.id)}
               onPointerLeave={() => onFocus(null)}
               onClick={() => onOpen(node.id)}
@@ -331,13 +493,12 @@ const NodesLayer = memo(function NodesLayer({
             </circle>
             {showLabel(node.id) && (
               <text
-                x={p.x} y={p.y + p.r + 9}
+                x={0} y={p.r + 9}
                 textAnchor="middle"
-                className={reveal ? 'kb-in pointer-events-none' : 'pointer-events-none'}
+                className="pointer-events-none"
                 style={{
                   fontSize: 9,
                   fill: tone.dim ? 'var(--color-neutral-400)' : 'var(--color-neutral-700)',
-                  ...(reveal ? ({ '--kb-d': delay } as React.CSSProperties) : undefined),
                 }}
               >
                 {node.label}

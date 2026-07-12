@@ -163,11 +163,14 @@ body {
 }
 
 /*
- * Reveal progressif de la Knowledge base (#308) : à l'arrivée sur l'onglet,
- * les nœuds apparaissent PAR LOTS (délai = --kb-d × 30ms, posé par KbGraph —
- * hubs d'abord) et les arêtes fondent derrière. Stagger 100 % CSS : un seul
- * render React, le navigateur orchestre. `both` : invisible pendant le délai.
- * Coupé sous prefers-reduced-motion (tout est visible immédiatement).
+ * Knowledge base vivante (#316) : le mouvement des nœuds vient de la SIM
+ * (kbSim + kbSimDriver, impératif). Ici seulement les entrées dans le DOM —
+ * `kb-in` = pop d'insertion des ENTRANTS d'un changement de filtre (jamais la
+ * génération initiale : 869 animations simultanées coûtaient des frames à
+ * 100 ms+, et l'expansion du nuage EST l'entrée en scène), `kb-edges-in` =
+ * fondu des arêtes à l'arrivée. Les animations ne jouent qu'à l'INSERTION de
+ * l'élément. Coupé sous prefers-reduced-motion (le pipeline statique n'anime
+ * rien, ceinture + bretelles ici).
  */
 @keyframes kb-node-in {
   from { opacity: 0; transform: scale(0.4); }
@@ -176,7 +179,6 @@ body {
   transform-box: fill-box;
   transform-origin: center;
   animation: kb-node-in 300ms ease-out both;
-  animation-delay: calc(var(--kb-d, 0) * 30ms);
 }
 @keyframes kb-fade-in {
   from { opacity: 0; }
