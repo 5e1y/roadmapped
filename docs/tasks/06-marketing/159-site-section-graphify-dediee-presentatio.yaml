@@ -3,7 +3,7 @@ code: null
 title: >-
   Site : section Graphify dédiée (présentation complète + petit graph de démo RÉEL interactif + lien
   graphify.net)
-status: todo
+status: done
 tags:
   - kb
   - graphify
@@ -27,9 +27,27 @@ dependsOn: []
 epic: knowledge-base
 source: ai
 createdAt: "2026-07-12T15:03:53"
-updatedAt: "2026-07-12T15:03:53"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+startedAt: "2026-07-12T15:23:05"
+updatedAt: "2026-07-12T15:44:05"
+completedAt: "2026-07-12T15:44:05"
+commit: 70acb11
+outcome: >-
+  Section Graphify dédiée sur le site (roadmapped-site 70acb11, déployé). Placée ENTRE #features et
+  #how-it-works (« juste avant how it works », ordre live vérifié). Contenu : eyebrow $ npx
+  roadmapped kb neighborhood 17, titre « A knowledge base you never fill in », prose (graphe vivant
+  du repo, liage tickets⇄refs, agents), un GRAPHE DE DÉMO RÉEL (42 nœuds/94 arêtes extraits du vrai
+  graphify-out/graph.json autour du hub kb.ts, mix code+docs) rendu en SVG vanilla dans un chrome
+  .ui-frame (onglet Docs actif + mini-toggle Documents/Knowledge base), layout pré-calculé au build,
+  dérive ambiante rAF coupée hors-viewport/reduced-motion, survol→voisinage + readout, fallback
+  no-JS ; + 2 pair-cards (tickets⇄refs / agents kb_neighborhood/kb_search/kb_node MCP+CLI) ; crédit
+  Graphify (MIT, graphify.net + Graphify-Labs/graphify, « not ours »). Ancien petit bloc
+  #knowledge-base supprimé/consolidé → une seule section KB. CSS 100% variables (theme-aware),
+  data-bird-perch sur les cartes peintes. Clone de travail du site supprimé après push (outil
+  jetable, un seul site = le repo roadmapped-site).
+verification: >-
+  Live https://roadmapped.dev/ : #knowledge-base + #kb-svg présents, ordre
+  features→knowledge-base→how-it-works. Pré-push : HTMLParser 0 orpheline/non fermée, CSS 275/275, 0
+  couleur en dur (hors accent/commentaires), 1 seule section KB, crédit+liens Graphify présents,
+  responsive 390px sans débordement, thèmes clair/sombre OK (screenshots agent). Rendu final à
+  valider par Rémi.
 release: null
