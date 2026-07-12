@@ -1,0 +1,35 @@
+id: 314
+code: null
+title: >-
+  Site : section Graphify dédiée (présentation complète + petit graph de démo RÉEL interactif + lien
+  graphify.net)
+status: todo
+tags:
+  - kb
+  - graphify
+  - site
+  - homepage
+size: null
+heat: 70
+detail: >-
+  Demande Rémi. Aujourd'hui le site n'a qu'un petit bloc #knowledge-base (#310). Faire une SECTION
+  ENTIÈRE dédiée à Graphify / la Knowledge base : présentation de la feature (le graphe du repo, le
+  liage tickets⇄code/docs, les agents qui l'utilisent), un PETIT GRAPHE DE DÉMO RÉEL interactif (un
+  extrait du vrai graphe Roadmapped — ex. un sous-graphe de graphify-out/graph.json exporté, rendu
+  façon KbGraph mais autonome/léger sur la page statique : SVG force-directed + zoom/pan léger, ou
+  une version simplifiée), crédit + lien vers Graphify (https://graphify.net/ + repo
+  Graphify-Labs/graphify, MIT, « pas nous »). Ton Rémi, DA du site (filets/cartes/vars,
+  theme-aware), HTML valide, responsive. Réutiliser le vocabulaire visuel existant + éventuellement
+  porter une mini version du rendu graphe. Repo externe 5e1y/roadmapped-site.
+refs: []
+links: []
+dependsOn: []
+epic: knowledge-base
+source: ai
+createdAt: "2026-07-12T15:03:53"
+updatedAt: "2026-07-12T15:03:53"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
