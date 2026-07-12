@@ -42,8 +42,9 @@ const USAGE = `Usage: roadmapped <command>
 Plumbing (host repo):
   init       install Roadmapped in the current repo (config, 9-type skeleton,
              .claude/ skill, .mcp.json entry, chained guard hook) — idempotent
-  upgrade    update the tool's files (skill, MCP, hook) —
-             NEVER touches docs/tasks/ or roadmapped.config.json
+             --with-kb installs the Graphify knowledge base without prompting
+  upgrade    update the tool's files (skill, MCP, hook) and retry the optional
+             knowledge base — NEVER touches docs/tasks/ or roadmapped.config.json
   migrate    upgrade an OLD-model backlog (stages+teams) to the type-based
              model — idempotent, no-op if already migrated
   dashboard  launch the dashboard (local server + write API) on the current repo
@@ -54,7 +55,10 @@ switch (cmd) {
   case 'init':
   case 'upgrade': {
     const { runInit, runUpgrade } = await importPkg('scripts/install.mjs')
-    ;(cmd === 'init' ? runInit : runUpgrade)()
+    // --with-kb (#322) : opt-in NON interactif de la Knowledge base (Graphify).
+    // En TTY un prompt la propose ; en CI/non-TTY le défaut est skip.
+    const withKb = rest.includes('--with-kb')
+    await (cmd === 'init' ? runInit : runUpgrade)({ withKb })
     break
   }
 

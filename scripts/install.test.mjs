@@ -8,7 +8,7 @@ import { join, resolve, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { load } from 'js-yaml'
 import {
-  ensureConfig, ensureSkeleton, ensureDevDependency, mergeMcpEntry, installGuardHook, ensureSessionHook, ensureClaudeMd, runInit, runUpgrade,
+  ensureConfig, ensureSkeleton, ensureDevDependency, mergeMcpEntry, installGuardHook, ensureSessionHook, ensureClaudeMd, ensureGraphify, runInit, runUpgrade,
 } from './install.mjs'
 
 // Tout se joue dans un repo HÔTE jetable — jamais le repo réel. On teste :
@@ -22,6 +22,10 @@ const binPath = join(repoRoot, 'bin', 'roadmapped.mjs')
 
 let host
 const silent = () => {}
+
+// Étape KB hermétique pour les tests d'orchestration : aucun binaire réel
+// (python/uv/pipx) sondé ni installé — « rien qui installe graphifyy » (#322).
+const noKb = { exec: () => null, interactive: false }
 
 beforeEach(() => {
   host = mkdtempSync(join(tmpdir(), 'roadmapped-host-'))
@@ -258,50 +262,184 @@ describe('runInit — orchestration idempotente', () => {
   // #240 : init exige un package.json hôte (sinon MCP/hooks pointeraient dans le vide).
   beforeEach(() => writeFileSync(join(host, 'package.json'), '{"name":"host","private":true}\n'))
 
-  it('sans package.json hôte : ABANDONNE avant d\'écrire quoi que ce soit de câblé (#240)', () => {
+  it('sans package.json hôte : ABANDONNE avant d\'écrire quoi que ce soit de câblé (#240)', async () => {
     rmSync(join(host, 'package.json'))
-    runInit({ hostRoot: host, packageDir: repoRoot, log: silent })
+    await runInit({ hostRoot: host, packageDir: repoRoot, log: silent, kb: noKb })
     expect(existsSync(join(host, '.mcp.json'))).toBe(false) // pas de wiring cassé
     expect(existsSync(join(host, 'roadmapped.config.json'))).toBe(false) // abandon total, rien créé
   })
 
-  it('pose tout, et un second passage ne change RIEN (snapshot identique)', () => {
-    runInit({ hostRoot: host, packageDir: repoRoot, log: silent })
+  it('pose tout, et un second passage ne change RIEN (snapshot identique)', async () => {
+    await runInit({ hostRoot: host, packageDir: repoRoot, log: silent, kb: noKb })
     expect(existsSync(join(host, 'roadmapped.config.json'))).toBe(true)
     expect(existsSync(join(host, 'docs', 'tasks', '_meta.yaml'))).toBe(true)
     expect(existsSync(join(host, '.claude', 'skills', 'roadmapped', 'SKILL.md'))).toBe(true)
     expect(existsSync(join(host, '.mcp.json'))).toBe(true)
     expect(existsSync(join(host, '.git', 'hooks', 'pre-commit'))).toBe(true)
     const before = snapshot(host)
-    runInit({ hostRoot: host, packageDir: repoRoot, log: silent })
+    await runInit({ hostRoot: host, packageDir: repoRoot, log: silent, kb: noKb })
     expect(snapshot(host)).toEqual(before)
   })
 
-  it('ne réécrase jamais un backlog existant ni une config personnalisée', () => {
+  it('ne réécrase jamais un backlog existant ni une config personnalisée', async () => {
     writeFileSync(join(host, 'roadmapped.config.json'), JSON.stringify({ tasksDir: 'backlog', docsDir: 'docs' }))
     mkdirSync(join(host, 'backlog'), { recursive: true })
     writeFileSync(join(host, 'backlog', '_meta.yaml'), 'nextId: 99\n')
-    runInit({ hostRoot: host, packageDir: repoRoot, log: silent })
+    await runInit({ hostRoot: host, packageDir: repoRoot, log: silent, kb: noKb })
     expect(readFileSync(join(host, 'backlog', '_meta.yaml'), 'utf8')).toBe('nextId: 99\n') // données intactes
     expect(JSON.parse(readFileSync(join(host, 'roadmapped.config.json'), 'utf8')).tasksDir).toBe('backlog')
     expect(existsSync(join(host, 'backlog', '01-bug'))).toBe(false) // pas de squelette par-dessus
+  })
+
+  it('#322 : Python absent → étape KB sautée, l\'init RÉUSSIT et pose tout le reste', async () => {
+    const logs = []
+    // exec: () => null = aucun binaire ne répond (python3/python introuvables).
+    await runInit({ hostRoot: host, packageDir: repoRoot, log: (m) => logs.push(m), kb: noKb })
+    expect(existsSync(join(host, 'roadmapped.config.json'))).toBe(true)
+    expect(existsSync(join(host, 'docs', 'tasks', '_meta.yaml'))).toBe(true)
+    expect(existsSync(join(host, '.mcp.json'))).toBe(true)
+    expect(existsSync(join(host, '.claude', 'settings.json'))).toBe(true)
+    expect(existsSync(join(host, '.git', 'hooks', 'pre-commit'))).toBe(true)
+    const out = logs.join('\n')
+    expect(out).toContain('Python ≥ 3.10') // instruction claire, pas d'erreur
+    expect(out).toContain('init done') // l'init va au bout
+    expect(existsSync(join(host, '.gitignore'))).toBe(false) // l'étape KB ne touche pas au .gitignore
+  })
+
+  it('#322 : même un crash interne de l\'étape KB ne fait pas échouer l\'init', async () => {
+    const logs = []
+    await runInit({
+      hostRoot: host, packageDir: repoRoot, log: (m) => logs.push(m),
+      kb: { exec: () => { throw new Error('boom') }, interactive: false },
+    })
+    expect(existsSync(join(host, 'roadmapped.config.json'))).toBe(true)
+    expect(logs.join('\n')).toContain('init done')
   })
 })
 
 describe('runUpgrade — additive, jamais destructive', () => {
   beforeEach(() => writeFileSync(join(host, 'package.json'), '{"name":"host","private":true}\n')) // #240
-  it('recopie skill/MCP/hook mais ne touche ni docs/tasks ni la config', () => {
-    runInit({ hostRoot: host, packageDir: repoRoot, log: silent })
+  it('recopie skill/MCP/hook mais ne touche ni docs/tasks ni la config', async () => {
+    await runInit({ hostRoot: host, packageDir: repoRoot, log: silent, kb: noKb })
     // L'utilisateur travaille : il modifie sa config, son backlog, ET (à tort) le skill.
     writeFileSync(join(host, 'roadmapped.config.json'), JSON.stringify({ tasksDir: 'docs/tasks', docsDir: 'wiki' }))
     writeFileSync(join(host, 'docs', 'tasks', '_meta.yaml'), 'nextId: 7\n')
     writeFileSync(join(host, '.claude', 'skills', 'roadmapped', 'SKILL.md'), 'version locale bricolée')
-    runUpgrade({ hostRoot: host, packageDir: repoRoot, log: silent })
+    await runUpgrade({ hostRoot: host, packageDir: repoRoot, log: silent, kb: noKb })
     // Données utilisateur : intactes.
     expect(JSON.parse(readFileSync(join(host, 'roadmapped.config.json'), 'utf8')).docsDir).toBe('wiki')
     expect(readFileSync(join(host, 'docs', 'tasks', '_meta.yaml'), 'utf8')).toBe('nextId: 7\n')
     // Fichier tool-owned : réécrasé par la version du paquet.
     expect(readFileSync(join(host, '.claude', 'skills', 'roadmapped', 'SKILL.md'), 'utf8')).not.toBe('version locale bricolée')
+  })
+
+  it('#322 : upgrade RE-TENTE l\'étape KB (re-détection) sans rien casser', async () => {
+    await runInit({ hostRoot: host, packageDir: repoRoot, log: silent, kb: noKb })
+    const before = snapshot(host)
+    const logs = []
+    await runUpgrade({ hostRoot: host, packageDir: repoRoot, log: (m) => logs.push(m), kb: noKb })
+    const out = logs.join('\n')
+    expect(out).toContain('Python ≥ 3.10') // la détection a bien été re-tentée
+    expect(out).toContain('upgrade done')
+    expect(snapshot(host)).toEqual(before) // rien détruit, rien écrit en plus
+  })
+})
+
+describe('ensureGraphify (#322) — optionnelle, consentie, JAMAIS bloquante', () => {
+  // Faux exec : table « commande → stdout » ; tout le reste échoue (null).
+  // AUCUN binaire réel n'est lancé, rien n'installe graphifyy pour de vrai.
+  const fakeExec = (table, calls = []) => (cmd, args = []) => {
+    const key = [cmd, ...args].join(' ')
+    calls.push(key)
+    return key in table ? table[key] : null
+  }
+  const PY_OK = { 'python3 --version': 'Python 3.12.1' }
+
+  it('Python absent : log d\'instruction + skip, jamais d\'exception', async () => {
+    const logs = []
+    const r = await ensureGraphify(host, { exec: () => null, interactive: false }, (m) => logs.push(m))
+    expect(r).toBe('no-python')
+    expect(logs.join('\n')).toContain('Python ≥ 3.10')
+  })
+
+  it('Python trop vieux (3.9) : même skip propre', async () => {
+    const r = await ensureGraphify(host, { exec: fakeExec({ 'python3 --version': 'Python 3.9.18' }), interactive: false }, silent)
+    expect(r).toBe('no-python')
+  })
+
+  it('non-TTY sans --with-kb : skip par défaut (consentement), rien installé', async () => {
+    const calls = []
+    const logs = []
+    const r = await ensureGraphify(host, { exec: fakeExec(PY_OK, calls), interactive: false }, (m) => logs.push(m))
+    expect(r).toBe('skipped')
+    expect(logs.join('\n')).toContain('--with-kb')
+    expect(calls.some((c) => c.includes('install'))).toBe(false) // aucune tentative d'install
+  })
+
+  it('idempotence : graphify déjà installé → « déjà installé », aucune install', async () => {
+    const calls = []
+    const logs = []
+    const r = await ensureGraphify(host, {
+      exec: fakeExec({ ...PY_OK, 'graphify --version': 'graphify 0.9.12' }, calls),
+      interactive: false, withKb: true, // même l'opt-in ne réinstalle pas
+    }, (m) => logs.push(m))
+    expect(r).toBe('already')
+    expect(logs.join('\n')).toContain('déjà installé')
+    expect(calls.some((c) => c.includes('install'))).toBe(false)
+  })
+
+  it('TTY : refus au prompt (défaut N) → skip propre', async () => {
+    const r = await ensureGraphify(host, {
+      exec: fakeExec(PY_OK), interactive: true, ask: async () => false,
+    }, silent)
+    expect(r).toBe('skipped')
+  })
+
+  it('--with-kb : installe via uv (mocké) en premier choix, puis graphify install best-effort', async () => {
+    const calls = []
+    const logs = []
+    const r = await ensureGraphify(host, {
+      exec: fakeExec({
+        ...PY_OK,
+        'uv --version': 'uv 0.7.0',
+        'uv tool install graphifyy': '',
+        'graphify install': 'ok',
+        'graphify claude install': 'ok',
+      }, calls),
+      interactive: false, withKb: true,
+    }, (m) => logs.push(m))
+    expect(r).toBe('installed')
+    expect(calls).toContain('uv tool install graphifyy')
+    expect(calls).not.toContain('pipx install graphifyy') // uv a suffi
+    expect(calls).toContain('graphify install')
+    expect(calls).toContain('graphify claude install')
+    expect(logs.join('\n')).toContain('/graphify .') // la génération reste un acte d'agent
+    expect(existsSync(join(host, '.gitignore'))).toBe(false) // jamais touché
+  })
+
+  it('fallback venv : pip dans un venv dédié + pythonBin mémorisé dans la config', async () => {
+    writeFileSync(join(host, 'roadmapped.config.json'), JSON.stringify({ tasksDir: 'docs/tasks', docsDir: 'docs' }))
+    const venvDir = join(host, '.roadmapped-py') // venv de TEST, pas le ~/.roadmapped réel
+    const venvPython = join(venvDir, process.platform === 'win32' ? 'Scripts' : 'bin', process.platform === 'win32' ? 'python.exe' : 'python')
+    const r = await ensureGraphify(host, {
+      exec: fakeExec({
+        ...PY_OK, // ni uv ni pipx → repli venv
+        [`python3 -m venv ${venvDir}`]: '',
+        [`${venvPython} -m pip install graphifyy`]: '',
+      }),
+      interactive: false, withKb: true, venvDir,
+    }, silent)
+    expect(r).toBe('installed')
+    const cfg = JSON.parse(readFileSync(join(host, 'roadmapped.config.json'), 'utf8'))
+    expect(cfg.pythonBin).toBe(venvPython) // kb/doctor retrouvera l'interpréteur
+    expect(cfg.tasksDir).toBe('docs/tasks') // merge non destructif
+  })
+
+  it('aucun mécanisme d\'install ne marche : « failed » loggé, la main est rendue', async () => {
+    const logs = []
+    const r = await ensureGraphify(host, { exec: fakeExec(PY_OK), interactive: false, withKb: true }, (m) => logs.push(m))
+    expect(r).toBe('failed')
+    expect(logs.join('\n')).toContain('roadmapped upgrade') // comment réessayer
   })
 })
 

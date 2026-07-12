@@ -40,6 +40,7 @@ Present in compact prose, and wait for agreement before writing:
 4. Create tasks **via the CLI only** (`add --type <type> ...`, `--type` is the exact folder slug, e.g. `02-feature`), in dependency order (a `--depends-on` can only cite an already-created id). Set `--refs`, `--tags`, `--size`, `--depends-on`, and `--heat` (only when a deliberate priority signal is warranted) right at creation. `--source user` for what comes from the user's own writing, `ai` for what you infer.
 5. Apply the agreed fate for the old files.
 6. Final `validate` + `npx roadmapped roadmap` and `list` to show the result to the user.
+7. **Knowledge base (optional — Graphify)**: `init` ends with a KB step — when Python ≥ 3.10 is present it offers to install Graphify (prompt in a TTY; `--with-kb` to opt in non-interactively; no Python → skipped cleanly, Roadmapped works the same and the init still succeeds). If Graphify got installed, ASK the user before generating the graph — `/graphify .` runs sub-agents over the docs and **costs tokens** — and on agreement run it once (later refreshes: `/graphify . --update`). Never generate without that consent.
 
 ## 4. End-of-setup verification
 

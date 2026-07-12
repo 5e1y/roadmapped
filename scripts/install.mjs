@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 // Install plumbing inside a HOST repo (spec 2026-07-08-distribution, §3-4).
-// `roadmapped init`   : config + 9-type skeleton + skill + MCP entry + guard hook.
+// `roadmapped init`   : config + 9-type skeleton + skill + MCP entry + guard hook
+//                       + Knowledge base Graphify (OPT-IN, jamais bloquante, #322).
 // `roadmapped upgrade`: re-copies the TOOL-OWNED files (skill, MCP, hook) — NEVER
-//                       touches docs/tasks/ or roadmapped.config.json.
+//                       touches docs/tasks/ or roadmapped.config.json — and
+//                       re-tente l'étape Knowledge base (idempotente).
 //
 // Idempotent by construction: each step detects what already exists and never
 // overwrites user data. The CONTENT of init (questionnaire, migration, first
@@ -14,6 +16,7 @@ import {
   existsSync, mkdirSync, writeFileSync, readFileSync, cpSync, chmodSync,
 } from 'node:fs'
 import { join, dirname, resolve, isAbsolute } from 'node:path'
+import { homedir } from 'node:os'
 import { execFileSync } from 'node:child_process'
 import yaml from 'js-yaml'
 import { TYPES } from '../src/lib/tasks.ts'
@@ -236,6 +239,164 @@ export function installGuardHook(hostRoot, guardCommand, log = () => {}) {
 
 const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
+// --------------------------------------------- Knowledge base (Graphify, #322)
+
+const GRAPHIFY_PKG = 'graphifyy' // nom PyPI — le binaire/module, lui, s'appelle `graphify`
+
+/** exec best-effort : stdout (string) si succès, null sinon (binaire introuvable,
+ *  code ≠ 0, timeout). JAMAIS d'exception — le contrat de toute l'étape KB. */
+function tryExec(cmd, args, { timeout = 30_000, cwd } = {}) {
+  try {
+    return execFileSync(cmd, args, {
+      encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout, cwd,
+      maxBuffer: 16 * 1024 * 1024,
+    })
+  } catch {
+    return null
+  }
+}
+
+/** Prompt oui/non sur le TTY. Défaut NON : entrée vide ou autre chose que y/o = refus. */
+async function askYesNoTty(question) {
+  const { createInterface } = await import('node:readline/promises')
+  const rl = createInterface({ input: process.stdin, output: process.stdout })
+  try {
+    return /^(y|yes|o|oui)$/i.test((await rl.question(question)).trim())
+  } finally {
+    rl.close()
+  }
+}
+
+/** Mémorise l'interpréteur du venv dédié dans roadmapped.config.json (clé
+ *  `pythonBin`) pour que le futur CLI kb/doctor le retrouve. Merge non
+ *  destructif (mêmes mœurs que mergeMcpEntry) ; JSON illisible → laissé intact. */
+function recordPythonBin(hostRoot, pythonBin, log) {
+  const file = CONFIG_NAMES.map((n) => join(hostRoot, n)).find(existsSync) ?? join(hostRoot, 'roadmapped.config.json')
+  let json = {}
+  if (existsSync(file)) {
+    try {
+      json = JSON.parse(readFileSync(file, 'utf8'))
+    } catch {
+      log(`kb: ${file} illisible — pythonBin non enregistré (fichier laissé intact).`)
+      return false
+    }
+  }
+  if (json.pythonBin === pythonBin) return true
+  json.pythonBin = pythonBin
+  writeFileSync(file, `${JSON.stringify(json, null, 2)}\n`)
+  log(`kb: pythonBin → ${pythonBin} enregistré dans ${file}.`)
+  return true
+}
+
+/** Étape Knowledge base (spec docs/specs/graphify-kb.md §5) — OPTIONNELLE,
+ *  idempotente, JAMAIS bloquante : quoi qu'il arrive (pas de Python, pas de
+ *  réseau, refus utilisateur, crash), elle logge et rend la main — l'init
+ *  réussit toujours, aucun process.exit, aucune exception qui remonte.
+ *
+ *  - Consentement (~28 Mo) : prompt en TTY, skip par défaut en non-TTY/CI
+ *    (opt-in `roadmapped init --with-kb`).
+ *  - Install en env ISOLÉ, du plus léger au plus rustique : `uv tool install`
+ *    → `pipx install` → venv dédié (~/.roadmapped/py, interpréteur mémorisé
+ *    dans la config). SANS l'extra Leiden/graspologic (+200 Mo évités — verdict
+ *    spec §2.1 : fallback clustering pur Python).
+ *  - Ne GÉNÈRE jamais le graphe (acte d'agent, sous-agents pour les docs) et
+ *    ne touche PAS au .gitignore (décision §9.1 : le graphe se commite).
+ *  - Indépendante de la voie d'install (plugin / npm / github) : ne dépend que
+ *    de hostRoot + Python.
+ *
+ *  opts (tous optionnels, injectables pour les tests) : withKb, interactive,
+ *  exec, ask, venvDir. Retourne un statut pour les tests :
+ *  'no-python' | 'already' | 'skipped' | 'installed' | 'failed' | 'error'. */
+export async function ensureGraphify(hostRoot, opts = {}, log = () => {}) {
+  try {
+    const {
+      withKb = false,
+      interactive = Boolean(process.stdin.isTTY && process.stdout.isTTY),
+      exec = tryExec,
+      ask = askYesNoTty,
+      venvDir = join(homedir(), '.roadmapped', 'py'),
+    } = opts
+
+    // 1. Python ≥ 3.10 — absent/trop vieux : la KB est simplement absente.
+    let pythonBin = null
+    for (const candidate of ['python3', 'python']) {
+      const m = /Python\s+(\d+)\.(\d+)/.exec(exec(candidate, ['--version']) ?? '')
+      if (m && (Number(m[1]) > 3 || (Number(m[1]) === 3 && Number(m[2]) >= 10))) {
+        pythonBin = candidate
+        break
+      }
+    }
+    if (!pythonBin) {
+      log('kb: Knowledge base (optionnelle) : installe Python ≥ 3.10 pour l\'activer, puis relance `roadmapped upgrade`.')
+      return 'no-python'
+    }
+
+    // 2. Idempotence : déjà installé (binaire sur le PATH ou module importable).
+    if (exec('graphify', ['--version']) !== null || exec(pythonBin, ['-c', 'import graphify']) !== null) {
+      log('kb: graphify déjà installé — étape sautée.')
+      log('kb: pour générer le graphe : ouvre l\'agent et lance `/graphify .` (puis `--update` ensuite).')
+      return 'already'
+    }
+
+    // 3. Consentement — ~28 Mo téléchargés, jamais silencieux.
+    if (!withKb) {
+      if (!interactive) {
+        log('kb: passe la Knowledge base — relance avec --with-kb pour l\'installer.')
+        return 'skipped'
+      }
+      if (!(await ask('Installer Graphify pour la knowledge base ? ~28 Mo [y/N] '))) {
+        log('kb: Knowledge base sautée — pour l\'activer plus tard : `roadmapped upgrade`.')
+        return 'skipped'
+      }
+    }
+
+    // 4. Install en env isolé : uv → pipx → venv dédié (premier qui aboutit).
+    let graphifyBin = 'graphify'
+    let installed = false
+    if (exec('uv', ['--version']) !== null && exec('uv', ['tool', 'install', GRAPHIFY_PKG], { timeout: 300_000 }) !== null) {
+      installed = true
+      log('kb: graphifyy installé via `uv tool install` (env isolé).')
+    }
+    if (!installed && exec('pipx', ['--version']) !== null && exec('pipx', ['install', GRAPHIFY_PKG], { timeout: 300_000 }) !== null) {
+      installed = true
+      log('kb: graphifyy installé via `pipx install` (env isolé).')
+    }
+    if (!installed) {
+      const binDir = process.platform === 'win32' ? 'Scripts' : 'bin'
+      const venvPython = join(venvDir, binDir, process.platform === 'win32' ? 'python.exe' : 'python')
+      const venvReady = existsSync(venvPython) || exec(pythonBin, ['-m', 'venv', venvDir], { timeout: 120_000 }) !== null
+      if (venvReady && exec(venvPython, ['-m', 'pip', 'install', GRAPHIFY_PKG], { timeout: 300_000 }) !== null) {
+        installed = true
+        graphifyBin = join(venvDir, binDir, 'graphify')
+        recordPythonBin(hostRoot, venvPython, log)
+        log(`kb: graphifyy installé dans un venv dédié (${venvDir}).`)
+      }
+    }
+    if (!installed) {
+      log('kb: installation de graphifyy impossible (ni uv, ni pipx, ni venv n\'a abouti) — Knowledge base sautée. Relance `roadmapped upgrade` pour réessayer.')
+      return 'failed'
+    }
+
+    // 5. Skill /graphify pour l'agent — best-effort (sous-commandes pré-1.0,
+    //    `claude install` peut ne pas exister : capturé, jamais bloquant).
+    for (const sub of [['install'], ['claude', 'install']]) {
+      if (exec(graphifyBin, sub, { timeout: 60_000, cwd: hostRoot }) === null) {
+        log(`kb: \`graphify ${sub.join(' ')}\` n'a pas abouti — à relancer à la main si besoin.`)
+      }
+    }
+
+    // 6. La génération est un acte d'AGENT (sous-agents pour les docs) — jamais ici.
+    log('kb: pour générer le graphe : ouvre l\'agent et lance `/graphify .` (puis `--update` ensuite).')
+    return 'installed'
+  } catch (err) {
+    // Ceinture ET bretelles : cette étape ne fait JAMAIS échouer l'init.
+    try {
+      log(`kb: étape Knowledge base sautée (${err?.message ?? err}) — Roadmapped fonctionne sans.`)
+    } catch { /* même un log cassé ne doit pas tuer l'init */ }
+    return 'error'
+  }
+}
+
 // ------------------------------------------------------------------ verbs
 
 /** Host-side paths to the package scripts. Self-host (the Roadmapped repo
@@ -256,7 +417,7 @@ function packageScripts(hostRoot, packageDir) {
   }
 }
 
-export function runInit({ hostRoot = findHostRoot(), packageDir = packageRoot(), log = console.log } = {}) {
+export async function runInit({ hostRoot = findHostRoot(), packageDir = packageRoot(), log = console.log, withKb = false, kb = {} } = {}) {
   const { selfHost, mcpArgs, guardCommand, sitrepCommand } = packageScripts(hostRoot, packageDir)
   log(`roadmapped init — host root: ${hostRoot}${selfHost ? ' (self-host)' : ''}`)
   // Garde d'onboarding (#240) : sans package.json hôte, la devDep roadmapped ne peut
@@ -283,11 +444,14 @@ export function runInit({ hostRoot = findHostRoot(), packageDir = packageRoot(),
   ensureSessionHook(hostRoot, sitrepCommand, log)
   ensureClaudeMd(hostRoot, log)
   installGuardHook(hostRoot, guardCommand, log)
+  // Knowledge base (#322) : APRÈS tout le wiring — optionnelle et jamais
+  // bloquante, elle ne peut donc pas empêcher un init par ailleurs réussi.
+  await ensureGraphify(hostRoot, { withKb, ...kb }, log)
   log('init done. Next step: the roadmapped skill (setup phase) fills the backlog.')
   log('▶ Dashboard: npx roadmapped dashboard   (opens the browser; not `npm run dev`, which runs YOUR project)')
 }
 
-export function runUpgrade({ hostRoot = findHostRoot(), packageDir = packageRoot(), log = console.log } = {}) {
+export async function runUpgrade({ hostRoot = findHostRoot(), packageDir = packageRoot(), log = console.log, withKb = false, kb = {} } = {}) {
   const { selfHost, mcpArgs, guardCommand, sitrepCommand } = packageScripts(hostRoot, packageDir)
   log(`roadmapped upgrade — host root: ${hostRoot}${selfHost ? ' (self-host)' : ''}`)
   // Clean boundary: TOOL-OWNED files only. docs/tasks/ and the config are user
@@ -298,5 +462,8 @@ export function runUpgrade({ hostRoot = findHostRoot(), packageDir = packageRoot
   ensureSessionHook(hostRoot, sitrepCommand, log)
   ensureClaudeMd(hostRoot, log)
   installGuardHook(hostRoot, guardCommand, log)
+  // Re-tente la Knowledge base (#322) : re-détecte Python, réinstalle si
+  // manquant — idempotente et jamais destructive, comme les étapes tool-owned.
+  await ensureGraphify(hostRoot, { withKb, ...kb }, log)
   log('upgrade done (docs/tasks/ and roadmapped.config.json untouched). To bump the package: npm install -D roadmapped@latest')
 }
