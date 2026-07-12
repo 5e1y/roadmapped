@@ -7,6 +7,11 @@ export interface RoadmappedConfig {
   docsDir?: string
   /** Chemin du graphe Graphify (Knowledge base, #kb). Défaut graphify-out/graph.json. */
   kbGraph?: string
+  /** Interpréteur Python du venv dédié posé par `roadmapped init` (KB Graphify,
+   *  #322) — chemin ABSOLU, écrit seulement quand l'install est passée par le
+   *  venv de repli (via uv/pipx, `graphify` est sur le PATH et cette clé est
+   *  absente). Lu par le futur CLI kb/doctor, pas par resolvePaths. */
+  pythonBin?: string
 }
 
 export interface RoadmappedPaths {
@@ -27,7 +32,9 @@ export interface RoadmappedPaths {
 // (hérité du modèle « dashboard en sous-dossier ») était relatif à l'emplacement
 // du CODE : installé en node_modules/roadmapped/, il pointait dans l'install au
 // lieu du repo hôte (bug #123).
-const DEFAULTS: Required<RoadmappedConfig> = {
+// pythonBin est exclu des défauts : pas de valeur par défaut sensée (absence =
+// graphify sur le PATH via uv/pipx, ou KB non installée).
+const DEFAULTS: Required<Omit<RoadmappedConfig, 'pythonBin'>> = {
   tasksDir: 'docs/tasks',
   docsDir: 'docs',
   kbGraph: 'graphify-out/graph.json',
