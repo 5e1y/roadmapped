@@ -1,0 +1,51 @@
+id: 331
+code: null
+title: "Post LinkedIn (FR) : Roadmapped × Graphify — visualise tes tasks ET ta codebase"
+status: done
+tags:
+  - linkedin
+  - graphify
+size: S
+detail: >-
+  Rédiger un post LinkedIn en français, dans le tone of voice de Rémi (docs/tone-of-voice.md :
+  direct, pince-sans-rire, jamais négatif, transparence désarmante, anti-marketing assumé).
+
+
+  Sujet : l'intégration Roadmapped × Graphify (knowledge graph embarqué, spec #303).
+
+
+  À couvrir :
+
+  - Ce que ça permet concrètement : knowledge graph du repo construit par Graphify, briefs de
+  tickets enrichis du voisinage KB (fichiers/symboles touchés), requêtes kb_search/kb_neighborhood
+  au lieu de grep aveugle, économie de tokens (~70% sur l'exploration).
+
+  - Les avantages : les tickets sont liés au code, l'agent s'oriente instantanément, tout est lié.
+
+  - L'axe central du post : « Roadmapped ne te permet plus seulement de visualiser tes tasks, mais
+  aussi de visualiser ta codebase. »
+
+
+  Livrable : le texte du post, prêt à publier.
+refs:
+  - docs/tone-of-voice.md
+  - docs/specs/graphify-kb.md
+links: []
+dependsOn: []
+epic: null
+source: user
+createdAt: "2026-07-13T00:45:01"
+startedAt: "2026-07-13T00:47:28"
+updatedAt: "2026-07-13T00:48:56"
+completedAt: "2026-07-13T00:48:56"
+commit: 2caef96
+outcome: >-
+  Post LinkedIn FR rédigé et ajouté à la banque docs/linkedin-posts.md (post 8) : axe « visualiser
+  vos tâches → visualiser votre codebase », 3 bénéfices concrets (liage tickets⇄code dérivé des
+  refs, brief avec voisinage KB, requêtes graphe vs grep ~70% de tokens en moins), chute récursive
+  sur la tâche #331 elle-même. Notes de publication incluses (visuel, lien, chiffres à re-vérifier).
+verification: >-
+  Relu contre docs/tone-of-voice.md : vouvoiement, chiffres précis (1 843 nœuds du sitrep, ~70% du
+  skill), aveu préventif (couche optionnelle Python), zéro superlatif interdit, chute sèche en fin.
+  Cohérent avec le format des posts 1–7 du fichier.
+release: null
