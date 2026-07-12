@@ -41,10 +41,12 @@ const USAGE = `Usage: roadmapped <command>
 
 Plumbing (host repo):
   init       install Roadmapped in the current repo (config, 9-type skeleton,
-             .claude/ skill, .mcp.json entry, chained guard hook) — idempotent
-             --with-kb installs the Graphify knowledge base without prompting
-  upgrade    update the tool's files (skill, MCP, hook) and retry the optional
-             knowledge base — NEVER touches docs/tasks/ or roadmapped.config.json
+             .claude/ skill, .mcp.json entry, chained guard hook, Graphify
+             knowledge base installed BY DEFAULT) — idempotent
+             --no-kb skips the knowledge base (opt-out, remembered as kb: false
+             in roadmapped.config.json; skipped automatically on CI)
+  upgrade    update the tool's files (skill, MCP, hook) and retry the knowledge
+             base — NEVER touches docs/tasks/ or roadmapped.config.json
   migrate    upgrade an OLD-model backlog (stages+teams) to the type-based
              model — idempotent, no-op if already migrated
   dashboard  launch the dashboard (local server + write API) on the current repo
@@ -55,10 +57,11 @@ switch (cmd) {
   case 'init':
   case 'upgrade': {
     const { runInit, runUpgrade } = await importPkg('scripts/install.mjs')
-    // --with-kb (#322) : opt-in NON interactif de la Knowledge base (Graphify).
-    // En TTY un prompt la propose ; en CI/non-TTY le défaut est skip.
-    const withKb = rest.includes('--with-kb')
-    await (cmd === 'init' ? runInit : runUpgrade)({ withKb })
+    // Knowledge base Graphify (#324) : installée PAR DÉFAUT — opt-out `--no-kb`
+    // (mémorisé kb: false en config), skip silencieux en CI. L'ancien opt-in
+    // `--with-kb` (#322) reste accepté mais INERTE : c'est devenu le défaut.
+    const noKb = rest.includes('--no-kb')
+    await (cmd === 'init' ? runInit : runUpgrade)({ noKb })
     break
   }
 

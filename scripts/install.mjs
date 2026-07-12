@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Install plumbing inside a HOST repo (spec 2026-07-08-distribution, §3-4).
 // `roadmapped init`   : config + 9-type skeleton + skill + MCP entry + guard hook
-//                       + Knowledge base Graphify (OPT-IN, jamais bloquante, #322).
+//                       + Knowledge base Graphify (PAR DÉFAUT, opt-out --no-kb,
+//                       jamais bloquante — #322 renversé par #324).
 // `roadmapped upgrade`: re-copies the TOOL-OWNED files (skill, MCP, hook) — NEVER
 //                       touches docs/tasks/ or roadmapped.config.json — and
 //                       re-tente l'étape Knowledge base (idempotente).
@@ -14,10 +15,12 @@
 
 import {
   existsSync, mkdirSync, writeFileSync, readFileSync, cpSync, chmodSync,
+  copyFileSync, rmSync, readdirSync,
 } from 'node:fs'
 import { join, dirname, resolve, isAbsolute } from 'node:path'
 import { homedir } from 'node:os'
 import { execFileSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
 import yaml from 'js-yaml'
 import { TYPES } from '../src/lib/tasks.ts'
 import { findHostRoot, packageRoot, loadPathsAt } from '../src/lib/paths.ts'
@@ -117,24 +120,32 @@ export function copySkill(packageDir, hostRoot, log = () => {}) {
   return dest
 }
 
-/** Merges the `roadmapped` entry into the host .mcp.json — merge, never clobber
- *  other servers. An unreadable .mcp.json is left INTACT (we don't wipe a host's
- *  MCP config just to install ours). */
-export function mergeMcpEntry(hostRoot, serverArgs, log = () => {}) {
+/** Merges ONE named server entry into the host .mcp.json — merge, never clobber
+ *  other servers, idempotent (an identical entry doesn't rewrite the file). An
+ *  unreadable .mcp.json is left INTACT (we don't wipe a host's MCP config just
+ *  to install ours). Generalized in #324: also carries the native `graphify`
+ *  MCP server next to the `roadmapped` one. */
+export function mergeMcpServer(hostRoot, name, entry, log = () => {}) {
   const file = join(hostRoot, '.mcp.json')
   let json = {}
   if (existsSync(file)) {
     try {
       json = JSON.parse(readFileSync(file, 'utf8'))
     } catch {
-      log(`mcp: ${file} unreadable — step skipped (file left intact). Add the entry yourself: { "roadmapped": { "command": "node", "args": ${JSON.stringify(serverArgs)} } }`)
+      log(`mcp: ${file} unreadable — step skipped (file left intact). Add the entry yourself: { "${name}": ${JSON.stringify(entry)} }`)
       return false
     }
   }
-  json.mcpServers = { ...(json.mcpServers ?? {}), roadmapped: { command: 'node', args: serverArgs } }
+  if (JSON.stringify(json.mcpServers?.[name]) === JSON.stringify(entry)) return true // déjà posée, à l'identique
+  json.mcpServers = { ...(json.mcpServers ?? {}), [name]: entry }
   writeFileSync(file, `${JSON.stringify(json, null, 2)}\n`)
-  log(`mcp: roadmapped entry → ${serverArgs.join(' ')} merged into ${file}.`)
+  log(`mcp: ${name} entry → ${[entry.command, ...(entry.args ?? [])].join(' ')} merged into ${file}.`)
   return true
+}
+
+/** Entrée `roadmapped` (le serveur MCP de l'outil) — wrapper historique. */
+export function mergeMcpEntry(hostRoot, serverArgs, log = () => {}) {
+  return mergeMcpServer(hostRoot, 'roadmapped', { command: 'node', args: serverArgs }, log)
 }
 
 /** SessionStart hook (#122): when a Claude session opens in the repo, runs
@@ -239,9 +250,14 @@ export function installGuardHook(hostRoot, guardCommand, log = () => {}) {
 
 const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
-// --------------------------------------------- Knowledge base (Graphify, #322)
+// ------------------------------- Knowledge base (Graphify, #322 → #324 par défaut)
 
 const GRAPHIFY_PKG = 'graphifyy' // nom PyPI — le binaire/module, lui, s'appelle `graphify`
+
+// Bootstrap uv (#324, spec graphify-anchoring §A.1) : version ÉPINGLÉE, assets
+// GitHub Release déterministes par plateforme, checksum .sha256 vérifié — jamais
+// de `curl | sh`, jamais d'écriture dans le PATH (invocation par chemin absolu).
+const UV_VERSION = '0.11.28'
 
 /** exec best-effort : stdout (string) si succès, null sinon (binaire introuvable,
  *  code ≠ 0, timeout). JAMAIS d'exception — le contrat de toute l'étape KB. */
@@ -256,136 +272,335 @@ function tryExec(cmd, args, { timeout = 30_000, cwd } = {}) {
   }
 }
 
-/** Prompt oui/non sur le TTY. Défaut NON : entrée vide ou autre chose que y/o = refus. */
-async function askYesNoTty(question) {
-  const { createInterface } = await import('node:readline/promises')
-  const rl = createInterface({ input: process.stdin, output: process.stdout })
+/** which/where → premier chemin ABSOLU du binaire, null sinon (jamais d'exception). */
+function resolveOnPath(exec, name) {
+  const out = exec(process.platform === 'win32' ? 'where' : 'which', [name])
+  const first = out?.split(/\r?\n/).map((l) => l.trim()).find((l) => l !== '')
+  return first && isAbsolute(first) ? first : null
+}
+
+/** Nom d'asset uv de la plateforme courante — matrice darwin/linux/win × arm64/x64
+ *  (ex. `uv-aarch64-apple-darwin.tar.gz`), null si plateforme hors matrice. */
+function uvAssetName() {
+  const arch = { arm64: 'aarch64', x64: 'x86_64' }[process.arch]
+  const target = arch && {
+    darwin: `${arch}-apple-darwin`,
+    linux: `${arch}-unknown-linux-gnu`,
+    win32: `${arch}-pc-windows-msvc`,
+  }[process.platform]
+  return target ? `uv-${target}${process.platform === 'win32' ? '.zip' : '.tar.gz'}` : null
+}
+
+/** Télécharge une URL en Buffer — suit les redirections GitHub, timeout borné,
+ *  jette en cas d'échec (capturé par l'appelant). */
+async function fetchBuffer(fetchImpl, url, timeout) {
+  const res = await fetchImpl(url, { redirect: 'follow', signal: AbortSignal.timeout(timeout) })
+  if (!res?.ok) throw new Error(`HTTP ${res?.status ?? '???'} — ${url}`)
+  return Buffer.from(await res.arrayBuffer())
+}
+
+/** Cherche `name` sous `dir` (récursif borné) : l'archive uv contient le binaire
+ *  sous `uv-<target>/` (tar.gz) ou à la racine (zip Windows). */
+function findFileIn(dir, name, depth = 3) {
+  let entries
   try {
-    return /^(y|yes|o|oui)$/i.test((await rl.question(question)).trim())
+    entries = readdirSync(dir, { withFileTypes: true })
+  } catch {
+    return null
+  }
+  for (const e of entries) if (e.isFile() && e.name === name) return join(dir, e.name)
+  if (depth <= 0) return null
+  for (const e of entries) {
+    if (e.isDirectory()) {
+      const hit = findFileIn(join(dir, e.name), name, depth - 1)
+      if (hit) return hit
+    }
+  }
+  return null
+}
+
+/** Étage 2 de la chaîne (#324) : installe uv LUI-MÊME depuis l'asset GitHub
+ *  Release épinglé UV_VERSION — download direct (PAS de `curl | sh`), checksum
+ *  `.sha256` vérifié, extraction via tar (bsdtar lit aussi le .zip Windows),
+ *  binaire posé à `<destDir>/uv`. Best-effort : null en cas d'échec (offline,
+ *  proxy, tar absent, checksum KO) — l'appelant passe à l'étage suivant. */
+async function bootstrapUv({ exec, fetchImpl, destDir, log }) {
+  const extractDir = join(destDir, '.uv-extract')
+  try {
+    const asset = uvAssetName()
+    if (!asset) {
+      log(`kb: pas d'asset uv pour ${process.platform}/${process.arch} — étage bootstrap sauté.`)
+      return null
+    }
+    if (typeof fetchImpl !== 'function') return null
+    const base = `https://github.com/astral-sh/uv/releases/download/${UV_VERSION}`
+    log(`kb: bootstrap de uv ${UV_VERSION} (${asset}, ~25 Mo one-time) → ${destDir}…`)
+    const archive = await fetchBuffer(fetchImpl, `${base}/${asset}`, 180_000)
+    const expected = (await fetchBuffer(fetchImpl, `${base}/${asset}.sha256`, 30_000))
+      .toString('utf8').trim().split(/\s+/)[0].toLowerCase()
+    const actual = createHash('sha256').update(archive).digest('hex')
+    if (!/^[0-9a-f]{64}$/.test(expected) || expected !== actual) {
+      log(`kb: checksum uv invalide (attendu ${expected || '?'}, obtenu ${actual}) — étage bootstrap abandonné.`)
+      return null
+    }
+    mkdirSync(destDir, { recursive: true })
+    const archiveFile = join(destDir, asset)
+    writeFileSync(archiveFile, archive)
+    rmSync(extractDir, { recursive: true, force: true })
+    mkdirSync(extractDir, { recursive: true })
+    const extracted = exec('tar', ['-xf', archiveFile, '-C', extractDir], { timeout: 120_000 }) !== null
+    rmSync(archiveFile, { force: true })
+    const exe = process.platform === 'win32' ? 'uv.exe' : 'uv'
+    const found = extracted ? findFileIn(extractDir, exe) : null
+    if (!found) {
+      log('kb: extraction de l\'archive uv impossible (tar indisponible ?) — étage bootstrap abandonné.')
+      return null
+    }
+    const uvBin = join(destDir, exe)
+    copyFileSync(found, uvBin)
+    chmodSync(uvBin, 0o755)
+    log(`kb: uv ${UV_VERSION} installé → ${uvBin} (checksum sha256 vérifié).`)
+    return uvBin
+  } catch (err) {
+    log(`kb: bootstrap uv impossible (${err?.message ?? err}) — étage suivant.`)
+    return null
   } finally {
-    rl.close()
+    try {
+      rmSync(extractDir, { recursive: true, force: true })
+    } catch { /* le nettoyage ne doit jamais casser l'étape */ }
   }
 }
 
-/** Mémorise l'interpréteur du venv dédié dans roadmapped.config.json (clé
- *  `pythonBin`) pour que le futur CLI kb/doctor le retrouve. Merge non
- *  destructif (mêmes mœurs que mergeMcpEntry) ; JSON illisible → laissé intact. */
-function recordPythonBin(hostRoot, pythonBin, log) {
+/** Lit la clé `kb` de roadmapped.config.json : `false` = opt-out mémorisé,
+ *  objet = statut + chemins mémorisés, undefined = jamais posée / illisible. */
+function readConfigKb(hostRoot) {
+  const file = CONFIG_NAMES.map((n) => join(hostRoot, n)).find(existsSync)
+  if (!file) return undefined
+  try {
+    return JSON.parse(readFileSync(file, 'utf8')).kb
+  } catch {
+    return undefined
+  }
+}
+
+/** Mémorise l'état KB dans roadmapped.config.json sous `kb` : `false` (opt-out)
+ *  ou merge { status, uvBin, pythonBin, graphifyBin } — chemins ABSOLUS, le PATH
+ *  n'est jamais un prérequis. Merge non destructif (mêmes mœurs que
+ *  mergeMcpServer) ; JSON illisible → laissé intact, étape sautée. */
+function patchConfigKb(hostRoot, value, log = () => {}) {
   const file = CONFIG_NAMES.map((n) => join(hostRoot, n)).find(existsSync) ?? join(hostRoot, 'roadmapped.config.json')
   let json = {}
   if (existsSync(file)) {
     try {
       json = JSON.parse(readFileSync(file, 'utf8'))
     } catch {
-      log(`kb: ${file} illisible — pythonBin non enregistré (fichier laissé intact).`)
+      log(`kb: ${file} illisible — état KB non enregistré (fichier laissé intact).`)
       return false
     }
   }
-  if (json.pythonBin === pythonBin) return true
-  json.pythonBin = pythonBin
+  const prev = json.kb
+  const next = value === false ? false : {
+    ...(typeof prev === 'object' && prev !== null ? prev : {}),
+    ...Object.fromEntries(Object.entries(value).filter(([, v]) => v !== undefined)),
+  }
+  if (JSON.stringify(prev) === JSON.stringify(next)) return true
+  json.kb = next
   writeFileSync(file, `${JSON.stringify(json, null, 2)}\n`)
-  log(`kb: pythonBin → ${pythonBin} enregistré dans ${file}.`)
+  log(`kb: ${value === false ? 'opt-out (kb: false)' : `état kb.status=${next.status}`} enregistré dans ${file}.`)
   return true
 }
 
-/** Étape Knowledge base (spec docs/specs/graphify-kb.md §5) — OPTIONNELLE,
- *  idempotente, JAMAIS bloquante : quoi qu'il arrive (pas de Python, pas de
- *  réseau, refus utilisateur, crash), elle logge et rend la main — l'init
+/** Entrée MCP NATIVE graphify dans .mcp.json (#324) — invocateur vérifié dans
+ *  les sources graphifyy 0.9.13 (`graphify/serve.py` : prog `python -m
+ *  graphify.serve`, console script `graphify-mcp = graphify.serve:_main`,
+ *  transport stdio par défaut, graphe par défaut `graphify-out/graph.json` =
+ *  notre défaut aussi). N'est posée QUE quand graphify est effectivement
+ *  installé — une entrée morte casserait chaque session Claude de l'hôte. */
+function ensureGraphifyMcp(hostRoot, kbState, log = () => {}) {
+  let entry = null
+  if (kbState.pythonBin) {
+    entry = { command: kbState.pythonBin, args: ['-m', 'graphify.serve'] }
+  } else if (kbState.graphifyBin && isAbsolute(kbState.graphifyBin)) {
+    // uv/pipx exposent tous les console scripts côte à côte : `graphify-mcp`
+    // vit à côté de `graphify` quand on n'a pas d'interpréteur mémorisé.
+    const sibling = join(dirname(kbState.graphifyBin), process.platform === 'win32' ? 'graphify-mcp.exe' : 'graphify-mcp')
+    if (existsSync(sibling)) entry = { command: sibling, args: [] }
+  }
+  if (!entry) {
+    log('kb: entrée MCP graphify non posée (pas d\'invocateur sûr) — le serveur natif reste lançable via `python -m graphify.serve`.')
+    return false
+  }
+  return mergeMcpServer(hostRoot, 'graphify', entry, log)
+}
+
+/** Étape Knowledge base (spec docs/specs/graphify-anchoring.md, Volet A) —
+ *  INSTALLÉE PAR DÉFAUT (#324, renverse l'opt-in #322 : Graphify est le cœur de
+ *  Roadmapped, pas une option), idempotente, JAMAIS bloquante : quoi qu'il
+ *  arrive (offline, pas de Python, crash), elle logge et rend la main — l'init
  *  réussit toujours, aucun process.exit, aucune exception qui remonte.
  *
- *  - Consentement (~28 Mo) : prompt en TTY, skip par défaut en non-TTY/CI
- *    (opt-in `roadmapped init --with-kb`).
- *  - Install en env ISOLÉ, du plus léger au plus rustique : `uv tool install`
- *    → `pipx install` → venv dédié (~/.roadmapped/py, interpréteur mémorisé
- *    dans la config). SANS l'extra Leiden/graspologic (+200 Mo évités — verdict
- *    spec §2.1 : fallback clustering pur Python).
+ *  - Défaut = INSTALLE (on informe, on ne demande plus). Opt-out :
+ *    `roadmapped init --no-kb` (mémorisé `kb: false` en config — le refus n'est
+ *    jamais re-demandé) ; `CI` → skip silencieux (un runner n'a pas besoin de
+ *    la KB). `--with-kb` (#322) reste accepté mais inerte.
+ *  - Chaîne d'install en env ISOLÉ, le premier étage qui aboutit gagne :
+ *    (a) `uv tool install` (uv du PATH ou déjà bootstrappé — uv télécharge de
+ *    lui-même un CPython géré si aucun Python ≥ 3.10 : voulu) ; (b) uv absent →
+ *    BOOTSTRAP de uv (asset GitHub épinglé + checksum → ~/.roadmapped/bin/uv) ;
+ *    (c) `pipx install` ; (d) venv dédié ~/.roadmapped/py (Python système
+ *    ≥ 3.10 requis pour cet étage seulement). SANS l'extra Leiden/graspologic
+ *    (+200 Mo évités — spec graphify-kb.md §2.1).
+ *  - Chemins ABSOLUS mémorisés en config sous `kb` (uvBin/pythonBin/graphifyBin)
+ *    — jamais dépendants du PATH. Statut mémorisé : installed | failed.
+ *  - Entrée MCP native `graphify` mergée dans .mcp.json (mergeMcpServer,
+ *    idempotent) SEULEMENT quand l'install a abouti.
  *  - Ne GÉNÈRE jamais le graphe (acte d'agent, sous-agents pour les docs) et
  *    ne touche PAS au .gitignore (décision §9.1 : le graphe se commite).
- *  - Indépendante de la voie d'install (plugin / npm / github) : ne dépend que
- *    de hostRoot + Python.
  *
- *  opts (tous optionnels, injectables pour les tests) : withKb, interactive,
- *  exec, ask, venvDir. Retourne un statut pour les tests :
- *  'no-python' | 'already' | 'skipped' | 'installed' | 'failed' | 'error'. */
+ *  opts (tous optionnels, injectables pour les tests) : noKb, exec, fetchImpl,
+ *  env, venvDir, uvDir. Retourne un statut pour les tests :
+ *  'declined' | 'skipped' | 'already' | 'installed' | 'failed' | 'error'. */
 export async function ensureGraphify(hostRoot, opts = {}, log = () => {}) {
   try {
     const {
-      withKb = false,
-      interactive = Boolean(process.stdin.isTTY && process.stdout.isTTY),
+      noKb = false,
       exec = tryExec,
-      ask = askYesNoTty,
+      fetchImpl = globalThis.fetch,
+      env = process.env,
       venvDir = join(homedir(), '.roadmapped', 'py'),
+      uvDir = join(homedir(), '.roadmapped', 'bin'),
     } = opts
+    const binDir = process.platform === 'win32' ? 'Scripts' : 'bin'
+    const exe = (name) => (process.platform === 'win32' ? `${name}.exe` : name)
 
-    // 1. Python ≥ 3.10 — absent/trop vieux : la KB est simplement absente.
-    let pythonBin = null
-    for (const candidate of ['python3', 'python']) {
-      const m = /Python\s+(\d+)\.(\d+)/.exec(exec(candidate, ['--version']) ?? '')
-      if (m && (Number(m[1]) > 3 || (Number(m[1]) === 3 && Number(m[2]) >= 10))) {
-        pythonBin = candidate
-        break
+    // 0. Opt-out : --no-kb MÉMORISE le refus (kb: false) — upgrade le respecte,
+    //    on ne re-tente ni ne re-demande jamais un refus explicite.
+    if (noKb) {
+      patchConfigKb(hostRoot, false, log)
+      log('kb: opt-out (--no-kb) — Knowledge base désactivée (kb: false dans roadmapped.config.json). Pour la réactiver : retire la clé puis `roadmapped upgrade`.')
+      return 'declined'
+    }
+    const cfgKb = readConfigKb(hostRoot)
+    if (cfgKb === false) {
+      log('kb: désactivée dans roadmapped.config.json (kb: false) — étape sautée.')
+      return 'declined'
+    }
+    // CI : skip SILENCIEUX — un runner n'a pas besoin de la KB et ne doit pas
+    // télécharger ~85 Mo. Seul contexte où le défaut s'inverse.
+    if (env.CI && env.CI !== 'false') return 'skipped'
+
+    // 1. Idempotence : déjà installé ? (chemins mémorisés, binaire sur le PATH,
+    //    ou module importable) — on complète alors config + entrée MCP, sans install.
+    const memo = typeof cfgKb === 'object' && cfgKb !== null ? cfgKb : {}
+    let already = null
+    if ((memo.graphifyBin && exec(memo.graphifyBin, ['--version']) !== null)
+      || (memo.pythonBin && exec(memo.pythonBin, ['-c', 'import graphify']) !== null)) {
+      already = { ...memo }
+    } else if (exec('graphify', ['--version']) !== null) {
+      already = { ...memo, graphifyBin: resolveOnPath(exec, 'graphify') ?? 'graphify' }
+    } else {
+      for (const candidate of ['python3', 'python']) {
+        if (exec(candidate, ['-c', 'import graphify']) !== null) {
+          already = { ...memo, pythonBin: resolveOnPath(exec, candidate) ?? candidate }
+          break
+        }
       }
     }
-    if (!pythonBin) {
-      log('kb: Knowledge base (optionnelle) : installe Python ≥ 3.10 pour l\'activer, puis relance `roadmapped upgrade`.')
-      return 'no-python'
-    }
-
-    // 2. Idempotence : déjà installé (binaire sur le PATH ou module importable).
-    if (exec('graphify', ['--version']) !== null || exec(pythonBin, ['-c', 'import graphify']) !== null) {
+    if (already) {
       log('kb: graphify déjà installé — étape sautée.')
+      patchConfigKb(hostRoot, {
+        uvBin: already.uvBin, pythonBin: already.pythonBin, graphifyBin: already.graphifyBin, status: 'installed',
+      }, log)
+      ensureGraphifyMcp(hostRoot, already, log) // idempotent — jamais de doublon
       log('kb: pour générer le graphe : ouvre l\'agent et lance `/graphify .` (puis `--update` ensuite).')
       return 'already'
     }
 
-    // 3. Consentement — ~28 Mo téléchargés, jamais silencieux.
-    if (!withKb) {
-      if (!interactive) {
-        log('kb: passe la Knowledge base — relance avec --with-kb pour l\'installer.')
-        return 'skipped'
+    // 2. DÉFAUT = INSTALLE — on informe (taille, opt-out), on ne demande plus (#324).
+    log('kb: installation de la knowledge base (Graphify) — ~28 Mo one-time, env isolé (opt-out : `roadmapped init --no-kb`)…')
+
+    // 3. Chaîne d'install, le premier étage qui aboutit gagne (spec §A.1) :
+    //    uv (PATH | ~/.roadmapped/bin) → bootstrap uv → pipx → venv système.
+    const kbState = {}
+    let installed = false
+
+    // (a)+(b) uv — présent, déjà bootstrappé par nous, ou bootstrappé maintenant.
+    //     uv télécharge tout seul un CPython géré si la machine n'a rien en ≥ 3.10.
+    let uvBin = exec('uv', ['--version']) !== null ? (resolveOnPath(exec, 'uv') ?? 'uv') : null
+    if (!uvBin) {
+      const ours = join(uvDir, exe('uv'))
+      if (existsSync(ours) && exec(ours, ['--version']) !== null) uvBin = ours
+    }
+    if (!uvBin) uvBin = await bootstrapUv({ exec, fetchImpl, destDir: uvDir, log })
+    if (uvBin && exec(uvBin, ['tool', 'install', GRAPHIFY_PKG], { timeout: 300_000 }) !== null) {
+      installed = true
+      kbState.uvBin = uvBin
+      const toolsDir = exec(uvBin, ['tool', 'dir'])?.trim()
+      if (toolsDir) {
+        kbState.pythonBin = join(toolsDir, GRAPHIFY_PKG, binDir, exe('python'))
+        kbState.graphifyBin = join(toolsDir, GRAPHIFY_PKG, binDir, exe('graphify'))
+      } else {
+        kbState.graphifyBin = resolveOnPath(exec, 'graphify') ?? 'graphify'
       }
-      if (!(await ask('Installer Graphify pour la knowledge base ? ~28 Mo [y/N] '))) {
-        log('kb: Knowledge base sautée — pour l\'activer plus tard : `roadmapped upgrade`.')
-        return 'skipped'
+      log('kb: graphifyy installé via `uv tool install` (env isolé, CPython géré par uv si besoin).')
+    }
+
+    // (c) pipx — même famille d'env isolé, chemins dérivés de PIPX_LOCAL_VENVS.
+    if (!installed && exec('pipx', ['--version']) !== null && exec('pipx', ['install', GRAPHIFY_PKG], { timeout: 300_000 }) !== null) {
+      installed = true
+      const venvsRoot = exec('pipx', ['environment', '--value', 'PIPX_LOCAL_VENVS'])?.trim()
+      if (venvsRoot) {
+        kbState.pythonBin = join(venvsRoot, GRAPHIFY_PKG, binDir, exe('python'))
+        kbState.graphifyBin = join(venvsRoot, GRAPHIFY_PKG, binDir, exe('graphify'))
+      } else {
+        kbState.graphifyBin = resolveOnPath(exec, 'graphify') ?? 'graphify'
+      }
+      log('kb: graphifyy installé via `pipx install` (env isolé).')
+    }
+
+    // (d) venv dédié — seul étage qui exige un Python système ≥ 3.10.
+    if (!installed) {
+      let sysPython = null
+      for (const candidate of ['python3', 'python']) {
+        const m = /Python\s+(\d+)\.(\d+)/.exec(exec(candidate, ['--version']) ?? '')
+        if (m && (Number(m[1]) > 3 || (Number(m[1]) === 3 && Number(m[2]) >= 10))) {
+          sysPython = candidate
+          break
+        }
+      }
+      if (sysPython) {
+        const venvPython = join(venvDir, binDir, exe('python'))
+        const venvReady = existsSync(venvPython) || exec(sysPython, ['-m', 'venv', venvDir], { timeout: 120_000 }) !== null
+        if (venvReady && exec(venvPython, ['-m', 'pip', 'install', GRAPHIFY_PKG], { timeout: 300_000 }) !== null) {
+          installed = true
+          kbState.pythonBin = venvPython
+          kbState.graphifyBin = join(venvDir, binDir, exe('graphify'))
+          log(`kb: graphifyy installé dans un venv dédié (${venvDir}).`)
+        }
       }
     }
 
-    // 4. Install en env isolé : uv → pipx → venv dédié (premier qui aboutit).
-    let graphifyBin = 'graphify'
-    let installed = false
-    if (exec('uv', ['--version']) !== null && exec('uv', ['tool', 'install', GRAPHIFY_PKG], { timeout: 300_000 }) !== null) {
-      installed = true
-      log('kb: graphifyy installé via `uv tool install` (env isolé).')
-    }
-    if (!installed && exec('pipx', ['--version']) !== null && exec('pipx', ['install', GRAPHIFY_PKG], { timeout: 300_000 }) !== null) {
-      installed = true
-      log('kb: graphifyy installé via `pipx install` (env isolé).')
-    }
     if (!installed) {
-      const binDir = process.platform === 'win32' ? 'Scripts' : 'bin'
-      const venvPython = join(venvDir, binDir, process.platform === 'win32' ? 'python.exe' : 'python')
-      const venvReady = existsSync(venvPython) || exec(pythonBin, ['-m', 'venv', venvDir], { timeout: 120_000 }) !== null
-      if (venvReady && exec(venvPython, ['-m', 'pip', 'install', GRAPHIFY_PKG], { timeout: 300_000 }) !== null) {
-        installed = true
-        graphifyBin = join(venvDir, binDir, 'graphify')
-        recordPythonBin(hostRoot, venvPython, log)
-        log(`kb: graphifyy installé dans un venv dédié (${venvDir}).`)
-      }
-    }
-    if (!installed) {
-      log('kb: installation de graphifyy impossible (ni uv, ni pipx, ni venv n\'a abouti) — Knowledge base sautée. Relance `roadmapped upgrade` pour réessayer.')
+      patchConfigKb(hostRoot, { status: 'failed' }, log)
+      log('kb: installation de graphifyy impossible (uv, bootstrap uv, pipx, venv : aucun étage n\'a abouti) — Knowledge base sautée, aucune entrée MCP graphify posée. Relance `roadmapped upgrade` pour réessayer.')
       return 'failed'
     }
 
-    // 5. Skill /graphify pour l'agent — best-effort (sous-commandes pré-1.0,
-    //    `claude install` peut ne pas exister : capturé, jamais bloquant).
+    // 4. Chemins ABSOLUS mémorisés en config (kb.uvBin/pythonBin/graphifyBin).
+    patchConfigKb(hostRoot, { ...kbState, status: 'installed' }, log)
+
+    // 5. Skill /graphify pour l'agent — best-effort via le binaire mémorisé
+    //    (sous-commandes pré-1.0 : capturé, jamais bloquant).
     for (const sub of [['install'], ['claude', 'install']]) {
-      if (exec(graphifyBin, sub, { timeout: 60_000, cwd: hostRoot }) === null) {
+      if (exec(kbState.graphifyBin ?? 'graphify', sub, { timeout: 60_000, cwd: hostRoot }) === null) {
         log(`kb: \`graphify ${sub.join(' ')}\` n'a pas abouti — à relancer à la main si besoin.`)
       }
     }
 
-    // 6. La génération est un acte d'AGENT (sous-agents pour les docs) — jamais ici.
+    // 6. Serveur MCP natif graphify — SEULEMENT maintenant que l'install a abouti.
+    ensureGraphifyMcp(hostRoot, kbState, log)
+
+    // 7. La génération est un acte d'AGENT (sous-agents pour les docs) — jamais ici.
     log('kb: pour générer le graphe : ouvre l\'agent et lance `/graphify .` (puis `--update` ensuite).')
     return 'installed'
   } catch (err) {
@@ -417,7 +632,7 @@ function packageScripts(hostRoot, packageDir) {
   }
 }
 
-export async function runInit({ hostRoot = findHostRoot(), packageDir = packageRoot(), log = console.log, withKb = false, kb = {} } = {}) {
+export async function runInit({ hostRoot = findHostRoot(), packageDir = packageRoot(), log = console.log, noKb = false, kb = {} } = {}) {
   const { selfHost, mcpArgs, guardCommand, sitrepCommand } = packageScripts(hostRoot, packageDir)
   log(`roadmapped init — host root: ${hostRoot}${selfHost ? ' (self-host)' : ''}`)
   // Garde d'onboarding (#240) : sans package.json hôte, la devDep roadmapped ne peut
@@ -444,14 +659,15 @@ export async function runInit({ hostRoot = findHostRoot(), packageDir = packageR
   ensureSessionHook(hostRoot, sitrepCommand, log)
   ensureClaudeMd(hostRoot, log)
   installGuardHook(hostRoot, guardCommand, log)
-  // Knowledge base (#322) : APRÈS tout le wiring — optionnelle et jamais
-  // bloquante, elle ne peut donc pas empêcher un init par ailleurs réussi.
-  await ensureGraphify(hostRoot, { withKb, ...kb }, log)
+  // Knowledge base (#324) : PAR DÉFAUT, APRÈS tout le wiring — jamais bloquante
+  // (opt-out --no-kb / kb: false / CI), elle ne peut donc pas empêcher un init
+  // par ailleurs réussi.
+  await ensureGraphify(hostRoot, { noKb, ...kb }, log)
   log('init done. Next step: the roadmapped skill (setup phase) fills the backlog.')
   log('▶ Dashboard: npx roadmapped dashboard   (opens the browser; not `npm run dev`, which runs YOUR project)')
 }
 
-export async function runUpgrade({ hostRoot = findHostRoot(), packageDir = packageRoot(), log = console.log, withKb = false, kb = {} } = {}) {
+export async function runUpgrade({ hostRoot = findHostRoot(), packageDir = packageRoot(), log = console.log, noKb = false, kb = {} } = {}) {
   const { selfHost, mcpArgs, guardCommand, sitrepCommand } = packageScripts(hostRoot, packageDir)
   log(`roadmapped upgrade — host root: ${hostRoot}${selfHost ? ' (self-host)' : ''}`)
   // Clean boundary: TOOL-OWNED files only. docs/tasks/ and the config are user
@@ -462,8 +678,8 @@ export async function runUpgrade({ hostRoot = findHostRoot(), packageDir = packa
   ensureSessionHook(hostRoot, sitrepCommand, log)
   ensureClaudeMd(hostRoot, log)
   installGuardHook(hostRoot, guardCommand, log)
-  // Re-tente la Knowledge base (#322) : re-détecte Python, réinstalle si
-  // manquant — idempotente et jamais destructive, comme les étapes tool-owned.
-  await ensureGraphify(hostRoot, { withKb, ...kb }, log)
+  // Re-tente la Knowledge base (#324) : re-détecte, réinstalle si manquant —
+  // idempotente, jamais destructive, et respecte l'opt-out mémorisé (kb: false).
+  await ensureGraphify(hostRoot, { noKb, ...kb }, log)
   log('upgrade done (docs/tasks/ and roadmapped.config.json untouched). To bump the package: npm install -D roadmapped@latest')
 }
