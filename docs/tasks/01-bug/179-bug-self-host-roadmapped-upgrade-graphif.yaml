@@ -4,7 +4,7 @@ title: >-
   Bug self-host : roadmapped upgrade/graphify-claude-install écrivent des chemins ABSOLUS machine
   dans des fichiers TRACKÉS (.mcp.json, roadmapped.config.json, .claude/settings.json) + guard
   pre-commit ajouté en double + le graphe indexe le chemin fuité de .mcp.json
-status: todo
+status: done
 tags:
   - kb
   - graphify
@@ -19,9 +19,16 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-12T18:02:28"
-updatedAt: "2026-07-12T18:02:28"
-completedAt: null
-commit: null
+startedAt: "2026-07-12T20:30:45"
+updatedAt: "2026-07-12T20:47:10"
+completedAt: "2026-07-12T20:47:10"
+commit: a14d0e8
 outcome: null
-verification: null
+verification: >-
+  43 tests install.test.mjs + suite complète 598/598 verts, tsc --noEmit propre. Vérif comportement
+  : (1) 3 fichiers trackés (.mcp.json, roadmapped.config.json, .claude/settings.json) regit-checkout
+  → 0 chemin machine, (2) grep '/Users/rcourtillon' sur tous les fichiers trackés modifiés = 0, (3)
+  sidecar roadmapped.config.local.json bien gitignoré (git check-ignore), (4) graph.json réindexé =
+  0 occurrence du chemin fuité, (5) node task.mjs kb search résout toujours via le sidecar, (6)
+  sauvegarde datée graphify-out/20*/ désormais ignorée.
 release: null
