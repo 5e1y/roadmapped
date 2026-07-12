@@ -1,0 +1,37 @@
+id: 312
+code: null
+title: >-
+  KB (bug latent) : le clic sur un nœud n'ouvre jamais l'inspecteur — useZoomPan setPointerCapture
+  au pointerdown avale le click du nœud
+status: done
+tags:
+  - kb
+  - graphify
+size: null
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-12T14:45:03"
+startedAt: "2026-07-12T14:45:03"
+updatedAt: "2026-07-12T14:47:40"
+completedAt: "2026-07-12T14:47:40"
+commit: d8ac16e
+outcome: >-
+  Bug latent corrigé : le clic sur un nœud du KbGraph n'ouvrait JAMAIS l'inspecteur (KbNodePanel),
+  depuis la phase 2. Cause : useZoomPan.onPointerDown appelait
+  e.currentTarget.setPointerCapture(pointerId) dès le pointerdown ; la capture de pointeur détourne
+  les événements — dont le click de compatibilité — vers le viewport, si bien que le onClick des
+  nœuds (enfants) ne se déclenchait jamais (openKbNode jamais appelé). Fix : capture DIFFÉRÉE — au
+  pointerdown on n'arme rien (drag inactif) ; on ne fait setPointerCapture + setPanning qu'au 1er
+  pointermove dépassant DRAG_THRESHOLD (4px, |dx|+|dy|). Donc un clic net (down+up sans déplacement)
+  laisse le click atteindre le nœud → l'inspecteur s'ouvre ; le pan est inchangé dès qu'on bouge.
+  Chaîne aval (openKbNode → push kb-node → PanelHost → SidePanel+KbNodePanel) était correcte, ne
+  restait que ce blocage à la source.
+verification: >-
+  npx tsc --noEmit clean ; npx vitest run 508/508 ; npm run build OK. Fix = pattern standard
+  (capture différée au seuil de drag). NON vérifié par moi en navigateur (pas d'accès) : Rémi
+  confirme le clic→inspecteur dans son dev server (hot-reload de useZoomPan).
+release: null
