@@ -21,6 +21,9 @@ export const ZOOM_MAX = 2.5
 const KEEP_VISIBLE = 48
 /** Pas de pan clavier (px viewport). */
 const KEY_PAN = 48
+/** Seuil (px, |dx|+|dy|) au-delà duquel un pointerdown devient un PAN (#312) :
+ *  en-deçà, c'est un clic → le `click` doit atteindre le nœud (pas de capture). */
+const DRAG_THRESHOLD = 4
 export const ZOOM_STEP = 1.2
 
 export const clampScale = (s: number): number => Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, s))
@@ -130,7 +133,10 @@ export function useZoomPan(contentW: number, contentH: number): ZoomPan {
   // Dimensions du contenu lues à l'exécution (pas de re-création des handlers).
   const content = useRef({ w: contentW, h: contentH })
   content.current = { w: contentW, h: contentH }
-  const drag = useRef<{ pointerId: number; x: number; y: number } | null>(null)
+  // `active` : le drag n'arme la capture/le pan qu'au 1er mouvement au-delà du
+  // seuil — sinon setPointerCapture au pointerdown détournerait le `click` et
+  // les nœuds ne seraient JAMAIS cliquables (#312). sx/sy = origine, pour le seuil.
+  const drag = useRef<{ pointerId: number; x: number; y: number; sx: number; sy: number; active: boolean } | null>(null)
 
   // Coalescence rAF (#308) : molette et pointermove peuvent tirer plusieurs
   // événements PAR FRAME — chaque setTransform re-rendait le graphe hôte. Les
@@ -224,14 +230,22 @@ export function useZoomPan(contentW: number, contentH: number): ZoomPan {
   const onPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     if (e.button !== 0) return
     cancelTween() // saisir le graphe interrompt tout tween en cours
-    drag.current = { pointerId: e.pointerId, x: e.clientX, y: e.clientY }
-    e.currentTarget.setPointerCapture(e.pointerId)
-    setPanning(true)
+    // PAS de setPointerCapture ici (#312) : un simple clic (down+up sans bouger)
+    // doit laisser le `click` atteindre le nœud. On n'arme le pan qu'au 1er
+    // mouvement au-delà du seuil (onPointerMove).
+    drag.current = { pointerId: e.pointerId, x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY, active: false }
   }, [cancelTween])
 
   const onPointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     const d = drag.current
     if (!d || e.pointerId !== d.pointerId) return
+    if (!d.active) {
+      // En-deçà du seuil, c'est (encore) un clic : on ne capture pas, on ne pan pas.
+      if (Math.abs(e.clientX - d.sx) + Math.abs(e.clientY - d.sy) < DRAG_THRESHOLD) return
+      d.active = true
+      e.currentTarget.setPointerCapture(e.pointerId)
+      setPanning(true)
+    }
     const dx = e.clientX - d.x
     const dy = e.clientY - d.y
     d.x = e.clientX
