@@ -1,5 +1,7 @@
-# On COMMITE le graphe (graph.json) — décision Rémi 2026-07-11 : Roadmapped est
-# open source + se dogfoode, donc le KB du repo est un démo vivant versionné.
-# Mais on ignore les artefacts régénérés/transients de Graphify :
+# On COMMITE le graphe (graph.json) — décision Rémi. Le reste = transient/régénéré.
 cache/
 GRAPH_REPORT.md
+graph.html
+manifest.json
+.graphify_root
+.graphify_labels.json
