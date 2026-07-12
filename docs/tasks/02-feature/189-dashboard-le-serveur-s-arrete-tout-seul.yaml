@@ -1,0 +1,40 @@
+id: 330
+code: null
+title: >-
+  Dashboard : le serveur s'arrête tout seul à la fermeture de la fenêtre (plus de serveurs zombies
+  pendant des jours)
+status: done
+tags:
+  - dashboard
+  - dx
+  - server
+size: S
+detail: >-
+  Problème : `roadmapped dashboard` lance un serveur node qui survit à la fermeture de l'onglet →
+  des serveurs traînent des jours, sans moyen évident de les arrêter. Fix : auto-shutdown opt-in via
+  le SSE existant (/api/events, clients:Set dans api.ts). createApiMiddleware gagne un callback
+  onClientCountChange ; startDashboard (serve.ts) l'utilise pour armer un timer de grâce (~5s,
+  survit au reload) quand le dernier onglet se ferme → process.exit(0). NE concerne PAS le plugin
+  dev Vite (npm run dev, atelier de Rémi) qui appelle createApiMiddleware sans opts.
+refs:
+  - src/server/serve.ts
+  - src/server/api.ts
+links: []
+dependsOn: []
+epic: null
+source: user
+createdAt: "2026-07-12T20:58:29"
+startedAt: "2026-07-12T20:58:34"
+updatedAt: "2026-07-12T21:02:45"
+completedAt: "2026-07-12T21:02:45"
+commit: 30d7c31
+outcome: null
+verification: >-
+  3 tests serve.test.ts verts (dont le nouveau contrat onClientCountChange : connexion→1,
+  fermeture→0), suite complète 599/599, tsc --noEmit propre. Vérif e2e RÉELLE (script node lançant
+  le vrai bin/roadmapped.mjs dashboard --port 5907) : (1) serveur démarre et reste vivant, (2) reste
+  vivant tant qu'une connexion SSE /api/events est ouverte, (3) à la fermeture de la connexion (=
+  onglet), s'arrête tout seul après ~5s de grâce avec le log 'fenêtre fermée — arrêt du serveur
+  (port libéré)'. Opt-in vérifié : le plugin dev Vite appelle createApiMiddleware sans opts → npm
+  run dev jamais impacté.
+release: null
