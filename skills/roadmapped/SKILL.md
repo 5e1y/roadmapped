@@ -49,6 +49,10 @@ There's no "do this column first" and no "epics in priority order" (an epic is a
 
 Two guard mechanics to internalise: (1) a unit must be `in_progress` BEFORE you commit its work — `take`/`start`/`quick --start` first, or the commit is refused. (2) `done` mutates the task YAML, so that YAML is left uncommitted — commit it as a task-log-only follow-up (`chore: consigne — done #<id>`); the guard exempts commits that touch ONLY `docs/tasks/`.
 
+## Know what a task touches — before exploring blind
+
+Before working a non-trivial task, read its **KB neighborhood**: the code and docs it touches — derived from its `refs` and the project's knowledge graph (built by **Graphify**, committed at `graphify-out/graph.json`). One call points you at the right files instead of grepping the repo cold. MCP: `kb_neighborhood { id }`, `kb_search { query }`, `kb_node { id }` (+ tickets touching a node). CLI: `roadmapped kb neighborhood <id>` · `kb search "<query>"` · `kb doctor`. No graph yet → the tools say so; generate it with `/graphify .`.
+
 ## Accepted debt = a `quick` tagged `debt`
 
 A deliberate shortcut (known ceiling, upgrade path) gets logged as `quick "<the ceiling>" --tags debt` — the queryable equivalent of a `ponytail:` comment. `list --tag debt` prints the ledger; `sitrep` flags open debt.

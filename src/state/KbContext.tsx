@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
+import { warmKbLayout } from '../lib/kbLayoutCache'
 // Type-only : effacé au build, ne fait pas entrer node:fs (server/kb) dans le bundle.
 import type { KbGraph } from '../server/kb'
 
@@ -56,6 +57,11 @@ export function KbProvider({ children }: { children: ReactNode }) {
   }, [])
 
   useEffect(() => { void reload() }, [reload])
+
+  // Préchauffage (#308) : le layout force-directed de la vue par défaut coûte
+  // ~550 ms sur le vrai graphe — on le calcule en tâche de fond DÉCOUPÉE dès
+  // que le graphe est là. Ouvrir l'onglet KB tombe alors sur un cache chaud.
+  useEffect(() => { if (graph) warmKbLayout(graph) }, [graph])
 
   useEffect(() => {
     if (typeof EventSource === 'undefined') return

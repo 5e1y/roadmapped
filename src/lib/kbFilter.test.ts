@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { communityOptions, fileTypeOptions, applyFilters, matchNodes } from './kbFilter'
+import { communityOptions, fileTypeOptions, applyFilters, matchNodes, truncate, filterKey } from './kbFilter'
 import type { KbNode, KbEdge, KbGraph } from '../server/kb'
 
 const node = (id: string, community: number, fileType = 'code', sourceFile: string | null = `src/${id}.ts`): KbNode =>
@@ -62,6 +62,40 @@ describe('applyFilters', () => {
     const { nodes, edges } = applyFilters(graph(), { communities: [], fileTypes: [], hideInferred: false })
     expect(nodes).toHaveLength(6)
     expect(edges).toHaveLength(3)
+  })
+})
+
+describe('truncate', () => {
+  it('sous la limite : renvoie la vue TELLE QUELLE (identité stable → mémos)', () => {
+    const view = { nodes: NODES, edges: EDGES }
+    expect(truncate(view, 10)).toBe(view)
+  })
+
+  it('au-delà : garde les nœuds de plus fort degré et les arêtes internes', () => {
+    const view = { nodes: NODES, edges: EDGES }
+    const out = truncate(view, 3)
+    expect(out.nodes).toHaveLength(3)
+    expect(out.nodes.map((n) => n.id)).toContain('a') // degré 2, le hub
+    // Toute arête restante relie deux nœuds conservés.
+    const kept = new Set(out.nodes.map((n) => n.id))
+    for (const e of out.edges) {
+      expect(kept.has(e.source)).toBe(true)
+      expect(kept.has(e.target)).toBe(true)
+    }
+  })
+})
+
+describe('filterKey', () => {
+  it('stable quel que soit l\'ordre des tableaux', () => {
+    expect(filterKey({ communities: [2, 0], fileTypes: ['b', 'a'], hideInferred: false }))
+      .toBe(filterKey({ communities: [0, 2], fileTypes: ['a', 'b'], hideInferred: false }))
+  })
+
+  it('discrimine chaque dimension', () => {
+    const base = filterKey({ communities: [], fileTypes: [], hideInferred: false })
+    expect(filterKey({ communities: [1], fileTypes: [], hideInferred: false })).not.toBe(base)
+    expect(filterKey({ communities: [], fileTypes: ['code'], hideInferred: false })).not.toBe(base)
+    expect(filterKey({ communities: [], fileTypes: [], hideInferred: true })).not.toBe(base)
   })
 })
 

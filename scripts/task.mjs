@@ -14,9 +14,11 @@
 // Node >= 22.18 exécute les imports TypeScript nativement ; le script npm
 // (`npm run task`) garde --experimental-strip-types pour les Node plus vieux.
 
-import { existsSync, realpathSync } from 'node:fs'
+import { existsSync, realpathSync, readFileSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { loadPaths, packageRoot } from '../src/lib/paths.ts'
+import { readKbGraph } from '../src/server/kb.ts'
+import { kbNeighborhood, neighborhoodText, kbSearch, searchText, kbNode, nodeText } from '../src/lib/kbQuery.ts'
 import { autoUpdate } from '../src/lib/updateNotifier.ts'
 import {
   treeWithErrors, readTree, findTask, loadFiles,
@@ -28,7 +30,7 @@ import { computeAvailability, activeTasks, nextQueue, globalProgress, epicProgre
 import { git, taskLine, refLine, briefText, sitrepText, unloggedCommits, auditCommits, auditText, stalePassepartout, todayStr } from '../src/lib/render.ts'
 import { TYPES } from '../src/lib/tasks.ts'
 
-const { tasksDir: ROOT, root: HOST_ROOT } = loadPaths()
+const { tasksDir: ROOT, root: HOST_ROOT, kbGraphFile: KB_GRAPH_FILE } = loadPaths()
 
 // ---------------------------------------------------------------- arguments
 
@@ -144,6 +146,9 @@ Reading
                             no in_progress task (logging/merge exempted; --no-verify assumed)
   audit [--json]            parses the #id convention in commits since the last logged
                             task; surfaces orphans (no #id) + dead references
+  kb <sub>                  knowledge graph (built by Graphify): neighborhood <taskId>
+                            (code/docs a task touches), search "<query>", node <nodeId>
+                            (+ tickets touching it), doctor (present? size? freshness)
 
 Writing (id allocated from _meta.yaml; validated after EVERY write, full rollback on error)
   add --type <type> --title <t> [--detail <d>] [--tags a,b] [--heat 0-100]
@@ -199,6 +204,7 @@ const CMD_USAGE = {
   add: 'Usage: add --type <type> --title <t> [--detail <d>] [--tags a,b] [--heat 0-100] [--size S|M|L]\n        [--code <c>] [--refs a,b] [--links 1,2] [--depends-on 1,2] [--epic <slug>]\n        [--kind task|milestone] [--blocks 1,2] [--source ai|user] [--json]  (--section/--stage = aliases of --type)',
   quick: 'Usage: quick "<title>" --type <t> [--tags a,b] [--heat 0-100] [--start] [--json]  (--type REQUIRED, #293)',
   update: 'Usage: update <id> [--title ...] [--detail ...] [--status ...] [--heat 0-100|--no-heat] [--tags a,b] [--refs a,b]\n        [--links 1,2] [--depends-on 1,2] [--epic <slug>] [--size ...] [--code ...] [--outcome ...] …',
+  kb: 'Usage: kb <neighborhood <taskId> | search "<query>" | node <nodeId> | doctor>  (knowledge graph — built by Graphify at graphify-out/graph.json)',
 }
 
 /**
@@ -685,6 +691,82 @@ function cmdRoadmap(flags) {
   if (unassigned.length > 0) console.log(`\n(no epic) ${unassigned.length} active task(s) unassigned`)
 }
 
+// ---------------------------------------------------------------- knowledge graph (#309)
+// Le liage tâche⇄graphe (kbLink) exposé au CLI, mêmes fonctions PURES (kbQuery)
+// que le serveur MCP. Lecture seule du graphe committé (graphify-out/graph.json).
+
+/** `kb doctor` : présence, taille, fraîcheur (commit de build vs HEAD). */
+function cmdKbDoctor() {
+  const res = readKbGraph(KB_GRAPH_FILE)
+  const rel = relative(HOST_ROOT, KB_GRAPH_FILE) || KB_GRAPH_FILE
+  if (!res.ok) {
+    console.error(`Knowledge graph: UNREADABLE (${rel})\n  ${res.error}\n  Regenerate with Graphify: /graphify . --update`)
+    process.exit(1)
+  }
+  if (!res.graph) {
+    console.log(
+      `Knowledge graph: NOT generated (${rel} absent).\n` +
+      `  Generate with Graphify (open source, MIT):\n` +
+      `    pip install graphifyy && graphify install   # once\n` +
+      `    /graphify .                                 # in your agent, at the repo root`,
+    )
+    return
+  }
+  const g = res.graph
+  console.log('Knowledge graph: OK')
+  console.log(`  ${g.stats.nodes} nodes · ${g.stats.edges} edges · ${g.stats.communities} communities  (${rel})`)
+  console.log(`  generated: ${g.generatedAt ?? 'unknown'}`)
+  // Fraîcheur via le commit de build (built_at_commit, posé par Graphify) vs HEAD.
+  let built = null
+  try { built = JSON.parse(readFileSync(KB_GRAPH_FILE, 'utf8')).built_at_commit ?? null } catch { /* champ absent sur graphes anciens */ }
+  const head = git('rev-parse --short HEAD')
+  if (built && head) {
+    const fresh = built.startsWith(head) || head.startsWith(built)
+    console.log(fresh
+      ? `  fresh — built at current HEAD (${head})`
+      : `  ⚠ built at ${built}, HEAD is ${head} — may be stale. Refresh: /graphify . --update`)
+  } else {
+    console.log('  freshness: unknown (no build commit recorded)')
+  }
+}
+
+/** `kb <sub>` : neighborhood <id> · search "<q>" · node <id> · doctor. */
+function cmdKb(positional) {
+  const sub = positional[0]
+  if (!sub || sub === 'help' || sub === '--help') { console.log(CMD_USAGE.kb); return }
+  if (sub === 'doctor') { cmdKbDoctor(); return }
+
+  const res = readKbGraph(KB_GRAPH_FILE)
+  if (!res.ok) fail(`graph.json unreadable: ${res.error}\n  Regenerate with Graphify: /graphify . --update`, CMD_USAGE.kb)
+  if (!res.graph) {
+    fail('No knowledge graph yet. Generate it with Graphify: `pip install graphifyy && graphify install`, then `/graphify .`.', CMD_USAGE.kb)
+  }
+  const graph = res.graph
+
+  if (sub === 'neighborhood') {
+    const id = parseInt(positional[1], 10)
+    if (!Number.isInteger(id)) fail('kb neighborhood <taskId> — numeric task id required.', CMD_USAGE.kb)
+    const tree = readTree(ROOT)
+    const hit = findTask(tree, id)
+    if (!hit) fail(`No task #${id}.`, CMD_USAGE.kb)
+    console.log(neighborhoodText(id, hit.task.title, kbNeighborhood(tree, graph, id)))
+  } else if (sub === 'search') {
+    const q = positional.slice(1).join(' ')
+    if (!q) fail('kb search "<query>" — query required.', CMD_USAGE.kb)
+    const { hits, total } = kbSearch(graph, q)
+    console.log(searchText(q, hits, total))
+  } else if (sub === 'node') {
+    const nodeId = positional[1]
+    if (!nodeId) fail('kb node <nodeId> — node id required (find one with `kb search`).', CMD_USAGE.kb)
+    const tree = readTree(ROOT)
+    const detail = kbNode(tree, graph, nodeId)
+    if (!detail) fail(`No KB node "${nodeId}". Find one with: kb search "<label>".`, CMD_USAGE.kb)
+    console.log(nodeText(detail, (tid) => findTask(tree, tid)?.task.title ?? null))
+  } else {
+    fail(`kb: unknown subcommand "${sub}".`, CMD_USAGE.kb)
+  }
+}
+
 // ---------------------------------------------------------------- dispatch
 
 const [cmd, ...rest] = process.argv.slice(2)
@@ -747,6 +829,9 @@ switch (cmd) {
     break
   case 'roadmap':
     cmdRoadmap(flags)
+    break
+  case 'kb':
+    cmdKb(positional)
     break
   case undefined:
   case 'help':

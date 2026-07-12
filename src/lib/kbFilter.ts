@@ -82,6 +82,42 @@ export function applyFilters(graph: KbGraph, filters: KbFilters): { nodes: KbNod
   return { nodes, edges }
 }
 
+/** Troncature défensive du rendu : au-delà, le SVG devient illisible ET lourd. */
+export const KB_MAX_NODES = 1500
+
+/**
+ * Sous-graphe des `max` nœuds de plus fort degré (arêtes internes conservées).
+ * Renvoie l'objet d'ENTRÉE tel quel sous la limite (identité stable → mémos).
+ */
+export function truncate(
+  view: { nodes: KbNode[]; edges: KbEdge[] },
+  max: number,
+): { nodes: KbNode[]; edges: KbEdge[] } {
+  if (view.nodes.length <= max) return view
+  const deg = new Map<string, number>()
+  for (const e of view.edges) {
+    deg.set(e.source, (deg.get(e.source) ?? 0) + 1)
+    deg.set(e.target, (deg.get(e.target) ?? 0) + 1)
+  }
+  const kept = [...view.nodes]
+    .sort((a, b) => (deg.get(b.id) ?? 0) - (deg.get(a.id) ?? 0))
+    .slice(0, max)
+  const keptIds = new Set(kept.map((n) => n.id))
+  return { nodes: kept, edges: view.edges.filter((e) => keptIds.has(e.source) && keptIds.has(e.target)) }
+}
+
+/**
+ * Clé STABLE d'un jeu de filtres (ordre des tableaux neutralisé) — sert de clé
+ * de cache de layout (kbLayoutCache) et de dépendance de mémo côté rendu.
+ */
+export function filterKey(filters: KbFilters): string {
+  return [
+    [...filters.communities].sort((a, b) => a - b).join(','),
+    [...filters.fileTypes].sort().join(','),
+    String(filters.hideInferred),
+  ].join('|')
+}
+
 /**
  * Recherche : ids des nœuds dont le label OU le source_file contient `query`
  * (insensible à la casse). Requête vide → ensemble VIDE (= pas de recherche

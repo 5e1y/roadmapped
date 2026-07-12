@@ -8,6 +8,12 @@
  * Isolé côté rendu : la sortie est en pixels + une bbox (width/height) que
  * `useZoomPan` consomme telle quelle — le composant ne connaît que des
  * coordonnées. Mémoïsé par IDENTITÉ d'input (WeakMap), comme graphLayout.
+ *
+ * #308 : la simulation est exposée en STEPPER (`createKbLayoutStepper`) pour
+ * être découpée en tranches de temps (rAF / setTimeout) — sur le vrai graphe
+ * Graphify (869 nœuds), le calcul synchrone bloquait le main thread ~550 ms.
+ * `kbLayout` (API historique) = le stepper déroulé d'un trait : le résultat
+ * est STRICTEMENT identique (même code, même ordre d'opérations).
  */
 
 export interface KbLayoutNode { id: string }
@@ -47,25 +53,36 @@ function degrees(input: KbLayoutInput): Map<string, number> {
   return deg
 }
 
-/**
- * Positionne les nœuds. Pur, déterministe, mémoïsé par input. La taille de la
- * boîte suit le nombre de nœuds (√n) pour garder une densité lisible.
- */
-export function kbLayout(input: KbLayoutInput): KbLayoutResult {
-  const cached = cache.get(input)
-  if (cached) return cached
+const ITER = 300
 
+const now: () => number =
+  typeof performance !== 'undefined' ? () => performance.now() : () => Date.now()
+
+export interface KbLayoutStepper {
+  /** true dès que les ITER itérations sont consommées. */
+  readonly done: boolean
+  /** Progression 0..1 (part des itérations effectuées). */
+  readonly progress: number
+  /**
+   * Avance la simulation d'AU MOINS une itération, puis continue tant que le
+   * budget de temps (ms) n'est pas épuisé. Renvoie `done`.
+   */
+  step(budgetMs: number): boolean
+  /** Positions courantes, recadrées dans leur bbox (utilisable avant la fin). */
+  snapshot(): KbLayoutResult
+}
+
+/**
+ * Simulation incrémentale : mêmes forces, même refroidissement, même ordre
+ * d'opérations que l'ancien `kbLayout` monolithique — l'égalité BIT À BIT des
+ * positions est testée. Seul le découpage temporel change.
+ */
+export function createKbLayoutStepper(input: KbLayoutInput): KbLayoutStepper {
   const nodes = input.nodes
   const n = nodes.length
   const deg = degrees(input)
   const maxDeg = Math.max(1, ...deg.values())
   const radiusOf = (id: string) => R_MIN + (R_MAX - R_MIN) * Math.sqrt((deg.get(id) ?? 0) / maxDeg)
-
-  if (n === 0) {
-    const empty: KbLayoutResult = { nodes: new Map(), width: NODE_PAD * 2, height: NODE_PAD * 2 }
-    cache.set(input, empty)
-    return empty
-  }
 
   // Espace de simulation ∝ √n (densité constante). Cercle initial déterministe.
   const side = Math.max(360, 90 * Math.sqrt(n))
@@ -87,11 +104,12 @@ export function kbLayout(input: KbLayoutInput): KbLayoutResult {
     .map((e) => ({ i: index.get(e.source)!, j: index.get(e.target)!, w: e.weight ?? 1 }))
   const maxWeight = Math.max(1, ...springs.map((s) => s.w))
 
-  const ITER = 300
   const REPULSION = side * 6
   const REST = side * 0.14 // longueur de ressort au repos
-  for (let step = 0; step < ITER; step++) {
-    const heat = 1 - step / ITER
+  let iter = n === 0 ? ITER : 0
+
+  const iterate = () => {
+    const heat = 1 - iter / ITER
     const fx = new Array<number>(n).fill(0)
     const fy = new Array<number>(n).fill(0)
 
@@ -129,28 +147,65 @@ export function kbLayout(input: KbLayoutInput): KbLayoutResult {
     }
   }
 
-  // Recadrage : bbox du dessin (rayon compris) translatée à NODE_PAD.
-  const rs = nodes.map((d) => radiusOf(d.id))
-  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
-  for (let i = 0; i < n; i++) {
-    minX = Math.min(minX, xs[i] - rs[i]); maxX = Math.max(maxX, xs[i] + rs[i])
-    minY = Math.min(minY, ys[i] - rs[i]); maxY = Math.max(maxY, ys[i] + rs[i])
+  let finalSnap: KbLayoutResult | null = null
+  const snapshot = (): KbLayoutResult => {
+    if (finalSnap) return finalSnap
+    if (n === 0) {
+      finalSnap = { nodes: new Map(), width: NODE_PAD * 2, height: NODE_PAD * 2 }
+      return finalSnap
+    }
+    // Recadrage : bbox du dessin (rayon compris) translatée à NODE_PAD.
+    const rs = nodes.map((d) => radiusOf(d.id))
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
+    for (let i = 0; i < n; i++) {
+      minX = Math.min(minX, xs[i] - rs[i]); maxX = Math.max(maxX, xs[i] + rs[i])
+      minY = Math.min(minY, ys[i] - rs[i]); maxY = Math.max(maxY, ys[i] + rs[i])
+    }
+    const placed = new Map<string, KbPlaced>()
+    for (let i = 0; i < n; i++) {
+      placed.set(nodes[i].id, {
+        id: nodes[i].id,
+        x: xs[i] - minX + NODE_PAD,
+        y: ys[i] - minY + NODE_PAD,
+        r: rs[i],
+        degree: deg.get(nodes[i].id) ?? 0,
+      })
+    }
+    const result: KbLayoutResult = {
+      nodes: placed,
+      width: (maxX - minX) + NODE_PAD * 2,
+      height: (maxY - minY) + NODE_PAD * 2,
+    }
+    if (iter >= ITER) finalSnap = result
+    return result
   }
-  const placed = new Map<string, KbPlaced>()
-  for (let i = 0; i < n; i++) {
-    placed.set(nodes[i].id, {
-      id: nodes[i].id,
-      x: xs[i] - minX + NODE_PAD,
-      y: ys[i] - minY + NODE_PAD,
-      r: rs[i],
-      degree: deg.get(nodes[i].id) ?? 0,
-    })
+
+  return {
+    get done() { return iter >= ITER },
+    get progress() { return iter / ITER },
+    step(budgetMs: number): boolean {
+      const t0 = now()
+      while (iter < ITER) {
+        iterate()
+        iter++
+        if (now() - t0 >= budgetMs) break
+      }
+      return iter >= ITER
+    },
+    snapshot,
   }
-  const result: KbLayoutResult = {
-    nodes: placed,
-    width: (maxX - minX) + NODE_PAD * 2,
-    height: (maxY - minY) + NODE_PAD * 2,
-  }
+}
+
+/**
+ * Positionne les nœuds. Pur, déterministe, mémoïsé par input. La taille de la
+ * boîte suit le nombre de nœuds (√n) pour garder une densité lisible.
+ */
+export function kbLayout(input: KbLayoutInput): KbLayoutResult {
+  const cached = cache.get(input)
+  if (cached) return cached
+  const stepper = createKbLayoutStepper(input)
+  stepper.step(Infinity)
+  const result = stepper.snapshot()
   cache.set(input, result)
   return result
 }
