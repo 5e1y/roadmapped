@@ -1,0 +1,27 @@
+id: 329
+code: null
+title: >-
+  Bug self-host : roadmapped upgrade/graphify-claude-install écrivent des chemins ABSOLUS machine
+  dans des fichiers TRACKÉS (.mcp.json, roadmapped.config.json, .claude/settings.json) + guard
+  pre-commit ajouté en double + le graphe indexe le chemin fuité de .mcp.json
+status: todo
+tags:
+  - kb
+  - graphify
+  - install
+  - debt
+  - self-host
+size: null
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-12T18:02:28"
+updatedAt: "2026-07-12T18:02:28"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
