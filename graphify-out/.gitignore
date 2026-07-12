@@ -5,3 +5,5 @@ graph.html
 manifest.json
 .graphify_root
 .graphify_labels.json
+# Sauvegardes datées du graphe curé (rotation graphify, régénérées) — pas commitées.
+20*/

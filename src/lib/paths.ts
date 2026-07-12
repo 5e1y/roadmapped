@@ -10,11 +10,12 @@ export interface RoadmappedConfig {
   /** Legacy #322 : interpréteur du venv dédié — remplacé par `kb.pythonBin`
    *  (#324). Encore lisible sur les configs posées avant le renversement. */
   pythonBin?: string
-  /** État de la Knowledge base posé par init/upgrade (#324) : `false` = opt-out
-   *  mémorisé (`roadmapped init --no-kb`, jamais re-tenté), sinon statut
-   *  d'install + chemins ABSOLUS des binaires (le PATH n'est jamais un
-   *  prérequis). Lu par install.mjs (idempotence, entrée MCP graphify) et par
-   *  les futurs kb doctor/refresh — pas par resolvePaths. */
+  /** État de la Knowledge base (#324) : `false` = opt-out mémorisé
+   *  (`roadmapped init --no-kb`, jamais re-tenté) et vit dans la config TRACKÉE ;
+   *  sinon statut d'install + chemins ABSOLUS des binaires, écrits dans le sidecar
+   *  gitignoré roadmapped.config.local.json (#329, jamais commité). Lu par
+   *  install.mjs (idempotence) et readHostConfig (résout `graphify update`) — pas
+   *  par resolvePaths. */
   kb?: false | {
     status?: 'installed' | 'failed'
     uvBin?: string

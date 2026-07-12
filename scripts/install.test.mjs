@@ -306,8 +306,10 @@ describe('runInit — orchestration idempotente', () => {
     const out = logs.join('\n')
     expect(out).toContain('roadmapped upgrade') // comment réessayer, pas d'erreur
     expect(out).toContain('init done') // l'init va au bout
-    // Échec mémorisé (upgrade re-tentera), mais AUCUNE entrée MCP graphify morte.
-    expect(JSON.parse(readFileSync(join(host, 'roadmapped.config.json'), 'utf8')).kb).toEqual({ status: 'failed' })
+    // Échec mémorisé dans le sidecar gitignoré (upgrade re-tentera) — jamais dans la
+    // config trackée, et AUCUNE entrée MCP graphify morte (#329).
+    expect(JSON.parse(readFileSync(join(host, 'roadmapped.config.json'), 'utf8')).kb).toBeUndefined()
+    expect(JSON.parse(readFileSync(join(host, 'roadmapped.config.local.json'), 'utf8')).kb).toEqual({ status: 'failed' })
     expect(JSON.parse(readFileSync(join(host, '.mcp.json'), 'utf8')).mcpServers.graphify).toBeUndefined()
     expect(existsSync(join(host, '.gitignore'))).toBe(false) // l'étape KB ne touche pas au .gitignore
   })
@@ -387,9 +389,12 @@ describe('ensureGraphify (#324) — installée PAR DÉFAUT, opt-out mémorisé, 
   const BIN = process.platform === 'win32' ? 'Scripts' : 'bin'
   const EXE = process.platform === 'win32' ? '.exe' : ''
   const readCfg = () => JSON.parse(readFileSync(join(host, 'roadmapped.config.json'), 'utf8'))
+  // Sidecar gitignoré (#329) : l'état d'install KB (chemins ABSOLUS) y vit, jamais
+  // dans la config trackée.
+  const readLocalCfg = () => JSON.parse(readFileSync(join(host, 'roadmapped.config.local.json'), 'utf8'))
   const readMcp = () => JSON.parse(readFileSync(join(host, '.mcp.json'), 'utf8'))
 
-  it('DÉFAUT : installe SANS prompt via uv, mémorise les chemins ABSOLUS sous kb, pose l\'entrée MCP graphify', async () => {
+  it('DÉFAUT : installe SANS prompt via uv, mémorise les chemins ABSOLUS dans le sidecar gitignoré, AUCUNE entrée MCP ni settings.json touchée (#329)', async () => {
     const toolsDir = join(host, 'uv-tools')
     const pythonBin = join(toolsDir, 'graphifyy', BIN, `python${EXE}`)
     const graphifyBin = join(toolsDir, 'graphifyy', BIN, `graphify${EXE}`)
@@ -403,7 +408,6 @@ describe('ensureGraphify (#324) — installée PAR DÉFAUT, opt-out mémorisé, 
         '/opt/tools/bin/uv tool install graphifyy': '',
         '/opt/tools/bin/uv tool dir': `${toolsDir}\n`,
         [`${graphifyBin} install`]: 'ok',
-        [`${graphifyBin} claude install`]: 'ok',
       }, calls),
     }, (m) => logs.push(m))
     expect(r).toBe('installed')
@@ -412,14 +416,15 @@ describe('ensureGraphify (#324) — installée PAR DÉFAUT, opt-out mémorisé, 
     expect(out).toContain('--no-kb') // …et on dit comment refuser (opt-out, plus de prompt)
     expect(calls).toContain('/opt/tools/bin/uv tool install graphifyy')
     expect(calls).not.toContain('pipx install graphifyy') // uv a suffi
-    // Chemins ABSOLUS mémorisés en config sous kb — jamais dépendants du PATH.
-    const kb = readCfg().kb
-    expect(kb).toEqual({ status: 'installed', uvBin: '/opt/tools/bin/uv', pythonBin, graphifyBin })
-    // graphify install + claude install best-effort, via le binaire mémorisé.
+    // Chemins ABSOLUS mémorisés dans le SIDECAR gitignoré — jamais dans un fichier tracké.
+    expect(readLocalCfg().kb).toEqual({ status: 'installed', uvBin: '/opt/tools/bin/uv', pythonBin, graphifyBin })
+    expect(existsSync(join(host, 'roadmapped.config.json'))).toBe(false) // config trackée intacte
+    // `graphify install` (skill global) best-effort ; JAMAIS `graphify claude install` (#329).
     expect(calls).toContain(`${graphifyBin} install`)
-    expect(calls).toContain(`${graphifyBin} claude install`)
-    // Entrée MCP NATIVE graphify (python -m graphify.serve, stdio) posée.
-    expect(readMcp().mcpServers.graphify).toEqual({ command: pythonBin, args: ['-m', 'graphify.serve'] })
+    expect(calls).not.toContain(`${graphifyBin} claude install`)
+    // AUCUNE entrée MCP graphify ni .claude/settings.json (chemins absolus trackés, #329).
+    expect(existsSync(join(host, '.mcp.json'))).toBe(false)
+    expect(existsSync(join(host, '.claude', 'settings.json'))).toBe(false)
     expect(out).toContain('/graphify .') // la génération reste un acte d'agent
     expect(existsSync(join(host, '.gitignore'))).toBe(false) // jamais touché
   })
@@ -452,12 +457,14 @@ describe('ensureGraphify (#324) — installée PAR DÉFAUT, opt-out mémorisé, 
     expect(existsSync(join(host, 'roadmapped.config.json'))).toBe(false)
   })
 
-  it('idempotence : déjà installé (chemins mémorisés) → « déjà installé », aucune install, PAS de 2e entrée MCP', async () => {
-    // Entrée roadmapped préexistante : le merge graphify ne doit pas la clobber.
+  it('idempotence : déjà installé (chemins mémorisés dans le sidecar) → « déjà installé », aucune install, .mcp.json JAMAIS touché (#329)', async () => {
+    // Entrée roadmapped préexistante : l'étape KB ne doit jamais y toucher.
     writeFileSync(join(host, '.mcp.json'), JSON.stringify({ mcpServers: { roadmapped: { command: 'node', args: ['x.mjs'] } } }))
     const pythonBin = join(host, 'py', BIN, `python${EXE}`)
     const graphifyBin = join(host, 'py', BIN, `graphify${EXE}`)
-    writeFileSync(join(host, 'roadmapped.config.json'), JSON.stringify({ kb: { status: 'installed', pythonBin, graphifyBin } }))
+    // État mémorisé dans le sidecar gitignoré, pas dans la config trackée.
+    writeFileSync(join(host, 'roadmapped.config.local.json'), JSON.stringify({ kb: { status: 'installed', pythonBin, graphifyBin } }))
+    const mcpBefore = readFileSync(join(host, '.mcp.json'), 'utf8')
     const calls = []
     const logs = []
     for (let i = 0; i < 2; i += 1) { // deux passages (init puis upgrade) : même état final
@@ -469,10 +476,7 @@ describe('ensureGraphify (#324) — installée PAR DÉFAUT, opt-out mémorisé, 
     }
     expect(logs.join('\n')).toContain('déjà installé')
     expect(calls.some((c) => c.includes('install'))).toBe(false) // aucune réinstall
-    const servers = readMcp().mcpServers
-    expect(servers.roadmapped).toEqual({ command: 'node', args: ['x.mjs'] }) // préservée
-    expect(servers.graphify).toEqual({ command: pythonBin, args: ['-m', 'graphify.serve'] })
-    expect(Object.keys(servers)).toEqual(['roadmapped', 'graphify']) // une seule entrée graphify
+    expect(readFileSync(join(host, '.mcp.json'), 'utf8')).toBe(mcpBefore) // .mcp.json intact (aucune entrée graphify)
   })
 
   it('uv ABSENT : bootstrap depuis l\'asset GitHub épinglé (download MOCKÉ, checksum vérifié), puis uv tool install', async () => {
@@ -511,14 +515,14 @@ describe('ensureGraphify (#324) — installée PAR DÉFAUT, opt-out mémorisé, 
     expect(urls.some((u) => u.endsWith('.sha256'))).toBe(true)
     expect(existsSync(uvBin)).toBe(true) // le binaire uv posé dans le bin dédié
     expect(calls).toContain(`${uvBin} tool install graphifyy`) // puis l'étage 1 avec CE binaire
-    const kb = readCfg().kb
+    const kb = readLocalCfg().kb
     expect(kb.status).toBe('installed')
-    expect(kb.uvBin).toBe(uvBin) // chemin absolu mémorisé
-    expect(readMcp().mcpServers.graphify.command).toBe(join(toolsDir, 'graphifyy', BIN, `python${EXE}`))
+    expect(kb.uvBin).toBe(uvBin) // chemin absolu mémorisé dans le sidecar gitignoré
+    expect(existsSync(join(host, '.mcp.json'))).toBe(false) // aucune entrée MCP graphify (#329)
     expect(logs.join('\n')).toContain('checksum')
   })
 
-  it('fallback venv : ni uv (offline) ni pipx → venv dédié, chemins sous kb, entrée MCP via kb.pythonBin', async () => {
+  it('fallback venv : ni uv (offline) ni pipx → venv dédié, chemins dans le sidecar, config trackée intacte, aucune entrée MCP', async () => {
     writeFileSync(join(host, 'roadmapped.config.json'), JSON.stringify({ tasksDir: 'docs/tasks', docsDir: 'docs' }))
     const venvDir = join(host, '.roadmapped-py') // venv de TEST, pas le ~/.roadmapped réel
     const venvPython = join(venvDir, BIN, `python${EXE}`)
@@ -531,11 +535,11 @@ describe('ensureGraphify (#324) — installée PAR DÉFAUT, opt-out mémorisé, 
       }),
     }, silent)
     expect(r).toBe('installed')
-    const cfg = readCfg()
-    expect(cfg.kb.pythonBin).toBe(venvPython) // kb/doctor retrouvera l'interpréteur
-    expect(cfg.kb.graphifyBin).toBe(join(venvDir, BIN, `graphify${EXE}`))
-    expect(cfg.tasksDir).toBe('docs/tasks') // merge non destructif
-    expect(readMcp().mcpServers.graphify).toEqual({ command: venvPython, args: ['-m', 'graphify.serve'] })
+    const kb = readLocalCfg().kb
+    expect(kb.pythonBin).toBe(venvPython) // kb/doctor retrouvera l'interpréteur (sidecar)
+    expect(kb.graphifyBin).toBe(join(venvDir, BIN, `graphify${EXE}`))
+    expect(readCfg()).toEqual({ tasksDir: 'docs/tasks', docsDir: 'docs' }) // config trackée intacte, aucun kb
+    expect(existsSync(join(host, '.mcp.json'))).toBe(false) // aucune entrée MCP graphify (#329)
   })
 
   it('TOUT échoue (offline, Python trop vieux) : « failed » mémorisé, PAS d\'entrée MCP graphify morte', async () => {
@@ -545,7 +549,8 @@ describe('ensureGraphify (#324) — installée PAR DÉFAUT, opt-out mémorisé, 
       exec: fakeExec({ 'python3 --version': 'Python 3.9.18' }), // trop vieux pour le venv
     }, (m) => logs.push(m))
     expect(r).toBe('failed')
-    expect(readCfg().kb).toEqual({ status: 'failed' }) // upgrade re-tentera
+    expect(readLocalCfg().kb).toEqual({ status: 'failed' }) // mémorisé dans le sidecar, upgrade re-tentera
+    expect(existsSync(join(host, 'roadmapped.config.json'))).toBe(false) // config trackée jamais créée par un échec
     expect(existsSync(join(host, '.mcp.json'))).toBe(false) // aucune entrée MCP morte
     expect(logs.join('\n')).toContain('roadmapped upgrade') // comment réessayer
   })

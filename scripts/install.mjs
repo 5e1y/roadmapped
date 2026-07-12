@@ -43,6 +43,17 @@ ${CLAUDE_END}`
 
 const CONFIG_NAMES = ['roadmapped.config.json', 'roadmaped.config.json'] // back-compat with an old typo
 
+// Sidecar MACHINE-LOCAL, gitignoré (#329) : l'état d'install KB tient des chemins
+// ABSOLUS propres à la machine — jamais dans un fichier TRACKÉ (fuite en repo
+// partagé / self-host). Seul l'opt-out `kb: false` (décision partagée) reste dans
+// la config trackée ; les chemins vivent ici.
+const LOCAL_CONFIG_NAME = 'roadmapped.config.local.json'
+
+/** Chemin de la config trackée présente (rétrocompat un-p), ou le nom canonique. */
+function trackedConfigFile(hostRoot) {
+  return CONFIG_NAMES.map((n) => join(hostRoot, n)).find(existsSync) ?? join(hostRoot, 'roadmapped.config.json')
+}
+
 // ------------------------------------------------------------------ steps (testable)
 
 /** Writes roadmapped.config.json at the host root — only if it doesn't exist under
@@ -374,21 +385,26 @@ async function bootstrapUv({ exec, fetchImpl, destDir, log }) {
 /** Lit la clé `kb` de roadmapped.config.json : `false` = opt-out mémorisé,
  *  objet = statut + chemins mémorisés, undefined = jamais posée / illisible. */
 function readConfigKb(hostRoot) {
-  const file = CONFIG_NAMES.map((n) => join(hostRoot, n)).find(existsSync)
-  if (!file) return undefined
-  try {
-    return JSON.parse(readFileSync(file, 'utf8')).kb
-  } catch {
-    return undefined
+  const kbOf = (file) => {
+    if (!existsSync(file)) return undefined
+    try {
+      return JSON.parse(readFileSync(file, 'utf8')).kb
+    } catch {
+      return undefined
+    }
   }
+  const tracked = kbOf(trackedConfigFile(hostRoot))
+  if (tracked === false) return false // opt-out (décision partagée) l'emporte
+  const local = kbOf(join(hostRoot, LOCAL_CONFIG_NAME)) // état machine (chemins absolus)
+  return local ?? tracked
 }
 
-/** Mémorise l'état KB dans roadmapped.config.json sous `kb` : `false` (opt-out)
- *  ou merge { status, uvBin, pythonBin, graphifyBin } — chemins ABSOLUS, le PATH
- *  n'est jamais un prérequis. Merge non destructif (mêmes mœurs que
- *  mergeMcpServer) ; JSON illisible → laissé intact, étape sautée. */
+/** Mémorise l'état KB sous `kb` : `false` (opt-out) → config TRACKÉE (décision
+ *  partagée) ; merge { status, uvBin, pythonBin, graphifyBin } (chemins ABSOLUS
+ *  machine) → sidecar gitignoré `roadmapped.config.local.json` (#329, jamais
+ *  commité). Merge non destructif ; JSON illisible → laissé intact, étape sautée. */
 function patchConfigKb(hostRoot, value, log = () => {}) {
-  const file = CONFIG_NAMES.map((n) => join(hostRoot, n)).find(existsSync) ?? join(hostRoot, 'roadmapped.config.json')
+  const file = value === false ? trackedConfigFile(hostRoot) : join(hostRoot, LOCAL_CONFIG_NAME)
   let json = {}
   if (existsSync(file)) {
     try {
@@ -410,29 +426,6 @@ function patchConfigKb(hostRoot, value, log = () => {}) {
   return true
 }
 
-/** Entrée MCP NATIVE graphify dans .mcp.json (#324) — invocateur vérifié dans
- *  les sources graphifyy 0.9.13 (`graphify/serve.py` : prog `python -m
- *  graphify.serve`, console script `graphify-mcp = graphify.serve:_main`,
- *  transport stdio par défaut, graphe par défaut `graphify-out/graph.json` =
- *  notre défaut aussi). N'est posée QUE quand graphify est effectivement
- *  installé — une entrée morte casserait chaque session Claude de l'hôte. */
-function ensureGraphifyMcp(hostRoot, kbState, log = () => {}) {
-  let entry = null
-  if (kbState.pythonBin) {
-    entry = { command: kbState.pythonBin, args: ['-m', 'graphify.serve'] }
-  } else if (kbState.graphifyBin && isAbsolute(kbState.graphifyBin)) {
-    // uv/pipx exposent tous les console scripts côte à côte : `graphify-mcp`
-    // vit à côté de `graphify` quand on n'a pas d'interpréteur mémorisé.
-    const sibling = join(dirname(kbState.graphifyBin), process.platform === 'win32' ? 'graphify-mcp.exe' : 'graphify-mcp')
-    if (existsSync(sibling)) entry = { command: sibling, args: [] }
-  }
-  if (!entry) {
-    log('kb: entrée MCP graphify non posée (pas d\'invocateur sûr) — le serveur natif reste lançable via `python -m graphify.serve`.')
-    return false
-  }
-  return mergeMcpServer(hostRoot, 'graphify', entry, log)
-}
-
 /** Étape Knowledge base (spec docs/specs/graphify-anchoring.md, Volet A) —
  *  INSTALLÉE PAR DÉFAUT (#324, renverse l'opt-in #322 : Graphify est le cœur de
  *  Roadmapped, pas une option), idempotente, JAMAIS bloquante : quoi qu'il
@@ -450,10 +443,14 @@ function ensureGraphifyMcp(hostRoot, kbState, log = () => {}) {
  *    (c) `pipx install` ; (d) venv dédié ~/.roadmapped/py (Python système
  *    ≥ 3.10 requis pour cet étage seulement). SANS l'extra Leiden/graspologic
  *    (+200 Mo évités — spec graphify-kb.md §2.1).
- *  - Chemins ABSOLUS mémorisés en config sous `kb` (uvBin/pythonBin/graphifyBin)
- *    — jamais dépendants du PATH. Statut mémorisé : installed | failed.
- *  - Entrée MCP native `graphify` mergée dans .mcp.json (mergeMcpServer,
- *    idempotent) SEULEMENT quand l'install a abouti.
+ *  - Chemins ABSOLUS mémorisés dans le sidecar gitignoré roadmapped.config.local.json
+ *    (#329, jamais commité) sous `kb` (uvBin/pythonBin/graphifyBin) — jamais
+ *    dépendants du PATH. Statut mémorisé : installed | failed.
+ *  - PAS d'entrée MCP native `graphify` ni de `graphify claude install` (#329) :
+ *    l'un et l'autre écrivaient des chemins ABSOLUS machine dans des fichiers
+ *    trackés (.mcp.json / .claude/settings.json). La surface agent du graphe passe
+ *    par les tools MCP roadmapped (kb_search/kb_node/kb_neighborhood, #309) et la
+ *    CLI `graphify`.
  *  - Ne GÉNÈRE jamais le graphe (acte d'agent, sous-agents pour les docs) et
  *    ne touche PAS au .gitignore (décision §9.1 : le graphe se commite).
  *
@@ -511,7 +508,6 @@ export async function ensureGraphify(hostRoot, opts = {}, log = () => {}) {
       patchConfigKb(hostRoot, {
         uvBin: already.uvBin, pythonBin: already.pythonBin, graphifyBin: already.graphifyBin, status: 'installed',
       }, log)
-      ensureGraphifyMcp(hostRoot, already, log) // idempotent — jamais de doublon
       log('kb: pour générer le graphe : ouvre l\'agent et lance `/graphify .` (puis `--update` ensuite).')
       return 'already'
     }
@@ -582,23 +578,20 @@ export async function ensureGraphify(hostRoot, opts = {}, log = () => {}) {
 
     if (!installed) {
       patchConfigKb(hostRoot, { status: 'failed' }, log)
-      log('kb: installation de graphifyy impossible (uv, bootstrap uv, pipx, venv : aucun étage n\'a abouti) — Knowledge base sautée, aucune entrée MCP graphify posée. Relance `roadmapped upgrade` pour réessayer.')
+      log('kb: installation de graphifyy impossible (uv, bootstrap uv, pipx, venv : aucun étage n\'a abouti) — Knowledge base sautée. Relance `roadmapped upgrade` pour réessayer.')
       return 'failed'
     }
 
-    // 4. Chemins ABSOLUS mémorisés en config (kb.uvBin/pythonBin/graphifyBin).
+    // 4. Chemins ABSOLUS mémorisés dans le sidecar gitignoré (kb.uvBin/pythonBin/graphifyBin).
     patchConfigKb(hostRoot, { ...kbState, status: 'installed' }, log)
 
-    // 5. Skill /graphify pour l'agent — best-effort via le binaire mémorisé
-    //    (sous-commandes pré-1.0 : capturé, jamais bloquant).
-    for (const sub of [['install'], ['claude', 'install']]) {
-      if (exec(kbState.graphifyBin ?? 'graphify', sub, { timeout: 60_000, cwd: hostRoot }) === null) {
-        log(`kb: \`graphify ${sub.join(' ')}\` n'a pas abouti — à relancer à la main si besoin.`)
-      }
+    // 5. Skill /graphify pour l'agent — best-effort via le binaire mémorisé.
+    //    UNIQUEMENT `graphify install` (skill global ~/.claude, aucun fichier repo) :
+    //    `graphify claude install` écrivait des chemins ABSOLUS dans .claude/settings.json
+    //    trackée (#329) — on ne l'appelle plus.
+    if (exec(kbState.graphifyBin ?? 'graphify', ['install'], { timeout: 60_000, cwd: hostRoot }) === null) {
+      log('kb: `graphify install` n\'a pas abouti — à relancer à la main si besoin.')
     }
-
-    // 6. Serveur MCP natif graphify — SEULEMENT maintenant que l'install a abouti.
-    ensureGraphifyMcp(hostRoot, kbState, log)
 
     // 7. La génération est un acte d'AGENT (sous-agents pour les docs) — jamais ici.
     log('kb: pour générer le graphe : ouvre l\'agent et lance `/graphify .` (puis `--update` ensuite).')
