@@ -1,0 +1,59 @@
+id: 313
+code: null
+title: >-
+  KB : cliquer un ticket lié depuis l'inspecteur de nœud ouvre DEUX panneaux (nœud à gauche, ticket
+  à droite) au lieu d'empiler
+status: done
+tags:
+  - kb
+  - graphify
+  - ux
+size: null
+heat: 84
+detail: >-
+  Retour Rémi. Aujourd'hui, depuis l'inspecteur d'un nœud (KbNodePanel « Tickets touching this »),
+  cliquer un ticket fait openTask = EMPILE et remplace le nœud (flèche retour). Rémi veut :
+  nœud→ticket = DEUX panneaux côte à côte, nœud à GAUCHE, ticket à DROITE. Layout : PanelHost est
+  flex-sibling après <main> ; rendre 2 SidePanel (nœud puis ticket) = 2 colonnes droites,
+  nœud=gauche, ticket=droite. Mécanique : quand la pile = [kb-node, task] (task ouvert DEPUIS un
+  kb-node), PanelHost rend les DEUX. Sémantique close/back : le ✕/Esc/back du panneau TICKET
+  (droite) dépile le task → revient au nœud seul ; le ✕ du panneau NŒUD (gauche) ferme tout ;
+  cliquer un AUTRE ticket en mode double remplace le task de droite (nœud reste). ATTENTION :
+  SidePanel lit top/stack/back du contexte (focus, Esc cascade) → refactor prudent pour que 2
+  instances coexistent (props explicites plutôt que dépendre de `top`). Ne PAS régresser les flux
+  simples (task depuis Backlog, section, create-task, kb-node seul). 380px, filets, DA, theme-aware.
+  tsc + tests verts. Ne pas toucher serveur/schéma/install.
+refs:
+  - src/App.tsx
+  - src/components/SidePanel.tsx
+  - src/state/PanelContext.tsx
+  - src/components/KbNodePanel.tsx
+links: []
+dependsOn: []
+epic: knowledge-base
+source: ai
+createdAt: "2026-07-12T14:54:08"
+startedAt: "2026-07-12T14:54:13"
+updatedAt: "2026-07-12T15:05:11"
+completedAt: "2026-07-12T15:05:11"
+commit: a900493
+outcome: >-
+  Double panneau nœud+ticket dans la KB (Fable, relu). Cliquer un ticket depuis l'inspecteur de nœud
+  (KbNodePanel « Tickets touching this ») ouvre le TaskPanel à DROITE en gardant le nœud à GAUCHE —
+  plus d'empilement/remplacement. Détection : isDualStack(stack) pur = pile ≥2 && sommet task &&
+  cran dessous kb-node (aucun état ajouté, lecture de la pile). PanelHost rend un fragment de 2
+  SidePanel (nœud key=panel gauche, ticket key=panel-task droite), 380px chacun, filet gauche,
+  tokens theme-aware. SidePanel REFACTORÉ en 100% props (title, focusKey, onClose, onBack?,
+  onEscape?, primary?) — plus aucun usePanel → 2 instances coexistent sans se marcher dessus ; le
+  primaire (ticket de droite) capte focus+Esc. Close/back : ✕/←/Esc du ticket = back (dépile → nœud
+  seul) ; ✕ du nœud en double = close() (ferme tout) ; cliquer un autre ticket en double = pushEntry
+  remplace le sommet (no-op si même ticket), nœud préservé. Flux simples (task
+  Backlog/section/create-task/kb-node seul) strictement inchangés (mêmes valeurs passées que ce que
+  SidePanel dérivait, key stable = même persistance d'instance). PanelContext.test.ts (8 tests purs
+  isDualStack/pushEntry).
+verification: >-
+  npx tsc --noEmit clean ; npx vitest run 38 fichiers / 516 tests verts (dont 8 nouveaux) ; npm run
+  build OK. git status : uniquement App.tsx/SidePanel.tsx/PanelContext.tsx/KbNodePanel.tsx +
+  PanelContext.test.ts, rien côté serveur/schéma/install/scripts. Rendu réel (2 panneaux, focus,
+  close/back) à valider par Rémi dans son dev server.
+release: null
