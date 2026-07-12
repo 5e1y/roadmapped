@@ -1,0 +1,29 @@
+id: 327
+code: null
+title: "Release 0.2.0 : bump version → publie l'arc Knowledge base/Graphify sur npm (via CI)"
+status: done
+tags:
+  - release
+  - npm
+size: null
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-12T17:48:23"
+startedAt: "2026-07-12T17:48:23"
+updatedAt: "2026-07-12T17:49:08"
+completedAt: "2026-07-12T17:49:08"
+commit: e0d05dd
+outcome: >-
+  Release 0.2.0 publiée sur npm. Bump package.json 0.1.0→0.2.0 (arc Knowledge base/Graphify : viewer
+  graphe live sim de forces, liage tickets⇄graphe, surface agent MCP/CLI/skill graph-first, install
+  Graphify par défaut via uv opt-out --no-kb + MCP natif). Push sur main → CI npm-publish déclenchée
+  par le changement de package.json → publish auto (version nouvelle). Les installs github +
+  auto-update #294 reçoivent aussi via HEAD.
+verification: >-
+  CI run 29198906621 = completed/success. curl registry.npmjs.org/roadmapped/latest → 0.2.0
+  (confirmé live). Bump commité e0d05dd, poussé.
+release: null
