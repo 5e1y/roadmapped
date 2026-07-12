@@ -61,7 +61,13 @@ export function KbProvider({ children }: { children: ReactNode }) {
   // Préchauffage (#308) : le layout force-directed de la vue par défaut coûte
   // ~550 ms sur le vrai graphe — on le calcule en tâche de fond DÉCOUPÉE dès
   // que le graphe est là. Ouvrir l'onglet KB tombe alors sur un cache chaud.
-  useEffect(() => { if (graph) warmKbLayout(graph) }, [graph])
+  // #316 : seul le pipeline STATIQUE (prefers-reduced-motion) consomme encore
+  // ce cache — la sim live génère ses positions en direct. On ne chauffe donc
+  // que pour les utilisateurs concernés.
+  useEffect(() => {
+    const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (graph && reduce) warmKbLayout(graph)
+  }, [graph])
 
   useEffect(() => {
     if (typeof EventSource === 'undefined') return

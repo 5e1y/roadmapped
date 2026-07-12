@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { edgePaths, buildAdjacency, revealDelays, nodesBox } from './kbScene'
+import { edgePaths, buildAdjacency, nodesBox } from './kbScene'
 import type { KbPlaced } from './kbLayout'
 
 const place = (id: string, x: number, y: number, degree = 1): [string, KbPlaced] =>
@@ -77,28 +77,5 @@ describe('buildAdjacency', () => {
     expect([...adj.get('a')!].sort()).toEqual(['b', 'c'])
     expect([...adj.get('b')!]).toEqual(['a'])
     expect([...adj.get('c')!]).toEqual(['a'])
-  })
-})
-
-describe('revealDelays', () => {
-  it('hubs d\'abord : le degré le plus fort tombe dans le premier lot', () => {
-    const d = revealDelays(PLACED, 1)
-    expect(d.get('a')).toBe(0) // degré 3
-    expect(d.get('b')).toBe(1)
-    expect(d.get('c')).toBe(2)
-  })
-
-  it('regroupe par lots de batchSize', () => {
-    const d = revealDelays(PLACED, 2)
-    expect(d.get('a')).toBe(0)
-    expect(d.get('b')).toBe(0)
-    expect(d.get('c')).toBe(1)
-  })
-
-  it('déterministe à degré égal (départage par id)', () => {
-    const placed = new Map<string, KbPlaced>([place('z', 0, 0, 1), place('a', 1, 1, 1)])
-    const d = revealDelays(placed, 1)
-    expect(d.get('a')).toBe(0)
-    expect(d.get('z')).toBe(1)
   })
 })
