@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { edgePaths, buildAdjacency, revealDelays } from './kbScene'
+import { edgePaths, buildAdjacency, revealDelays, nodesBox } from './kbScene'
 import type { KbPlaced } from './kbLayout'
 
 const place = (id: string, x: number, y: number, degree = 1): [string, KbPlaced] =>
@@ -47,6 +47,24 @@ describe('edgePaths', () => {
     const placed = new Map<string, KbPlaced>([place('a', 1.23456, 2.98765), place('b', 3, 4)])
     const { solid } = edgePaths([{ source: 'a', target: 'b', confidence: 'EXTRACTED' }], placed)
     expect(solid).toBe('M1.23 2.99L3 4')
+  })
+})
+
+describe('nodesBox (bbox du re-centrage KB, #311)', () => {
+  it('englobe TOUS les nœuds, rayon compris', () => {
+    // a(0,0,r5), b(10,0,r5), c(0,10,r5) → [-5..15] × [-5..15]
+    const box = nodesBox(PLACED)
+    expect(box).toEqual({ x: -5, y: -5, w: 20, h: 20 })
+  })
+
+  it('restreint au sous-ensemble `ids` (fit des résultats de recherche)', () => {
+    const box = nodesBox(PLACED, new Set(['b'])) // seul b(10,0,r5)
+    expect(box).toEqual({ x: 5, y: -5, w: 10, h: 10 })
+  })
+
+  it('ignore les ids absents ; ensemble vide/aucun nœud → null', () => {
+    expect(nodesBox(PLACED, new Set(['zz']))).toBeNull()
+    expect(nodesBox(new Map())).toBeNull()
   })
 })
 

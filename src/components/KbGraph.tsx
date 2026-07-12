@@ -4,7 +4,7 @@ import { useZoomPan, ZOOM_STEP } from './useZoomPan'
 import { usePanel } from '../state/PanelContext'
 import { applyFilters, matchNodes, truncate, filterKey, KB_MAX_NODES, type KbFilters } from '../lib/kbFilter'
 import { cachedKbLayout, ensureKbLayout, layoutInput } from '../lib/kbLayoutCache'
-import { edgePaths, buildAdjacency, revealDelays } from '../lib/kbScene'
+import { edgePaths, buildAdjacency, revealDelays, nodesBox } from '../lib/kbScene'
 import type { KbGraph as KbGraphData, KbNode, KbEdge } from '../server/kb'
 
 /**
@@ -39,6 +39,8 @@ const LABEL_LIMIT = 60
 const REVEAL_BATCH = 45
 const REVEAL_STEP_MS = 30 // doit refléter le calc() de .kb-in (index.css)
 const REVEAL_ANIM_MS = 300
+/** Zoom plancher au clic d'un nœud (au moins ça — on garde plus si déjà zoomé). */
+const NODE_ZOOM = 1.25
 
 export function KbGraph({ graph, filters, query }: { graph: KbGraphData; filters: KbFilters; query: string }) {
   const { openKbNode } = usePanel()
@@ -85,6 +87,27 @@ export function KbGraph({ graph, filters, query }: { graph: KbGraphData; filters
 
   const adj = useMemo(() => buildAdjacency(view.edges), [view])
 
+  // Clic nœud = ouvre l'inspecteur ET cadre le nœud au centre à >=125 % (#311).
+  // Handler STABLE (refs) : NodesLayer est mémoïsé, il ne doit pas re-rendre à
+  // chaque pan/zoom (où `shown`/`scale`/`zp` changent d'identité).
+  const shownRef = useRef(shown)
+  shownRef.current = shown
+  const scaleRef = useRef(1)
+  scaleRef.current = zp.transform.scale
+  const zpRef = useRef(zp)
+  zpRef.current = zp
+  const onNodeClick = useCallback((id: string) => {
+    openKbNode(id)
+    const p = shownRef.current?.nodes.get(id)
+    if (!p) return
+    // L'inspecteur (SidePanel, 380px) POUSSE le graphe : on diffère le centrage
+    // d'une frame pour que le viewport ait rétréci — sinon on cadre sur l'ancienne
+    // largeur et le nœud finit décalé de ~190px. rAF absent (jsdom) → direct.
+    const center = () => zpRef.current.centerOn(p.x, p.y, Math.max(scaleRef.current, NODE_ZOOM))
+    if (typeof requestAnimationFrame === 'function') requestAnimationFrame(center)
+    else center()
+  }, [openKbNode])
+
   const searching = query.trim() !== ''
   const matches = useMemo(() => matchNodes(view.nodes, query), [view, query])
 
@@ -111,31 +134,21 @@ export function KbGraph({ graph, filters, query }: { graph: KbGraphData; filters
     [revealing, shown],
   )
 
-  // Premier layout → fit : on ARRIVE sur la vue d'ensemble (le reveal se joue
-  // à l'écran, pas dans un coin d'un canvas de 2400 px).
-  const didFit = useRef(false)
+  // Re-centrage (#311) : le graphe reste CENTRÉ dans le viewport à chaque
+  // changement de SET VISIBLE — arrivée (premier `shown`), filtre (nouveau
+  // `shown`), recherche (nouveaux `matches`). Recherche active → fit la bbox
+  // des résultats ; sinon fit le sous-graphe visible entier (fitBox(null) =
+  // toute la boîte de layout, qui EST la bbox des nœuds visibles). Ne dépend
+  // que de [shown, matches] : jamais rejoué au pan/zoom/survol → l'utilisateur
+  // garde la main (grab/pan) tant qu'il ne change pas filtre/recherche. Fit
+  // instantané (pas d'anim) — conforme reduced-motion sans cas particulier.
   useEffect(() => {
-    if (!hasLayout || didFit.current) return
-    didFit.current = true
-    zp.fitBox(null)
+    if (!shown) return
+    const box = matches.size > 0 ? nodesBox(shown.nodes, matches) : null
+    zp.fitBox(matches.size > 0 ? box : null)
+    // fitBox est stable ; zp change d'identité à chaque render → hors deps.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasLayout])
-
-  // Recherche → recentre sur la bbox des résultats (fitBox). Rien si 0 match.
-  useEffect(() => {
-    if (matches.size === 0 || !shown) return
-    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
-    for (const id of matches) {
-      const p = shown.nodes.get(id)
-      if (!p) continue
-      minX = Math.min(minX, p.x - p.r); maxX = Math.max(maxX, p.x + p.r)
-      minY = Math.min(minY, p.y - p.r); maxY = Math.max(maxY, p.y + p.r)
-    }
-    if (minX === Infinity) return
-    zp.fitBox({ x: minX, y: minY, w: maxX - minX, h: maxY - minY })
-    // fitBox est stable ; on refit quand les résultats ou le layout changent.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [matches, shown])
+  }, [shown, matches])
 
   const { scale, tx, ty } = zp.transform
 
@@ -208,7 +221,7 @@ export function KbGraph({ graph, filters, query }: { graph: KbGraphData; filters
                 searching={searching}
                 delays={delays}
                 onFocus={setFocus}
-                onOpen={openKbNode}
+                onOpen={onNodeClick}
               />
             </svg>
           </div>

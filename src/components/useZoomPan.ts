@@ -68,6 +68,19 @@ export function boxTransform(
   return { scale, tx: vpW / 2 - cx * scale, ty: vpH / 2 - cy * scale }
 }
 
+/**
+ * Centre un POINT du contenu (coordonnées contenu) au milieu du viewport, à un
+ * `scale` donné (borné [ZOOM_MIN, ZOOM_MAX]). Sert au zoom-sur-nœud du KB
+ * (#311) : clic → on cadre le nœud au centre. Pur (le clamp de pan reste à
+ * l'appelant, comme boxTransform).
+ */
+export function centerTransform(
+  center: { x: number; y: number }, scale: number, vpW: number, vpH: number,
+): ZoomPanTransform {
+  const s = clampScale(scale)
+  return { scale: s, tx: vpW / 2 - center.x * s, ty: vpH / 2 - center.y * s }
+}
+
 /** Borne la translation : le contenu garde au moins KEEP_VISIBLE px à l'écran. */
 export function clampPan(t: ZoomPanTransform, contentW: number, contentH: number, vpW: number, vpH: number): ZoomPanTransform {
   if (vpW <= 0 || vpH <= 0) return t
@@ -97,8 +110,18 @@ export interface ZoomPan {
   fit: () => void
   /** Recentre/zoome sur une boîte du contenu ; null = fit du contenu entier. */
   fitBox: (box: { x: number; y: number; w: number; h: number } | null) => void
+  /**
+   * Centre un point du contenu au milieu du viewport à `scale` (au moins ce que
+   * l'appelant passe), en TRANSITION DOUCE — instantané sous prefers-reduced-
+   * motion. Zoom-sur-nœud du KB (#311).
+   */
+  centerOn: (x: number, y: number, scale: number) => void
   reset: () => void
 }
+
+const TWEEN_MS = 260
+const prefersReducedMotion = (): boolean =>
+  typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches
 
 export function useZoomPan(contentW: number, contentH: number): ZoomPan {
   const viewportRef = useRef<HTMLDivElement>(null)
@@ -117,6 +140,14 @@ export function useZoomPan(contentW: number, contentH: number): ZoomPan {
   transformRef.current = transform
   const pending = useRef<ZoomPanTransform | null>(null)
   const rafId = useRef(0)
+  // Tween du centerOn (#311) : un rAF séparé de la coalescence, annulé dès
+  // qu'un geste utilisateur (pan/molette/zoom) reprend la main.
+  const tweenRaf = useRef(0)
+
+  const cancelTween = useCallback(() => {
+    if (tweenRaf.current && typeof cancelAnimationFrame === 'function') cancelAnimationFrame(tweenRaf.current)
+    tweenRaf.current = 0
+  }, [])
 
   const flush = useCallback(() => {
     rafId.current = 0
@@ -128,9 +159,11 @@ export function useZoomPan(contentW: number, contentH: number): ZoomPan {
 
   useEffect(() => () => {
     if (rafId.current && typeof cancelAnimationFrame === 'function') cancelAnimationFrame(rafId.current)
+    if (tweenRaf.current && typeof cancelAnimationFrame === 'function') cancelAnimationFrame(tweenRaf.current)
   }, [])
 
   const apply = useCallback((fn: (prev: ZoomPanTransform) => ZoomPanTransform) => {
+    cancelTween() // un geste utilisateur interrompt le tween en cours
     const el = viewportRef.current
     const next = fn(pending.current ?? transformRef.current)
     pending.current = el
@@ -138,13 +171,39 @@ export function useZoomPan(contentW: number, contentH: number): ZoomPan {
       : next
     if (typeof requestAnimationFrame !== 'function') { flush(); return }
     if (!rafId.current) rafId.current = requestAnimationFrame(flush)
-  }, [flush])
+  }, [flush, cancelTween])
 
   /** Pose une transform ABSOLUE : annule tout delta en attente (fit/reset). */
   const commit = useCallback((t: ZoomPanTransform) => {
     pending.current = null
     setTransform(t)
   }, [])
+
+  /**
+   * Anime la transform vers une cible (ease-out cubique, ~260 ms). Sous
+   * prefers-reduced-motion (ou sans rAF, jsdom) : saut immédiat. Le tween
+   * n'utilise QUE `commit` (jamais `apply`, sinon il s'auto-annulerait).
+   */
+  const animateTo = useCallback((target: ZoomPanTransform) => {
+    cancelTween()
+    if (prefersReducedMotion() || typeof requestAnimationFrame !== 'function') { commit(target); return }
+    const from = pending.current ?? transformRef.current
+    pending.current = null
+    const t0 = typeof performance !== 'undefined' ? performance.now() : Date.now()
+    const ease = (p: number) => 1 - Math.pow(1 - p, 3)
+    const frame = () => {
+      const now = typeof performance !== 'undefined' ? performance.now() : Date.now()
+      const p = Math.min(1, (now - t0) / TWEEN_MS)
+      const k = ease(p)
+      setTransform({
+        scale: from.scale + (target.scale - from.scale) * k,
+        tx: from.tx + (target.tx - from.tx) * k,
+        ty: from.ty + (target.ty - from.ty) * k,
+      })
+      tweenRaf.current = p < 1 ? requestAnimationFrame(frame) : 0
+    }
+    tweenRaf.current = requestAnimationFrame(frame)
+  }, [commit, cancelTween])
 
   // Molette = zoom vers le curseur. Listener NATIF non-passif : React attache
   // `onWheel` en passif à la racine, preventDefault y serait ignoré (et la page
@@ -164,10 +223,11 @@ export function useZoomPan(contentW: number, contentH: number): ZoomPan {
 
   const onPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     if (e.button !== 0) return
+    cancelTween() // saisir le graphe interrompt tout tween en cours
     drag.current = { pointerId: e.pointerId, x: e.clientX, y: e.clientY }
     e.currentTarget.setPointerCapture(e.pointerId)
     setPanning(true)
-  }, [])
+  }, [cancelTween])
 
   const onPointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     const d = drag.current
@@ -194,19 +254,31 @@ export function useZoomPan(contentW: number, contentH: number): ZoomPan {
   const fit = useCallback(() => {
     const el = viewportRef.current
     if (!el) return
+    cancelTween()
     commit(fitTransform(content.current.w, content.current.h, el.clientWidth, el.clientHeight))
-  }, [commit])
+  }, [commit, cancelTween])
 
   const fitBox = useCallback((box: { x: number; y: number; w: number; h: number } | null) => {
     const el = viewportRef.current
     if (!el) return
+    cancelTween()
     const t = box
       ? boxTransform(box, el.clientWidth, el.clientHeight)
       : fitTransform(content.current.w, content.current.h, el.clientWidth, el.clientHeight)
     commit(clampPan(t, content.current.w, content.current.h, el.clientWidth, el.clientHeight))
-  }, [commit])
+  }, [commit, cancelTween])
 
-  const reset = useCallback(() => commit({ scale: 1, tx: 0, ty: 0 }), [commit])
+  const centerOn = useCallback((x: number, y: number, scale: number) => {
+    const el = viewportRef.current
+    if (!el) return
+    const target = clampPan(
+      centerTransform({ x, y }, scale, el.clientWidth, el.clientHeight),
+      content.current.w, content.current.h, el.clientWidth, el.clientHeight,
+    )
+    animateTo(target)
+  }, [animateTo])
+
+  const reset = useCallback(() => { cancelTween(); commit({ scale: 1, tx: 0, ty: 0 }) }, [commit, cancelTween])
 
   // A11y : le viewport est focusable (tabIndex=0 côté composant) — flèches =
   // pan, + / − = zoom, 0 = réinitialiser (politique a11y du repo).
@@ -232,6 +304,6 @@ export function useZoomPan(contentW: number, contentH: number): ZoomPan {
   return {
     viewportRef, transform, panning,
     handlers: { onPointerDown, onPointerMove, onPointerUp: endDrag, onPointerCancel: endDrag, onKeyDown },
-    zoomBy, fit, fitBox, reset,
+    zoomBy, fit, fitBox, centerOn, reset,
   }
 }
