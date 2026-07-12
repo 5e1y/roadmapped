@@ -22,22 +22,31 @@ import type { KbStaleness } from './kbStatus'
 
 // Rétrocompat renommage 2026-07 (même liste que paths.ts) : l'ancien nom un-p reste lu.
 const CONFIG_NAMES = ['roadmapped.config.json', 'roadmaped.config.json']
+// Sidecar machine-local gitignoré (#329) : porte l'état d'install KB (chemins
+// ABSOLUS) hors des fichiers trackés. Overlay sur `kb` de la config trackée.
+const LOCAL_CONFIG_NAME = 'roadmapped.config.local.json'
+
+function readJsonBestEffort(file: string): Record<string, unknown> {
+  if (!existsSync(file)) return {}
+  try {
+    const json = JSON.parse(readFileSync(file, 'utf8'))
+    return json && typeof json === 'object' ? (json as Record<string, unknown>) : {}
+  } catch {
+    return {}
+  }
+}
 
 /** Config hôte BRUTE, best-effort ({} si absente/illisible) — pour les clés que
- *  resolvePaths ne porte pas : `kb` (opt-out/état), `kb.graphifyBin`, `pythonBin`. */
+ *  resolvePaths ne porte pas : `kb` (opt-out/état), `kb.graphifyBin`, `pythonBin`.
+ *  L'état KB (chemins ABSOLUS) vit dans le sidecar gitignoré et prime ici — sauf
+ *  l'opt-out `kb: false` (décision partagée, config trackée) qui l'emporte (#329). */
 export function readHostConfig(root?: string): Record<string, unknown> {
   if (!root) return {}
-  for (const name of CONFIG_NAMES) {
-    const file = join(root, name)
-    if (!existsSync(file)) continue
-    try {
-      const json = JSON.parse(readFileSync(file, 'utf8'))
-      return json && typeof json === 'object' ? (json as Record<string, unknown>) : {}
-    } catch {
-      return {}
-    }
-  }
-  return {}
+  const trackedName = CONFIG_NAMES.find((name) => existsSync(join(root, name)))
+  const tracked = trackedName ? readJsonBestEffort(join(root, trackedName)) : {}
+  if (tracked.kb === false) return tracked
+  const localKb = readJsonBestEffort(join(root, LOCAL_CONFIG_NAME)).kb
+  return localKb !== undefined ? { ...tracked, kb: localKb } : tracked
 }
 
 /** Opt-out mémorisé (spec A.3/A.5 : `kb: false` ou `'declined'`) → on ne harcèle
