@@ -148,17 +148,23 @@ export function FilterMenu({ allLabel, options, selected, onChange, multiple = f
                   if (multiple) onChange(active ? selected.filter((v) => v !== o.value) : [...selected, o.value])
                   else onChange(active ? [] : [o.value])
                 }
-                // Coche = signal principal de sélection (le fond léger ne suffit
-                // pas, retour Rémi). Alignement [coche] label … count : slot de
-                // coche à largeur fixe pour aligner les labels, coché ou non.
+                // Vraie CHECKBOX (retour Rémi) : une case TOUJOURS visible, vide
+                // quand non sélectionné, remplie + cochée (accent) quand actif —
+                // le signal ne dépend plus d'un fond de rangée. Alignement
+                // [case] label … count.
                 const cls = `flex w-full items-center gap-2 px-2.5 py-1.5 text-left text-xs hover:bg-neutral-100 ${
-                  active ? 'bg-accent-tint font-medium text-neutral-900'
+                  active ? 'font-medium text-neutral-900'
                   : o.count === 0 ? 'text-neutral-500' : 'text-neutral-600'
                 }`
                 const body = (
                   <>
-                    <span className="flex w-3.5 shrink-0 justify-center" aria-hidden="true">
-                      {active && <Check size={12} className="text-accent" />}
+                    <span
+                      className={`flex size-3.5 shrink-0 items-center justify-center rounded-[3px] border transition-colors ${
+                        active ? 'border-accent bg-accent-tint text-accent' : 'border-neutral-300'
+                      }`}
+                      aria-hidden="true"
+                    >
+                      {active && <Check size={11} />}
                     </span>
                     <span className="min-w-0 flex-1 truncate">{o.label}</span>
                     {o.count !== undefined && (
