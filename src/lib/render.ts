@@ -62,8 +62,12 @@ export function renderRef(ref: string, createdAt: string): string {
  * LE contexte d'exécution complet et dense d'une tâche (équivalent CLI du « brief
  * agent »). Zéro navigation : deps/liées/sous-tâches titrées, refs + extraits/fraîcheur,
  * rappel done en pied.
+ *
+ * `kb` (#325) : la section « Knowledge base » pré-rendue (kbCycle.kbBriefSection) —
+ * voisinage du graphe embarqué D'OFFICE dans take/brief, ou la ligne discrète
+ * « graph not generated ». Optionnelle : absente, la sortie est inchangée.
  */
-export function briefText(tree: TaskTree, hit: FoundTask): string {
+export function briefText(tree: TaskTree, hit: FoundTask, kb?: string | null): string {
   const t = hit.task
   const out = [`#${t.id} ${t.title}`]
   const meta = [`type: ${hit.sectionKey}`]
@@ -78,6 +82,7 @@ export function briefText(tree: TaskTree, hit: FoundTask): string {
   if (t.dependsOn.length) { out.push('depends on:'); for (const d of t.dependsOn) out.push(`  ${refLine(tree, d)}`) }
   if (t.links.length) { out.push('linked:'); for (const l of t.links) out.push(`  ${refLine(tree, l)}`) }
   if (t.subtasks.length) { out.push('subtasks:'); for (const s of t.subtasks) out.push(`  ${refLine(tree, s.id)}`) }
+  if (kb) out.push(kb)
   out.push(`done ${t.id} --commit <sha> --outcome "…" --verification "…"`)
   return out.join('\n')
 }
@@ -183,7 +188,10 @@ export function stalePassepartout(
   return aged.some((a) => a.ageDays < thresholdDays) ? [] : aged
 }
 
-export function sitrepText(tree: TaskTree, errors: string[], unlogged?: UnloggedCommits | null): string {
+/** `kb` (#325) : la ligne d'état du knowledge graph pré-rendue (kbCycle.kbSitrepLine)
+ *  — sitrep est injecté à CHAQUE SessionStart : c'est le marqueur systémique de
+ *  1ʳᵉ génération / staleness du graphe. Optionnelle : absente, sortie inchangée. */
+export function sitrepText(tree: TaskTree, errors: string[], unlogged?: UnloggedCommits | null, kb?: string | null): string {
   const active = activeTasks(tree)
   const today = todayStr()
   const brief = (t: TaskNode) => `#${t.id} ${t.title}`
@@ -208,6 +216,7 @@ export function sitrepText(tree: TaskTree, errors: string[], unlogged?: Unlogged
     `next: ${queue.length ? queue.map(brief).join(' · ') : '— (queue empty)'}`,
     `validate: ${errors.length === 0 ? 'OK' : `${errors.length} error(s)`}`,
   ]
+  if (kb) lines.push(kb)
   const stale = inProgress.filter((t) => daysBetween(dayOf(t.startedAt ?? t.createdAt), today) >= 7)
   if (stale.length) lines.push(`⚠ ${stale.length} stale in_progress (≥7d): ${stale.map((t) => `#${t.id}`).join(' ')}`)
   const debt = active.filter((t) => t.status !== 'done' && t.tags.includes('debt'))

@@ -42,6 +42,10 @@ export interface KbEdge {
 export interface KbGraph {
   /** mtime ISO de graph.json (fraîcheur), null si indéterminable. */
   generatedAt: string | null
+  /** Commit de build posé par Graphify (`built_at_commit`) — le signal de
+   *  staleness (comparé à HEAD par kbCycle/doctor). null sur graphes anciens.
+   *  Optionnel pour ne pas casser les fixtures qui construisent un KbGraph. */
+  builtAtCommit?: string | null
   nodes: KbNode[]
   edges: KbEdge[]
   stats: { nodes: number; edges: number; communities: number }
@@ -115,6 +119,7 @@ export function normalizeGraph(raw: unknown, generatedAt: string | null): KbGrap
   const communities = new Set(nodes.map((n) => n.community).filter((c) => c >= 0))
   return {
     generatedAt,
+    builtAtCommit: str(obj.built_at_commit),
     nodes,
     edges,
     stats: { nodes: nodes.length, edges: edges.length, communities: communities.size },

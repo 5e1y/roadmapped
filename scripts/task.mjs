@@ -14,11 +14,15 @@
 // Node >= 22.18 exécute les imports TypeScript nativement ; le script npm
 // (`npm run task`) garde --experimental-strip-types pour les Node plus vieux.
 
-import { existsSync, realpathSync, readFileSync } from 'node:fs'
+import { existsSync, realpathSync } from 'node:fs'
+import { execFileSync, spawnSync } from 'node:child_process'
 import { join, relative } from 'node:path'
 import { loadPaths, packageRoot } from '../src/lib/paths.ts'
 import { readKbGraph } from '../src/server/kb.ts'
 import { kbNeighborhood, neighborhoodText, kbSearch, searchText, kbNode, nodeText } from '../src/lib/kbQuery.ts'
+// #325 — la KB devient LOAD-BEARING dans le cycle : take/brief embarquent le
+// voisinage du graphe, sitrep porte la ligne d'état, done nudge le refresh.
+import { kbBriefSection, kbSitrepLine, kbStaleDoneNudge, stalenessOf, readHostConfig } from '../src/lib/kbCycle.ts'
 import { autoUpdate } from '../src/lib/updateNotifier.ts'
 import {
   treeWithErrors, readTree, findTask, loadFiles,
@@ -148,7 +152,9 @@ Reading
                             task; surfaces orphans (no #id) + dead references
   kb <sub>                  knowledge graph (built by Graphify): neighborhood <taskId>
                             (code/docs a task touches), search "<query>", node <nodeId>
-                            (+ tickets touching it), doctor (present? size? freshness)
+                            (+ tickets touching it), doctor [--max-behind N] (present?
+                            size? freshness — exit 0 fresh · 2 absent · 3 stale),
+                            refresh [--force] (code-only AST rebuild, zero LLM tokens)
 
 Writing (id allocated from _meta.yaml; validated after EVERY write, full rollback on error)
   add --type <type> --title <t> [--detail <d>] [--tags a,b] [--heat 0-100]
@@ -204,7 +210,10 @@ const CMD_USAGE = {
   add: 'Usage: add --type <type> --title <t> [--detail <d>] [--tags a,b] [--heat 0-100] [--size S|M|L]\n        [--code <c>] [--refs a,b] [--links 1,2] [--depends-on 1,2] [--epic <slug>]\n        [--kind task|milestone] [--blocks 1,2] [--source ai|user] [--json]  (--section/--stage = aliases of --type)',
   quick: 'Usage: quick "<title>" --type <t> [--tags a,b] [--heat 0-100] [--start] [--json]  (--type REQUIRED, #293)',
   update: 'Usage: update <id> [--title ...] [--detail ...] [--status ...] [--heat 0-100|--no-heat] [--tags a,b] [--refs a,b]\n        [--links 1,2] [--depends-on 1,2] [--epic <slug>] [--size ...] [--code ...] [--outcome ...] …',
-  kb: 'Usage: kb <neighborhood <taskId> | search "<query>" | node <nodeId> | doctor>  (knowledge graph — built by Graphify at graphify-out/graph.json)',
+  kb: 'Usage: kb <neighborhood <taskId> | search "<query>" | node <nodeId> | doctor [--max-behind N] | refresh [--force]>\n' +
+    '  (knowledge graph — built by Graphify at graphify-out/graph.json)\n' +
+    '  doctor exit codes: 0 fresh/unknown · 1 unreadable · 2 absent · 3 stale (default threshold: 10 commits behind HEAD)\n' +
+    '  refresh: code-only AST rebuild via the graphify CLI (zero LLM tokens) — prints the command if graphify is missing',
 }
 
 /**
@@ -303,7 +312,8 @@ function cmdBrief(id, flags) {
   const tree = readTree(ROOT)
   const hit = findTask(tree, id)
   if (!hit) fail(`No task #${id}.`, CMD_USAGE.brief)
-  console.log(briefText(tree, hit))
+  // #325 : le voisinage KB embarqué d'office — l'agent reçoit la carte sans y penser.
+  console.log(briefText(tree, hit, kbBriefSection(tree, id, KB_GRAPH_FILE, HOST_ROOT)))
 }
 
 function cmdTake(flags) {
@@ -327,7 +337,7 @@ function cmdTake(flags) {
     return
   }
   console.log(`#${id} started.`)
-  console.log(briefText(tree, hit))
+  console.log(briefText(tree, hit, kbBriefSection(tree, id, KB_GRAPH_FILE, HOST_ROOT)))
 }
 
 function cmdNext(flags) {
@@ -549,6 +559,11 @@ function cmdDone(id, flags) {
   console.log(`${labelOf(res.tree, id)} done.${commit && typeof flags.commit !== 'string' ? ` commit=${commit} (HEAD).` : ''}`)
   // Non-blocking warnings (e.g. task delivered with no refs) → stderr, success preserved.
   if (res.ok && res.warnings) for (const w of res.warnings) console.error(`⚠ ${w}`)
+  // #325 : graphe KB en retard à la clôture → nudge refresh (informatif, jamais bloquant).
+  if (res.ok) {
+    const nudge = kbStaleDoneNudge(KB_GRAPH_FILE)
+    if (nudge) console.error(`⚠ ${nudge}`)
+  }
   // --suggest-refs: lists the diff for CONFIRMATION, never applied (spec caution).
   if (res.ok && flags['suggest-refs']) {
     const refs = suggestedRefs(commit)
@@ -636,7 +651,9 @@ function cmdGuard(flags) {
 async function cmdSitrep(flags) {
   rejectUnknownFlags(flags, [], CMD_USAGE.sitrep)
   const { tree, errors } = treeWithErrors(ROOT)
-  console.log(sitrepText(tree, errors, unloggedCommits(tree)))
+  // #325 : la ligne KB (présence/nœuds/staleness) — sitrep = SessionStart, c'est
+  // LE marqueur qui pousse la 1ʳᵉ génération et le refresh. Opt-out → silence.
+  console.log(sitrepText(tree, errors, unloggedCommits(tree), kbSitrepLine(KB_GRAPH_FILE, HOST_ROOT)))
   // #294 : sitrep = l'ouverture de session (hook SessionStart) → point d'accroche de
   // l'auto-MAJ. Non bloquant, no-op si à jour/self-host/offline. Après la sortie
   // sitrep pour ne pas la retarder ; la ligne « updating… » s'affiche dessous.
@@ -695,8 +712,18 @@ function cmdRoadmap(flags) {
 // Le liage tâche⇄graphe (kbLink) exposé au CLI, mêmes fonctions PURES (kbQuery)
 // que le serveur MCP. Lecture seule du graphe committé (graphify-out/graph.json).
 
-/** `kb doctor` : présence, taille, fraîcheur (commit de build vs HEAD). */
-function cmdKbDoctor() {
+/** `kb doctor` : présence, taille, fraîcheur (built_at_commit vs HEAD en commits).
+ *  Exit codes SCRIPTABLES (#325) : 0 = OK/à jour (ou fraîcheur inconnue),
+ *  1 = illisible, 2 = absent, 3 = périmé (≥ --max-behind commits, défaut 10). */
+function cmdKbDoctor(flags) {
+  rejectUnknownFlags(flags, ['max-behind'], CMD_USAGE.kb)
+  let threshold
+  if (flags['max-behind'] !== undefined) {
+    threshold = Number(flags['max-behind'])
+    if (!Number.isInteger(threshold) || threshold < 1) {
+      fail(`--max-behind invalid: "${flags['max-behind']}" (expected a positive integer of commits).`, CMD_USAGE.kb)
+    }
+  }
   const res = readKbGraph(KB_GRAPH_FILE)
   const rel = relative(HOST_ROOT, KB_GRAPH_FILE) || KB_GRAPH_FILE
   if (!res.ok) {
@@ -710,31 +737,95 @@ function cmdKbDoctor() {
       `    pip install graphifyy && graphify install   # once\n` +
       `    /graphify .                                 # in your agent, at the repo root`,
     )
-    return
+    process.exit(2)
   }
   const g = res.graph
   console.log('Knowledge graph: OK')
   console.log(`  ${g.stats.nodes} nodes · ${g.stats.edges} edges · ${g.stats.communities} communities  (${rel})`)
   console.log(`  generated: ${g.generatedAt ?? 'unknown'}`)
-  // Fraîcheur via le commit de build (built_at_commit, posé par Graphify) vs HEAD.
-  let built = null
-  try { built = JSON.parse(readFileSync(KB_GRAPH_FILE, 'utf8')).built_at_commit ?? null } catch { /* champ absent sur graphes anciens */ }
-  const head = git('rev-parse --short HEAD')
-  if (built && head) {
-    const fresh = built.startsWith(head) || head.startsWith(built)
-    console.log(fresh
-      ? `  fresh — built at current HEAD (${head})`
-      : `  ⚠ built at ${built}, HEAD is ${head} — may be stale. Refresh: /graphify . --update`)
-  } else {
-    console.log('  freshness: unknown (no build commit recorded)')
+  // Fraîcheur = built_at_commit vs HEAD, mesurée en COMMITS (rev-list --count) :
+  // « ≠ HEAD » seul serait trop nerveux ; périmé à partir du seuil seulement.
+  const st = stalenessOf(g, threshold)
+  if (st.state === 'unknown') {
+    console.log('  freshness: unknown (no build commit recorded, or not a git repo)')
+    return // exit 0 : ne pas punir les vieux graphes/les sandbox sans git
+  }
+  if (st.state === 'stale') {
+    console.log(`  ⚠ stale — built at ${st.builtCommit}, ${st.commitsBehind} commits behind HEAD (threshold ${st.threshold}).`)
+    console.log('  Refresh: /graphify . --update (agent) or `roadmapped kb refresh` (code-only, zero LLM tokens)')
+    process.exit(3)
+  }
+  console.log(st.commitsBehind === 0
+    ? '  fresh — built at current HEAD'
+    : `  fresh — built at ${st.builtCommit}, ${st.commitsBehind} commit(s) behind HEAD (threshold ${st.threshold})`)
+}
+
+// --------------------------------------------------------------- kb refresh (#325)
+// Régénération CODE-ONLY : `graphify update` = la passe AST Tree-sitter, locale,
+// déterministe, ZÉRO token LLM (la part docs reste celle du dernier /graphify).
+// Best-effort, jamais bloquant : binaire introuvable → on IMPRIME la commande.
+
+/** exec best-effort silencieux : true si la commande aboutit (même idiome que
+ *  tryExec d'install.mjs — jamais d'exception). */
+function execOk(cmd, args) {
+  try {
+    execFileSync(cmd, args, { stdio: 'ignore', timeout: 15_000 })
+    return true
+  } catch {
+    return false
   }
 }
 
-/** `kb <sub>` : neighborhood <id> · search "<q>" · node <id> · doctor. */
-function cmdKb(positional) {
+/** Invocateur graphify, du plus explicite au plus générique : chemins absolus
+ *  mémorisés dans la config (kb.graphifyBin / graphifyBin, spec A.1), binaire
+ *  sur le PATH, puis interpréteur du venv dédié (kb.pythonBin / pythonBin,
+ *  posé par install.mjs) via `python -m graphify`. null si rien ne répond. */
+function findGraphifyInvoker() {
+  const cfg = readHostConfig(HOST_ROOT)
+  const kbCfg = cfg.kb && typeof cfg.kb === 'object' ? cfg.kb : {}
+  for (const bin of [kbCfg.graphifyBin, cfg.graphifyBin]) {
+    if (typeof bin === 'string' && bin !== '' && existsSync(bin)) return { cmd: bin, args: [] }
+  }
+  if (execOk('graphify', ['--version'])) return { cmd: 'graphify', args: [] }
+  for (const py of [kbCfg.pythonBin, cfg.pythonBin]) {
+    if (typeof py === 'string' && py !== '' && existsSync(py) && execOk(py, ['-c', 'import graphify'])) {
+      return { cmd: py, args: ['-m', 'graphify'] }
+    }
+  }
+  return null
+}
+
+/** `kb refresh [--force]` : resynchronise la part CODE du graphe sans agent ni
+ *  tokens. Graphify retrouve la racine de scan via graphify-out/.graphify_root. */
+function cmdKbRefresh(flags) {
+  rejectUnknownFlags(flags, ['force'], CMD_USAGE.kb)
+  const inv = findGraphifyInvoker()
+  if (!inv) {
+    console.log([
+      'kb refresh: graphify CLI not found — nothing run (never blocking).',
+      '  install once:   uv tool install graphifyy   (or: pipx install graphifyy)',
+      '  then rerun:     roadmapped kb refresh',
+      '  or from your agent: /graphify . --update',
+    ].join('\n'))
+    return // exit 0 : l'absence d'outillage n'est pas une erreur de l'utilisateur
+  }
+  const label = [inv.cmd, ...inv.args].join(' ')
+  console.log(`kb refresh — \`${label} update\` (code-only AST pass, zero LLM tokens)…`)
+  const r = spawnSync(inv.cmd, [...inv.args, 'update', ...(flags.force ? ['--force'] : [])], {
+    cwd: HOST_ROOT, stdio: 'inherit', timeout: 600_000,
+  })
+  if (r.status !== 0) {
+    console.error('kb refresh: `graphify update` did not complete — graph left as-is. From your agent: /graphify . --update')
+    process.exit(1)
+  }
+}
+
+/** `kb <sub>` : neighborhood <id> · search "<q>" · node <id> · doctor · refresh. */
+function cmdKb(positional, flags) {
   const sub = positional[0]
   if (!sub || sub === 'help' || sub === '--help') { console.log(CMD_USAGE.kb); return }
-  if (sub === 'doctor') { cmdKbDoctor(); return }
+  if (sub === 'doctor') { cmdKbDoctor(flags); return }
+  if (sub === 'refresh') { cmdKbRefresh(flags); return }
 
   const res = readKbGraph(KB_GRAPH_FILE)
   if (!res.ok) fail(`graph.json unreadable: ${res.error}\n  Regenerate with Graphify: /graphify . --update`, CMD_USAGE.kb)
@@ -831,7 +922,7 @@ switch (cmd) {
     cmdRoadmap(flags)
     break
   case 'kb':
-    cmdKb(positional)
+    cmdKb(positional, flags)
     break
   case undefined:
   case 'help':
