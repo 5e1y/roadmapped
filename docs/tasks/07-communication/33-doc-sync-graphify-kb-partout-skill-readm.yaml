@@ -3,7 +3,7 @@ code: null
 title: >-
   Doc sync Graphify/KB partout : skill, README, gouvernance GitHub, + section site (mentionner
   Graphify)
-status: todo
+status: done
 tags:
   - kb
   - graphify
@@ -25,9 +25,25 @@ dependsOn:
 epic: knowledge-base
 source: ai
 createdAt: "2026-07-12T13:41:39"
-updatedAt: "2026-07-12T13:41:39"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+startedAt: "2026-07-12T14:08:41"
+updatedAt: "2026-07-12T14:15:16"
+completedAt: "2026-07-12T14:15:16"
+commit: 0cd1911
+outcome: >-
+  Feature Knowledge base (powered by Graphify) documentée partout (Fable, source de vérité unique).
+  MAIN (0cd1911) : docs/guide.md nouvelle section « Knowledge base » (Graphify génère / Roadmapped
+  lit graphify-out/graph.json, génération pip install graphifyy + /graphify . / --update, Python
+  ≥3.10 optionnel Node ≥22.18 inchangé, liage tickets⇄graphe dérivé des refs, outils agent MCP
+  kb_neighborhood/search/node + CLI roadmapped kb + consigne skill, empty state) + 2 mentions dans
+  le tour du dashboard ; README ligne feature + crédit Graphify ; SKILL.md 1 phrase (le dashboard
+  rend le même graphe) ; CONTRIBUTING 1 phrase (kb doctor). SITE (roadmapped-site 62e3429, déployé)
+  : section #knowledge-base « A knowledge base you never fill in » (2 pair-cards tickets⇄refs /
+  agents+outils, crédit Graphify + liens graphify.net & repo), 100% CSS existant, style.css non
+  touché. Crédit Graphify cohérent : « separate open-source project (MIT, Graphify-Labs/graphify,
+  graphify.net), pas nous » ; jamais présenté comme fait par Roadmapped.
+verification: >-
+  MAIN : npx tsc --noEmit clean (doc only, aucun code touché) ; crédit Graphify présent (README 3,
+  guide 2). SITE : HTMLParser 0 balise orpheline/non fermée, section #knowledge-base + graphify.net
+  présents, poussé sur roadmapped-site. Formulations vérifiées contre l'implémentation réelle (noms
+  d'outils/commandes/strings UI exacts).
 release: null
