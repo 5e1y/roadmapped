@@ -1,0 +1,52 @@
+id: 317
+code: null
+title: >-
+  KB : lag (~2fps) les 2 premières secondes à l'ouverture — faire apparaître les nœuds
+  progressivement/aléatoirement au lancement
+status: done
+tags:
+  - kb
+  - graphify
+  - perf
+  - renderer
+size: null
+heat: 86
+detail: >-
+  Retour Rémi : à l'ouverture du graphe KB (869 nœuds) ça lague (~2fps) pendant ~2s, malgré la sim
+  optimisée #316 (le headless CDP ne peint pas comme un vrai navigateur → le montage simultané des
+  869 <g> SVG + 1ers ticks est lourd en réel). Solution : ne pas monter/simuler les 869 nœuds d'un
+  coup — les faire ENTRER progressivement/aléatoirement au lancement (staggered mount, ex. par lots
+  sur les premières frames, ordre aléatoire déterministe ou hubs d'abord), pour que la génération
+  reste fluide dès la 1re seconde. Cohérent avec la génération « qui s'écarte » de #316 (les nœuds
+  rejoignent la sim au fur et à mesure de leur entrée). reduced-motion : tout d'emblée (inchangé).
+  Mesurer le fps réel de la 1re seconde. Ne pas régresser les features KB.
+refs:
+  - src/components/KbGraph.tsx
+  - src/components/kbSimDriver.ts
+  - src/lib/kbSim.ts
+links: []
+dependsOn: []
+epic: knowledge-base
+source: ai
+createdAt: "2026-07-12T15:53:12"
+startedAt: "2026-07-12T15:53:28"
+updatedAt: "2026-07-12T16:19:07"
+completedAt: "2026-07-12T16:19:07"
+commit: ac91c43
+outcome: >-
+  Lag d'ouverture du graphe KB résorbé (Fable, mesuré CDP). Cause : montage simultané des 869 <g>
+  SVG + sim complète dès la 1re frame. Fix = apparition PROGRESSIVE : nœuds triés hubs d'abord
+  (orderByDegree, degré desc + id, déterministe, 0 Math.random) ; la sim démarre sur un préfixe
+  actif de 90 nœuds, les autres ne sont NI dans placed/DOM NI dans les forces
+  (répulsion/ressorts/intégration bornés au préfixe, links triés par extrémité max) ; la boucle rAF
+  fait entrer +110 nœuds tous les 8 ticks (cadence en TICKS pas frames → ~1s même à 30fps) ; chaque
+  entrant spawne au barycentre de ses voisins déjà entrés + réchauffe (MORPH_ALPHA) → rejoint la
+  génération qui s'écarte de #316. onReveal = 1 render React par lot (8 au total) monte les nouveaux
+  <g>. Caméra : auto-fit sur la bbox des entrés (fit progressif). reduced-motion : pipeline statique
+  inchangé. Petits graphes (≤90) : pas de stagger. revealTarget pur + testé.
+verification: >-
+  npx tsc --noEmit clean ; npx vitest run 543/543 (dont
+  initialReveal/reveal/revealTarget/déterminisme/morph-mid-reveal). CDP vrai graphe : DOM
+  90→420→640→869 <g> entre 56ms et ~680ms, 104 frames rAF dans la 1re seconde, 0 long task avant 2s
+  (caveat : headless non throttlé ~100fps, le navigateur de Rémi = juge final).
+release: null
