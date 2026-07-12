@@ -1,0 +1,70 @@
+id: 322
+code: null
+title: >-
+  KB Phase 3 : étape ensureGraphify dans roadmapped init (détecte Python, installe graphifyy en env
+  isolé, graphify install) — dégradée, consentie, non bloquante
+status: done
+tags:
+  - kb
+  - graphify
+  - install
+  - onboarding
+size: null
+heat: 82
+detail: >-
+  Dernière phase de docs/specs/graphify-kb.md. Nouveau step ensureGraphify(hostRoot, {tty, withKb},
+  log) dans scripts/install.mjs (même moule que ensureConfig/copySkill/…, testable), appelé dans
+  runInit APRÈS le wiring, et re-tenté par runUpgrade (sans destruction). Comportement : (1) détecte
+  python3 ≥ 3.10 — absent/trop vieux → log clair (« KB optionnelle : installe Python ≥3.10 pour
+  l'activer ») + return, l'init CONTINUE et REUSSIT (JAMAIS bloquant) ; (2) skip si graphify déjà
+  dispo (idempotent) ; (3) CONSENTEMENT : l'install (~28 Mo) n'est faite QUE sur accord — prompt TTY
+  oui/non ; en NON-TTY/CI → SKIP par défaut avec message, opt-in via flag `--with-kb` (parser dans
+  le bin, passer à runInit) ; (4) install graphifyy dans un ENV ISOLÉ, le plus léger : uv tool
+  install → sinon pipx → sinon venv dédié (pythonBin en config si venv), SANS l'extra
+  Leiden/graspologic (fallback python-louvain, cf verdict spec) ; (5) `graphify install` (+
+  `graphify claude install` si dispo) ; (6) NE génère PAS le graphe (la génération est orchestrée
+  par l'AGENT via le skill, pas par install.mjs qui n'a pas d'agent) → log « pour générer :
+  /graphify . » ; (7) NE gitignore PAS graphify-out/ (décision Rémi : on commite le graphe) — au
+  plus mentionner. Marche pour les 3 voies d'install (plugin/npm/github). MAJ references/setup.md :
+  ajouter à la phase setup l'étape KB (proposer d'activer Graphify + générer, avec consentement).
+  Tests install.test.mjs : python absent → skip propre + init réussit ; non-TTY sans --with-kb →
+  skip ; idempotence. tsc + tests verts. Ne pas casser les steps existants.
+refs:
+  - scripts/install.mjs
+  - bin/roadmapped.mjs
+  - scripts/install.test.mjs
+  - skills/roadmapped/references/setup.md
+  - docs/specs/graphify-kb.md
+links: []
+dependsOn: []
+epic: knowledge-base
+source: ai
+createdAt: "2026-07-12T16:49:01"
+startedAt: "2026-07-12T16:49:04"
+updatedAt: "2026-07-12T17:00:43"
+completedAt: "2026-07-12T17:00:43"
+commit: 1c5f3a2
+outcome: >-
+  Phase 3 Graphify livrée : ensureGraphify(hostRoot, opts, log) async dans scripts/install.mjs,
+  appelée par runInit (après installGuardHook) et re-tentée par runUpgrade (idempotent). NON
+  BLOQUANT : corps sous try/catch unique (retour
+  'no-python'|'already'|'skipped'|'installed'|'failed'|'error'), chaque exec via tryExec (retourne
+  null au lieu de jeter : introuvable/code≠0/timeout), zéro process.exit → l'init logge toujours «
+  init done » (vérifié smoke réel : hôte vierge non-TTY → init réussit, docs/tasks posé, KB skippée
+  proprement). Détecte python3 ≥3.10 (absent/3.9 → message + return). Consentement : interactive =
+  stdin&stdout.isTTY → prompt [y/N] (~28Mo, défaut Non) ; non-TTY/CI → skip sauf --with-kb (parsé
+  dans bin/roadmapped.mjs depuis rest, passé à runInit/runUpgrade). Install env isolé le plus léger
+  : uv tool install → pipx → venv dédié ~/.roadmapped/py (pythonBin écrit dans
+  roadmapped.config.json, merge non destructif), SANS extra Leiden (fallback python-louvain).
+  graphify install + graphify claude install best-effort. NE génère PAS le graphe (orchestré par
+  l'agent via /graphify . ; install.mjs n'a pas d'agent). NE gitignore PAS graphify-out/ (décision
+  Rémi : on commite). Indépendant des 3 voies plugin/npm/github (ne dépend que de hostRoot + PATH).
+  setup.md : étape 7 « Knowledge base » (consentement avant /graphify . car tokens). paths.ts : clé
+  pythonBin?. L'auto-update #294 spawn upgrade en stdio:ignore → non-TTY → pas de prompt fantôme.
+verification: >-
+  npx tsc --noEmit clean ; npx vitest run 561/561 (40 fichiers, 10 nouveaux tests ensureGraphify :
+  python absent→init réussit, 3.9 trop vieux, non-TTY sans --with-kb→skip, idempotence, refus
+  prompt, install uv mockée + .gitignore jamais créé, fallback venv+pythonBin, échec→'failed', crash
+  interne→init OK, upgrade re-tente sans changement). Smoke réel bin dans hôte jetable non-TTY :
+  exit 0, docs/tasks créé, kb skip propre. Aucune install réelle dans les tests (exec mocké).
+release: null
