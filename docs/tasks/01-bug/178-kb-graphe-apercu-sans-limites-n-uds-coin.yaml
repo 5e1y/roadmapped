@@ -1,0 +1,52 @@
+id: 319
+code: null
+title: >-
+  KB graphe : aperçu SANS LIMITES — nœuds coincés « hors zone » (boîte PAD fixe) + pan borné
+  (clampPan) ; libérer les deux, en option KB (ne pas toucher RoadmapGraph)
+status: done
+tags:
+  - kb
+  - graphify
+  - renderer
+size: null
+heat: 86
+detail: >-
+  Retour Rémi (capture) : on peut envoyer des nœuds « hors zone », NOK. Deux bornes en cause : (1)
+  kbSim borne les positions dans [PAD, side−PAD] d'une boîte de contenu FIXE (côté ∝ √n) → avec les
+  params plus écartés (repulsion/spring plus forts) les nœuds tapent le mur et s'empilent au bord ;
+  (2) useZoomPan.clampPan borne le pan (KEEP_VISIBLE) → on ne peut pas naviguer librement pour
+  suivre un nœud éloigné. FIX = aperçu sans limites : la sim n'est plus contrainte dans une boîte
+  dure (laisser les nœuds s'écarter librement ; la caméra fitBox suit la vraie bbox vivante, déjà le
+  cas), ET pan libre (désactiver clampPan) — MAIS en OPTION propre à la vue KB : useZoomPan est
+  aussi utilisé par RoadmapGraph (src/components/RoadmapGraph.tsx) qui doit garder son clamp.
+  Ajouter un flag (ex. useZoomPan({unbounded:true}) ou fitBox/pan sans clamp) activé seulement par
+  KbGraph. Garder zoom/fit fonctionnels. Ne pas régresser RoadmapGraph.
+refs:
+  - src/lib/kbSim.ts
+  - src/components/useZoomPan.ts
+  - src/components/KbGraph.tsx
+  - src/components/RoadmapGraph.tsx
+links: []
+dependsOn: []
+epic: knowledge-base
+source: ai
+createdAt: "2026-07-12T16:22:55"
+startedAt: "2026-07-12T16:23:23"
+updatedAt: "2026-07-12T16:38:58"
+completedAt: "2026-07-12T16:38:58"
+commit: 4262ff8
+outcome: >-
+  Aperçu KB sans limites (Fable, vérifié CDP). (a) Positions : clamp dur PAD retiré de iterate()
+  (constante PAD supprimée) → les nœuds s'étendent librement, la boîte √n ne sert plus qu'au centre
+  de gravité/taille canvas ; svg passé en overflow-visible pour dessiner hors boîte ; le fit
+  (initial/onFrame/bouton Fit) suit la bbox VIVANTE (nodesBox). (b) Pan : clampPan(..., unbounded)
+  renvoie la transform telle quelle si unbounded ; useZoomPan(w,h,{unbounded?}) propage via ref
+  (apply/fitBox/centerOn). Seul KbGraph passe {unbounded:true} ; RoadmapGraph
+  (useZoomPan(layout.width,layout.height) L242) INCHANGÉ → reste borné (ses 7 tests passent). Zoom
+  toujours borné [0.2,2.5]. CDP : nœuds étalés sans empilement au mur (0 sur l'ancien clamp), pan à
+  tx 5411 là où l'ancien bornait à 1392.
+verification: >-
+  npx tsc --noEmit clean ; npx vitest run 550/550 (dont option unbounded de clampPan + les 7 tests
+  RoadmapGraph/borné intacts). CDP vrai graphe : 0 nœud coincé sur l'ancienne borne, pan libre
+  au-delà de l'ancien clamp.
+release: null

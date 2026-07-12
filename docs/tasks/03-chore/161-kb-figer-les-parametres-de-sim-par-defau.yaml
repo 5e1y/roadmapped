@@ -1,0 +1,44 @@
+id: 321
+code: null
+title: >-
+  KB : figer les paramètres de sim par défaut choisis par Rémi (spring 160, repulsion −200,
+  centering 0.040, friction 0.50, settle 240, theta 0.50, radius 7/40)
+status: done
+tags:
+  - kb
+  - graphify
+size: null
+heat: 85
+detail: >-
+  Rémi a tuné via le panneau Display (#318) et validé ces défauts pour KB_SIM (src/lib/kbSim.ts) :
+  Spring length LINK_DIST=160 (était 55) ; Repulsion CHARGE_BASE=-200 (était -40) ; Centering
+  CENTER_K=0.040 (était 0.05) ; Friction=0.50 → VELOCITY_KEEP=0.50 (UI friction = 1−VELOCITY_KEEP) ;
+  Settle time=240 ticks → ALPHA_DECAY = 1 − 0.001^(1/240) (était 180) ; Theta=0.50 → THETA=0.50,
+  donc THETA2=0.25 si dérivé (était 0.9/0.81) ; Node radius min R_MIN=7 (était 5) ; Node radius max
+  R_MAX=40 (était 22). Mettre ces valeurs comme DÉFAUTS dans KB_SIM. Le panneau Display reste
+  (override live + persistance) ; un user sans override custom obtient désormais ces défauts.
+  Adapter les tests kbSim si des valeurs y sont codées en dur. Vérifier la cohérence avec le fix
+  aperçu-sans-limites #319 (plus d'écartement).
+refs:
+  - src/lib/kbSim.ts
+links: []
+dependsOn: []
+epic: knowledge-base
+source: ai
+createdAt: "2026-07-12T16:23:19"
+startedAt: "2026-07-12T16:23:23"
+updatedAt: "2026-07-12T16:38:51"
+completedAt: "2026-07-12T16:38:51"
+commit: 4262ff8
+outcome: >-
+  Défauts KB_SIM figés (valeurs tunées par Rémi via le panneau Display) : LINK_DIST=160,
+  CHARGE_BASE=-200, CENTER_K=0.04, VELOCITY_KEEP=0.5 (friction UI=0.50), ALPHA_DECAY=1−0.001^(1/240)
+  (settle 240 ticks), THETA=0.5 (θ²=0.25 dérivé), R_MIN=7, R_MAX=40. Le panneau Display #318 reste
+  (override live + persistance diff-vs-défauts) ; un user sans override obtient ces défauts. Plages
+  de sliders élargies (Spring→200, Repulsion→−300, θ→0.3, Rmax→48) pour que les défauts ne soient
+  pas en butée. Reset defaults y revient. Tests kbSim adaptés (settle ~240, rayons [7,40], override
+  LINK_DIST 55<défaut).
+verification: >-
+  npx tsc --noEmit clean ; npx vitest run 550/550. Valeurs confirmées dans KB_SIM (sed). fromParam
+  du slider settle retombe exactement sur 240.
+release: null

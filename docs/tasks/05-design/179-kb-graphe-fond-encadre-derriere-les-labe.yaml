@@ -1,0 +1,52 @@
+id: 320
+code: null
+title: >-
+  KB graphe : fond/encadré derrière les labels de nœuds (lisibilité en densité) + état ACTIF du nœud
+  sélectionné (fill accent plein, iso aperçu thème backlog)
+status: done
+tags:
+  - kb
+  - graphify
+  - renderer
+  - ux
+size: null
+heat: 84
+detail: >-
+  Retour Rémi (capture, densité intense). (1) LABELS ILLISIBLES sur fond dense : ajouter un
+  fond/encadré derrière le texte des labels de nœuds dans KbGraph (rect semi-opaque en token, ex. bg
+  page/card avec léger padding + rounded, derrière chaque <text> ~L517-526) pour détacher le label
+  des arêtes/nœuds. Attention perf (869 labels, rendu impératif) : rect géré comme le reste, ou
+  n'afficher les labels détaillés qu'au-delà d'un zoom/degré si besoin — mais l'ask principal = le
+  fond. (2) NŒUD SÉLECTIONNÉ (celui dont le panel KbNodePanel est ouvert) doit avoir un ÉTAT ACTIF
+  visible : fill accent PLEIN (bleu plein), iso l'aperçu nodal des thèmes dans le Backlog (langage
+  actif du DS). KbGraph doit connaître l'id sélectionné (PanelContext : top kb-node nodeId) et le
+  peindre plein accent (+ éventuellement halo léger). Se met à jour au clic (le clic ouvre déjà le
+  panel). Theme-aware, DA. tsc + tests verts, pas de régression.
+refs:
+  - src/components/KbGraph.tsx
+  - src/state/PanelContext.tsx
+links: []
+dependsOn: []
+epic: knowledge-base
+source: ai
+createdAt: "2026-07-12T16:23:08"
+startedAt: "2026-07-12T16:23:23"
+updatedAt: "2026-07-12T16:39:05"
+completedAt: "2026-07-12T16:39:05"
+commit: 4262ff8
+outcome: >-
+  Labels lisibles + nœud sélectionné actif (Fable, vérifié CDP). (1) FOND LABELS : un <rect> rx3
+  fill var(--color-white) (token carte, theme-aware) opacité 0.82 posé DANS le <g> du nœud (le
+  driver possède le transform → suit le nœud sans re-render), largeur estimée (~5.2px/car à 9px, pas
+  de getComputedTextLength ×869 = pas de layout thrash). Politique d'affichage inchangée (>60 nœuds
+  → labels du voisinage survolé/matches + désormais le sélectionné) donc nombre de rects borné (81
+  mesuré au survol d'un hub), pas 869. (2) NŒUD SÉLECTIONNÉ : id = kbNodeIdOf(stack) (pur, exporté
+  de PanelContext : sommet kb-node, ou le cran sous le task en mode double #313) → peint en ACCENT
+  PLEIN (fillOpacity 1, prime sur survol/recherche, doctrine TagGraph) + anneau accent 0.35 sous la
+  pastille ; retiré à la fermeture (stack vide → null). Se met à jour au clic (ouvre déjà le
+  panneau).
+verification: >-
+  npx tsc --noEmit clean ; npx vitest run 550/550 (dont kbNodeIdOf). CDP : survol → 81 labels sur
+  fond ; clic → exactement 1 cercle accent plein + 1 anneau, tombe à la fermeture. Rendu final
+  (lisibilité/bleu) à valider par Rémi.
+release: null
