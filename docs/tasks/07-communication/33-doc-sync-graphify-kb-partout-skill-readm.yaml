@@ -1,0 +1,33 @@
+id: 310
+code: null
+title: >-
+  Doc sync Graphify/KB partout : skill, README, gouvernance GitHub, + section site (mentionner
+  Graphify)
+status: todo
+tags:
+  - kb
+  - graphify
+  - docs
+size: null
+heat: 75
+detail: >-
+  Après la surface agent (#309). Passe de doc coordonnée (comme la sync install plus tôt) pour
+  documenter la feature Knowledge base / Graphify : SKILL.md (au-delà de la consigne #309 : le
+  sous-onglet KB, comment l'agent s'en sert), docs/guide.md (section Knowledge base : c'est quoi,
+  comment générer via Graphify, le liage tickets⇄graphe), README (mention de la feature + crédit
+  Graphify), gouvernance/docs GitHub si pertinent, et une section sur le site marketing
+  roadmapped-site (bien mentionner Graphify + lien graphify.net). Source de vérité unique (comme la
+  sync install). Crédit Graphify (MIT) correct partout.
+refs: []
+links: []
+dependsOn:
+  - 309
+epic: knowledge-base
+source: ai
+createdAt: "2026-07-12T13:41:39"
+updatedAt: "2026-07-12T13:41:39"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
