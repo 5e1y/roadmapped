@@ -25,6 +25,9 @@ import { briefText, sitrepText, taskLine, refLine, git, unloggedCommits } from '
 import { TYPES } from '../src/lib/tasks.ts'
 import { readKbGraph } from '../src/server/kb.ts'
 import { kbNeighborhood, neighborhoodText, kbSearch, searchText, kbNode, nodeText } from '../src/lib/kbQuery.ts'
+// #325 — KB load-bearing : take/brief embarquent le voisinage du graphe, sitrep
+// porte la ligne d'état (même composition que le CLI : src/lib/kbCycle.ts).
+import { kbBriefSection, kbSitrepLine } from '../src/lib/kbCycle.ts'
 
 // ------------------------------------------------------------------ helpers de sortie
 // Règle (#95) : structuredContent SEULEMENT quand l'objet est la charge utile (écriture →
@@ -75,7 +78,8 @@ function showText(hit, tree) {
 // Chaque tool : name, description (courte), inputSchema (la doc), handler (renvoie ok/fail).
 // ROOT injecté (factory) → testable sur un sandbox sans le vrai backlog.
 // #91 = lecture ; #92 poussera les tools d'écriture dans ce même tableau.
-export function makeTools(ROOT, KB_GRAPH_FILE) {
+// HOST_ROOT (optionnel) : racine hôte pour lire l'état kb de la config (opt-out).
+export function makeTools(ROOT, KB_GRAPH_FILE, HOST_ROOT) {
   // Chargement du knowledge graph (Graphify), partagé par les 3 outils KB.
   // Dégradation propre : chemin inconnu (appel hors `roadmapped`), fichier absent
   // (pas encore généré) ou illisible → un message clair au lieu d'un crash.
@@ -93,7 +97,7 @@ export function makeTools(ROOT, KB_GRAPH_FILE) {
     inputSchema: S.none,
     handler: () => {
       const { tree, errors } = treeWithErrors(ROOT)
-      return ok(sitrepText(tree, errors, unloggedCommits(tree)))
+      return ok(sitrepText(tree, errors, unloggedCommits(tree), kbSitrepLine(KB_GRAPH_FILE, HOST_ROOT)))
     },
   },
   {
@@ -103,7 +107,7 @@ export function makeTools(ROOT, KB_GRAPH_FILE) {
     handler: ({ id }) => {
       const tree = readTree(ROOT)
       const hit = findTask(tree, id)
-      return hit ? ok(briefText(tree, hit)) : fail(`No task #${id}.`)
+      return hit ? ok(briefText(tree, hit, kbBriefSection(tree, id, KB_GRAPH_FILE, HOST_ROOT))) : fail(`No task #${id}.`)
     },
   },
   {
@@ -142,7 +146,7 @@ export function makeTools(ROOT, KB_GRAPH_FILE) {
       if (!res.ok) return fail(`Start failed for #${id}:\n${res.errors.join('\n')}`)
       const tree = readTree(ROOT)
       const hit = findTask(tree, id)
-      return ok(`#${id} started.\n${briefText(tree, hit)}`)
+      return ok(`#${id} started.\n${briefText(tree, hit, kbBriefSection(tree, id, KB_GRAPH_FILE, HOST_ROOT))}`)
     },
   },
   {
@@ -470,7 +474,7 @@ export function buildServer(tools) {
 
 // Only starts the transport when run as a binary (not on test import).
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const { tasksDir: ROOT, kbGraphFile } = loadPaths()
-  await buildServer(makeTools(ROOT, kbGraphFile)).connect(new StdioServerTransport())
+  const { tasksDir: ROOT, kbGraphFile, root } = loadPaths()
+  await buildServer(makeTools(ROOT, kbGraphFile, root)).connect(new StdioServerTransport())
   process.stderr.write('roadmapped MCP server ready (stdio).\n')
 }

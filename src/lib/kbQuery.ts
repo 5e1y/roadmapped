@@ -1,4 +1,4 @@
-import type { KbGraph, KbNode } from '../server/kb'
+import type { KbGraph, KbNode, KbEdge } from '../server/kb'
 import type { TaskTree } from './tasks'
 import { buildKbLinkIndex } from './kbLink.ts'
 import { matchNodes } from './kbFilter.ts'
@@ -41,6 +41,87 @@ export function neighborhoodText(taskId: number, taskTitle: string | null, nb: K
   if (nb.neighbors.length) {
     L.push(`  connected 1 hop away (${nb.neighbors.length}) — what those files import/call/cite:`)
     for (const n of nb.neighbors) L.push(nodeLine(n))
+  }
+  return L.join('\n')
+}
+
+// ---------------------------------------------------------------- brief embarqué (#325)
+// Le voisinage KB servi D'OFFICE dans take/brief (spec graphify-anchoring §P0) :
+// l'agent reçoit la carte sans y penser. BORNÉ pour rester quelques dizaines de
+// lignes, pas 200 nœuds : tous les directs (capés) + les voisins 1 saut les plus
+// connectés (degré = nombre d'arêtes dans le graphe entier).
+
+export const BRIEF_DIRECT_LIMIT = 12
+export const BRIEF_NEIGHBOR_LIMIT = 8
+
+export interface BoundedNeighborhood {
+  direct: KbNode[]
+  neighbors: KbNode[]
+  /** Totaux AVANT bornage — affichés (« 8 of 23 ») pour ne rien cacher. */
+  directTotal: number
+  neighborTotal: number
+}
+
+/** Directs : couvrir CHAQUE fichier de refs avant d'empiler les symboles d'un
+ *  même fichier (round-robin par source_file, ordre stable) — sans ça, les N
+ *  slots seraient mangés par les 40 nœuds-symboles du premier fichier et les
+ *  autres refs deviendraient invisibles. Pur, déterministe. */
+function roundRobinByFile(nodes: KbNode[], max: number): KbNode[] {
+  const byFile = new Map<string, KbNode[]>()
+  for (const n of nodes) {
+    const key = n.sourceFile ?? n.id
+    const list = byFile.get(key)
+    if (list) list.push(n)
+    else byFile.set(key, [n])
+  }
+  const buckets = [...byFile.values()]
+  const out: KbNode[] = []
+  for (let round = 0; out.length < max; round++) {
+    let picked = false
+    for (const b of buckets) {
+      if (round >= b.length) continue
+      out.push(b[round])
+      picked = true
+      if (out.length >= max) break
+    }
+    if (!picked) break
+  }
+  return out
+}
+
+/** Borne un voisinage pour le brief : directs en round-robin par fichier (capés),
+ *  voisins triés par degré décroissant (id croissant en bris d'égalité). Pur. */
+export function boundNeighborhood(
+  nb: KbNeighborhood,
+  edges: KbEdge[],
+  maxDirect = BRIEF_DIRECT_LIMIT,
+  maxNeighbors = BRIEF_NEIGHBOR_LIMIT,
+): BoundedNeighborhood {
+  const degree = new Map<string, number>()
+  const bump = (id: string) => degree.set(id, (degree.get(id) ?? 0) + 1)
+  for (const e of edges) { bump(e.source); bump(e.target) }
+  const neighbors = [...nb.neighbors]
+    .sort((a, b) => (degree.get(b.id) ?? 0) - (degree.get(a.id) ?? 0) || (a.id < b.id ? -1 : 1))
+    .slice(0, maxNeighbors)
+  return {
+    direct: roundRobinByFile(nb.direct, maxDirect),
+    neighbors,
+    directTotal: nb.direct.length,
+    neighborTotal: nb.neighbors.length,
+  }
+}
+
+/** Section « Knowledge base » du brief. null si aucun ref ne matche un nœud
+ *  (section omise : un brief sans carte reste un brief, pas une excuse). */
+export function briefNeighborhoodText(bn: BoundedNeighborhood): string | null {
+  if (bn.directTotal === 0) return null
+  const count = (shown: number, total: number) => (total > shown ? `${shown} of ${total}` : `${shown}`)
+  const L = ['Knowledge base — what this task touches (from its refs):']
+  L.push(`  direct (${count(bn.direct.length, bn.directTotal)}):`)
+  for (const n of bn.direct) L.push(`  ${nodeLine(n)}`)
+  if (bn.neighbors.length) {
+    L.push(`  1 hop away (${count(bn.neighbors.length, bn.neighborTotal)}, most connected first) — what those files import/call/cite:`)
+    for (const n of bn.neighbors) L.push(`  ${nodeLine(n)}`)
   }
   return L.join('\n')
 }

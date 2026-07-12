@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest'
-import { kbNeighborhood, neighborhoodText, kbSearch, searchText, kbNode, nodeText } from './kbQuery'
+import {
+  kbNeighborhood, neighborhoodText, kbSearch, searchText, kbNode, nodeText,
+  boundNeighborhood, briefNeighborhoodText,
+} from './kbQuery'
 import type { KbNode, KbEdge, KbGraph } from '../server/kb'
 import type { TaskNode, TaskTree } from './tasks'
 
@@ -32,6 +35,62 @@ describe('kbNeighborhood + neighborhoodText', () => {
   it('message clair quand la tâche n’a aucun ref matché', () => {
     const nb = kbNeighborhood(tree([task(1, [])]), graph(), 1)
     expect(neighborhoodText(1, null, nb)).toContain('none')
+  })
+})
+
+describe('boundNeighborhood + briefNeighborhoodText — la section brief bornée (#325)', () => {
+  const nb = (direct: KbNode[], neighbors: KbNode[]) => ({ direct, neighbors })
+
+  it('cape les directs et rapporte les totaux d’avant bornage', () => {
+    const direct = ['a', 'b', 'c'].map((id) => node(id, `src/${id}.ts`))
+    const bn = boundNeighborhood(nb(direct, []), [], 2, 8)
+    expect(bn.direct.map((n) => n.id)).toEqual(['a', 'b']) // ordre stable de kbLink
+    expect(bn.directTotal).toBe(3)
+  })
+
+  it('directs en round-robin par fichier : chaque ref représentée avant d’empiler les symboles', () => {
+    // 3 nœuds-symboles de a.ts puis 2 de b.ts : cap 4 → a,b s’alternent, b.ts visible.
+    const direct = [
+      node('a1', 'src/a.ts'), node('a2', 'src/a.ts'), node('a3', 'src/a.ts'),
+      node('b1', 'src/b.ts'), node('b2', 'src/b.ts'),
+    ]
+    const bn = boundNeighborhood(nb(direct, []), [], 4, 8)
+    expect(bn.direct.map((n) => n.id)).toEqual(['a1', 'b1', 'a2', 'b2'])
+    expect(bn.directTotal).toBe(5)
+  })
+
+  it('trie les voisins par DEGRÉ décroissant puis cape (les plus connectés d’abord)', () => {
+    const neighbors = ['low', 'high', 'mid'].map((id) => node(id, `src/${id}.ts`))
+    // high : 3 arêtes ; mid : 2 ; low : 1.
+    const edges: KbEdge[] = [
+      edge('high', 'x'), edge('high', 'y'), edge('z', 'high'),
+      edge('mid', 'x'), edge('mid', 'y'),
+      edge('low', 'x'),
+    ]
+    const bn = boundNeighborhood(nb([node('a', 'src/a.ts')], neighbors), edges, 12, 2)
+    expect(bn.neighbors.map((n) => n.id)).toEqual(['high', 'mid'])
+    expect(bn.neighborTotal).toBe(3)
+  })
+
+  it('bris d’égalité de degré : id croissant (déterministe)', () => {
+    const neighbors = ['bb', 'aa'].map((id) => node(id, `src/${id}.ts`))
+    const bn = boundNeighborhood(nb([], neighbors), [], 12, 8)
+    expect(bn.neighbors.map((n) => n.id)).toEqual(['aa', 'bb'])
+  })
+
+  it('aucun direct → null (section omise du brief, pas de bruit)', () => {
+    expect(briefNeighborhoodText(boundNeighborhood(nb([], []), []))).toBeNull()
+  })
+
+  it('rend l’en-tête, les fichiers, et le « N of M » quand tronqué', () => {
+    const direct = [node('a', 'src/a.ts')]
+    const neighbors = ['b', 'c', 'd'].map((id) => node(id, `src/${id}.ts`))
+    const txt = briefNeighborhoodText(boundNeighborhood(nb(direct, neighbors), [], 12, 2))!
+    expect(txt).toContain('Knowledge base — what this task touches')
+    expect(txt).toContain('direct (1):')
+    expect(txt).toContain('src/a.ts')
+    expect(txt).toContain('1 hop away (2 of 3, most connected first)')
+    expect(txt.split('\n').length).toBe(6) // en-tête + direct(1+1) + hop(1+2) — borné, jamais 200 nœuds
   })
 })
 

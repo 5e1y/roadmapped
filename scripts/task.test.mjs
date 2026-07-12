@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { execFileSync, spawnSync, spawn } from 'node:child_process'
 import {
-  mkdtempSync, rmSync, mkdirSync, writeFileSync, readFileSync, cpSync, symlinkSync, renameSync,
+  mkdtempSync, rmSync, mkdirSync, writeFileSync, readFileSync, cpSync, symlinkSync, renameSync, chmodSync,
 } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve, dirname } from 'node:path'
@@ -465,6 +465,163 @@ describe('CLI guard — enforcement au commit (#100)', () => {
     execFileSync('node', [scriptPath(), 'start', '1'], { encoding: 'utf8', env: sbEnv() })
     const accepted = spawnSync('git', ['commit', '-q', '-m', 'sous ticket'], { cwd: sandbox, encoding: 'utf8' })
     expect(accepted.status).toBe(0)
+  })
+})
+
+describe('CLI — la KB load-bearing dans le cycle (#325)', () => {
+  // Le graphe committé par Graphify (node-link NetworkX) : un nœud doc matchant
+  // la ref du seed (#1 → docs/x.md) + un voisin code à 1 saut.
+  const writeGraph = (extra = {}) => {
+    mkdirSync(join(sandbox, 'graphify-out'), { recursive: true })
+    writeFileSync(join(sandbox, 'graphify-out', 'graph.json'), JSON.stringify({
+      directed: false, multigraph: false, graph: {},
+      nodes: [
+        { id: 'doc_x', label: 'Doc X', file_type: 'document', source_file: 'docs/x.md' },
+        { id: 'roadmap_nextqueue', label: 'nextQueue', file_type: 'code', source_file: 'src/lib/roadmap.ts', source_location: 'L42' },
+      ],
+      links: [{ source: 'doc_x', target: 'roadmap_nextqueue', relation: 'cites', confidence: 'EXTRACTED', weight: 1 }],
+      ...extra,
+    }))
+  }
+  // Staleness = git du repo HÔTE : ces tests lancent le CLI avec cwd=sandbox
+  // (sinon git() taperait le cwd de vitest, c.-à-d. le VRAI repo).
+  const runHere = (args, env = {}) => {
+    const r = spawnSync('node', [scriptPath(), ...args], { encoding: 'utf8', env: { ...sbEnv(), ...env }, cwd: sandbox })
+    return { code: r.status ?? 1, stdout: r.stdout ?? '', stderr: r.stderr ?? '' }
+  }
+  const gitSb = (...args) => execFileSync('git', args, { cwd: sandbox, encoding: 'utf8' }).trim()
+  const initGitWithCommits = (afterBuild) => {
+    gitSb('init', '-q')
+    gitSb('config', 'user.email', 'kb@test.local')
+    gitSb('config', 'user.name', 'KB Test')
+    gitSb('commit', '-q', '--allow-empty', '--no-verify', '-m', 'build point')
+    const built = gitSb('rev-parse', 'HEAD')
+    for (let i = 0; i < afterBuild; i++) gitSb('commit', '-q', '--allow-empty', '--no-verify', '-m', `after ${i}`)
+    return built
+  }
+
+  it('brief SANS graphe → une ligne discrète « pas encore généré », jamais d’erreur', () => {
+    const r = runTask(['brief', '1'])
+    expect(r.code).toBe(0)
+    expect(r.stdout).toMatch(/KB: graph not generated yet/)
+    expect(r.stdout).toContain('/graphify .')
+  })
+
+  it('brief AVEC graphe → section « Knowledge base » embarquée : directs + voisins 1 saut, fichier:emplacement', () => {
+    writeGraph()
+    const r = runTask(['brief', '1'])
+    expect(r.code).toBe(0)
+    expect(r.stdout).toContain('Knowledge base — what this task touches')
+    expect(r.stdout).toMatch(/direct \(1\):/)
+    expect(r.stdout).toContain('Doc X')
+    expect(r.stdout).toMatch(/1 hop away \(1/)
+    expect(r.stdout).toContain('src/lib/roadmap.ts:L42') // le voisin code, localisé
+    expect(r.stdout).not.toMatch(/KB: graph not generated/)
+  })
+
+  it('take embarque la même section (la carte arrive SANS y penser)', () => {
+    writeGraph()
+    const r = runTask(['take'])
+    expect(r.code).toBe(0)
+    expect(r.stdout).toMatch(/#1 started/)
+    expect(r.stdout).toContain('Knowledge base — what this task touches')
+  })
+
+  it('graphe présent mais refs sans nœud → section omise (pas de bruit, pas de nudge)', () => {
+    writeGraph()
+    runUpdate('--refs', 'ailleurs/inconnu.md')
+    const r = runTask(['brief', '1'])
+    expect(r.code).toBe(0)
+    expect(r.stdout).not.toContain('Knowledge base —')
+    expect(r.stdout).not.toMatch(/KB:/)
+  })
+
+  it('sitrep SANS graphe → LA ligne KB pousse la 1ʳᵉ génération', () => {
+    const r = runTask(['sitrep'])
+    expect(r.stdout).toMatch(/KB: graph not generated yet/)
+  })
+
+  it('sitrep AVEC graphe sans build commit → nb de nœuds + fraîcheur inconnue', () => {
+    writeGraph()
+    const r = runTask(['sitrep'])
+    expect(r.stdout).toMatch(/KB: 2 nodes · freshness unknown/)
+  })
+
+  it('sitrep : graphe ≥10 commits derrière HEAD → ⚠ stale + --update', () => {
+    const built = initGitWithCommits(12)
+    writeGraph({ built_at_commit: built })
+    const r = runHere(['sitrep'])
+    expect(r.stdout).toMatch(/KB: 2 nodes · ⚠ stale \(built at \w{7}, 12 commits behind HEAD\)/)
+  })
+
+  it('sitrep : opt-out mémorisé (kb: false) → silence total sur la KB', () => {
+    writeFileSync(join(sandbox, 'roadmapped.config.json'), JSON.stringify({ tasksDir, kb: false }))
+    const r = runTask(['sitrep'])
+    expect(r.code).toBe(0)
+    expect(r.stdout).not.toMatch(/KB:/)
+  })
+
+  it('kb doctor : absent → exit 2 (scriptable)', () => {
+    const r = runTask(['kb', 'doctor'])
+    expect(r.code).toBe(2)
+    expect(r.stdout).toMatch(/NOT generated/)
+  })
+
+  it('kb doctor : frais (build = HEAD) → exit 0', () => {
+    const built = initGitWithCommits(0)
+    writeGraph({ built_at_commit: built })
+    const r = runHere(['kb', 'doctor'])
+    expect(r.code).toBe(0)
+    expect(r.stdout).toMatch(/fresh — built at current HEAD/)
+  })
+
+  it('kb doctor : périmé → exit 3 ; le seuil --max-behind le requalifie', () => {
+    const built = initGitWithCommits(12)
+    writeGraph({ built_at_commit: built })
+    const stale = runHere(['kb', 'doctor'])
+    expect(stale.code).toBe(3)
+    expect(stale.stdout).toMatch(/⚠ stale.*12 commits behind HEAD \(threshold 10\)/)
+    const tolerant = runHere(['kb', 'doctor', '--max-behind', '20'])
+    expect(tolerant.code).toBe(0)
+    expect(tolerant.stdout).toMatch(/12 commit\(s\) behind HEAD \(threshold 20\)/)
+  })
+
+  it('done : graphe périmé → nudge refresh sur stderr, succès préservé', () => {
+    const built = initGitWithCommits(11)
+    writeGraph({ built_at_commit: built })
+    runHere(['start', '1'])
+    const r = runHere(['done', '1', '--outcome', 'livré'])
+    expect(r.code).toBe(0)
+    expect(r.stderr).toMatch(/KB graph is 11 commits behind/)
+    expect(r.stderr).toContain('/graphify . --update')
+  })
+
+  it('done : sans graphe → aucun nudge KB', () => {
+    runTask(['start', '1'])
+    const r = runTask(['done', '1', '--outcome', 'livré'])
+    expect(r.code).toBe(0)
+    expect(r.stderr).not.toMatch(/KB graph/)
+  })
+
+  it.skipIf(process.platform === 'win32')('kb refresh : graphify introuvable → imprime la commande, exit 0 (jamais bloquant)', () => {
+    const r = runHere(['kb', 'refresh'], { PATH: `${dirname(process.execPath)}:/usr/bin:/bin` })
+    expect(r.code).toBe(0)
+    expect(r.stdout).toMatch(/graphify CLI not found/)
+    expect(r.stdout).toContain('uv tool install graphifyy')
+    expect(r.stdout).toContain('/graphify . --update')
+  })
+
+  it.skipIf(process.platform === 'win32')('kb refresh : invoque `<kb.graphifyBin> update` (code-only), --force transmis', () => {
+    const fake = join(sandbox, 'fake-graphify')
+    writeFileSync(fake, '#!/bin/sh\necho "$@" > "$(dirname "$0")/graphify-invoked.txt"\n')
+    chmodSync(fake, 0o755)
+    writeFileSync(join(sandbox, 'roadmapped.config.json'), JSON.stringify({ tasksDir, kb: { graphifyBin: fake } }))
+    const r = runHere(['kb', 'refresh'])
+    expect(r.code).toBe(0)
+    expect(readFileSync(join(sandbox, 'graphify-invoked.txt'), 'utf8').trim()).toBe('update')
+    const forced = runHere(['kb', 'refresh', '--force'])
+    expect(forced.code).toBe(0)
+    expect(readFileSync(join(sandbox, 'graphify-invoked.txt'), 'utf8').trim()).toBe('update --force')
   })
 })
 
