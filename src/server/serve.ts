@@ -132,7 +132,29 @@ export async function startDashboard(opts: { open: boolean; port?: number }): Pr
     process.exit(1)
   }
 
-  const api = createApiMiddleware(paths)
+  // Auto-shutdown à la fermeture de la fenêtre (#330) : le dashboard est un serveur
+  // LOCAL adossé à un navigateur — il ne doit pas survivre en zombie pendant des jours.
+  // Le SSE /api/events (api.ts) sait exactement combien d'onglets sont ouverts. Quand
+  // le dernier se ferme, on arme un délai de grâce puis on s'arrête. La grâce absorbe
+  // un reload/navigation (l'onglet se reconnecte < 1s) sans faux positif ; on ne s'arme
+  // qu'APRÈS qu'un onglet a existé, donc jamais avant que le navigateur ait chargé.
+  // ponytail: plafond = un sleep OS > grâce peut couper le socket et arrêter le serveur
+  //   pendant que l'onglet dort ; au réveil l'EventSource échoue son reconnect. Acceptable
+  //   (le but est justement de ne pas tourner des jours) ; bump GRACE_MS si ça gêne.
+  const GRACE_MS = 5000
+  let idleTimer: ReturnType<typeof setTimeout> | null = null
+  const api = createApiMiddleware(paths, {
+    onClientCountChange: (openTabs) => {
+      if (openTabs > 0) {
+        if (idleTimer) { clearTimeout(idleTimer); idleTimer = null }
+        return
+      }
+      idleTimer = setTimeout(() => {
+        console.log('roadmapped dashboard: fenêtre fermée — arrêt du serveur (port libéré).')
+        process.exit(0)
+      }, GRACE_MS)
+    },
+  })
   const server = createServer((req, res) => {
     // L'API d'abord (elle next() tout ce qui n'est pas /api/*), le statique ramasse
     // le reste — même ordre de priorité qu'en dev sous Vite.
