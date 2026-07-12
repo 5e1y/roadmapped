@@ -1,0 +1,65 @@
+id: 311
+code: null
+title: >-
+  KB UX : re-centrer le graphe au filtre (garder le grab) + zoom 125% au clic nœud + refonte
+  FilterMenu (bord actif propre, menu à hauteur bornée + scroll, coches)
+status: done
+tags:
+  - kb
+  - graphify
+  - ux
+  - filters
+size: null
+heat: 84
+detail: >-
+  Retour Rémi sur la KB. (1) RE-CENTRAGE : quand on filtre/cherche, le graphe filtré se recale en
+  haut-gauche ; il doit rester CENTRÉ (auto-fit du sous-graphe visible via fitBox), le pan/grab
+  restant possible après. Pas de re-stagger. (2) CLIC NŒUD : ouvre déjà l'inspecteur (garder) +
+  AJOUTER un zoom à ~125% (au moins) centré sur le nœud cliqué, transition douce,
+  reduced-motion=instant (étendre useZoomPan avec un centerOn(x,y,scale)). (3) FILTERMENU
+  (src/components/ViewHeader.tsx — PARTAGÉ Backlog/EpicBand/RoadmapView/KB, améliorer partout sans
+  régresser) : (a) trigger actif : remplacer le shadow-[inset_2px_0_0] (filet gauche qui jure avec
+  rounded-md) par un bord accent COMPLET (border-accent bg-accent-tint, langage actif DS des pills
+  type TagGraph/TypesRadar) ; (b) Popup : max-height bornée (~60vh) + overflow-y-auto (46
+  communautés = ne doit pas faire toute la hauteur) ; (c) COCHES : ajouter une coche (Check
+  trinil-react) à côté des options sélectionnées — le simple bg ne suffit pas en UX ; garder le
+  count ; (d) polish général des boutons de filtre. tsc + vitest verts, theme-aware, tester sur le
+  vrai graphe. Ne pas toucher serveur/schéma/install.
+refs:
+  - src/components/ViewHeader.tsx
+  - src/components/KbGraph.tsx
+  - src/components/KbView.tsx
+  - src/components/useZoomPan.ts
+links: []
+dependsOn: []
+epic: knowledge-base
+source: ai
+createdAt: "2026-07-12T14:20:56"
+startedAt: "2026-07-12T14:21:00"
+updatedAt: "2026-07-12T14:38:44"
+completedAt: "2026-07-12T14:38:44"
+commit: 73d6a7a
+outcome: >-
+  KB UX corrigée (Fable, vérifié Chrome headless CDP sur le vrai graphe). (1) RE-CENTRAGE : un effet
+  keyé uniquement sur [shown,matches] → re-fit à l'arrivée + à chaque filtre + recherche, JAMAIS au
+  pan/zoom/survol ; recherche → fitBox sur nodesBox(shown, matches), sinon fitBox(null) = fit du
+  sous-graphe visible entier. Fit instantané (délibéré : animer la transform du conteneur
+  ralentirait le pan). Grab conservé après (rien ne re-fit tant que l'user ne retouche pas
+  filtre/recherche). Offset bbox↔centre vérifié (0,0) avant ET après filtre 869→731. (2) CLIC NŒUD :
+  openKbNode (inspecteur, conservé) + centerOn(px,py,max(scale,1.25)) tween ease-out ~260ms, différé
+  1 frame (l'inspecteur SidePanel 380px pousse le graphe → sinon décalage ~190px),
+  reduced-motion=instant. Nouveau centerOn/centerTransform dans useZoomPan (+3 tests), nodesBox dans
+  kbScene (+3 tests). (3) FILTERMENU (utilisé UNIQUEMENT par KbView, 2 instances — pas partagé, zéro
+  régression ailleurs) : trigger actif = bord accent COMPLET (border-accent bg-accent-tint) au lieu
+  du shadow-inset-left qui jurait avec rounded-md ; popup en max-h-[60vh] overflow-y-auto + pied «
+  Clear filter » épinglé (46 communautés ne débordent plus) ; COCHES (Check trinil-react
+  text-accent, slot w-3.5, alignement [coche] label … count) sur les sélectionnés + inset-left des
+  items retiré ; popup arrondi, tokens (theme-aware). Non-régression KB vérifiée (reveal, survol,
+  recherche, inferred, inspecteur, perf).
+verification: >-
+  npx tsc --noEmit clean ; npx vitest run 508/508 (37 fichiers, dont centerTransform 3 + nodesBox 3)
+  ; npm run build OK. CDP headless clair+dark+reduced-motion : re-fit offset (0,0), clic→scale
+  0.33→1.25 inspecteur ouvert, trigger border-color rgb(37,99,235), popup borné 487px overflow auto,
+  coche présente. Commit LOCAL 73d6a7a — PAS encore poussé (attente décision main-vs-branche de
+  Rémi).
+release: null
