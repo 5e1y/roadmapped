@@ -179,43 +179,31 @@ devrait.
 ## Post 8 — Roadmapped × Graphify : visualiser la codebase
 
 ```
-Roadmapped vous permettait de visualiser vos tâches. Maintenant, il vous permet
-aussi de visualiser votre codebase.
+Jusqu'ici, Roadmapped vous montrait vos tâches. Maintenant, il vous montre
+aussi votre code.
 
-On a intégré Graphify, un outil open source qui transforme un repo en graphe de
-connaissances : fichiers, fonctions, imports, docs, et qui dépend de quoi. Il
-n'est pas de nous, et il fait ça très bien — deux excellentes raisons de ne pas
-le réécrire.
+On a branché Graphify. Si vous ne connaissez pas : c'est un outil open source
+qui dessine la carte d'un repo. Quels fichiers existent, ce qu'il y a dedans,
+et comment tout ça se parle. 82 000 étoiles sur GitHub. On n'allait pas le
+réécrire.
 
-Concrètement, dans Roadmapped :
+Cette carte vit maintenant dans le dashboard, à côté de vos tâches. Et les deux
+sont reliées : chaque ticket sait quels fichiers il concerne, et l'agent qui
+prend la tâche reçoit ce plan avant de commencer. Il va droit au bon endroit au
+lieu de fouiller tout le repo. Chez nous, ça fait jusqu'à 70 % de tokens
+d'exploration en moins.
 
-1. Vos tickets sont reliés au code. Sans champ à remplir : un ticket cite déjà
-   les fichiers qu'il touche, on joint avec le graphe. Le lien est calculé,
-   jamais saisi — donc jamais périmé.
+Rien à remplir, rien à maintenir. Le lien se calcule tout seul depuis ce que
+les tickets contiennent déjà.
 
-2. Quand l'agent prend une tâche, son brief embarque le voisinage du ticket
-   dans le graphe : les fichiers et symboles concernés, et ce qui les appelle.
-   Il s'oriente au lieu d'explorer.
-
-3. « Où vit X, qu'est-ce qui touche X » devient une requête au graphe au lieu
-   d'un grep à l'aveugle. Sur notre repo : jusqu'à ~70 % de tokens
-   d'exploration en moins.
-
-Le graphe de Roadmapped lui-même fait 1 843 nœuds, et il est committé dans le
-repo public. Il contient, entre autres, le code qui l'affiche.
-
-La couche est optionnelle — c'est du Python. Pas de Python sur votre machine ?
-Roadmapped fonctionne exactement pareil, avec un graphe en moins.
-
-Ce post est la tâche #331 du backlog. Elle sera fermée avec le commit qui le
-contient. Tout est lié — c'était l'idée.
+Vos tâches d'un côté, votre code de l'autre, un trait entre les deux. C'est une
+carte. Mais c'est une très bonne carte.
 ```
-*Commentaire : lien repo + lien direct vers le graphe (`graphify-out/graph.json`)
-ou capture de l'onglet Knowledge base.*
+*Commentaire : lien repo + capture de la carte (onglet Knowledge base).*
 *Visuel recommandé : capture du graphe KB dans le dashboard (dark), ou split
 tâches/codebase côte à côte.*
-*Chiffres à re-vérifier le jour J : nombre de nœuds (`sitrep` ligne KB), le ~70 %
-(estimation skill, pas une mesure au commit près — garder le « jusqu'à »).*
+*Chiffres à re-vérifier le jour J : les étoiles Graphify (82,2 k au 2026-07-11)
+et le 70 % (estimation skill, garder le « jusqu'à »).*
 
 ---
 
