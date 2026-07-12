@@ -88,9 +88,16 @@ export function centerTransform(
   return { scale: s, tx: vpW / 2 - center.x * s, ty: vpH / 2 - center.y * s }
 }
 
-/** Borne la translation : le contenu garde au moins KEEP_VISIBLE px à l'écran. */
-export function clampPan(t: ZoomPanTransform, contentW: number, contentH: number, vpW: number, vpH: number): ZoomPanTransform {
-  if (vpW <= 0 || vpH <= 0) return t
+/**
+ * Borne la translation : le contenu garde au moins KEEP_VISIBLE px à l'écran.
+ * `unbounded` (#319, KB) : PAN LIBRE — la transform est rendue telle quelle
+ * (la sim s'étend hors de sa boîte de layout, il faut pouvoir la suivre).
+ */
+export function clampPan(
+  t: ZoomPanTransform, contentW: number, contentH: number, vpW: number, vpH: number,
+  unbounded = false,
+): ZoomPanTransform {
+  if (unbounded || vpW <= 0 || vpH <= 0) return t
   return {
     scale: t.scale,
     tx: clampBetween(t.tx, KEEP_VISIBLE - contentW * t.scale, vpW - KEEP_VISIBLE),
@@ -131,13 +138,21 @@ const TWEEN_MS = 260
 const prefersReducedMotion = (): boolean =>
   typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches
 
-export function useZoomPan(contentW: number, contentH: number): ZoomPan {
+export interface ZoomPanOptions {
+  /** #319 (KB) : pan LIBRE — aucune borne KEEP_VISIBLE sur la translation.
+   *  Par défaut (RoadmapGraph) le pan reste borné : le contenu ne se perd pas. */
+  unbounded?: boolean
+}
+
+export function useZoomPan(contentW: number, contentH: number, options?: ZoomPanOptions): ZoomPan {
   const viewportRef = useRef<HTMLDivElement>(null)
   const [transform, setTransform] = useState<ZoomPanTransform>({ scale: 1, tx: 0, ty: 0 })
   const [panning, setPanning] = useState(false)
   // Dimensions du contenu lues à l'exécution (pas de re-création des handlers).
   const content = useRef({ w: contentW, h: contentH })
   content.current = { w: contentW, h: contentH }
+  const unbounded = useRef(options?.unbounded ?? false)
+  unbounded.current = options?.unbounded ?? false
   // `active` : le drag n'arme la capture/le pan qu'au 1er mouvement au-delà du
   // seuil — sinon setPointerCapture au pointerdown détournerait le `click` et
   // les nœuds ne seraient JAMAIS cliquables (#312). sx/sy = origine, pour le seuil.
@@ -178,7 +193,7 @@ export function useZoomPan(contentW: number, contentH: number): ZoomPan {
     const el = viewportRef.current
     const next = fn(pending.current ?? transformRef.current)
     pending.current = el
-      ? clampPan(next, content.current.w, content.current.h, el.clientWidth, el.clientHeight)
+      ? clampPan(next, content.current.w, content.current.h, el.clientWidth, el.clientHeight, unbounded.current)
       : next
     if (typeof requestAnimationFrame !== 'function') { flush(); return }
     if (!rafId.current) rafId.current = requestAnimationFrame(flush)
@@ -284,7 +299,7 @@ export function useZoomPan(contentW: number, contentH: number): ZoomPan {
     const t = box
       ? boxTransform(box, el.clientWidth, el.clientHeight, maxScale)
       : fitTransform(content.current.w, content.current.h, el.clientWidth, el.clientHeight)
-    commit(clampPan(t, content.current.w, content.current.h, el.clientWidth, el.clientHeight))
+    commit(clampPan(t, content.current.w, content.current.h, el.clientWidth, el.clientHeight, unbounded.current))
   }, [commit, cancelTween])
 
   const centerOn = useCallback((x: number, y: number, scale: number) => {
@@ -292,7 +307,7 @@ export function useZoomPan(contentW: number, contentH: number): ZoomPan {
     if (!el) return
     const target = clampPan(
       centerTransform({ x, y }, scale, el.clientWidth, el.clientHeight),
-      content.current.w, content.current.h, el.clientWidth, el.clientHeight,
+      content.current.w, content.current.h, el.clientWidth, el.clientHeight, unbounded.current,
     )
     animateTo(target)
   }, [animateTo])

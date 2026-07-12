@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type { KbLayoutResult, KbPlaced } from '../lib/kbLayout'
 import { useZoomPan, ZOOM_STEP } from './useZoomPan'
-import { usePanel } from '../state/PanelContext'
+import { usePanel, kbNodeIdOf } from '../state/PanelContext'
 import { applyFilters, matchNodes, truncate, filterKey, KB_MAX_NODES, type KbFilters } from '../lib/kbFilter'
 import { cachedKbLayout, ensureKbLayout, layoutInput } from '../lib/kbLayoutCache'
 import { edgePaths, buildAdjacency, nodesBox } from '../lib/kbScene'
@@ -50,7 +50,11 @@ const prefersReducedMotion = (): boolean =>
   typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches
 
 export function KbGraph({ graph, filters, query }: { graph: KbGraphData; filters: KbFilters; query: string }) {
-  const { openKbNode } = usePanel()
+  const { openKbNode, stack } = usePanel()
+  // #320 — nœud SÉLECTIONNÉ (inspecteur KbNodePanel visible) : peint en accent
+  // plein. En mode double panneau (#313) le kb-node est SOUS le task — kbNodeIdOf
+  // remonte le bon cran. null quand le panneau se ferme → l'état actif tombe.
+  const selected = kbNodeIdOf(stack)
 
   // Politique de mouvement figée AU MONTAGE : sim live par défaut, pipeline
   // statique (layout pré-calculé, aucune animation) sous prefers-reduced-motion.
@@ -124,7 +128,9 @@ export function KbGraph({ graph, filters, query }: { graph: KbGraphData; filters
     ? simShown
     : staticLayout ?? (lastStaticRef.current?.graph === graph ? lastStaticRef.current.layout : null)
 
-  const zp = useZoomPan(shown?.width ?? 0, shown?.height ?? 0)
+  // #319 — pan LIBRE : la sim n'est plus bornée à sa boîte de layout, il faut
+  // pouvoir suivre un nœud parti au-delà (RoadmapGraph, lui, reste borné).
+  const zp = useZoomPan(shown?.width ?? 0, shown?.height ?? 0, { unbounded: true })
 
   // Survol coalescé par rAF : traverser une grappe dense tire plusieurs
   // enter/leave par frame — un seul setState (donc un seul render) par frame.
@@ -337,7 +343,9 @@ export function KbGraph({ graph, filters, query }: { graph: KbGraphData; filters
               willChange: 'transform',
             }}
           >
-            <svg className="absolute inset-0" width={shown.width} height={shown.height}>
+            {/* overflow-visible (#319) : les positions de la sim ne sont plus
+                bornées à la boîte — un nœud au-delà doit rester dessiné. */}
+            <svg className="absolute inset-0 overflow-visible" width={shown.width} height={shown.height}>
               {driver ? (
                 <LiveEdgesLayer driver={driver} dim={focus !== null} />
               ) : (
@@ -358,6 +366,7 @@ export function KbGraph({ graph, filters, query }: { graph: KbGraphData; filters
                 initialIds={initialIds}
                 epoch={revealEpoch}
                 focus={focus}
+                selected={selected}
                 adj={adj}
                 matches={matches}
                 searching={searching}
@@ -442,8 +451,19 @@ const LiveEdgesLayer = memo(function LiveEdgesLayer({ driver, dim }: { driver: K
   )
 })
 
+/**
+ * Fond des labels (#320) : gabarit du <rect> posé DERRIÈRE chaque <text> pour
+ * le détacher de la densité (arêtes/nœuds sous le texte). Largeur ESTIMÉE
+ * (~5.2 px/caractère à 9 px — pas de mesure DOM : 869 getComputedTextLength
+ * par render coûteraient un layout thrash), le rect vit dans le <g> du nœud
+ * dont le pilote possède le transform : il SUIT le nœud comme le label.
+ */
+const LABEL_FONT = 9
+const LABEL_CHAR_W = 5.2
+const LABEL_PAD_X = 4
+
 const NodesLayer = memo(function NodesLayer({
-  nodes, placed, driver, initialIds, focus, adj, matches, searching, onFocus, onOpen, onNodeDown,
+  nodes, placed, driver, initialIds, focus, selected, adj, matches, searching, onFocus, onOpen, onNodeDown,
 }: {
   nodes: KbNode[]
   placed: ReadonlyMap<string, KbPlaced>
@@ -454,6 +474,8 @@ const NodesLayer = memo(function NodesLayer({
    *  <g> (le Map `placed`, muté en place, garde la même identité). Pas lu. */
   epoch: number
   focus: string | null
+  /** #320 — nœud dont l'inspecteur est ouvert : accent PLEIN (langage « actif »). */
+  selected: string | null
   adj: Map<string, Set<string>>
   matches: Set<string>
   searching: boolean
@@ -464,8 +486,11 @@ const NodesLayer = memo(function NodesLayer({
   const inHood = (id: string): boolean =>
     focus === null || id === focus || (adj.get(focus)?.has(id) ?? false)
 
-  /** Intensité d'un nœud : le survol prime, puis la recherche, puis l'état neutre. */
+  /** Intensité d'un nœud : la sélection (#320) prime, puis le survol, puis la
+   *  recherche, puis l'état neutre. Le plein accent est réservé au nœud
+   *  SÉLECTIONNÉ — même doctrine de rareté que TagGraph/Backlog. */
   const nodeFill = (id: string): { fill: number; stroke: number; dim: boolean } => {
+    if (id === selected) return { fill: 1, stroke: 1, dim: false }
     if (focus !== null) {
       if (id === focus) return { fill: 0.9, stroke: 1, dim: false }
       if (inHood(id)) return { fill: 0.6, stroke: 1, dim: false }
@@ -478,7 +503,9 @@ const NodesLayer = memo(function NodesLayer({
   }
 
   const showLabel = (id: string): boolean =>
-    nodes.length <= LABEL_LIMIT ? true : (focus !== null && inHood(id)) || matches.has(id)
+    nodes.length <= LABEL_LIMIT
+      ? true
+      : id === selected || (focus !== null && inHood(id)) || matches.has(id)
 
   return (
     <>
@@ -497,6 +524,18 @@ const NodesLayer = memo(function NodesLayer({
             transform={`translate(${p.x} ${p.y})`}
             ref={driver ? (el) => driver.registerNode(node.id, el) : undefined}
           >
+            {/* #320 — anneau léger du nœud SÉLECTIONNÉ (sous la pastille). */}
+            {node.id === selected && (
+              <circle
+                cx={0} cy={0} r={p.r + 4}
+                fill="none"
+                stroke="var(--color-accent)"
+                strokeOpacity={0.35}
+                strokeWidth={2}
+                vectorEffect="non-scaling-stroke"
+                pointerEvents="none"
+              />
+            )}
             <circle
               cx={0} cy={0} r={p.r}
               className={driver && !initialIds.has(node.id) ? 'kb-in cursor-pointer' : 'cursor-pointer'}
@@ -514,17 +553,32 @@ const NodesLayer = memo(function NodesLayer({
               <title>{`${node.label} · ${node.fileType}${node.sourceFile ? ` · ${node.sourceFile}` : ''}`}</title>
             </circle>
             {showLabel(node.id) && (
-              <text
-                x={0} y={p.r + 9}
-                textAnchor="middle"
-                className="pointer-events-none"
-                style={{
-                  fontSize: 9,
-                  fill: tone.dim ? 'var(--color-neutral-400)' : 'var(--color-neutral-700)',
-                }}
-              >
-                {node.label}
-              </text>
+              // #320 — fond semi-opaque (token carte, theme-aware) DERRIÈRE le
+              // texte : le label se détache des arêtes/nœuds en densité. Le
+              // rect partage le <g> du nœud (transform pilote) → il le suit.
+              <>
+                <rect
+                  x={-(node.label.length * LABEL_CHAR_W) / 2 - LABEL_PAD_X}
+                  y={p.r + 1.5}
+                  width={node.label.length * LABEL_CHAR_W + LABEL_PAD_X * 2}
+                  height={LABEL_FONT + 3}
+                  rx={3}
+                  className="pointer-events-none"
+                  fill="var(--color-white)"
+                  fillOpacity={0.82}
+                />
+                <text
+                  x={0} y={p.r + 9}
+                  textAnchor="middle"
+                  className="pointer-events-none"
+                  style={{
+                    fontSize: LABEL_FONT,
+                    fill: tone.dim ? 'var(--color-neutral-400)' : 'var(--color-neutral-700)',
+                  }}
+                >
+                  {node.label}
+                </text>
+              </>
             )}
           </g>
         )

@@ -13,8 +13,8 @@ import type { KbLayoutInput, KbPlaced } from './kbLayout'
  * - RESSORTS sur les arêtes (distance au repos, raideur 1/min(deg), biais par
  *   degré comme d3-link) ;
  * - CENTRAGE doux vers le milieu de la boîte (le graphe ne dérive pas) ;
- * - ALPHA DECAY : la sim se refroidit et S'ARRÊTE (settled) en ~180 ticks
- *   (~3 s à 60 fps) pour ne pas brûler le CPU ; `kick` la réchauffe (filtre),
+ * - ALPHA DECAY : la sim se refroidit et S'ARRÊTE (settled) en ~240 ticks
+ *   (~4 s à 60 fps) pour ne pas brûler le CPU ; `kick` la réchauffe (filtre),
  *   `setAlphaTarget` la maintient chaude (drag, cf. d3.drag).
  *
  * #317 — ENTRÉE PROGRESSIVE : la sim peut démarrer avec seulement un PRÉFIXE
@@ -33,13 +33,15 @@ import type { KbLayoutInput, KbPlaced } from './kbLayout'
  *
  * La boîte de contenu est FIXE (côté ∝ √n, calculé à la création) : pas de
  * recadrage par frame — la caméra (useZoomPan/fitBox) suit la bbox des nœuds.
+ * #319 — les positions ne sont PAS bornées à la boîte : avec les nouveaux
+ * réglages (#321, répulsion/ressorts plus forts) un mur dur empilait les nœuds
+ * au bord. La boîte ne sert qu'au point de centrage et à la taille du canvas ;
+ * la sim s'étend librement, la caméra (fit de la bbox vivante) suit.
  * Les KbPlaced du Map `placed` sont MUTÉS en place à chaque tick : le rendu
  * (kbSimDriver) lit toujours les positions courantes sans réallocation, et les
  * mémos React qui tiennent le Map restent stables.
  */
 
-/** Marge dure : les positions sont bornées dans [PAD, side−PAD]. */
-const PAD = 28
 /** Angle d'or — placements phyllotaxiques déterministes (génération, spawns). */
 const GOLDEN = 2.399963229728653
 
@@ -47,7 +49,7 @@ const GOLDEN = 2.399963229728653
 export interface KbSimParams {
   /** Sous ce seuil (et sans alphaTarget), la sim est considérée stabilisée. */
   ALPHA_MIN: number
-  /** Refroidissement par tick : 1 − ALPHA_MIN^(1/ticks) (défaut ~180 ticks ≈ 3 s). */
+  /** Refroidissement par tick : 1 − ALPHA_MIN^(1/ticks) (défaut ~240 ticks ≈ 4 s). */
   ALPHA_DECAY: number
   /** Frottement : part de vélocité conservée par tick (d3 velocityDecay 0.4). */
   VELOCITY_KEEP: number
@@ -74,23 +76,24 @@ export interface KbSimParams {
   R_MAX: number
 }
 
-/** Les DÉFAUTS centralisés (#318) — la source de vérité des réglages. */
+/** Les DÉFAUTS centralisés (#318) — la source de vérité des réglages.
+ *  Valeurs tunées et validées par Rémi via le panneau Display (#321). */
 export const KB_SIM: Readonly<KbSimParams> = {
   ALPHA_MIN: 0.001,
-  ALPHA_DECAY: 1 - Math.pow(0.001, 1 / 180),
-  VELOCITY_KEEP: 0.6,
-  LINK_DIST: 55,
-  CHARGE_BASE: -40,
+  ALPHA_DECAY: 1 - Math.pow(0.001, 1 / 240), // settle ≈ 240 ticks (~4 s à 60 fps)
+  VELOCITY_KEEP: 0.5, // friction UI = 1 − VELOCITY_KEEP = 0.50
+  LINK_DIST: 160,
+  CHARGE_BASE: -200,
   CHARGE_PER_R: -5,
-  CENTER_K: 0.05,
-  THETA: 0.9,
+  CENTER_K: 0.04,
+  THETA: 0.5, // θ² = 0.25 (dérivé dans RepelCut)
   DIST_MIN2: 1,
   DIST_MAX2: 640_000, // 800 px
   CLUSTER_R: 4,
   MORPH_ALPHA: 0.45,
   DRAG_TARGET: 0.3,
-  R_MIN: 5,
-  R_MAX: 22,
+  R_MIN: 7,
+  R_MAX: 40,
 }
 
 /**
@@ -556,11 +559,11 @@ export function createKbSim(
 
     applyRepulsion(active, x, y, strength, vx, vy, alpha, P)
 
-    // Centrage doux + intégration (velocity Verlet à la d3).
+    // Centrage doux + intégration (velocity Verlet à la d3). #319 — AUCUN mur :
+    // les positions ne sont pas bornées à la boîte (les nœuds s'empilaient au
+    // bord avec les réglages #321) ; le centrage suffit à tenir le graphe.
     const keep = P.VELOCITY_KEEP
     const ck = P.CENTER_K * alpha
-    const lo = PAD
-    const hi = side - PAD
     for (let i = 0; i < active; i++) {
       if (!Number.isNaN(fx[i])) {
         x[i] = fx[i]; y[i] = fy[i]; vx[i] = 0; vy[i] = 0
@@ -572,8 +575,6 @@ export function createKbSim(
       vy[i] *= keep
       x[i] += vx[i]
       y[i] += vy[i]
-      if (x[i] < lo) { x[i] = lo; vx[i] = 0 } else if (x[i] > hi) { x[i] = hi; vx[i] = 0 }
-      if (y[i] < lo) { y[i] = lo; vy[i] = 0 } else if (y[i] > hi) { y[i] = hi; vy[i] = 0 }
     }
   }
 

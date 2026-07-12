@@ -31,27 +31,30 @@ interface SliderSpec {
 const int = (v: number): string => String(Math.round(v))
 const dec2 = (v: number): string => v.toFixed(2)
 
+/** Plages alignées sur KB_SIM_LIMITS là où les défauts #321 (Spring 160,
+ *  Repulsion −200, θ 0.5, R max 40) touchaient l'ancienne butée de slider —
+ *  un défaut ne doit pas être coincé au bord de sa course. */
 const SLIDERS: SliderSpec[] = [
-  { key: 'LINK_DIST', label: 'Spring length', min: 20, max: 160, step: 1, fmt: (v) => `${int(v)} px` },
-  { key: 'CHARGE_BASE', label: 'Repulsion', min: -200, max: -5, step: 1, fmt: int },
+  { key: 'LINK_DIST', label: 'Spring length', min: 20, max: 200, step: 1, fmt: (v) => `${int(v)} px` },
+  { key: 'CHARGE_BASE', label: 'Repulsion', min: -300, max: -5, step: 1, fmt: int },
   { key: 'CENTER_K', label: 'Centering', min: 0, max: 0.3, step: 0.005, fmt: (v) => v.toFixed(3) },
   {
     // Le param est la part de vélocité CONSERVÉE ; l'UI parle en friction
-    // (= velocityDecay de d3, défaut 0.4) — plus haut = plus amorti.
+    // (= velocityDecay de d3) — plus haut = plus amorti. Défaut #321 : 0.50.
     key: 'VELOCITY_KEEP', label: 'Friction', min: 0.05, max: 0.9, step: 0.01,
     toParam: (ui) => 1 - ui, fromParam: (v) => 1 - v, fmt: dec2,
   },
   {
     // ALPHA_DECAY exprimé en « ticks avant stabilisation » (~60/s) — parlant,
-    // et l'expression inverse retombe EXACTEMENT sur le défaut à 180.
+    // et l'expression inverse retombe EXACTEMENT sur le défaut à 240.
     key: 'ALPHA_DECAY', label: 'Settle time', min: 30, max: 600, step: 10,
     toParam: (t) => 1 - Math.pow(KB_SIM.ALPHA_MIN, 1 / t),
     fromParam: (d) => Math.round(Math.log(KB_SIM.ALPHA_MIN) / Math.log(1 - d)),
     fmt: (v) => `${int(v)} ticks`,
   },
-  { key: 'THETA', label: 'Theta (accuracy)', min: 0.5, max: 1.5, step: 0.05, fmt: dec2 },
+  { key: 'THETA', label: 'Theta (accuracy)', min: 0.3, max: 1.5, step: 0.05, fmt: dec2 },
   { key: 'R_MIN', label: 'Node radius min', min: 2, max: 12, step: 1, fmt: (v) => `${int(v)} px` },
-  { key: 'R_MAX', label: 'Node radius max', min: 10, max: 40, step: 1, fmt: (v) => `${int(v)} px` },
+  { key: 'R_MAX', label: 'Node radius max', min: 10, max: 48, step: 1, fmt: (v) => `${int(v)} px` },
 ]
 
 export function KbDisplayMenu() {
