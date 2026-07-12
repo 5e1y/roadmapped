@@ -1,0 +1,69 @@
+id: 324
+code: null
+title: >-
+  Graphify install par DÉFAUT (opt-out --no-kb) : bootstrap uv → CPython géré → graphifyy ; +
+  enregistrer le MCP natif graphify dans .mcp.json
+status: done
+tags:
+  - kb
+  - graphify
+  - install
+  - mcp
+size: null
+heat: 90
+detail: >-
+  Reverse #322 (défaut Non → défaut OUI). Suit docs/specs/graphify-anchoring.md Volet A + reco P1
+  MCP natif. Dans scripts/install.mjs (ensureGraphify) + bin/roadmapped.mjs + src/lib/paths.ts : (1)
+  DÉFAUT = installe sans prompt (on informe, on ne demande plus) ; opt-OUT via `--no-kb` (bin) +
+  `kb:false` en config (refus mémorisé) ; skip silencieux si env CI. (2) Chaîne uv-first : uv
+  présent → `uv tool install graphifyy` (uv télécharge un CPython géré si Python≥3.10 absent) ; uv
+  absent → installer uv via asset GitHub Release ÉPINGLÉ + checksum dans ~/.roadmapped/bin (PAS de
+  curl|sh) ; sinon pipx ; sinon venv système. Chemins absolus mémorisés en config
+  (kb.uvBin/pythonBin/graphifyBin), jamais dépendant du PATH. Non bloquant si tout échoue (log +
+  init réussit + upgrade re-tente). SANS extra Leiden. (3) Enregistrer AUSSI le MCP NATIF de
+  graphify dans .mcp.json (via mergeMcpEntry ou équivalent) : entrée `graphify` → `python -m
+  graphify.serve` (ou le bon invocateur avec pythonBin) — complémentaire des outils kb_*
+  task-centrés (le natif = navigation libre query_graph/get_neighbors/shortest_path/god_nodes). Ne
+  génère toujours PAS le graphe (acte d'agent). Cross-platform mac/linux/win. tsc + tests verts
+  (adapter les tests #322 : défaut installe, --no-kb skip, CI skip, idempotence, fallbacks mockés —
+  aucune install réelle en test).
+refs:
+  - docs/specs/graphify-anchoring.md
+  - scripts/install.mjs
+  - bin/roadmapped.mjs
+  - src/lib/paths.ts
+  - scripts/install.test.mjs
+links: []
+dependsOn: []
+epic: knowledge-base
+source: ai
+createdAt: "2026-07-12T17:20:41"
+startedAt: "2026-07-12T17:21:08"
+updatedAt: "2026-07-12T17:42:45"
+completedAt: "2026-07-12T17:42:45"
+commit: "6816439"
+outcome: >-
+  Graphify installé par DÉFAUT (reverse #322). ensureGraphify installe SANS prompt (informe, ~28Mo
+  one-time) ; opt-OUT via --no-kb (bin, ancien --with-kb inerte) → kb:false persisté en config
+  (jamais re-tenté) ; skip silencieux si process.env.CI. Chaîne uv-first : uv PATH (résolu absolu)
+  ou bootstrappé → uv tool install graphifyy (CPython géré téléchargé par uv si absent) ; uv absent
+  → bootstrap depuis asset GitHub Release ÉPINGLÉ 0.11.28 (matrice darwin/linux/win × arm64/x64,
+  download fetch, checksum sha256 vérifié, extraction tar, binaire → ~/.roadmapped/bin/uv, PAS de
+  curl|sh) ; sinon pipx ; sinon venv ~/.roadmapped/py (seul étage exigeant Python≥3.10 système).
+  Chemins absolus en config kb.{uvBin,pythonBin,graphifyBin}, statut installed/failed mémorisé. Sans
+  extra Leiden. graphify install + claude install best-effort. MCP NATIF graphify enregistré dans
+  .mcp.json (command=kb.pythonBin, args=['-m','graphify.serve'] — invocateur vérifié dans graphifyy
+  0.9.13, serve.py ; fallback console-script graphify-mcp) via mergeMcpServer générique, idempotent,
+  UNIQUEMENT si installed/already (pas d'entrée morte sur failed). NON BLOQUANT (try/catch, tryExec,
+  bootstrapUv cleanup finally, timeouts 30s/120-300s/180s, zéro exit ; init/upgrade loggent toujours
+  done). paths.ts : RoadmappedConfig.kb (false | {status,uvBin,pythonBin,graphifyBin}), pythonBin
+  top-level legacy. Écarts : declined porté par kb:false (pas un status) ; uv non résolvable absolu
+  → 'uv' tel quel (marginal) ; extraction via tar système (fallback étage suivant).
+verification: >-
+  npx tsc --noEmit clean ; npx vitest run 598/598 (arbre combiné avec #325). Tests #324 :
+  défaut→installe (mocké), --no-kb→kb:false, kb:false→zéro sonde, CI→skip silencieux, idempotence
+  already sans 2e entrée MCP ni clobber roadmapped, bootstrap uv download mocké+checksum réel,
+  tout-échoue→failed+init OK+pas d'entrée morte, fallback venv, mergeMcpServer générique, upgrade
+  respecte l'opt-out. E2E dispatcher passe CI=1 (aucune install réelle). Invocateur MCP vérifié sur
+  wheel PyPI graphifyy 0.9.13.
+release: null

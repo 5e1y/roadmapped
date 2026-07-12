@@ -1,0 +1,62 @@
+id: 326
+code: null
+title: >-
+  SKILL.md « graph-first » : ancrer le réflexe graphe dans le cycle + amender la Golden anti-token
+  rule (qui travaille contre la KB) + setup.md/README narratif
+status: done
+tags:
+  - kb
+  - graphify
+  - skill
+  - docs
+size: null
+heat: 88
+detail: >-
+  Ancrage côté skill (docs/specs/graphify-anchoring.md P1). Aujourd'hui SKILL.md a 1 bloc KB
+  hors-cycle et la « Golden anti-token rule » DÉCOURAGE l'appel KB (elle travaille contre). À faire
+  (~10 lignes nettes, sans bloat) : (1) intégrer « le graphe D'ABORD » DANS le cycle (avant de
+  grep/lire à l'aveugle, consulter le voisinage KB — via take/brief qui l'embarquent #325, ou
+  kb_neighborhood/kb search) ; (2) une ligne dans Forbidden (ex. « ❌ explorer la codebase à
+  l'aveugle quand le graphe répond ») ; (3) AMENDER la Golden anti-token rule pour qu'elle
+  n'interdise PAS l'appel KB (distinguer : ne pas RE-scanner le backlog à la main ≠ interroger le
+  graphe, qui est justement l'économie de tokens) ; (4) setup.md + README : passage narratif «
+  Knowledge base powered by Graphify = navigation par le graphe, ~70% de tokens d'exploration en
+  moins » (honnête : tokens d'exploration, pas la session), + le fait que c'est installé par défaut.
+  Cohérent avec les commandes réelles (kb_*/roadmapped kb). Ne pas casser le reste du skill. tsc
+  clean (docs, trivial).
+refs:
+  - docs/specs/graphify-anchoring.md
+  - skills/roadmapped/SKILL.md
+  - skills/roadmapped/references/setup.md
+  - README.md
+links: []
+dependsOn: []
+epic: knowledge-base
+source: ai
+createdAt: "2026-07-12T17:21:03"
+startedAt: "2026-07-12T17:21:09"
+updatedAt: "2026-07-12T17:27:19"
+completedAt: "2026-07-12T17:27:19"
+commit: 2a89dca
+outcome: >-
+  Skill ancré « graph-first » (docs/skill only, Fable). SKILL.md : le bloc KB exhortatif hors-cycle
+  REMPLACÉ (pas empilé, ~+4 lignes nettes) par « Graph first — locating code is a graph query, not a
+  grep » ; intégré DANS « The cycle » (take/brief embarquent le voisinage KB #325, le reste via
+  kb_neighborhood/kb_search/kb_node ou roadmapped kb, pas de grep aveugle) ; ligne Forbidden (❌
+  grep/read aveugle quand le graphe répond) ; « Golden anti-token rule » AMENDÉE — distingue
+  explicitement ce qui reste interdit (recomputer la priorité / re-scanner le backlog à la main) de
+  ce qui est ENCOURAGÉ (interroger le graphe KB = l'index avant la lecture brute = l'économie de
+  tokens), donc elle ne se retourne plus contre la KB. setup.md étape 7 réécrite : install par
+  défaut (log, ~30Mo/~85Mo, opt-out --no-kb, jamais bloquant), consentement UNIQUEMENT sur la
+  génération (/graphify . coûte des tokens, demander 1×), refresh --update code-only gratuit. README
+  : section « Knowledge base, powered by Graphify » (le visualiseur n'est pas le sujet, l'agent
+  navigue par le graphe ; honnête « ~70% des tokens d'EXPLORATION, pas la session, l'agent lit ce
+  qu'il édite » ; installé par défaut ; crédit MIT non dupliqué). Noms de commandes vérifiés contre
+  mcp-server.mjs/task.mjs. MCP natif graphify volontairement non cité (son enregistrement #324 en
+  cours).
+verification: >-
+  Fichiers markdown uniquement (SKILL.md/setup.md/README.md) → zéro impact TS. Golden rule amendée
+  mentionne la KB (grep = 4 occurrences kb/knowledge graph dans SKILL.md). Commité 2a89dca.
+  Cohérence des noms de commandes vérifiée par l'agent. Rendu à relire par Rémi (ton/densité du
+  skill).
+release: null
