@@ -1,0 +1,48 @@
+id: 316
+code: null
+title: >-
+  KB : graphe physique LIVE façon Obsidian — simulation de forces continue, nœuds qui se déplacent
+  (pas de switch), drag interactif, « génération » animée à l'ouverture au lieu d'un fade
+status: in_progress
+tags:
+  - kb
+  - graphify
+  - renderer
+  - perf
+  - ux
+size: null
+heat: 80
+detail: >-
+  Retour Rémi (le rendu KB doit devenir vivant). Passer du layout PRÉ-CALCULÉ statique (kbLayout +
+  reveal CSS) à une SIMULATION DE FORCES LIVE à la Obsidian : (1) forces continues — répulsion
+  (charge), attraction sur les arêtes (ressorts), centrage ; les nœuds se DÉPLACENT vers leur
+  équilibre. (2) Ouverture = « pop » où on VOIT le réseau se générer/évoluer (nœuds partant
+  groupés/centre → s'écartent et se stabilisent), PAS un fade. (3) Changement de graphe
+  (filtre/recherche) = les nœuds se DÉPLACENT vers leurs nouvelles positions (transition physique),
+  pas de switch sec. (4) INTERACTIF : drag d'un nœud (le suit, épinglé, voisins réagissent via
+  ressorts), comme Obsidian ; garder zoom/pan (useZoomPan). (5) reduced-motion = positions
+  stabilisées d'emblée, pas d'anim. ENJEU PERF majeur : sim live de 869 nœuds à 60fps. Réutiliser la
+  math de forces de kbLayout, mais probablement besoin de Barnes-Hut (quadtree, O(n log n)) pour la
+  charge + MAJ de positions IMPÉRATIVE (refs/transform, pas de re-render React par frame, cohérent
+  avec l'optim #308) + alpha decay (la sim se stabilise en ~2-4s PUIS s'arrête, relance brève à
+  l'interaction/au changement). Si le SVG ne tient pas 60fps → évaluer canvas (avec hit-test manuel
+  pour survol/clic/drag) ou un cap. Fable évalue la faisabilité et livre la meilleure version +
+  rapport honnête sur la perf. Ne pas régresser les features KB (inspecteur clic, double panneau,
+  filtres, recherche, liage).
+refs:
+  - src/components/KbGraph.tsx
+  - src/lib/kbLayout.ts
+  - src/lib/kbScene.ts
+  - src/components/useZoomPan.ts
+links: []
+dependsOn: []
+epic: knowledge-base
+source: ai
+createdAt: "2026-07-12T15:12:46"
+startedAt: "2026-07-12T15:12:59"
+updatedAt: "2026-07-12T15:12:59"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
