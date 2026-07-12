@@ -1,0 +1,37 @@
+id: 315
+code: null
+title: "KB filtres : vraie checkbox (case vide visible + cochée quand actif) au lieu d'un slot vide/coche"
+status: done
+tags:
+  - kb
+  - graphify
+  - ux
+  - filters
+size: null
+heat: 72
+detail: >-
+  Retour Rémi : dans FilterMenu (src/components/ViewHeader.tsx), l'item sélectionné montre une
+  coche, sinon slot vide. Rémi veut une VRAIE checkbox : une case (carré bordé) TOUJOURS visible,
+  vide quand non sélectionné, cochée (check dans la case) quand sélectionné. Petit changement dans
+  le rendu des items du Popup. Garder count + alignement [case] label … count, theme-aware, DA.
+refs: []
+links: []
+dependsOn: []
+epic: knowledge-base
+source: ai
+createdAt: "2026-07-12T15:12:29"
+startedAt: "2026-07-12T15:12:59"
+updatedAt: "2026-07-12T15:15:10"
+completedAt: "2026-07-12T15:15:10"
+commit: 9307b0d
+outcome: >-
+  Vraie checkbox dans FilterMenu (ViewHeader.tsx). Avant : slot largeur fixe qui n'affichait une
+  coche accent que si sélectionné (vide sinon). Après : une CASE toujours visible (carré size-3.5
+  rounded-[3px] border) — vide (border-neutral-300) quand non sélectionné, remplie (border-accent
+  bg-accent-tint) + coche accent quand sélectionné. Le fond accent-tint de la RANGÉE active est
+  retiré (la case devient le seul signal, alignement [case] label … count conservé). Tokens
+  uniquement, theme-aware, transition-colors.
+verification: >-
+  npx tsc --noEmit clean ; npm run build OK. Changement isolé à FilterMenu (2 instances KB) ; rendu
+  à confirmer par Rémi.
+release: null
