@@ -51,7 +51,7 @@ Two guard mechanics to internalise: (1) a unit must be `in_progress` BEFORE you 
 
 ## Know what a task touches — before exploring blind
 
-Before working a non-trivial task, read its **KB neighborhood**: the code and docs it touches — derived from its `refs` and the project's knowledge graph (built by **Graphify**, committed at `graphify-out/graph.json`). One call points you at the right files instead of grepping the repo cold. MCP: `kb_neighborhood { id }`, `kb_search { query }`, `kb_node { id }` (+ tickets touching a node). CLI: `roadmapped kb neighborhood <id>` · `kb search "<query>"` · `kb doctor`. No graph yet → the tools say so; generate it with `/graphify .`.
+Before working a non-trivial task, read its **KB neighborhood**: the code and docs it touches — derived from its `refs` and the project's knowledge graph (built by **Graphify**, committed at `graphify-out/graph.json`). One call points you at the right files instead of grepping the repo cold. MCP: `kb_neighborhood { id }`, `kb_search { query }`, `kb_node { id }` (+ tickets touching a node). CLI: `roadmapped kb neighborhood <id>` · `kb search "<query>"` · `kb doctor`. The dashboard renders the same graph (Docs tab → Knowledge base toggle). No graph yet → the tools say so; generate it with `/graphify .`.
 
 ## Accepted debt = a `quick` tagged `debt`
 

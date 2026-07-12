@@ -224,6 +224,12 @@ Renders `docsDir` (`docs/`) as a browsable markdown tree. The sidebar lists the
 files; the pane renders the selected one with clickable heading anchors and working
 relative `.md` links. This guide itself renders here.
 
+A **Documents / Knowledge base** toggle at the top of the view switches to the
+project's knowledge graph — a live map of the repo (code + docs) with the tickets
+that touch each node, rendered from `graphify-out/graph.json`. See
+[§7 Knowledge base](#7-knowledge-base) for what it is and how to generate it; with
+no graph present, the view shows an empty state that explains exactly that.
+
 ### Side panel
 
 Clicking a task opens it on the right for inline editing: title, status, size, `heat`
@@ -231,7 +237,10 @@ Clicking a task opens it on the right for inline editing: title, status, size, `
 existing tasks), `epic` (combobox, create-on-the-fly), `refs`, `links`, and the
 delivery fields `commit`, `outcome`, `verification`, `release`. Every edit goes
 through the same validate-then-rollback path as the CLI, so the panel can never save
-an invalid state.
+an invalid state. When a knowledge graph is present, the panel also shows a
+**"Connected in the knowledge base"** block — the code and docs the task touches,
+derived from its `refs` (see [§7](#7-knowledge-base)); without a graph, the block
+simply doesn't render.
 
 ---
 
@@ -1095,7 +1104,59 @@ a type" edit to make: the 9 types are fixed and created once at setup.
 
 ---
 
-## 7. FAQ
+## 7. Knowledge base
+
+Roadmapped carries a **knowledge base**: a live graph of the repo — code files,
+docs, and the tickets connected to them — rendered in the Docs view behind the
+**Documents / Knowledge base** toggle. Roadmapped does not build this graph
+itself: it **reads** `graphify-out/graph.json` and renders it. The graph is
+produced by [**Graphify**](https://graphify.net/), a separate open-source
+project (MIT, [Graphify-Labs/graphify](https://github.com/Graphify-Labs/graphify)).
+
+### Generating (and refreshing) the graph
+
+Graphify is a Python tool (Python ≥ 3.10); install it once, then run its skill
+from your agent at the repo root:
+
+```bash
+pip install graphifyy && graphify install   # once
+```
+
+```
+/graphify .            # first build → graphify-out/graph.json
+/graphify . --update   # refresh after the repo has moved
+```
+
+Roadmapped itself stays **Node ≥ 22.18** — Python is required only for this
+generation layer, which is entirely **optional**. Without a graph, the Knowledge
+base view shows an empty state that explains how to generate one, the ticket
+panels omit their KB block, and the `kb` tools answer with the same instructions
+instead of failing silently.
+
+### Tickets ⇄ graph — zero manual input
+
+Each task's side panel shows a **"Connected in the knowledge base"** block: the
+code and docs the task touches, with their neighborhood in the graph. It is
+derived 100% from the task's existing `refs` field — there is nothing new to
+fill in, no tagging step, no second source of truth to maintain.
+
+### Agent tools — find the right files before exploring blind
+
+The point of the KB for an agent is to replace cold grepping with one targeted
+call. Three surfaces, same graph:
+
+- **MCP tools**: `kb_neighborhood { id }` (the code/docs around a task),
+  `kb_search { query }` (find nodes by name/content), `kb_node { id }` (one
+  node in full, plus the tickets touching it).
+- **CLI**: `npx roadmapped kb neighborhood <taskId>` · `kb search "<query>"` ·
+  `kb node <nodeId>` · `kb doctor` (presence, size, freshness — warns when the
+  graph was built before HEAD and suggests `/graphify . --update`).
+- **Skill**: the Roadmapped skill instructs the agent to read a task's KB
+  neighborhood before working any non-trivial task.
+
+---
+
+## 8. FAQ
 
 **Do ids ever get reused?**
 No. `nextId` in `_meta.yaml` is monotonic. Deleting a task never frees its number.
