@@ -103,4 +103,15 @@ describe('clampPan', () => {
   it('ne touche jamais au scale', () => {
     expect(clampPan({ scale: 0.4, tx: 0, ty: 0 }, 100, 100, 800, 600).scale).toBe(0.4)
   })
+
+  it('unbounded (#319, KB) : pan LIBRE — la transform revient telle quelle', () => {
+    const far = { scale: 1.4, tx: 99999, ty: -99999 }
+    expect(clampPan(far, 1000, 1000, 800, 600, true)).toEqual(far)
+  })
+
+  it('unbounded omis/false : comportement borné inchangé (RoadmapGraph)', () => {
+    const far = { scale: 1, tx: 99999, ty: -99999 }
+    expect(clampPan(far, 1000, 1000, 800, 600, false)).toEqual(clampPan(far, 1000, 1000, 800, 600))
+    expect(clampPan(far, 1000, 1000, 800, 600).tx).toBeLessThanOrEqual(800)
+  })
 })

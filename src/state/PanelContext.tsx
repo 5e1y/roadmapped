@@ -63,6 +63,20 @@ export function isDualStack(stack: PanelEntry[]): boolean {
 }
 
 /**
+ * L'id du nœud KB « courant » de la pile (#320) — celui dont l'inspecteur
+ * (KbNodePanel) est visible : le sommet s'il est un kb-node, sinon le cran
+ * SOUS un task en mode double (#313 — le nœud reste affiché à gauche).
+ * KbGraph s'en sert pour peindre le nœud sélectionné en accent plein.
+ */
+export function kbNodeIdOf(stack: PanelEntry[]): string | null {
+  const top = stack[stack.length - 1]
+  if (top?.type === 'kb-node') return top.nodeId
+  const under = stack[stack.length - 2]
+  if (top?.type === 'task' && under?.type === 'kb-node') return under.nodeId
+  return null
+}
+
+/**
  * Transition de pile pour une ouverture (pure, testée) :
  *  - pile vide → initialise ;
  *  - cran identique au sommet → no-op (double-clic, relance) ;

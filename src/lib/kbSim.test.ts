@@ -69,7 +69,7 @@ describe('applyRepulsion (Barnes-Hut, #316)', () => {
     return { x, y }
   }
 
-  it('approxime la répulsion naïve O(n²) (θ = 0.9 → erreur moyenne < 5 %)', () => {
+  it('approxime la répulsion naïve O(n²) (θ défaut = 0.5 → erreur moyenne < 5 %)', () => {
     const n = 300
     const { x, y } = cloud(n)
     const s = new Float64Array(n).fill(-60)
@@ -123,11 +123,23 @@ describe('createKbSim (#316 — sim live)', () => {
     for (const p of sim.placed.values()) {
       expect(Number.isFinite(p.x)).toBe(true)
       expect(Number.isFinite(p.y)).toBe(true)
-      expect(p.x).toBeGreaterThanOrEqual(0)
-      expect(p.x).toBeLessThanOrEqual(sim.width)
-      expect(p.y).toBeGreaterThanOrEqual(0)
-      expect(p.y).toBeLessThanOrEqual(sim.height)
     }
+  })
+
+  it('#319 — pas de mur : les positions peuvent SORTIR de la boîte de layout', () => {
+    // Nœuds isolés (aucun ressort de rappel) + centrage coupé : la répulsion
+    // les écarte jusqu'à sa portée (~800 px) — bien au-delà de la boîte
+    // minimale (600). Avant #319, le clamp PAD les empilait au bord.
+    const lone = { nodes: Array.from({ length: 40 }, (_, i) => ({ id: `n${i}` })), edges: [] }
+    const sim = createKbSim(lone, { CENTER_K: 0 })
+    sim.tick(300)
+    let out = false
+    for (const p of sim.placed.values()) {
+      expect(Number.isFinite(p.x)).toBe(true)
+      expect(Number.isFinite(p.y)).toBe(true)
+      if (p.x < 0 || p.x > sim.width || p.y < 0 || p.y > sim.height) out = true
+    }
+    expect(out).toBe(true)
   })
 
   it('déterministe : deux sims sur les mêmes données ⇒ mêmes positions', () => {
@@ -142,11 +154,11 @@ describe('createKbSim (#316 — sim live)', () => {
     }
   })
 
-  it('alpha decay : la sim se REFROIDIT et s\'arrête en ~180 ticks', () => {
+  it('alpha decay : la sim se REFROIDIT et s\'arrête en ~240 ticks (#321)', () => {
     const sim = createKbSim(inputFromSample())
     const t = ticksToSettle(sim)
-    expect(t).toBeGreaterThan(120)
-    expect(t).toBeLessThan(260)
+    expect(t).toBeGreaterThan(200)
+    expect(t).toBeLessThan(320)
     // Stabilisée : un tick supplémentaire ne déplace (quasiment) plus rien.
     const before = new Map([...sim.placed].map(([id, p]) => [id, { x: p.x, y: p.y }]))
     sim.tick()
@@ -232,14 +244,14 @@ describe('createKbSim (#316 — sim live)', () => {
     expect(sim.alpha).toBeGreaterThanOrEqual(KB_SIM.MORPH_ALPHA)
   })
 
-  it('rayons ∝ degré (parité DA kbLayout) : hub plus gros que feuille, bornés [5, 22]', () => {
+  it('rayons ∝ degré (parité DA kbLayout) : hub plus gros que feuille, bornés [7, 40] (#321)', () => {
     const sim = createKbSim(star())
     const hub = sim.placed.get('hub')!
     const leaf = sim.placed.get('e')!
     expect(hub.r).toBeGreaterThan(leaf.r)
     for (const p of sim.placed.values()) {
-      expect(p.r).toBeGreaterThanOrEqual(5)
-      expect(p.r).toBeLessThanOrEqual(22)
+      expect(p.r).toBeGreaterThanOrEqual(7)
+      expect(p.r).toBeLessThanOrEqual(40)
     }
   })
 
@@ -253,6 +265,17 @@ describe('createKbSim (#316 — sim live)', () => {
 })
 
 describe('params injectés (#318 — defaults + overrides)', () => {
+  it('#321 — les défauts tunés et validés par Rémi via le panneau Display', () => {
+    expect(KB_SIM.LINK_DIST).toBe(160)
+    expect(KB_SIM.CHARGE_BASE).toBe(-200)
+    expect(KB_SIM.CENTER_K).toBe(0.04)
+    expect(KB_SIM.VELOCITY_KEEP).toBe(0.5) // Friction UI = 1 − 0.5 = 0.50
+    expect(KB_SIM.ALPHA_DECAY).toBe(1 - Math.pow(0.001, 1 / 240)) // settle = 240 ticks
+    expect(KB_SIM.THETA).toBe(0.5) // θ² dérivé = 0.25
+    expect(KB_SIM.R_MIN).toBe(7)
+    expect(KB_SIM.R_MAX).toBe(40)
+  })
+
   it('resolveKbSimParams : sans override = copie des défauts', () => {
     const p = resolveKbSimParams()
     expect(p).toEqual({ ...KB_SIM })
@@ -291,7 +314,7 @@ describe('params injectés (#318 — defaults + overrides)', () => {
 
   it('createKbSim(input, params) : l\'override CHANGE la physique (LINK_DIST)', () => {
     const a = createKbSim(star())
-    const b = createKbSim(star(), { LINK_DIST: 150 })
+    const b = createKbSim(star(), { LINK_DIST: 55 })
     a.tick(150)
     b.tick(150)
     const hubToA = (s: ReturnType<typeof createKbSim>) => {
@@ -299,8 +322,8 @@ describe('params injectés (#318 — defaults + overrides)', () => {
       const q = s.placed.get('a')!
       return Math.hypot(h.x - q.x, h.y - q.y)
     }
-    // Ressorts plus longs ⇒ voisins plus loin du hub à l'équilibre.
-    expect(hubToA(b)).toBeGreaterThan(hubToA(a))
+    // Ressorts plus courts (55 < défaut 160) ⇒ voisins plus près du hub.
+    expect(hubToA(b)).toBeLessThan(hubToA(a))
   })
 
   it('setParams à chaud : re-dérive rayons/charges, positions et vélocités INTACTES', () => {
@@ -308,7 +331,7 @@ describe('params injectés (#318 — defaults + overrides)', () => {
     sim.tick(60)
     const before = new Map([...sim.placed].map(([id, p]) => [id, { x: p.x, y: p.y }]))
     const hubR = sim.placed.get('hub')!.r
-    sim.setParams({ R_MAX: 40 })
+    sim.setParams({ R_MAX: 48 })
     // Rayon re-dérivé sur les objets placed (mêmes identités — mémos React stables).
     expect(sim.placed.get('hub')!.r).toBeGreaterThan(hubR)
     for (const [id, p] of sim.placed) {
@@ -325,7 +348,7 @@ describe('params injectés (#318 — defaults + overrides)', () => {
   })
 
   it('setParams() sans argument : retour aux défauts', () => {
-    const sim = createKbSim(star(), { R_MAX: 40 })
+    const sim = createKbSim(star(), { R_MAX: 48 })
     const withOverride = sim.placed.get('hub')!.r
     sim.setParams()
     expect(sim.placed.get('hub')!.r).toBeLessThan(withOverride)
@@ -377,10 +400,7 @@ describe('entrée progressive (#317 — reveal staggered)', () => {
     sim.tick(200)
     for (const p of sim.placed.values()) {
       expect(Number.isFinite(p.x)).toBe(true)
-      expect(p.x).toBeGreaterThanOrEqual(0)
-      expect(p.x).toBeLessThanOrEqual(sim.width)
-      expect(p.y).toBeGreaterThanOrEqual(0)
-      expect(p.y).toBeLessThanOrEqual(sim.height)
+      expect(Number.isFinite(p.y)).toBe(true)
     }
   })
 
