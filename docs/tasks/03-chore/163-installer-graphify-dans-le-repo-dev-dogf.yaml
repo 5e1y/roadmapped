@@ -1,0 +1,44 @@
+id: 328
+code: null
+title: >-
+  Installer Graphify dans le repo dev (dogfood réel) via roadmapped upgrade + enregistrer MCP natif
+  + refresh graphe
+status: done
+tags:
+  - kb
+  - graphify
+  - dogfood
+size: null
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-12T17:55:56"
+startedAt: "2026-07-12T17:55:57"
+updatedAt: "2026-07-12T18:02:54"
+completedAt: "2026-07-12T18:02:54"
+commit: de83c39
+outcome: >-
+  Graphify installé POUR DE VRAI dans le repo dev + chemin d'install #324 prouvé en réel (jusqu'ici
+  seulement mocké). `roadmapped upgrade` a exécuté ensureGraphify : bootstrap uv 0.11.28 (checksum
+  sha256 vérifié → ~/.roadmapped/bin/uv) → uv tool install graphifyy (graphify 0.9.13 →
+  ~/.local/share/uv/tools/graphifyy). Entrée MCP native graphify (python -m graphify.serve) + hook
+  graph-first (graphify claude install → PreToolUse dans .claude/settings.json) posés. Graphe
+  rafraîchi via `roadmapped kb refresh` = graphify update AST code-only, 0 TOKEN (prouve la voie
+  #325) → 1844 nœuds/3315 arêtes à HEAD, kb doctor « fresh ». Réponse à la question de Rémi : NON,
+  le dogfood #306 avait installé graphifyy dans un venv JETABLE du scratchpad (juste pour produire
+  le graph.json committé) — l'outil n'était pas installé de façon persistante ; maintenant si.
+  COMMITTÉ : seulement graphify-out/.gitignore (ignore les transients
+  graph.html/manifest/.graphify_root/.graphify_labels, de83c39). NON COMMITTÉ (machine-spécifique,
+  laissé local pour le reload de Rémi, jamais poussé) : .mcp.json + .claude/settings.json +
+  roadmapped.config.json (chemins absolus /Users/rcourtillon) + le graphe rafraîchi (indexe le
+  chemin fuité de .mcp.json → non portable). Bug self-host loggé #329.
+verification: >-
+  graphify 0.9.13 opérationnel (python -m graphify --version). .mcp.json a 2 entrées (roadmapped +
+  graphify natif). config kb.status=installed. kb refresh → 1844 nœuds, kb doctor « fresh — built at
+  current HEAD ». Doublon guard pre-commit reverté (git checkout). graphify-out/.gitignore committé
+  ; graph.json rafraîchi NON committé (1 chemin /Users/ fuité via l'indexation de .mcp.json —
+  vérifié, d'où le non-commit).
+release: null
