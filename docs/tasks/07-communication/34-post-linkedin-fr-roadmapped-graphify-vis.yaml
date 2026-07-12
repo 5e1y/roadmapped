@@ -36,16 +36,25 @@ epic: null
 source: user
 createdAt: "2026-07-13T00:45:01"
 startedAt: "2026-07-13T00:47:28"
-updatedAt: "2026-07-13T00:48:56"
-completedAt: "2026-07-13T00:48:56"
-commit: 2caef96
+updatedAt: "2026-07-13T00:54:22"
+completedAt: "2026-07-13T00:54:22"
+commit: 3d9d707
 outcome: >-
-  Post LinkedIn FR rédigé et ajouté à la banque docs/linkedin-posts.md (post 8) : axe « visualiser
-  vos tâches → visualiser votre codebase », 3 bénéfices concrets (liage tickets⇄code dérivé des
-  refs, brief avec voisinage KB, requêtes graphe vs grep ~70% de tokens en moins), chute récursive
-  sur la tâche #331 elle-même. Notes de publication incluses (visuel, lien, chiffres à re-vérifier).
+  Post 8 réécrit (v2) après feedback : 40 % plus court, zéro tiret cadratin, vulgarisé (« carte du
+  repo » au lieu de knowledge graph/nœuds), Graphify présenté et mis en avant (82 000 étoiles),
+  redites supprimées (les points 2 et 3 fusionnés en un seul bénéfice agent), chute sèche « c'est
+  une très bonne carte ».
 verification: >-
-  Relu contre docs/tone-of-voice.md : vouvoiement, chiffres précis (1 843 nœuds du sitrep, ~70% du
-  skill), aveu préventif (couche optionnelle Python), zéro superlatif interdit, chute sèche en fin.
-  Cohérent avec le format des posts 1–7 du fichier.
+  Relecture croisée feedback v1 point par point : tirets supprimés, jargon supprimé (aucune
+  occurrence de graphe/nœud/knowledge base dans le corps), Graphify nommé et expliqué dès le 2e
+  paragraphe, 5 paragraphes courts au lieu de 8 blocs, aucune répétition. Tone of voice respecté
+  (chiffres précis, chute finale, pas de superlatif).
 release: null
+feedback:
+  - date: "2026-07-13T00:53:44"
+    author: user
+    text: >-
+      Post v1 pas ok : formulation « trop IA » (tirets), pas assez vulgarisé (les lecteurs ne
+      connaissent pas les knowledge bases), Graphify pas assez mis en avant, trop long, redites («
+      qui dépend de quoi », points 2 et 3 identiques). À réécrire.
+    resolved: true
