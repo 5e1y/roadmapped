@@ -1110,7 +1110,7 @@ Roadmapped carries a **knowledge base**: a live graph of the repo — code files
 docs, and the tickets connected to them — rendered in the Docs view behind the
 **Documents / Knowledge base** toggle. Roadmapped does not build this graph
 itself: it **reads** `graphify-out/graph.json` and renders it. The graph is
-produced by [**Graphify**](https://graphify.net/), a separate open-source
+produced by [**Graphify**](https://graphify.com/), a separate open-source
 project (MIT, [Graphify-Labs/graphify](https://github.com/Graphify-Labs/graphify)).
 
 ### Generating (and refreshing) the graph

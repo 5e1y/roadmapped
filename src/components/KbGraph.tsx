@@ -623,7 +623,7 @@ function GraphifyMark() {
 function PoweredByGraphify() {
   return (
     <a
-      href="https://graphify.net/"
+      href="https://graphify.com/"
       target="_blank"
       rel="noopener noreferrer"
       className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1.5 rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-[11px] text-neutral-500 shadow-sm transition-colors hover:border-neutral-400 hover:text-neutral-700"
