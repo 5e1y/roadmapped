@@ -1,0 +1,22 @@
+id: 333
+code: null
+title: "marketplace.json : description périmée « github-only, no npm » (npm ré-autorisé)"
+status: done
+tags: []
+size: null
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-13T18:03:30"
+startedAt: "2026-07-13T18:03:30"
+updatedAt: "2026-07-13T18:03:56"
+completedAt: "2026-07-13T18:03:56"
+commit: f51982b
+outcome: >-
+  Description du plugin dans marketplace.json corrigée : « github-only, no npm » remplacé par « npm
+  or straight from GitHub », aligné sur la distribution actuelle (npm ré-autorisé 2026-07-11).
+verification: git diff relu ; JSON valide (node -e require).
+release: null
