@@ -5,14 +5,16 @@ status: done
 tags: []
 size: null
 detail: null
-refs: []
+refs:
+  - src/components/KbGraph.tsx#GraphifyMark
+  - src/components/KbView.tsx#EmptyState
 links: []
 dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-14T01:53:52"
 startedAt: "2026-07-14T01:53:52"
-updatedAt: "2026-07-14T01:57:30"
+updatedAt: "2026-07-14T01:57:40"
 completedAt: "2026-07-14T01:57:30"
 commit: 878da9d
 outcome: >-
