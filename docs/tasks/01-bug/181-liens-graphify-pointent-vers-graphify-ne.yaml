@@ -3,7 +3,7 @@ code: null
 title: >-
   Liens Graphify → graphify.net (miroir non officiel) au lieu de graphify.com : app UI (KbGraph.tsx
   empty state, shipé en 0.2.1), README ×2, guide.md, homepage
-status: in_progress
+status: done
 tags:
   - graphify
 size: null
@@ -18,9 +18,17 @@ epic: null
 source: ai
 createdAt: "2026-07-14T01:32:16"
 startedAt: "2026-07-14T01:44:34"
-updatedAt: "2026-07-14T01:44:34"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+updatedAt: "2026-07-14T01:46:44"
+completedAt: "2026-07-14T01:46:44"
+commit: 7c72e7a
+outcome: >-
+  Les 5 liens graphify.net remplacés par le site officiel graphify.com : app (KbGraph.tsx empty
+  state), README ×2, guide.md, homepage. Logo officiel Graphify ajouté sur la section KB du site en
+  mark inline (PNG masque + currentColor, suit le thème clair/sombre). Release 0.2.2 publiée — les
+  installs existantes se mettront à jour seules via l'auto-update, rien à faire côté users. KB
+  resyncée au passage.
+verification: >-
+  grep graphify.net → 0 occurrence dans les deux repos ; CI publish success ; npm dist-tag
+  latest=0.2.2 ; GitHub Release v0.2.2 créée par le CI ; site poussé (d4f2672, Cloudflare
+  redéploie).
 release: null
