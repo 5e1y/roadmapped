@@ -2496,7 +2496,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_chip",
-      "community": 5,
+      "community": 21,
       "norm_label": "chip.tsx"
     },
     {
@@ -2506,7 +2506,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_components_chip_chip",
-      "community": 5,
+      "community": 21,
       "norm_label": "chip()"
     },
     {
@@ -2933,7 +2933,7 @@
       "label": "GraphifyMark()",
       "file_type": "code",
       "source_file": "src/components/KbGraph.tsx",
-      "source_location": "L597",
+      "source_location": "L600",
       "_origin": "ast",
       "id": "src_components_kbgraph_graphifymark",
       "community": 52,
@@ -2943,7 +2943,7 @@
       "label": "PoweredByGraphify()",
       "file_type": "code",
       "source_file": "src/components/KbGraph.tsx",
-      "source_location": "L623",
+      "source_location": "L621",
       "_origin": "ast",
       "id": "src_components_kbgraph_poweredbygraphify",
       "community": 52,
@@ -3796,7 +3796,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_taskrow_test",
-      "community": 5,
+      "community": 21,
       "norm_label": "taskrow.test.tsx"
     },
     {
@@ -3806,7 +3806,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_components_taskrow_test_task",
-      "community": 5,
+      "community": 21,
       "norm_label": "task"
     },
     {
@@ -3826,7 +3826,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_taskrow",
-      "community": 5,
+      "community": 21,
       "norm_label": "taskrow.tsx"
     },
     {
@@ -3846,7 +3846,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "src_components_taskrow_taskrow",
-      "community": 5,
+      "community": 21,
       "norm_label": "taskrow()"
     },
     {
@@ -4186,7 +4186,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "src_components_glyphs_kindglyph",
-      "community": 6,
+      "community": 9,
       "norm_label": "kindglyph()"
     },
     {
@@ -7256,7 +7256,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "src_lib_roadmap_reversedependents",
-      "community": 13,
+      "community": 21,
       "norm_label": "reversedependents()"
     },
     {
@@ -8126,7 +8126,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "src_lib_tasks_default_base_heat",
-      "community": 19,
+      "community": 14,
       "norm_label": "default_base_heat"
     },
     {
@@ -9726,7 +9726,7 @@
       "source_location": "L121",
       "_origin": "ast",
       "id": "src_state_treecontext_useoptionaltree",
-      "community": 5,
+      "community": 21,
       "norm_label": "useoptionaltree()"
     },
     {
@@ -10276,7 +10276,7 @@
       "source_location": "L87",
       "_origin": "ast",
       "id": "src_state_uipersist_usepersistentflag",
-      "community": 5,
+      "community": 21,
       "norm_label": "usepersistentflag()"
     },
     {
@@ -27506,7 +27506,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/components/KbGraph.tsx",
-      "source_location": "L597",
+      "source_location": "L600",
       "weight": 1.0,
       "source": "src_components_kbgraph",
       "target": "src_components_kbgraph_graphifymark",
@@ -27546,7 +27546,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/components/KbGraph.tsx",
-      "source_location": "L623",
+      "source_location": "L621",
       "weight": 1.0,
       "source": "src_components_kbgraph",
       "target": "src_components_kbgraph_poweredbygraphify",
@@ -28132,6 +28132,17 @@
       "weight": 1.0,
       "source": "src_components_kbgraph_usekbstaticlayout",
       "target": "src_lib_kblayoutcache_layoutinput"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/KbView.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "src_components_kbview",
+      "target": "src_components_kbgraph_graphifymark",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -54207,5 +54218,5 @@
       "source_file": "docs/specs/2026-07-10-dark-mode.md"
     }
   ],
-  "built_at_commit": "98d925340ede88e8c7ea542786a183735cedf7c9"
+  "built_at_commit": "d2938a36324c4a2fa22366a1ae30d8e02d957009"
 }
