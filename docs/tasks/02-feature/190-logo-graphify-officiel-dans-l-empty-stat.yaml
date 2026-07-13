@@ -1,7 +1,7 @@
 id: 335
 code: null
 title: Logo Graphify officiel dans l'empty state de la vue Knowledge base
-status: in_progress
+status: done
 tags: []
 size: null
 detail: null
@@ -12,9 +12,16 @@ epic: null
 source: ai
 createdAt: "2026-07-14T01:53:52"
 startedAt: "2026-07-14T01:53:52"
-updatedAt: "2026-07-14T01:53:52"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+updatedAt: "2026-07-14T01:57:30"
+completedAt: "2026-07-14T01:57:30"
+commit: 878da9d
+outcome: >-
+  GraphifyMark remplacé : l'hexagone SVG dessiné à la main (#308) cède la place au logo officiel
+  fourni par Rémi (PNG blanc 64px inline en masque CSS, teinté GRAPHIFY_BLUE, prop size). Visible
+  dans la carte « powered by graphify » ET ajouté en 28px dans l'empty state de la vue Knowledge
+  base. Pas de bump : embarquera dans la prochaine release ; les installs auto-update (HEAD) l'ont
+  dès ce push.
+verification: >-
+  tsc --noEmit propre ; build OK ; 599/599 tests verts ; même technique de masque déjà vérifiée en
+  prod sur le site.
 release: null
