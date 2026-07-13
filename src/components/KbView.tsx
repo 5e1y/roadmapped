@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { EyeOpen, EyeClosed } from 'trinil-react'
 import { useKb } from '../state/KbContext'
-import { KbGraph } from './KbGraph'
+import { KbGraph, GraphifyMark } from './KbGraph'
 import { KbDisplayMenu } from './KbDisplayMenu'
 import { FilterMenu } from './ViewHeader'
 import { ErrorBanner } from './ui'
@@ -127,6 +127,9 @@ export function KbView() {
 function EmptyState() {
   return (
     <div className="mx-auto flex h-full max-w-xl flex-col justify-center px-6 py-8">
+      <div className="mb-3">
+        <GraphifyMark size={28} />
+      </div>
       <h1 className="text-lg font-semibold tracking-tight text-neutral-900">Knowledge base — pas encore générée</h1>
       <p className="mt-2 text-sm text-neutral-600">
         Le graphe se construit avec Graphify (open source, MIT), depuis Claude Code :

@@ -591,27 +591,25 @@ const NodesLayer = memo(function NodesLayer({
 const GRAPHIFY_BLUE = '#2563eb'
 
 /**
- * Logo Graphify recréé en SVG inline : hexagone filaire façon cube isométrique
- * — un nœud à chaque sommet, un nœud central, arêtes du contour + rayons.
+ * Logo Graphify officiel (#335) — le PNG blanc fourni par le projet, inline en
+ * masque CSS teinté via backgroundColor (ratio 1154×1363 ≈ 0.85). Remplace
+ * l'ancienne approximation hexagonale dessinée à la main (#308).
  */
-function GraphifyMark() {
-  // Hexagone pointe en haut, centre (12,12), rayon 8.6.
-  const V: Array<[number, number]> = [
-    [12, 3.4], [19.45, 7.7], [19.45, 16.3], [12, 20.6], [4.55, 16.3], [4.55, 7.7],
-  ]
-  const hex = V.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x} ${y}`).join('') + 'Z'
-  const spokes = V.map(([x, y]) => `M${x} ${y}L12 12`).join('')
+const GRAPHIFY_LOGO_MASK = `url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADYAAABACAYAAABRPoQBAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAARGVYSWZNTQAqAAAACAABh2kABAAAAAEAAAAaAAAAAAADoAEAAwAAAAEAAQAAoAIABAAAAAEAAAA2oAMABAAAAAEAAABAAAAAAIXRO8sAAAHNaVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8eDp4bXBtZXRhIHhtbG5zOng9ImFkb2JlOm5zOm1ldGEvIiB4OnhtcHRrPSJYTVAgQ29yZSA2LjAuMCI+CiAgIDxyZGY6UkRGIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyI+CiAgICAgIDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiCiAgICAgICAgICAgIHhtbG5zOmV4aWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20vZXhpZi8xLjAvIj4KICAgICAgICAgPGV4aWY6Q29sb3JTcGFjZT4xPC9leGlmOkNvbG9yU3BhY2U+CiAgICAgICAgIDxleGlmOlBpeGVsWERpbWVuc2lvbj4xMTU0PC9leGlmOlBpeGVsWERpbWVuc2lvbj4KICAgICAgICAgPGV4aWY6UGl4ZWxZRGltZW5zaW9uPjEzNjM8L2V4aWY6UGl4ZWxZRGltZW5zaW9uPgogICAgICA8L3JkZjpEZXNjcmlwdGlvbj4KICAgPC9yZGY6UkRGPgo8L3g6eG1wbWV0YT4KMZ9kugAADfVJREFUaAXtmglwVdUZx/OykxANIUZiUSm1Y8EFVAYQUVahOKNWW601SosgduiwCQhSxIgLoGhHqhWwIEpdwKrVqq0a1DGyCGErgjIUUMKOkIQA2ZP+/pd7bu67uY/3XlgmzPTOfPnO+fbvO+eec+55iYn5/9P4CuTm5sbu2rUrRVBXVxdovKUmpLl58+ak6urqgVVVVStramoKKisrB5FcchMKsXGhkFD32traPJKxHtr50Po2zlrkWrGRi0YveeDAgbNiY2O7BwKBy4w27Utp9yDLDEM7YzBBB4qKii5kCs5jhP5Lvwiopl0D3sOU3AC8XF5efhH9U1Lck26UQDNJYFhaWto8Rqe4rKzsdt6rbiQyG/qCo0eP3sBUvIVR2hIXF/cStCHonKsFpkmOHMElk8R1JLCQYFdVVFTcAS1BwZJMa5J5Et64bdu2WQsHvFho/ZD9GPiK0c0pLi5uAb1prJoKhIQuJOipwEbgsSNHjpznrj4J9ETuaeAmN11taGnoDAfWK0ElCy3JK3da+wTQgkoPAfIJ6u8E1csbADKx8AcC8+D39vJNn1E9H9mpyK1AboJG2fBOG160aFEcQVxMMm8SxGqqfR/9FL8AoCfCfwC56Yxktp+Mm8b72FlFAvKZzreif+r3PJzE2tNuJoF+Q8C5VPZH7sC8beQvQO7PwGPon+3l+/W1TSA7hORWkeiL+LqavvW++smfEA3DzajgXQS4nunyFg6viMQgQfVCZzY6OdiIauXTdER3Kgl+jZ2phw4dahmJz4hkVCmMdiOw93GyGjwk0qUZ3QDyv0TvRfANETn0EcJOe2J4mwQ/w84AHdN8xCIjYSyeUbkKQ3MxuITRegRaVC90QUFBAkmNRe8pLQ6RefaXwkYy8Ywkns+J5x36XWXfX9pFPXz4cCuU5qH0IfhOAhoG3gJ+oTFB2YEMB68HnsH+uS53jW5qryOm0cS2DDwJfDsxvweejx/Hh7UZQshAaD4ngRttj3XgTQz/EyT1vmjw4m1eWMT5MJ6na2Ji4nMIa08rxPlM6K+XlpZWhDUQWqAOO7X79++vad26dYeEhITRdsxWbOTwFgW8Nz09vShAUgGmWdukpKTV2DvL2IReCuzjWJQkGR4lqw3ViMQYmk13TgzIxOIwFbqzCkI7CpSgU+UYCNFw+zAibl+iIVMJSqNYGiUzQAeR6wjsiJcCo1JBIfYiZBKrRHEWIzYHvuZxHPM7hhGwsnK34ZnHSQydRKA3MB2IQ6Ac+68Cc6nyISlgw5E3Box9dCy+6Ru+/BJXLVBB4TKAofDuAax3Db2djKYKd6z6CMaRRA+GUifxMnAx+HvwSLAqH9WDTgb2xpBIMXAQO/OZFe2jMhJCmKmchb1x2M3jvcoDvwVsB/6Dz2vxrULWPxs2bEhE8F5Ae1RHBL/DwF76S4DBOm3US4duaaXCeH90vkR/DDCN/oDQGuE56CcSdF9sPk9ca2m/SftX0NOlDT573bp1/gMAM4GEBhHIazJEhSfKCLQR4M+gv4rBa8KFge5PcToX+UeR7wl+Alr/cHp+fPRaoT8U/+/T3oC9P/ENdzHtsEUOOgnwjqnPVA1UMr//SruQedyK/s20v6L9PI6e4ZjUhn6DB4dZBJGDmTYUZg4Ceo+CfDRQ8hA0cyhmZ2xpdD4F3wpegFh/VtoxycnJm4inxqMWuouBBCo9GHhDUuqTQB+MblHl6cezyHQBf0B/DQkOo51oLNLWwbg3+p8D1ikDuV7AdOhhR0zvDgkNxK6+577Gxnw7wfCbsAnCD+Ncid2DYSsxyUDTt9Ik6EtLSkqsOwpoyfRvAfIBOe9ky15K/x/ITzH2lRj9qWDfxLDVjGLp63oauvrY/BLaCB2cI32njS8vDtp0qVTMsdl4TIwhL8XJK+xxvZo3b/4Q1NHQysE60uQT0GSmh5LLI6hi2tXwtCmbB5O1mja1hiDMYTYzJSWlL/rDsK33aCV2x6O/CvbhZs2a1W+WbsXGtAnUGjECdEZMdkRX5QnwG6rb2W0bXiLQA95nQAnt2Uypc2y9FPQmQV+nArC/ZFOAjtC0KOkwu5yFYBTQFr2wi4HbbyRtZ5PEuA6sd1O5fiwSd7iV4aUTyCR4l8O7Eewci+DpgzMXWiY6ZUBLaIuxtY/N+HH6+rYqBe8C67Sg/WYhI7UMnR/on9oHp1ruBxNQ0IjJK7wA00fL7Apk7jaR2JvlHwlUy/EFQBqg9+8DsDZ55yH599DVanfSR8fE44txaFbFhX4ChYWFzQj4bgLcYt8HxtO/jf4yEuvj1sFWGrzfwtuvzMA7KNgfaDqrqFv+lLZxetzE5ByZlgT4Ingl8BLBr6A/jnaDvUofg/D0eaE7+3H63A+VgG61kBkPPMWodsBe0KIWSk903vvzVWCKPcBXD6KVGMZ9R0xG9GsJRu5F1jzbCOR34vk9CF3LaE4Brvfji4ZMKj6fY1StqQtW0frs3r37HLDuGQUZbtDWI+AQ0A75NfB0w6xngmaW7PpVJuRSm52drRunjlK0n0wWk2605xuCG1OEOJZwTdkGI2rk4F2OyHX0rU8cFhTti69nZWWVwKvDvrXAEbSF4cdwy6wYBRn0tb8ameEtW7b8G/0dQYmRvT4oofs/Bw8erOUj7oDh4kyfIBtM3wfrzsNZeX34MfjUd18ZASpQSxbaYQr4KNMsnyOUiuJXGCV9G0WZDD/ZZdsamKDE3JuzS9Db1PfQYYg/gCvQ2eMViKbPsv8178cUzqaj0MvC5gISyyDgoYxMNlNuVkZGRomfTQ4PbyA3Gl4yeqUUcQqb+/4gWRi+G7QRgq+PzStxukqrIP10qjqe/nI+x93T06jo/emJbMgjlSNIA9lE+5PHTKvLCPQd7OuodTP8BjdT2J4O/5/Ap8Qy2S0TNMQIuH1525lUR99WK9h4FzN1ihktHVjXpqamToTewqvg6lvTw9Vv0MReZadOnarsKalPjPWbNm36NUnNQlhbha7Qe4KtQ7GKjP9+0HSS2U57J3JOAkGJyZsxrLZ5MJaG8u/BrTD4pKGDv4cux7qfH+aiW01oFqYgXlZE/UsuuUSfTy/pXWJElmLnaWw+oRlCIg8Tz0z43xKzHGiknfc5KDGEkQ0uLn2thD1Q1gff/czhbSYqFYHR0+IxB+f9WX5vNzyDZdMkaGjRYvyU4GcqRdWRjwmSuhi75+PzE/pVxBggRicp2Q9KzM8hL2gWdF16voLxPK+MDLNaLge/iqNRJPcztwzFCHLo5kXbZqHZyKjpvvMv6GqRsG688K0VMmhEghLzBkEyaSSTg4GDGvpQgbB3aNn/F/oFOH4YPed904iF0mssnfdqNj7OJcErwNb+dNwRcweBglbJrlRiKO0ZVEUn85AP/O3I6X0LkOAICZKkkjrpifEttwO7efjU1LfOn8RJs/7xjpjFIcAA57d2KOqnn4WM2tJ6ldAtXuTNFOdldHRLNQiQcJ2dYGjFRnAYodfwcwFx6gyqj9m6jRs3OpaCErOporHhJ48lse+2bt36iCMdpoG85vwXjNgLJHgHWJc7MSR40t4zEwLFXouPAxTzFyQYT6J17du3D54dMKzfkQniS2A/q88M8GrtFcZQNJgFpw02Z2FDnyuCaSzRraKxEYms9jV86ANWF7P5+hcM5eLo0smkqv8Gm6eMpEY6AlE2MKILnzvBOn7pOUByE8ApUZo6rjiJ9cPuIcsDf0jubZKzLlGtHyXQ/jGwFkizLWkH13W3dvN4FHTJ4wwzfVUlIJp4PHV229Di6Os+8iIx9WBrL7LbaJbD0wJTX1nYtozvAUHq4ptHvmjrBW6Lj7Zg65XCRxHnzg4sLoXWjxIQdJpex8rS3VZWwroD+Yj+V7z8cYyAc3ygr/cmBr618pm2dHEkXjx7TntsjKefCd4DvAFd+2CVd8+RnnmQM80gLF/Sw0Yt/qvtouVA06BYD8VawwHiiOmrmvoXIb0X76K4jGk4gmGegLG10HKBkF+/jhFPA50kNuu7sKdrOl2a6rLnhB/s6IpC1w5f0J7OCOkKfgnwHu/2hdDcM6Hen2GAdbnThaBeQWkx+H5d3tRLhm9hQ2c0FUnbhvNrY3jNhhLon0UM95HUx7TfJKG+4MbfoaCsq+7rMKofJXQfeFdDt/4UdPWheRswWy+6v1R4qgpMcT8CPsbOz0/ox3WvO4JMIsBbSFD/sKKL0XZeGb8+gagoM9DVDxtRPYzKReg/S0LrwQ8c70IoKsNeYY2AfaM0xXb2EDTr5tcra/pUu6M92lP27dvX3NCPh3WbjM5YQD9OzNLBGj/BZ6bjGWgsT06Ai6niIhwvBXL084+fPeR0DacfAB+kHXYRwpam7jIK9y6vgL7Ufe36+TppNJy2YEQGa+4TzBz6nb3Goenufyz8uch28PJNH7mr7Gmnz/wR9E/KKmrsR40JQHveeQSlHyB0gfoglXb2FhmEpxPCDOSu9zpgmrWDN5HEdbGq5fsnyPmdYb2qp6dPMPolsguwgCC/APS/U9YFDPhq+jOB35hooOkfN/WPYAUkNAe9K0NNZ6MTDfbfzKKx4JEl4DSCvIlTt/658ltGay5HoCJOCDp7VoOfJcEsTg5DoLeFr3uLD+nrSq/pP9rMCfpxklvDqOwk4SNAObCH/hp407T6Nf1MfCLUPSGjM5hktgDWQ1KFNHTj5Zw9fVSbPomRuYZkPjmWlvVpsYR2g0Wk6WfiiZAk9G02kORWAmt4/4ZAs34R8YieeV0S0ZaQopMHuOks5WdeKWNi/gdpOAutzbKrLgAAAABJRU5ErkJggg==) center / contain no-repeat`
+
+export function GraphifyMark({ size = 13 }: { size?: number }) {
   return (
-    <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true">
-      <g stroke={GRAPHIFY_BLUE} strokeWidth="1.5" fill="none" strokeLinejoin="round">
-        <path d={hex} />
-        <path d={spokes} strokeWidth="1.2" />
-      </g>
-      <g fill={GRAPHIFY_BLUE}>
-        {V.map(([x, y]) => <circle key={`${x}-${y}`} cx={x} cy={y} r={1.8} />)}
-        <circle cx={12} cy={12} r={2} />
-      </g>
-    </svg>
+    <span
+      aria-hidden="true"
+      style={{
+        display: 'inline-block',
+        width: Math.round(size * 0.85),
+        height: size,
+        backgroundColor: GRAPHIFY_BLUE,
+        WebkitMask: GRAPHIFY_LOGO_MASK,
+        mask: GRAPHIFY_LOGO_MASK,
+      }}
+    />
   )
 }
 
