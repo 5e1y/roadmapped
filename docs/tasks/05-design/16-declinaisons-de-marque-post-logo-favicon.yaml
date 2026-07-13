@@ -18,7 +18,8 @@ dependsOn:
 epic: brand-identity
 source: ai
 createdAt: "2026-07-09T13:55:03"
-updatedAt: "2026-07-11T12:53:14"
+startedAt: "2026-07-13T17:46:36"
+updatedAt: "2026-07-13T17:51:07"
 completedAt: null
 commit: null
 outcome: null
@@ -38,4 +39,13 @@ feedback:
       déclinaisons sociales) dans le repo roadmapped-site quand on y travaille, PAS ici. Si Rémi
       veut malgré tout un apple-touch-icon.png + web manifest côté app, c'est faisable en 20 min à
       partir de birdFrames.ts — mais candidat à couper (YAGNI).
+    resolved: false
+  - date: "2026-07-13T17:50:59"
+    author: claude
+    text: >-
+      Favicon officiel LIVRÉ (asset PNG fourni par Rémi, 2026-07-13) : data-URI PNG 128px inline sur
+      l'app (index.html + dist, commit fa5325d) et sur le site (home + démo,
+      roadmapped-site@5ffa720, déployé via push). Reste au scope : og image réelle (côté repo site,
+      cf. feedback précédent) ; app icons/manifest toujours jugés YAGNI. Les dashboards des AUTRES
+      repos verront le favicon au prochain bump de version npm.
     resolved: false
