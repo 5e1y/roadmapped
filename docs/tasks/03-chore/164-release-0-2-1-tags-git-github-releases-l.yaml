@@ -1,0 +1,28 @@
+id: 332
+code: null
+title: Release 0.2.1 + tags git & GitHub Releases liés aux versions npm (CI + backfill v0.1.0/v0.2.0)
+status: done
+tags: []
+size: null
+detail: null
+refs:
+  - .github/workflows/npm-publish.yml
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-13T17:57:00"
+startedAt: "2026-07-13T17:57:00"
+updatedAt: "2026-07-13T17:58:30"
+completedAt: "2026-07-13T17:58:22"
+commit: 05ccb57
+outcome: >-
+  Release 0.2.1 publiée (favicon officiel, arrêt auto dashboard #330, fix KB paths #329) et chaîne
+  de release complétée : le workflow npm-publish tague désormais v<version> et crée la GitHub
+  Release (--generate-notes) après chaque publish ; tags v0.1.0/v0.2.0 backfillés sur leurs commits
+  de bump avec Releases GitHub rétroactives.
+verification: >-
+  Run CI 29264425700 conclusion=success ; npm view roadmapped version → 0.2.1 ; tag v0.2.1 présent
+  sur origin (posé par le CI, commit 05ccb57) ; gh release view v0.2.1 →
+  https://github.com/5e1y/roadmapped/releases/tag/v0.2.1 ; releases v0.1.0 et v0.2.0 visibles.
+release: 0.2.1
