@@ -1,6 +1,6 @@
 {
   "name": "roadmapped",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Project management as flat files in your repo — YAML tasks, a computed roadmap, driven by your AI agent through a CLI and a Claude skill. No database, no SaaS, no account.",
   "keywords": [
     "project-management",
