@@ -2,7 +2,8 @@ name: Publish to npm
 
 # github is the single source of truth. This mirrors it to npm automatically:
 # on every push to main that touches package.json, publish IF the version is new.
-# Bumping "version" in package.json is the only signal — no tags, no manual npm.
+# Bumping "version" in package.json is the only signal — tags and GitHub Releases
+# are OUTPUTS of this pipeline (v<version> on the pushed commit), never inputs.
 # Needs a repo secret NPM_TOKEN (an npm "Automation" token, which bypasses 2FA).
 
 on:
@@ -14,6 +15,8 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # push the v<version> tag + create the GitHub Release
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -28,6 +31,10 @@ jobs:
           else
             echo "Publishing roadmapped@$VERSION…"
             npm publish
+            git tag "v$VERSION"
+            git push origin "v$VERSION"
+            gh release create "v$VERSION" --title "v$VERSION" --generate-notes
           fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
