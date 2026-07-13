@@ -10,7 +10,7 @@
     {
       "name": "roadmapped",
       "source": "./",
-      "description": "File-driven project management for AI agents — every repo change becomes one tracked unit in flat YAML, driven by a CLI + MCP. Setup bootstraps the full stack from GitHub (github-only, no npm).",
+      "description": "File-driven project management for AI agents — every repo change becomes one tracked unit in flat YAML, driven by a CLI + MCP. Setup bootstraps the full stack (npm or straight from GitHub).",
       "category": "productivity"
     }
   ]
