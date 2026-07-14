@@ -1,101 +1,81 @@
-# Roadmapped
+<div align="center">
 
-<img src="./docs/assets/bird-peck.gif" alt="La mascotte Roadmapped picore" align="right" width="84" />
+<img src="./docs/assets/bird-peck.gif" alt="The Roadmapped bird, pecking" width="96" />
+
+<h1>Roadmapped</h1>
+
+**Your repo is already your project management tool. We just added the interface.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 ![Node](https://img.shields.io/badge/node-%E2%89%A522.18-blue.svg)
 
-**Your repo is already your project management tool. We just added the interface.**
+</div>
 
-Backlog, roadmap and docs live as plain YAML and markdown inside your repository — the only
-source of truth. No database, no SaaS, no account. Your AI agent reads and writes it in the
-right format through a CLI and a Claude skill; you review the diff.
+Backlog, roadmap, docs and a knowledge graph of your code — all flat YAML and markdown
+inside your repository, the only source of truth. No database, no SaaS, no account. Your
+AI agent reads and writes it through a CLI and a Claude skill; you review the diff.
 
-![Roadmapped dashboard — Backlog view](./docs/assets/dashboard.png)
+![Roadmapped dashboard — Backlog view, with the agent working the queue](./docs/assets/dashboard.png)
 
-## Install it by pointing your AI agent at this repo
+## Install: one prompt
 
-Give your AI coding agent (Claude Code and friends) this repo and one instruction:
+Paste this to your AI coding agent (Claude Code and friends):
 
-> **Install Roadmapped in my repo:** https://github.com/5e1y/roadmapped
+```text
+Install Roadmapped in my repo: https://github.com/5e1y/roadmapped
+```
 
-Three ways in. All three converge on the same wired state, and every install keeps itself
-current from GitHub HEAD in the background — no reinstalling.
+The agent does the rest. An installer that is a prompt is exactly the level of effort
+this project aims for.
 
-**Claude Code plugin** — the easiest inside Claude Code:
+Prefer typing it yourself? Three ways in — same wired state, and every install keeps
+itself current from GitHub HEAD afterwards, no reinstalling:
+
+**Claude Code plugin**
 
 ```
 /plugin marketplace add 5e1y/roadmapped
 /plugin install roadmapped@roadmapped
 ```
 
-**npm** — from your repo's root:
+**npm**
 
 ```bash
-npx roadmapped init   # scaffold + skill + .mcp.json + git guard + SessionStart hooks + devDependency
-npm install           # materialize node_modules/roadmapped → activates the hooks + MCP
+npx roadmapped init && npm install
 ```
 
-**Straight from GitHub** — same thing, no npm registry involved:
+**Straight from GitHub** — no registry involved:
 
 ```bash
-npx --yes github:5e1y/roadmapped init
-npm install
+npx --yes github:5e1y/roadmapped init && npm install
 ```
 
-GitHub stays the single source of truth; npm mirrors it automatically.
+`init` is idempotent and lays down everything once: the `docs/tasks/` skeleton, the Claude
+skill, a git pre-commit guard, an `.mcp.json` entry, a `CLAUDE.md` block, and `roadmapped`
+as a devDependency. Then **restart your Claude Code session** (it picks up the skill and the
+MCP server) and tell the agent **"let's set up Roadmapped"** — the setup phase converts your
+existing plans, TODOs and specs into the backlog, with your sign-off on the mapping.
+`npx roadmapped dashboard` opens the UI; `npx roadmapped --help` is the CLI your agent
+(or you) drives.
 
-`init` is idempotent. It lays down the `docs/tasks/` skeleton, the Claude skill in
-`.claude/skills/`, a git pre-commit guard, an `.mcp.json` entry, a `CLAUDE.md` block, and
-adds `roadmapped` as a devDependency.
-
-Then:
-
-1. **Restart your Claude Code session** so it picks up the freshly installed skill *and* the
-   MCP server.
-2. Tell the agent **"let's set up Roadmapped"**. The skill is now active — its setup phase
-   reads your existing plans, roadmaps, TODOs and specs and converts them into the backlog,
-   with your sign-off on the mapping. From there, `npx roadmapped <cmd>` drives everything.
-
-> **Requirements:** Node ≥ 22.18 in the host repo. Roadmapped installs itself as a dev
-> dependency, so the repo needs a `package.json` (the guard hook, `SessionStart` hook and
-> MCP entry all resolve through `node_modules/roadmapped/`).
->
-> **Non-Node repo (Python, Go, Rust…)?** Add a minimal `package.json` at the root
-> (`npm init -y` is enough — Roadmapped only uses it to install itself), or track the project
-> from a sibling Node repo. First-class non-Node support (an npx fallback or a standalone
-> launcher) is on the roadmap, not in v1.
+> **Requirements:** Node ≥ 22.18 and a `package.json` in the host repo — the hooks and the
+> MCP entry resolve through `node_modules/roadmapped/`. Non-Node repo (Python, Go, Rust…)?
+> `npm init -y` at the root is enough; Roadmapped only uses it to install itself.
+> First-class non-Node support is on the roadmap, not in v1.
 
 ## Why
 
-- **It's just files.** Task YAML you can diff, review, and blame — because it *is* one. No
-  hidden state, no second copy to drift out of sync.
-- **Agent-first.** A CLI (`npx roadmapped`) and a Claude skill so your agent creates specs,
-  tasks and dependencies in the correct schema — and records what it ships.
-- **Local and yours.** Your data stays on your machine, in your repo. Not out of principle —
-  we simply don't have a server to send it to. Deleting your account is `rm -rf`.
-- **Light.** The dashboard ships pre-built, so installing Roadmapped pulls ~30 MB into your
-  repo — not a full front-end build toolchain. Node ≥ 22.18 and a `package.json`; that's it.
-- **Free, and actually free.** MIT licensed. No pricing page, no seats, no "contact sales."
+- **It's just files.** Task YAML you can diff, review and blame — because it *is* one.
+  No hidden state, no second copy to drift out of sync.
+- **Agent-first.** Your agent creates specs, tasks and dependencies in the correct schema,
+  and records what it ships: outcome, verification, commit. Every write — dashboard or
+  CLI — goes through the same validator; on error the change rolls back.
+- **Local and yours.** Your data stays in your repo. Not out of principle — we simply
+  don't have a server to send it to. Deleting your account is `rm -rf`.
+- **Light.** The dashboard ships pre-built: ~30 MB in your repo, no front-end toolchain.
+- **Free, actually.** MIT. No pricing page, no seats, no "contact sales."
 
 > Yes, it's a folder of YAML files. No, it's not a database. That's kind of the point.
-
-## Quickstart
-
-In any repo you want to manage:
-
-```bash
-npx roadmapped init       # scaffold docs/tasks/, the skill, the git guard
-npx roadmapped dashboard  # open the dashboard in your browser
-npx roadmapped --help     # the CLI your agent (or you) drives
-```
-
-`init` also drops a Claude skill into `.claude/` and an `.mcp.json` entry, so your AI
-agent can create and record tasks in the right schema from the first prompt.
-
-> **Working on Roadmapped itself?** Clone the repo, then `npm install` and `npm run dev`
-> for the dashboard; the CLI is `node scripts/task.mjs`. Everything below the hood is the
-> same code the published package runs.
 
 ## What's in the folder
 
@@ -104,29 +84,24 @@ agent can create and record tasks in the right schema from the first prompt.
 | **Backlog** | Sections and tasks under `docs/tasks/`, full CRUD from the dashboard or the CLI. |
 | **Roadmap** | Your sections as columns plus a dependency graph, with `done` / `available` / `locked` states **computed from the graph, never stored**. |
 | **Docs** | Your `docs/` folder rendered as markdown. |
-| **Knowledge base** | A live graph of your repo (code + docs) with the tickets wired in via their `refs` — nothing to fill in. Rendered in the Docs tab, queried by your agent. Installed by default at `init` (`--no-kb` to opt out) — see [Knowledge base, powered by Graphify](#knowledge-base-powered-by-graphify). |
-| **Agent CLI + Claude skill** | `scripts/task.mjs` and `skills/roadmapped/` so an agent creates and records work in the correct schema. |
-| **Validation + rollback** | Every write — dashboard or CLI — goes through the same validator; on error the change rolls back. Ids are never reused. |
+| **Knowledge base** | A live graph of your repo — code, docs, and the tickets wired in via their `refs`, nothing to fill in. Installed by default at `init` (`--no-kb` to opt out). |
+| **Agent CLI + Claude skill** | `npx roadmapped <cmd>` and `skills/roadmapped/`, so an agent drives the whole cycle — and is held to it by the git guard. |
 
 ## Knowledge base, powered by Graphify
 
-Your repo gets a knowledge graph: code and docs indexed as nodes and relations, tickets
-wired in through their `refs`, committed at `graphify-out/graph.json` — a file, like
-everything else here. It's built by [Graphify](https://graphify.com/), a separate
-open-source project (full credit below, in the License section).
+Your repo gets a knowledge graph: code and docs as nodes and relations, tickets wired in
+through their `refs`, committed at `graphify-out/graph.json` — a file, like everything
+else here. The pretty graph in the Docs tab is not the point. The point is that your agent
+navigates the repo through it instead of grepping cold: task briefs embed the neighborhood
+of the files they touch, and the MCP tools (`kb_neighborhood`, `kb_search`, `kb_node`)
+answer "where does X live, what touches it" in a few hundred tokens instead of a
+read-everything expedition. Up to ~70% fewer *exploration* tokens — exploration, not the
+whole session; no miracle claimed beyond that.
 
-The pretty graph in the Docs tab is not the point. The point is that your agent navigates
-the repo through it instead of grepping cold: task briefs embed the neighborhood of the
-files they touch, and the MCP tools (`kb_neighborhood`, `kb_search`, `kb_node`) plus
-`npx roadmapped kb` answer "where does X live, what touches it" in a few hundred tokens
-instead of a read-everything expedition. Up to ~70% fewer **exploration** tokens —
-exploration, not the whole session; the agent still reads what it edits. No miracle
-claimed beyond that.
-
-Installed by default at `init` (opt out with `--no-kb`) — a one-time ~30 MB on your
-machine, up to ~85 MB if it has neither Python nor uv; the npm package stays Node-only.
-The graph itself is generated by your agent — one `/graphify .`, the only step that costs
-tokens, and it asks first. Refreshes (`/graphify . --update`) are code-only and free.
+The graph is generated by your agent — one `/graphify .`, the only step that costs tokens,
+and it asks first. Refreshes are code-only and free. The layer is Python-powered and
+installed by `init`: a one-time ~30 MB on your machine, up to ~85 MB if it has neither
+Python nor uv — the npm package stays Node-only either way.
 
 ## How it works
 
@@ -134,13 +109,16 @@ Everything is flat, hand-editable files. The dashboard and the CLI read and writ
 data through the same validator — never a second, parallel schema hiding somewhere. Roadmap
 states are derived from the dependency graph on every read; your git history is the audit log.
 
-Roadmapped's own backlog is managed by Roadmapped, mostly by a Claude agent that records every
-task it ships. The done tasks are the changelog. If you want to know whether the workflow
-holds up, read the backlog.
+Roadmapped's own backlog is managed by Roadmapped, mostly by a Claude agent that records
+every task it ships. The done tasks are the changelog. If you want to know whether the
+workflow holds up, read the backlog — it's public, and more honest than we'd like.
 
 > **Naming** — the brand is **Roadmapped** (two p's, renamed 2026-07). The GitHub repository
 > and the npm package are `roadmapped` (lowercase). Host repos still using the legacy
 > `roadmaped.config.json` (one p) keep working — the old filename is read as a fallback.
+>
+> **Working on Roadmapped itself?** Clone, `npm install`, `npm run dev`; the CLI is
+> `node scripts/task.mjs`. Everything under the hood is the same code the package runs.
 
 ## Documentation
 
