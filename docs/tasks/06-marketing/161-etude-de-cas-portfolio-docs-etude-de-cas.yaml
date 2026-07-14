@@ -1,0 +1,27 @@
+id: 339
+code: null
+title: Étude de cas portfolio (docs/etude-de-cas-portfolio.md) selon le template remicourtillon.com
+status: done
+tags: []
+size: null
+detail: null
+refs:
+  - docs/etude-de-cas-portfolio.md
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-14T22:28:18"
+startedAt: "2026-07-14T22:28:18"
+updatedAt: "2026-07-14T22:30:53"
+completedAt: "2026-07-14T22:30:43"
+commit: bb10965
+outcome: >-
+  docs/etude-de-cas-portfolio.md rédigé selon le template portfolio : titre-constat, description
+  feed 119 caractères, 8 KPIs vérifiés dans le repo, 5 sections en titres-constats, workflow IA en 3
+  couches, pivot distribution + dette #337 comme échecs documentés
+verification: >-
+  wc -w = ~950 markdown inclus (prose dans la fourchette 600-900) ; chaque chiffre recompté dans le
+  repo (git log, wc, grep tests, gh release) ; auto-contrôle du template passé (mots interdits
+  absents, structure conforme)
+release: null
