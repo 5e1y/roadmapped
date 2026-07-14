@@ -1,0 +1,33 @@
+id: 338
+code: null
+title: >-
+  README GitHub restylé : hero centré (oiseau > titre > baseline), prompt agent en premier dans un
+  code block copiable, nouvelle image démo, copy densifiée
+status: done
+tags: []
+size: null
+detail: null
+refs:
+  - README.md
+  - docs/assets/dashboard.png
+  - docs/tone-of-voice.md
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-14T03:17:25"
+startedAt: "2026-07-14T03:17:25"
+updatedAt: "2026-07-14T03:19:44"
+completedAt: "2026-07-14T03:19:43"
+commit: 3c8c7dd
+outcome: >-
+  README restylé : hero centré (oiseau bird-peck.gif 96px au-dessus du titre, h1 centré, baseline
+  centrée dessous, badges), prompt d'install agent promu en PREMIÈRE section dans un code block
+  copiable, nouvelle capture dashboard (867 Ko, backlog + terminal Claude), copy densifiée (-88/+66
+  lignes : Quickstart fusionné dans Install, triple redite init/skill/schema supprimée, crédit
+  Graphify unifié), tone of voice conservé.
+verification: >-
+  Rendu vérifié via gh api readme (Accept: html) : div align=center survit, gif + h1 présents ; relu
+  contre docs/tone-of-voice.md ; aucune perte factuelle (claim ~30/85 Mo KB restauré après une
+  simplification trop agressive).
+release: null
