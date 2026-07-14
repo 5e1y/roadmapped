@@ -13,15 +13,17 @@ epic: null
 source: ai
 createdAt: "2026-07-14T22:28:18"
 startedAt: "2026-07-14T22:28:18"
-updatedAt: "2026-07-14T22:30:53"
-completedAt: "2026-07-14T22:30:43"
-commit: bb10965
+updatedAt: "2026-07-14T23:02:23"
+completedAt: "2026-07-14T23:02:23"
+commit: 480cfd3
 outcome: >-
-  docs/etude-de-cas-portfolio.md rédigé selon le template portfolio : titre-constat, description
-  feed 119 caractères, 8 KPIs vérifiés dans le repo, 5 sections en titres-constats, workflow IA en 3
-  couches, pivot distribution + dette #337 comme échecs documentés
+  Étude de cas réécrite selon le template v2 (lecteur Head of Design) : table produit-first (4 vues,
+  30 composants, 3 interfaces, 9 types — 2 lignes ingénierie max), nouvelle section design cœur
+  (archi info 9 colonnes + panneau latéral, pattern crayon/swap rejeté vs ghost inputs Base UI,
+  mascotte pixel-art + reduced-motion), exécution en appui
 verification: >-
-  wc -w = ~950 markdown inclus (prose dans la fourchette 600-900) ; chaque chiffre recompté dans le
-  repo (git log, wc, grep tests, gh release) ; auto-contrôle du template passé (mots interdits
-  absents, structure conforme)
+  Chaque chiffre re-vérifié dans le repo (514 commits, 598 tests, 30 tsx composants, 19 cmd CLI, 17
+  tools MCP, 5 releases via git log package.json, palette 4 couleurs birdFrames.ts) ; auto-contrôle
+  template : structure H1+description+chiffres+essentiel+5 sections, 0 mot interdit (grep), ~850
+  mots de prose
 release: null
