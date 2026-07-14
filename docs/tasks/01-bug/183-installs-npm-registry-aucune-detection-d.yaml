@@ -1,0 +1,22 @@
+id: 337
+code: null
+title: >-
+  Installs npm-registry : aucune détection de MAJ (installedSha ne lit que les resolved git+sha) —
+  depuis la ré-autorisation npm, ces installs ne voient jamais ni bannière ni autoUpdate
+status: todo
+tags:
+  - debt
+size: null
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-14T02:11:08"
+updatedAt: "2026-07-14T02:11:08"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
