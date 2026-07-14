@@ -1,0 +1,23 @@
+id: 336
+code: null
+title: >-
+  Bouton « installer et redémarrer » mort : (a) 409 quand l'autoUpdate a déjà réécrit le lock (le
+  process qui tourne reste vieux), (b) le restart perd le port d'origine (l'onglet sonde un port
+  mort) — amplifié par #330
+status: in_progress
+tags: []
+size: null
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-14T02:11:07"
+startedAt: "2026-07-14T02:11:07"
+updatedAt: "2026-07-14T02:11:07"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
