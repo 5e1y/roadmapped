@@ -143,7 +143,10 @@ export async function startDashboard(opts: { open: boolean; port?: number }): Pr
   //   (le but est justement de ne pas tourner des jours) ; bump GRACE_MS si ça gêne.
   const GRACE_MS = 5000
   let idleTimer: ReturnType<typeof setTimeout> | null = null
+  // #336 : connu après listen ; le bouton update relance le dashboard sur CE port.
+  let boundPort: number | undefined
   const api = createApiMiddleware(paths, {
+    port: () => boundPort,
     onClientCountChange: (openTabs) => {
       if (openTabs > 0) {
         if (idleTimer) { clearTimeout(idleTimer); idleTimer = null }
@@ -163,6 +166,7 @@ export async function startDashboard(opts: { open: boolean; port?: number }): Pr
 
   const start = opts.port ?? 5173
   const port = await listenWithRetry(server, start, start + 10)
+  boundPort = port
   const url = `http://localhost:${port}/`
   console.log(`roadmapped dashboard: ${url}  (${basename(paths.root)})`)
   if (opts.open) openBrowser(url)
