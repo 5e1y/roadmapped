@@ -8,14 +8,17 @@ status: done
 tags: []
 size: null
 detail: null
-refs: []
+refs:
+  - src/server/api.ts#/api/update
+  - src/lib/updateNotifier.ts#restartCommand
+  - src/server/serve.ts#boundPort
 links: []
 dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-14T02:11:07"
 startedAt: "2026-07-14T02:11:07"
-updatedAt: "2026-07-14T02:18:17"
+updatedAt: "2026-07-14T02:18:25"
 completedAt: "2026-07-14T02:18:17"
 commit: "0769743"
 outcome: >-
