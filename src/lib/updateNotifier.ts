@@ -39,8 +39,10 @@ export function shaFromResolved(resolved: unknown): string | null {
 }
 
 /** SHA du commit roadmapped installé, lu depuis le package-lock de l'hôte
- *  (le package.json installé ne porte AUCUN champ SHA avec npm moderne). */
-function installedSha(hostRoot: string): string | null {
+ *  (le package.json installé ne porte AUCUN champ SHA avec npm moderne).
+ *  Exporté (#336) : l'API compare le lock au boot vs au clic pour détecter
+ *  « l'autoUpdate a déjà installé, seul le restart manque ». */
+export function installedSha(hostRoot: string): string | null {
   for (const lock of [join(hostRoot, 'package-lock.json'), join(hostRoot, 'node_modules', '.package-lock.json')]) {
     try {
       const json = JSON.parse(readFileSync(lock, 'utf8')) as { packages?: Record<string, { resolved?: string }> }
@@ -126,14 +128,23 @@ function runUpdate(hostRoot: string): void {
   child.unref()
 }
 
+/** Chaîne shell du restart — pure, exportée pour le test. `port` (#336) : sans lui,
+ *  le nouveau dashboard scannait depuis 5173 et pouvait rebinder AILLEURS que le port
+ *  que l'onglet sonde (depuis #330 les ports bas se libèrent, la dérive est fréquente). */
+export function restartCommand(port?: number): string {
+  const portFlag = Number.isFinite(port) ? ` --port ${port}` : ''
+  return `npm install github:${REPO} && npx roadmapped upgrade && npx roadmapped dashboard --no-open${portFlag}`
+}
+
 /** Update + RESTART du dashboard (#295, bouton in-app) : comme runUpdate, mais
- *  ré-lance ensuite `npx roadmapped dashboard --no-open` sur le même repo. L'appelant
- *  (POST /api/update) fait process.exit JUSTE APRÈS pour libérer le port : le parent
- *  meurt pendant que l'enfant fait l'install (sans port), puis l'enfant rebinde le
- *  port libre. ROADMAPPED_ROOT explicite → l'enfant sert bien le même repo. */
-export function restartWithUpdate(hostRoot: string): void {
+ *  ré-lance ensuite `npx roadmapped dashboard --no-open` sur le même repo et le même
+ *  port (#336). L'appelant (POST /api/update) fait process.exit JUSTE APRÈS pour
+ *  libérer le port : le parent meurt pendant que l'enfant fait l'install (sans port),
+ *  puis l'enfant rebinde le port libéré — l'onglet qui sonde le retrouve.
+ *  ROADMAPPED_ROOT explicite → l'enfant sert bien le même repo. */
+export function restartWithUpdate(hostRoot: string, port?: number): void {
   const child = spawn(
-    `npm install github:${REPO} && npx roadmapped upgrade && npx roadmapped dashboard --no-open`,
+    restartCommand(port),
     { cwd: hostRoot, env: { ...process.env, ROADMAPPED_ROOT: hostRoot }, detached: true, stdio: 'ignore', shell: true },
   )
   child.unref()

@@ -2,7 +2,7 @@ import { describe, it, expect, afterEach } from 'vitest'
 import { rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { shaFromResolved, autoUpdate } from './updateNotifier'
+import { shaFromResolved, autoUpdate, restartCommand } from './updateNotifier'
 import { packageRoot } from './paths'
 
 describe('shaFromResolved (#207)', () => {
@@ -23,6 +23,17 @@ describe('shaFromResolved (#207)', () => {
 
 // #294 : autoUpdate applique la MAJ en tâche de fond. On injecte `run` pour ne
 // JAMAIS spawner npm ; ROADMAPPED_FAKE_UPDATE force un état « en retard » (checkUpdate).
+describe('restartCommand (#336)', () => {
+  it("repasse le port au dashboard relanc\u00e9 \u2014 l'onglet le retrouve au m\u00eame endroit", () => {
+    expect(restartCommand(5180)).toContain('npx roadmapped dashboard --no-open --port 5180')
+  })
+
+  it('sans port connu \u2192 pas de flag (scan par d\u00e9faut, comportement historique)', () => {
+    expect(restartCommand()).toMatch(/--no-open$/)
+    expect(restartCommand(Number.NaN)).toMatch(/--no-open$/)
+  })
+})
+
 describe('autoUpdate (#294)', () => {
   const INFLIGHT = join(tmpdir(), 'roadmapped-update-inflight.json')
   const clearInflight = () => { try { rmSync(INFLIGHT) } catch { /* absent */ } }

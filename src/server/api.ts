@@ -3,7 +3,7 @@ import type { ServerResponse, IncomingMessage } from 'node:http'
 import { watch, readdirSync } from 'node:fs'
 import { join, basename, dirname } from 'node:path'
 import { loadPaths, packageRoot, type RoadmappedPaths } from '../lib/paths.ts'
-import { checkUpdate, restartWithUpdate, UPDATE_REPO, type UpdateStatus } from '../lib/updateNotifier.ts'
+import { checkUpdate, installedSha, restartWithUpdate, UPDATE_REPO, type UpdateStatus } from '../lib/updateNotifier.ts'
 import {
   treeWithErrors, addTask, updateTask, deleteTask, moveTask,
   updateSection, saveEpics, type MutationResult,
@@ -234,10 +234,12 @@ function readJsonBody(req: IncomingMessage): Promise<any> {
 /** opts.onClientCountChange (#330) : notifié à chaque connexion/déconnexion SSE
  *  avec le nombre d'onglets encore ouverts. UNIQUEMENT câblé par startDashboard
  *  (prod) pour l'auto-shutdown à la fermeture de la fenêtre — le plugin dev Vite
- *  ne le passe pas, donc `npm run dev` (l'atelier) n'est jamais tué. */
+ *  ne le passe pas, donc `npm run dev` (l'atelier) n'est jamais tué.
+ *  opts.port (#336) : le port réellement bindé (connu après listen), repassé au
+ *  dashboard relancé par le bouton update — l'onglet le retrouve au même endroit. */
 export function createApiMiddleware(
   paths: RoadmappedPaths,
-  opts: { onClientCountChange?: (openTabs: number) => void } = {},
+  opts: { onClientCountChange?: (openTabs: number) => void; port?: () => number | undefined } = {},
 ) {
   // MAJ dispo (#211) : sondée UNE fois au boot (async, non bloquant — checkUpdate
   // fait le git ls-remote hors du chemin de rendu), puis injectée dans le payload
@@ -245,6 +247,10 @@ export function createApiMiddleware(
   // de dev. Le seam : le frontend lit `update` ; l'UI est un composant à part (#211).
   let updateStatus: UpdateStatus | null = null
   void checkUpdate(packageRoot(), paths.root).then((s) => { updateStatus = s }).catch(() => {})
+  // #336 : SHA du lock au boot. L'autoUpdate (#294) réécrit le lock en arrière-plan
+  // pendant que CE process tourne encore l'ancienne version ; au clic, « lock ≠ boot »
+  // signifie « déjà installé, il ne manque que le restart » — refuser serait le bug.
+  const bootSha = installedSha(paths.root)
   // Live reactivity (#147) : les clients SSE abonnés à /api/events. Le watcher pousse
   // un signal léger « quelque chose a changé » ; le client resync via /api/tree.
   const clients = new Set<ServerResponse>()
@@ -313,14 +319,17 @@ export function createApiMiddleware(
           return
         }
 
-        // Force update + restart (#295) : le bouton in-app POST ici. Re-vérifie qu'une
-        // MAJ est dispo (null = à jour / clone de dev self-host / offline → 409, ce qui
-        // protège aussi le `npm run dev` de l'auteur). Sinon répond, PUIS relance
-        // l'updater détaché + coupe CE process (libère le port pour le nouveau serveur).
+        // Force update + restart (#295) : le bouton in-app POST ici. Restart accordé si
+        // une MAJ est dispo OU si le lock a bougé depuis le boot (#336 : l'autoUpdate a
+        // déjà installé pendant que ce process tournait — checkUpdate dit « à jour » mais
+        // le process serve l'ANCIENNE version, le restart est exactement ce qui manque).
+        // Sinon 409 (à jour / clone de dev self-host / offline — protège `npm run dev`).
+        // Puis répond, relance l'updater détaché sur le MÊME port, et coupe CE process.
         if (url.pathname === '/api/update' && method === 'POST') {
           const u = await checkUpdate(packageRoot(), paths.root)
+          const lockMoved = installedSha(paths.root) !== bootSha
           res.setHeader('Content-Type', 'application/json')
-          if (!u) {
+          if (!u && !lockMoved) {
             res.statusCode = 409
             res.end(JSON.stringify({ ok: false, reason: 'up to date, dev clone, or offline' }))
             return
@@ -328,7 +337,7 @@ export function createApiMiddleware(
           res.statusCode = 200
           res.end(JSON.stringify({ ok: true, restarting: true }))
           // Laisse la réponse partir avant de quitter ; l'enfant détaché survit.
-          setTimeout(() => { try { restartWithUpdate(paths.root) } finally { process.exit(0) } }, 150)
+          setTimeout(() => { try { restartWithUpdate(paths.root, opts.port?.()) } finally { process.exit(0) } }, 150)
           return
         }
 
