@@ -4,7 +4,7 @@ title: >-
   Bouton « installer et redémarrer » mort : (a) 409 quand l'autoUpdate a déjà réécrit le lock (le
   process qui tourne reste vieux), (b) le restart perd le port d'origine (l'onglet sonde un port
   mort) — amplifié par #330
-status: in_progress
+status: done
 tags: []
 size: null
 detail: null
@@ -15,9 +15,19 @@ epic: null
 source: ai
 createdAt: "2026-07-14T02:11:07"
 startedAt: "2026-07-14T02:11:07"
-updatedAt: "2026-07-14T02:11:07"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+updatedAt: "2026-07-14T02:18:17"
+completedAt: "2026-07-14T02:18:17"
+commit: "0769743"
+outcome: >-
+  Deux causes corrigées : (a) POST /api/update accepte le restart quand le package-lock a bougé
+  depuis le boot du serveur — l'autoUpdate #294 installait en arrière-plan et le re-check répondait
+  409 « à jour » alors que le process servait encore l'ancienne version ; (b) restartWithUpdate
+  repasse le port réellement bindé (--port) au dashboard relancé — il scannait depuis 5173 et
+  rebindait ailleurs que le port sondé par l'onglet (dérive rendue systématique par #330 qui libère
+  les ports bas). Release 0.2.3 publiée.
+verification: >-
+  Reproduit PUIS revérifié e2e en sandbox (host-test, install github réelle) : avant fix, clic → 409
+  et serveur revenu sur 5173 au lieu de 5180 ; après fix (install #0769743, autoUpdate vers
+  4a2e000), clic → 200 et serveur revenu sur 5180. 601/601 tests (2 nouveaux sur restartCommand),
+  tsc propre, CI publish success, npm latest=0.2.3.
+release: 0.2.3
