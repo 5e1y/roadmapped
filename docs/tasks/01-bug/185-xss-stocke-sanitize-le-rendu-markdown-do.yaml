@@ -1,0 +1,31 @@
+id: 359
+code: null
+title: "XSS stocké : sanitize le rendu markdown (DOMPurify) — detail/outcome de ticket et docs/*.md"
+status: todo
+tags:
+  - security
+  - xss
+size: null
+heat: 85
+detail: >-
+  Audit sécurité #356 (HAUTE-1, docs/audit-securite-2026-07.md). marked 18.0.5 rend du HTML brut
+  injecté via dangerouslySetInnerHTML dans Markdown.tsx:33 et DocsView.tsx:183 — un <img onerror=…>
+  dans un detail/outcome (écrit par un agent) ou un docs/*.md (repo cloné) exécute du JS dans
+  l'origine du dashboard, qui a un accès API local non authentifié. Fix : sanitizer la sortie de
+  renderMarkdown (DOMPurify, ou marked + allowlist), retirer les commentaires « pas de surface XSS
+  ». Test : payload <img onerror> / <script> neutralisé. Vérifier que le markdown légitime (liens,
+  code, headings ancrés) reste intact.
+refs:
+  - src/components/Markdown.tsx
+  - src/components/DocsView.tsx
+links: []
+dependsOn: []
+epic: audit-remediation
+source: ai
+createdAt: "2026-07-18T23:54:38"
+updatedAt: "2026-07-18T23:54:38"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

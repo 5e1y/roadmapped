@@ -1,0 +1,28 @@
+id: 363
+code: null
+title: now() construit date et heure sur deux new Date() distincts (±24h à minuit)
+status: todo
+tags:
+  - bug
+  - dates
+size: null
+heat: 40
+detail: >-
+  Audit bugs #358 (MOYEN, docs/audit-bugs-2026-07.md). La fonction now() (taskWrites.ts) compose la
+  date et l'heure à partir de deux appels new Date() séparés → à la frontière de minuit,
+  completedAt/updatedAt peut être décalé de ~24h. TaskPanel fait la même composition correctement
+  (un seul Date). Fix : un seul new Date() capturé, formaté en une passe. Test : mock horloge sur
+  23:59:59.999.
+refs:
+  - src/lib/taskWrites.ts
+links: []
+dependsOn: []
+epic: audit-remediation
+source: ai
+createdAt: "2026-07-18T23:54:38"
+updatedAt: "2026-07-18T23:54:38"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
