@@ -1,6 +1,6 @@
 id: 367
 title: "Perf : TreeContext ne resync que sur un event SSE pertinent (filtrer par paths)"
-status: todo
+status: done
 tags:
   - perf
   - react
@@ -19,9 +19,20 @@ dependsOn: []
 epic: audit-remediation
 source: ai
 createdAt: "2026-07-18T23:54:39"
-updatedAt: "2026-07-18T23:54:39"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+startedAt: "2026-07-19T00:31:52"
+updatedAt: "2026-07-19T00:41:35"
+completedAt: "2026-07-19T00:41:35"
+commit: 740f07d
+outcome: >-
+  TreeContext ne resync que sur un event SSE touchant un ticket (audit perf #357). Prédicat pur
+  shouldReload(data) exporté : parse event.data {paths}, ne recharge que si un chemin concerne une
+  tâche (contient 'tasks/' OU finit en .yaml/.yml — les tickets sont les seuls .yaml de l'arbre
+  surveillé). Subtilité vérifiée par l'agent : une écriture de ticket émet DEUX chemins
+  (tasksDir-relatif sans préfixe + docsDir-relatif 'tasks/...'), l'extension les couvre. Fail-safe =
+  RECHARGER dans tous les cas ambigus (payload absent/malformé, paths vide/non-string) : jamais
+  rater une vraie écriture prime sur la perf. Plus de reload du tree (~630Ko) sur régé Graphify ou
+  note. KbContext non touché.
+verification: >-
+  11 tests du prédicat : fail-safes + 3 formes réelles de chemins-tâches + Graphify/notes ignorés.
+  tsc clean, suite complète 673/673, build OK.
+release: 0.2.3

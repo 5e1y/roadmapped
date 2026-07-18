@@ -1,6 +1,6 @@
 id: 363
 title: now() construit date et heure sur deux new Date() distincts (±24h à minuit)
-status: todo
+status: done
 tags:
   - bug
   - dates
@@ -18,9 +18,17 @@ dependsOn: []
 epic: audit-remediation
 source: ai
 createdAt: "2026-07-18T23:54:38"
-updatedAt: "2026-07-18T23:54:38"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+startedAt: "2026-07-19T00:31:51"
+updatedAt: "2026-07-19T00:41:34"
+completedAt: "2026-07-19T00:41:34"
+commit: 740f07d
+outcome: >-
+  now() horodate sur UNE seule instance Date (audit #358). Fonction pure localStamp(d) exportée :
+  date ET heure lues sur le même d — l'ancien code composait la date via today() (un new Date()) et
+  l'heure via un AUTRE new Date(), décalant l'horodatage de ~24h à la frontière de minuit. Un seul
+  paramètre Date rend le bug structurellement impossible à réintroduire. today() interne supprimé
+  (seul now() l'utilisait).
+verification: >-
+  Test localStamp sur instances fixes (minuit 00:00:00, 23:59:59, 1er janvier) → date suit
+  l'instant. tsc clean, suite 673/673.
+release: 0.2.3

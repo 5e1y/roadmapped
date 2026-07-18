@@ -1,6 +1,6 @@
 id: 362
 title: "withLock : release non conditionnée au pid + vol de verrou vivant après TTL"
-status: todo
+status: done
 tags:
   - bug
   - concurrency
@@ -21,9 +21,22 @@ dependsOn: []
 epic: audit-remediation
 source: ai
 createdAt: "2026-07-18T23:54:38"
-updatedAt: "2026-07-18T23:54:53"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+startedAt: "2026-07-19T00:31:51"
+updatedAt: "2026-07-19T00:41:34"
+completedAt: "2026-07-19T00:41:34"
+commit: 740f07d
+outcome: >-
+  withLock durci (audit #358 HAUT-1). Jeton unique par acquisition (pid:timestamp:seq, compteur →
+  pas de collision même à la ms ; split(':')[1]=timestamp préservé pour lockAgeMs). (1) Release
+  CONDITIONNÉE au jeton : le finally ne rmSync que si owner porte encore NOTRE jeton → un verrou
+  volé (fn dépassant le TTL) n'est plus supprimé par l'ancien détenteur (fin de la cascade
+  A-libère-le-verrou-vivant-de-B). (2) Vol d'orphelin ATOMIQUE via renameSync : un seul voleur
+  réussit le rename (le dossier n'existe qu'une fois), les autres prennent ENOENT et rebouclent →
+  plus de double-vol effaçant un verrou fraîchement recréé. Résiduel documenté : un fn() dépassant
+  le TTL (10s) reste volable, mais le workload (quelques writes, ms) ne l'atteint pas ; la release
+  conditionnée empêche la cascade même dans ce cas.
+verification: >-
+  Tests : vol d'orphelin OK (existant), timeout sur verrou vivant OK (existant), + nouveau : release
+  ne supprime PAS un verrou repris (owner réécrit pendant fn → .lock survit). Test concurrence #83
+  (N adds simultanés → ids uniques) toujours vert. Suite 673/673, tsc clean.
+release: 0.2.3
