@@ -9,23 +9,33 @@ export const PRE_RELEASE = 'pre-release'
 
 /**
  * Compare deux clés de release pour un tri DÉCROISSANT (plus récente d'abord).
- * Comparaison NUMÉRIQUE segment par segment — donc '0.10.0' passe AVANT '0.9.0'
- * (jamais un tri lexicographique). Le préfixe 'v' de tête est ignoré. La
- * sentinelle 'pre-release' est TOUJOURS classée en dernier.
+ * Cœur NUMÉRIQUE segment par segment — '0.10.0' passe AVANT '0.9.0' (jamais
+ * lexicographique). Préfixe 'v' ignoré. Une pré-version (`-rc`, `-beta`) est
+ * plus ANCIENNE que la version finale de même cœur (1.0.0 > 1.0.0-rc.1) — #365 :
+ * l'ancien code parsait '0.2.3-rc.1' en cœur [0,2,3,1] et classait la rc au-dessus
+ * de 0.2.3. La sentinelle 'pre-release' reste TOUJOURS en dernier.
+ * ponytail: départage lexical entre DEUX pré-versions ('rc.10' < 'rc.9') — plafond
+ * assumé, non atteignable (le champ ne porte que des X.Y.Z propres, cf. #341).
  */
 export function compareReleasesDesc(a: string, b: string): number {
   if (a === b) return 0
   if (a === PRE_RELEASE) return 1
   if (b === PRE_RELEASE) return -1
-  const seg = (s: string) => s.replace(/^v/i, '').split('.').map((n) => parseInt(n, 10) || 0)
-  const pa = seg(a)
-  const pb = seg(b)
-  const len = Math.max(pa.length, pb.length)
+  const parse = (s: string) => {
+    const [core, pre = ''] = s.replace(/^v/i, '').split('-', 2) // '0.2.3-rc.1' → '0.2.3' + 'rc.1'
+    return { core: core.split('.').map((n) => parseInt(n, 10) || 0), pre }
+  }
+  const A = parse(a)
+  const B = parse(b)
+  const len = Math.max(A.core.length, B.core.length)
   for (let i = 0; i < len; i++) {
-    const d = (pb[i] ?? 0) - (pa[i] ?? 0)
+    const d = (B.core[i] ?? 0) - (A.core[i] ?? 0)
     if (d !== 0) return d
   }
-  return 0
+  if (A.pre === B.pre) return 0
+  if (!A.pre) return -1 // a est final → plus récent → avant b
+  if (!B.pre) return 1 // b est final → plus récent
+  return A.pre < B.pre ? 1 : -1 // deux pré-versions : la plus « haute » d'abord
 }
 
 export interface ReleaseGroup<T> {
