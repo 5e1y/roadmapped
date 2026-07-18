@@ -1,7 +1,7 @@
 id: 342
 code: null
 title: "Releases-chapitres 3 : Terminées pliées par release + suppression du toggle done du header"
-status: todo
+status: done
 tags:
   - releases
   - ui
@@ -23,9 +23,22 @@ dependsOn:
 epic: releases-chapitres
 source: ai
 createdAt: "2026-07-18T21:14:23"
-updatedAt: "2026-07-18T21:14:23"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+startedAt: "2026-07-18T21:37:09"
+updatedAt: "2026-07-18T21:51:28"
+completedAt: "2026-07-18T21:51:28"
+commit: a1358b0
+outcome: >-
+  Colonne Terminées du Backlog pliée par release : accordéons '<release> (count)' triés semver
+  décroissant (comparateur numérique segment par segment, pre-release toujours en dernier), release
+  la plus récente ouverte par défaut, état de session. Mécanique de pliage réutilisée de l'EpicRow
+  (Collapsible Base UI, calque-trigger, chevron). Epic-groupe done rattaché à sa release la plus
+  récente (défensif). Découverte de cartographie : le toggle done ne pilotait QUE Roadmap/Graphe (le
+  Backlog affichait déjà toujours les Terminées) — bouton retiré, showDone figé à false
+  (comportement par défaut historique #247) sans redessiner les vues Roadmap. Fonctions pures dans
+  src/lib/release.ts.
+verification: >-
+  Conflit de merge RoadmapView résolu à la main (worktree basé sur un HEAD pré-#343) : epicFilter
+  (#343) + retrait du toggle (#342) combinés, vérifié par grep qu'aucun vestige
+  (EyeOpen/setShowDone) ne subsiste. tsc clean, suite complète 622/622 verte dans main, build OK,
+  tests release.test.ts (tri semver, pre-release dernier, groupement) verts.
+release: 0.2.3

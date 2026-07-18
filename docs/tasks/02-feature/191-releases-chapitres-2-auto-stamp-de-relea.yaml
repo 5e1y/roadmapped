@@ -1,7 +1,7 @@
 id: 341
 code: null
 title: "Releases-chapitres 2 : auto-stamp de release au done (version courante du package.json)"
-status: todo
+status: done
 tags:
   - releases
   - cli
@@ -22,9 +22,19 @@ dependsOn:
 epic: releases-chapitres
 source: ai
 createdAt: "2026-07-18T21:14:17"
-updatedAt: "2026-07-18T21:14:17"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+startedAt: "2026-07-18T21:37:09"
+updatedAt: "2026-07-18T21:51:28"
+completedAt: "2026-07-18T21:51:28"
+commit: 1e5f60c
+outcome: >-
+  Auto-stamp livré dans le CORE (doneTaskImpl, taskWrites.ts) — CLI et MCP en héritent sans
+  duplication. Précédence : opts.release explicite (string ou null-efface) > version du package.json
+  HÔTE (racine re-dérivée du tasksDir via findHostRoot, robuste aux tasksDir custom) > release
+  existant préservé > null. Jamais d'erreur (try/catch, hôte sans package.json → null).
+  DoneOpts.release élargi à string|null. Aide CLI, description du param MCP et SKILL.md mis à jour
+  d'une ligne chacun.
+verification: >-
+  TDD : 5 nouveaux tests taskWrites (stamp, priorité explicite, null efface, sans package.json, sans
+  version) — 56/56 verts. tsc clean, suite complète 622/622, build OK. Preuve dogfood immédiate : ce
+  done lui-même est vérifié juste après pour l'auto-stamp.
+release: 0.2.3
