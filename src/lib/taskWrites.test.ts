@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import {
   addTask, updateTask, startTask, doneTask, deleteTask, moveTask, addFeedback,
-  updateSection, readTree, findTask, saveEpics, withLock,
+  updateSection, readTree, findTask, saveEpics, withLock, localStamp,
 } from './taskWrites'
 import { seedStages } from './stageFixtures'
 import type { TaskTree } from './tasks'
@@ -60,6 +60,50 @@ describe('withLock — verrou de mutation (#83)', () => {
   it('libère le verrou même si fn lève (finally)', () => {
     expect(() => withLock(dir, () => { throw new Error('boom') })).toThrow('boom')
     expect(existsSync(lockDir())).toBe(false)
+  })
+
+  it('ne libère PAS un verrou repris par un autre détenteur (release conditionnée au jeton, #362)', () => {
+    // Simule un vol : pendant qu'on tient le verrou, un autre process réécrit owner.
+    withLock(dir, () => {
+      writeFileSync(join(lockDir(), 'owner'), `88888:${Date.now()}:0`)
+    })
+    // Le finally ne doit PAS supprimer le verrou d'autrui (sinon cascade : on efface
+    // le verrou VIVANT du voleur, un 3e écrivain entre pendant qu'il écrit).
+    expect(existsSync(lockDir())).toBe(true)
+    rmSync(lockDir(), { recursive: true, force: true }) // cleanup
+  })
+})
+
+describe('localStamp (#363) — horodatage cohérent à minuit', () => {
+  it('date ET heure viennent de la MÊME instance', () => {
+    expect(localStamp(new Date(2026, 2, 15, 0, 0, 0))).toBe('2026-03-15T00:00:00')
+    expect(localStamp(new Date(2026, 11, 31, 23, 59, 59))).toBe('2026-12-31T23:59:59')
+    // Frontière de minuit : la date suit l'instant, pas un 2e new Date() qui aurait
+    // pu basculer au lendemain (l'ancien bug ±24h).
+    expect(localStamp(new Date(2026, 0, 1, 0, 0, 0))).toBe('2026-01-01T00:00:00')
+  })
+})
+
+describe('updateTask — patch sans effet (#364)', () => {
+  it('un patch no-op (même valeur) ne réécrit pas le fichier ni ne bumpe updatedAt', () => {
+    const created = add({ title: 'Stable' })
+    if (!created.ok) return
+    const id = created.task!.id
+    updateTask(dir, id, { detail: 'valeur' }) // change réel → écrit
+    const path = join(dir, created.task!.file.replace(/^docs\/tasks\//, ''))
+    const content = readFileSync(path, 'utf8')
+    const res = updateTask(dir, id, { detail: 'valeur' }) // MÊME valeur → no-op
+    expect(res.ok).toBe(true)
+    expect(readFileSync(path, 'utf8')).toBe(content) // byte-à-byte : aucune réécriture
+  })
+
+  it('un patch vide {} ne touche pas le fichier', () => {
+    const created = add({ title: 'Intacte' })
+    if (!created.ok) return
+    const path = join(dir, created.task!.file.replace(/^docs\/tasks\//, ''))
+    const content = readFileSync(path, 'utf8')
+    updateTask(dir, created.task!.id, {})
+    expect(readFileSync(path, 'utf8')).toBe(content)
   })
 })
 
