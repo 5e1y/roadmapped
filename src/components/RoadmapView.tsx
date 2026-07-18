@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { EyeClosed, EyeOpen } from 'trinil-react'
 import { useTree } from '../state/TreeContext'
 import { ViewHeader } from './ViewHeader'
 import { RoadmapColumns, GlobalProgress } from './RoadmapColumns'
@@ -9,15 +8,15 @@ import { RoadmapGraph } from './RoadmapGraph'
  * Vue Roadmap = les sections du backlog vues comme des jalons (une colonne
  * par section, ordre de priorité NN). Deux modes : Colonnes / Graphe.
  *
- * Tickets terminés MASQUÉS par défaut, « done à la demande » (#247) : état de
- * SESSION (pas persisté — un coup d'œil d'historique, pas une préférence),
- * partagé Colonnes/Graphe via props. Le Graphe garde les done qui sont
- * dépendances (transitives) de tickets affichés : arêtes intègres.
+ * Tickets terminés MASQUÉS ici (#342) : le toggle « done » a été retiré du
+ * header (deux mécanismes pour le même besoin depuis que l'impact visuel des
+ * done a baissé). Roadmap/Graphe FIGENT le comportement par défaut historique
+ * (#247) — showDone = false, done masqués ; le Graphe garde tout de même les
+ * done qui sont dépendances (transitives) de tickets affichés (arêtes intègres).
  */
 export function RoadmapView() {
   const { tree, errors, loading, loadError } = useTree()
   const [mode, setMode] = useState<'columns' | 'graph'>('columns')
-  const [showDone, setShowDone] = useState(false)
 
   if (loading && !tree) {
     return <div className="mx-auto max-w-3xl px-6 py-8 text-sm text-neutral-500">Loading…</div>
@@ -47,20 +46,6 @@ export function RoadmapView() {
     <div className="flex h-full flex-col">
       {/* Avancement global (#133) : x/y + barre fine dans le header de la vue. */}
       <ViewHeader meta={<GlobalProgress />}>
-        <button
-          type="button"
-          onClick={() => setShowDone(!showDone)}
-          aria-pressed={showDone}
-          title={showDone ? 'Hide done tickets' : 'Show done tickets'}
-          className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs transition-colors ${
-            // #176 : état ON = langage « actif » du dashboard (accent-tint + filet accent,
-            // design.md §3.2), pas un fond gris ambigu. OFF = repos neutre.
-            showDone ? 'border-accent bg-accent-tint text-neutral-900' : 'border-neutral-300 bg-white text-neutral-600 hover:bg-neutral-100'
-          }`}
-        >
-          {showDone ? <EyeOpen size={12} /> : <EyeClosed size={12} />}
-          done
-        </button>
         <div className="flex overflow-hidden rounded-md border border-neutral-300">
           {(['columns', 'graph'] as const).map((m) => (
             <button key={m} type="button" onClick={() => setMode(m)}
@@ -74,7 +59,9 @@ export function RoadmapView() {
         </div>
       </ViewHeader>
       <div className="min-h-0 flex-1 overflow-auto">
-        {mode === 'columns' ? <RoadmapColumns showDone={showDone} /> : <RoadmapGraph showDone={showDone} />}
+        {/* showDone figé à false (#342) : done masqués, comportement par défaut
+            historique conservé après le retrait du toggle. */}
+        {mode === 'columns' ? <RoadmapColumns showDone={false} /> : <RoadmapGraph showDone={false} />}
       </div>
     </div>
   )
