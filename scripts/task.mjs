@@ -24,6 +24,7 @@ import { kbNeighborhood, neighborhoodText, kbSearch, searchText, kbNode, nodeTex
 // voisinage du graphe, sitrep porte la ligne d'état, done nudge le refresh.
 import { kbBriefSection, kbSitrepLine, kbStaleDoneNudge, stalenessOf, readHostConfig } from '../src/lib/kbCycle.ts'
 import { autoUpdate } from '../src/lib/updateNotifier.ts'
+import { logUsage } from '../src/lib/usageLog.ts'
 import {
   treeWithErrors, readTree, findTask, loadFiles,
   addTask, startTask, doneTask, updateTask, addFeedback,
@@ -862,6 +863,9 @@ function cmdKb(positional, flags) {
 
 const [cmd, ...rest] = process.argv.slice(2)
 const { flags, positional } = parseArgs(rest)
+// #345 — compteur d'usage local (nom de commande seul, jamais les args) : préalable
+// factuel à une passe de simplification (quelles commandes servent vraiment).
+logUsage('cli', cmd ?? 'help', HOST_ROOT)
 
 const needId = () => {
   const id = parseInt(positional[0], 10)
