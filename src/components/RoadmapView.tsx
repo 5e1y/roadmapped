@@ -1,34 +1,18 @@
-import { useState } from 'react'
+import { type ReactNode } from 'react'
 import { useTree } from '../state/TreeContext'
 import { ViewHeader } from './ViewHeader'
 import { RoadmapColumns } from './RoadmapColumns'
-import { RoadmapGraph } from './RoadmapGraph'
 
 /**
- * Vue Roadmap = les sections du backlog vues comme des jalons (une colonne
- * par section, ordre de priorité NN). Deux modes : Colonnes / Graphe.
- *
- * Tickets terminés MASQUÉS ici (#342) : le toggle « done » a été retiré du
- * header (deux mécanismes pour le même besoin depuis que l'impact visuel des
- * done a baissé). Roadmap/Graphe FIGENT le comportement par défaut historique
- * (#247) — showDone = false, done masqués ; le Graphe garde tout de même les
- * done qui sont dépendances (transitives) de tickets affichés (arêtes intègres).
- *
- * Filtre epic (#343) : remonté ICI — le parent commun le plus bas des deux
- * modes — pour que la bande d'epics filtre les DEUX vues et que la sélection
- * SURVIVE au passage Colonnes ↔ Graphe (état de session, pas persisté : un
- * filtre de lecture, pas une préférence).
+ * Garde d'état partagé par la Roadmap et la vue Dépendances (#369) : ni l'une ni
+ * l'autre ne doit être un écran vide muet quand le serveur est injoignable ou la
+ * source invalide (mêmes garde-fous que le Backlog). Rend `children` une fois sain.
  */
-export function RoadmapView() {
+export function RoadmapStateGuard({ children }: { children: ReactNode }) {
   const { tree, errors, loading, loadError } = useTree()
-  const [mode, setMode] = useState<'columns' | 'graph'>('columns')
-  const [epicFilter, setEpicFilter] = useState<string | null>(null)
-
   if (loading && !tree) {
     return <div className="mx-auto max-w-3xl px-6 py-8 text-sm text-neutral-500">Loading…</div>
   }
-  // Mêmes garde-fous que le Backlog : la Roadmap ne doit jamais être un écran
-  // vide muet quand le serveur est injoignable ou la source invalide.
   if (loadError) {
     return (
       <div className="mx-auto max-w-3xl px-6 py-8">
@@ -47,31 +31,30 @@ export function RoadmapView() {
       </div>
     )
   }
+  return <>{children}</>
+}
 
+/**
+ * Vue Roadmap = les sections du backlog vues comme des jalons (une colonne par
+ * section, ordre de priorité NN). Depuis #369, colonnes SEULEMENT : le graphe de
+ * dépendances est devenu la vue « Dépendances » de 1er niveau (DependenciesView).
+ *
+ * Tickets terminés MASQUÉS (#342, showDone=false figé). Filtre epic (#343) : porté
+ * par App et PARTAGÉ avec la vue Dépendances via props — la sélection survit au
+ * passage Roadmap ↔ Dépendances (état de session, pas persisté).
+ */
+export function RoadmapView({ epicFilter, onEpicFilter }: {
+  epicFilter: string | null
+  onEpicFilter: (slug: string | null) => void
+}) {
   return (
-    <div className="flex h-full flex-col">
-      {/* #349 : progression globale retirée du header (n'a plus de sens quand
-          le backlog grossit à l'infini) — seule la progression par epic compte. */}
-      <ViewHeader>
-        <div className="flex overflow-hidden rounded-md border border-neutral-300">
-          {(['columns', 'graph'] as const).map((m) => (
-            <button key={m} type="button" onClick={() => setMode(m)}
-              aria-pressed={mode === m}
-              className={`px-3 py-1 text-xs transition-colors ${
-                mode === m ? 'bg-neutral-900 text-white' : 'bg-white text-neutral-600 hover:bg-neutral-100'
-              }`}>
-              {m === 'columns' ? 'Columns' : 'Graph'}
-            </button>
-          ))}
+    <RoadmapStateGuard>
+      <div className="flex h-full flex-col">
+        <ViewHeader />
+        <div className="min-h-0 flex-1 overflow-auto">
+          <RoadmapColumns showDone={false} epicFilter={epicFilter} onEpicFilter={onEpicFilter} />
         </div>
-      </ViewHeader>
-      <div className="min-h-0 flex-1 overflow-auto">
-        {/* showDone figé à false (#342) : done masqués, comportement par défaut
-            historique conservé après le retrait du toggle. */}
-        {mode === 'columns'
-          ? <RoadmapColumns showDone={false} epicFilter={epicFilter} onEpicFilter={setEpicFilter} />
-          : <RoadmapGraph showDone={false} epicFilter={epicFilter} onEpicFilter={setEpicFilter} />}
       </div>
-    </div>
+    </RoadmapStateGuard>
   )
 }
