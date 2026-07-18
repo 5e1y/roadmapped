@@ -2,7 +2,7 @@ id: 350
 title: >-
   Retirer les champs size (S/M/L) et code de toute la stack — décoratifs, la température a rendu
   size inutile et code n'est jamais rempli
-status: in_progress
+status: done
 tags:
   - simplification
   - data-model
@@ -27,9 +27,24 @@ epic: null
 source: ai
 createdAt: "2026-07-18T23:01:20"
 startedAt: "2026-07-18T23:29:17"
-updatedAt: "2026-07-18T23:29:17"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+updatedAt: "2026-07-18T23:59:57"
+completedAt: "2026-07-18T23:59:57"
+commit: 7b6494c
+outcome: >-
+  size (S/M/L) et code retirés de toute la stack façon #154. Comportement rétrocompat : ignore
+  silencieux (comme l'ancien 'zone') — toTaskNode ne lit plus ces clés, validate ne les valide plus,
+  dumpTask ne les réécrit pas (absents de FIELD_ORDER) ; un YAML externe portant encore size:/code:
+  parse sans planter et perd les champs au prochain dump. Surfaces couvertes : schéma/lecture
+  (tasks.ts, validate.ts SIZES retiré, taskWrites), CLI (flags --size/--code, USAGE,
+  cmdAdd/cmdUpdate, --json), MCP (schémas add/quick/update), dashboard (TaskRow chips, TaskPanel
+  inputs ghost, SectionPanel, render.ts), skill+guide+formats+setup, 13 fichiers de tests, données
+  démo. Migration : scripts/strip-size-code.mjs (via dumpTask canonique, idempotent) — REJOUÉE dans
+  main sur les 350 tickets (le worktree était parti d'avant #352/les audits ; sa migration périmée a
+  été jetée et refaite).
+verification: >-
+  tsc clean, suite complète 628/628 dans main (les échecs transitoires étaient le worktree re-scanné
+  par vitest — parti après nettoyage), build OK, validate OK (350 tasks). Migration vérifiée : 0
+  fichier avec ^size: ou ^code: restant. Conflit mcp-server.mjs (retrait size vs description tags
+  #352) résolu à la main : tags garde TAGS_DESCRIPTION, size retiré. Cycle add/update/done re-testé
+  côté agent sans size/code.
+release: 0.2.3
