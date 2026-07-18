@@ -2,7 +2,7 @@ id: 370
 title: >-
   Rail-nav 2 : composant NavRail (rail vertical d'icônes façon Figma) + 6 icônes, remplace les tabs
   du header
-status: todo
+status: done
 tags:
   - ui
   - nav
@@ -28,9 +28,24 @@ dependsOn:
 epic: rail-nav
 source: ai
 createdAt: "2026-07-19T01:05:40"
-updatedAt: "2026-07-19T01:05:40"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+startedAt: "2026-07-19T01:47:15"
+updatedAt: "2026-07-19T01:58:19"
+completedAt: "2026-07-19T01:58:19"
+commit: 92fa02d
+outcome: >-
+  NavRail livré : rail vertical d'icônes façon Figma (w-16, fond carte, bord droit fin) remplaçant
+  les tabs horizontaux du header. Mascotte pixel en tête (migrée du header → header garde le titre
+  marque×repo, pas de duplication). 6 vues empilées icône+label court : groupe travail
+  (Backlog/Roadmap/Deps) · filet · groupe exploration (Graph/Docs/Notes). Actif = accent
+  (bg-accent-tint text-accent, currentColor sur l'icône), inactif gris. 6 icônes line monochromes
+  dans glyphs.tsx (viewBox 16, currentColor, cohérentes avec les glyphs existants). Câblé comme
+  flanc gauche du Shell (ViewProvider remonté sur toute la rangée flex,
+  SidePanel/LiveActivityProvider intacts). Tabs retirés de ViewHeader.
+verification: >-
+  tsc clean, suite 682/682 (dont NavRail.test : 6 items+labels, aria-current sur l'actif,
+  clic→setView bon id). VÉRIF VISUELLE RÉELLE (Playwright sur build servi port 8099) : 4 captures
+  relues — Backlog clair (rail + Terminées pliées par release), Dépendances clair (bande epics +
+  graphe dagre, vue 1er niveau), Graphe nodal sombre (2511 nœuds), Docs sombre. Rail correct clair
+  ET sombre, item actif en accent, mascotte theme-aware, a11y (nav aria-label, cibles ≥44px, labels
+  texte).
+release: 0.2.3
