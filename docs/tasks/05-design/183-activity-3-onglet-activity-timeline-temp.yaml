@@ -1,0 +1,32 @@
+id: 355
+code: null
+title: >-
+  Activity 3 : onglet Activity — timeline temps réel, groupement session, corrélation ticket
+  in_progress
+status: todo
+tags:
+  - activity
+  - ui
+size: null
+detail: >-
+  Spec docs/specs/2026-07-18-activity-hooks.md. La timeline consomme l'event SSE 'activity' : lignes
+  « édite src/foo.ts », « lance npx vitest », « done #341 », groupées par session, corrélées au
+  ticket in_progress courant (jointure temporelle ; plusieurs in_progress → non attribué plutôt que
+  mal attribué). S'appuie sur LiveActivity/LiveActivityMenu existants. États vides (pas de hook
+  installé, dashboard fraîchement ouvert). DA monochrome + accent rare.
+refs:
+  - docs/specs/2026-07-18-activity-hooks.md
+  - src/components/LiveActivity.tsx
+  - src/components/LiveActivityMenu.tsx
+links: []
+dependsOn:
+  - 353
+epic: activity-live
+source: ai
+createdAt: "2026-07-18T23:31:21"
+updatedAt: "2026-07-18T23:31:21"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

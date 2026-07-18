@@ -1,20 +1,23 @@
 id: 350
 code: null
-title: Retirer le champ size (S/M/L) de toute la stack — la température a rendu la taille inutile
-status: todo
+title: >-
+  Retirer les champs size (S/M/L) et code de toute la stack — décoratifs, la température a rendu
+  size inutile et code n'est jamais rempli
+status: in_progress
 tags:
   - simplification
   - data-model
 size: null
 detail: >-
-  Décision de simplification (Rémi) : size ne sert plus à grand chose depuis la température. Vérifié
-  : size est purement décoratif — consommé par les chips de render.ts (L28, L77), les sorties --json
-  allégées, les flags CLI add/update, le schéma/serializer taskWrites, l'affichage
-  TaskRow/TaskPanel, le skill (formats.md). AUCUNE logique ne le lit (ni température, ni
-  availability). Retrait complet façon #154 (archive) : schéma + validation, CLI (flags et aides),
-  MCP (schémas des tools), dashboard (chips, panneau), skill + guide, tests. Migration : dropper la
-  ligne size des YAML existants via le serializer (pas de sed). NE PAS lancer sans validation
-  explicite de Rémi si ce ticket est pris par un agent frais.
+  Décision Rémi (2026-07-18) : retirer size ET code. Vérifié : les deux sont purement décoratifs —
+  size : chips render.ts L28/L77, sorties --json, flags CLI, schéma/serializer, TaskRow/TaskPanel,
+  skill formats.md. code : chip TaskRow L148, input TaskPanel L645-656, render chips L28, schéma
+  tasks.ts L77/L210. AUCUNE logique ne lit l'un ou l'autre (ni température, ni availability).
+  Retrait complet façon #154 : schéma + validation + serializer (taskWrites FIELD_ORDER), CLI (flags
+  --size/--code, aides, sorties json), MCP (schémas des tools add/quick/update/list), dashboard
+  (chips, inputs du panneau, aria), skill + guide + formats.md, tests. Migration : dropper les
+  lignes size:/code: des YAML existants via le serializer canonique (script one-shot type
+  backfill-release, PAS de sed). validate obligatoire après.
 refs:
   - src/lib/tasks.ts
   - src/lib/taskWrites.ts
@@ -25,7 +28,8 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-18T23:01:20"
-updatedAt: "2026-07-18T23:01:20"
+startedAt: "2026-07-18T23:29:17"
+updatedAt: "2026-07-18T23:29:17"
 completedAt: null
 commit: null
 outcome: null

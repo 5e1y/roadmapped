@@ -21,9 +21,16 @@ dependsOn:
 epic: null
 source: ai
 createdAt: "2026-07-18T21:14:52"
-updatedAt: "2026-07-18T21:14:52"
+updatedAt: "2026-07-18T23:29:17"
 completedAt: null
 commit: null
 outcome: null
 verification: null
 release: null
+feedback:
+  - date: "2026-07-18T23:29:17"
+    author: Rémi (via Fable)
+    text: >-
+      Décision Rémi 2026-07-18 : Notepad HORS périmètre de coupe — il l'utilise perso et des users
+      connus aussi. Ne pas le proposer au retrait dans la spec, quel que soit le compteur.
+    resolved: false
