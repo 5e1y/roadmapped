@@ -218,7 +218,7 @@ export function Backlog() {
             <div className="flex flex-col gap-8">
               {/* Epics (#135) : lignes-groupe repliables DANS la liste — plus de vue
                   alternative « par epic » (#133 rejeté), le groupe est le défaut. */}
-              <TaskList open={open} done={done} tree={tree} filtered={Boolean(q || tagFilter.length)} />
+              <TaskList open={open} done={done} tree={tree} filtered={hasFilters} />
             </div>
           </div>
         </div>
