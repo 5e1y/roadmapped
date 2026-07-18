@@ -7,6 +7,7 @@ import yaml from 'js-yaml'
 import { buildTaskTree } from './tasks.ts'
 import { findHostRoot } from './paths.ts'
 import { validateTaskTree, validateIdUniquenessAcrossFiles } from './validate.ts'
+import { invalidateTreeCache } from './treeCache.ts'
 import type { TaskTree, TaskNode, TaskFileMap, FeedbackItem } from './tasks'
 import { TYPES } from './tasks.ts'
 
@@ -64,8 +65,15 @@ export function readTree(tasksDir: string): TaskTree {
 }
 
 export function treeWithErrors(tasksDir: string): { tree: TaskTree; errors: string[] } {
+  // Perf (#366) : parser UNE fois. On construit le tree, puis on valide DESSUS
+  // (validateTaskTree) au lieu de le reconstruire dans validateAll. Seul
+  // validateIdUniquenessAcrossFiles re-parse le brut (il détecte les id dupliqués
+  // AVANT que buildTaskTree ne les fusionne — il lui faut la vue fichier par
+  // fichier). 3 parses → 2. Le gros gain reste le cache (treeCache.ts) au-dessus.
   const files = loadFiles(tasksDir)
-  return { tree: buildTaskTree(files), errors: validateAll(files) }
+  const tree = buildTaskTree(files)
+  const errors = [...validateTaskTree(tree), ...validateIdUniquenessAcrossFiles(files)]
+  return { tree, errors }
 }
 
 export function findTask(tree: TaskTree, id: number): FoundTask | null {
@@ -272,6 +280,10 @@ function commitWrites(tasksDir: string, ops: Op[]): MutationResult {
     rollback(applied)
     return { ok: false, errors }
   }
+  // Le tree a changé sur disque → invalide le cache de lecture (#366) AVANT que
+  // le prochain /api/tree ne serve du périmé. Synchrone : ne dépend pas du
+  // watcher (asynchrone, débouncé 80 ms). No-op hors serveur (cache vide en CLI).
+  invalidateTreeCache(tasksDir)
   return { ok: true, tree: readTree(tasksDir) }
 }
 
