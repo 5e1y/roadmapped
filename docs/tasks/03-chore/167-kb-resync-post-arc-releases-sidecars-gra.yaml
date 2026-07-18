@@ -6,14 +6,16 @@ tags:
   - kb
 size: null
 detail: null
-refs: []
+refs:
+  - graphify-out
+  - .gitignore
 links: []
 dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-18T21:36:36"
 startedAt: "2026-07-18T21:36:36"
-updatedAt: "2026-07-18T21:36:48"
+updatedAt: "2026-07-18T21:37:09"
 completedAt: "2026-07-18T21:36:48"
 commit: 5dbb742
 outcome: >-
