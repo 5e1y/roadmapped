@@ -13,11 +13,17 @@ import { RoadmapGraph } from './RoadmapGraph'
  * SESSION (pas persisté — un coup d'œil d'historique, pas une préférence),
  * partagé Colonnes/Graphe via props. Le Graphe garde les done qui sont
  * dépendances (transitives) de tickets affichés : arêtes intègres.
+ *
+ * Filtre epic (#343) : remonté ICI — le parent commun le plus bas des deux
+ * modes — pour que la bande d'epics filtre les DEUX vues et que la sélection
+ * SURVIVE au passage Colonnes ↔ Graphe (état de session, pas persisté : un
+ * filtre de lecture, pas une préférence).
  */
 export function RoadmapView() {
   const { tree, errors, loading, loadError } = useTree()
   const [mode, setMode] = useState<'columns' | 'graph'>('columns')
   const [showDone, setShowDone] = useState(false)
+  const [epicFilter, setEpicFilter] = useState<string | null>(null)
 
   if (loading && !tree) {
     return <div className="mx-auto max-w-3xl px-6 py-8 text-sm text-neutral-500">Loading…</div>
@@ -74,7 +80,9 @@ export function RoadmapView() {
         </div>
       </ViewHeader>
       <div className="min-h-0 flex-1 overflow-auto">
-        {mode === 'columns' ? <RoadmapColumns showDone={showDone} /> : <RoadmapGraph showDone={showDone} />}
+        {mode === 'columns'
+          ? <RoadmapColumns showDone={showDone} epicFilter={epicFilter} onEpicFilter={setEpicFilter} />
+          : <RoadmapGraph showDone={showDone} epicFilter={epicFilter} onEpicFilter={setEpicFilter} />}
       </div>
     </div>
   )

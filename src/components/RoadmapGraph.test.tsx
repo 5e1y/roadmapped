@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { hiddenPrereqNote, roundedEdgePath } from './RoadmapGraph'
+import { hiddenPrereqNote, roundedEdgePath, buildGraphModel, filterGraphToEpic } from './RoadmapGraph'
+import type { TaskNode, TaskTree, SectionNode } from '../lib/tasks'
 
 describe('hiddenPrereqNote (#138 — prérequis sans carte propre localisés)', () => {
   it('cite le #id et le titre de l’epic qui le porte', () => {
@@ -38,5 +39,59 @@ describe('roundedEdgePath (arêtes dagre arrondies, graph-v2)', () => {
   it('dégénéré : vide → chaîne vide, point double toléré', () => {
     expect(roundedEdgePath([])).toBe('')
     expect(roundedEdgePath([{ x: 3, y: 4 }, { x: 3, y: 4 }, { x: 10, y: 4 }])).toBe('M 3 4 L 10 4')
+  })
+})
+
+// ── Filtre epic du graphe (#343) : mêmes cartes/état que la Roadmap ─────────
+const baseTask: TaskNode = {
+  id: 1, kind: 'task', code: null, title: 'Tâche', status: 'todo',
+  tags: [], size: null,
+  detail: null, refs: [], links: [], dependsOn: [], epic: null,
+  source: 'ai', createdAt: '2026-06-24', startedAt: null, completedAt: null, commit: null,
+  outcome: null, verification: null, release: null,
+  file: 'docs/tasks/01-bug/01-t.yaml', subtasks: [],
+}
+const mk = (id: number, over: Partial<TaskNode> = {}): TaskNode => ({ ...baseTask, id, title: `Tâche ${id}`, ...over })
+const sect = (key: string, tasks: TaskNode[]): SectionNode =>
+  ({ key, title: key.replace(/^\d+-/, ''), status: 'open', note: null, tasks })
+
+describe('filterGraphToEpic (#343 — epic sélectionné → tâches + frontières directes)', () => {
+  // checkout (t1, t2) : t1 dépend de t3 (amont), t4 dépend de t2 (aval).
+  // t5 est standalone sans lien ; l'epic « other » (t6) est étranger.
+  const tree: TaskTree = {
+    nextId: 20,
+    sections: [
+      sect('01-bug', [
+        mk(1, { epic: 'checkout', dependsOn: [3] }),
+        mk(2, { epic: 'checkout' }),
+        mk(3),
+        mk(4, { dependsOn: [2] }),
+        mk(5),
+        mk(6, { epic: 'other' }),
+      ]),
+    ],
+    epics: [{ slug: 'checkout', title: 'Checkout' }, { slug: 'other', title: 'Other' }],
+  }
+  const model = buildGraphModel(tree, true, [])
+
+  it('ne garde que le nœud-epic + ses voisins directs hors-epic, le reste disparaît', () => {
+    const { model: filtered } = filterGraphToEpic(model, 'e:checkout')
+    expect(new Set(filtered.nodes.map((m) => m.node.key)))
+      .toEqual(new Set(['e:checkout', 't:3', 't:4']))
+    // t:5 (isolé) et e:other (epic étranger) sont écartés.
+    expect(filtered.nodes.some((m) => m.node.key === 't:5')).toBe(false)
+    expect(filtered.nodes.some((m) => m.node.key === 'e:other')).toBe(false)
+  })
+
+  it('les frontières (amont ET aval) sont marquées estompées, pas l’epic', () => {
+    const { borderKeys } = filterGraphToEpic(model, 'e:checkout')
+    expect(borderKeys).toEqual(new Set(['t:3', 't:4']))
+    expect(borderKeys.has('e:checkout')).toBe(false)
+  })
+
+  it('ne garde que les arêtes incidentes à l’epic (vers/depuis les frontières)', () => {
+    const { model: filtered } = filterGraphToEpic(model, 'e:checkout')
+    expect(new Set(filtered.edges.map((e) => `${e.from}->${e.to}`)))
+      .toEqual(new Set(['t:3->e:checkout', 'e:checkout->t:4']))
   })
 })

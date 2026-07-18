@@ -11,6 +11,7 @@ import { graphLayout, type GraphInput, type GraphPoint } from '../lib/graphLayou
 import { LockLocked } from 'trinil-react'
 import { Chevron, EpicGlyph, KindGlyph } from './glyphs'
 import { Chip } from './Chip'
+import { EpicBand, epicBandView } from './EpicBand'
 import { epicStatusOf } from './EpicRow'
 import type { TaskTree, TaskNode } from '../lib/tasks'
 import { useZoomPan, ZOOM_STEP } from './useZoomPan'
@@ -111,7 +112,7 @@ const epicHeight = (n: Extract<GNode, { kind: 'epic' }>, expandedEpics: string[]
  * membres d'epic fusionnés en nœuds-groupe. Le PLACEMENT, lui, est parti dans
  * graphLayout (dagre) — plus aucune colonne par stage ici.
  */
-function buildGraphModel(tree: TaskTree, showDone: boolean, expandedEpics: string[]): GraphModel {
+export function buildGraphModel(tree: TaskTree, showDone: boolean, expandedEpics: string[]): GraphModel {
   const sections = tree.sections.filter((s) => s.status !== 'abandoned')
   const avail = computeAvailability(tree)
   // « Build Stage » → chip « Build » : la métadonnée reste courte sur la carte.
@@ -209,14 +210,57 @@ function buildGraphModel(tree: TaskTree, showDone: boolean, expandedEpics: strin
   return { nodes, edges, input, avail }
 }
 
+/** Ensemble vide stable (identité constante) : le cas « aucun filtre epic ». */
+const NO_BORDERS: ReadonlySet<string> = new Set()
+
+/**
+ * Filtre le modèle sur un epic sélectionné (#343) — même geste que la bande
+ * d'epics de la vue Colonnes, porté au graphe. On ne garde QUE le nœud-epic +
+ * ses voisins DIRECTS (frontières hors-epic, en amont ET en aval) et les
+ * arêtes qui les relient à l'epic ; tout le reste disparaît. Les frontières
+ * sont retournées à part pour être rendues estompées (DimVeil) — le contexte
+ * des bords sans le bruit du graphe entier. Fonction pure, testée à part.
+ *
+ * `epicKey` absent du modèle (epic tout-done masqué) → géré en amont : on
+ * n'appelle pas le filtre, le graphe complet reste affiché.
+ */
+export function filterGraphToEpic(
+  model: GraphModel,
+  epicKey: string,
+): { model: GraphModel; borderKeys: ReadonlySet<string> } {
+  const edges = model.edges.filter((e) => e.from === epicKey || e.to === epicKey)
+  const borderKeys = new Set<string>()
+  for (const e of edges) {
+    if (e.from !== epicKey) borderKeys.add(e.from)
+    if (e.to !== epicKey) borderKeys.add(e.to)
+  }
+  const keep = new Set<string>([epicKey, ...borderKeys])
+  const nodes = model.nodes.filter((m) => keep.has(m.node.key))
+  const input: GraphInput = {
+    nodes: nodes.map((m) => ({ id: m.node.key, width: CARD_W, height: m.h })),
+    edges,
+  }
+  return { model: { nodes, edges, input, avail: model.avail }, borderKeys }
+}
+
 /** Ton d'une arête sous surlignage : sur le chemin amont/aval, hors chemin, neutre. */
 type EdgeTone = 'default' | 'strong' | 'dim'
 
 const EDGE_STROKE: Record<EdgeTone, string> = { default: 'var(--color-neutral-500)', strong: 'var(--color-neutral-900)', dim: 'var(--color-neutral-200)' }
 const EDGE_MARKER: Record<EdgeTone, string> = { default: 'url(#rm-arrow)', strong: 'url(#rm-arrow-strong)', dim: 'url(#rm-arrow-dim)' }
 
-/** Vue achievement : layout FLUX-DE-DÉPENDANCES (dagre, prérequis → dépendant). */
-export function RoadmapGraph({ showDone }: { showDone: boolean }) {
+/**
+ * Vue achievement : layout FLUX-DE-DÉPENDANCES (dagre, prérequis → dépendant).
+ * La bande d'epics (#343) coiffe le graphe comme en vue Colonnes : mêmes cartes,
+ * même sélection/désélection, MÊME état (remonté à RoadmapView) — passer d'une
+ * vue à l'autre conserve le filtre. Epic sélectionné → le graphe ne rend que ses
+ * tâches + leurs dépendances directes hors-epic, estompées.
+ */
+export function RoadmapGraph({ showDone, epicFilter, onEpicFilter }: {
+  showDone: boolean
+  epicFilter: string | null
+  onEpicFilter: (slug: string | null) => void
+}) {
   const { tree } = useTree()
   if (!tree) return null
   const sections = tree.sections.filter((s) => s.status !== 'abandoned')
@@ -227,17 +271,39 @@ export function RoadmapGraph({ showDone }: { showDone: boolean }) {
       </div>
     )
   }
-  return <GraphCanvas tree={tree} showDone={showDone} />
+  const { items, doneItems, selected } = epicBandView(tree, showDone, epicFilter)
+  return (
+    <div className="flex h-full flex-col">
+      <EpicBand items={items} doneItems={doneItems} selected={selected} onSelect={onEpicFilter} />
+      <div className="relative min-h-0 flex-1">
+        <GraphCanvas tree={tree} showDone={showDone} selected={selected} />
+      </div>
+    </div>
+  )
 }
 
-function GraphCanvas({ tree, showDone }: { tree: TaskTree; showDone: boolean }) {
+function GraphCanvas({ tree, showDone, selected }: { tree: TaskTree; showDone: boolean; selected: string | null }) {
   // Épics dépliés (partagé avec les cartes EpicGraphNode) : la hauteur d'un nœud
   // déplié participe au layout, le composant racine doit donc s'y abonner.
   const [expandedEpics] = usePersistentStrings('graph:epics')
-  // Le modèle (nœuds + arêtes + GraphInput) n'est reconstruit qu'à une écriture
-  // ou un toggle — jamais au hover/zoom/pan. graphLayout est de plus mémoïsé
-  // par identité d'input (WeakMap) : dagre ne tourne qu'une fois par modèle.
-  const model = useMemo(() => buildGraphModel(tree, showDone, expandedEpics), [tree, showDone, expandedEpics])
+  // Le modèle complet (nœuds + arêtes + GraphInput) n'est reconstruit qu'à une
+  // écriture ou un toggle — jamais au hover/zoom/pan. graphLayout est de plus
+  // mémoïsé par identité d'input (WeakMap) : dagre ne tourne qu'une fois par modèle.
+  // Un epic filtré est TOUJOURS déplié (#343) : le filtre sert à voir ses tâches,
+  // un chip replié n'aurait aucun sens — sans toucher à l'état persistant.
+  const effectiveExpanded = useMemo(
+    () => (selected && !expandedEpics.includes(selected) ? [...expandedEpics, selected] : expandedEpics),
+    [expandedEpics, selected],
+  )
+  const fullModel = useMemo(() => buildGraphModel(tree, showDone, effectiveExpanded), [tree, showDone, effectiveExpanded])
+  // Filtre epic (#343) : post-étape PURE sur le modèle complet — l'epic + ses
+  // frontières directes. Absent du modèle (epic tout-done masqué) → pas de
+  // filtre, graphe complet. NO_BORDERS a une identité stable (pas de re-render).
+  const epicKey = selected ? `e:${selected}` : null
+  const { model, borderKeys } = useMemo(() => {
+    if (epicKey && fullModel.nodes.some((m) => m.node.key === epicKey)) return filterGraphToEpic(fullModel, epicKey)
+    return { model: fullModel, borderKeys: NO_BORDERS }
+  }, [fullModel, epicKey])
   const layout = graphLayout(model.input)
   const zp = useZoomPan(layout.width, layout.height)
   // Surlignage amont/aval : SURVOL SEUL, transitoire (décision verrouillée
@@ -341,7 +407,9 @@ function GraphCanvas({ tree, showDone }: { tree: TaskTree; showDone: boolean }) 
           {model.nodes.map((m) => {
             const pos = layout.nodes.get(m.node.key)
             if (!pos) return null
-            const dimmed = hood !== null && !inHood(m.node.key)
+            // Frontière d'un epic filtré (#343) : toujours estompée (contexte des
+            // bords), en plus de l'atténuation hors-voisinage au survol.
+            const dimmed = borderKeys.has(m.node.key) || (hood !== null && !inHood(m.node.key))
             const focused = focusKey === m.node.key
             return m.node.kind === 'task' ? (
               <GraphCard key={m.node.key} model={m} task={m.node.task} pos={pos} dimmed={dimmed} focused={focused} {...hoverProps(m.node.key)} />

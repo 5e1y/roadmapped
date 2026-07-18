@@ -57,6 +57,26 @@ export function epicBandItems(tree: TaskTree): EpicBandItem[] {
     })
 }
 
+/**
+ * Découpe de la bande d'epics servie aux DEUX vues Roadmap (Colonnes + Graphe,
+ * #343) : les non-terminés en cartes ; les 100 % done derrière le repli
+ * « + N done » et SEULEMENT toggle done ON ; l'epic sélectionné reste en carte
+ * même s'il est done (jamais escamoté sous son propre filtre) ; un filtre
+ * pointant un epic disparu (rename/reload) est ignoré. Source unique pour que
+ * les deux vues filtrent à l'identique et partagent l'état de sélection.
+ */
+export function epicBandView(tree: TaskTree, showDone: boolean, epicFilter: string | null): {
+  items: EpicBandItem[]
+  doneItems: EpicBandItem[]
+  selected: string | null
+} {
+  const band = epicBandItems(tree)
+  const items = band.filter((i) => i.status !== 'done' || i.slug === epicFilter)
+  const doneItems = showDone ? band.filter((i) => i.status === 'done' && i.slug !== epicFilter) : []
+  const selected = epicFilter !== null && band.some((i) => i.slug === epicFilter) ? epicFilter : null
+  return { items, doneItems, selected }
+}
+
 /** Carte d'epic compacte (#245) : deux lignes serrées, largeur bornée. */
 function EpicCard({ item, active, onSelect }: {
   item: EpicBandItem
