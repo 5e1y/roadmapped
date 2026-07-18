@@ -151,6 +151,16 @@ function Shell() {
     document.title = repoName ? `${repoName} · ${name} · Roadmapped` : `${name} · Roadmapped`
   }, [view, docPath, repoName])
 
+  // Compteur d'usage local (#345) : quelle vue sert vraiment. Fire-and-forget,
+  // silencieux en cas d'échec — jamais bloquant pour la navigation.
+  useEffect(() => {
+    fetch('/api/usage', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: view }),
+    }).catch(() => { /* silencieux */ })
+  }, [view])
+
   return (
     <div className="flex h-screen w-screen overflow-hidden">
       {/* Plus de sidebar : les tabs vivent dans le header commun (ViewHeader). */}
