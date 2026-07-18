@@ -204,7 +204,7 @@ const CMD_USAGE = {
   sitrep: 'Usage: sitrep',
   audit: 'Usage: audit [--json]  (parses the #id convention in commits since the last logged task; surfaces orphans + dead references)',
   guard: 'Usage: guard  (pre-commit hook — exit 1 if staged product files have no in_progress task)',
-  done: 'Usage: done <id> [--commit <sha>] [--outcome <o>] [--verification <v>] [--release <r>] [--suggest-refs] [--resolve-feedback all|1,3]',
+  done: 'Usage: done <id> [--commit <sha>] [--outcome <o>] [--verification <v>] [--release <r>] [--suggest-refs] [--resolve-feedback all|1,3]  (--release default: host package.json version)',
   feedback: 'Usage: feedback <id> "<text>" [--author <name>]',
   roadmap: 'Usage: roadmap [--json]',
   add: 'Usage: add --type <type> --title <t> [--detail <d>] [--tags a,b] [--heat 0-100] [--size S|M|L]\n        [--code <c>] [--refs a,b] [--links 1,2] [--depends-on 1,2] [--epic <slug>]\n        [--kind task|milestone] [--blocks 1,2] [--source ai|user] [--json]  (--section/--stage = aliases of --type)',
