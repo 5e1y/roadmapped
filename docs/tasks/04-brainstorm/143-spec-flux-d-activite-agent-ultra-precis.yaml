@@ -1,0 +1,35 @@
+id: 351
+code: null
+title: "Spec : flux d'activité agent ultra précis — hooks Claude Code → onglet Activity"
+status: todo
+tags:
+  - activity
+  - spec
+size: null
+heat: 70
+detail: >-
+  Cœur de l'idée terminal de Rémi : avoir la main sur TOUT ce que fait l'agent pour un onglet
+  activité ultra précis. Piste principale à spécifier : les hooks Claude Code (PostToolUse reçoit
+  chaque tool call — Edit/Write/Bash/MCP avec leurs cibles) → un hook script minuscule POST {ts,
+  tool, cible, session} vers /api/activity du dashboard → ring buffer + SSE (socle live existant
+  #185) → timeline temps réel dans l'onglet Activity : « édite src/foo.ts », « lance vitest », «
+  done #341 ». Corrélation possible avec le ticket in_progress courant. Le pattern d'installation de
+  hook existe déjà (ensureSessionHook #122). Avantages vs terminal embarqué : zéro PTY, zéro
+  WebSocket, zéro question d'auth — le terminal devient optionnel. À spécifier : schéma d'événement,
+  rétention (ring buffer, pas de fichier infini), groupement par session/ticket, install du hook via
+  roadmapped init, opt-out. Livrable : spec docs/specs/ + tickets d'exécution.
+refs:
+  - src/server/api.ts
+  - scripts/install.mjs#ensureSessionHook
+  - src/components/LiveActivity.tsx
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-18T23:01:20"
+updatedAt: "2026-07-18T23:01:20"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
