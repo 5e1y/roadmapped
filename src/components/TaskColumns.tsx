@@ -13,7 +13,7 @@ const PREVIEW = 12
 const keyOf = (i: EpicListItem) => (i.type === 'epic' ? `epic:${i.slug}` : `task:${i.task.id}`)
 
 /** Rend un item de liste mixte : ligne-epic repliable ou TaskRow à plat (#135). */
-function ListItemRow({ item, tree }: { item: EpicListItem; tree: TaskTree }) {
+function ListItemRow({ item, tree, filtered = false }: { item: EpicListItem; tree: TaskTree; filtered?: boolean }) {
   return item.type === 'epic' ? (
     <EpicRow
       slug={item.slug}
@@ -21,6 +21,9 @@ function ListItemRow({ item, tree }: { item: EpicListItem; tree: TaskTree }) {
       tasks={item.tasks}
       progress={epicProgress(tree, item.slug)}
       persistKey="backlog:epics"
+      // #348 : en recherche/filtre, déplier le groupe pour que les membres
+      // matchés (sinon démontés, repliés) soient visibles.
+      forceOpen={filtered}
     />
   ) : (
     <TaskRow task={item.task} />
@@ -54,13 +57,18 @@ const countTasks = (items: EpicListItem[]) =>
  * d'ouverture est de SESSION (useState, pas persisté) : la plus récente ouverte
  * par défaut, le reste replié — un coup d'œil d'historique, pas une préférence.
  */
-function ReleaseSection({ release, items, tree, defaultOpen }: {
+function ReleaseSection({ release, items, tree, defaultOpen, filtered = false }: {
   release: string
   items: EpicListItem[]
   tree: TaskTree
   defaultOpen: boolean
+  /** #348 : en recherche/filtre, forcer l'ouverture — un match dans un accordéon
+      replié (démonté) ferait « aucun résultat ». L'état de session reprend la main après. */
+  filtered?: boolean
 }) {
-  const [open, setOpen] = useState(defaultOpen)
+  const [sessionOpen, setSessionOpen] = useState(defaultOpen)
+  const open = filtered || sessionOpen
+  const setOpen = setSessionOpen
   const count = countTasks(items)
   return (
     <Collapsible.Root open={open} onOpenChange={setOpen}>
@@ -80,7 +88,7 @@ function ReleaseSection({ release, items, tree, defaultOpen }: {
       </div>
       <Collapsible.Panel>
         <div className="divide-y divide-neutral-100 border-t border-neutral-100">
-          {items.map((i) => <ListItemRow key={keyOf(i)} item={i} tree={tree} />)}
+          {items.map((i) => <ListItemRow key={keyOf(i)} item={i} tree={tree} filtered={filtered} />)}
         </div>
       </Collapsible.Panel>
     </Collapsible.Root>
@@ -134,9 +142,14 @@ export function TaskList({ open, done, tree, filtered }: {
           <span>To do — hottest first</span>
           <span className="font-mono text-[11px]">{open.length}</span>
         </h2>
-        {open.length === 0 ? empty('Nothing open') : (
+        {/* Garde sur openItems, pas open (#348) : un epic INCOMPLET dont seuls des
+            membres DONE sont visibles (recherche/filtre) est absorbé côté ouvert
+            comme groupe — `open` (tâches brutes) est alors vide alors qu'il y a
+            bien un item à rendre. Garder open.length faisait « Nothing open »
+            malgré un match. */}
+        {openItems.length === 0 ? empty('Nothing open') : (
           <div className="divide-y divide-neutral-100 border border-neutral-200 bg-white">
-            {visible.map((i) => <ListItemRow key={keyOf(i)} item={i} tree={tree} />)}
+            {visible.map((i) => <ListItemRow key={keyOf(i)} item={i} tree={tree} filtered={filtered} />)}
             {hidden > 0 && (
               <button
                 type="button"
@@ -163,10 +176,13 @@ export function TaskList({ open, done, tree, filtered }: {
           <span>Done — most recently completed first</span>
           <span className="font-mono text-[11px]">{done.length}</span>
         </h2>
-        {done.length === 0 ? empty('Nothing done yet') : (
+        {/* Garde sur doneItems (#348) : cohérent avec la colonne ouverte — seuls
+            les done d'epics COMPLETS y vivent, `done` brut peut en contenir qui
+            partent côté ouvert (epic incomplet). */}
+        {doneItems.length === 0 ? empty('Nothing done yet') : (
           <div className="divide-y divide-neutral-100 border border-neutral-200 bg-white">
             {releaseGroups.map((g, idx) => (
-              <ReleaseSection key={g.release} release={g.release} items={g.items} tree={tree} defaultOpen={idx === 0} />
+              <ReleaseSection key={g.release} release={g.release} items={g.items} tree={tree} defaultOpen={idx === 0} filtered={filtered} />
             ))}
           </div>
         )}

@@ -198,7 +198,7 @@ function EpicTitleInput({ slug, title, onError, done = false }: {
  * La ligne est `relative` : ancre du trigger ET des spans absolus (sr-only) —
  * sans ça ils s'échappent du scroller et gonflent le scroll de la page (#141).
  */
-export function EpicRow({ slug, title, tasks, progress, persistKey }: {
+export function EpicRow({ slug, title, tasks, progress, persistKey, forceOpen = false }: {
   slug: string
   title: string
   /** Membres à rendre dans CE contexte de liste (peut être un sous-ensemble de l'epic). */
@@ -206,8 +206,17 @@ export function EpicRow({ slug, title, tasks, progress, persistKey }: {
   /** Complétion GLOBALE de l'epic (epicProgress) — pas celle du sous-ensemble local. */
   progress: { done: number; total: number }
   persistKey: string
+  /**
+   * Force le dépliage sans toucher à la préférence persistée (#348) : en
+   * recherche/filtre, les membres matchés vivent DANS le groupe — replié, ils
+   * sont DÉMONTÉS (Collapsible Base UI) et la recherche « ne retourne rien ».
+   * On ouvre donc le groupe le temps du filtre ; l'état persisté reprend la main
+   * dès qu'il est levé.
+   */
+  forceOpen?: boolean
 }) {
-  const [open, setOpen] = usePersistentStringFlag(persistKey, slug)
+  const [persistedOpen, setOpen] = usePersistentStringFlag(persistKey, slug)
+  const open = forceOpen || persistedOpen
   const [renameError, setRenameError] = useState<string | null>(null)
   const partial = tasks.length < progress.total
   // Compte LOCAL (ce que ce dépliage révèle) — « ici » quand l'epic a aussi des

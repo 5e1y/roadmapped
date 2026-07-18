@@ -21,7 +21,8 @@ export interface TreeState {
   lastChange: { seq: number; diff: TreeDiff } | null
 }
 
-const TreeContext = createContext<TreeState | null>(null)
+/** Exporté pour les tests : injecter un tree sans passer par le fetch de TreeProvider. */
+export const TreeContext = createContext<TreeState | null>(null)
 
 export function TreeProvider({ children }: { children: ReactNode }) {
   const [tree, setTree] = useState<TaskTree | null>(null)
