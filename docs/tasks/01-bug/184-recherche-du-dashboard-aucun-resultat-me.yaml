@@ -1,7 +1,7 @@
 id: 348
 code: null
 title: "Recherche du dashboard : aucun résultat même sur un terme exact d'un titre de ticket"
-status: in_progress
+status: done
 tags:
   - ui
   - search
@@ -25,9 +25,21 @@ epic: null
 source: ai
 createdAt: "2026-07-18T23:01:19"
 startedAt: "2026-07-18T23:01:24"
-updatedAt: "2026-07-18T23:01:24"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+updatedAt: "2026-07-18T23:17:54"
+completedAt: "2026-07-18T23:17:54"
+commit: 9343ae7
+outcome: >-
+  ROOT CAUSE démontrée par tests rouges : la recherche matchait, mais les résultats étaient DÉMONTÉS
+  du DOM — (1) une tâche dans un epic est rendue dans un EpicRow replié par défaut, et le
+  Collapsible.Panel Base UI démonte ses enfants fermé → titre matché absent du DOM (203/330 tâches
+  ont un epic, d'où le « aucun résultat » quasi systématique) ; (2) gardes d'état vide sur les
+  tableaux bruts open/done au lieu des items rendus → « Nothing open » malgré un match réel. Fix
+  minimal : prop forceOpen sur EpicRow (dépliage forcé LE TEMPS du filtre, préférence persistée
+  intacte), propagation filtered aux ReleaseSection (#342) et ListItemRow, gardes corrigées sur
+  openItems/doneItems, filtre type inclus dans hasFilters. Surface KB examinée et saine (elle indexe
+  le code, pas les tickets — comportement attendu).
+verification: >-
+  5 tests Backlog.test.tsx dont 2 rouges avant fix (terme dans epic replié, terme done dans epic
+  incomplet) — verts après. tsc clean, suite complète 627/627 dans main post-merge, build OK, bundle
+  unique reconstruit depuis les sources fusionnées.
+release: 0.2.3
