@@ -4,3 +4,4 @@ docs/notes/
 .DS_Store
 dist-demo/
 roadmapped.config.local.json
+.roadmapped-usage.jsonl

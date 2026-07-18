@@ -28,6 +28,7 @@ import { kbNeighborhood, neighborhoodText, kbSearch, searchText, kbNode, nodeTex
 // #325 — KB load-bearing : take/brief embarquent le voisinage du graphe, sitrep
 // porte la ligne d'état (même composition que le CLI : src/lib/kbCycle.ts).
 import { kbBriefSection, kbSitrepLine } from '../src/lib/kbCycle.ts'
+import { logUsage } from '../src/lib/usageLog.ts'
 
 // ------------------------------------------------------------------ helpers de sortie
 // Règle (#95) : structuredContent SEULEMENT quand l'objet est la charge utile (écriture →
@@ -453,8 +454,10 @@ export function makeTools(ROOT, KB_GRAPH_FILE, HOST_ROOT) {
 }
 
 // ------------------------------------------------------------------ server
-/** Mounts an MCP server wired to `tools` (registry already bound to a ROOT). */
-export function buildServer(tools) {
+/** Mounts an MCP server wired to `tools` (registry already bound to a ROOT).
+ *  usageRoot (optional) : racine hôte pour le compteur d'usage local (#345) —
+ *  un seul point d'accroche générique ici (pas un log par tool copié-collé). */
+export function buildServer(tools, usageRoot) {
   const server = new Server({ name: 'roadmapped', version: '1.0.0' }, { capabilities: { tools: {} } })
   server.setRequestHandler(ListToolsRequestSchema, () => ({
     tools: tools.map(({ name, description, inputSchema }) => ({ name, description, inputSchema })),
@@ -462,6 +465,7 @@ export function buildServer(tools) {
   server.setRequestHandler(CallToolRequestSchema, async (req) => {
     const tool = tools.find((t) => t.name === req.params.name)
     if (!tool) return fail(`Unknown tool: ${req.params.name}`)
+    if (usageRoot) logUsage('mcp', tool.name, usageRoot)
     try {
       return await tool.handler(req.params.arguments ?? {})
     } catch (e) {
@@ -475,6 +479,6 @@ export function buildServer(tools) {
 // Only starts the transport when run as a binary (not on test import).
 if (import.meta.url === `file://${process.argv[1]}`) {
   const { tasksDir: ROOT, kbGraphFile, root } = loadPaths()
-  await buildServer(makeTools(ROOT, kbGraphFile, root)).connect(new StdioServerTransport())
+  await buildServer(makeTools(ROOT, kbGraphFile, root), root).connect(new StdioServerTransport())
   process.stderr.write('roadmapped MCP server ready (stdio).\n')
 }

@@ -15,6 +15,7 @@ import {
   listNotes, readNote, createNote, writeNote, archiveNote, deleteNote, revealPath, ensureNotesSetup,
   type NoteResult,
 } from './notes.ts'
+import { logUsage } from '../lib/usageLog.ts'
 
 export type ApiAction =
   | { type: 'getTree' }
@@ -33,6 +34,7 @@ export type ApiAction =
   | { type: 'archiveNote'; slug: string }
   | { type: 'deleteNote'; slug: string }
   | { type: 'reveal'; body: any }
+  | { type: 'usage'; body: any }
   | { type: 'badRequest'; errors: string[] }
   | { type: 'notFound' }
 
@@ -119,6 +121,12 @@ export function routeApi(method: string, rawUrl: string, body: any): ApiAction {
     return { type: 'reveal', body }
   }
 
+  // Compteur d'usage local (#345) : quelle vue du dashboard est réellement ouverte.
+  // Fire-and-forget côté client (App.tsx) — jamais bloquant.
+  if (seg[0] === 'usage' && seg.length === 1 && method === 'POST') {
+    return { type: 'usage', body }
+  }
+
   return { type: 'notFound' }
 }
 
@@ -201,6 +209,11 @@ export function runAction(paths: RoadmappedPaths, action: ApiAction): ApiRespons
         return fromNote(deleteNote(docsDir, action.slug))
       case 'reveal':
         return fromNote(revealPath(action.body?.path))
+      case 'usage': {
+        const name = typeof action.body?.name === 'string' && action.body.name ? action.body.name : 'unknown'
+        logUsage('view', name, paths.root)
+        return { status: 200, payload: { ok: true } }
+      }
       case 'badRequest':
         return { status: 400, payload: { ok: false, errors: action.errors } }
       case 'notFound':
