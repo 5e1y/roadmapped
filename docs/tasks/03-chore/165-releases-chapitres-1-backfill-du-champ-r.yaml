@@ -1,7 +1,7 @@
 id: 340
 code: null
 title: "Releases-chapitres 1 : backfill du champ release sur les ~317 tâches done"
-status: in_progress
+status: done
 tags:
   - releases
   - data-model
@@ -22,9 +22,21 @@ epic: releases-chapitres
 source: ai
 createdAt: "2026-07-18T21:14:10"
 startedAt: "2026-07-18T21:18:46"
-updatedAt: "2026-07-18T21:18:46"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+updatedAt: "2026-07-18T21:33:31"
+completedAt: "2026-07-18T21:33:31"
+commit: 82d9a86
+outcome: >-
+  Backfill complet : 318 tâches done ont toutes un release canonique (30×0.1.0, 5×0.2.0, 2×0.2.1,
+  2×0.2.2, 4×0.2.3, 275×pre-release) ; les 11 null restants sont les non-done, non touchés.
+  Chronologie reconstituée via dates de publish npm (tags git incomplets) recoupées avec les commits
+  de bump. Point clé résolu : les completedAt nus sont en heure locale CEST (+02:00), prouvé par
+  ancrage sur les dates de commit des tâches — parse en +02:00 avant comparaison UTC, sinon ~20
+  tâches basculaient à tort. Valeurs incohérentes normalisées (v0.2 et string Cloudflare →
+  pre-release par date). Script conservé : scripts/backfill-release.mjs (écrit via taskWrites+lock,
+  release seul, done seuls).
+verification: >-
+  validate OK (329 tasks) après backfill et re-vérifié après commit. Répartition contrôlée par uniq
+  -c : zéro done à release:null. Frontières spot-checkées : #321 (16:38 CEST) → 0.1.0 vs publish
+  0.2.0 à 17:48 CEST ; #325→0.1.0/#327→0.2.0 autour du même publish ; valeurs pré-existantes
+  #332/#336 recalculées à l'identique.
 release: null
