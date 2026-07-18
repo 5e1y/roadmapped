@@ -5,7 +5,7 @@ import type { TaskTree, TaskNode, SectionNode } from './tasks'
 
 function task(id: number, over: Partial<TaskNode> = {}): TaskNode {
   return {
-    id, kind: 'task', code: null, title: `T${id}`, status: 'todo', tags: [], size: null,
+    id, kind: 'task', title: `T${id}`, status: 'todo', tags: [],
     detail: null, refs: [], links: [], dependsOn: [], epic: null,
     source: 'ai', createdAt: '2026-07-07', startedAt: null, completedAt: null, commit: null, outcome: null,
     verification: null, release: null, file: `docs/tasks/04-build/${id}.yaml`, subtasks: [], ...over,
@@ -17,8 +17,8 @@ const tree = (tasks: TaskNode[]): TaskTree => {
 }
 
 describe('taskLine', () => {
-  it('glyphe + id + titre + chips (size/heat/tags ; team retirée #230)', () => {
-    expect(taskLine(task(1, { size: 'M', tags: ['ux'] }), '')).toBe('[ ] #1   T1  (M ux)')
+  it('glyphe + id + titre + chips (heat/tags ; size/code retirés #350, team #230)', () => {
+    expect(taskLine(task(1, { tags: ['ux'] }), '')).toBe('[ ] #1   T1  (ux)')
   })
   it('un heat > 0 porte le chip « heat N » (absent = froid, aucun chip)', () => {
     expect(taskLine(task(1, { heat: 80 }), '')).toBe('[ ] #1   T1  (heat 80)')

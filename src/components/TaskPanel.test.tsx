@@ -3,8 +3,8 @@ import { relItemOf } from './TaskPanel'
 import type { TaskNode } from '../lib/tasks'
 
 const base: TaskNode = {
-  id: 12, kind: 'task', code: null, title: 'Brancher le paiement', status: 'todo',
-  tags: [], size: null, detail: null, refs: [], links: [],
+  id: 12, kind: 'task', title: 'Brancher le paiement', status: 'todo',
+  tags: [], detail: null, refs: [], links: [],
   dependsOn: [], epic: null, source: 'user', createdAt: '2026-07-01', startedAt: null,
   completedAt: null, commit: null, outcome: null, verification: null, release: null,
   file: 'docs/tasks/04-build/12-paiement.yaml', subtasks: [],

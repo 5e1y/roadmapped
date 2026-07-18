@@ -326,7 +326,6 @@ export function makeTools(ROOT, KB_GRAPH_FILE, HOST_ROOT) {
         kind: { type: 'string', enum: ['task', 'milestone'], description: 'default task; milestone = milestone (rendered as diamond, target of dependsOn)' },
         detail: { type: 'string' },
         tags: { type: 'array', items: { type: 'string' }, description: TAGS_DESCRIPTION },
-        size: { type: 'string', enum: ['S', 'M', 'L'] },
         refs: { type: 'array', items: { type: 'string' } },
         links: { type: 'array', items: { type: 'number' } },
         dependsOn: { type: 'array', items: { type: 'number' } },
@@ -350,7 +349,7 @@ export function makeTools(ROOT, KB_GRAPH_FILE, HOST_ROOT) {
       }
       const res = addTask(ROOT, {
         section: a.section, title: a.title, heat: a.heat, kind: a.kind ?? 'task',
-        detail: a.detail ?? null, tags: splitList(a.tags), size: a.size ?? null,
+        detail: a.detail ?? null, tags: splitList(a.tags),
         refs: splitList(a.refs), links: splitList(a.links).map(Number),
         dependsOn: splitList(a.dependsOn).map(Number),
         // --milestone deprecated: alias read as long as it exists (backwards compat #133).
@@ -457,7 +456,7 @@ export function makeTools(ROOT, KB_GRAPH_FILE, HOST_ROOT) {
       properties: {
         id: { type: 'number' },
         title: { type: 'string' }, detail: { type: 'string' }, status: { type: 'string', enum: ['todo', 'in_progress', 'done'] },
-        size: { type: 'string' }, heat: S.heat, code: { type: 'string' }, source: { type: 'string', enum: ['ai', 'user'] },
+        heat: S.heat, source: { type: 'string', enum: ['ai', 'user'] },
         commit: { type: 'string' }, outcome: { type: 'string' }, verification: { type: 'string' }, release: { type: 'string' },
         epic: { type: 'string', description: 'slug of the cross-cutting grouping (epic)' },
         milestone: { type: 'string', description: 'DEPRECATED — alias of epic (#133)' },
@@ -468,7 +467,7 @@ export function makeTools(ROOT, KB_GRAPH_FILE, HOST_ROOT) {
     },
     handler: (a) => {
       const patch = {}
-      for (const f of ['title', 'detail', 'status', 'size', 'heat', 'code', 'source', 'commit', 'outcome', 'verification', 'release', 'epic']) {
+      for (const f of ['title', 'detail', 'status', 'heat', 'source', 'commit', 'outcome', 'verification', 'release', 'epic']) {
         if (a[f] !== undefined) patch[f] = a[f]
       }
       // --milestone deprecated: alias of epic as long as it exists (backwards compat #133).

@@ -10,8 +10,11 @@ import { validateTaskTree, validateIdUniquenessAcrossFiles } from './validate.ts
 import type { TaskTree, TaskNode, TaskFileMap, FeedbackItem } from './tasks'
 import { TYPES } from './tasks.ts'
 
+// size (S/M/L) et code (#350) RETIRÉS : absents de FIELD_ORDER, donc dumpTask ne les
+// réécrit jamais — un YAML qui les portait encore les perd au prochain dump (migration
+// naturelle, comme milestone→epic). Aucune clé inconnue n'est réintroduite.
 export const FIELD_ORDER = [
-  'id', 'kind', 'code', 'title', 'status', 'tags', 'size', 'heat', 'detail',
+  'id', 'kind', 'title', 'status', 'tags', 'heat', 'detail',
   'refs', 'links', 'dependsOn', 'epic', 'source', 'createdAt', 'startedAt', 'updatedAt', 'completedAt', 'commit',
   'outcome', 'verification', 'release', 'feedback',
 ]
@@ -156,7 +159,7 @@ export function withLock<T>(tasksDir: string, fn: () => T): T {
 
 // ---------------------------------------------------------------- écriture
 
-function dumpTask(raw: Record<string, unknown>): string {
+export function dumpTask(raw: Record<string, unknown>): string {
   const ordered: Record<string, unknown> = {}
   for (const key of FIELD_ORDER) {
     // kind est ADDITIF : on ne l'écrit QUE si = milestone. Un task (le défaut) reste
@@ -298,8 +301,6 @@ export interface AddTaskInput {
   kind?: 'task' | 'milestone'
   detail?: string | null
   tags?: string[]
-  size?: string | null
-  code?: string | null
   refs?: string[]
   links?: number[]
   dependsOn?: number[]
@@ -348,11 +349,9 @@ function addTaskImpl(tasksDir: string, input: AddTaskInput): MutationResult {
     id: nextId,
     // 'task' par défaut : dumpTask omet alors le champ (rétrocompat). Seul milestone est écrit.
     kind: input.kind === 'milestone' ? input.kind : 'task',
-    code: str(input.code),
     title: input.title,
     status: 'todo',
     tags: input.tags ?? [],
-    size: str(input.size),
     // heat ADDITIF : dumpTask ne l'écrit que si nombre > 0 (absent = froid).
     heat: typeof input.heat === 'number' ? input.heat : null,
     detail: str(input.detail),
@@ -506,10 +505,8 @@ export interface UpdateTaskPatch {
   title?: string
   detail?: string | null
   status?: string
-  size?: string | null
   /** Seed de priorité (#230/#231) : 0–100. 0 ou null REFROIDIT (efface le champ). */
   heat?: number | null
-  code?: string | null
   epic?: string | null
   source?: string
   commit?: string | null
@@ -531,7 +528,7 @@ export function updateTask(tasksDir: string, id: number, patch: UpdateTaskPatch)
 
 function updateTaskImpl(tasksDir: string, id: number, patch: UpdateTaskPatch): MutationResult {
   const stringFields: (keyof UpdateTaskPatch)[] = [
-    'title', 'detail', 'status', 'size', 'code', 'epic', 'source',
+    'title', 'detail', 'status', 'epic', 'source',
     'commit', 'outcome', 'verification', 'release', 'completedAt',
   ]
   const listFields: (keyof UpdateTaskPatch)[] = ['tags', 'refs', 'links', 'dependsOn']

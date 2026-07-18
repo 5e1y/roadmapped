@@ -36,7 +36,6 @@ title: "The demo should be the product"
 status: "done"
 tags:
   - "site"
-size: "M"
 detail: "Options considered for the hero: a video (goes stale), screenshots (lie by omission), a hand-built imitation (see #8, RIP). Decision: embed the real dashboard, showing the backlog that built the page. This ticket is in that backlog. You see the problem."
 refs: []
 links: []
@@ -58,7 +57,6 @@ title: "Name check: roadmapped.dev"
 status: "done"
 tags:
   - "site"
-size: "S"
 detail: null
 refs: []
 links: []
@@ -80,7 +78,6 @@ status: "done"
 tags:
   - "site"
   - "copy"
-size: "M"
 detail: "House rules: direct, deadpan, never negative, no marketing voice. Every headline gets re-read by the agent against the doc before it ships."
 refs:
   - "docs/tone-of-voice.md"
@@ -105,7 +102,6 @@ status: "done"
 tags:
   - "site"
   - "design"
-size: "S"
 detail: "One accent color, used rarely enough to mean something. Dark mode follows your OS — and there's a toggle for the contrarians."
 refs:
   - "design.md"
@@ -129,7 +125,6 @@ title: "Columns view"
 status: "done"
 tags:
   - "dashboard"
-size: "M"
 detail: "Three columns, zero drag-and-drop. The agent moves the cards by editing YAML; you review the diff. A board you cannot fidget with is a board that tells the truth."
 refs:
   - "src/components/TaskColumns.tsx"
@@ -152,7 +147,6 @@ title: "Dependency graph view"
 status: "done"
 tags:
   - "dashboard"
-size: "M"
 detail: "dependsOn is already a graph; drawing it is the honest part. Dagre lays it out, SVG renders it, done/available/locked states are computed on every read — never stored."
 refs:
   - "src/components/RoadmapGraph.tsx"
@@ -175,7 +169,6 @@ title: "Task panel on click"
 status: "done"
 tags:
   - "dashboard"
-size: "S"
 detail: null
 refs:
   - "src/components/TaskPanel.tsx"
@@ -199,7 +192,6 @@ title: "Homepage v1 — a hand-built imitation of the dashboard"
 status: "done"
 tags:
   - "site"
-size: "L"
 detail: "Rebuild the dashboard in vanilla JS for the hero: columns, graph, task panel, agent pane. 288 lines of very sincere JavaScript."
 refs: []
 links:
@@ -222,7 +214,6 @@ status: "done"
 tags:
   - "site"
   - "demo"
-size: "M"
 detail: "The dashboard you are using right now: the backlog is baked into the bundle at build time, and every attempt to save is declined with an apology. Same components, same parser, same validator as the real app — minus the part where anything happens."
 refs:
   - "src/demo/tree.ts"
@@ -249,7 +240,6 @@ status: "in_progress"
 tags:
   - "site"
   - "demo"
-size: "L"
 detail: "v1 imitated the dashboard by hand (RIP #8). It was almost right, which is the worst kind of wrong. v2 stops pretending: build the actual app with the demo tree baked in, put it in an iframe, full width. If you can read this ticket, it is working."
 refs:
   - "src/demo/main.tsx"
@@ -274,7 +264,6 @@ title: "Homepage v2 live"
 status: "todo"
 tags:
   - "site"
-size: null
 detail: "The real dashboard, embedded, in production. Unlocks when #10 lands."
 refs: []
 links: []
@@ -299,7 +288,6 @@ status: "done"
 tags:
   - "site"
   - "a11y"
-size: "S"
 detail: null
 refs: []
 links: []
@@ -320,7 +308,6 @@ title: "Launch post"
 status: "todo"
 tags:
   - "content"
-size: "M"
 detail: "Working title: “Your repo is already your project management tool.” The post is mostly written — it is this backlog, narrated."
 refs: []
 links: []
@@ -342,7 +329,6 @@ title: "Post it, then don't refresh the analytics for one hour"
 status: "todo"
 tags:
   - "content"
-size: "S"
 detail: "The hard part is the second half."
 refs: []
 links: []
@@ -364,7 +350,6 @@ release: null
 title: "Answer the first GitHub issue"
 status: "todo"
 tags: []
-size: "S"
 detail: "Within a day, like a shop that answers its own phone."
 refs: []
 links: []
@@ -387,7 +372,6 @@ title: "Deploy to Cloudflare Pages"
 status: "done"
 tags:
   - "site"
-size: "S"
 detail: "Static files, no build step on the far side. The deploy instructions fit in four lines and one of them is a joke."
 refs:
   - "wrangler.jsonc"
@@ -410,7 +394,6 @@ release: null
 title: "Still no database"
 status: "todo"
 tags: []
-size: "S"
 detail: "Recurring ticket. Someone suggests one; we decline; the ticket closes itself. Your data stays a folder of files you can read without us."
 refs: []
 links: []
