@@ -75,12 +75,42 @@ function showText(hit, tree) {
   return L.join('\n')
 }
 
+// #352 — surface agent tag-aware : le vocabulaire de tags EN USAGE, injecté dans la
+// description du param `tags` de add/quick/update (cf. docs/specs/2026-07-18-tags-etude.md,
+// option C). Sans ça l'agent ne voit les tags existants NULLE PART dans son schéma →
+// abstention ou vocabulaire anarchique (86 tags, 50 % ≤3 usages, dogfooding #344).
+// `debt` reste mentionné même backlog vide : c'est le seul payoff agent visible (sitrep).
+const GENERIC_TAGS_DESCRIPTION = "Free-form tags to categorize the task; 'debt' is load-bearing (queryable debt ledger, flagged by sitrep)."
+/** Top-12 tags par fréquence d'usage (ties → ordre alpha, déterministe), pour la
+ *  description dynamique du param `tags`. Dégradation propre : readTree en échec ou
+ *  backlog sans tag → description générique SANS liste (pas de ": " orphelin) — le
+ *  boot du serveur MCP ne doit jamais casser pour une histoire de description. */
+export function tagsDescription(ROOT) {
+  try {
+    const counts = new Map()
+    for (const t of activeTasks(readTree(ROOT))) {
+      for (const tag of t.tags) counts.set(tag, (counts.get(tag) ?? 0) + 1)
+    }
+    if (counts.size === 0) return GENERIC_TAGS_DESCRIPTION
+    const top = [...counts.entries()]
+      .sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0))
+      .slice(0, 12)
+      .map(([tag]) => tag)
+    return `Reuse the project's existing vocabulary when relevant: ${top.join(', ')}; 'debt' is load-bearing (queryable debt ledger, flagged by sitrep). Free-form otherwise.`
+  } catch {
+    return GENERIC_TAGS_DESCRIPTION
+  }
+}
+
 // ------------------------------------------------------------------ registre de tools
 // Chaque tool : name, description (courte), inputSchema (la doc), handler (renvoie ok/fail).
 // ROOT injecté (factory) → testable sur un sandbox sans le vrai backlog.
 // #91 = lecture ; #92 poussera les tools d'écriture dans ce même tableau.
 // HOST_ROOT (optionnel) : racine hôte pour lire l'état kb de la config (opt-out).
 export function makeTools(ROOT, KB_GRAPH_FILE, HOST_ROOT) {
+  // Calculé UNE fois par boot (makeTools est appelé une fois) → coût token nul en
+  // régime, partagé par add/quick/update (une seule construction, pas 3 copies).
+  const TAGS_DESCRIPTION = tagsDescription(ROOT)
   // Chargement du knowledge graph (Graphify), partagé par les 3 outils KB.
   // Dégradation propre : chemin inconnu (appel hors `roadmapped`), fichier absent
   // (pas encore généré) ou illisible → un message clair au lieu d'un crash.
@@ -295,7 +325,7 @@ export function makeTools(ROOT, KB_GRAPH_FILE, HOST_ROOT) {
         heat: S.heat,
         kind: { type: 'string', enum: ['task', 'milestone'], description: 'default task; milestone = milestone (rendered as diamond, target of dependsOn)' },
         detail: { type: 'string' },
-        tags: { type: 'array', items: { type: 'string' } },
+        tags: { type: 'array', items: { type: 'string' }, description: TAGS_DESCRIPTION },
         size: { type: 'string', enum: ['S', 'M', 'L'] },
         refs: { type: 'array', items: { type: 'string' } },
         links: { type: 'array', items: { type: 'number' } },
@@ -347,7 +377,7 @@ export function makeTools(ROOT, KB_GRAPH_FILE, HOST_ROOT) {
         title: { type: 'string' },
         type: S.type,
         heat: S.heat,
-        tags: { type: 'array', items: { type: 'string' } },
+        tags: { type: 'array', items: { type: 'string' }, description: TAGS_DESCRIPTION },
         start: { type: 'boolean', description: 'start immediately (todo → in_progress)' },
       },
       required: ['title', 'type'], additionalProperties: false,
@@ -431,7 +461,7 @@ export function makeTools(ROOT, KB_GRAPH_FILE, HOST_ROOT) {
         commit: { type: 'string' }, outcome: { type: 'string' }, verification: { type: 'string' }, release: { type: 'string' },
         epic: { type: 'string', description: 'slug of the cross-cutting grouping (epic)' },
         milestone: { type: 'string', description: 'DEPRECATED — alias of epic (#133)' },
-        tags: { type: 'array', items: { type: 'string' } }, refs: { type: 'array', items: { type: 'string' } },
+        tags: { type: 'array', items: { type: 'string' }, description: TAGS_DESCRIPTION }, refs: { type: 'array', items: { type: 'string' } },
         links: { type: 'array', items: { type: 'number' } }, dependsOn: { type: 'array', items: { type: 'number' } },
       },
       required: ['id'], additionalProperties: false,
