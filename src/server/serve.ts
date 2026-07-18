@@ -1,5 +1,6 @@
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http'
 import { readFileSync, existsSync, statSync } from 'node:fs'
+import { createHash } from 'node:crypto'
 import { join, resolve, sep, extname, basename } from 'node:path'
 import { spawn } from 'node:child_process'
 import { loadPaths, packageRoot } from '../lib/paths.ts'
@@ -21,6 +22,36 @@ const CONTENT_TYPE: Record<string, string> = {
   '.ico': 'image/x-icon',
   '.woff2': 'font/woff2',
   '.woff': 'font/woff',
+}
+
+/**
+ * Content-Security-Policy du HTML servi (#360, défense en profondeur avec le
+ * sanitize markdown #359). Le script anti-flash inline (#269) est autorisé par
+ * son HASH sha256 — CALCULÉ depuis le HTML réellement servi, pas figé en dur :
+ * il survit à toute modif du script sans qu'on y repense, et un script INJECTÉ
+ * (le vecteur XSS) n'a pas le bon hash → bloqué. `style-src 'unsafe-inline'` est
+ * requis : React pose des styles inline (`style={{width}}` des barres/graphe) ;
+ * l'injection de style est un risque bien moindre que celle de script.
+ */
+export function cspForHtml(html: string): string {
+  const hashes: string[] = []
+  for (const m of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) {
+    if (/\bsrc\s*=/i.test(m[1])) continue // script externe (self), pas à hasher
+    const digest = createHash('sha256').update(m[2], 'utf8').digest('base64')
+    hashes.push(`'sha256-${digest}'`)
+  }
+  return [
+    "default-src 'self'",
+    "base-uri 'self'",
+    "object-src 'none'",
+    "frame-ancestors 'none'",
+    "img-src 'self' data:",
+    "font-src 'self' data:",
+    "connect-src 'self'",
+    "form-action 'self'",
+    "style-src 'self' 'unsafe-inline'",
+    `script-src 'self' ${hashes.join(' ')}`.trim(),
+  ].join('; ')
 }
 
 /** Sert un fichier de dist/ (statique). Anti-traversal, content-type, cache, fallback SPA. */
@@ -53,7 +84,11 @@ function serveStatic(distDir: string, req: IncomingMessage, res: ServerResponse)
       'Cache-Control',
       pathname.startsWith('/assets/') ? 'public, max-age=31536000, immutable' : 'no-cache',
     )
-    res.end(method === 'HEAD' ? undefined : readFileSync(file))
+    const body = readFileSync(file)
+    // CSP sur le document HTML (#360) : hash du script inline calculé depuis CE
+    // contenu. Inutile sur les assets JS/CSS/images (servis en 'self').
+    if (ext === '.html') res.setHeader('Content-Security-Policy', cspForHtml(body.toString('utf8')))
+    res.end(method === 'HEAD' ? undefined : body)
   }
 
   if (existsSync(resolved) && statSync(resolved).isFile()) {

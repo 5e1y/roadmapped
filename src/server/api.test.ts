@@ -2,8 +2,41 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { mkdtempSync, rmSync, existsSync, readFileSync } from 'node:fs'
 import { tmpdir, homedir } from 'node:os'
 import { join } from 'node:path'
-import { routeApi, runAction } from './api'
+import { routeApi, runAction, apiGuard, hostnameOf } from './api'
 import { ensureGitignore } from './notes'
+
+describe('apiGuard (#360) — durcissement API locale', () => {
+  const H = (o: Record<string, string>) => o as Parameters<typeof apiGuard>[1]
+  it('hostnameOf ôte scheme, port et crochets IPv6', () => {
+    expect(hostnameOf('localhost:3000')).toBe('localhost')
+    expect(hostnameOf('http://127.0.0.1:8080')).toBe('127.0.0.1')
+    expect(hostnameOf('[::1]:5173')).toBe('::1')
+    expect(hostnameOf(undefined)).toBe('')
+  })
+  it('GET local → autorisé', () => {
+    expect(apiGuard('GET', H({ host: 'localhost:3000' }))).toBeNull()
+  })
+  it('Host non-local → 403 (DNS-rebinding)', () => {
+    expect(apiGuard('GET', H({ host: 'evil.com' }))?.status).toBe(403)
+  })
+  it('mutation avec Origin cross-site → 403 (CSRF)', () => {
+    const v = apiGuard('POST', H({ host: 'localhost:3000', origin: 'https://evil.com', 'content-type': 'application/json', 'content-length': '10' }))
+    expect(v?.status).toBe(403)
+  })
+  it('mutation avec corps text/plain → 415 (esquive de preflight)', () => {
+    const v = apiGuard('POST', H({ host: 'localhost:3000', 'content-type': 'text/plain', 'content-length': '10' }))
+    expect(v?.status).toBe(415)
+  })
+  it('PATCH same-origin JSON → autorisé', () => {
+    expect(apiGuard('PATCH', H({ host: 'localhost:3000', origin: 'http://localhost:3000', 'content-type': 'application/json', 'content-length': '10' }))).toBeNull()
+  })
+  it('POST sans corps (/api/update) → autorisé, couvert par l\'Origin', () => {
+    expect(apiGuard('POST', H({ host: 'localhost:3000', 'content-length': '0' }))).toBeNull()
+  })
+  it('mutation sans Origin (curl/CLI, pas un vecteur browser) → autorisée', () => {
+    expect(apiGuard('POST', H({ host: 'localhost:3000', 'content-type': 'application/json', 'content-length': '5' }))).toBeNull()
+  })
+})
 
 describe('routeApi', () => {
   it('GET /api/tree', () => {

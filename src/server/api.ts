@@ -227,6 +227,50 @@ export function runAction(paths: RoadmappedPaths, action: ApiAction): ApiRespons
   }
 }
 
+// Durcissement de l'API locale (#360, audit sécu #356). Modèle de menace : une
+// PAGE WEB TIERCE ouverte dans le navigateur de l'utilisateur tente de parler à
+// l'API localhost (CSRF / DNS-rebinding). Trois gardes, tous pensés pour NE PAS
+// gêner l'app légitime (fetch same-origin) ni le CLI/curl (pas de vecteur browser).
+const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '::1'])
+const MUTATING = new Set(['POST', 'PUT', 'PATCH', 'DELETE'])
+
+/** hostname nu d'un en-tête Host/Origin (port et crochets IPv6 ôtés). '' si absent. */
+export function hostnameOf(headerVal: string | undefined): string {
+  if (!headerVal) return ''
+  // Origin = scheme://host[:port] ; Host = host[:port]. On ne veut que le host.
+  const noScheme = headerVal.replace(/^[a-z]+:\/\//i, '')
+  const hostPort = noScheme.replace(/^\[([^\]]+)\]/, '$1') // [::1]:port → ::1:port
+  return hostPort.replace(/:\d+$/, '').toLowerCase()
+}
+
+/**
+ * Verdict de sécurité sur une requête /api/ — null = autorisée, sinon {status,msg}.
+ * - Host non-local → 403 (défense DNS-rebinding : un domaine piégé résolvant vers
+ *   127.0.0.1 envoie SON Host, pas localhost).
+ * - Mutation avec Origin cross-site → 403 (défense CSRF : le fetch same-origin de
+ *   l'app envoie Origin=localhost ; une page evil.com envoie le sien). Origin
+ *   absent (curl, CLI, navigations same-origin GET) → pas un vecteur browser, ok.
+ * - Mutation AVEC corps mais Content-Type non-JSON → 415 (bloque le POST « simple
+ *   request » text/plain qui esquive le preflight ; /api/update sans corps est
+ *   exempt et reste couvert par l'Origin).
+ */
+export function apiGuard(
+  method: string,
+  headers: { host?: string; origin?: string; 'content-type'?: string; 'content-length'?: string },
+): { status: number; msg: string } | null {
+  const host = hostnameOf(headers.host)
+  if (host && !LOCAL_HOSTS.has(host)) return { status: 403, msg: `Host non autorisé: ${host}` }
+  if (!MUTATING.has(method)) return null
+  const origin = hostnameOf(headers.origin)
+  if (origin && !LOCAL_HOSTS.has(origin)) return { status: 403, msg: `Origin cross-site refusé: ${origin}` }
+  const hasBody = Number(headers['content-length'] ?? '0') > 0
+  if (hasBody && method !== 'DELETE') {
+    const ct = (headers['content-type'] ?? '').toLowerCase()
+    if (!ct.startsWith('application/json')) return { status: 415, msg: 'Content-Type application/json requis' }
+  }
+  return null
+}
+
 function readJsonBody(req: IncomingMessage): Promise<any> {
   return new Promise((resolve) => {
     const chunks: Buffer[] = []
@@ -319,6 +363,16 @@ export function createApiMiddleware(
         if (!url.pathname.startsWith('/api/')) return next()
 
         const method = req.method ?? 'GET'
+
+        // Durcissement (#360) : Host/Origin/Content-Type AVANT tout traitement — une
+        // page tierce ne doit ni lire ni muter l'API localhost (CSRF/DNS-rebinding).
+        const verdict = apiGuard(method, req.headers as Record<string, string | undefined>)
+        if (verdict) {
+          res.statusCode = verdict.status
+          res.setHeader('Content-Type', 'application/json')
+          res.end(JSON.stringify({ ok: false, errors: [verdict.msg] }))
+          return
+        }
 
         // SSE (#147) : connexion longue, hors du cycle runAction/JSON.
         if (url.pathname === '/api/events' && method === 'GET') {

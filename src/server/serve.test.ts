@@ -3,8 +3,46 @@ import { createServer, get as httpGet } from 'node:http'
 import { mkdtempSync, mkdirSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { listenWithRetry } from './serve'
+import { createHash } from 'node:crypto'
+import { readFileSync, existsSync } from 'node:fs'
+import { listenWithRetry, cspForHtml } from './serve'
 import { createApiMiddleware } from './api'
+
+describe('cspForHtml (#360)', () => {
+  it('autorise le script inline par son hash sha256 et rien d\'autre', () => {
+    const html = '<script>console.log(1)</script><script type="module" src="/a.js"></script>'
+    const csp = cspForHtml(html)
+    const wanted = createHash('sha256').update('console.log(1)', 'utf8').digest('base64')
+    expect(csp).toContain(`'sha256-${wanted}'`)
+    const scriptSrc = csp.split(';').map((d) => d.trim()).find((d) => d.startsWith('script-src'))!
+    expect(scriptSrc).toContain("'self'")
+    expect(scriptSrc).not.toContain('unsafe-inline') // script-src sans unsafe-inline (le point du hash)
+  })
+  it('un script INJECTÉ (hash différent) n\'est pas couvert', () => {
+    const csp = cspForHtml('<script>ok()</script>')
+    const evil = createHash('sha256').update('alert(document.cookie)', 'utf8').digest('base64')
+    expect(csp).not.toContain(evil)
+  })
+  it('directives de base présentes (object-src none, frame-ancestors none, img data:)', () => {
+    const csp = cspForHtml('<script>x</script>')
+    expect(csp).toContain("object-src 'none'")
+    expect(csp).toContain("frame-ancestors 'none'")
+    expect(csp).toContain("img-src 'self' data:")
+    expect(csp).toContain("style-src 'self' 'unsafe-inline'") // React inline styles
+  })
+  it('le script anti-flash du VRAI dist/index.html est couvert par la CSP générée', () => {
+    const idx = 'dist/index.html'
+    if (!existsSync(idx)) return // build absent en CI pure — le mécanisme est couvert ci-dessus
+    const html = readFileSync(idx, 'utf8')
+    const csp = cspForHtml(html)
+    // Par construction, chaque <script> inline du HTML servi a son hash dans la CSP.
+    for (const m of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) {
+      if (/\bsrc\s*=/i.test(m[1])) continue
+      const h = createHash('sha256').update(m[2], 'utf8').digest('base64')
+      expect(csp).toContain(`'sha256-${h}'`)
+    }
+  })
+})
 
 // Régression #274 : quand un port est pris, listenWithRetry doit sauter au suivant
 // ET annoncer le port RÉELLEMENT lié (le bug annonçait le port échoué).
