@@ -9,6 +9,7 @@ import {
   updateSection, saveEpics, type MutationResult,
 } from '../lib/taskWrites.ts'
 import { attachTemperatures } from '../lib/roadmap.ts'
+import { cachedTreeWithErrors, invalidateTreeCache } from '../lib/treeCache.ts'
 import { buildDocsTree, readDocContent, unsafeDocPath } from './docs.ts'
 import { readKbGraph } from './kb.ts'
 import {
@@ -156,7 +157,9 @@ export function runAction(paths: RoadmappedPaths, action: ApiAction): ApiRespons
   try {
     switch (action.type) {
       case 'getTree': {
-        const { tree, errors } = treeWithErrors(tasksDir)
+        // Perf (#366) : sert le tree mémoïsé (zéro I/O, zéro parse) tant qu'aucune
+        // écriture ne l'a invalidé (commitWrites + le watcher ci-dessous).
+        const { tree, errors } = cachedTreeWithErrors(tasksDir, () => treeWithErrors(tasksDir))
         // Température (#234) attachée par tâche pour l'affichage (phase 3). tree
         // fraîchement construit → mutation en place sûre (aucun partage inter-requête).
         attachTemperatures(tree)
@@ -275,6 +278,10 @@ export function createApiMiddleware(
     for (const res of clients) res.write(`event: change\ndata: ${data}\n\n`)
   }
   const schedule = (file: string) => {
+    // Invalide le cache de lecture (#366) dès qu'un fichier bouge — couvre les
+    // écritures HORS commitWrites (CLI d'un autre process, git, édition manuelle).
+    // Les mutations in-process invalident déjà de façon synchrone dans commitWrites.
+    invalidateTreeCache(paths.tasksDir)
     pending.add(file)
     if (debounce) clearTimeout(debounce)
     debounce = setTimeout(broadcast, 80) // coalesce la salve d'events fs d'une écriture
