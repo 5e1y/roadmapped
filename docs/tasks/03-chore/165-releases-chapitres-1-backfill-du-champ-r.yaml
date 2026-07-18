@@ -1,0 +1,30 @@
+id: 340
+code: null
+title: "Releases-chapitres 1 : backfill du champ release sur les ~317 tâches done"
+status: in_progress
+tags:
+  - releases
+  - data-model
+size: null
+detail: >-
+  Script one-shot qui mappe completedAt → version de release (via tags git + dates de publish npm
+  0.1.x/0.2.x) et remplit release sur toutes les tâches done à release:null. Les tâches pré-npm
+  (avant la 1re release) reçoivent une valeur unique type 'pre-release' ou '0.1.0'. Normaliser au
+  passage les 4 valeurs incohérentes existantes (0.2.1, 0.2.3, v0.2, string Cloudflare — cette
+  dernière concerne le site externe : à remapper sur la version app correspondante ou pre-release).
+  Écriture via taskWrites (pas de sed sur les YAML), validate obligatoire après.
+refs:
+  - src/lib/taskWrites.ts
+  - docs/tasks
+links: []
+dependsOn: []
+epic: releases-chapitres
+source: ai
+createdAt: "2026-07-18T21:14:10"
+startedAt: "2026-07-18T21:18:46"
+updatedAt: "2026-07-18T21:18:46"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

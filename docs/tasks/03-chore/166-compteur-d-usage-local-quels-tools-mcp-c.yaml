@@ -1,0 +1,30 @@
+id: 345
+code: null
+title: "Compteur d'usage local : quels tools MCP, commandes CLI et vues servent vraiment"
+status: in_progress
+tags:
+  - dx
+  - mesure
+size: null
+detail: >-
+  Préalable factuel à la passe de simplification : un append JSONL local (gitignoré) qui compte les
+  appels par tool MCP, par commande CLI et par vue ouverte du dashboard. Zéro réseau, zéro
+  dépendance, quelques lignes par point d'entrée (dispatcher task.mjs, makeTools MCP, changement de
+  vue App). Laisser tourner 1-2 semaines de dogfood avant d'exploiter. Une commande de lecture (ou
+  un simple cat/jq documenté) suffit pour le dépouillement.
+refs:
+  - scripts/task.mjs
+  - scripts/mcp-server.mjs
+  - src/App.tsx
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-18T21:14:45"
+startedAt: "2026-07-18T21:18:46"
+updatedAt: "2026-07-18T21:18:46"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

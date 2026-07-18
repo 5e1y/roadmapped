@@ -1,0 +1,31 @@
+id: 343
+code: null
+title: "Vue Graphe : epics comme filtres (même fonctionnement que la Roadmap)"
+status: in_progress
+tags:
+  - ui
+  - graph
+size: null
+detail: >-
+  Le graphe de dépendances devient quasi inutilisable dès qu'on utilise des epics (constat Rémi).
+  Reprendre le mécanisme éprouvé de la vue Roadmap : la bande d'epics (EpicBand) comme filtre. Un
+  epic sélectionné → le graphe ne montre que ses tâches + leurs dépendances directes hors-epic,
+  estompées (DimVeil) pour garder le contexte des frontières. Réutiliser EpicBand/FilterMenu et
+  l'état de filtre existants — idéalement filtre partagé entre vues (passer de Roadmap à Graph
+  conserve la sélection). Pas de nouveau mécanisme.
+refs:
+  - src/components/RoadmapGraph.tsx
+  - src/components/EpicBand.tsx
+  - src/components/FilterMenu.tsx
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-18T21:14:30"
+startedAt: "2026-07-18T21:18:46"
+updatedAt: "2026-07-18T21:18:46"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

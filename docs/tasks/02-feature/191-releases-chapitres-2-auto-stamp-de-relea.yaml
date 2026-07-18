@@ -1,0 +1,30 @@
+id: 341
+code: null
+title: "Releases-chapitres 2 : auto-stamp de release au done (version courante du package.json)"
+status: todo
+tags:
+  - releases
+  - cli
+size: null
+detail: >-
+  done sans --release remplit automatiquement le champ avec la version du package.json du repo hôte
+  (fallback : null si pas de package.json ou pas de version). --release explicite garde la priorité.
+  Appliquer au CLI (cmdDone) ET au tool MCP done (même core taskWrites). Le champ cesse d'être en
+  friche : chaque done appartient désormais à un chapitre. Mettre à jour l'aide de done + une ligne
+  dans le skill (formats.md si nécessaire).
+refs:
+  - scripts/task.mjs#cmdDone
+  - src/lib/taskWrites.ts
+  - scripts/mcp-server.mjs
+links: []
+dependsOn:
+  - 340
+epic: releases-chapitres
+source: ai
+createdAt: "2026-07-18T21:14:17"
+updatedAt: "2026-07-18T21:14:17"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

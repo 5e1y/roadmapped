@@ -1,0 +1,29 @@
+id: 346
+code: null
+title: "Spec : passe de simplification — streamliner l'usine pour une expérience ultra simple"
+status: todo
+tags:
+  - simplification
+  - spec
+size: null
+detail: >-
+  Constat Rémi : on a créé une vraie usine (~5 vues, 13 tools MCP, ~20 commandes CLI, guards, KB,
+  notepad). Objectif : un agent frais productif avec ~5 concepts (ticket, statut, epic, release,
+  température). Sur la base des données du compteur d'usage (#345) et de la décision tags (#344) :
+  ce qui n'a pas servi se justifie ou disparaît — coupe, fusion de commandes/vues, réduction des
+  flags. Livrable : spec de coupe validée par Rémi, puis tickets d'exécution. Ne rien couper avant
+  les données (mesure d'abord, opinion ensuite).
+refs: []
+links: []
+dependsOn:
+  - 344
+  - 345
+epic: null
+source: ai
+createdAt: "2026-07-18T21:14:52"
+updatedAt: "2026-07-18T21:14:52"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
