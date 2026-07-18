@@ -24,6 +24,44 @@ export interface TreeState {
 /** Exporté pour les tests : injecter un tree sans passer par le fetch de TreeProvider. */
 export const TreeContext = createContext<TreeState | null>(null)
 
+/**
+ * Décide si un event SSE `change` doit déclencher un resync du tree (#367).
+ *
+ * Le serveur envoie `event.data` = JSON `{ paths: [...] }` (cf. `broadcast()`
+ * dans src/server/api.ts : `JSON.stringify({ paths: [...pending] })`). Les
+ * chemins viennent de `fs.watch` et sont RELATIFS au dir surveillé, donc PAS
+ * forcément préfixés `docs/tasks/` :
+ *  - écriture d'un ticket → `NN-xxx/123.yaml` (watch de tasksDir=`docs/tasks`) ET
+ *    `tasks/NN-xxx/123.yaml` (watch récursif de docsDir=`docs`), même salve.
+ *  - régénération Graphify → `graph.json`, `wiki/…`, `GRAPH_REPORT.md`
+ *    (watch de graphify-out/) — ne touche AUCUN ticket.
+ *  - note → `notes/foo.md` (watch de docsDir).
+ *
+ * Fail-safe : payload absent / JSON malformé / `paths` non exploitable → on
+ * RECHARGE (mieux vaut un reload de trop qu'un tree périmé — exigence #1 :
+ * ne JAMAIS rater une vraie écriture de ticket). On ne supprime le reload que
+ * si on peut prouver qu'AUCUN chemin ne concerne les tâches.
+ *
+ * Signal « tâche » : un chemin contient `tasks/` OU se termine par `.yaml`/`.yml`.
+ * Les fichiers de tâches sont les SEULS `.yaml` de l'arbre surveillé (vérifié),
+ * donc l'extension reste fiable même sur la forme relative à tasksDir sans préfixe.
+ */
+export function shouldReload(data: string | null | undefined): boolean {
+  if (!data) return true // fail-safe : pas de payload → on recharge
+  let paths: unknown
+  try {
+    paths = (JSON.parse(data) as { paths?: unknown }).paths
+  } catch {
+    return true // fail-safe : JSON malformé
+  }
+  if (!Array.isArray(paths) || paths.length === 0) return true // fail-safe : rien d'exploitable
+  return paths.some((p) => {
+    if (typeof p !== 'string') return true // élément inattendu → fail-safe
+    const norm = p.replace(/\\/g, '/').toLowerCase()
+    return norm.includes('tasks/') || norm.endsWith('.yaml') || norm.endsWith('.yml')
+  })
+}
+
 export function TreeProvider({ children }: { children: ReactNode }) {
   const [tree, setTree] = useState<TaskTree | null>(null)
   const [errors, setErrors] = useState<string[]>([])
@@ -94,13 +132,17 @@ export function TreeProvider({ children }: { children: ReactNode }) {
   }, [reload])
 
   // Live reactivity (#147) : s'abonner au flux SSE du serveur ; à chaque signal
-  // `change` (une écriture sur docs/tasks ou docs), resync silencieux. Garde :
-  // pas d'EventSource sous jsdom (tests) ni sur le build démo statique.
+  // `change`, resync silencieux SI l'event touche un ticket (#367 : on filtre sur
+  // `event.data.paths` pour éviter de recharger ~630 Ko sur une régénération
+  // Graphify ou une écriture de note — cf. shouldReload, fail-safe = recharger).
+  // Garde : pas d'EventSource sous jsdom (tests) ni sur le build démo statique.
   useEffect(() => {
     if (typeof EventSource === 'undefined') return
     if ((window as unknown as { __ROADMAPPED_STATIC__?: boolean }).__ROADMAPPED_STATIC__) return
     const es = new EventSource('/api/events')
-    es.addEventListener('change', () => { void reload({ silent: true }) })
+    es.addEventListener('change', (ev) => {
+      if (shouldReload((ev as MessageEvent).data)) void reload({ silent: true })
+    })
     return () => es.close()
   }, [reload])
 
