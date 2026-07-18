@@ -2,7 +2,7 @@ id: 366
 title: >-
   Perf : parser les YAML une seule fois par requête (TaskFileMap → objets), cache invalidé par le
   watcher
-status: todo
+status: done
 tags:
   - perf
   - io
@@ -23,9 +23,25 @@ dependsOn: []
 epic: audit-remediation
 source: ai
 createdAt: "2026-07-18T23:54:39"
-updatedAt: "2026-07-18T23:54:39"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+startedAt: "2026-07-19T00:01:27"
+updatedAt: "2026-07-19T00:11:51"
+completedAt: "2026-07-19T00:11:51"
+commit: cceb139
+outcome: >-
+  Cache de lecture du tree + dedup du parsing. (A) treeWithErrors construit le tree une fois et
+  valide dessus (validateTaskTree(tree) + validateIdUniquenessAcrossFiles(files)) au lieu de
+  reconstruire dans validateAll : 3 parses → 2 par lecture. (B) src/lib/treeCache.ts : cache
+  {tree,errors} par tasksDir (module feuille, zéro import lourd → pas de cycle), servi par /api/tree
+  (runAction getTree). Invalidé aux 2 seules sources de changement : commitWrites (toute mutation
+  programmatique, synchrone) + le schedule() du fs.watch (édits externes CLI/git/manuel).
+  attachTemperatures reste ré-exécuté par requête sur le tree caché (overwrite pur de t.temperature,
+  idempotent par jour). Sur un hit : zéro I/O, zéro parse — répond au symptôme HDD/CPU du user (2-4s
+  à froid → ~0 en mémoire).
+verification: >-
+  Mesuré sur le vrai backlog : treeWithErrors 22ms/req → cachedTreeWithErrors ~0 sur hit (21x
+  moyenne SSD tiède, effectivement infini sur relectures ; sur HDD froid le gain est de 2-4s → 0).
+  treeCache.test.ts : 4 tests (hit unique, même référence, invalidation ciblée par dir, purge
+  globale). Dedup sans régression : validateTaskTree(tree) où tree=buildTaskTree(files) est
+  identique par construction à l'ancien validateAll — tests lib+CLI+serveur 952/952 verts, suite
+  complète 642/642, tsc clean, build OK.
+release: 0.2.3
