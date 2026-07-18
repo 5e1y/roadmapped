@@ -7,7 +7,7 @@ import { EditPen, LockLocked } from 'trinil-react'
 import { Chevron, KindGlyph } from './glyphs'
 import { Chip } from './Chip'
 import { TempBadge, rowTemperature } from './Temperature'
-import { EpicBand, epicBandItems } from './EpicBand'
+import { EpicBand, epicBandView } from './EpicBand'
 import { countTasksDeep, SECTION_STATUS_LABEL } from '../lib/tasks'
 import type { SectionNode, TaskNode } from '../lib/tasks'
 
@@ -192,26 +192,24 @@ function Column({ section, scope, open, done, avail, blocksOf }: {
  * type canonique (9) — les vides restent visibles, estompés et resserrés.
  * Le filtre epic (clic sur une carte de la bande) restreint les 9 colonnes
  * aux membres de cet epic ; les compteurs/barres suivent le périmètre filtré.
+ * L'état du filtre est REMONTÉ à RoadmapView (#343) — partagé avec le Graphe.
  */
-export function RoadmapColumns({ showDone }: { showDone: boolean }) {
+export function RoadmapColumns({ showDone, epicFilter, onEpicFilter }: {
+  showDone: boolean
+  epicFilter: string | null
+  onEpicFilter: (slug: string | null) => void
+}) {
   const { tree } = useTree()
-  // Filtre epic : état de session (pas persisté — un filtre de lecture, pas une préférence).
-  const [epicFilter, setEpicFilter] = useState<string | null>(null)
   if (!tree) return null
   const sections = tree.sections.filter((s) => s.status !== 'abandoned')
   const avail = computeAvailability(tree)
   // « bloque N » des jalons : dépendants inverses, calculé une fois par carte jalon.
   const blocksOf = (t: TaskNode) => (t.kind === 'milestone' ? reverseDependents(tree, t.id).length : 0)
 
-  // Bande d'epics (#243) : les non-terminés en cartes ; les 100 % done vivent
-  // derrière le repli « + N done » de la bande, et SEULEMENT toggle done ON
-  // (cohérence : un done caché = epic all-done caché). L'epic sélectionné
-  // reste en carte, jamais escamoté sous son propre filtre. Le filtre d'un
-  // epic disparu (rename/reload) est ignoré.
-  const band = epicBandItems(tree)
-  const openBand = band.filter((i) => i.status !== 'done' || i.slug === epicFilter)
-  const doneBand = showDone ? band.filter((i) => i.status === 'done' && i.slug !== epicFilter) : []
-  const selected = epicFilter !== null && band.some((i) => i.slug === epicFilter) ? epicFilter : null
+  // Bande d'epics (#243) : découpe partagée avec le Graphe (#343) — non-terminés
+  // en cartes, 100 % done derrière « + N done » (toggle done ON), epic
+  // sélectionné toujours en carte, filtre d'un epic disparu ignoré.
+  const { items: openBand, doneItems: doneBand, selected } = epicBandView(tree, showDone, epicFilter)
 
   const scopeOf = (s: SectionNode) =>
     selected === null ? s.tasks : s.tasks.filter((t) => t.epic === selected)
@@ -226,7 +224,7 @@ export function RoadmapColumns({ showDone }: { showDone: boolean }) {
 
   return (
     <div className="flex h-full flex-col">
-      <EpicBand items={openBand} doneItems={doneBand} selected={selected} onSelect={setEpicFilter} />
+      <EpicBand items={openBand} doneItems={doneBand} selected={selected} onSelect={onEpicFilter} />
       <div
         className="roadmap-cols-scroll grid min-h-0 flex-1 grid-flow-col grid-rows-[auto_auto_auto_1fr] gap-x-4 gap-y-1.5 overflow-x-auto px-6 pb-6"
         style={{ gridTemplateColumns: template }}
