@@ -4,6 +4,7 @@ import { PanelProvider, usePanel, isDualStack, type PanelEntry } from './state/P
 import { ViewProvider, type View } from './state/ViewContext'
 import { KbProvider } from './state/KbContext'
 import { SidePanel } from './components/SidePanel'
+import { NavRail } from './components/NavRail'
 import { Backlog } from './components/Backlog'
 import { TaskPanel } from './components/TaskPanel'
 import { KbNodePanel } from './components/KbNodePanel'
@@ -176,15 +177,18 @@ function Shell() {
   }, [view])
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden">
-      {/* Plus de sidebar : les tabs vivent dans le header commun (ViewHeader). */}
-      <main className="min-w-0 flex-1 overflow-y-auto">
-        <ViewProvider view={view} setView={setView}>
+    // ViewProvider enveloppe TOUTE la rangée : le NavRail (flanc gauche) comme la
+    // zone de vue consomment useView. Le rail vertical d'icônes (#370) remplace les
+    // tabs du header ; la vue occupe le reste ; le(s) panneau(x) restent à droite.
+    <ViewProvider view={view} setView={setView}>
+      <div className="flex h-screen w-screen overflow-hidden">
+        <NavRail />
+        <main className="min-w-0 flex-1 overflow-y-auto">
           <MainView view={view} docPath={docPath} onSelectDoc={setDocPath} epicFilter={epicFilter} onEpicFilter={setEpicFilter} />
-        </ViewProvider>
-      </main>
-      <PanelHost />
-    </div>
+        </main>
+        <PanelHost />
+      </div>
+    </ViewProvider>
   )
 }
 
