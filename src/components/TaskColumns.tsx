@@ -1,10 +1,16 @@
 import { useState } from 'react'
+import { Collapsible } from '@base-ui/react/collapsible'
 import { TaskRow } from './TaskRow'
 import { EpicRow, splitBacklogItems, type EpicListItem } from './EpicRow'
+import { Chevron } from './glyphs'
 import { allEpics, epicProgress } from '../lib/roadmap'
 import { type TaskNode, type TaskTree } from '../lib/tasks'
+import { groupByRelease, compareReleasesDesc, PRE_RELEASE } from '../lib/release'
 
 const PREVIEW = 12
+
+/** Clé stable d'un item de liste mixte (epic-groupe ou tâche à plat). */
+const keyOf = (i: EpicListItem) => (i.type === 'epic' ? `epic:${i.slug}` : `task:${i.task.id}`)
 
 /** Rend un item de liste mixte : ligne-epic repliable ou TaskRow à plat (#135). */
 function ListItemRow({ item, tree }: { item: EpicListItem; tree: TaskTree }) {
@@ -18,6 +24,66 @@ function ListItemRow({ item, tree }: { item: EpicListItem; tree: TaskTree }) {
     />
   ) : (
     <TaskRow task={item.task} />
+  )
+}
+
+/**
+ * Release d'un item terminé (#342). Une tâche à plat porte sa propre release ;
+ * un epic-groupe (100 % done) est rattaché à sa release la plus RÉCENTE (code
+ * défensif si ses membres en mêlent plusieurs), pour rester d'un seul tenant
+ * sous un accordéon. `null`/absente → 'pre-release' (via groupByRelease).
+ */
+function releaseOfItem(item: EpicListItem): string | null {
+  if (item.type === 'task') return item.task.release
+  let best: string | null = null
+  for (const t of item.tasks) {
+    const r = t.release ?? PRE_RELEASE
+    if (best === null || compareReleasesDesc(r, best) < 0) best = r
+  }
+  return best
+}
+
+/** Nombre de tâches terminées d'un groupe de release (un epic-groupe = N tâches). */
+const countTasks = (items: EpicListItem[]) =>
+  items.reduce((n, i) => n + (i.type === 'epic' ? i.tasks.length : 1), 0)
+
+/**
+ * Accordéon d'une release dans la colonne « Terminées » (#342). Même mécanique
+ * de pliage que l'EpicRow (Collapsible Base UI + calque-trigger plein-rang,
+ * `data-panel-open` sur la ligne pour la rotation `.chev`), mais l'état
+ * d'ouverture est de SESSION (useState, pas persisté) : la plus récente ouverte
+ * par défaut, le reste replié — un coup d'œil d'historique, pas une préférence.
+ */
+function ReleaseSection({ release, items, tree, defaultOpen }: {
+  release: string
+  items: EpicListItem[]
+  tree: TaskTree
+  defaultOpen: boolean
+}) {
+  const [open, setOpen] = useState(defaultOpen)
+  const count = countTasks(items)
+  return (
+    <Collapsible.Root open={open} onOpenChange={setOpen}>
+      <div
+        data-panel-open={open ? '' : undefined}
+        className="relative flex w-full items-center gap-2 px-4 py-[5px] text-sm hover:bg-neutral-50"
+      >
+        <Collapsible.Trigger
+          aria-label={`Release ${release} — ${count} done`}
+          className="absolute inset-0 h-full w-full"
+        />
+        <Chevron />
+        <span className="pointer-events-none min-w-0 truncate font-medium text-neutral-700">{release}</span>
+        <span aria-hidden className="pointer-events-none ml-auto shrink-0 font-mono text-[11px] text-neutral-500">
+          {count}
+        </span>
+      </div>
+      <Collapsible.Panel>
+        <div className="divide-y divide-neutral-100 border-t border-neutral-100">
+          {items.map((i) => <ListItemRow key={keyOf(i)} item={i} tree={tree} />)}
+        </div>
+      </Collapsible.Panel>
+    </Collapsible.Root>
   )
 }
 
@@ -52,7 +118,10 @@ export function TaskList({ open, done, tree, filtered }: {
   const { open: openItems, done: doneItems } = splitBacklogItems(open, done, epics, isComplete)
   const visible = showAll ? openItems : openItems.slice(0, PREVIEW)
   const hidden = openItems.length - visible.length
-  const keyOf = (i: EpicListItem) => (i.type === 'epic' ? `epic:${i.slug}` : `task:${i.task.id}`)
+  // Terminées pliées par RELEASE (#342) : accordéons « 0.2.3 (12) », la plus
+  // récente ouverte, le reste replié. doneItems est déjà trié par recency —
+  // groupByRelease préserve cet ordre DANS chaque groupe.
+  const releaseGroups = groupByRelease(doneItems, releaseOfItem)
   const empty = (label: string) => (
     <p className="border border-dashed border-neutral-300 px-4 py-8 text-center text-xs text-neutral-500">
       {label}{filtered ? ' with these filters' : ''}.
@@ -96,7 +165,9 @@ export function TaskList({ open, done, tree, filtered }: {
         </h2>
         {done.length === 0 ? empty('Nothing done yet') : (
           <div className="divide-y divide-neutral-100 border border-neutral-200 bg-white">
-            {doneItems.map((i) => <ListItemRow key={keyOf(i)} item={i} tree={tree} />)}
+            {releaseGroups.map((g, idx) => (
+              <ReleaseSection key={g.release} release={g.release} items={g.items} tree={tree} defaultOpen={idx === 0} />
+            ))}
           </div>
         )}
       </section>
