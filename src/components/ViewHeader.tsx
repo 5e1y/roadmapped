@@ -2,37 +2,24 @@ import { Popover } from '@base-ui/react/popover'
 import { ChevronDown, Bug, Check } from 'trinil-react'
 import { type ReactNode } from 'react'
 import { useTree } from '../state/TreeContext'
-import { useView, type View } from '../state/ViewContext'
 import { LiveActivityMenu } from './LiveActivityMenu'
 import { UpdateNotice } from './UpdateNotice'
 import { ThemeToggle } from './ThemeToggle'
-import { BirdMascot } from './BirdMascot'
-
-// 6 vues depuis #369 (Dépendances et Graphe promus). Tabs temporaires : #370
-// remplace ce <nav> par un rail vertical d'icônes façon Figma.
-const NAV: { id: View; label: string }[] = [
-  { id: 'backlog', label: 'Backlog' },
-  { id: 'roadmap', label: 'Roadmap' },
-  { id: 'dependencies', label: 'Dependencies' },
-  { id: 'graph', label: 'Graph' },
-  { id: 'docs', label: 'Docs' },
-  { id: 'notepad', label: 'Notepad' },
-]
 
 /**
  * LE header commun des vues (décision Rémi) : une barre en haut, hauteur
  * STRICTEMENT égale au header du panneau de tâche (h-12 partagé, cf.
- * SidePanel). À gauche : marque + TABS de navigation (la sidebar n'existe
- * plus) ; l'onglet actif remplace le titre de vue. À droite : dropdowns et
- * actions de la vue.
+ * SidePanel). La navigation entre vues vit désormais dans le RAIL vertical à
+ * gauche (NavRail, #370) — plus de tabs ici. À gauche : le titre marque × repo
+ * (la mascotte, elle, est passée en tête du rail pour ne pas être dupliquée).
+ * À droite : le cluster Activity + dropdowns et actions propres à la vue.
  */
 export function ViewHeader({ meta, children }: {
-  /** Info discrète après les tabs (compteurs, chemin du doc…). */
+  /** Info discrète après le titre (compteurs, chemin du doc…). */
   meta?: ReactNode
   /** Contrôles alignés à droite (dropdowns, boutons, segmented). */
   children?: ReactNode
 }) {
-  const { view, setView } = useView()
   const { repoName } = useTree()
   return (
     <header className="flex h-12 shrink-0 items-center justify-between gap-4 border-b border-neutral-200 bg-white px-4">
@@ -40,9 +27,9 @@ export function ViewHeader({ meta, children }: {
         {/* Marque × repo (#204) : savoir sur quel repo pointe CE dashboard quand
             plusieurs sont ouverts. Le × séparateur en graisse Light (décision Rémi) ;
             le repo tronque, marque + × ne rétrécissent pas. Sans repoName (build démo
-            statique, avant 1er /api/tree) : marque seule, pas de × orphelin. */}
+            statique, avant 1er /api/tree) : marque seule, pas de × orphelin. La
+            mascotte n'est PLUS ici (elle vit en tête du NavRail, #370). */}
         <h1 className="flex min-w-0 items-center gap-1.5 text-sm tracking-tight">
-          <BirdMascot />
           <span className="shrink-0 font-semibold text-neutral-900">Roadmapped</span>
           {repoName && (
             <>
@@ -51,21 +38,6 @@ export function ViewHeader({ meta, children }: {
             </>
           )}
         </h1>
-        <nav className="flex shrink-0 overflow-hidden rounded-md border border-neutral-300">
-          {NAV.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => setView(item.id)}
-              aria-current={item.id === view ? 'page' : undefined}
-              className={`px-3 py-1 text-xs transition-colors ${
-                item.id === view ? 'bg-neutral-900 text-white' : 'bg-white text-neutral-600 hover:bg-neutral-100'
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
-        </nav>
         {meta && <div className="min-w-0 truncate font-mono text-xs text-neutral-500">{meta}</div>}
       </div>
       {/* Cluster droit : le panneau Activity (live, #205) d'abord — présent sur
