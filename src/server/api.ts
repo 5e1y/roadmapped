@@ -271,20 +271,25 @@ export function apiGuard(
   return null
 }
 
+// Corps présent mais illisible (#364) : distinct de `null` (= pas de corps, légitime
+// pour un POST sans body comme /api/update). Un body malformé → 400, pas un update
+// vide silencieux qui bumperait updatedAt (badge NEW fantôme).
+export const MALFORMED_BODY = Symbol('malformed-body')
+
 function readJsonBody(req: IncomingMessage): Promise<any> {
   return new Promise((resolve) => {
     const chunks: Buffer[] = []
     req.on('data', (c) => chunks.push(c as Buffer))
     req.on('end', () => {
       const raw = Buffer.concat(chunks).toString('utf8')
-      if (!raw) return resolve(null)
+      if (!raw) return resolve(null) // pas de corps
       try {
         resolve(JSON.parse(raw))
       } catch {
-        resolve(null)
+        resolve(MALFORMED_BODY) // corps envoyé mais pas du JSON
       }
     })
-    req.on('error', () => resolve(null))
+    req.on('error', () => resolve(MALFORMED_BODY))
   })
 }
 
@@ -419,6 +424,14 @@ export function createApiMiddleware(
           method === 'POST' || method === 'PATCH' || method === 'PUT'
             ? await readJsonBody(req)
             : null
+
+        // Body envoyé mais illisible (#364) → 400, jamais un update vide silencieux.
+        if (body === MALFORMED_BODY) {
+          res.statusCode = 400
+          res.setHeader('Content-Type', 'application/json')
+          res.end(JSON.stringify({ ok: false, errors: ['Corps JSON malformé'] }))
+          return
+        }
 
         // req.url (pas url.pathname) : routeApi a besoin de la query string
         // brute pour /api/docs/content?path=... (elle la parse elle-même).

@@ -1,6 +1,6 @@
 import {
   readdirSync, readFileSync, writeFileSync, statSync, unlinkSync,
-  existsSync, mkdirSync, rmSync,
+  existsSync, mkdirSync, rmSync, renameSync,
 } from 'node:fs'
 import { join, relative, dirname } from 'node:path'
 import yaml from 'js-yaml'
@@ -129,8 +129,16 @@ function lockAgeMs(lockDir: string): number | null {
   }
 }
 
+// Jeton d'acquisition unique par process (compteur → pas de collision même à la
+// même ms). Le format `pid:timestamp:seq` garde `split(':')[1]` = timestamp pour
+// lockAgeMs. Le jeton PROUVE la propriété : on ne libère un verrou que s'il est
+// encore le nôtre (#362).
+let lockSeq = 0
+
 export function withLock<T>(tasksDir: string, fn: () => T): T {
   const lockDir = join(tasksDir, '.lock')
+  const ownerFile = join(lockDir, 'owner')
+  const token = `${process.pid}:${Date.now()}:${++lockSeq}`
   const ttl = lockTtlMs()
   const timeout = lockTimeoutMs()
   const deadline = Date.now() + timeout
@@ -138,13 +146,22 @@ export function withLock<T>(tasksDir: string, fn: () => T): T {
   for (;;) {
     try {
       mkdirSync(lockDir) // échoue (EEXIST) si un autre écrivain tient le verrou
+      writeFileSync(ownerFile, token) // revendique la propriété AVANT d'entrer
       break
     } catch (e) {
       if ((e as NodeJS.ErrnoException).code !== 'EEXIST') throw e
       const age = lockAgeMs(lockDir)
       if (age === null) continue // dossier disparu → retente le mkdir immédiatement
       if (age > ttl) {
-        rmSync(lockDir, { recursive: true, force: true }) // vol de l'orphelin (process mort)
+        // Vol ATOMIQUE de l'orphelin (#362) : renameSync ne réussit qu'à UN seul
+        // voleur (le dossier n'existe qu'une fois) — les autres prennent ENOENT et
+        // rebouclent. L'ancien rmSync direct laissait deux voleurs effacer, l'un
+        // d'eux pouvant supprimer le verrou FRAÎCHEMENT recréé par l'autre.
+        try {
+          const stolen = `${lockDir}.stale-${token.replace(/:/g, '-')}`
+          renameSync(lockDir, stolen)
+          rmSync(stolen, { recursive: true, force: true })
+        } catch { /* déjà volé/libéré par un autre → reboucle sur mkdir */ }
         continue
       }
       if (Date.now() > deadline) {
@@ -158,10 +175,15 @@ export function withLock<T>(tasksDir: string, fn: () => T): T {
     }
   }
   try {
-    writeFileSync(join(lockDir, 'owner'), `${process.pid}:${Date.now()}`)
     return fn()
   } finally {
-    rmSync(lockDir, { recursive: true, force: true })
+    // Libération CONDITIONNÉE à la propriété (#362) : si notre verrou a été volé
+    // (fn() a dépassé le TTL → un autre l'a repris), l'owner ne porte plus notre
+    // jeton → on NE supprime PAS le sien (l'ancien rmSync inconditionnel déclenchait
+    // une cascade : A libère le verrou vivant de B, C entre pendant que B écrit).
+    try {
+      if (readFileSync(ownerFile, 'utf8') === token) rmSync(lockDir, { recursive: true, force: true })
+    } catch { /* owner illisible / dossier déjà parti → rien à libérer */ }
   }
 }
 
@@ -236,16 +258,21 @@ function slugify(title: string): string {
   )
 }
 
-function today(): string {
-  const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+/**
+ * Horodatage local YYYY-MM-DDTHH:MM:SS depuis UNE seule instance (#84/#363).
+ * Pur et exporté pour test : date ET heure viennent du MÊME `d` — l'ancien code
+ * lisait la date et l'heure sur deux `new Date()` distincts, décalant l'horodatage
+ * de ~24h à la frontière de minuit. Prendre un seul paramètre rend le bug
+ * structurellement impossible à réintroduire ici.
+ */
+export function localStamp(d: Date): string {
+  const p = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`
 }
 
 /** Horodatage local à la seconde (#84) : createdAt des nouvelles tâches — audit fin. */
 function now(): string {
-  const d = new Date()
-  const p = (n: number) => String(n).padStart(2, '0')
-  return `${today()}T${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`
+  return localStamp(new Date())
 }
 
 function numericPrefix(name: string): number | null {
@@ -402,7 +429,13 @@ function patchActive(
   const absPath = absPathOf(tasksDir, hit.task.file)
   const prevContent = readFileSync(absPath, 'utf8')
   const raw = yaml.load(prevContent) as Record<string, unknown>
+  const before = dumpTask(raw) // forme canonique AVANT mutation (updatedAt inchangé)
   mutate(raw)
+  // Patch SANS EFFET (#364) : un body vide/malformé ou un patch no-op ne doit ni
+  // bumper updatedAt ni réécrire — sinon badge NEW / toast live fantôme sans
+  // aucune modification réelle. On compare la forme canonique (l'updatedAt d'origine
+  // est identique des deux côtés, il s'annule).
+  if (dumpTask(raw) === before) return { ok: true, tree }
   raw.updatedAt = now() // #147 Live 4 : toute écriture date le ticket (source des badges NEW)
   return commitWrites(tasksDir, [{ absPath, content: dumpTask(raw), prevContent }])
 }
