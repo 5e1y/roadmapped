@@ -1,0 +1,33 @@
+id: 348
+code: null
+title: "Recherche du dashboard : aucun résultat même sur un terme exact d'un titre de ticket"
+status: in_progress
+tags:
+  - ui
+  - search
+size: null
+heat: 80
+detail: >-
+  Constat Rémi (testé) : la recherche ne retourne rien, y compris pour des termes identiques
+  présents dans des titres de tickets. Deux surfaces de recherche existent : le champ du Backlog
+  (query/matches dans Backlog.tsx ~L95) et la recherche de la vue KB (KbView.tsx →
+  kbFilter/applyFilters). ROOT CAUSE D'ABORD : reproduire sur les deux surfaces avec un titre réel
+  du backlog, instrumenter, identifier la cause exacte (matching ? normalisation ? état ? régression
+  d'un refactor récent — la colonne Terminées vient de changer #342) avant tout fix. Fix + test de
+  non-régression sur la logique de matching (fonction pure).
+refs:
+  - src/components/Backlog.tsx
+  - src/components/KbView.tsx
+  - src/lib/kbFilter.ts
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-18T23:01:19"
+startedAt: "2026-07-18T23:01:24"
+updatedAt: "2026-07-18T23:01:24"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

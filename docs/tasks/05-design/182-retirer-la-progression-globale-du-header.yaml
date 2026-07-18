@@ -1,0 +1,31 @@
+id: 349
+code: null
+title: >-
+  Retirer la progression globale du header de la vue Roadmap (GlobalProgress) — seule la progression
+  par epic a du sens
+status: done
+tags:
+  - ui
+size: null
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-18T23:01:20"
+startedAt: "2026-07-18T23:01:24"
+updatedAt: "2026-07-18T23:05:09"
+completedAt: "2026-07-18T23:05:09"
+commit: 845c3db
+outcome: >-
+  Progression globale retirée du header de la vue Roadmap : meta GlobalProgress enlevé du ViewHeader
+  (le header ne garde que Columns/Graph), composant GlobalProgress supprimé de RoadmapColumns (seul
+  consommateur = ce header, code mort sinon). Le helper globalProgress() de lib/roadmap reste : le
+  sitrep/CLI le consomme (surface agent, hors périmètre). La progression par epic (EpicBand/roadmap)
+  intacte.
+verification: >-
+  Diff review complet. Grep GlobalProgress dans src/ : plus aucune occurrence. Bundle dist vérifié :
+  la string 'Overall progress' absente. tsc clean, vitest 622/622, build OK (rebuild reproductible à
+  l'identique).
+release: 0.2.3
