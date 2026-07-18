@@ -1,0 +1,31 @@
+id: 342
+code: null
+title: "Releases-chapitres 3 : Terminées pliées par release + suppression du toggle done du header"
+status: todo
+tags:
+  - releases
+  - ui
+size: null
+detail: >-
+  La colonne Terminées du Backlog se plie par release : accordéons « 0.2.3 (12) », dernière release
+  ouverte par défaut, le reste replié ; les done sans release (ne devrait plus arriver après
+  #340/#341) tombent dans un groupe 'pre-release'. Dans la foulée, retirer le toggle done du header
+  (décision Rémi : depuis la réduction d'impact visuel des done, deux mécanismes pour le même besoin
+  — les done sont toujours 'visibles', on déplie ce qui intéresse). Réutiliser le pattern
+  d'accordéon/pliage existant du Backlog, pas de nouveau composant. Cohérent avec la doctrine
+  monochrome + accent rare.
+refs:
+  - src/components/Backlog.tsx
+  - src/components/ViewHeader.tsx
+links: []
+dependsOn:
+  - 340
+epic: releases-chapitres
+source: ai
+createdAt: "2026-07-18T21:14:23"
+updatedAt: "2026-07-18T21:14:23"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
