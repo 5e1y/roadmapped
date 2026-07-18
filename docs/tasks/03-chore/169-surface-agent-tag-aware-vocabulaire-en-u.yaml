@@ -3,7 +3,7 @@ code: null
 title: >-
   Surface agent tag-aware : vocabulaire en usage injecté dans les descriptions MCP
   (add/quick/update) + nudge d'une ligne dans le skill
-status: in_progress
+status: done
 tags:
   - dx
   - mcp
@@ -26,9 +26,20 @@ epic: null
 source: ai
 createdAt: "2026-07-18T23:29:17"
 startedAt: "2026-07-18T23:29:17"
-updatedAt: "2026-07-18T23:29:17"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+updatedAt: "2026-07-18T23:36:11"
+completedAt: "2026-07-18T23:36:11"
+commit: 02a39d2
+outcome: >-
+  Surface agent tag-aware livrée (option C de l'étude #344) : tagsDescription(ROOT) calcule au boot
+  le top-12 des tags en usage (fréquence desc, ties alpha, déterministe) et l'injecte dans la
+  description du param tags des tools MCP add/quick/update — une seule construction partagée.
+  Dégradation propre : backlog sans tag ou readTree en échec → description générique, le boot ne
+  casse jamais. Nudge d'une ligne sur add/quick dans SKILL.md (debt load-bearing). Description
+  réelle générée sur ce repo : « Reuse the project's existing vocabulary when relevant: ux, design,
+  graphify, kb, publish, dashboard, spec, marketing, data-model, fable, debt, docs; 'debt' is
+  load-bearing… ».
+verification: >-
+  Review du diff. 2 nouveaux tests mcp-server (top-12 exact avec fixture à fréquences forcées + ties
+  alpha ; zéro-tags → générique sans deux-points orphelin) — 32/32 verts sur les fichiers scripts.
+  tsc clean côté agent, merge sans conflit (graph.json écarté, resync à venir en main).
+release: 0.2.3
