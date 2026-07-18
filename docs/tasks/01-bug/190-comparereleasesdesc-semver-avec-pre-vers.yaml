@@ -1,6 +1,6 @@
 id: 365
 title: "compareReleasesDesc : semver avec pré-version (-rc/-beta) mal classé (latent)"
-status: todo
+status: done
 tags:
   - bug
   - latent
@@ -19,9 +19,19 @@ dependsOn: []
 epic: audit-remediation
 source: ai
 createdAt: "2026-07-18T23:54:39"
-updatedAt: "2026-07-18T23:54:39"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+startedAt: "2026-07-19T00:41:52"
+updatedAt: "2026-07-19T00:44:10"
+completedAt: "2026-07-19T00:44:10"
+commit: d1016a7
+outcome: >-
+  compareReleasesDesc corrigé (audit #358, latent). Le parse sépare désormais le cœur X.Y.Z de la
+  pré-version sur le premier '-' (avant : '0.2.3-rc.1'.split('.') donnait un cœur [0,2,3,1] classant
+  la rc au-dessus de 0.2.3). Règle semver : cœur numérique d'abord, puis une version finale (sans
+  pré-version) bat une -rc/-beta de même cœur. Départage lexical entre deux pré-versions laissé en
+  plafond ponytail assumé (non atteignable : le champ release ne porte que des X.Y.Z propres via
+  l'auto-stamp #341).
+verification: >-
+  Tests : 1.0.0 > 1.0.0-rc.1, 0.2.3-rc.1 après 0.2.3, tri complet final>rc>pre-release. Cas
+  existants (0.10.0>0.9.0, préfixe v, pre-release en dernier) toujours verts. tsc clean, suite
+  complète verte.
+release: 0.2.3
