@@ -1,7 +1,7 @@
 id: 343
 code: null
 title: "Vue Graphe : epics comme filtres (même fonctionnement que la Roadmap)"
-status: in_progress
+status: done
 tags:
   - ui
   - graph
@@ -23,9 +23,21 @@ epic: null
 source: ai
 createdAt: "2026-07-18T21:14:30"
 startedAt: "2026-07-18T21:18:46"
-updatedAt: "2026-07-18T21:18:46"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+updatedAt: "2026-07-18T21:35:52"
+completedAt: "2026-07-18T21:35:52"
+commit: 6ead3fc
+outcome: >-
+  Vue Graphe filtrable par epic, même mécanisme que la Roadmap : EpicBand (même composant) coiffe le
+  graphe, état epicFilter remonté à RoadmapView (parent commun le plus bas — pas de nouveau
+  contexte), passer Colonnes↔Graphe conserve la sélection. Epic sélectionné → filterGraphToEpic
+  (fonction pure) ne garde que le nœud-epic + ses dépendances directes hors-epic estompées via le
+  DimVeil existant, arêtes incidentes conservées dans les deux sens. Logique de bande commune
+  extraite en epicBandView (pure, partagée par les 2 vues). Ajout intégrateur : l'epic filtré est
+  auto-déplié (effectiveExpanded) sans toucher l'état persistant — un chip replié n'aurait aucun
+  sens. Aucun epic sélectionné = comportement strictement inchangé.
+verification: >-
+  Review du diff complet + vérification de l'intention sur le modèle (epic = nœud-groupe e:slug,
+  donc filtre incident = bien l'epic et ses tâches). tsc clean, 15/15 tests ciblés
+  (filterGraphToEpic nœuds/frontières/arêtes + EpicBand), build OK, suite complète 608/608 verte
+  dans main après merge et rebuild dist.
 release: null
