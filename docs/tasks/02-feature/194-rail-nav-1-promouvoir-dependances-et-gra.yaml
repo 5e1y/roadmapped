@@ -1,0 +1,35 @@
+id: 369
+title: >-
+  Rail-nav 1 : promouvoir Dépendances et Graphe en vues de 1er niveau (View→6, routing, retrait des
+  sous-modes)
+status: todo
+tags:
+  - ui
+  - nav
+detail: >-
+  Spec docs/specs/2026-07-19-rail-navigation.md (ticket 1). Étendre le type View
+  (src/state/ViewContext.tsx) à 6 valeurs : backlog|roadmap|dependencies|graph|docs|notepad. Router
+  dans MainView (src/App.tsx) : 'dependencies' monte le graphe de dépendances extrait de
+  RoadmapView>Graph (garder la bande d'epics-filtre #343 et le filtre partagé), 'graph' monte KbView
+  directement. Retirer le segmented Columns/Graph de RoadmapView (colonnes seulement) et le
+  segmented Documents/KB de DocsView (documents seulement). Mettre à jour : validation localStorage
+  nav:view (6 valeurs, inconnue→backlog), document.title (6 noms), log d'usage #345, OPEN_DOC_EVENT
+  (panneau tâche → setView('docs')). SANS le rail : le header garde temporairement 6 entrées de tab
+  (le rail vient au ticket 2). Vérifier : chaque vue s'affiche, la reprise localStorage marche,
+  tsc/vitest/build verts.
+refs:
+  - src/state/ViewContext.tsx
+  - src/App.tsx
+  - src/components/RoadmapView.tsx
+  - src/components/DocsView.tsx
+links: []
+dependsOn: []
+epic: rail-nav
+source: ai
+createdAt: "2026-07-19T01:05:40"
+updatedAt: "2026-07-19T01:05:40"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

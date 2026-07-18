@@ -1,0 +1,38 @@
+id: 368
+title: "Spec : rail de navigation vertical (façon Figma) + promotion des graphes au 1er niveau"
+status: done
+tags:
+  - ui
+  - nav
+  - spec
+heat: 60
+detail: >-
+  Spec docs/specs/2026-07-19-rail-navigation.md — décisions verrouillées avec Rémi : rail d'icônes
+  SEUL (pas de 2e panneau contextuel), vue défaut = Backlog (inchangé), 6 items séparés (Backlog ·
+  Roadmap · Dépendances · Graphe · Docs · Notepad). Le graphe de dépendances (ex-Roadmap>Graph) et
+  le graphe nodal KB (ex-Docs>KB) sortent de leurs sous-modes pour devenir des vues de 1er niveau.
+  Livrable : cette spec + les 2 tickets d'exécution.
+refs:
+  - docs/specs/2026-07-19-rail-navigation.md
+  - src/App.tsx
+  - src/components/ViewHeader.tsx
+links: []
+dependsOn: []
+epic: rail-nav
+source: ai
+createdAt: "2026-07-19T01:05:40"
+updatedAt: "2026-07-19T01:05:55"
+completedAt: "2026-07-19T01:05:55"
+commit: 8ff4252
+outcome: >-
+  Spec écrite (docs/specs/2026-07-19-rail-navigation.md). Décisions verrouillées via questions à
+  Rémi : (1) rail d'icônes SEUL, pas de 2e panneau contextuel ; (2) vue défaut = Backlog inchangé ;
+  (3) 6 items séparés (Backlog·Roadmap·Dépendances·Graphe·Docs·Notepad). Architecture : View→6
+  valeurs, dependencies extrait de RoadmapView>Graph (garde bande epics #343), graph = KbView promu
+  de Docs>KB, retrait des 2 toggles de sous-mode, NavRail remplace le nav segmenté du header. 2
+  tickets d'exécution créés (#369 plomberie IA, #370 composant rail), chaînés par dependsOn.
+verification: >-
+  Spec ancrée sur le code réel (ViewContext.tsx:3 View type, ViewHeader.tsx:50 NAV, DocsView.tsx:34
+  sous-mode KB, RoadmapView Columns/Graph). Hors-périmètre explicite (pas de 2e panneau, pas de
+  redessin des vues, pas de raccourcis clavier).
+release: 0.2.3
