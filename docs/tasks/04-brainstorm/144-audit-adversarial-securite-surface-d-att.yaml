@@ -1,0 +1,42 @@
+id: 356
+code: null
+title: "Audit adversarial sécurité : surface d'attaque du dashboard local, MCP, hooks et CI"
+status: done
+tags:
+  - audit
+  - security
+size: null
+heat: 75
+detail: >-
+  Recherche adversariale (technique Rémi : prémisse alarmiste comme aiguillon). Périmètre : serveur
+  HTTP local (binding, endpoints POST /api/usage /api/reveal, lecture de fichiers kbSource,
+  traversée de chemins, DNS rebinding, XSS via contenus de tickets rendus), serveur MCP, hook
+  SessionStart, chaîne CI npm auto-publish (supply chain), install.mjs. Livrable :
+  docs/audit-securite-2026-07.md — findings DÉMONTRÉS uniquement (fichier:ligne + scénario
+  d'exploitation concret + sévérité), zones auditées saines listées aussi, spec de remédiation
+  proposée. Tickets de suite après triage.
+refs:
+  - src/server/api.ts
+  - scripts/mcp-server.mjs
+  - scripts/install.mjs
+links: []
+dependsOn: []
+epic: audit-adversarial
+source: ai
+createdAt: "2026-07-18T23:41:22"
+startedAt: "2026-07-18T23:41:23"
+updatedAt: "2026-07-18T23:53:46"
+completedAt: "2026-07-18T23:53:46"
+commit: fac186f
+outcome: >-
+  Audit sécurité livré (docs/audit-securite-2026-07.md). 0 critique, 2 hautes, 1 moyenne, 2 basses.
+  Hautes vérifiées fichier:ligne par l'orchestrateur : (1) XSS stocké — marked 18.0.5 sans sanitizer
+  dans dangerouslySetInnerHTML (Markdown.tsx:33, DocsView.tsx:183) ; (2) API locale sans auth ni
+  check Origin/Host/Content-Type (readJsonBody parse sans Content-Type → CSRF/DNS-rebinding). Chaîne
+  cohérente expliquant les 2 symptômes de la mise en situation. Zones saines documentées (bind
+  localhost, path-traversal gardé, revealPath spawn argv, MCP validé, CI sans interpolation).
+verification: >-
+  Findings hauts recoupés contre le code réel : marked sans DOMPurify confirmé (grep sanitize
+  négatif hors kbSim), dangerouslySetInnerHTML aux 2 emplacements confirmé, readJsonBody sans
+  Content-Type confirmé.
+release: 0.2.3

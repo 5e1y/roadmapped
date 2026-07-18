@@ -1,0 +1,44 @@
+id: 358
+code: null
+title: "Audit adversarial bugs : chasse aux edge cases réels (dates, concurrence, parsing, états UI)"
+status: done
+tags:
+  - audit
+  - bug-hunt
+size: null
+heat: 75
+detail: >-
+  Recherche adversariale (prémisse : users remontent des bugs aléatoires). Zones à forte probabilité
+  : dates/timezones (précédent réel : completedAt nus en CEST, #340), concurrence withLock (TTL
+  orphelin, nextId de _meta.yaml), parsing YAML edge cases, compareReleasesDesc (semver exotiques),
+  filtres epic/recherche fraîchement remaniés (#342 #343 #348), sous-tâches, chemins d'erreur
+  api.ts, auto-update. Livrable : docs/audit-bugs-2026-07.md — chaque bug avec repro concrète ou
+  preuve fichier:ligne, sévérité, fix suggéré en une ligne. Pas de fix appliqué.
+refs:
+  - src/lib/taskWrites.ts
+  - src/lib/release.ts
+  - src/lib/roadmap.ts
+  - scripts/task.mjs
+links: []
+dependsOn: []
+epic: audit-adversarial
+source: ai
+createdAt: "2026-07-18T23:41:23"
+startedAt: "2026-07-18T23:41:23"
+updatedAt: "2026-07-18T23:53:46"
+completedAt: "2026-07-18T23:53:46"
+commit: fac186f
+outcome: >-
+  Audit bugs livré (docs/audit-bugs-2026-07.md). 6 confirmés (2 hauts, 4 moyens) + 6 suspects
+  étiquetés. Hauts vérifiés : (1) withLock — release non conditionnée au pid + vol de verrou vivant
+  après TTL 10s (taskWrites.ts:120-154), intégrité (ids dup) ; (2) startedAt jamais posé par le
+  dashboard — le bouton Start passe par updateTask qui ne gère que completedAt (taskWrites.ts:553),
+  âge in_progress faux. Moyens : now() double new Date (±24h minuit), PATCH malformé → 200 +
+  updatedAt fantôme, compareReleasesDesc sur semver -rc (réel mais non atteignable avec données
+  actuelles).
+verification: >-
+  withLock relu (release rmSync inconditionnel, owner jamais rafraîchi, ttl 10s) — confirmé.
+  startedAt : updateTask gère completedAt mais aucune branche startedAt sur passage in_progress,
+  api.ts:176 route bien le PATCH dashboard vers updateTask — confirmé. compareReleasesDesc : parse
+  split('.').parseInt confirme le bug -rc, mais versions toujours propres en prod.
+release: 0.2.3
