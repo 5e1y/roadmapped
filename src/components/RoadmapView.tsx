@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useTree } from '../state/TreeContext'
 import { ViewHeader } from './ViewHeader'
-import { RoadmapColumns, GlobalProgress } from './RoadmapColumns'
+import { RoadmapColumns } from './RoadmapColumns'
 import { RoadmapGraph } from './RoadmapGraph'
 
 /**
@@ -50,8 +50,9 @@ export function RoadmapView() {
 
   return (
     <div className="flex h-full flex-col">
-      {/* Avancement global (#133) : x/y + barre fine dans le header de la vue. */}
-      <ViewHeader meta={<GlobalProgress />}>
+      {/* #349 : progression globale retirée du header (n'a plus de sens quand
+          le backlog grossit à l'infini) — seule la progression par epic compte. */}
+      <ViewHeader>
         <div className="flex overflow-hidden rounded-md border border-neutral-300">
           {(['columns', 'graph'] as const).map((m) => (
             <button key={m} type="button" onClick={() => setMode(m)}
