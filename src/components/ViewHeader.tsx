@@ -8,9 +8,13 @@ import { UpdateNotice } from './UpdateNotice'
 import { ThemeToggle } from './ThemeToggle'
 import { BirdMascot } from './BirdMascot'
 
+// 6 vues depuis #369 (Dépendances et Graphe promus). Tabs temporaires : #370
+// remplace ce <nav> par un rail vertical d'icônes façon Figma.
 const NAV: { id: View; label: string }[] = [
   { id: 'backlog', label: 'Backlog' },
   { id: 'roadmap', label: 'Roadmap' },
+  { id: 'dependencies', label: 'Dependencies' },
+  { id: 'graph', label: 'Graph' },
   { id: 'docs', label: 'Docs' },
   { id: 'notepad', label: 'Notepad' },
 ]

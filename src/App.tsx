@@ -9,18 +9,26 @@ import { TaskPanel } from './components/TaskPanel'
 import { KbNodePanel } from './components/KbNodePanel'
 import { CreateTaskPanel, SectionPanel } from './components/SectionPanel'
 import { RoadmapView } from './components/RoadmapView'
+import { DependenciesView } from './components/DependenciesView'
+import { GraphView } from './components/GraphView'
 import { DocsView } from './components/DocsView'
 import { NotepadView } from './components/NotepadView'
 import { LiveActivityProvider } from './state/LiveActivity'
 import { OPEN_DOC_EVENT } from './lib/events'
 
-function MainView({ view, docPath, onSelectDoc }: {
+function MainView({ view, docPath, onSelectDoc, epicFilter, onEpicFilter }: {
   view: View
   docPath: string | null
   onSelectDoc: (path: string) => void
+  // Filtre epic PARTAGÉ Roadmap ↔ Dépendances (#343/#369) — porté par App pour
+  // survivre au changement de vue (état de session, pas persisté).
+  epicFilter: string | null
+  onEpicFilter: (slug: string | null) => void
 }) {
   if (view === 'backlog') return <Backlog />
-  if (view === 'roadmap') return <RoadmapView />
+  if (view === 'roadmap') return <RoadmapView epicFilter={epicFilter} onEpicFilter={onEpicFilter} />
+  if (view === 'dependencies') return <DependenciesView epicFilter={epicFilter} onEpicFilter={onEpicFilter} />
+  if (view === 'graph') return <GraphView />
   if (view === 'notepad') return <NotepadView />
   return <DocsView path={docPath} onSelectDoc={onSelectDoc} />
 }
@@ -105,10 +113,14 @@ function Shell() {
   const [view, setView] = useState<View>(() => {
     try {
       const v = localStorage.getItem('nav:view')
-      if (v === 'backlog' || v === 'roadmap' || v === 'docs' || v === 'notepad') return v
+      const known: View[] = ['backlog', 'roadmap', 'dependencies', 'graph', 'docs', 'notepad']
+      if (known.includes(v as View)) return v as View
     } catch { /* localStorage indisponible */ }
     return 'backlog'
   })
+  // Filtre epic PARTAGÉ Roadmap ↔ Dépendances (#369) : porté ici pour survivre au
+  // changement de vue (session, pas persisté — un filtre de lecture).
+  const [epicFilter, setEpicFilter] = useState<string | null>(null)
   const [docPath, setDocPath] = useState<string | null>(() => {
     try { return localStorage.getItem('nav:doc') } catch { return null }
   })
@@ -145,6 +157,8 @@ function Shell() {
     const name =
       view === 'docs' && docPath ? docPath.split('/').pop()!.replace(/\.md$/, '')
       : view === 'roadmap' ? 'Roadmap'
+      : view === 'dependencies' ? 'Dependencies'
+      : view === 'graph' ? 'Graph'
       : view === 'docs' ? 'Docs'
       : view === 'notepad' ? 'Notepad'
       : 'Backlog'
@@ -166,7 +180,7 @@ function Shell() {
       {/* Plus de sidebar : les tabs vivent dans le header commun (ViewHeader). */}
       <main className="min-w-0 flex-1 overflow-y-auto">
         <ViewProvider view={view} setView={setView}>
-          <MainView view={view} docPath={docPath} onSelectDoc={setDocPath} />
+          <MainView view={view} docPath={docPath} onSelectDoc={setDocPath} epicFilter={epicFilter} onEpicFilter={setEpicFilter} />
         </ViewProvider>
       </main>
       <PanelHost />

@@ -1,6 +1,9 @@
 import { createContext, useContext, type ReactNode } from 'react'
 
-export type View = 'backlog' | 'roadmap' | 'docs' | 'notepad'
+// 6 vues de 1er niveau (#369) : le graphe de dépendances (ex-Roadmap>Graph) et le
+// graphe nodal KB (ex-Docs>KB) sont promus hors de leurs sous-modes. Roadmap = les
+// colonnes seules ; Docs = les documents seuls.
+export type View = 'backlog' | 'roadmap' | 'dependencies' | 'graph' | 'docs' | 'notepad'
 
 interface ViewState {
   view: View
