@@ -23,6 +23,13 @@ describe('compareReleasesDesc', () => {
     expect(compareReleasesDesc('1.2', '1.2.0')).toBe(0)
     expect(compareReleasesDesc('1.2.1', '1.2')).toBeLessThan(0)
   })
+  it('une pré-version (-rc/-beta) est plus ancienne que la version finale (#365)', () => {
+    expect(compareReleasesDesc('1.0.0', '1.0.0-rc.1')).toBeLessThan(0) // final avant rc
+    expect(compareReleasesDesc('0.2.3-rc.1', '0.2.3')).toBeGreaterThan(0) // rc après final
+    // Tri complet : final en tête, rc ensuite, pre-release en dernier.
+    expect(['0.2.3-rc.1', '0.2.3', PRE_RELEASE, '0.2.2'].sort(compareReleasesDesc))
+      .toEqual(['0.2.3', '0.2.3-rc.1', '0.2.2', PRE_RELEASE])
+  })
 })
 
 describe('groupByRelease', () => {
