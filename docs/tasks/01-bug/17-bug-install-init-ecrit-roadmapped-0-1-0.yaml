@@ -16,7 +16,7 @@ epic: null
 source: ai
 createdAt: "2026-07-09T02:10:25"
 startedAt: "2026-07-09T02:10:25"
-updatedAt: "2026-07-09T02:15:06"
+updatedAt: "2026-07-18T21:29:35"
 completedAt: "2026-07-09"
 commit: d993160
 outcome: >-
@@ -27,4 +27,4 @@ verification: >-
   repo hôte : init local → npm install github → node_modules/roadmapped présent,
   task.mjs/mcp-server.mjs/register-ts.mjs OK, npx roadmapped validate OK, git commit sans ticket →
   guard refuse.
-release: null
+release: pre-release

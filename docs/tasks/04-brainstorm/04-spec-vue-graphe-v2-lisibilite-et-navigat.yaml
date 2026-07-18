@@ -23,6 +23,7 @@ dependsOn: []
 epic: graph-v2
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:44"
 completedAt: "2026-07-08"
 commit: 4a97ef3
 outcome: >-
@@ -37,4 +38,4 @@ verification: >-
   surlignage sticky (alt+clic vs zone dédiée vs survol seul, car le clic ouvre déjà le panneau) ;
   valider le mode composé dagre sur vraies données (bordure sections sans chevauchement) sinon repli
   groupement post-layout.
-release: null
+release: pre-release

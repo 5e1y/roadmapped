@@ -25,6 +25,7 @@ dependsOn: []
 epic: lancement
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:37"
 completedAt: "2026-07-07"
 commit: 14c0cc2
 outcome: >-
@@ -36,4 +37,4 @@ verification: >-
   (vérifié : git status ne montre que docs/guide.md). Relu par moi (structure 7 sections, extraits
   contrôlés). 6 divergences doc/CLI découvertes et documentées — dont un bug réel : --tags null crée
   un tag littéral.
-release: null
+release: pre-release

@@ -26,6 +26,7 @@ dependsOn: []
 epic: mcp-server
 source: user
 createdAt: "2026-07-08T01:12:44"
+updatedAt: "2026-07-18T21:29:35"
 completedAt: "2026-07-08"
 commit: 9b2c8e4
 outcome: >-
@@ -38,4 +39,4 @@ verification: >-
   sur les tools texte-first, texte dense présent (vérifié champ par champ) ; test-garde invariant
   sur les 14 tools + 215 tests + build verts ; add/start/done de ce ticket passés eux-mêmes par les
   tools MCP
-release: null
+release: pre-release

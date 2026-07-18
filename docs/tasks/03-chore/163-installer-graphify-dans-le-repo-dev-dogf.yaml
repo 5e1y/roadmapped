@@ -17,7 +17,7 @@ epic: null
 source: ai
 createdAt: "2026-07-12T17:55:56"
 startedAt: "2026-07-12T17:55:57"
-updatedAt: "2026-07-12T18:02:54"
+updatedAt: "2026-07-18T21:29:44"
 completedAt: "2026-07-12T18:02:54"
 commit: de83c39
 outcome: >-
@@ -41,4 +41,4 @@ verification: >-
   current HEAD ». Doublon guard pre-commit reverté (git checkout). graphify-out/.gitignore committé
   ; graph.json rafraîchi NON committé (1 chemin /Users/ fuité via l'indexation de .mcp.json —
   vérifié, d'où le non-commit).
-release: null
+release: 0.2.0

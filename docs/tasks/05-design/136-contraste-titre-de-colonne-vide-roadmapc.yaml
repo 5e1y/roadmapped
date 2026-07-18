@@ -15,6 +15,7 @@ epic: null
 source: ai
 createdAt: "2026-07-08T18:27:47"
 startedAt: "2026-07-08T18:27:47"
+updatedAt: "2026-07-18T21:29:48"
 completedAt: "2026-07-08"
 commit: a4f6e2f
 outcome: >-
@@ -22,4 +23,4 @@ outcome: >-
   (neutral-300 1.48:1 → 500), ui.tsx:388 placeholder tiret no-tags (neutral-400 2.58:1 → 500, aussi
   cohérent avec les tags voisins déjà en 500). Vérif : tsc clean, 373 tests verts.
 verification: null
-release: null
+release: pre-release

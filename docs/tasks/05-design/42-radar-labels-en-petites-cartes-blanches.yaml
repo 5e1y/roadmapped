@@ -23,6 +23,7 @@ dependsOn:
 epic: vues-dashboard
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:46"
 completedAt: "2026-07-07"
 commit: 4683a9b
 outcome: >-
@@ -32,4 +33,4 @@ verification: >-
   Captures relues : cartes opaques par-dessus la grille (aucune ligne visible sous les labels), 8
   icônes trinil affichées, carte engineering sélectionnée en tint+liseré lisible dans la colonne
   réduite ; clic carte = sélection et clic vide = désélection rejoués. 132 tests + build verts.
-release: null
+release: pre-release

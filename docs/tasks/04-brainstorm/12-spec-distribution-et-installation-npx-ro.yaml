@@ -26,6 +26,7 @@ dependsOn: []
 epic: distribution
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:44"
 completedAt: "2026-07-08"
 commit: c76070c
 outcome: >-
@@ -41,4 +42,4 @@ verification: >-
   ouverts (6) : shipper .ts bruts (strip-types) vs build à la publication ; install locale devDep vs
   npx pur ; hook guard vs husky/lefthook existant ; skill tool-owned écrasé à l'upgrade ; frontière
   squelette bin vs #121 ; poids paquet (Vite en dependency).
-release: null
+release: pre-release

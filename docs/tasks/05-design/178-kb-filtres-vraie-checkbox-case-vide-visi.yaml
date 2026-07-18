@@ -21,7 +21,7 @@ epic: knowledge-base
 source: ai
 createdAt: "2026-07-12T15:12:29"
 startedAt: "2026-07-12T15:12:59"
-updatedAt: "2026-07-12T15:15:10"
+updatedAt: "2026-07-18T21:29:49"
 completedAt: "2026-07-12T15:15:10"
 commit: 9307b0d
 outcome: >-
@@ -34,4 +34,4 @@ outcome: >-
 verification: >-
   npx tsc --noEmit clean ; npm run build OK. Changement isolé à FilterMenu (2 instances KB) ; rendu
   à confirmer par Rémi.
-release: null
+release: 0.1.0

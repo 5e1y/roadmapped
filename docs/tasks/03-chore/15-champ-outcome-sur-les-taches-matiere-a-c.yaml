@@ -24,9 +24,10 @@ refs:
   - skills/roadmaped/references/formats.md
 links: []
 dependsOn: []
-milestone: null
+epic: null
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:42"
 completedAt: "2026-07-07"
 commit: 99a3fe9
 outcome: >-
@@ -38,4 +39,4 @@ verification: >-
   verification) ; PATCH /api/tasks/22 via le serveur Vite écrit le YAML et le tree JSON expose le
   champ ; npm run build vert. Champ éditable ajouté au TaskPanel (même pattern que zone/code), non
   vérifié au pixel.
-release: null
+release: pre-release

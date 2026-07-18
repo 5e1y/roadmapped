@@ -17,7 +17,7 @@ epic: site-v3
 source: ai
 createdAt: "2026-07-10T23:56:59"
 startedAt: "2026-07-11T00:01:26"
-updatedAt: "2026-07-11T00:15:01"
+updatedAt: "2026-07-18T21:29:51"
 completedAt: "2026-07-11"
 commit: 4b32403
 outcome: >-
@@ -28,4 +28,4 @@ outcome: >-
 verification: >-
   grep : grid-step présent, full-bleed OK ; balises équilibrées (parser). Rendu à valider en
   preview.
-release: null
+release: pre-release

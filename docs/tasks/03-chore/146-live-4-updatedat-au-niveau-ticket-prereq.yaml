@@ -15,7 +15,7 @@ epic: live-reactivity
 source: ai
 createdAt: "2026-07-09T00:23:52"
 startedAt: "2026-07-09T00:32:33"
-updatedAt: "2026-07-09T00:37:13"
+updatedAt: "2026-07-18T21:29:43"
 completedAt: "2026-07-09"
 commit: 4eaba20
 outcome: >-
@@ -26,4 +26,4 @@ outcome: >-
   validate.ts. Vérif : test dédié prouvant le bump (vieille valeur forcée → re-datée après patch),
   tsc clean, 379 tests. Prérequis des badges NEW (#189).
 verification: null
-release: null
+release: pre-release

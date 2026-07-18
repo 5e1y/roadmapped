@@ -26,6 +26,7 @@ epic: feedback-mode
 source: ai
 createdAt: "2026-07-08T15:26:48"
 startedAt: "2026-07-08T15:26:54"
+updatedAt: "2026-07-18T21:29:45"
 completedAt: "2026-07-08"
 commit: 40f224a
 outcome: >-
@@ -39,4 +40,4 @@ outcome: >-
   Décision de FOND (assouplir 'done=frontière') balisée pour Rémi. Découpage 5 sous-tickets. Sans
   tiering Fable.
 verification: null
-release: null
+release: pre-release

@@ -14,6 +14,7 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-08T12:28:51"
+updatedAt: "2026-07-18T21:29:39"
 completedAt: "2026-07-08"
 commit: null
 outcome: >-
@@ -27,4 +28,4 @@ verification: >-
   Fichier écrit et poussé sur main du repo site (git push confirmé bd8bea6..8cf2d9e). Config JSON
   valide, name correspond au Worker existant → l'update sera autorisé. Déploiement réel à
   re-déclencher par Rémi côté Cloudflare (je n'ai pas accès au compte).
-release: null
+release: pre-release

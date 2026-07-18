@@ -8,9 +8,10 @@ detail: null
 refs: []
 links: []
 dependsOn: []
-milestone: null
+epic: null
 source: ai
 createdAt: "2026-07-08T09:05:56"
+updatedAt: "2026-07-18T21:29:37"
 completedAt: "2026-07-08"
 commit: 128cb87
 outcome: >-
@@ -20,4 +21,4 @@ outcome: >-
 verification: >-
   touch .DS_Store puis git status --ignored → ressort en « !! » (ignoré). Le fichier détracké
   n'apparaît plus dans git ls-files.
-release: null
+release: pre-release

@@ -17,7 +17,7 @@ epic: site-v3
 source: ai
 createdAt: "2026-07-11T00:33:15"
 startedAt: "2026-07-11T00:33:44"
-updatedAt: "2026-07-11T00:36:49"
+updatedAt: "2026-07-18T21:29:41"
 completedAt: "2026-07-11"
 commit: e887aed
 outcome: >-
@@ -30,4 +30,4 @@ outcome: >-
 verification: >-
   node --check + import ESM OK (initBird exporté). Logique atBottom/override branchée ; le perchoir
   #footer-perch est fourni par #286 (Fable, en cours). Rendu live à valider en preview.
-release: null
+release: pre-release

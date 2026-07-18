@@ -22,7 +22,7 @@ epic: lancement
 source: ai
 createdAt: "2026-07-07"
 startedAt: "2026-07-09T01:45:19"
-updatedAt: "2026-07-09T01:51:42"
+updatedAt: "2026-07-18T21:29:36"
 completedAt: "2026-07-09"
 commit: df736e9
 outcome: >-
@@ -37,4 +37,4 @@ outcome: >-
 verification: >-
   gh repo create --public --push ; git push -u origin main ; repo hôte fictif : clone skill + npx
   github:5e1y/roadmapped init/validate → tout vert.
-release: null
+release: pre-release

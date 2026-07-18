@@ -15,7 +15,7 @@ epic: live-reactivity
 source: ai
 createdAt: "2026-07-09T00:23:53"
 startedAt: "2026-07-09T00:40:27"
-updatedAt: "2026-07-09T00:44:24"
+updatedAt: "2026-07-18T21:29:48"
 completedAt: "2026-07-09"
 commit: 6f667d4
 outcome: >-
@@ -26,4 +26,4 @@ outcome: >-
   point accent size-1.5 avant le #id (role=status). uiPersist expose readPersistentStrings. Vérif :
   4 tests seenTasks (baseline/idempotence/mark-remplace/apparu), tsc clean, 383 tests.
 verification: null
-release: null
+release: pre-release

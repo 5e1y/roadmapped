@@ -19,9 +19,10 @@ refs:
 links: []
 dependsOn:
   - 1
-milestone: null
+epic: null
 source: ai
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:37"
 completedAt: "2026-07-07"
 commit: 9c7226d
 outcome: >-
@@ -35,4 +36,4 @@ verification: >-
   vérifié par capture après scrollTop=400, focus-visible/tables/erreurs Roadmap/arbre docs).
   docs/audit-ux-2026-07.md : 47 items cochés avec notes, 8 restants routés #2/#3/#4/#5 après
   correction du décalage de routage.
-release: null
+release: pre-release

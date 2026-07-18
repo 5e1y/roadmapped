@@ -23,6 +23,7 @@ dependsOn:
 epic: token-economy
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:38"
 completedAt: "2026-07-07"
 commit: 1cc0be2
 outcome: >-
@@ -35,4 +36,4 @@ verification: >-
   du bootstrap, ce qui est cohérent avec le modèle de coût de l'annexe 2). Guide : sorties réelles
   re-capturées (brief 28, next --count 3, erreur quick). Sonnet n'a exécuté ni take ni de vrais
   starts. 162 tests + build verts revérifiés.
-release: null
+release: pre-release

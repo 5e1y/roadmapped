@@ -29,6 +29,7 @@ dependsOn: []
 epic: stages-teams
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:44"
 completedAt: "2026-07-07"
 commit: 385cfca
 outcome: >-
@@ -40,4 +41,4 @@ verification: >-
   structurantes tranchées par Rémi (stricts+estompés ; team obligatoire remplace zone), screens de
   référence archivés dans docs/assets/refs/, mapping de migration tâche par tâche aligné sur l'app
   de référence, approbation explicite (« ok pour moi »).
-release: null
+release: pre-release

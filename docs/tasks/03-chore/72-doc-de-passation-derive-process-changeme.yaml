@@ -13,6 +13,7 @@ dependsOn: []
 epic: process-enforcement
 source: ai
 createdAt: "2026-07-08T01:10:18"
+updatedAt: "2026-07-18T21:29:43"
 completedAt: "2026-07-08"
 commit: 1dd6d71
 outcome: >-
@@ -21,4 +22,4 @@ outcome: >-
   repo = une unité), correctif à 2 étages (skill + hook guard + signal sitrep) avec critères de fini
   et fichiers pertinents — prêt à passer à une instance Fable 5
 verification: null
-release: null
+release: pre-release

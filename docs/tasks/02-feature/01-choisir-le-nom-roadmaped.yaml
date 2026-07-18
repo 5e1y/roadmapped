@@ -1,6 +1,6 @@
 id: 46
 code: null
-title: "Choisir le nom Roadmaped"
+title: Choisir le nom Roadmaped
 status: done
 tags: []
 size: null
@@ -8,11 +8,12 @@ detail: "Nommer le projet : un nom disponible, évocateur (roadmap + -ed) et mé
 refs: []
 links: []
 dependsOn: []
-milestone: null
+epic: null
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:36"
 completedAt: "2026-07-07"
 commit: null
 outcome: "Nom retenu : « Roadmaped », adopté partout (package roadmaped@0.1.0, CLI, dashboard, skill)."
 verification: "Le nom est en place dans package.json (name: roadmaped), la config et le skill."
-release: null
+release: pre-release

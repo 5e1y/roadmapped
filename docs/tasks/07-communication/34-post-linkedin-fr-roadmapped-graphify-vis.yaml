@@ -36,7 +36,7 @@ epic: null
 source: user
 createdAt: "2026-07-13T00:45:01"
 startedAt: "2026-07-13T00:47:28"
-updatedAt: "2026-07-13T00:54:22"
+updatedAt: "2026-07-18T21:29:52"
 completedAt: "2026-07-13T00:54:22"
 commit: 3d9d707
 outcome: >-
@@ -49,7 +49,7 @@ verification: >-
   occurrence de graphe/nœud/knowledge base dans le corps), Graphify nommé et expliqué dès le 2e
   paragraphe, 5 paragraphes courts au lieu de 8 blocs, aucune répétition. Tone of voice respecté
   (chiffres précis, chute finale, pas de superlatif).
-release: null
+release: 0.2.0
 feedback:
   - date: "2026-07-13T00:53:44"
     author: user

@@ -28,6 +28,7 @@ dependsOn:
 epic: vues-dashboard
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:46"
 completedAt: "2026-07-07"
 commit: 28dc787
 outcome: >-
@@ -37,4 +38,4 @@ verification: >-
   Asserté au navigateur : aucune sidebar au DOM, tabs dans le header (3 vues), navigation par tab +
   persistance après reload (Docs actif), arbre de fichiers en flanc 420px avec le guide rendu à
   droite. Captures Backlog (radar + liste plein écran) et Docs relues. 132 tests + build verts.
-release: null
+release: pre-release

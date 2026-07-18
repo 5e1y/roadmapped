@@ -21,7 +21,7 @@ epic: install-methods
 source: ai
 createdAt: "2026-07-11T15:04:23"
 startedAt: "2026-07-11T15:05:00"
-updatedAt: "2026-07-11T15:10:07"
+updatedAt: "2026-07-18T21:29:51"
 completedAt: "2026-07-11T15:10:07"
 commit: "2892679"
 outcome: >-
@@ -33,4 +33,4 @@ outcome: >-
 verification: >-
   Passe de vérif Fable : Quickstart (L421-436) = 3 méthodes exactes conformes à la source de vérité,
   HTML vérifié programmatiquement (0 balise non fermée/mal appariée). Commit poussé.
-release: null
+release: 0.1.0

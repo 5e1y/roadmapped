@@ -22,6 +22,7 @@ dependsOn: []
 epic: notepad
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:44"
 completedAt: "2026-07-08"
 commit: e06cdde
 outcome: >-
@@ -30,4 +31,4 @@ outcome: >-
 verification: >-
   Spec relue et self-reviewée (docs/notes gitignoré, /api/reveal sécurisé hors-HOME refusé,
   token-neutre) ; 4 tâches créées, deps #88→#86 et #89→#88 confirmées via show, validate OK
-release: null
+release: pre-release

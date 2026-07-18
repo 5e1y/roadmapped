@@ -32,7 +32,7 @@ epic: lancement
 source: ai
 createdAt: "2026-07-11T14:09:00"
 startedAt: "2026-07-11T14:09:03"
-updatedAt: "2026-07-11T14:53:01"
+updatedAt: "2026-07-18T21:29:44"
 completedAt: "2026-07-11T14:52:56"
 commit: 67eb04c
 outcome: >-
@@ -49,4 +49,4 @@ verification: >-
   Run CI 29153352272 = success. curl registry.npmjs.org/roadmapped → 200 ; npm view roadmapped
   version → 0.1.0 ; `npm exec --yes roadmapped@0.1.0 -- --help` dans un dossier vierge → affiche
   l'usage du CLI (preuve que npx depuis npm marche end-to-end).
-release: null
+release: 0.1.0

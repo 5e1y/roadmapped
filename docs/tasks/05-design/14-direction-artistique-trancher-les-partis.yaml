@@ -21,7 +21,7 @@ epic: brand-identity
 source: ai
 createdAt: "2026-07-09T13:54:53"
 startedAt: "2026-07-11T13:32:55"
-updatedAt: "2026-07-11T13:34:08"
+updatedAt: "2026-07-18T21:29:45"
 completedAt: "2026-07-11T13:34:08"
 commit: 3d72fe5
 outcome: >-
@@ -34,4 +34,4 @@ outcome: >-
 verification: >-
   Décision explicite de Rémi (« #213 accent »). Consignée comme référence de DA ; matérialisée dans
   le code via #176.
-release: null
+release: pre-release

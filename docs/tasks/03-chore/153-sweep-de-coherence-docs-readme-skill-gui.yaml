@@ -22,7 +22,7 @@ epic: null
 source: ai
 createdAt: "2026-07-10T23:32:37"
 startedAt: "2026-07-10T23:32:41"
-updatedAt: "2026-07-10T23:40:16"
+updatedAt: "2026-07-18T21:29:43"
 completedAt: "2026-07-10"
 commit: 5b1f602
 outcome: >-
@@ -51,4 +51,4 @@ verification: >-
   team badge/mini quick-add » 0 dans design. Confirmé que install.mjs scaffolde bien les 9 types
   canoniques (pas un bug, juste le commentaire était périmé) et que --stage/--section restent des
   alias acceptés (guide correct). Docs uniquement — tsc/tests non impactés.
-release: null
+release: pre-release

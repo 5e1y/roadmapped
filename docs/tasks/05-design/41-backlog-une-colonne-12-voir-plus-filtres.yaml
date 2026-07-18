@@ -30,6 +30,7 @@ dependsOn:
 epic: vues-dashboard
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:46"
 completedAt: "2026-07-07"
 commit: 4cd8852
 outcome: >-
@@ -40,4 +41,4 @@ verification: >-
   Asserté au navigateur : voir-plus/Réduire joués, classes des deux triggers strictement égales,
   sélection/désélection par clic dans le vide du radar, fond de carte sélectionnée rgb(238,243,253)
   opaque dans le Graphe (pointillés invisibles au travers, capture relue). 132 tests + build verts.
-release: null
+release: pre-release

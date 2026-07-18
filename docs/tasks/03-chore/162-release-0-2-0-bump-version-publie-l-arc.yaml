@@ -14,7 +14,7 @@ epic: null
 source: ai
 createdAt: "2026-07-12T17:48:23"
 startedAt: "2026-07-12T17:48:23"
-updatedAt: "2026-07-12T17:49:08"
+updatedAt: "2026-07-18T21:29:44"
 completedAt: "2026-07-12T17:49:08"
 commit: e0d05dd
 outcome: >-
@@ -26,4 +26,4 @@ outcome: >-
 verification: >-
   CI run 29198906621 = completed/success. curl registry.npmjs.org/roadmapped/latest → 0.2.0
   (confirmé live). Bump commité e0d05dd, poussé.
-release: null
+release: 0.2.0

@@ -26,6 +26,7 @@ dependsOn: []
 epic: process-enforcement
 source: user
 createdAt: "2026-07-08T01:37:06"
+updatedAt: "2026-07-18T21:29:43"
 completedAt: "2026-07-08"
 commit: 4d075f8
 outcome: >-
@@ -38,4 +39,4 @@ verification: >-
   chemin git observé en réel sur repo jetable : 2 commits après le sha consigné →
   {count:2,sinceId:7}, sha inconnu → null ; sitrep réel du repo muet (in_progress présentes,
   comportement attendu) ; 224 tests + build verts
-release: null
+release: pre-release

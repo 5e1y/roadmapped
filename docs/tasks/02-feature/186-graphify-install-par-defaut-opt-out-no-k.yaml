@@ -39,7 +39,7 @@ epic: knowledge-base
 source: ai
 createdAt: "2026-07-12T17:20:41"
 startedAt: "2026-07-12T17:21:08"
-updatedAt: "2026-07-12T17:42:45"
+updatedAt: "2026-07-18T21:29:41"
 completedAt: "2026-07-12T17:42:45"
 commit: "6816439"
 outcome: >-
@@ -66,4 +66,4 @@ verification: >-
   tout-échoue→failed+init OK+pas d'entrée morte, fallback venv, mergeMcpServer générique, upgrade
   respecte l'opt-out. E2E dispatcher passe CI=1 (aucune install réelle). Invocateur MCP vérifié sur
   wheel PyPI graphifyy 0.9.13.
-release: null
+release: 0.1.0

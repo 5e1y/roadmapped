@@ -21,6 +21,7 @@ dependsOn:
 epic: token-economy
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:42"
 completedAt: "2026-07-08"
 commit: e2d1c42
 outcome: >-
@@ -29,4 +30,4 @@ outcome: >-
 verification: >-
   done 71 sans --commit → YAML relu porte commit=e2d1c42 (HEAD) ; --suggest-refs a listé les
   fichiers modifiés en stderr sans les écrire dans refs
-release: null
+release: pre-release

@@ -17,9 +17,10 @@ refs:
 links: []
 dependsOn:
   - 88
-milestone: null
+epic: null
 source: ai
 createdAt: "2026-07-08"
+updatedAt: "2026-07-18T21:29:46"
 completedAt: "2026-07-08"
 commit: 93937d0
 outcome: >-
@@ -43,4 +44,4 @@ verification: >-
   inhérente au web : Finder→navigateur = nom seul (chemin absolu via drag terminal ou édition
   manuelle) ; ouverture réelle du Finder non observable en headless (wiring POST vérifié, effet
   couvert #86).
-release: null
+release: pre-release

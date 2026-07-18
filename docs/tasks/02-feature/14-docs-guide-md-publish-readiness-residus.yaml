@@ -16,6 +16,7 @@ epic: null
 source: ai
 createdAt: "2026-07-08T18:37:52"
 startedAt: "2026-07-08T18:37:52"
+updatedAt: "2026-07-18T21:29:37"
 completedAt: "2026-07-08"
 commit: 503a252
 outcome: >-
@@ -26,4 +27,4 @@ outcome: >-
   section CLI reformulée. Même décision que le README : l'utilisateur voit npx, le contributeur
   apprend la forme repo une fois.
 verification: null
-release: null
+release: pre-release

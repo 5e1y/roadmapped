@@ -8,13 +8,14 @@ detail: null
 refs: []
 links: []
 dependsOn: []
-milestone: null
+epic: null
 source: ai
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:45"
 completedAt: "2026-07-07"
 commit: af2dcca
 outcome: >-
   Le header du Backlog est débarrassé du dropdown « Tous les stages » — logique de filtre et code
   mort retirés avec (un filtre persisté sans UI aurait été un piège invisible)
 verification: null
-release: null
+release: pre-release

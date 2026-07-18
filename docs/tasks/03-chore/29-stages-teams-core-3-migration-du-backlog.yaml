@@ -28,6 +28,7 @@ dependsOn:
 epic: stages-teams
 source: ai
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:42"
 completedAt: "2026-07-07"
 commit: 26473a0
 outcome: >-
@@ -37,4 +38,4 @@ verification: >-
   Vérifié par moi sur le vrai repo : validate OK (8 sections, 41 tâches, nextId=48), next sert #16
   (03-identity, sensé), diff octet-à-octet d'un YAML migré = seule la ligne zone→team change,
   rétroactive #47 porte le vrai sha 388fbb2, 128 tests + build verts.
-release: null
+release: pre-release

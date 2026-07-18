@@ -27,6 +27,7 @@ dependsOn:
 epic: token-economy
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:42"
 completedAt: "2026-07-07"
 commit: e9150bd
 outcome: >-
@@ -37,4 +38,4 @@ verification: >-
   refs → warning stderr, kind omis des YAML existants — grep kind: docs/tasks = zéro hors nouveaux).
   Cycle réel joué par l'agent puis nettoyé (id 75 consommé, nextId=76, aucun résidu, validate OK
   revérifié par moi).
-release: null
+release: pre-release

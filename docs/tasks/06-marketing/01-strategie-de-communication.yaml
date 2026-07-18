@@ -19,6 +19,7 @@ dependsOn: []
 epic: lancement
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:49"
 completedAt: "2026-07-08"
 commit: acdc0cc
 outcome: >-
@@ -32,4 +33,4 @@ verification: >-
   Plan relu en entier, cohérent avec tone-of-voice.md, site-copy.md et README #11. Objectifs
   chiffrés assumés comme cibles (décision autonome, Rémi absent) — révisables. Livrable éditorial.
   Contenus exacts par canal = #20 (à faire).
-release: null
+release: pre-release

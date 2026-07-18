@@ -16,7 +16,7 @@ epic: null
 source: ai
 createdAt: "2026-07-08T18:27:48"
 startedAt: "2026-07-11T13:32:54"
-updatedAt: "2026-07-11T13:34:03"
+updatedAt: "2026-07-18T21:29:45"
 completedAt: "2026-07-11T13:34:03"
 commit: 284b874
 outcome: >-
@@ -28,4 +28,4 @@ outcome: >-
 verification: >-
   npx tsc --noEmit exit 0. Pattern accent-tint aligné sur TagGraph/TypesRadar/DocsTree (langage
   actif documenté). Changement purement className.
-release: null
+release: pre-release

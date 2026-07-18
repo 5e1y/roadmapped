@@ -24,6 +24,7 @@ epic: vues-dashboard
 source: ai
 createdAt: "2026-07-08T15:02:17"
 startedAt: "2026-07-08T15:18:36"
+updatedAt: "2026-07-18T21:29:47"
 completedAt: "2026-07-08"
 commit: 79e16b7
 outcome: >-
@@ -46,4 +47,4 @@ verification: >-
   à ux/marketing/skill/open-source/data-model/spec, backlog filtré à 4 ouvertes, radar « engineering
   4 » actif en parallèle (ET logique) — conforme. Headless Fable : clic fable 8→4, re-clic 8,
   engineering+marketing→0 « rien avec ces filtres », aucun scroll fantôme (viewport 1280×700).
-release: null
+release: pre-release

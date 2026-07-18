@@ -17,7 +17,7 @@ epic: roadmap-readability
 source: ai
 createdAt: "2026-07-09T18:25:46"
 startedAt: "2026-07-10T10:30:57"
-updatedAt: "2026-07-10T10:50:48"
+updatedAt: "2026-07-18T21:29:49"
 completedAt: "2026-07-10"
 commit: 2930d5a
 outcome: >-
@@ -25,4 +25,4 @@ outcome: >-
   session dans RoadmapView, passé aux 2 modes (colonnes + graph). Done caché à chaque arrivée sur la
   vue.
 verification: "Dashboard réel : Roadmap s'ouvre sans les done (viewport dédié au travail en cours)."
-release: null
+release: pre-release

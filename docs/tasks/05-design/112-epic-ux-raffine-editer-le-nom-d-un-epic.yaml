@@ -15,6 +15,7 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-08T12:26:54"
+updatedAt: "2026-07-18T21:29:47"
 completedAt: "2026-07-08"
 commit: 6fb8c04
 outcome: >-
@@ -37,4 +38,4 @@ verification: >-
   hierarchie-regroupement » devient « Hiérarchie & regroupement », persisté _epics.yaml + propagé
   Roadmap, slug intact, Échap n'écrit rien (after-10) ; dé-dup open∩done et scroll confirmés
   headless par Fable. _epics.yaml de test supprimé (docs/tasks intact).
-release: null
+release: pre-release

@@ -19,6 +19,7 @@ dependsOn: []
 epic: ecritures-concurrentes
 source: ai
 createdAt: "2026-07-08"
+updatedAt: "2026-07-18T21:29:38"
 completedAt: "2026-07-08"
 commit: 8aa19ec
 outcome: >-
@@ -28,4 +29,4 @@ outcome: >-
 verification: >-
   Note relue dans references/delegation.md, cohérente avec le comportement livré de withLock (#83) :
   lock intra-arbre, conflit inter-worktrees au merge de _meta.yaml
-release: null
+release: pre-release

@@ -17,7 +17,7 @@ epic: roadmap-readability
 source: ai
 createdAt: "2026-07-09T18:25:46"
 startedAt: "2026-07-10T10:30:57"
-updatedAt: "2026-07-10T10:50:49"
+updatedAt: "2026-07-18T21:29:48"
 completedAt: "2026-07-10"
 commit: 2930d5a
 outcome: >-
@@ -25,4 +25,4 @@ outcome: >-
   longue gonflait la rangée subgrid de toutes les colonnes ; intégrale dans le title). ponytail: pas
   de virtualisation sans problème mesuré.
 verification: "Captures : colonnes aérées, lisibles à fort volume."
-release: null
+release: pre-release

@@ -26,6 +26,7 @@ dependsOn:
 epic: design-system
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:45"
 completedAt: "2026-07-07"
 commit: "1871706"
 outcome: >-
@@ -35,4 +36,4 @@ verification: >-
   npm i trinil-react@1.3.9 dans le repo ; 11 SVG inline remplacés dans 6 composants ; grep <svg → ne
   restent que StatusGlyph (choix) et le marker de flèche du graphe (structurel) ; build tsc + 128
   tests verts ; rendu vérifié sur les captures #49 (chevrons, ✕, ✓ visibles).
-release: null
+release: pre-release

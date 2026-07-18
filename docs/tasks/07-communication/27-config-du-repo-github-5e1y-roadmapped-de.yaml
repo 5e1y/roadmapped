@@ -18,7 +18,7 @@ epic: community-github
 source: ai
 createdAt: "2026-07-09T13:55:37"
 startedAt: "2026-07-11T13:32:55"
-updatedAt: "2026-07-11T13:34:24"
+updatedAt: "2026-07-18T21:29:52"
 completedAt: "2026-07-11T13:34:24"
 commit: 3d72fe5
 outcome: >-
@@ -31,4 +31,4 @@ outcome: >-
 verification: >-
   gh repo view : description/topics/homepageUrl confirmés présents. README : badge Node ajouté et
   poussé (3d72fe5). Social preview : non fait (dépend de l'image de Rémi).
-release: null
+release: pre-release

@@ -25,6 +25,7 @@ dependsOn:
 epic: process-enforcement
 source: user
 createdAt: "2026-07-08T01:37:23"
+updatedAt: "2026-07-18T21:29:43"
 completedAt: "2026-07-08"
 commit: 9dc361e
 outcome: >-
@@ -37,4 +38,4 @@ verification: >-
   Section relue et vérifiée contre le comportement livré : conditions d'exemption identiques à
   cmdGuard, message quick conforme, signal sitrep décrit tel qu'implémenté (muet si in_progress) ;
   en-tête du doc source relu avec les 4 ids de livraison
-release: null
+release: pre-release

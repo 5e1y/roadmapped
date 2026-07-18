@@ -17,7 +17,7 @@ epic: site-v3
 source: ai
 createdAt: "2026-07-11T00:33:23"
 startedAt: "2026-07-11T00:33:44"
-updatedAt: "2026-07-11T01:24:27"
+updatedAt: "2026-07-18T21:29:51"
 completedAt: "2026-07-11"
 commit: b553eea
 outcome: >-
@@ -25,4 +25,4 @@ outcome: >-
   Listener sur .feature-card (gardé mobile-only via mq), bouton conservé pour le clavier, clic qui
   bulle → un seul toggle. cursor:pointer sur toute la carte en mobile.
 verification: node --check OK ; listener sur .card, ancien listener bouton retiré (grep).
-release: null
+release: pre-release

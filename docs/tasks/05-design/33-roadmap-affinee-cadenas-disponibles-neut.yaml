@@ -25,6 +25,7 @@ dependsOn:
 epic: vues-dashboard
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:45"
 completedAt: "2026-07-07"
 commit: "1871706"
 outcome: >-
@@ -35,4 +36,4 @@ verification: >-
   Captures relues : cadenas trinil sur #14/#17, sélection de #3 en fond accent + filet gauche (plus
   de bordure), barres Idea/Initial pleines en bleu, scrollTop=300 → cartes passées SOUS les en-têtes
   sticky (z-20). 128 tests + build verts.
-release: null
+release: pre-release

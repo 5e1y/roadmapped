@@ -21,7 +21,7 @@ epic: site-v3
 source: ai
 createdAt: "2026-07-10T23:56:55"
 startedAt: "2026-07-10T23:57:41"
-updatedAt: "2026-07-11T00:00:39"
+updatedAt: "2026-07-18T21:29:51"
 completedAt: "2026-07-11"
 commit: 575bfa3
 outcome: >-
@@ -31,4 +31,4 @@ outcome: >-
   venir sur les plans que l'agent écrit). Wordmark géant conservé, poids 800→600 (medium/semibold).
   Title + og/twitter + meta description + JSON-LD réalignés sur le positionnement.
 verification: JSON-LD re-parsé OK. Copy corrigée (heil→hail, orthographe). Rendu à valider en preview.
-release: null
+release: pre-release

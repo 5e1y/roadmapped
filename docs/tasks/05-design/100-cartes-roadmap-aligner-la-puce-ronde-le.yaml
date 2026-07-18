@@ -12,6 +12,7 @@ dependsOn: []
 epic: polish-ui
 source: ai
 createdAt: "2026-07-08T09:28:35"
+updatedAt: "2026-07-18T21:29:47"
 completedAt: "2026-07-08"
 commit: bda7b4a
 outcome: >-
@@ -19,4 +20,4 @@ outcome: >-
   retiré) et la première ligne du titre (text-sm, leading 20px) partagent désormais la même ligne de
   base. items-start conservé (compatible line-clamp-2). Un seul fichier touché.
 verification: tsc clean, 233 tests verts, app boote (HTTP 200). Alignement visuel — à valider à l'œil par Rémi.
-release: null
+release: pre-release

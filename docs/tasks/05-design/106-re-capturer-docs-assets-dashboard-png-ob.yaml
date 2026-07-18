@@ -11,9 +11,10 @@ detail: null
 refs: []
 links: []
 dependsOn: []
-milestone: null
+epic: null
 source: ai
 createdAt: "2026-07-08T11:24:10"
+updatedAt: "2026-07-18T21:29:47"
 completedAt: "2026-07-08"
 commit: adfcfee
 outcome: >-
@@ -25,4 +26,4 @@ verification: >-
   file → PNG 1600×1000 valide ; capture prise sur l'app en cours (epics visibles, radar, 4 tabs)
   donc à jour. Affichée par README.md (chemin ./docs/assets/dashboard.png inchangé). Rendu à valider
   à l'œil par Rémi.
-release: null
+release: pre-release

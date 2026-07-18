@@ -20,6 +20,7 @@ dependsOn: []
 epic: lancement
 source: ai
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:37"
 completedAt: "2026-07-08"
 commit: a33ffac
 outcome: >-
@@ -30,4 +31,4 @@ verification: >-
   Étapes du workflow vérifiées contre les scripts réels de package.json (build = tsc -b && vite
   build existe). tsc --noEmit et vitest run passent en local (233 tests). Non exécuté sur GitHub
   (repo pas encore public, #13) — s'activera au premier push.
-release: null
+release: pre-release

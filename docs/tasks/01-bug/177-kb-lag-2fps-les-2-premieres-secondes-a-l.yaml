@@ -30,7 +30,7 @@ epic: knowledge-base
 source: ai
 createdAt: "2026-07-12T15:53:12"
 startedAt: "2026-07-12T15:53:28"
-updatedAt: "2026-07-12T16:19:07"
+updatedAt: "2026-07-18T21:29:36"
 completedAt: "2026-07-12T16:19:07"
 commit: ac91c43
 outcome: >-
@@ -49,4 +49,4 @@ verification: >-
   initialReveal/reveal/revealTarget/déterminisme/morph-mid-reveal). CDP vrai graphe : DOM
   90→420→640→869 <g> entre 56ms et ~680ms, 104 frames rAF dans la 1re seconde, 0 long task avant 2s
   (caveat : headless non throttlé ~100fps, le navigateur de Rémi = juge final).
-release: null
+release: 0.1.0

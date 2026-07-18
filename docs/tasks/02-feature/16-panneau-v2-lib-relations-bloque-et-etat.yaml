@@ -25,6 +25,7 @@ dependsOn: []
 epic: panneau-v2
 source: ai
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:37"
 completedAt: "2026-07-07"
 commit: 105aa67
 outcome: >-
@@ -34,4 +35,4 @@ verification: >-
   TDD respecté par l'agent (8 tests rouges constatés puis verts) ; 23 tests roadmap.test.ts verts
   revérifiés par moi dans la suite complète (109/109) ; choix défensif id inconnu → archived
   documenté en JSDoc.
-release: null
+release: pre-release

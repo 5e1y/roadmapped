@@ -14,10 +14,11 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-08T18:03:05"
+updatedAt: "2026-07-18T21:29:37"
 completedAt: "2026-07-08"
 commit: 5c2247f
 outcome: >-
   package.json : description, keywords(10), homepage roadmapped.work, repository, bugs, author,
   license MIT. ⚠ URL GitHub placeholder (pas de remote) — à confirmer par Rémi au publish #13.
 verification: null
-release: null
+release: pre-release

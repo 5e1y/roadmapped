@@ -28,6 +28,7 @@ dependsOn: []
 epic: process-enforcement
 source: user
 createdAt: "2026-07-08T01:37:13"
+updatedAt: "2026-07-18T21:29:43"
 completedAt: "2026-07-08"
 commit: 14e570a
 outcome: >-
@@ -42,4 +43,4 @@ verification: >-
   SKILL.md relu : les 3 ajouts présents, 64 lignes ; diff -r skills/roadmaped
   ~/.claude/skills/roadmaped vide (identiques) ; zéro occurrence de dashboard/scripts dans
   l'installé ; grep confirme les nouvelles références planning/delegation à la place de workflows.md
-release: null
+release: pre-release

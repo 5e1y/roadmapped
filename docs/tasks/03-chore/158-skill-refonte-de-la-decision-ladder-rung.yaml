@@ -33,7 +33,7 @@ epic: null
 source: ai
 createdAt: "2026-07-11T09:42:08"
 startedAt: "2026-07-11T09:42:13"
-updatedAt: "2026-07-11T09:47:37"
+updatedAt: "2026-07-18T21:29:44"
 completedAt: "2026-07-11T09:47:37"
 commit: 0e2d10b
 outcome: >-
@@ -43,4 +43,4 @@ outcome: >-
 verification: >-
   Suite complète 440/440 verte (dont task.test + mcp-server.test mis à jour), tsc --noEmit clean.
   quick sans --type sur le vrai repo refusé (exit 1, aucune écriture).
-release: null
+release: pre-release

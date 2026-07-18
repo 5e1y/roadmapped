@@ -26,6 +26,7 @@ dependsOn:
 epic: token-economy
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:46"
 completedAt: "2026-07-07"
 commit: dffd595
 outcome: >-
@@ -39,4 +40,4 @@ verification: >-
   s.tasks non filtrés) corrigé et re-vérifié : quick absents avec et sans toggle terminées, done
   masquées sauf chaîne transitive réelle (#17→#7→#1). Jetables supprimés, ids consommés. 162 tests +
   build verts.
-release: null
+release: pre-release

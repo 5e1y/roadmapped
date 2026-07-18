@@ -23,6 +23,7 @@ dependsOn: []
 epic: panneau-v2
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:44"
 completedAt: "2026-07-07"
 commit: d5ef960
 outcome: >-
@@ -32,4 +33,4 @@ verification: >-
   Brainstorm en 4 questions avec previews (paradigme, navigation, done, feedback), toutes tranchées
   par Rémi ; spec self-reviewée (1 contradiction corrigée : contournement du done guidé par le
   Select) ; approbation explicite de Rémi sur le fichier spec (« go pour le plan du panneau »).
-release: null
+release: pre-release

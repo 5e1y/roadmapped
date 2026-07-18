@@ -16,6 +16,7 @@ dependsOn: []
 epic: polish-ui
 source: ai
 createdAt: "2026-07-08T09:28:29"
+updatedAt: "2026-07-18T21:29:39"
 completedAt: "2026-07-08"
 commit: c27b2c5
 outcome: >-
@@ -29,4 +30,4 @@ verification: >-
   6 tests dédiés relativeTime (secondes/heures/jours/semaines/mois/années, ms, non-parsable,
   absoluteDate) ; suite complète 239/239 verte ; tsc clean ; app boote HTTP 200 sans erreur. Rendu à
   l'œil à valider par Rémi (formulation FR).
-release: null
+release: pre-release

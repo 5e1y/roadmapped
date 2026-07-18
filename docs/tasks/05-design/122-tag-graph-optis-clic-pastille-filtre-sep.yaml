@@ -29,6 +29,7 @@ epic: vues-dashboard
 source: ai
 createdAt: "2026-07-08T15:37:51"
 startedAt: "2026-07-08T15:57:25"
+updatedAt: "2026-07-18T21:29:47"
 completedAt: "2026-07-08"
 commit: be4d532
 outcome: >-
@@ -45,4 +46,4 @@ verification: >-
   zéro erreur. Changements ciblés vérifiés au code (circle onClick, border-t sans mx, pas de
   my-auto, tagGraph sans filtre statut + archive passée). Rendu fin (pastille cliquable, séparateur,
   ancrage, poids des nœuds avec done) à valider à l'œil par Rémi.
-release: null
+release: pre-release

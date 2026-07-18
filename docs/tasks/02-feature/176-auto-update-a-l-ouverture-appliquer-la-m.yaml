@@ -33,7 +33,7 @@ epic: null
 source: ai
 createdAt: "2026-07-11T10:13:32"
 startedAt: "2026-07-11T10:13:36"
-updatedAt: "2026-07-11T10:17:27"
+updatedAt: "2026-07-18T21:29:41"
 completedAt: "2026-07-11T10:17:27"
 commit: 7b31cf0
 outcome: >-
@@ -45,4 +45,4 @@ verification: >-
   injecté, jamais de vrai npm), tsc clean. sitrep self-host réel = no-op silencieux, exit propre.
   LIMITE : le vrai npm install github non exercé en self-host (checkUpdate y renvoie null par
   design) — à valider sur un repo consommateur après push.
-release: null
+release: pre-release

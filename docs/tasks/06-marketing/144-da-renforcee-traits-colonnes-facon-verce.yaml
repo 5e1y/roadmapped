@@ -16,7 +16,7 @@ epic: site-v2
 source: ai
 createdAt: "2026-07-10T22:04:45"
 startedAt: "2026-07-10T22:16:19"
-updatedAt: "2026-07-10T22:33:03"
+updatedAt: "2026-07-18T21:29:51"
 completedAt: "2026-07-10"
 commit: e72c76c
 outcome: >-
@@ -25,4 +25,4 @@ outcome: >-
   6%/blanc 5%, body::before). Deux calques z-index -1, pointer-events none, sous le contenu (jamais
   au-dessus de l'oiseau).
 verification: "--px-tile + rails dans style.css ; z-index -1 confirmé par l'agent."
-release: null
+release: pre-release

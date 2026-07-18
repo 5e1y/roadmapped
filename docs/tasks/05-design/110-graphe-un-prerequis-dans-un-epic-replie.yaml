@@ -11,9 +11,10 @@ detail: null
 refs: []
 links: []
 dependsOn: []
-milestone: null
+epic: null
 source: ai
 createdAt: "2026-07-08T12:23:26"
+updatedAt: "2026-07-18T21:29:47"
 completedAt: "2026-07-08"
 commit: 76df14a
 outcome: >-
@@ -27,4 +28,4 @@ verification: >-
   tsc clean, 326 tests (+ RoadmapGraph.test hiddenPrereqNote), build OK, boot HTTP 200. QA visuel
   (capture 04) : « Prérequis manquants (#14 #138) » + tooltip de localisation confirmés ; clé
   orpheline posée manuellement → null après reload (assertion headless).
-release: null
+release: pre-release

@@ -15,6 +15,7 @@ epic: process-enforcement
 source: ai
 createdAt: "2026-07-08T14:11:01"
 startedAt: "2026-07-08T14:46:43"
+updatedAt: "2026-07-18T21:29:43"
 completedAt: "2026-07-08"
 commit: 74b584a
 outcome: >-
@@ -32,4 +33,4 @@ verification: >-
   suivant), là où avant le fix ça donnait « indisponible (hors dépôt git) » ; vrai sha restauré
   ensuite. Sur données réelles : audit 14/14 liés, et le faux « 14 commits non consignés » a disparu
   du sitrep. validate OK 132 tâches.
-release: null
+release: pre-release

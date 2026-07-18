@@ -22,6 +22,7 @@ dependsOn: []
 epic: ecritures-concurrentes
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:44"
 completedAt: "2026-07-08"
 commit: e06cdde
 outcome: >-
@@ -30,4 +31,4 @@ outcome: >-
 verification: >-
   Spec relue et self-reviewée (mkdir lock atomique + TTL orphelin + datetime rétrocompat, limite
   worktrees assumée) ; 3 tâches créées avec detail complet + refs spec, validate OK (78 tâches)
-release: null
+release: pre-release

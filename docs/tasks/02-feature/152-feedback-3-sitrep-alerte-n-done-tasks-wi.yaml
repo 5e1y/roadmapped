@@ -15,7 +15,7 @@ epic: feedback-mode
 source: ai
 createdAt: "2026-07-09T00:24:08"
 startedAt: "2026-07-09T01:13:21"
-updatedAt: "2026-07-09T01:14:30"
+updatedAt: "2026-07-18T21:29:40"
 completedAt: "2026-07-09"
 commit: 6c6fcd5
 outcome: >-
@@ -23,4 +23,4 @@ outcome: >-
   quick' (tâches done avec au moins un feedback resolved:false), à côté des alertes dette/commits.
   Vérif : 2 tests (done+feedback ouvert → alerte ; résolu → pas d'alerte), tsc clean, 390 tests.
 verification: null
-release: null
+release: pre-release

@@ -27,6 +27,7 @@ dependsOn:
 epic: vues-dashboard
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:42"
 completedAt: "2026-07-07"
 commit: dff378b
 outcome: >-
@@ -38,4 +39,4 @@ verification: >-
   --count 3 → #16 (identity) avant #3 #4 (build) ; next --team marketing → #16 ; colonne ouvertes du
   Backlog assertée [#16,#3,#4,#5]. SKILL.md consigne « consomme, ne recalcule jamais ». 132 tests +
   build verts.
-release: null
+release: pre-release

@@ -20,6 +20,7 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-08T18:03:11"
+updatedAt: "2026-07-18T21:29:49"
 completedAt: "2026-07-08"
 commit: ea33888
 outcome: >-
@@ -29,4 +30,4 @@ outcome: >-
   disallow /demo/, sitemap), sitemap.xml (home, lastmod 2026-07-08), llms.txt (résumé structuré
   agent-first + key facts + liens). og:image pointe og-image.png (créé en #166).
 verification: null
-release: null
+release: pre-release

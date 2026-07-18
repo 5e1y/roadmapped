@@ -26,7 +26,7 @@ epic: install-methods
 source: ai
 createdAt: "2026-07-11T15:04:20"
 startedAt: "2026-07-11T15:05:00"
-updatedAt: "2026-07-11T15:10:03"
+updatedAt: "2026-07-18T21:29:52"
 completedAt: "2026-07-11T15:10:03"
 commit: 472c956
 outcome: >-
@@ -45,4 +45,4 @@ verification: >-
   git diff limité aux 5 fichiers attendus. Passe de vérif Fable : 5/6 conformes d'emblée, 2 écarts
   sur le hero de site-copy.md (CTA github-only + « Nothing to publish ») corrigés à la main avant
   commit. Commandes vérifiées identiques à la source de vérité sur toutes les surfaces.
-release: null
+release: 0.1.0

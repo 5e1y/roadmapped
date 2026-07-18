@@ -27,6 +27,7 @@ epic: site
 source: ai
 createdAt: "2026-07-08T15:02:02"
 startedAt: "2026-07-08T15:02:21"
+updatedAt: "2026-07-18T21:29:50"
 completedAt: "2026-07-08"
 commit: 3a44ebd
 outcome: >-
@@ -51,4 +52,4 @@ verification: >-
   grep : zéro ressource externe (hormis SVG-ns + roadmapped.work + placeholder GitHub). Push vérifié
   (8cf2d9e..3a44ebd). Repo SÉPARÉ du repo outil. Rendu live à valider par Rémi après redéploiement
   Cloudflare.
-release: null
+release: pre-release

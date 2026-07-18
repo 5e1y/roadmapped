@@ -16,9 +16,10 @@ refs: []
 links:
   - 12
 dependsOn: []
-milestone: null
+epic: null
 source: ai
 createdAt: "2026-07-08T09:28:06"
+updatedAt: "2026-07-18T21:29:39"
 completedAt: "2026-07-08"
 commit: 4ad705b
 outcome: >-
@@ -41,4 +42,4 @@ verification: >-
   node_modules + loader amaro. Le déclenchement effectif s'observera à ma prochaine session dans ce
   repo (le hook injecte le sitrep) — non observable dans la session courante (déjà démarrée avant le
   hook).
-release: null
+release: pre-release

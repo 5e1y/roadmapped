@@ -15,6 +15,7 @@ dependsOn: []
 epic: process-enforcement
 source: ai
 createdAt: "2026-07-08T01:46:24"
+updatedAt: "2026-07-18T21:29:41"
 completedAt: "2026-07-08"
 commit: 93740d1
 outcome: >-
@@ -29,4 +30,4 @@ verification: >-
   fraîche-couvre-ancienne). Run réel du guard avec fichiers stagés : seuil forcé à 0 → alerte
   nommant #105 + âge, exit 0 ; seuil normal 7 avec #105 fraîche → silencieux, exit 0. Les deux
   branches confirmées end-to-end sur le vrai dépôt.
-release: null
+release: pre-release

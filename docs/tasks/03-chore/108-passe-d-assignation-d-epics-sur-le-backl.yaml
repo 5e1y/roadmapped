@@ -15,9 +15,10 @@ links:
   - 133
   - 135
 dependsOn: []
-milestone: null
+epic: null
 source: ai
 createdAt: "2026-07-08T12:09:31"
+updatedAt: "2026-07-18T21:29:43"
 completedAt: "2026-07-08"
 commit: 4c4061a
 outcome: >-
@@ -33,4 +34,4 @@ verification: >-
   roadmap affiche désormais chaque epic avec sa complétion (a11y 4/4, design-system 10/10,
   distribution 3/5, etc.) + avancement global 112/125 ; comptage disque : 108 YAML avec epic, 25
   sans. Édition YAML seule, disjoint de Fable #135 (src/).
-release: null
+release: pre-release

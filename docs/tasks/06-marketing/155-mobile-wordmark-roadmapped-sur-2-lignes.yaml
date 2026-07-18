@@ -19,7 +19,7 @@ epic: site-v3
 source: ai
 createdAt: "2026-07-11T00:33:19"
 startedAt: "2026-07-11T00:33:44"
-updatedAt: "2026-07-11T00:54:31"
+updatedAt: "2026-07-18T21:29:51"
 completedAt: "2026-07-11"
 commit: 0a220ad
 outcome: >-
@@ -29,4 +29,4 @@ outcome: >-
 verification: >-
   grep : footer-perch présent, markup 2-lignes présent ; scripts OK. Mesure du R et rendu mobile à
   valider en preview.
-release: null
+release: pre-release

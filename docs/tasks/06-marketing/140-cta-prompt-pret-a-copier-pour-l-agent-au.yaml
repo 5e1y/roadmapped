@@ -14,7 +14,7 @@ epic: site-v2
 source: ai
 createdAt: "2026-07-10T22:04:30"
 startedAt: "2026-07-10T22:05:31"
-updatedAt: "2026-07-10T22:15:39"
+updatedAt: "2026-07-18T21:29:50"
 completedAt: "2026-07-10"
 commit: 476a025
 outcome: >-
@@ -22,4 +22,4 @@ outcome: >-
   code + bouton Copy clipboard, feedback « Copied »). JS inline en délégation, zéro dépendance. CSS
   via tokens existants (compat clair/sombre).
 verification: .prompt-copy / .btn-copy présents (grep), CSS ajoutée en fin de style.css.
-release: null
+release: pre-release

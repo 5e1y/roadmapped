@@ -26,6 +26,7 @@ epic: distribution
 source: ai
 createdAt: "2026-07-08T15:40:06"
 startedAt: "2026-07-08T16:04:51"
+updatedAt: "2026-07-18T21:29:39"
 completedAt: "2026-07-08"
 commit: 9a56947
 outcome: >-
@@ -41,4 +42,4 @@ verification: >-
   Réel : node bin/roadmapped.mjs dashboard --no-open → vite boote (port 5174), /api/tree HTTP 200,
   navigateur NON ouvert (--no-open respecté et filtré). install.test.mjs 25/25 (hint init n'a rien
   cassé). Parsing --open/--no-open/--open= vérifié au code.
-release: null
+release: pre-release

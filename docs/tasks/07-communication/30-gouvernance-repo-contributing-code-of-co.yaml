@@ -23,7 +23,7 @@ epic: community-github
 source: ai
 createdAt: "2026-07-09T13:55:48"
 startedAt: "2026-07-11T12:53:39"
-updatedAt: "2026-07-11T12:55:42"
+updatedAt: "2026-07-18T21:29:52"
 completedAt: "2026-07-11T12:55:36"
 commit: 9e48bd1
 outcome: >-
@@ -36,4 +36,4 @@ outcome: >-
 verification: >-
   git status : SECURITY.md ajouté et commité (9e48bd1) ; les 3 fichiers préexistants relus et jugés
   adéquats, laissés intacts. Fichier à la racine → auto-surfacé par l'onglet Security de GitHub.
-release: null
+release: pre-release

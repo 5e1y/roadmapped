@@ -22,7 +22,7 @@ epic: lancement
 source: user
 createdAt: "2026-07-07"
 startedAt: "2026-07-11T12:22:30"
-updatedAt: "2026-07-11T13:34:19"
+updatedAt: "2026-07-18T21:29:36"
 completedAt: "2026-07-11T13:34:19"
 commit: 3a703d7
 outcome: >-
@@ -36,7 +36,7 @@ verification: >-
   GitHub (24c8eda..0c735fe) → marketplace add public opérant. NON couvert de mon côté (à confirmer
   par Rémi) : le test end-to-end `/plugin install` dans une session Claude FRAÎCHE + déclenchement
   du skill.
-release: null
+release: pre-release
 feedback:
   - date: "2026-07-11T12:27:04"
     author: claude

@@ -12,9 +12,10 @@ detail: null
 refs: []
 links: []
 dependsOn: []
-milestone: null
+epic: null
 source: ai
 createdAt: "2026-07-08T01:46:24"
+updatedAt: "2026-07-18T21:29:42"
 completedAt: "2026-07-08"
 commit: "5370e72"
 outcome: >-
@@ -27,4 +28,4 @@ verification: >-
   Symlink créé puis readlink → pointe sur le repo ; diff -rq repo↔installé vide ; head SKILL.md
   identique des deux côtés ; ln -sfn relancé → toujours le bon lien (idempotent). Édition du repo
   désormais visible immédiatement via le chemin installé.
-release: null
+release: pre-release

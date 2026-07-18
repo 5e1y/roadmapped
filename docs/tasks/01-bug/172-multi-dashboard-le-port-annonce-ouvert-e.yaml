@@ -23,7 +23,7 @@ epic: null
 source: ai
 createdAt: "2026-07-10T23:50:19"
 startedAt: "2026-07-10T23:50:23"
-updatedAt: "2026-07-10T23:53:55"
+updatedAt: "2026-07-18T21:29:36"
 completedAt: "2026-07-10"
 commit: 966d560
 outcome: >-
@@ -43,4 +43,4 @@ verification: >-
   Roadmapped). APRÈS fix (même scénario) : imprime « http://localhost:5174/ (ZineKit) » = le port
   qui sert réellement ZineKit. tsc 0 ; 439 tests verts (+2 : serve.test.ts vérifie l'invariant
   port-annoncé==port-lié via de vrais sockets, et le rejet plage pleine).
-release: null
+release: pre-release

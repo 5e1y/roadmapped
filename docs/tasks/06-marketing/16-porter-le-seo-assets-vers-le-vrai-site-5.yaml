@@ -22,7 +22,7 @@ epic: null
 source: ai
 createdAt: "2026-07-09T01:42:47"
 startedAt: "2026-07-11T13:38:17"
-updatedAt: "2026-07-11T13:38:52"
+updatedAt: "2026-07-18T21:29:50"
 completedAt: "2026-07-11T13:38:52"
 commit: 6cf4a27
 outcome: >-
@@ -41,4 +41,4 @@ outcome: >-
 verification: >-
   Live vérifié après déploiement : GET roadmapped.dev/llms.txt → 200 ; home contient les 3 balises
   og:site_name/og:image:width/og:image:alt ; robots.txt/sitemap.xml/og.png → 200.
-release: null
+release: pre-release

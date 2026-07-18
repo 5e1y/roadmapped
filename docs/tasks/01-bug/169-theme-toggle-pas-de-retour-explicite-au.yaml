@@ -13,7 +13,7 @@ epic: null
 source: ai
 createdAt: "2026-07-10T22:25:34"
 startedAt: "2026-07-11T12:19:12"
-updatedAt: "2026-07-11T12:22:22"
+updatedAt: "2026-07-18T21:29:35"
 completedAt: "2026-07-11T12:22:22"
 commit: 4eda9dc
 outcome: >-
@@ -25,4 +25,4 @@ outcome: >-
 verification: >-
   tsc --noEmit clean ; vitest run theme.test.ts 4/4 (dont nouveau test nextMode: cycle complet
   système→clair→sombre→système).
-release: null
+release: pre-release

@@ -31,7 +31,7 @@ epic: null
 source: ai
 createdAt: "2026-07-09T14:01:06"
 startedAt: "2026-07-09T14:01:31"
-updatedAt: "2026-07-09T14:09:18"
+updatedAt: "2026-07-18T21:29:36"
 completedAt: "2026-07-09"
 commit: c3a7f28
 outcome: >-
@@ -45,4 +45,4 @@ verification: >-
   Doc relu intégralement : cohérent, grounded (chiffres du backlog réel, insight roadmap.ts l.258
   tri par stage, epics déjà dispo), honnête sur les tradeoffs. Constat chiffré vérifiable via
   docs/tasks/. C'est un livrable-doc, pas de code à exécuter.
-release: null
+release: pre-release

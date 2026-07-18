@@ -29,6 +29,7 @@ dependsOn:
 epic: panneau-v2
 source: ai
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:37"
 completedAt: "2026-07-07"
 commit: 61546f0
 outcome: >-
@@ -40,4 +41,4 @@ verification: >-
   markdown rendu, badges « faite » sur les deps, Bloque montre #26, clic dep → fiche #23, bouton
   Retour → #25 (asserté), clic sur la ref spec → Vue Docs ouverte sur le bon document. 113 tests +
   build tsc verts.
-release: null
+release: pre-release

@@ -24,6 +24,7 @@ dependsOn:
 epic: token-economy
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:42"
 completedAt: "2026-07-08"
 commit: e2d1c42
 outcome: >-
@@ -33,4 +34,4 @@ outcome: >-
 verification: >-
   brief 71 avec ref scripts/task.mjs#suggestedRefs → extrait lignes 468-478 ; ancre bidon → '⚠ ancre
   introuvable' ; résolveur pur en TDD (11 tests refExtract) + 2 tests CLI bout-en-bout
-release: null
+release: pre-release

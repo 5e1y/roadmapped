@@ -23,6 +23,7 @@ dependsOn:
 epic: design-system
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:46"
 completedAt: "2026-07-07"
 commit: 8211b24
 outcome: >-
@@ -31,4 +32,4 @@ outcome: >-
 verification: >-
   grep uppercase sur src/components → 0 occurrence ; hiérarchie vérifiée sur les captures
   Backlog/Roadmap (labels Stages/Teams/Détail lisibles sans crier). 128 tests + build verts.
-release: null
+release: pre-release

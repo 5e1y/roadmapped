@@ -24,6 +24,7 @@ dependsOn:
 epic: vues-dashboard
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:35"
 completedAt: "2026-07-07"
 commit: c5b7331
 outcome: >-
@@ -33,4 +34,4 @@ verification: >-
   Asserté au navigateur : fontSize calculée 12px dans la colonne 420px (contre ~7px avant), carte
   engineering à x=227 (aucun débordement du cadre), anneaux #d4d4d4 nets (non-scaling-stroke) sur
   capture ; hover, sélection, clic-vide rejoués intacts. 132 tests + build verts.
-release: null
+release: pre-release

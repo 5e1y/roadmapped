@@ -17,7 +17,7 @@ epic: legal-readiness
 source: ai
 createdAt: "2026-07-09T13:55:26"
 startedAt: "2026-07-10T11:27:04"
-updatedAt: "2026-07-10T11:27:29"
+updatedAt: "2026-07-18T21:29:52"
 completedAt: "2026-07-10"
 commit: 0484f62
 outcome: >-
@@ -32,4 +32,4 @@ verification: >-
   CONTRIBUTING.md relu (section ajoutée avant « Reporting issues », ancre
   #licensing-of-contributions correcte) ; PULL_REQUEST_TEMPLATE.md relu (ligne DCO ajoutée à la
   checklist, lien relatif ../CONTRIBUTING.md valide depuis .github/).
-release: null
+release: pre-release

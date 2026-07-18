@@ -16,7 +16,7 @@ epic: null
 source: ai
 createdAt: "2026-07-12T14:45:03"
 startedAt: "2026-07-12T14:45:03"
-updatedAt: "2026-07-12T14:47:40"
+updatedAt: "2026-07-18T21:29:36"
 completedAt: "2026-07-12T14:47:40"
 commit: d8ac16e
 outcome: >-
@@ -34,4 +34,4 @@ verification: >-
   npx tsc --noEmit clean ; npx vitest run 508/508 ; npm run build OK. Fix = pattern standard
   (capture différée au seuil de drag). NON vérifié par moi en navigateur (pas d'accès) : Rémi
   confirme le clic→inspecteur dans son dev server (hot-reload de useZoomPan).
-release: null
+release: 0.1.0

@@ -14,7 +14,7 @@ epic: null
 source: ai
 createdAt: "2026-07-14T01:53:52"
 startedAt: "2026-07-14T01:53:52"
-updatedAt: "2026-07-14T01:57:40"
+updatedAt: "2026-07-18T21:29:41"
 completedAt: "2026-07-14T01:57:30"
 commit: 878da9d
 outcome: >-
@@ -26,4 +26,4 @@ outcome: >-
 verification: >-
   tsc --noEmit propre ; build OK ; 599/599 tests verts ; même technique de masque déjà vérifiée en
   prod sur le site.
-release: null
+release: 0.2.2

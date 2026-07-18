@@ -28,6 +28,7 @@ dependsOn:
 epic: vues-dashboard
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:46"
 completedAt: "2026-07-07"
 commit: dff378b
 outcome: >-
@@ -39,4 +40,4 @@ verification: >-
   compteurs), clic engineering → colonne radar + listes filtrées eng, ouverture d'une tâche → radar
   caché (asserté), fermeture → revenu (asserté), sélection persistée. Colonnes en container queries
   (1 colonne quand étroit). 132 tests + build verts.
-release: null
+release: pre-release

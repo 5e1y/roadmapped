@@ -16,7 +16,7 @@ epic: null
 source: ai
 createdAt: "2026-07-09T09:42:00"
 startedAt: "2026-07-09T09:55:09"
-updatedAt: "2026-07-09T09:55:37"
+updatedAt: "2026-07-18T21:29:42"
 completedAt: "2026-07-09"
 commit: 447e7f9
 outcome: >-
@@ -26,4 +26,4 @@ outcome: >-
   session-ci, effet attendu à la prochaine (/roadmapped invocable + discipline auto-chargée). Aucun
   conflit avec install.mjs (branche self-host = pas de copie du skill).
 verification: null
-release: null
+release: pre-release

@@ -23,6 +23,7 @@ dependsOn:
 epic: renommage
 source: user
 createdAt: "2026-07-08T01:57:06"
+updatedAt: "2026-07-18T21:29:39"
 completedAt: "2026-07-08"
 commit: 7f48efa
 outcome: >-
@@ -33,4 +34,4 @@ verification: >-
   grep roadmaped dans skills/ → zéro hit ; frontmatter relu name: roadmapped ; diff -r repo vs
   installé vide ; le skill « roadmapped » apparaîtra au prochain /reload-skills (l'ancien nom
   disparu du disque)
-release: null
+release: pre-release

@@ -28,7 +28,7 @@ epic: null
 source: ai
 createdAt: "2026-07-09T09:41:54"
 startedAt: "2026-07-09T09:52:13"
-updatedAt: "2026-07-09T10:07:16"
+updatedAt: "2026-07-18T21:29:48"
 completedAt: "2026-07-09"
 commit: c91afa4
 outcome: >-
@@ -44,4 +44,4 @@ verification: >-
   eventsFromDiff/verbForStatus). 8 icônes trinil-react confirmées exportées, usePanel().openTask
   confirmé. Dashboard réel sur :5188 : /api/tree répond, LiveActivityMenu.tsx + LiveActivity.tsx
   transpilés par Vite sans erreur, log serveur propre. build:demo OK.
-release: null
+release: pre-release

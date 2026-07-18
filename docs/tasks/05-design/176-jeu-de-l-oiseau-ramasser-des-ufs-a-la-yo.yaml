@@ -28,7 +28,7 @@ epic: null
 source: ai
 createdAt: "2026-07-11T15:51:43"
 startedAt: "2026-07-11T15:51:52"
-updatedAt: "2026-07-11T17:31:40"
+updatedAt: "2026-07-18T21:29:49"
 completedAt: "2026-07-11T17:31:40"
 commit: fce35a4
 outcome: >-
@@ -38,4 +38,4 @@ outcome: >-
 verification: >-
   node --check OK ; Playwright headless 0 erreur console ; test resize 1280→900 (cartes 4col→2×2,
   gros reflow) : les œufs restent collés à leurs perchoirs (rs-before/rs-after), aucun œuf stranded.
-release: null
+release: 0.1.0

@@ -12,8 +12,9 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-08T18:03:07"
+updatedAt: "2026-07-18T21:29:39"
 completedAt: "2026-07-08"
 commit: 5c2247f
 outcome: "index.html : lang fr→en, viewport meta + favicon SVG. index.demo.html : lang fr→en."
 verification: null
-release: null
+release: pre-release

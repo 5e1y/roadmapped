@@ -12,6 +12,7 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-08T17:57:59"
+updatedAt: "2026-07-18T21:29:42"
 completedAt: "2026-07-08"
 commit: 4ad6fb5
 outcome: >-
@@ -19,4 +20,4 @@ outcome: >-
   Fable 5 annulée (Rémi, coût). Mémoire mise à jour. Reste seulement des mentions historiques dans
   les outcomes de tâches done + 1 fixture de test (tagGraph.test.ts), non touchées.
 verification: null
-release: null
+release: pre-release

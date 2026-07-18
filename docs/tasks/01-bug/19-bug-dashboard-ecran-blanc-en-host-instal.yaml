@@ -16,7 +16,7 @@ epic: null
 source: ai
 createdAt: "2026-07-09T02:46:24"
 startedAt: "2026-07-09T02:46:24"
-updatedAt: "2026-07-09T02:56:16"
+updatedAt: "2026-07-18T21:29:35"
 completedAt: "2026-07-09"
 commit: 8b31fed
 outcome: >-
@@ -33,4 +33,4 @@ outcome: >-
   non concluante — mon Chrome headless s'est dégradé en cours de session (0 octet même sur le 5173
   connu-bon → outillage, pas l'app). Je m'appuie donc sur la vérif ZineKit + le mécanisme confirmé.
 verification: null
-release: null
+release: pre-release

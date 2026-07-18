@@ -19,7 +19,7 @@ epic: site-v3
 source: ai
 createdAt: "2026-07-10T23:57:40"
 startedAt: "2026-07-11T00:15:31"
-updatedAt: "2026-07-11T00:17:55"
+updatedAt: "2026-07-18T21:29:40"
 completedAt: "2026-07-11"
 commit: ed830ea
 outcome: >-
@@ -31,4 +31,4 @@ outcome: >-
 verification: >-
   Build démo OK, script thème présent dans site/demo/index.html (vérifié). Câblage toggle→iframe en
   place. Rendu live (bascule réelle de l'iframe) à valider en preview.
-release: null
+release: pre-release

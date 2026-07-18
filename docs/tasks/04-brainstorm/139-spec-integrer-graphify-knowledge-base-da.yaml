@@ -28,7 +28,7 @@ epic: null
 source: ai
 createdAt: "2026-07-11T17:37:07"
 startedAt: "2026-07-11T17:37:27"
-updatedAt: "2026-07-11T18:40:59"
+updatedAt: "2026-07-18T21:29:45"
 completedAt: "2026-07-11T18:40:59"
 commit: 6770b7a
 outcome: >-
@@ -51,4 +51,4 @@ verification: >-
   docs/specs/graphify-kb.md réécrit (382 l., 9 sections, +352/-354), commité 6770b7a ; aucun fichier
   de code touché. Poids Python chiffré sur les wheels PyPI réelles par l'agent. Correction
   .yaml-non-indexés vérifiée sur detect.py de Graphify.
-release: null
+release: 0.1.0

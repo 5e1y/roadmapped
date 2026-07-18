@@ -28,9 +28,10 @@ links:
   - 133
   - 131
 dependsOn: []
-milestone: null
+epic: null
 source: ai
 createdAt: "2026-07-08T12:04:24"
+updatedAt: "2026-07-18T21:29:47"
 completedAt: "2026-07-08"
 commit: 847ace6
 outcome: >-
@@ -53,4 +54,4 @@ verification: >-
   dépliables avec compteur+barre+done/total, membres indentés, one-off à plat ✓ ; Graphe =
   nœuds-epic (site 3/3 déplié, distribution 3/5…) + avancement global 114/126 en tête + arêtes de
   deps ✓ ; panneau = champ Epic éditable ✓. Conforme à la vision Rémi.
-release: null
+release: pre-release

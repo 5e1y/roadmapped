@@ -30,6 +30,7 @@ dependsOn:
 epic: design-system
 source: user
 createdAt: "2026-07-08T01:57:01"
+updatedAt: "2026-07-18T21:29:47"
 completedAt: "2026-07-08"
 commit: b08d5ec
 outcome: >-
@@ -42,4 +43,4 @@ verification: >-
   Relu contre la synthèse de l'audit : chacun des 6 points de la synthèse a sa décision dans le doc
   ; chaque règle cite sa source (#36, #107-109) ; les 4 tâches d'exécution (#113-116) peuvent le
   référencer tel quel
-release: null
+release: pre-release

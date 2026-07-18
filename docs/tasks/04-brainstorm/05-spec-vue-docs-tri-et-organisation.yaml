@@ -20,9 +20,10 @@ refs:
   - src/server/docs.ts
 links: []
 dependsOn: []
-milestone: null
+epic: null
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:44"
 completedAt: "2026-07-08"
 commit: 26b49b1
 outcome: >-
@@ -36,4 +37,4 @@ verification: >-
   Spec relue (209 l.), complète, ancrée à DocsTree/DocsView/docs.ts. Points ouverts : taxonomie
   categorize() (quels noms → guides/audits/autres) ; doc épinglé en doublon vs déplacé ; mtime
   imparfait après git clone (fallback git log différé ?).
-release: null
+release: pre-release

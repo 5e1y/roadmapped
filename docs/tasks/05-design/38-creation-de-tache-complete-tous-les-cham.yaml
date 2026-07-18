@@ -24,6 +24,7 @@ dependsOn:
 epic: vues-dashboard
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:46"
 completedAt: "2026-07-07"
 commit: abd6778
 outcome: >-
@@ -34,4 +35,4 @@ verification: >-
   tag « jetag » créé à la volée + dépendance #19 + ref, YAML relu sur disque intégralement conforme,
   panneau de la tâche ouvert après création ; jetable supprimée (id 55 consommé, jamais réutilisé).
   128 tests + build verts.
-release: null
+release: pre-release

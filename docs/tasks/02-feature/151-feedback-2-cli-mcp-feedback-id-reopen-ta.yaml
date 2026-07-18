@@ -16,11 +16,11 @@ epic: feedback-mode
 source: ai
 createdAt: "2026-07-09T00:24:07"
 startedAt: "2026-07-09T00:51:30"
-updatedAt: "2026-07-09T01:12:52"
+updatedAt: "2026-07-18T21:29:40"
 completedAt: "2026-07-09"
 commit: 93b4c5c
 outcome: >-
   CLI+MCP mode feedback (voir consigne précédente). Correctif : le test MCP figeait 13 tools → 14
   (feedback ajouté). Suite complète verte : 390 tests, tsc clean.
 verification: null
-release: null
+release: pre-release

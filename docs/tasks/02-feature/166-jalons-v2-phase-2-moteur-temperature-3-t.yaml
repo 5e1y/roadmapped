@@ -30,7 +30,7 @@ epic: jalons-v2
 source: ai
 createdAt: "2026-07-09T16:13:30"
 startedAt: "2026-07-09T17:32:35"
-updatedAt: "2026-07-09T17:32:36"
+updatedAt: "2026-07-18T21:29:40"
 completedAt: "2026-07-09"
 commit: d894412
 outcome: >-
@@ -41,4 +41,4 @@ outcome: >-
 verification: >-
   52 tests température/roadmap verts, /api/tree expose la température (plus chaudes : #233 22,57°
   #218/#220 legal 22°), mini-exemple du doc reproduit (bug 48,67° > design seedé 45,62°).
-release: null
+release: pre-release

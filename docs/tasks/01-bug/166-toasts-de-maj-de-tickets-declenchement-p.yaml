@@ -17,14 +17,14 @@ epic: null
 source: ai
 createdAt: "2026-07-10T10:27:00"
 startedAt: "2026-07-10T10:28:43"
-updatedAt: "2026-07-10T10:56:08"
+updatedAt: "2026-07-18T21:29:35"
 completedAt: "2026-07-10"
 commit: 1e46ead
 outcome: >-
   Coins du toast passés en carrés (retrait de rounded-md) — cohérent avec le DS (popups
   Activity/Filtre carrés) et la DA voulue par Rémi.
 verification: tsc 0. Classe Toast.Root sans rounded-md, filet neutral-200 conservé.
-release: null
+release: pre-release
 feedback:
   - date: "2026-07-10T10:55:42"
     author: user

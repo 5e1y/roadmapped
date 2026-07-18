@@ -30,7 +30,7 @@ epic: null
 source: ai
 createdAt: "2026-07-09T09:41:49"
 startedAt: "2026-07-09T09:42:00"
-updatedAt: "2026-07-09T09:48:42"
+updatedAt: "2026-07-18T21:29:40"
 completedAt: "2026-07-09"
 commit: f59d2fa
 outcome: >-
@@ -42,4 +42,4 @@ verification: >-
   392 tests verts (dont nouveau test getTree → hostRoot/repoName). tsc -b clean. Serveur réel : curl
   http://localhost:5199/api/tree → hostRoot=/Users/rcourtillon/Documents/Roadmapped,
   repoName=Roadmapped.
-release: null
+release: pre-release

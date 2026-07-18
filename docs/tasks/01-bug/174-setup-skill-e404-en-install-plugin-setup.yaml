@@ -18,7 +18,7 @@ epic: null
 source: ai
 createdAt: "2026-07-11T14:03:15"
 startedAt: "2026-07-11T14:03:15"
-updatedAt: "2026-07-11T14:04:43"
+updatedAt: "2026-07-18T21:29:36"
 completedAt: "2026-07-11T14:04:43"
 commit: d943286
 outcome: >-
@@ -34,4 +34,4 @@ verification: >-
   `npx --yes github:5e1y/roadmapped --help` → OK (l'invocation github: recommandée fonctionne). Le
   flow complet init+`npm install`+`npx roadmapped` est déjà prouvé opérationnel par l'install
   ZineKit de Rémi (dashboard :5174, upgrade, auto-update OK).
-release: null
+release: pre-release

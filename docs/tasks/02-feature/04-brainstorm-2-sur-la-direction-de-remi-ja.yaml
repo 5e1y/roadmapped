@@ -42,7 +42,7 @@ epic: null
 source: ai
 createdAt: "2026-07-09T14:46:28"
 startedAt: "2026-07-09T14:51:01"
-updatedAt: "2026-07-09T14:58:27"
+updatedAt: "2026-07-18T21:29:36"
 completedAt: "2026-07-09"
 commit: "270e056"
 outcome: >-
@@ -58,4 +58,4 @@ verification: >-
   Doc relu intégralement : fidèle à la direction (ne la re-litige pas), grounded (backlog recompté
   213 fichiers / croisement stage×team, insight _epics.yaml ordonné jamais exploité,
   epicAnchorStage), 9 sections complètes, honnête sur pertes/risques. Livrable-doc, pas de code.
-release: null
+release: pre-release

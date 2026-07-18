@@ -18,6 +18,7 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-08T18:03:15"
+updatedAt: "2026-07-18T21:29:47"
 completedAt: "2026-07-08"
 commit: 5f636b1
 outcome: >-
@@ -28,4 +29,4 @@ outcome: >-
   composants canoniques (Select, AddCombobox, TagsCombobox, MultiCombobox, ErrorBanner, GhostInput,
   fieldCls, ghostCls) confirmés dans ui.tsx.
 verification: null
-release: null
+release: pre-release

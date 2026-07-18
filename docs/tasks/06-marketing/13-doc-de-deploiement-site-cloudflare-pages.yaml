@@ -16,6 +16,7 @@ epic: null
 source: ai
 createdAt: "2026-07-08T18:31:15"
 startedAt: "2026-07-08T18:31:15"
+updatedAt: "2026-07-18T21:29:49"
 completedAt: "2026-07-08"
 commit: dfb6f6a
 outcome: >-
@@ -24,4 +25,4 @@ outcome: >-
   déjà OK), checklist avant-publish (URL GitHub placeholder à remplacer, régénération OG image).
   Rend la landing shippable et prépare #18.
 verification: null
-release: null
+release: pre-release

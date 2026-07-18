@@ -31,7 +31,7 @@ epic: knowledge-base
 source: ai
 createdAt: "2026-07-12T16:23:08"
 startedAt: "2026-07-12T16:23:23"
-updatedAt: "2026-07-12T16:39:05"
+updatedAt: "2026-07-18T21:29:49"
 completedAt: "2026-07-12T16:39:05"
 commit: 4262ff8
 outcome: >-
@@ -49,4 +49,4 @@ verification: >-
   npx tsc --noEmit clean ; npx vitest run 550/550 (dont kbNodeIdOf). CDP : survol → 81 labels sur
   fond ; clic → exactement 1 cercle accent plein + 1 anneau, tombe à la fermeture. Rendu final
   (lisibilité/bleu) à valider par Rémi.
-release: null
+release: 0.1.0

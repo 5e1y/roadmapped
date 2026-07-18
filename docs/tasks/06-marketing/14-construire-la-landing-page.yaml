@@ -21,6 +21,7 @@ dependsOn:
 epic: site
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:49"
 completedAt: "2026-07-08"
 commit: bd8bea6
 outcome: >-
@@ -39,4 +40,4 @@ verification: >-
   SVG-namespace + roadmapped.work + placeholder GitHub). Fable a testé en Chrome headless light/dark
   + 1440px/390px, JS on/off. Repo créé et push vérifiés (gh + git remote). Rendu visuel fin à
   valider par Rémi à l'œil. Commit dans le repo site (bd8bea6), pas le repo outil.
-release: null
+release: pre-release
