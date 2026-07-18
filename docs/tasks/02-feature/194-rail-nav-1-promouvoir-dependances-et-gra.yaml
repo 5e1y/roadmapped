@@ -2,7 +2,7 @@ id: 369
 title: >-
   Rail-nav 1 : promouvoir Dépendances et Graphe en vues de 1er niveau (View→6, routing, retrait des
   sous-modes)
-status: todo
+status: done
 tags:
   - ui
   - nav
@@ -27,9 +27,23 @@ dependsOn: []
 epic: rail-nav
 source: ai
 createdAt: "2026-07-19T01:05:40"
-updatedAt: "2026-07-19T01:05:40"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+startedAt: "2026-07-19T01:06:13"
+updatedAt: "2026-07-19T01:47:08"
+completedAt: "2026-07-19T01:47:08"
+commit: 88d7f19
+outcome: >-
+  Dépendances et Graphe promus en vues de 1er niveau. View→6 valeurs
+  (backlog|roadmap|dependencies|graph|docs|notepad). MainView route les 6 ; DependenciesView
+  (nouveau) = RoadmapGraph extrait, GraphView (nouveau) = KbView + header. RoadmapView réduit aux
+  colonnes (toggle Columns/Graph retiré), DocsView réduit aux documents (toggle Documents/KB
+  retiré). Garde d'état commun extrait en RoadmapStateGuard (partagé Roadmap/Dépendances). Filtre
+  epic (#343) remonté à App et PARTAGÉ Roadmap↔Dépendances via props → la sélection survit au
+  changement de vue. localStorage nav:view validé sur 6 valeurs (inconnue→backlog), document.title 6
+  noms, NAV du header à 6 entrées TEMPORAIRES (le rail vertical vient en #370). Le log d'usage #345
+  et OPEN_DOC_EVENT inchangés (génériques).
+verification: >-
+  tsc clean, suite complète 678/678. Nouveau test views.smoke.test.tsx : les 4 vues promues/scindées
+  (RoadmapView colonnes, DependenciesView graphe, DependenciesView epic filtré, GraphView KB)
+  MONTENT réellement en jsdom sans jeter (garde de régression du routing 4→6). Build OK, bundle
+  contient les nouvelles vues. Smoke serveur : /api/tree sert 9 sections 0 erreur.
+release: 0.2.3
