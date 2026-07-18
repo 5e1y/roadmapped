@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Collapsible } from '@base-ui/react/collapsible'
 import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
-import { computeAvailability, missingPrereqs, reverseDependents, globalProgress, type Availability } from '../lib/roadmap'
+import { computeAvailability, missingPrereqs, reverseDependents, type Availability } from '../lib/roadmap'
 import { EditPen, LockLocked } from 'trinil-react'
 import { Chevron, KindGlyph } from './glyphs'
 import { Chip } from './Chip'
@@ -234,24 +234,5 @@ export function RoadmapColumns({ showDone, epicFilter, onEpicFilter }: {
         ))}
       </div>
     </div>
-  )
-}
-
-/**
- * Avancement global du lancement (#133) — servi au header de la vue Roadmap :
- * compteur x/y + barre fine, même langage que les barres de colonne.
- */
-export function GlobalProgress() {
-  const { tree } = useTree()
-  if (!tree) return null
-  const { done, total } = globalProgress(tree)
-  const pct = total === 0 ? 0 : Math.round((done / total) * 100)
-  return (
-    <span className="flex items-center gap-2" title={`Overall progress: ${done}/${total} tasks (${pct}%)`}>
-      <span className="h-1 w-24 overflow-hidden rounded-full bg-neutral-200">
-        <span className="block h-full bg-accent" style={{ width: `${pct}%` }} />
-      </span>
-      <span className="font-mono text-xs text-neutral-500">{done}/{total} · {pct}%</span>
-    </span>
   )
 }
