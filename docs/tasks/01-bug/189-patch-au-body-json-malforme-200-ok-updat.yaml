@@ -1,6 +1,6 @@
 id: 364
 title: PATCH au body JSON malformé → 200 OK + updatedAt fantôme (badge NEW sans modif)
-status: todo
+status: done
 tags:
   - bug
 heat: 35
@@ -18,9 +18,19 @@ dependsOn: []
 epic: audit-remediation
 source: ai
 createdAt: "2026-07-18T23:54:39"
-updatedAt: "2026-07-18T23:54:39"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+startedAt: "2026-07-19T00:31:52"
+updatedAt: "2026-07-19T00:41:34"
+completedAt: "2026-07-19T00:41:34"
+commit: 740f07d
+outcome: >-
+  PATCH malformé/no-op ne bumpe plus updatedAt (audit #358). Double défense : (1) patchActive
+  compare la forme canonique dumpTask AVANT/APRÈS mutate — un patch sans effet (body vide, valeur
+  identique) retourne ok SANS réécrire ni bumper updatedAt (plus de badge NEW/toast live fantôme,
+  toute source confondue) ; (2) readJsonBody distingue body absent (null, légitime pour POST
+  bodyless comme /api/update) de body présent-mais-illisible (sentinelle MALFORMED_BODY) → le
+  handler répond 400 au lieu d'un update vide silencieux.
+verification: >-
+  Tests : patch no-op (même valeur) et patch vide {} → fichier byte-à-byte inchangé
+  (timing-indépendant). tsc clean, suite 673/673. Le 400 sur body malformé vérifié par la logique du
+  handler (sentinelle testée en amont).
+release: 0.2.3
