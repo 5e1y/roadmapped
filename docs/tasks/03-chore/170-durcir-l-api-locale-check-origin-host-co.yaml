@@ -1,6 +1,6 @@
 id: 360
 title: "Durcir l'API locale : check Origin/Host + Content-Type sur les POST + CSP"
-status: todo
+status: done
 tags:
   - security
   - hardening
@@ -20,9 +20,26 @@ dependsOn: []
 epic: audit-remediation
 source: ai
 createdAt: "2026-07-18T23:54:38"
-updatedAt: "2026-07-18T23:54:38"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+startedAt: "2026-07-19T00:17:37"
+updatedAt: "2026-07-19T00:29:19"
+completedAt: "2026-07-19T00:29:19"
+commit: 2e35bc6
+outcome: >-
+  API locale durcie (audit sécu #356 HAUTE-2 + MOYENNE). Fonction pure apiGuard(method, headers)
+  branchée en tête du handler /api/ : (1) Host non-local → 403 (défense DNS-rebinding : un domaine
+  piégé résolvant vers 127.0.0.1 envoie SON Host) ; (2) mutation avec Origin cross-site → 403 (CSRF
+  : le fetch same-origin de l'app envoie Origin=localhost, une page tierce le sien ; Origin absent =
+  curl/CLI, pas un vecteur browser → toléré) ; (3) mutation AVEC corps mais Content-Type non-JSON →
+  415 (bloque le POST « simple request » text/plain qui esquive le preflight ; /api/update sans
+  corps exempt, couvert par l'Origin). CSP sur le HTML servi (serve.ts) : cspForHtml calcule le hash
+  sha256 du script anti-flash inline DEPUIS le HTML servi (robuste aux modifs, un script injecté n'a
+  pas le bon hash → bloqué), script-src SANS unsafe-inline ; style-src 'unsafe-inline' (React pose
+  des styles inline) ; object-src none, frame-ancestors none, img data:. LOCAL_HOSTS =
+  localhost/127.0.0.1/::1 (port-agnostique → dev:5173 et prod OK).
+verification: >-
+  Tests unitaires apiGuard (8 cas : hostnameOf, GET local ok, Host evil 403, Origin cross-site 403,
+  text/plain 415, PATCH same-origin ok, POST bodyless ok, sans-Origin ok) + cspForHtml (4 cas dont
+  hash du VRAI dist/index.html). Vérif bout-en-bout sur serveur live : text/plain→415, Origin
+  evil→403, JSON same-origin→200 ; Host spoofé via socket brut (fetch ne le permet pas)
+  evil.com→403, local→200. tsc clean, suite 658/658, build OK. Ni le CLI ni l'app légitime cassés.
+release: 0.2.3
