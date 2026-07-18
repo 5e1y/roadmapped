@@ -1,8 +1,8 @@
 /**
  * Familles de chips, différenciées en restant monochromes :
- *  - défaut  : métadonnée neutre (zone) — bord + fond clairs ;
- *  - strong  : donnée saillante (size) — fond et encre plus marqués ;
- *  - mono    : valeur technique (code, size) — police mono.
+ *  - défaut  : métadonnée neutre (statut de section, epic) — bord + fond clairs ;
+ *  - strong  : donnée saillante — fond et encre plus marqués ;
+ *  - mono    : valeur technique — police mono.
  * Les tags ne sont PAS des chips (texte léger `#tag` dans TaskRow) : trois
  * familles visuelles suffisent, tout-en-chips rendait la ligne illisible.
  */

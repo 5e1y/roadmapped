@@ -60,9 +60,9 @@ function buildSandbox() {
   writeFileSync(
     join(tasksDir, SEC, '01-tache.yaml'),
     [
-      'id: 1', 'code: null', 'title: Tâche', 'status: todo',
+      'id: 1', 'title: Tâche', 'status: todo',
       'tags:', '  - alpha', '  - beta',
-      'size: M', 'detail: null',
+      'detail: null',
       'refs:', '  - docs/x.md',
       'links:', '  - 2',
       'dependsOn: []', 'milestone: null', 'source: ai',
@@ -185,14 +185,15 @@ describe('CLI take / brief — liens titrés, contexte en 1 appel (#65)', () => 
 })
 
 describe('CLI list --json — allégé par défaut, --json-full pour l\'intégral (#65)', () => {
-  it('--json est allégé (id,title,status,type,size,kind,heat ; pas de detail/dates)', () => {
+  it('--json est allégé (id,title,status,type,kind,heat ; pas de detail/dates)', () => {
     const r = runTask(['list', '--json'])
     expect(r.code).toBe(0)
     const arr = JSON.parse(r.stdout)
     expect(Array.isArray(arr)).toBe(true)
     const t = arr.find((x) => x.id === 1)
-    expect(t).toMatchObject({ id: 1, title: 'Tâche', status: 'todo', type: '02-feature', size: 'M', kind: 'task' })
+    expect(t).toMatchObject({ id: 1, title: 'Tâche', status: 'todo', type: '02-feature', kind: 'task' })
     expect(t).not.toHaveProperty('team')
+    expect(t).not.toHaveProperty('size') // #350 — size retiré du modèle
     expect(t).not.toHaveProperty('detail')
     expect(t).not.toHaveProperty('createdAt')
   })
@@ -260,14 +261,6 @@ describe('CLI quick — alias de création rapide d\'une task (#250 — kind qui
     expect(r.code).toBe(0)
     const t = load(readFileSync(join(tasksDir, '01-bug', '01-sans-issue.yaml'), 'utf8'))
     expect(t.status).toBe('done')
-  })
-
-  it('une task créée via quick PEUT passer en size L (plus de garde-fou quick/L)', () => {
-    runTask(['quick', 'gros truc', '--type', '01-bug'])
-    const r = runTask(['update', '2', '--size', 'L'])
-    expect(r.code).toBe(0)
-    const t = load(readFileSync(join(tasksDir, '01-bug', '01-gros-truc.yaml'), 'utf8'))
-    expect(t.size).toBe('L')
   })
 
   it('quick apparaît dans la file next (servi comme une task)', () => {

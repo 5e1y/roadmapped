@@ -52,13 +52,6 @@ const STATUS_ITEMS: SelectItem[] = [
   { value: 'in_progress', label: 'in progress' },
   { value: 'done', label: 'done' },
 ]
-// '' = aucune (null). Enum réel validate.ts : S/M/L/null.
-const SIZE_ITEMS: SelectItem[] = [
-  { value: '', label: '—' },
-  { value: 'S', label: 'S' },
-  { value: 'M', label: 'M' },
-  { value: 'L', label: 'L' },
-]
 
 /** Les 9 types (#251) : changer le type déplace le ticket dans le dossier du type. */
 const TYPE_ITEMS: SelectItem[] = TYPES.map((t) => ({ value: t.slug, label: t.title }))
@@ -626,34 +619,6 @@ function TaskPanelBody({ id }: { id: number }) {
         />
         <FieldError errs={errors.type} />
       </div>
-
-      {/* Métadonnées : champs ghost permanents, étiquetés. */}
-      <div className="grid grid-cols-2 gap-2">
-        <div className="flex flex-col gap-0.5">
-          <SectionLabel>Size</SectionLabel>
-          <Select
-            ghost
-            aria-label="Size"
-            defaultValue={task.size ?? ''}
-            items={SIZE_ITEMS}
-            onValueChange={(v) => void save('size', changed(task.size, v || null), { size: v || null })}
-          />
-        </div>
-        <div className="flex flex-col gap-0.5">
-          <SectionLabel>Code</SectionLabel>
-          <GhostInput
-            key={`code-${task.code ?? ''}`}
-            defaultValue={task.code ?? ''}
-            placeholder="—"
-            aria-label="Code"
-            onKeyDown={blurOnEnter}
-            onBlur={(e) => void save('code', changed(task.code, e.target.value || null), { code: e.target.value || null })}
-            className="font-mono text-sm"
-          />
-        </div>
-      </div>
-      <div className="-mt-4 px-1.5"><SavedTick show={savedIn('size', 'code')} /></div>
-      <FieldError errs={errors.size ?? errors.code} />
 
       {/* Température (#235) : le POURQUOI de la priorité — thermomètre coloré
           (seule exception couleur du DS, décision Rémi) + valeur à 2 décimales

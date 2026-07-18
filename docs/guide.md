@@ -188,7 +188,7 @@ no-op — it just reopens the existing window. Need a fixed port for the second 
 The working list. The 9 types in canonical order (empty ones dimmed and collapsed by
 default), each with a `done/total` count and its tasks below. A task row shows a status
 glyph (`[ ]` todo, `[~]` in progress, `[x]` done), the `#id`, the title, and chips for its
-`code`, `size`, `heat` (only shown when set — `heat 80`, a raw seed, not the computed
+`heat` (only shown when set — `heat 80`, a raw seed, not the computed
 temperature) and `tags`. Sub-tasks are indented under their parent. This is
 where you do full CRUD on tasks — add a task to any type, edit fields, change status.
 There is no "add type" button: the 9 types are fixed. A "group by epic" mode groups
@@ -232,8 +232,8 @@ no graph present, the view shows an empty state that explains exactly that.
 
 ### Side panel
 
-Clicking a task opens it on the right for inline editing: title, status, size, `heat`
-(a ghost numeric input, 0–100, blank = cold), code, tags, `dependsOn` (chosen from
+Clicking a task opens it on the right for inline editing: title, status, `heat`
+(a ghost numeric input, 0–100, blank = cold), tags, `dependsOn` (chosen from
 existing tasks), `epic` (combobox, create-on-the-fly), `refs`, `links`, and the
 delivery fields `commit`, `outcome`, `verification`, `release`. Every edit goes
 through the same validate-then-rollback path as the CLI, so the panel can never save
@@ -323,7 +323,7 @@ done 218 --commit <sha> --outcome "…" --verification "…"
 ### `brief <id>` — the dense execution context
 
 The CLI equivalent of "copy the agent brief": title, `type` (the section slug),
-`epic`/`heat`/`kind`/`size`/`tags` (only the ones actually set), `detail`,
+`epic`/`heat`/`kind`/`tags` (only the ones actually set), `detail`,
 `refs`, **`dependsOn`/`links` with their title and status inline** (no bare ids), and
 a ready-to-paste `done` reminder. This is what `take` prints after starting the task,
 and what a delegated subagent should be handed instead of `show --json`.
@@ -348,7 +348,7 @@ $ npx roadmapped show 214
 
 Note the last line: `brief` prints a ready-to-paste `done <id> --commit <sha>
 --outcome "…" --verification "…"` reminder — `--verification` is encouraged but
-never blocking at `done`, for every task. Meta fields (`heat`, `kind`, `epic`, `size`, `tags`)
+never blocking at `done`, for every task. Meta fields (`heat`, `kind`, `epic`, `tags`)
 each only appear when set — `#218` has no `heat` and is a plain `task`, so neither
 shows.
 
@@ -396,7 +396,7 @@ $ npx roadmapped list --tag debt
   [x] #138 Graphe : un prérequis dans un epic replié affiché « +n hors graphe » (…)  (quick debt)
 ```
 
-**`--json` is LIGHT**: `{ id, title, status, type, size, kind, heat }` per task
+**`--json` is LIGHT**: `{ id, title, status, type, kind, heat }` per task
 (sub-tasks flattened in), not the full tree — this is the format meant for
 scripts/UI consumption. Need the complete task object (detail, refs,
 dates, everything) for every task in one call — `--json-full`, which prints
@@ -523,7 +523,7 @@ OK — 9 sections (220 tasks), nextId=238.
 
 ```
 add --type <type> --title <t> [--detail <d>] [--tags a,b] [--heat 0-100]
-    [--size S|M|L] [--code <c>] [--refs a,b] [--links 1,2] [--depends-on 1,2]
+    [--refs a,b] [--links 1,2] [--depends-on 1,2]
     [--epic <slug>] [--kind task|milestone] [--blocks 1,2]
     [--source ai|user] [--json]   (--section/--stage are accepted aliases of --type)
 ```
@@ -534,11 +534,11 @@ allocated from `_meta.yaml`; the file is created in the type folder.
 
 ```console
 $ npx roadmapped add --type 02-feature --title "Set up the database schema" \
-    --detail "Create the users and sessions tables." --tags backend,db --size M
+    --detail "Create the users and sessions tables." --tags backend,db
 #1 created → docs/tasks/02-feature/01-set-up-the-database-schema.yaml
 
 $ npx roadmapped add --type 01-bug --title "Checkout is broken in prod" \
-    --heat 80 --size S
+    --heat 80
 #2 created → docs/tasks/01-bug/01-checkout-is-broken-in-prod.yaml
 ```
 
@@ -546,13 +546,13 @@ Both run for real in the sandbox described above. `--team` is gone — like `--z
 before it, it fails loud rather than silently falling back:
 
 ```console
-$ npx roadmapped add --type 02-feature --title "Missing team old flag" --team engineering --size S
+$ npx roadmapped add --type 02-feature --title "Missing team old flag" --team engineering
 Unknown flag: --team
-Usage: add --type <type> --title <t> [--detail <d>] [--tags a,b] [--heat 0-100] [--size S|M|L]
-        [--code <c>] [--refs a,b] [--links 1,2] [--depends-on 1,2] [--epic <slug>]
+Usage: add --type <type> --title <t> [--detail <d>] [--tags a,b] [--heat 0-100]
+        [--refs a,b] [--links 1,2] [--depends-on 1,2] [--epic <slug>]
         [--kind task|milestone] [--blocks 1,2] [--source ai|user] [--json]  (--section/--stage = aliases of --type)
 
-$ npx roadmapped add --title "No type given" --size S
+$ npx roadmapped add --title "No type given"
 Missing required flag: --type (the nature/section, e.g. 02-feature)
 ```
 
@@ -581,7 +581,7 @@ quick "<title>" [--type <t>] [--tags a,b] [--heat 0-100] [--start] [--json]
 
 For work too small to deserve the full `add` form: a one-line fix, a copy tweak. Only
 `--title` (positional) is required — `--type` defaults to the first `open` type if
-omitted, no `detail`, no `refs`, no `size` to think about. It creates a plain,
+omitted, no `detail`, no `refs` to think about. It creates a plain,
 ordinary `task` (see [§5](#5-yaml-formats)) — `quick` is purely a rapid-create
 shortcut, not a distinct kind; `--start` chains a `start` in the same call. At `done`,
 `--verification` is encouraged but never blocking — the same as for any task.
@@ -643,12 +643,12 @@ an honest `--outcome` and `--verification` is a usage rule, not an option.
 
 ```
 update <id> [--title] [--detail] [--status] [--tags] [--refs] [--links]
-    [--size] [--heat 0-100|--no-heat] [--code] [--source] [--commit] [--outcome]
+    [--heat 0-100|--no-heat] [--source] [--commit] [--outcome]
     [--verification] [--release] [--depends-on 1,2] [--epic <slug>]
 ```
 
 ```console
-$ npx roadmapped update 2 --status in_progress --code C1
+$ npx roadmapped update 2 --status in_progress --heat 60
 #2 updated.
 
 $ npx roadmapped update 1 --heat 45.5
@@ -671,14 +671,14 @@ $ npx roadmapped update 1 --milestone graph-revamp
 $ npx roadmapped update 1 --team design
 Unknown flag: --team
 Usage: update <id> [--title ...] [--detail ...] [--status ...] [--heat 0-100|--no-heat] [--tags a,b] [--refs a,b]
-        [--links 1,2] [--depends-on 1,2] [--epic <slug>] [--size ...] [--code ...] [--outcome ...] …
+        [--links 1,2] [--depends-on 1,2] [--epic <slug>] [--outcome ...] …
 ```
 
 **Clearing a field — two different conventions:**
 
 | Field kind | Fields | How to clear |
 |---|---|---|
-| Scalar / string | `title`, `detail`, `status`, `size`, `code`, `source`, `commit`, `outcome`, `verification`, `release` | pass the literal `null` |
+| Scalar / string | `title`, `detail`, `status`, `source`, `commit`, `outcome`, `verification`, `release` | pass the literal `null` |
 | Relations | `depends-on`, `epic` | pass `null` |
 | Lists | `tags`, `refs`, `links` | pass `null` (or `""`) |
 | Heat | `heat` | `--heat 0` or `--no-heat` (both clear it — there's no `team`-style "required" exception any more: `heat` is optional on every task) |
@@ -827,11 +827,9 @@ The field order below is canonical (the CLI writes it this way).
 |---|---|---|
 | `id` | int | Allocated by the CLI from `_meta.yaml`. Never chosen by hand, never reused. |
 | `kind` | `task` \| `milestone` | **Additive, omitted from the YAML for the default** (`task`). Only `milestone` ever materializes this field: a target other tasks lock onto via `dependsOn` (`add --kind milestone --blocks 1,2`), rendered as a diamond. Never set by hand: created via `add --kind`, read via `show`/`brief`/`list --json`. (`quick` creates a plain `task`, not a distinct kind.) |
-| `code` | string \| null | Optional short human code (e.g. `B3`). |
 | `title` | string | The task title. |
 | `status` | `todo` \| `in_progress` \| `done` | Nothing else is valid. |
 | `tags` | string[] | Free labels; `[]` if none. |
-| `size` | `S` \| `M` \| `L` \| null | Rough effort. |
 | `heat` | number \| null | **Optional** priority seed, `0 ≤ heat ≤ 100`, 2 decimals max. Absent/null = cold (0) — the norm; no `heat: 0` is ever written for that reason. Feeds one of the three equal tiers of the computed *temperature* that orders `next` (see below). Set with `add --heat`/`update --heat`, clear with `update --no-heat`. |
 | `detail` | string \| null | The *what* and *why*, known traps, definition of done. |
 | `refs` | string[] | Relevant files: code (`path:line`) **and** documentation. |
@@ -854,11 +852,9 @@ is forbidden** on any active task (removed from the model — `_archive/` keeps 
 
 ```yaml
 id: 42
-code: null
 title: "Wire the login endpoint"
 status: todo
 tags: [backend, db]
-size: S
 heat: null
 detail: |
   Create the POST /login handler against the sessions table.
@@ -884,11 +880,9 @@ only addition (`task`, the default, omits `kind` entirely). `--blocks` populates
 ```yaml
 id: 69
 kind: milestone
-code: null
 title: "App public v1 shipped"
 status: todo
 tags: []
-size: null
 heat: null
 detail: null
 refs: []
@@ -1083,8 +1077,7 @@ proof before claiming success) are in the core's prohibitions below.
 - Do **not** start a locked task, or delete a dependency to unblock yourself, without
   the user's agreement.
 - Do **not** touch `_meta.yaml` or reuse an id.
-- Do **not** write a status outside `todo|in_progress|done`, or a size outside
-  `S|M|L`.
+- Do **not** write a status outside `todo|in_progress|done`.
 - Do **not** `done` without an honest `--outcome`, nor claim a `--verification` you
   did not actually run — never "it should work" (verification is encouraged on every
   task but never blocking).
@@ -1202,7 +1195,7 @@ work.
 Purely an ergonomic choice — both create an ordinary `task`, so this is a fast-path
 question, not a ceremony or kind difference. `quick` is the title-only route: an
 isolated fix with nothing to fill in beyond a title. Reach for `add` the moment you
-want to set `detail`, `refs`, `dependsOn`, a `size`, or any other field up front —
+want to set `detail`, `refs`, `dependsOn`, or any other field up front —
 nothing stops using `add` for a one-liner, it is just more to type than the work needs.
 
 **How do I make a task more urgent?**
@@ -1214,6 +1207,6 @@ high-`baseHeat` type like `bug`) can still outrank a maxed `--heat` — that's b
 design, not a bug: the seed weighs in, it doesn't command.
 
 **Why does `list --json` look light?**
-`--json` is the *light* shape (`id, title, status, type, size, kind, heat`) — it's
+`--json` is the *light* shape (`id, title, status, type, kind, heat`) — it's
 what scripts/UI actually consume. If you need the complete tree (every field, every
 task) in one call, ask for `--json-full` instead.

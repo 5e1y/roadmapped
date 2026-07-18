@@ -14,7 +14,7 @@ function mk(
   opts: { heat?: number | null; deps?: number[]; status?: TaskNode['status'] } = {},
 ): TaskNode {
   return {
-    id, kind: 'task', code: null, title: `#${id}`, status: opts.status ?? 'todo', tags: [], size: null,
+    id, kind: 'task', title: `#${id}`, status: opts.status ?? 'todo', tags: [],
     heat: opts.heat ?? null, detail: null, refs: [], links: [], dependsOn: opts.deps ?? [], epic: null,
     source: 'ai', createdAt, startedAt: null, completedAt: null, commit: null, outcome: null,
     verification: null, release: null, file: `docs/tasks/${sectionSlug}/${id}.yaml`, subtasks: [],
