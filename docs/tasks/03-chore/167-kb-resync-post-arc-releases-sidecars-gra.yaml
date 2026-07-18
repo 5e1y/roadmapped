@@ -1,0 +1,26 @@
+id: 347
+code: null
+title: KB resync post-arc releases + sidecars graphify (.graphify_python, cost.json) gitignorés
+status: done
+tags:
+  - kb
+size: null
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-18T21:36:36"
+startedAt: "2026-07-18T21:36:36"
+updatedAt: "2026-07-18T21:36:48"
+completedAt: "2026-07-18T21:36:48"
+commit: 5dbb742
+outcome: >-
+  graph.json resync committé : update sémantique complet du matin (537 fichiers, 21 sous-agents) +
+  refresh AST-only après l'arc releases/compteur/epic-filtre (2405 nœuds, 4022 arêtes). Sidecars
+  machine-only .graphify_python et cost.json ajoutés au .gitignore (précédent #329).
+verification: >-
+  git status graphify-out propre (graph.json committé, sidecars ignorés via check-ignore). Santé du
+  graphe vérifiée OK lors du build (aucune arête pendante/effondrée).
+release: null
