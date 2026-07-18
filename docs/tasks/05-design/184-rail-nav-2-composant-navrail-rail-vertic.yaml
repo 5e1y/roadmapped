@@ -1,0 +1,36 @@
+id: 370
+title: >-
+  Rail-nav 2 : composant NavRail (rail vertical d'icônes façon Figma) + 6 icônes, remplace les tabs
+  du header
+status: todo
+tags:
+  - ui
+  - nav
+  - design
+detail: >-
+  Spec docs/specs/2026-07-19-rail-navigation.md (ticket 2). Dépend du ticket 1 (les 6 vues doivent
+  exister). Composant NavRail : bande verticale gauche ~64px, fond neutre bord droit fin, mascotte
+  pixel en tête, 6 items empilés (icône + label court), actif = accent (doctrine monochrome + accent
+  rare, tokens --color-accent/--color-accent-tint), séparateurs fins pour grouper. Remplace le <nav>
+  segmenté de ViewHeader ; le header garde titre repo×marque + contrôles propres à la vue (cluster
+  droit Activity). A11y : <nav> + aria-current, focus visibles, cibles ≥40px, jamais d'icône seule
+  sans texte. 6 icônes line monochromes dans src/components/glyphs.tsx (pas de lib tierce). Layout :
+  le rail est un flanc gauche du Shell (App.tsx), la vue prend le reste. Vérifier rendu
+  clair/sombre, tsc/vitest/build.
+refs:
+  - src/components/ViewHeader.tsx
+  - src/App.tsx
+  - src/components/glyphs.tsx
+  - src/components/BirdMascot.tsx
+links: []
+dependsOn:
+  - 369
+epic: rail-nav
+source: ai
+createdAt: "2026-07-19T01:05:40"
+updatedAt: "2026-07-19T01:05:40"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
