@@ -383,7 +383,7 @@ export function makeTools(ROOT, KB_GRAPH_FILE, HOST_ROOT) {
         commit: { type: 'string', description: 'delivery sha (default: current HEAD)' },
         outcome: { type: 'string' },
         verification: { type: 'string' },
-        release: { type: 'string' },
+        release: { type: 'string', description: 'release version (default: host package.json version)' },
         resolveFeedback: { description: "Resolve feedback at close (#149): 'all' or 1-based positions [1,3]." },
       },
       required: ['id'], additionalProperties: false,

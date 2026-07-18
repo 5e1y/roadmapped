@@ -563,3 +563,64 @@ describe('moveTask (#251) — changer le type déplace le fichier', () => {
     expect(findTask(res.tree, created.id)!.task.file).toContain('02-feature/')
   })
 })
+
+describe('release auto-stamp au done (#341)', () => {
+  // Sandbox NESTED : la racine hôte (package.json + config marker) doit être
+  // DISTINCTE du tasksDir, comme en prod (host/docs/tasks). findHostRoot remonte
+  // du tasksDir jusqu'au marqueur config → c'est là que vit le package.json.
+  let host: string
+  let tasks: string
+  beforeEach(() => {
+    host = mkdtempSync(join(tmpdir(), 'rm-host-'))
+    // Marqueur pour que findHostRoot s'arrête ICI (et pas au-delà du temp dir).
+    writeFileSync(join(host, 'roadmapped.config.json'), '{}')
+    tasks = join(host, 'docs', 'tasks')
+    mkdirSync(tasks, { recursive: true })
+    writeFileSync(join(tasks, '_meta.yaml'), 'nextId: 1\n')
+    seedStages(tasks)
+  })
+  afterEach(() => rmSync(host, { recursive: true, force: true }))
+
+  const addOne = () => addTask(tasks, { section: SEC, title: 'Tâche', refs: ['src/x.ts'] })
+  const releaseOf = (res: ReturnType<typeof doneTask>) =>
+    res.ok ? res.tree.sections.find((s) => s.key === SEC)!.tasks[0].release : undefined
+
+  it('done sans --release estampille la version du package.json hôte', () => {
+    writeFileSync(join(host, 'package.json'), JSON.stringify({ version: '1.2.3' }))
+    addOne()
+    const res = doneTask(tasks, 1, {})
+    expect(res.ok).toBe(true)
+    expect(releaseOf(res)).toBe('1.2.3')
+  })
+
+  it('--release explicite garde la priorité sur l’auto-stamp', () => {
+    writeFileSync(join(host, 'package.json'), JSON.stringify({ version: '1.2.3' }))
+    addOne()
+    const res = doneTask(tasks, 1, { release: '9.9.9' })
+    expect(res.ok).toBe(true)
+    expect(releaseOf(res)).toBe('9.9.9')
+  })
+
+  it('release: null explicite efface le champ (pas d’auto-stamp)', () => {
+    writeFileSync(join(host, 'package.json'), JSON.stringify({ version: '1.2.3' }))
+    addOne()
+    const res = doneTask(tasks, 1, { release: null })
+    expect(res.ok).toBe(true)
+    expect(releaseOf(res)).toBeNull()
+  })
+
+  it('pas de package.json hôte → release reste null (aucune erreur)', () => {
+    addOne()
+    const res = doneTask(tasks, 1, {})
+    expect(res.ok).toBe(true)
+    expect(releaseOf(res)).toBeNull()
+  })
+
+  it('package.json sans champ version → release reste null', () => {
+    writeFileSync(join(host, 'package.json'), JSON.stringify({ name: 'roadmapped' }))
+    addOne()
+    const res = doneTask(tasks, 1, {})
+    expect(res.ok).toBe(true)
+    expect(releaseOf(res)).toBeNull()
+  })
+})
