@@ -1,10 +1,8 @@
 id: 82
-code: null
 title: "sitrep : âge in_progress mesuré depuis createdAt (pas startedAt)"
 status: done
 tags:
   - debt
-size: null
 detail: >-
   Plafond assumé : sitrep affiche l'âge des tâches in_progress en jours depuis createdAt, faute d'un
   champ startedAt. Une tâche créée il y a longtemps mais démarrée aujourd'hui affiche un âge

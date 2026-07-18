@@ -1,12 +1,10 @@
 id: 174
-code: null
 title: >-
   a11y — MultiCombobox : aucun indicateur de focus à la frappe (focus: sur wrapper au lieu de
   focus-within), ui.tsx:584
 status: done
 tags:
   - a11y
-size: null
 detail: null
 refs: []
 links: []

@@ -1,9 +1,7 @@
 id: 85
-code: null
 title: Doctrine worktrees concurrents dans delegation.md
 status: done
 tags: []
-size: S
 detail: >-
   Documenter la limite assumée du verrou (spec §Limite) : le verrou ne garantit rien INTER-branches
   — deux worktrees peuvent allouer le même id, révélé au merge de _meta.yaml (validation refuse

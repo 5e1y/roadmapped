@@ -1,11 +1,9 @@
 id: 2
-code: null
 title: Spec — panneau de détail de tâche clarifié
 status: done
 tags:
   - ux
   - spec
-size: S
 detail: >-
   Brainstorm avec Rémi (workflow §1 du skill) pour repenser le panneau : hiérarchiser l'information
   (titre, statut, detail d'abord ; métadonnées ensuite), clarifier l'édition en place (quel champ

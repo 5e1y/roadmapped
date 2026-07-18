@@ -1,5 +1,4 @@
 id: 308
-code: null
 title: >-
   KB viewer : perf du renderer (869 nœuds) + chargement progressif (nœuds qui apparaissent) + carte
   flottante « powered by graphify » (lien graphify.net)
@@ -9,7 +8,6 @@ tags:
   - graphify
   - perf
   - ux
-size: null
 heat: 83
 detail: >-
   Retour Rémi sur le vrai graphe (rendu « insane » mais lourd). (1) PERF : optimiser KbGraph.tsx

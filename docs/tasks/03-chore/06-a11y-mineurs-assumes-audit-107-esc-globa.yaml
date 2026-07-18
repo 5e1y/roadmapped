@@ -1,5 +1,4 @@
 id: 118
-code: null
 title: >-
   a11y mineurs assumés (audit #107) : Esc global SidePanel hors focus, trigger.isConnected à la
   fermeture, FilterMenu Popover.Close disabled, flanc radar souris-seulement, outline textarea
@@ -8,7 +7,6 @@ status: done
 tags:
   - debt
   - a11y
-size: null
 detail: null
 refs: []
 links: []

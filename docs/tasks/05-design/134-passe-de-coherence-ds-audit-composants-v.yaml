@@ -1,10 +1,8 @@
 id: 171
-code: null
 title: "Passe de cohérence DS : audit composants vs design.md et Base UI, repérer les valeurs en dur"
 status: done
 tags:
   - design-system
-size: null
 detail: >-
   Auditer les ~20 composants src/components/ contre design.md : arrondis, espacements, fonds,
   couleurs — repérer toute valeur en dur qui devrait être un token, tout élément non-Base-UI qui

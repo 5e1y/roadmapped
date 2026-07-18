@@ -1,11 +1,9 @@
 id: 363
-code: null
 title: now() construit date et heure sur deux new Date() distincts (±24h à minuit)
 status: todo
 tags:
   - bug
   - dates
-size: null
 heat: 40
 detail: >-
   Audit bugs #358 (MOYEN, docs/audit-bugs-2026-07.md). La fonction now() (taskWrites.ts) compose la

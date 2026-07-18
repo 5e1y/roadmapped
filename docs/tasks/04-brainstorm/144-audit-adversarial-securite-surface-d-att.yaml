@@ -1,11 +1,9 @@
 id: 356
-code: null
 title: "Audit adversarial sécurité : surface d'attaque du dashboard local, MCP, hooks et CI"
 status: done
 tags:
   - audit
   - security
-size: null
 heat: 75
 detail: >-
   Recherche adversariale (technique Rémi : prémisse alarmiste comme aiguillon). Périmètre : serveur

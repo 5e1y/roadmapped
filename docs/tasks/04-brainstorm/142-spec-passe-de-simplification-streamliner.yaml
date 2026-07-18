@@ -1,11 +1,9 @@
 id: 346
-code: null
 title: "Spec : passe de simplification — streamliner l'usine pour une expérience ultra simple"
 status: todo
 tags:
   - simplification
   - spec
-size: null
 detail: >-
   Constat Rémi : on a créé une vraie usine (~5 vues, 13 tools MCP, ~20 commandes CLI, guards, KB,
   notepad). Objectif : un agent frais productif avec ~5 concepts (ticket, statut, epic, release,

@@ -1,9 +1,7 @@
 id: 84
-code: null
 title: createdAt en datetime précis (rétrocompat date seule)
 status: done
 tags: []
-size: S
 detail: >-
   Les nouvelles tâches portent createdAt ISO local à la seconde ("2026-07-08T22:58:41") au lieu de
   la date seule. Rétrocompatible : la validation accepte les DEUX formats (date seule OU datetime),

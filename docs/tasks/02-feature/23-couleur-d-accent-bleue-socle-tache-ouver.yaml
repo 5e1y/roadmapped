@@ -1,11 +1,9 @@
 id: 36
-code: null
 title: Couleur d'accent bleue — socle + tâche ouverte repérable partout
 status: done
 tags:
   - ux
   - design
-size: M
 detail: >-
   Introduire UN bleu d'accent dans la palette monochrome (décision Rémi 2026-07-07, remplace « seule
   couleur tolérée : un vert discret » de la spec V2). Socle : token --color-accent dans index.css

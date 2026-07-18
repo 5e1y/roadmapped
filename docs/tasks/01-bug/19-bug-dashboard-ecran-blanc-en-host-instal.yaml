@@ -1,5 +1,4 @@
 id: 202
-code: null
 title: >-
   BUG dashboard écran blanc en host-install : Vite ne pré-bundle pas le stack CJS React (deps hôte
   hoistées) → app React ne monte jamais. Fix optimizeDeps.include (spec ZineKit)
@@ -7,7 +6,6 @@ status: done
 tags:
   - bug
   - publish
-size: null
 detail: null
 refs: []
 links: []

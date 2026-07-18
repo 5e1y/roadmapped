@@ -1,11 +1,9 @@
 id: 66
-code: null
 title: Token economy 3 — mini-tickets kind:quick (schéma, validation, CLI)
 status: done
 tags:
   - token-economy
   - data-model
-size: M
 detail: >-
   ⛔ N'exécuter qu'après approbation de la spec par Rémi. Spec §3 : champ optionnel kind: task|quick
   (absent = task, rétrocompat totale, ADDITIF — aucun YAML existant modifié). TDD validation : quick

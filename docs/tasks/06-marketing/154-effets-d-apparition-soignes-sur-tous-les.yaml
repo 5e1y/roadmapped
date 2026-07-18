@@ -1,9 +1,7 @@
 id: 284
-code: null
 title: Effets d'apparition soignés sur tous les éléments
 status: done
 tags: []
-size: null
 detail: >-
   Étendre/soigner les reveals au scroll sur TOUS les éléments (sections, cartes, titres, CTA, etc.)
   : fade + rise, léger stagger, timing agréable. Respecter prefers-reduced-motion (tout visible, pas

@@ -1,9 +1,7 @@
 id: 295
-code: null
 title: "Bouton Update in-app : clic = force update + restart (au lieu de copier la commande)"
 status: done
 tags: []
-size: null
 heat: 80
 detail: >-
   Reprend UpdateNotice (#211) : le popover affichait une commande à copier ; désormais le bouton

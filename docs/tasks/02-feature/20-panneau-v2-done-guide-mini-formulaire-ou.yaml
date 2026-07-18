@@ -1,11 +1,9 @@
 id: 27
-code: null
 title: Panneau v2 — done guidé (mini-formulaire outcome)
 status: done
 tags:
   - panel
   - ux
-size: M
 detail: >-
   Bouton d'action de cycle de vie contextuel en tête de panneau (spec §2) : todo → « Démarrer »
   (PATCH status in_progress) ; in_progress → « Terminer… » ouvre un mini-formulaire inline

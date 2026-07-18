@@ -1,12 +1,10 @@
 id: 63
-code: null
 title: Retouches — filtre team retiré des headers, dates des docs, chevrons inversés
 status: done
 tags:
   - ux
   - design
   - bug
-size: S
 detail: >-
   Batch Rémi (2026-07-07). (1) Le dropdown Teams disparaît des headers Roadmap ET Backlog
   (inutile/cassé en roadmap) — le radar reste le pilote du filtre team côté Backlog ; la Roadmap ne

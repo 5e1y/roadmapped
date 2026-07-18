@@ -1,5 +1,4 @@
 id: 145
-code: null
 title: >-
   Homepage : mini-Roadmapped interactif (4e mur) — flux fictif = les tickets qui ont construit la
   homepage
@@ -7,7 +6,6 @@ status: done
 tags:
   - marketing
   - fable
-size: L
 detail: >-
   Dans le repo /Users/rcourtillon/Documents/roadmapped-site (site statique, déployé Cloudflare Pages
   roadmapped.work). Remplacer/compléter la démo animée du hero par une version TRÈS SIMPLIFIÉE et

@@ -1,5 +1,4 @@
 id: 234
-code: null
 title: >-
   Jalons v2 — Phase 2 : moteur température (3 tiers : auto + base-type + seed) + tri de next +
   exposition API
@@ -7,7 +6,6 @@ status: done
 tags:
   - engineering
   - jalons-v2
-size: null
 detail: >-
   Moteur (opus/sonnet, logique). Réf : docs/specs/2026-07-09-next-temperature-brainstorm.md
   (partition TIERS ÉGAUX verrouillée). temperature(tree, task, today) = auto + base + seed :

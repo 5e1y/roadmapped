@@ -1,12 +1,10 @@
 id: 130
-code: null
 title: >-
   Cadenas de verrouillage : afficher le cercle de progression en cadenas partout où la tâche est
   bloquée par des dépendances (backlog + task bar, pas juste la roadmap)
 status: done
 tags:
   - ux
-size: S
 detail: >-
   Aujourd'hui le petit cercle de progression passe en cadenas pour les tâches verrouillées par des
   dépendances uniquement dans la roadmap. Rendre l'indicateur cohérent : afficher le cadenas PARTOUT

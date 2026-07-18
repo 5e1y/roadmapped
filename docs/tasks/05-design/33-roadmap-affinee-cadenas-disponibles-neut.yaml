@@ -1,11 +1,9 @@
 id: 49
-code: null
 title: Roadmap affinée — cadenas, disponibles neutres, sélection unifiée, barres accent, fix z-index
 status: done
 tags:
   - ux
   - design
-size: S
 detail: >-
   Batch design Rémi (2026-07-07). (1) Cartes DISPONIBLES : plus de contour fort ni de mention —
   visuel neutre identique aux autres (l'état verrouillé suffit à faire le contraste). (2) Cartes

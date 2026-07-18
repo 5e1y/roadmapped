@@ -1,5 +1,4 @@
 id: 102
-code: null
 title: >-
   Guard 3 — skill : règle « done = frontière », piège ASAP, interdit commit hors ticket + resync
   installé
@@ -8,7 +7,6 @@ tags:
   - process
   - enforcement
   - skill
-size: S
 detail: >-
   skills/roadmaped/SKILL.md, ±0 ligne nette (compacter si besoin) : (1) règle en tête de l'échelle
   de décision — « Tout changement du repo = une unité roadmaped ; le done est une frontière, pas un

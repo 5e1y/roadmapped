@@ -1,5 +1,4 @@
 id: 317
-code: null
 title: >-
   KB : lag (~2fps) les 2 premières secondes à l'ouverture — faire apparaître les nœuds
   progressivement/aléatoirement au lancement
@@ -9,7 +8,6 @@ tags:
   - graphify
   - perf
   - renderer
-size: null
 heat: 86
 detail: >-
   Retour Rémi : à l'ouverture du graphe KB (869 nœuds) ça lague (~2fps) pendant ~2s, malgré la sim

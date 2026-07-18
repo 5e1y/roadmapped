@@ -1,12 +1,10 @@
 id: 252
-code: null
 title: "Chevron d'expand : clic mort pile sur l'icône d'un epic + unifier le design substacks↔epics"
 status: done
 tags:
   - ui
   - dashboard
   - ds
-size: null
 detail: >-
   Deux choses sur le chevron d'expand. (1) BUG : cliquer PILE sur l'icône chevron d'un epic ne
   déplie pas — le SVG chevron (décoration non positionnée) intercepte le clic au lieu de le laisser

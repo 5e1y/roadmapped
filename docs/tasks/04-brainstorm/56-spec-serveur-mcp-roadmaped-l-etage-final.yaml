@@ -1,11 +1,9 @@
 id: 73
-code: null
 title: Spec — serveur MCP Roadmaped (l'étage final de l'économie de tokens)
 status: done
 tags:
   - spec
   - token-economy
-size: M
 detail: >-
   ⛔ Brainstorm avec Rémi requis (hard-gate spec). Annexe pt 6 : remplacer le CLI par un serveur MCP
   — les commandes deviennent des tools aux schémas auto-documentés (le schéma REMPLACE la doc dans

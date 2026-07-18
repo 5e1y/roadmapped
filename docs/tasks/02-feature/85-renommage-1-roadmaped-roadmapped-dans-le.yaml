@@ -1,11 +1,9 @@
 id: 110
-code: null
 title: Renommage 1 — roadmaped → Roadmapped dans le code, la config et les docs
 status: done
 tags:
   - marketing
   - rename
-size: M
 detail: >-
   Renommer roadmaped → roadmapped (marque : Roadmapped, deux P) partout où le nom vit : package.json
   (name), .mcp.json (clé serveur), serverInfo du serveur MCP (scripts/mcp-server.mjs),

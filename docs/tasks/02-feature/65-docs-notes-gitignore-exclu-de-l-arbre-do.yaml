@@ -1,9 +1,7 @@
 id: 87
-code: null
 title: docs/notes/ gitignoré + exclu de l'arbre Docs + création au 1er usage
 status: done
 tags: []
-size: S
 detail: >-
   L'app crée docs/notes/ au premier usage ET ajoute 'docs/notes/' à .gitignore si absent
   (idempotent). buildDocsTree exclut explicitement notes/ (comme node_modules) → invisible dans

@@ -1,11 +1,9 @@
 id: 117
-code: null
 title: Renommage 3 — dossier local Roadmapped + note repo GitHub futur
 status: done
 tags:
   - marketing
   - rename
-size: S
 detail: >-
   Étape finale du renommage, APRÈS #110-112 verts. Aucun remote GitHub n'existe aujourd'hui (git
   remote -v vide) : rien à renommer côté GitHub, mais consigner dans README que le futur repo se

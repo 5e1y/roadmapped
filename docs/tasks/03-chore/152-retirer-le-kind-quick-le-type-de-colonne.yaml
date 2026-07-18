@@ -1,5 +1,4 @@
 id: 250
-code: null
 title: >-
   Retirer le kind « quick » — le type de colonne + size suffisent, le split quick/task est du bruit
   (décision Rémi)
@@ -8,7 +7,6 @@ tags:
   - engineering
   - model
   - simplification
-size: M
 detail: >-
   Décision Rémi : depuis les colonnes par TYPE, le couple quick/task ne porte plus qu'un niveau de
   cérémonie redondant avec `size` (S/M/L) et impose une micro-décision à chaque création

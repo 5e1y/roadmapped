@@ -1,12 +1,10 @@
 id: 205
-code: null
 title: Live updates V2 — panneau d'activité redessiné et docké dans le header (instance Fable 5)
 status: done
 tags:
   - dashboard
   - design
   - live-reactivity
-size: null
 detail: >-
   Demande Rémi (exception explicite : instance Fable 5, malgré la règle « pas de Fable » par
   défaut). V1 = LiveConsole, bouton flottant bottom-left + tiroir. V2 : le déplacer dans la bande

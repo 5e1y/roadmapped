@@ -1,5 +1,4 @@
 id: 305
-code: null
 title: >-
   KB phase 2 : inspecteur de nœud (« Tickets touching this ») + recherche + filtres
   (communauté/type/inferred) + watch live + cache partagé
@@ -8,7 +7,6 @@ tags:
   - kb
   - graphify
   - feature
-size: null
 heat: 80
 detail: >-
   Phase 2 de docs/specs/graphify-kb.md, sur le slice 1 (#304). Toujours SANS toucher install/Python.

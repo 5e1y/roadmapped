@@ -1,5 +1,4 @@
 id: 121
-code: null
 title: >-
   Spec — init riche : questionnaire projet, milestones, 1ère vague de tickets, migration des docs
   existants, CLAUDE.md
@@ -9,7 +8,6 @@ tags:
   - open-source
   - onboarding
   - fable
-size: M
 detail: >-
   Onboarding à la PREMIÈRE installation de Roadmapped dans un repo (le CONTENU de l'init, au-delà du
   mécanisme d'install traité en #12). Trancher/couvrir : (1) questionnaire projet à l'utilisateur

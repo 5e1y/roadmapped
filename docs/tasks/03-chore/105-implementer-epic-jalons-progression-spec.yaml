@@ -1,11 +1,9 @@
 id: 133
-code: null
 title: "Implémenter — epic, jalons & progression (spec #131)"
 status: done
 tags:
   - data-model
   - fable
-size: L
 detail: >-
   Implémenter la spec docs/specs/2026-07-08-hierarchie-regroupement.md (décisions verrouillées).
   Périmètre : (1) renommer le champ milestone→epic dans le schéma (tasks.ts) avec parse rétrocompat

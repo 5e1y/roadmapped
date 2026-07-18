@@ -1,11 +1,9 @@
 id: 29
-code: null
 title: "CLI : vider les listes avec null (tags, refs, links)"
 status: done
 tags:
   - cli
   - bug
-size: S
 detail: >-
   Bug découvert en vérifiant le guide (#10) : le --help promet « "null" = remettre un champ à null »
   mais pour les champs LISTE, update --tags null crée un tag littéral « null » (seuls les champs

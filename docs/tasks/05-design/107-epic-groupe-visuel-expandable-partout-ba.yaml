@@ -1,5 +1,4 @@
 id: 135
-code: null
 title: >-
   Epic = groupe visuel expandable (partout : Backlog, Roadmap colonnes ET graphe) — pas un tag
   filtrable
@@ -8,7 +7,6 @@ tags:
   - ux
   - data-model
   - fable
-size: L
 detail: >-
   Refonte VISUELLE de l'epic (le back champ epic reste inchangé). Aujourd'hui l'epic est un tag
   filtrable (toggle « par epic » → blocs plats) — NON. Vision Rémi : un epic est un GROUPE. Partout

@@ -1,11 +1,9 @@
 id: 218
-code: null
 title: Audit des licences des dépendances (compat MIT, attributions requises)
 status: done
 tags:
   - legal
   - publish
-size: null
 detail: >-
   Passer en revue les licences des deps (react, @base-ui/react, trinil-react, tailwindcss, vite,
   marked, js-yaml, amaro, @modelcontextprotocol/sdk, dagre…) : toutes compatibles avec une

@@ -1,5 +1,4 @@
 id: 299
-code: null
 title: >-
   MAJ doc d'install sur le site marketing (roadmapped-site/index.html) : 3 méthodes
   plugin/npm/github
@@ -8,7 +7,6 @@ tags:
   - site
   - install
   - homepage
-size: null
 heat: 78
 detail: >-
   Refléter sur la home publique roadmapped.dev les 3 voies d'install (plugin Claude Code, npm,

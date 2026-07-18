@@ -1,10 +1,8 @@
 id: 21
-code: null
 title: Lancement public coordonné
 status: todo
 tags:
   - marketing
-size: M
 detail: >-
   Exécuter le plan J0 de docs/comms-plan.md : publier les annonces dans l'ordre prévu, surveiller et
   répondre aux commentaires (HN, Product Hunt, Reddit, LinkedIn) pendant les premières 48h,

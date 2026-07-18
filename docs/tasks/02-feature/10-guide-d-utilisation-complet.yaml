@@ -1,11 +1,9 @@
 id: 10
-code: null
 title: Guide d'utilisation complet
 status: done
 tags:
   - open-source
   - docs
-size: M
 detail: >-
   Écrire docs/guide.md EN ANGLAIS (décision Rémi 2026-07-07), le guide de référence utilisateur :
   installation dans un repo hôte, roadmaped.config.json (tasksDir/docsDir), tour du dashboard

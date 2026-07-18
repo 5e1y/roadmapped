@@ -1,5 +1,4 @@
 id: 324
-code: null
 title: >-
   Graphify install par DÉFAUT (opt-out --no-kb) : bootstrap uv → CPython géré → graphifyy ; +
   enregistrer le MCP natif graphify dans .mcp.json
@@ -9,7 +8,6 @@ tags:
   - graphify
   - install
   - mcp
-size: null
 heat: 90
 detail: >-
   Reverse #322 (défaut Non → défaut OUI). Suit docs/specs/graphify-anchoring.md Volet A + reco P1

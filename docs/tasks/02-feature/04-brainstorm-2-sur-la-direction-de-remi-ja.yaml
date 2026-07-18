@@ -1,5 +1,4 @@
 id: 230
-code: null
 title: >-
   Brainstorm 2 (sur la direction de Rémi) : jalons = types de tâches, fusion stage+team en un axe,
   anciens stages → epics
@@ -8,7 +7,6 @@ tags:
   - engineering
   - product
   - design
-size: null
 detail: >-
   Suite de #228. Rémi a tranché une DIRECTION (à faire marcher/détailler, PAS à re-litiguer). Le
   modèle : UN SEUL AXE « type de tâche » qui remplace À LA FOIS l'axe stage ET l'axe team (fusion

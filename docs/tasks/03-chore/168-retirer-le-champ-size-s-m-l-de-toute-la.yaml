@@ -1,5 +1,4 @@
 id: 350
-code: null
 title: >-
   Retirer les champs size (S/M/L) et code de toute la stack — décoratifs, la température a rendu
   size inutile et code n'est jamais rempli
@@ -7,7 +6,6 @@ status: in_progress
 tags:
   - simplification
   - data-model
-size: null
 detail: >-
   Décision Rémi (2026-07-18) : retirer size ET code. Vérifié : les deux sont purement décoratifs —
   size : chips render.ts L28/L77, sorties --json, flags CLI, schéma/serializer, TaskRow/TaskPanel,

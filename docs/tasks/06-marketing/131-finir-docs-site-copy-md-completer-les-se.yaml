@@ -1,11 +1,9 @@
 id: 167
-code: null
 title: "Finir docs/site-copy.md : compléter les sections restantes (proposal section-by-section)"
 status: done
 tags:
   - marketing
   - homepage
-size: null
 detail: >-
   site-copy.md est en statut 'proposal, section by section' — incomplet. Compléter : au-delà de
   Hero/Demo/Features, ajouter How-it-works, Privacy, FAQ courte, Footer, meta/SEO copy, en

@@ -1,5 +1,4 @@
 id: 319
-code: null
 title: >-
   KB graphe : aperçu SANS LIMITES — nœuds coincés « hors zone » (boîte PAD fixe) + pan borné
   (clampPan) ; libérer les deux, en option KB (ne pas toucher RoadmapGraph)
@@ -8,7 +7,6 @@ tags:
   - kb
   - graphify
   - renderer
-size: null
 heat: 86
 detail: >-
   Retour Rémi (capture) : on peut envoyer des nœuds « hors zone », NOK. Deux bornes en cause : (1)

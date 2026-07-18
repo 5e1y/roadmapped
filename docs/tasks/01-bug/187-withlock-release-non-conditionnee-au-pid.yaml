@@ -1,11 +1,9 @@
 id: 362
-code: null
 title: "withLock : release non conditionnée au pid + vol de verrou vivant après TTL"
 status: todo
 tags:
   - bug
   - concurrency
-size: null
 heat: 65
 detail: >-
   Audit bugs #358 (HAUT-1, docs/audit-bugs-2026-07.md). withLock (taskWrites.ts:120-154) : (1) le

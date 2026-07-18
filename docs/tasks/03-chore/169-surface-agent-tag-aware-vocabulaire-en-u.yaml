@@ -1,5 +1,4 @@
 id: 352
-code: null
 title: >-
   Surface agent tag-aware : vocabulaire en usage injecté dans les descriptions MCP
   (add/quick/update) + nudge d'une ligne dans le skill
@@ -7,7 +6,6 @@ status: done
 tags:
   - dx
   - mcp
-size: null
 detail: >-
   Exécution de la reco de l'étude #344 (docs/specs/2026-07-18-tags-etude.md, option C validée par
   Rémi) : (1) makeTools(ROOT,…) calcule au boot les top-N tags en usage (readTree → comptage, N≈12)

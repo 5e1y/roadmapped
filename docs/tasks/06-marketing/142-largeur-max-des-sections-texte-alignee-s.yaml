@@ -1,9 +1,7 @@
 id: 263
-code: null
 title: Largeur max des sections texte alignée sur les encarts KPI blancs
 status: done
 tags: []
-size: null
 detail: >-
   Allonger la largeur max des sections de texte pour qu'elles s'alignent sur la largeur max des
   sections KPI (encarts blancs). Cohérence de gabarit.

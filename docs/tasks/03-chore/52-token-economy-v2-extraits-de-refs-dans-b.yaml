@@ -1,11 +1,9 @@
 id: 69
-code: null
 title: Token economy v2 — extraits de refs dans brief (ancres symbole + drapeau de fraîcheur)
 status: done
 tags:
   - token-economy
   - cli
-size: M
 detail: >-
   ⛔ Après livraison ET mesure de la v1 (#64-68). Annexe pt 2 avec les parades anti-dérive validées
   par Rémi : brief joint ~10 lignes autour de chaque ref AU MOMENT DU SERVE (jamais figé) ; ancrage

@@ -1,12 +1,10 @@
 id: 223
-code: null
 title: Issue templates (bug / feature) + config.yml (canaliser les feedbacks users)
 status: done
 tags:
   - support
   - publish
   - github
-size: null
 detail: >-
   .github/ISSUE_TEMPLATE/ : formulaires bug-report et feature-request (form YAML), + config.yml
   (blank issues off, liens vers Discussions/guide). Ton Rémi, champs utiles (repro, version/commit,

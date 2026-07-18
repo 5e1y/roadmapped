@@ -1,12 +1,10 @@
 id: 112
-code: null
 title: Renommage 2 — skill roadmaped → roadmapped + resync installation
 status: done
 tags:
   - marketing
   - rename
   - skill
-size: S
 detail: >-
   git mv skills/roadmaped skills/roadmapped ; frontmatter name: roadmapped + description mise à jour
   (« Gestion de projet Roadmapped ») ; occurrences dans SKILL.md et references/*.md (planning,

@@ -1,5 +1,4 @@
 id: 106
-code: null
 title: >-
   Sync auto skill repo → ~/.claude/skills (resync manuel fait le 2026-07-08, dérive silencieuse
   possible)
@@ -7,7 +6,6 @@ status: done
 tags:
   - debt
   - process
-size: null
 detail: null
 refs: []
 links: []

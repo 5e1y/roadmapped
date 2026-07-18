@@ -1,11 +1,9 @@
 id: 41
-code: null
 title: Stages+teams core 2 — CLI et API
 status: done
 tags:
   - refactor
   - cli
-size: M
 detail: >-
   Spec §CLI & skill + §Modèle. task.mjs : add exige --team (∈ enum, erreur sinon), --zone devient
   flag inconnu partout, update --team, list --team <t> (filtre), show/next/roadmap affichent la

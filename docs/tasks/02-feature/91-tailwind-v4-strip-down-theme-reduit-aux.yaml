@@ -1,11 +1,9 @@
 id: 116
-code: null
 title: Tailwind v4 strip down — @theme réduit aux tokens de design.md
 status: done
 tags:
   - design
   - tailwind
-size: S
 detail: >-
   Note de cadrage : Tailwind v4 purge DÉJÀ automatiquement les utilities non utilisées au build — le
   « strip down » utile n'est pas là. Le vrai travail : (1) réduire le @theme (CSS d'entrée) aux

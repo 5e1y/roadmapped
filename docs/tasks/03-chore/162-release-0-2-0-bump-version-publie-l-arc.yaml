@@ -1,11 +1,9 @@
 id: 327
-code: null
 title: "Release 0.2.0 : bump version → publie l'arc Knowledge base/Graphify sur npm (via CI)"
 status: done
 tags:
   - release
   - npm
-size: null
 detail: null
 refs: []
 links: []

@@ -1,11 +1,9 @@
 id: 290
-code: null
 title: >-
   Site : corriger la copy "8 stages fixes" restée dans Features/How-it-works (modèle réel = 9 types
   + température) + mention poids install
 status: done
 tags: []
-size: null
 heat: 40
 detail: >-
   index.html (roadmapped-site) décrit encore l'ancien modèle : carte Features #2 dit "Eight fixed

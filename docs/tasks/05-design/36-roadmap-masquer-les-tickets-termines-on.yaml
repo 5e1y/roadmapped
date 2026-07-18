@@ -1,11 +1,9 @@
 id: 52
-code: null
 title: Roadmap — masquer les tickets terminés (ON par défaut, deps visibles en Graphe)
 status: done
 tags:
   - ux
   - design
-size: S
 detail: >-
   Demande Rémi (2026-07-07) : toggle dans le header de la vue Roadmap pour cacher les tickets done —
   MASQUÉS PAR DÉFAUT, préférence persistée (localStorage). Mode Colonnes : les done disparaissent

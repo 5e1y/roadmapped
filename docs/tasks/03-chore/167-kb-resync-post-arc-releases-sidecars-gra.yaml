@@ -1,10 +1,8 @@
 id: 347
-code: null
 title: KB resync post-arc releases + sidecars graphify (.graphify_python, cost.json) gitignorés
 status: done
 tags:
   - kb
-size: null
 detail: null
 refs:
   - graphify-out

@@ -1,5 +1,4 @@
 id: 302
-code: null
 title: "Jeu de l'oiseau : ramasser des œufs (a la Yoshi) et les empiler dans le nid du footer"
 status: done
 tags:
@@ -7,7 +6,6 @@ tags:
   - jeu
   - site
   - fable
-size: null
 heat: 80
 detail: >-
   Easter-egg interactif sur roadmapped-site, greffe dans roadmapped-bird.js (overlay canvas

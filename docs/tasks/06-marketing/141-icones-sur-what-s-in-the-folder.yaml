@@ -1,9 +1,7 @@
 id: 262
-code: null
 title: Icônes sur « what's in the folder »
 status: done
 tags: []
-size: null
 detail: >-
   Ajouter des icônes aux entrées de la section « what's in the folder » (les feature-cards /
   fichiers YAML listés) pour la rendre plus lisible et visuelle.

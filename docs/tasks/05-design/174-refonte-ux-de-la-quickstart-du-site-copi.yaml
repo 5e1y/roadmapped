@@ -1,5 +1,4 @@
 id: 300
-code: null
 title: >-
   Refonte UX de la Quickstart du site : copie par commande individuelle + séparation claire des 3
   méthodes d'install
@@ -8,7 +7,6 @@ tags:
   - site
   - ux
   - install
-size: null
 heat: 80
 detail: >-
   Feedback Rémi sur #299 : la Quickstart (un seul <pre code-block avec les 3 méthodes en

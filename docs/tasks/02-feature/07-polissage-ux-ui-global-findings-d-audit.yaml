@@ -1,10 +1,8 @@
 id: 7
-code: null
 title: Polissage UX/UI global (findings d'audit)
 status: done
 tags:
   - ux
-size: M
 detail: >-
   Implémenter les findings bloquants et importants de l'audit (docs/audit-ux-2026-07.md) qui ne
   relèvent pas d'une des specs features de cette section : espacements, typographie, états vides,

@@ -1,11 +1,9 @@
 id: 207
-code: null
 title: MAJ auto de l'app — notification de nouvelle version au lancement (pattern update-notifier)
 status: done
 tags:
   - publish
   - engineering
-size: null
 detail: >-
   Demande Rémi. Le paquet `roadmapped` est distribué via npm/npx ; rien ne prévient l'utilisateur
   qu'une version plus récente existe. Implémenter une NOTIFICATION (pas d'auto-install silencieuse —

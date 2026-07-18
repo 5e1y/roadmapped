@@ -1,11 +1,9 @@
 id: 65
-code: null
 title: Token economy 2 — CLI take/brief, liens titrés, json allégé, erreurs autoportantes
 status: done
 tags:
   - token-economy
   - cli
-size: M
 detail: >-
   ⛔ N'exécuter qu'après approbation de la spec par Rémi. Spec §2 : (a) take [--team] =
   next+start+brief en une commande ; (b) brief <id> = brief d'exécution complet

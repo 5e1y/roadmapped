@@ -1,5 +1,4 @@
 id: 206
-code: null
 title: >-
   Self-host : exposer le skill roadmapped à /roadmapped (symlink .claude/skills → skills/roadmapped)
   pour que la discipline s'auto-charge chaque session
@@ -7,7 +6,6 @@ status: done
 tags:
   - debt
   - skill
-size: null
 detail: null
 refs: []
 links: []

@@ -1,9 +1,7 @@
 id: 89
-code: null
 title: Notepad — pièces jointes en liens (reveal Finder) + « Copier pour l'agent »
 status: done
 tags: []
-size: M
 detail: >-
   Drag & drop d'un fichier sur l'éditeur → insère son CHEMIN ABSOLU en ligne dédiée ([fichier:
   /Users/…/maquette.png]) — JAMAIS de copie. Clic sur la ligne → POST /api/reveal (#86) ouvre le

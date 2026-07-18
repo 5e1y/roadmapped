@@ -1,5 +1,4 @@
 id: 247
-code: null
 title: >-
   Roadmap : le toggle 'done' par défaut OFF sur la Roadmap (l'historique encombre ; done à la
   demande)
@@ -8,7 +7,6 @@ tags:
   - dashboard
   - ux
   - roadmap
-size: null
 detail: null
 refs: []
 links: []

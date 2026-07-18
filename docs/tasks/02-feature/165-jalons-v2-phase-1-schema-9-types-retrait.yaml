@@ -1,5 +1,4 @@
 id: 233
-code: null
 title: >-
   Jalons v2 — Phase 1 : schéma (9 types, retrait team, champ heat) + validate + migration des 213
   fichiers + CLI/MCP
@@ -8,7 +7,6 @@ tags:
   - engineering
   - jalons-v2
   - migration
-size: null
 detail: >-
   Fondation mécanique (sonnet/opus, non-design). Réf :
   docs/specs/2026-07-09-jalons-par-type-brainstorm.md +

@@ -1,11 +1,9 @@
 id: 59
-code: null
 title: Radar — labels en petites cartes blanches avec icônes trinil
 status: done
 tags:
   - ux
   - design
-size: S
 detail: >-
   Retouche Rémi (2026-07-07) : les noms de teams passaient par-dessus les lignes du radar
   (illisible). Remplacer les textes nus par de PETITES CARTES opaques aux 8 sommets : pastille

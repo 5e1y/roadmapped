@@ -1,5 +1,4 @@
 id: 322
-code: null
 title: >-
   KB Phase 3 : étape ensureGraphify dans roadmapped init (détecte Python, installe graphifyy en env
   isolé, graphify install) — dégradée, consentie, non bloquante
@@ -9,7 +8,6 @@ tags:
   - graphify
   - install
   - onboarding
-size: null
 heat: 82
 detail: >-
   Dernière phase de docs/specs/graphify-kb.md. Nouveau step ensureGraphify(hostRoot, {tty, withKb},

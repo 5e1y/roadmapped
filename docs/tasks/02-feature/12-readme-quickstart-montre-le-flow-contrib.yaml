@@ -1,12 +1,10 @@
 id: 173
-code: null
 title: >-
   README Quickstart montre le flow contributeur (npm install/npm run dev) au lieu du flow
   utilisateur npx roadmapped init/dashboard
 status: done
 tags:
   - publish
-size: null
 detail: null
 refs: []
 links: []

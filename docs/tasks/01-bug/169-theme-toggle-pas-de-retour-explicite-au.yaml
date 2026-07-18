@@ -1,10 +1,8 @@
 id: 270
-code: null
 title: "Theme toggle : pas de retour explicite au mode « système » après un choix manuel (3e état)"
 status: done
 tags:
   - debt
-size: null
 detail: null
 refs: []
 links: []

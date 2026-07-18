@@ -1,10 +1,8 @@
 id: 160
-code: null
 title: "HTML shells : lang=fr → en (produit anglophone) + viewport meta manquant sur index.html"
 status: done
 tags:
   - i18n
-size: null
 detail: null
 refs: []
 links: []

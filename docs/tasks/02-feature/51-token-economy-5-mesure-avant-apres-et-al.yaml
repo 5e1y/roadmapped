@@ -1,11 +1,9 @@
 id: 68
-code: null
 title: Token economy 5 — mesure avant/après et alignement doc
 status: done
 tags:
   - token-economy
   - docs
-size: S
 detail: >-
   ⛔ N'exécuter qu'après approbation de la spec par Rémi, et en DERNIER du chantier (dépend de
   64-67). Spec §5 : rejouer le scénario scripté (bootstrap skill + 1 ticket standard take→done + 1

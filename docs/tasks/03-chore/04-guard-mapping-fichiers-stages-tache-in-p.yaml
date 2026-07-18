@@ -1,5 +1,4 @@
 id: 105
-code: null
 title: >-
   guard : mapping fichiers stagés↔tâche in_progress (le passe-partout 'une in_progress éternelle'
   n'est pas détecté)
@@ -7,7 +6,6 @@ status: done
 tags:
   - debt
   - process
-size: null
 detail: null
 refs: []
 links: []

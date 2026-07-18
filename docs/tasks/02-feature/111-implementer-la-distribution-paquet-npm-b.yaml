@@ -1,12 +1,10 @@
 id: 139
-code: null
 title: >-
   Implémenter la distribution : paquet npm + bin roadmapped + fix racine-paquet/racine-hôte (spec
   #12, finding #123)
 status: done
 tags:
   - fable
-size: L
 detail: null
 refs: []
 links: []

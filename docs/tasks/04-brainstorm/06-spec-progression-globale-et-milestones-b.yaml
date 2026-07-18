@@ -1,12 +1,10 @@
 id: 6
-code: null
 title: Spec — progression globale et milestones bloquants
 status: done
 tags:
   - spec
   - data-model
   - fable
-size: M
 detail: >-
   Deux features liées touchant le modèle de données — une seule spec. (a) Progression totale vers le
   goal : définition du % (simple compte de tâches vs pondération par size), portée (globale, par

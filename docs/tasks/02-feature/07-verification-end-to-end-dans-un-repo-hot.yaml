@@ -1,12 +1,10 @@
 id: 163
-code: null
 title: >-
   Vérification end-to-end dans un repo hôte fictif : npx roadmapped init → cycle complet → dashboard
   --open
 status: done
 tags:
   - verify
-size: null
 detail: >-
   Monter un repo vierge dans un scratch, y lancer le paquet packé (npm pack puis install local),
   dérouler : init (questionnaire, _meta, 1ère vague de tickets, CLAUDE.md), puis take/start/done,

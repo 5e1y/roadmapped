@@ -1,5 +1,4 @@
 id: 251
-code: null
 title: >-
   Changer le type d'un ticket depuis le panneau (déplacer entre dossiers-types) — impossible après
   création
@@ -7,7 +6,6 @@ status: done
 tags:
   - dashboard
   - engineering
-size: M
 detail: >-
   Manque signalé par Rémi : le panneau édite tous les champs SAUF le type (= la section/dossier). Le
   type ne peut donc pas changer après création. Fix : (1) taskWrites : moveTask(tasksDir, id,

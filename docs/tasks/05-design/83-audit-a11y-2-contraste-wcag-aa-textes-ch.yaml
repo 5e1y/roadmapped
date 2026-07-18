@@ -1,12 +1,10 @@
 id: 108
-code: null
 title: Audit a11y 2 — contraste WCAG AA (textes, chips, croix, ghost inputs)
 status: done
 tags:
   - design
   - a11y
   - audit
-size: S
 detail: >-
   Relever les paires couleur texte/fond réellement rendues (inspecteur sur npm run dev) et vérifier
   WCAG AA (4.5:1 texte normal, 3:1 grand texte et composants UI) : textes secondaires/gris, chips de

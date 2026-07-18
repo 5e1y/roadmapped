@@ -1,11 +1,9 @@
 id: 58
-code: null
 title: Backlog une colonne (12 + voir plus), filtres iso, radar lisible, tint opaque
 status: done
 tags:
   - ux
   - design
-size: M
 detail: >-
   Batch Rémi (2026-07-07). (1) Toutes les listes backlog (vue Backlog + vue Teams) passent en UNE
   colonne large : les 12 prochaines à faire + bouton « voir plus », puis les terminées APRÈS ;

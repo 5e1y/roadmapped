@@ -1,9 +1,7 @@
 id: 261
-code: null
 title: CTA = prompt prêt-à-copier pour l'agent (au lieu de 2× le lien GitHub)
 status: done
 tags: []
-size: null
 detail: >-
   Les CTA principaux dupliquent le même lien GitHub. Option : le CTA copie un prompt déjà rédigé à
   donner à son agent. OU gros bouton = lien GitHub + à côté le prompt à copier.

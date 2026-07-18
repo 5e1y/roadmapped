@@ -1,12 +1,10 @@
 id: 97
-code: null
 title: >-
   Fixes visuels dashboard : fonds blancs (notepad/radar/docs), rollovers notes, débordement colonne
   Roadmap, marge fantôme Backlog
 status: done
 tags:
   - ux
-size: null
 detail: null
 refs: []
 links: []

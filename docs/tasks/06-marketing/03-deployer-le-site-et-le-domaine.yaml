@@ -1,10 +1,8 @@
 id: 18
-code: null
 title: Déployer le site et le domaine
 status: done
 tags:
   - marketing
-size: S
 detail: >-
   Choisir l'hébergement statique (GitHub Pages suffit ; Netlify/Vercel si domaine custom), trancher
   le domaine avec Rémi (roadmaped.dev ou équivalent — vérifier la disponibilité), HTTPS, déploiement

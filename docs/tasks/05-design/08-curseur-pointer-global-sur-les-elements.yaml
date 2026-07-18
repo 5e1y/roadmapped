@@ -1,9 +1,7 @@
 id: 120
-code: null
 title: Curseur pointer global sur les éléments interactifs (Tailwind v4 ne le met plus sur les boutons)
 status: done
 tags: []
-size: null
 detail: null
 refs: []
 links: []

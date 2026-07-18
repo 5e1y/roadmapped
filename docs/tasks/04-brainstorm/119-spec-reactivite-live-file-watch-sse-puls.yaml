@@ -1,12 +1,10 @@
 id: 147
-code: null
 title: >-
   Spec — réactivité live : file-watch + SSE, pulse in-progress, badges NEW non-lus, console
   action-tracking
 status: done
 tags:
   - spec
-size: M
 detail: >-
   L'app ne se met pas à jour en direct : il faut cmd+R pour voir les changements DANS les données
   (tickets modifiés par l'agent). Spécifier la réactivité live et sa couche UX. À couvrir/trancher :

@@ -1,5 +1,4 @@
 id: 123
-code: null
 title: >-
   Valider Roadmapped dans un repo hôte réel où le code vit hors du dossier tasks (usage final ≠
   self-hosting)
@@ -7,7 +6,6 @@ status: done
 tags:
   - correctness
   - onboarding
-size: M
 detail: >-
   Aujourd'hui on ne dogfood QUE le repo de Roadmapped sur lui-même : app + CLI + docs/tasks/ à la
   racine. L'usage final est différent — un repo hôte avec SON code, où Roadmapped n'est qu'un

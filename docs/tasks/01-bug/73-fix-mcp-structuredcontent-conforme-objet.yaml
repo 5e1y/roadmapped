@@ -1,11 +1,9 @@
 id: 95
-code: null
 title: Fix MCP — structuredContent conforme (objet ou rien), texte dense préservé
 status: done
 tags:
   - bug
   - mcp
-size: S
 detail: >-
   Deux bugs révélés au premier usage réel dans Claude Code (invisible en JSON-RPC brut, #91). Bug 1
   (bloquant) : next/list/roadmap passent un ARRAY comme structuredContent — la spec MCP exige un

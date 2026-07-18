@@ -1,10 +1,8 @@
 id: 126
-code: null
 title: Dates relatives « il y a X temps » partout (au lieu des dates littérales)
 status: done
 tags:
   - ux
-size: M
 detail: >-
   Remplacer l'affichage des dates littérales par du relatif (« il y a 3 j », « il y a 2 sem »)
   partout où une date apparaît (createdAt, startedAt, completedAt, done du jour…). Date absolue en

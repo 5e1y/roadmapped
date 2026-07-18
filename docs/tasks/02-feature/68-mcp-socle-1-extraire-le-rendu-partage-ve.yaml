@@ -1,9 +1,7 @@
 id: 90
-code: null
 title: MCP socle 1 — extraire le rendu partagé vers src/lib/render.ts
 status: done
 tags: []
-size: M
 detail: >-
   Prérequis du serveur MCP : le rendu vit aujourd'hui dans scripts/task.mjs (CLI-only). Migrer
   briefText, la composition de sitrep, refLine, taskLine, renderRef vers src/lib/render.ts (pur,

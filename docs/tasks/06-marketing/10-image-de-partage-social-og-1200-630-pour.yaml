@@ -1,11 +1,9 @@
 id: 166
-code: null
 title: Image de partage social OG (1200×630) pour la landing et les posts
 status: done
 tags:
   - seo
   - design
-size: null
 detail: >-
   Aucune image sociale n'existe (juste docs/assets/dashboard.png = capture README). Produire une OG
   image 1200×630 : wordmark Roadmapped + tagline + aperçu dashboard, DS monochrome+accent. Sert

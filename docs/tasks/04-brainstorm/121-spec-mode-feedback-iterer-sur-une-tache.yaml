@@ -1,11 +1,9 @@
 id: 149
-code: null
 title: "Spec — mode « feedback » : itérer sur une tâche sans créer des tickets à l'infini"
 status: done
 tags:
   - spec
   - data-model
-size: M
 detail: >-
   Problème constaté par Rémi : itérer sur le MÊME sujet fait ruisseler des tickets (#140→#141→#146…)
   alors que c'est une seule chose en cours de finition. Spécifier un « mode feedback » qui capte les

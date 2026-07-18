@@ -1,9 +1,7 @@
 id: 287
-code: null
 title: "Mobile : « What's in the folder » en accordéon (1er ouvert, un seul à la fois)"
 status: done
 tags: []
-size: null
 detail: >-
   Sur mobile, la section « what's in the folder » (les 8 feature-cards) devient un accordéon :
   entrées dépliables, la PREMIÈRE ouverte par défaut, une seule ouverte à la fois (ouvrir une

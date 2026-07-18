@@ -1,5 +1,4 @@
 id: 208
-code: null
 title: >-
   Révision complète de la homepage (5e1y/roadmapped-site) — SEO, logique, liens des boutons, retrait
   du logo, copy à jour, features
@@ -8,7 +7,6 @@ tags:
   - marketing
   - seo
   - homepage
-size: null
 detail: >-
   Demande Rémi. Passe de révision tous sujets confondus sur la HP (repo externe
   5e1y/roadmapped-site, Cloudflare Pages — cf. mémoire). Points : (1) SEO — titres, meta, structure

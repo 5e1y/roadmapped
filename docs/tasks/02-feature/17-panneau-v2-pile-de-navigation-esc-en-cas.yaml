@@ -1,11 +1,9 @@
 id: 24
-code: null
 title: Panneau v2 — pile de navigation, Esc en cascade, focus
 status: done
 tags:
   - panel
   - ux
-size: M
 detail: >-
   PanelContext passe d'un id unique à une PILE : state stack: Array<{type:'task'|'section',
   id:number|string}> ; openTask(id) pousse (ou remplace si même id au sommet), back() dépile,

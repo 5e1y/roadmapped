@@ -1,12 +1,10 @@
 id: 354
-code: null
 title: >-
   Activity 2 : hook PostToolUse (activity-hook.mjs) + installation marker-block idempotente, défaut
   OUI, opt-out
 status: todo
 tags:
   - activity
-size: null
 detail: >-
   Spec docs/specs/2026-07-18-activity-hooks.md (décisions 3-5). Script scripts/activity-hook.mjs :
   lit le JSON stdin de PostToolUse (figer les noms de clés contre la doc Claude Code au moment de

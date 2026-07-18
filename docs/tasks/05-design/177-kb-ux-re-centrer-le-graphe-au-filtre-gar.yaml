@@ -1,5 +1,4 @@
 id: 311
-code: null
 title: >-
   KB UX : re-centrer le graphe au filtre (garder le grab) + zoom 125% au clic nœud + refonte
   FilterMenu (bord actif propre, menu à hauteur bornée + scroll, coches)
@@ -9,7 +8,6 @@ tags:
   - graphify
   - ux
   - filters
-size: null
 heat: 84
 detail: >-
   Retour Rémi sur la KB. (1) RE-CENTRAGE : quand on filtre/cherche, le graphe filtré se recale en

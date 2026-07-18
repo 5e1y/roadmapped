@@ -1,10 +1,8 @@
 id: 136
-code: null
 title: Passe d'assignation d'epics sur le backlog (rétro-tri des tâches existantes en projets)
 status: done
 tags:
   - data-model
-size: M
 detail: >-
   Assigner un champ epic aux tâches existantes (in_progress + done + todo) par projet transverse,
   pour que le système d'epic soit réel/démontrable. Via le CLI update --epic (pas le MCP, périmé en

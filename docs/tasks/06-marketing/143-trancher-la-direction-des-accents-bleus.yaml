@@ -1,9 +1,7 @@
 id: 264
-code: null
 title: Trancher la direction des accents bleus (palette vs mascotte)
 status: done
 tags: []
-size: null
 detail: >-
   Revoir l'usage du bleu (#2563eb) : moins de bleu ? plus de bleu ? harmoniser avec la palette
   mascotte (navy #0F1225 + orange #EA6200). Décision DA à prendre puis appliquer partout.

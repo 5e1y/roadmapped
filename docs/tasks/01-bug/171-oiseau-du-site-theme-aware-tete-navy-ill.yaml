@@ -1,9 +1,7 @@
 id: 272
-code: null
 title: "Oiseau du site : theme-aware (tête navy illisible en dark)"
 status: done
 tags: []
-size: null
 heat: 45
 detail: >-
   roadmapped-bird.js a une palette fixe : la tête navy se fond sur le thème sombre du site

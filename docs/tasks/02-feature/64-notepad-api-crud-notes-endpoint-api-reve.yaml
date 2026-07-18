@@ -1,9 +1,7 @@
 id: 86
-code: null
 title: Notepad API — CRUD notes + endpoint /api/reveal sécurisé
 status: done
 tags: []
-size: M
 detail: >-
   Routes fichiers plats (pas de front-matter, le nom de fichier + stats FS suffisent) : GET
   /api/notes (liste + dates), GET/PUT /api/notes/:slug (contenu), POST /api/notes (création), POST

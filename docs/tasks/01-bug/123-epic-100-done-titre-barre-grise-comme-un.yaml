@@ -1,5 +1,4 @@
 id: 151
-code: null
 title: >-
   Epic 100% done : titre barré + grisé (comme une task done) — sinon confusion avec les epics à
   faire/en cours
@@ -7,7 +6,6 @@ status: done
 tags:
   - ux
   - bug
-size: null
 detail: null
 refs: []
 links: []

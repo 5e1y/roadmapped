@@ -1,5 +1,4 @@
 id: 301
-code: null
 title: >-
   Refonte How-it-works : visuels = vraies pièces isolées de l'UI de l'app (peuplées démo) +
   auto-advance (barre bleue à gauche, hover-slow) au lieu du pin-scroll + 4 points perchables par
@@ -10,7 +9,6 @@ tags:
   - ux
   - homepage
   - bird
-size: null
 heat: 82
 detail: >-
   Feedback Rémi. Section #how-it-works du site (roadmapped-site). 3 changements : (1) VISUELS :

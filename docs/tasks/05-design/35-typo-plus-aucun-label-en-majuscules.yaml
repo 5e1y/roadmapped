@@ -1,11 +1,9 @@
 id: 51
-code: null
 title: Typo — plus aucun label en majuscules
 status: done
 tags:
   - ux
   - design
-size: S
 detail: >-
   Batch design Rémi (2026-07-07) : supprimer TOUTE utilisation de titres/labels en full majuscules
   (« trop IA, pas élégant ») — les uppercase tracking-wide : SectionLabel du panneau (Détail, Dépend

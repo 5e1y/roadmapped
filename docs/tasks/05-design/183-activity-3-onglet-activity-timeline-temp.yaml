@@ -1,5 +1,4 @@
 id: 355
-code: null
 title: >-
   Activity 3 : onglet Activity — timeline temps réel, groupement session, corrélation ticket
   in_progress
@@ -7,7 +6,6 @@ status: todo
 tags:
   - activity
   - ui
-size: null
 detail: >-
   Spec docs/specs/2026-07-18-activity-hooks.md. La timeline consomme l'event SSE 'activity' : lignes
   « édite src/foo.ts », « lance npx vitest », « done #341 », groupées par session, corrélées au

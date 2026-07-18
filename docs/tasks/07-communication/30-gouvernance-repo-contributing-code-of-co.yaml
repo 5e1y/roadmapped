@@ -1,12 +1,10 @@
 id: 225
-code: null
 title: "Gouvernance repo : CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, PR template"
 status: done
 tags:
   - support
   - publish
   - github
-size: null
 detail: >-
   Fichiers de gouvernance communautaire : CONTRIBUTING.md (comment contribuer, flow roadmapped,
   exigences), CODE_OF_CONDUCT.md, SECURITY.md (comment signaler une faille),

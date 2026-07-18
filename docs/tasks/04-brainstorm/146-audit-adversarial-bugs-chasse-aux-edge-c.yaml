@@ -1,11 +1,9 @@
 id: 358
-code: null
 title: "Audit adversarial bugs : chasse aux edge cases réels (dates, concurrence, parsing, états UI)"
 status: done
 tags:
   - audit
   - bug-hunt
-size: null
 heat: 75
 detail: >-
   Recherche adversariale (prémisse : users remontent des bugs aléatoires). Zones à forte probabilité

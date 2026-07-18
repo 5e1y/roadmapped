@@ -1,11 +1,9 @@
 id: 359
-code: null
 title: "XSS stocké : sanitize le rendu markdown (DOMPurify) — detail/outcome de ticket et docs/*.md"
 status: todo
 tags:
   - security
   - xss
-size: null
 heat: 85
 detail: >-
   Audit sécurité #356 (HAUTE-1, docs/audit-securite-2026-07.md). marked 18.0.5 rend du HTML brut

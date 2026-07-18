@@ -1,5 +1,4 @@
 id: 177
-code: null
 title: >-
   Doc de déploiement site/ (Cloudflare Pages + wiring du build démo dans /demo/) — rend la landing
   shippable, prépare #18
@@ -7,7 +6,6 @@ status: done
 tags:
   - marketing
   - homepage
-size: null
 detail: null
 refs: []
 links: []

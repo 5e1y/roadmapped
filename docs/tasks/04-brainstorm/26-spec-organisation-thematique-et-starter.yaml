@@ -1,11 +1,9 @@
 id: 39
-code: null
 title: "Spec — stages fixes (Idea→Mature) + teams : refactor de l'organisation"
 status: done
 tags:
   - spec
   - data-model
-size: M
 detail: >-
   DÉCISION RÉMI (2026-07-07, après débat) : jalons FIXES formant la séquence universelle d'un
   lancement produit — Idea Stage → Initial Stage → Identity Stage → Build Stage → GTM Stage → Launch

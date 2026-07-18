@@ -1,10 +1,8 @@
 id: 185
-code: null
 title: "Live 1 — socle : file-watch (fs.watch natif) + SSE /api/events + resync TreeContext"
 status: done
 tags:
   - live
-size: null
 detail: null
 refs:
   - docs/specs/2026-07-08-live-reactivity.md

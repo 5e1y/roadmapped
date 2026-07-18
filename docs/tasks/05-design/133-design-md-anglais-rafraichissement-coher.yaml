@@ -1,11 +1,9 @@
 id: 170
-code: null
 title: design.md → anglais + rafraîchissement (cohérence produit anglophone)
 status: done
 tags:
   - i18n
   - design-system
-size: null
 detail: >-
   docs/design.md est entièrement FR alors que le produit est anglophone. Traduire (tokens, règles,
   composants canoniques) et rafraîchir : vérifier que les 6 règles et les composants canoniques

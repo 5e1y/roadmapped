@@ -1,11 +1,9 @@
 id: 293
-code: null
 title: >-
   Skill: refonte de la decision ladder (rungs epic/subtask/feedback, table 5 lignes) + quick --type
   obligatoire
 status: done
 tags: []
-size: null
 heat: 75
 detail: >-
   Audit (agent) : SKILL.md ~2000 tokens, pas trop long — le problème est l'ASYMÉTRIE de la surface

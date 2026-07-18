@@ -1,9 +1,7 @@
 id: 268
-code: null
 title: Toggle clair/sombre sur le site
 status: done
 tags: []
-size: null
 detail: Ajouter un switch mode clair/mode sombre (en plus du prefers-color-scheme actuel), persisté.
 refs: []
 links: []

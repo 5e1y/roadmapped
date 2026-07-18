@@ -1,5 +1,4 @@
 id: 304
-code: null
 title: >-
   KB slice 1 : viewer knowledge base (sous-onglet Docs) + liage tickets⇄graphe (kbLink + voisinage
   TaskPanel)
@@ -8,7 +7,6 @@ tags:
   - kb
   - graphify
   - feature
-size: null
 heat: 82
 detail: >-
   Phase 1 de la spec docs/specs/graphify-kb.md (intégration profonde Graphify). Livrable, SANS

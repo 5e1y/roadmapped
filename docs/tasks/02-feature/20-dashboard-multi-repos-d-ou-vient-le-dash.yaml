@@ -1,5 +1,4 @@
 id: 203
-code: null
 title: >-
   Dashboard multi-repos : d'où vient le dashboard + ouvrir deux repos à la fois (collision
   d'idempotence port 5173)
@@ -7,7 +6,6 @@ status: done
 tags:
   - dashboard
   - publish
-size: null
 detail: >-
   DEUX volets. (1) DOC — clarifier le modèle : le CODE du dashboard vient du PAQUET
   (node_modules/roadmapped, ou le repo standalone), mais il affiche les DONNÉES du repo HÔTE

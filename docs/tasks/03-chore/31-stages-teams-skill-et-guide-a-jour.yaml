@@ -1,11 +1,9 @@
 id: 44
-code: null
 title: Stages+teams — skill et guide à jour
 status: done
 tags:
   - refactor
   - docs
-size: S
 detail: >-
   Spec §CLI & skill. Mettre à jour le skill embarqué : formats.md (schéma team enum obligatoire,
   zone supprimé, les 8 stages canoniques et leur sémantique, plus de création de section libre),

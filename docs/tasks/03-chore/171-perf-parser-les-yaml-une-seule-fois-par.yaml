@@ -1,5 +1,4 @@
 id: 366
-code: null
 title: >-
   Perf : parser les YAML une seule fois par requête (TaskFileMap → objets), cache invalidé par le
   watcher
@@ -7,7 +6,6 @@ status: todo
 tags:
   - perf
   - io
-size: null
 heat: 75
 detail: >-
   Audit perf #357 (finding principal, docs/audit-performance-2026-07.md). TaskFileMap est

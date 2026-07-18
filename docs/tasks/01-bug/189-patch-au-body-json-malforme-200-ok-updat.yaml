@@ -1,10 +1,8 @@
 id: 364
-code: null
 title: PATCH au body JSON malformé → 200 OK + updatedAt fantôme (badge NEW sans modif)
 status: todo
 tags:
   - bug
-size: null
 heat: 35
 detail: >-
   Audit bugs #358 (MOYEN, docs/audit-bugs-2026-07.md). Un PATCH dont le body JSON est malformé ne

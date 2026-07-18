@@ -1,11 +1,9 @@
 id: 360
-code: null
 title: "Durcir l'API locale : check Origin/Host + Content-Type sur les POST + CSP"
 status: todo
 tags:
   - security
   - hardening
-size: null
 heat: 80
 detail: >-
   Audit sécurité #356 (HAUTE-2 + MOYENNE, docs/audit-securite-2026-07.md). readJsonBody (api.ts:227)

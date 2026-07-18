@@ -1,10 +1,8 @@
 id: 168
-code: null
 title: "SEO niveau repo : About/topics GitHub, keywords README, découvrabilité"
 status: done
 tags:
   - seo
-size: null
 detail: >-
   Optimiser la découvrabilité du repo public : description About GitHub concise + keyword-rich,
   topics (project-management, ai-agents, local-first, flat-file, claude, yaml, cli, open-source),

@@ -1,5 +1,4 @@
 id: 154
-code: null
 title: >-
   Supprimer l'archivage — le statut « done » suffit, retrait complet de la fonction archive (app +
   CLI + MCP + skill)
@@ -7,7 +6,6 @@ status: done
 tags:
   - data-model
   - fable
-size: L
 detail: >-
   Décision Rémi : plus besoin d'archivage, une tâche « done » (colonne Terminées du Backlog) suffit.
   RETRAIT COMPLET du concept archive à travers la stack : (1) schéma/lecture — src/lib/tasks.ts

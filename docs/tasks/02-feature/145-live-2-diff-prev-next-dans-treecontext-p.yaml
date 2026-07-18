@@ -1,10 +1,8 @@
 id: 186
-code: null
 title: Live 2 — diff prev/next dans TreeContext (primitive des couches UX)
 status: done
 tags:
   - live
-size: null
 detail: null
 refs:
   - src/state/TreeContext.tsx

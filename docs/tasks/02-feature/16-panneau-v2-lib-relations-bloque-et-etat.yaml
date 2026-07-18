@@ -1,11 +1,9 @@
 id: 23
-code: null
 title: "Panneau v2 — lib relations : Bloque et état des deps"
 status: done
 tags:
   - panel
   - lib
-size: S
 detail: >-
   Fonctions pures dans src/lib/roadmap.ts, TDD obligatoire (tests rouges d'abord dans
   roadmap.test.ts). (1) reverseDependents(tree, id): TaskNode[] — les tâches actives (sous-tâches

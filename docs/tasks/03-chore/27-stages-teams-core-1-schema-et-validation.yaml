@@ -1,11 +1,9 @@
 id: 40
-code: null
 title: Stages+teams core 1 — schéma et validation (TDD)
 status: done
 tags:
   - refactor
   - data-model
-size: M
 detail: >-
   Spec §Modèle de données. tasks.ts : TaskNode.team
   ('marketing'|'sales'|'support'|'operations'|'finance'|'legal'|'engineering'|'design'), SUPPRIMER

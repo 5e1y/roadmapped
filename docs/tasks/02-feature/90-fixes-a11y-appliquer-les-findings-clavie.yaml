@@ -1,11 +1,9 @@
 id: 115
-code: null
 title: Fixes a11y — appliquer les findings clavier + contraste
 status: done
 tags:
   - design
   - a11y
-size: M
 detail: >-
   Corriger les findings des audits #107 (clavier) et #108 (contraste), avec les couleurs tranchées
   dans design.md (#111) : croix de tags focusables et activables au clavier avec focus visible,

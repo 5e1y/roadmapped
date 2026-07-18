@@ -1,9 +1,7 @@
 id: 332
-code: null
 title: Release 0.2.1 + tags git & GitHub Releases liés aux versions npm (CI + backfill v0.1.0/v0.2.0)
 status: done
 tags: []
-size: null
 detail: null
 refs:
   - .github/workflows/npm-publish.yml

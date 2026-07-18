@@ -1,11 +1,9 @@
 id: 56
-code: null
 title: Vue Teams — radar octogonal de charge + backlog filtré par team
 status: done
 tags:
   - ux
   - design
-size: L
 detail: >-
   Demande Rémi (2026-07-07, référence image radar octogonal). Nouvelle vue « Teams » dans la nav :
   un radar SVG à 8 axes (une team par sommet, ordre TEAMS) montrant la CHARGE (tickets ouverts par

@@ -1,11 +1,9 @@
 id: 54
-code: null
 title: Création de tâche complète — tous les champs d'un coup, stage compris
 status: done
 tags:
   - ux
   - design
-size: M
 detail: >-
   Demande Rémi (2026-07-07) : le formulaire de création doit exposer TOUS les champs immédiatement
   (sauf la consignation outcome/verification/commit/release, qui appartient à la résolution) : STAGE

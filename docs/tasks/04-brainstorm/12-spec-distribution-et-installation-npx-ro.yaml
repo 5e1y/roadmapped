@@ -1,11 +1,9 @@
 id: 12
-code: null
 title: Spec — distribution et installation (npx roadmaped init)
 status: done
 tags:
   - spec
   - open-source
-size: S
 detail: >-
   Brainstorm avec Rémi sur le mécanisme d'installation dans un repo hôte, différé depuis la phase 4
   de la spec V2. Trancher : paquet npm « roadmaped » avec un bin init qui copie dashboard + scripts

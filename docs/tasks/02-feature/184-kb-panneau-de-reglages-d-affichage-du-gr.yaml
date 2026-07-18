@@ -1,5 +1,4 @@
 id: 318
-code: null
 title: >-
   KB : panneau de réglages d'affichage du graphe (forces/tolérance/groupage…) + persistance
   localStorage — pour tuner puis exposer aux users
@@ -10,7 +9,6 @@ tags:
   - renderer
   - ux
   - settings
-size: null
 heat: 80
 detail: >-
   Demande Rémi. Exposer les paramètres de la sim de forces (kbSim : force de charge/répulsion,

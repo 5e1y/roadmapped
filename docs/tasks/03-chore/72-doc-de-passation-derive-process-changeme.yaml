@@ -1,10 +1,8 @@
 id: 94
-code: null
 title: "Doc de passation : dérive process (changements sans ticket) → skill + enforcement au commit"
 status: done
 tags:
   - process
-size: null
 detail: null
 refs:
   - docs/process-enforcement-gap.md

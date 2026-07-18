@@ -1,5 +1,4 @@
 id: 241
-code: null
 title: >-
   Doctrine worktrees dans le skill (references/delegation.md) : ouvrir le ticket AVANT de créer un
   worktree — roadmapped vit sur main, les changements de tâches dans un worktree sont invisibles
@@ -7,7 +6,6 @@ title: >-
 status: done
 tags:
   - skill
-size: null
 detail: null
 refs: []
 links: []

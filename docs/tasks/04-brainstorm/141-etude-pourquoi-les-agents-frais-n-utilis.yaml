@@ -1,11 +1,9 @@
 id: 344
-code: null
 title: "Étude : pourquoi les agents frais n'utilisent pas les tags — fix ou kill"
 status: done
 tags:
   - dx
   - decision
-size: null
 detail: >-
   Constat Rémi : sur d'autres repos utilisant Roadmapped, les agents frais taggent peu leurs
   tickets. Hypothèses à vérifier : (a) le skill n'exige jamais de tags → un agent en économie de

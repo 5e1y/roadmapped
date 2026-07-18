@@ -1,5 +1,4 @@
 id: 326
-code: null
 title: >-
   SKILL.md « graph-first » : ancrer le réflexe graphe dans le cycle + amender la Golden anti-token
   rule (qui travaille contre la KB) + setup.md/README narratif
@@ -9,7 +8,6 @@ tags:
   - graphify
   - skill
   - docs
-size: null
 heat: 88
 detail: >-
   Ancrage côté skill (docs/specs/graphify-anchoring.md P1). Aujourd'hui SKILL.md a 1 bloc KB

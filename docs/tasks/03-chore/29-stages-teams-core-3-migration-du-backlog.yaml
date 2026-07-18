@@ -1,11 +1,9 @@
 id: 42
-code: null
 title: Stages+teams core 3 — migration du backlog réel
 status: done
 tags:
   - refactor
   - migration
-size: M
 detail: >-
   Spec §Migration (mapping tâche par tâche — le suivre à la lettre). Script one-shot JETABLE
   (scratchpad, pas dans le repo) : créer les 8 dossiers de stages avec _section.yaml canoniques

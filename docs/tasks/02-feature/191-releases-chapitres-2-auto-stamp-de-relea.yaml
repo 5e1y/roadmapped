@@ -1,11 +1,9 @@
 id: 341
-code: null
 title: "Releases-chapitres 2 : auto-stamp de release au done (version courante du package.json)"
 status: done
 tags:
   - releases
   - cli
-size: null
 detail: >-
   done sans --release remplit automatiquement le champ avec la version du package.json du repo hôte
   (fallback : null si pas de package.json ou pas de version). --release explicite garde la priorité.

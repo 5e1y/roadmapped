@@ -1,11 +1,9 @@
 id: 14
-code: null
 title: Préparer le skill pour distribution
 status: done
 tags:
   - skill
   - fable
-size: M
 detail: >-
   Adapter le skill livré dans skills/roadmaped/ pour fonctionner dans n'importe quel repo hôte :
   chemins du CLI cohérents avec le mécanisme d'installation décidé en spec #12 (aujourd'hui le

@@ -1,9 +1,7 @@
 id: 282
-code: null
 title: La démo iframe suit le thème du site
 status: done
 tags: []
-size: null
 detail: >-
   Quand le site bascule clair/sombre, l'iframe démo (/demo/, même origine) bascule aussi. Site :
   passe le thème à l'iframe (query ?theme= au chargement + mise à jour au toggle via

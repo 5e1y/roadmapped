@@ -1,5 +1,4 @@
 id: 298
-code: null
 title: >-
   MAJ doc d'install partout (repo principal) : README, docs/guide, docs/site-copy, skill (SKILL.md +
   setup.md) — 3 méthodes plugin/npm/github
@@ -8,7 +7,6 @@ tags:
   - docs
   - install
   - onboarding
-size: null
 heat: 78
 detail: >-
   Depuis #297 (npm publié) + #15 (plugin marketplace) + #296 (setup github: + npm install), il y a

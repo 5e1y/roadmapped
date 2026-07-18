@@ -1,11 +1,9 @@
 id: 342
-code: null
 title: "Releases-chapitres 3 : Terminées pliées par release + suppression du toggle done du header"
 status: done
 tags:
   - releases
   - ui
-size: null
 detail: >-
   La colonne Terminées du Backlog se plie par release : accordéons « 0.2.3 (12) », dernière release
   ouverte par défaut, le reste replié ; les done sans release (ne devrait plus arriver après

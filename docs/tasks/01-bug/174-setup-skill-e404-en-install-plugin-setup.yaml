@@ -1,5 +1,4 @@
 id: 296
-code: null
 title: >-
   Setup skill E404 en install-plugin : setup.md lance `npx roadmapped init` (bare) sans `npm
   install` → CLI introuvable (pas sur npm, pas de node_modules). Aligner sur le flow README (`npx
@@ -8,7 +7,6 @@ status: done
 tags:
   - skill
   - onboarding
-size: null
 heat: 70
 detail: null
 refs: []

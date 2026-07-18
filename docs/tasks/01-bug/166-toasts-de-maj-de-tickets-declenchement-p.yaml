@@ -1,5 +1,4 @@
 id: 249
-code: null
 title: >-
   Toasts de MAJ de tickets : déclenchement peu fiable (on ne les voit pas toujours) + UI qui dénote
   du DS — fiabiliser le trigger + restyler monochrome
@@ -8,7 +7,6 @@ tags:
   - dashboard
   - ux
   - live-reactivity
-size: null
 detail: null
 refs: []
 links: []

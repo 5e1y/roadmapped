@@ -1,5 +1,4 @@
 id: 235
-code: null
 title: >-
   Jalons v2 — Phase 3 : UI (9 colonnes types + affichage température spectre bleu→orange + icônes
   Trinil + bande d'epics + filtre type)
@@ -8,7 +7,6 @@ tags:
   - design
   - jalons-v2
   - dashboard
-size: null
 detail: >-
   UI (Fable 5, design). Réf : les 2 docs specs + décisions Rémi. (1) RoadmapColumns/RoadmapView : 9
   colonnes = types (au lieu de 8 stages). (2) Affichage température — DÉCISION RÉMI RÉVISÉE : PAS de

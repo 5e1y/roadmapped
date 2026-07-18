@@ -1,11 +1,9 @@
 id: 37
-code: null
 title: Accent bleu sur le travail en cours (in_progress)
 status: done
 tags:
   - ux
   - design
-size: S
 detail: >-
   Second usage de l'accent (carte blanche design validée par Rémi) : le travail EN COURS doit
   attirer l'œil partout où il apparaît. Passer le glyphe in_progress (demi-cercle, glyphs.tsx) en

@@ -1,9 +1,7 @@
 id: 92
-code: null
 title: MCP socle 3 — 6 tools d'écriture (add/quick/start/done/update/archive)
 status: done
 tags: []
-size: M
 detail: >-
   Tools d'ÉCRITURE via taskWrites (validation + rollback + verrou #83 hérités, aucun second chemin)
   : add, quick, start, done, update, archive. done conserve l'autofill HEAD (#71) et remonte les

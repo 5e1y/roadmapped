@@ -1,11 +1,9 @@
 id: 122
-code: null
 title: Ouverture auto de Roadmapped à l'ouverture d'une session Claude dans un repo Roadmapped
 status: done
 tags:
   - onboarding
   - skill
-size: S
 detail: >-
   Quand une instance Claude démarre dans un repo où Roadmapped est installé (docs/tasks/_meta.yaml +
   roadmaped.config.json présents), déclencher automatiquement l'entrée en workflow — a minima un
