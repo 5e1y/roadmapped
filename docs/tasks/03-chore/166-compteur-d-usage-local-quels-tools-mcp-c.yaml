@@ -1,7 +1,7 @@
 id: 345
 code: null
 title: "Compteur d'usage local : quels tools MCP, commandes CLI et vues servent vraiment"
-status: in_progress
+status: done
 tags:
   - dx
   - mesure
@@ -22,9 +22,18 @@ epic: null
 source: ai
 createdAt: "2026-07-18T21:14:45"
 startedAt: "2026-07-18T21:18:46"
-updatedAt: "2026-07-18T21:18:46"
-completedAt: null
-commit: null
-outcome: null
-verification: null
+updatedAt: "2026-07-18T21:35:53"
+completedAt: "2026-07-18T21:35:53"
+commit: 02d9b26
+outcome: >-
+  Compteur d'usage local livré : module src/lib/usageLog.ts (logUsage best-effort, try/catch
+  silencieux, append JSONL {ts,kind,name} dans .roadmapped-usage.jsonl gitignoré). Un point
+  d'accroche par surface : dispatcher CLI task.mjs (nom de commande seul), handler générique
+  CallToolRequestSchema du MCP (buildServer(tools, usageRoot), pas de log par tool), POST /api/usage
+  + useEffect fire-and-forget sur le changement de vue App. Dépouillement : one-liner jq documenté
+  en tête de module. À laisser tourner 1-2 semaines avant la passe de simplification (#346).
+verification: >-
+  Test réel dans main post-merge : node scripts/task.mjs list → ligne JSONL correcte ajoutée. git
+  check-ignore confirme le gitignore. tsc clean, suite 608/608 (dont usageLog.test.ts 4 tests :
+  append valide, multi-append, robustesse dossier read-only/inexistant), build OK.
 release: null
