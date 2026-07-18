@@ -117,6 +117,40 @@ describe('MCP — tools d’écriture (#92)', () => {
   })
 })
 
+describe('MCP — description dynamique du param tags (#352)', () => {
+  // Surface agent tag-aware : le param `tags` de add/quick/update porte le vocabulaire
+  // EN USAGE (top-12 par fréquence, ties → alpha), calculé une fois au boot (makeTools).
+  it('backlog sans tag → description générique, pas de ": " orphelin', () => {
+    // Sandbox par défaut du beforeEach : #1 "Une tâche" ne porte aucun tag.
+    for (const name of ['add', 'quick', 'update']) {
+      const desc = tool(name).inputSchema.properties.tags.description
+      expect(desc).toMatch(/Free-form tags to categorize the task/)
+      expect(desc).not.toMatch(/Reuse the project's existing vocabulary/)
+      expect(desc).not.toMatch(/:\s*$/) // pas de liste vide après un ":"
+      expect(desc).not.toMatch(/:\s*;/) // pas de ": ;" orphelin
+    }
+  })
+
+  it('vocabulaire connu → top-12 par fréquence desc, ties par ordre alpha, la même description partagée par add/quick/update', () => {
+    const dir2 = mkdtempSync(join(tmpdir(), 'roadmapped-mcp-tags-'))
+    writeFileSync(join(dir2, '_meta.yaml'), 'nextId: 1\n')
+    seedStages(dir2)
+    // 13 tags uniques, comptes construits pour exercer freq desc + tie-break alpha + coupure au top-12 :
+    // alpha/zulu → 4, bravo/charlie → 3, delta..lima (9 tags) → 1 chacun (13e = lima, exclu du top-12).
+    addTask(dir2, { section: '02-feature', title: 'A', tags: ['alpha', 'zulu', 'bravo', 'charlie', 'delta', 'echo', 'foxtrot', 'golf', 'hotel', 'india', 'juliet', 'kilo', 'lima'] })
+    addTask(dir2, { section: '02-feature', title: 'B', tags: ['alpha', 'zulu', 'bravo', 'charlie'] })
+    addTask(dir2, { section: '02-feature', title: 'C', tags: ['alpha', 'zulu', 'bravo', 'charlie'] })
+    addTask(dir2, { section: '02-feature', title: 'D', tags: ['alpha', 'zulu'] })
+    const tools2 = makeTools(dir2)
+    const expected = "Reuse the project's existing vocabulary when relevant: alpha, zulu, bravo, charlie, delta, echo, foxtrot, golf, hotel, india, juliet, kilo; 'debt' is load-bearing (queryable debt ledger, flagged by sitrep). Free-form otherwise."
+    for (const name of ['add', 'quick', 'update']) {
+      const desc = tools2.find((t) => t.name === name).inputSchema.properties.tags.description
+      expect(desc).toBe(expected)
+      expect(desc).not.toMatch(/lima/) // 13e tag, hors top-12
+    }
+  })
+})
+
 describe('MCP — invariant de sortie (#95)', () => {
   // La spec MCP exige structuredContent = OBJET ; le SDK client rejette array/null (-32602).
   // Ce test appelle les 13 tools et vérifie l'invariant sur chaque résultat.

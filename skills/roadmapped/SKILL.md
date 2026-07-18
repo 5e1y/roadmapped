@@ -63,8 +63,8 @@ A deliberate shortcut (known ceiling, upgrade path) gets logged as `quick "<the 
 - `take [--type t] [--json]` — next + start + brief, THE command to open work.
 - `brief <id>` — dense execution context (titled deps/related, refs + anchor excerpts & staleness flag, `done` reminder).
 - `next [--count N] [--type t] [--json]` — the work queue, temperature-sorted — CONSUME as-is.
-- `quick "<title>" --type <t> [--tags a,b] [--heat 0-100] [--start] [--json]` — rapid title-first task; `--type` is REQUIRED (categorise even the quick ones — no silent default).
-- `add --type <type> --title <t> [--detail d] [--tags a,b] [--heat 0-100] [--refs a,b] [--depends-on 1,2] [--epic slug] [--kind task|milestone] [--blocks 1,2] [--json]` — create a task (`--type` = the exact folder slug, e.g. `02-feature` — REQUIRED; `--epic` = cross-type grouping, unordered; `--kind milestone` + `--blocks` = a milestone that locks the cited tasks via their dependsOn).
+- `quick "<title>" --type <t> [--tags a,b] [--heat 0-100] [--start] [--json]` — rapid title-first task; `--type` is REQUIRED (categorise even the quick ones — no silent default); reuse an existing project tag, `debt` is load-bearing.
+- `add --type <type> --title <t> [--detail d] [--tags a,b] [--heat 0-100] [--refs a,b] [--depends-on 1,2] [--epic slug] [--kind task|milestone] [--blocks 1,2] [--json]` — create a task (`--type` = the exact folder slug, e.g. `02-feature` — REQUIRED; `--epic` = cross-type grouping, unordered; `--kind milestone` + `--blocks` = a milestone that locks the cited tasks via their dependsOn); reuse an existing project tag, `debt` is load-bearing.
 - `start <id>` — todo → in_progress.
 - `done <id> [--commit sha] [--outcome o] [--verification v] [--release r] [--suggest-refs] [--resolve-feedback all|1,3]` — log completion (commit auto=HEAD; `--release` auto = host package.json version; `--suggest-refs` suggests refs from the diff, to confirm; `--resolve-feedback` closes open feedback items).
 - `feedback <id> "<text>" [--author name]` — capture a note on a task WITHOUT a ticket (#149). Same scope → reopen (`start <id>`) + re-`done`; new scope → a `quick`.
