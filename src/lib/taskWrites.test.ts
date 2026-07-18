@@ -377,6 +377,53 @@ describe('updateTask — estampillage completedAt', () => {
   })
 })
 
+describe('updateTask — estampillage startedAt (#361, parité startTask #82)', () => {
+  it('date le démarrage au passage à in_progress (chemin dashboard, contournait startTask)', () => {
+    add()
+    const res = updateTask(dir, 1, { status: 'in_progress' })
+    expect(res.ok).toBe(true)
+    if (!res.ok) return
+    // même format datetime local que startTask (#84)
+    expect(sectionOf(res.tree).tasks[0].startedAt).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/)
+  })
+
+  it('un startedAt explicite dans le patch prime sur l’estampillage', () => {
+    add()
+    const res = updateTask(dir, 1, { status: 'in_progress', startedAt: '2026-01-15T09:00:00' })
+    expect(res.ok).toBe(true)
+    if (!res.ok) return
+    expect(sectionOf(res.tree).tasks[0].startedAt).toBe('2026-01-15T09:00:00')
+  })
+
+  it('ne réécrase pas un startedAt déjà posé (re-passage à in_progress)', () => {
+    add()
+    // premier démarrage via startTask → pose startedAt
+    startTask(dir, 1)
+    const first = findTask(readTree(dir), 1)!.task.startedAt
+    expect(first).not.toBeNull()
+    // retour en arrière puis re-démarrage via le chemin dashboard
+    updateTask(dir, 1, { status: 'todo' })
+    const res = updateTask(dir, 1, { status: 'in_progress' })
+    expect(res.ok).toBe(true)
+    if (!res.ok) return
+    expect(sectionOf(res.tree).tasks[0].startedAt).toBe(first) // inchangé
+  })
+
+  it('un passage à todo ou à done ne pose PAS de startedAt parasite', () => {
+    add()
+    const toTodo = updateTask(dir, 1, { status: 'todo' }) // todo → todo (no-op de statut)
+    expect(toTodo.ok).toBe(true)
+    if (!toTodo.ok) return
+    expect(sectionOf(toTodo.tree).tasks[0].startedAt).toBeNull()
+
+    add({ title: 'Directe done' }) // #2
+    const toDone = updateTask(dir, 2, { status: 'done' })
+    expect(toDone.ok).toBe(true)
+    if (!toDone.ok) return
+    expect(sectionOf(toDone.tree).tasks[1].startedAt).toBeNull()
+  })
+})
+
 describe('addTask/updateTask — dependsOn & epic', () => {
   it('addTask accepte dependsOn vers une tâche existante et le sérialise après links', () => {
     add({ title: 'Base' }) // #1
