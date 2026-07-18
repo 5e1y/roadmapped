@@ -1,0 +1,31 @@
+id: 362
+code: null
+title: "withLock : release non conditionnée au pid + vol de verrou vivant après TTL"
+status: todo
+tags:
+  - bug
+  - concurrency
+size: null
+heat: 65
+detail: >-
+  Audit bugs #358 (HAUT-1, docs/audit-bugs-2026-07.md). withLock (taskWrites.ts:120-154) : (1) le
+  owner file n'est jamais rafraîchi → un fn() dépassant le TTL (10s ; plausible sur HDD lent vu le
+  triple-parse #366) se fait voler son verrou vivant ; (2) rmSync de release est inconditionnel →
+  supprime le .lock d'autrui après un vol ; (3) le vol par rmSync peut effacer un verrou fraîchement
+  recréé. Risque : deux addTask concurrents lisent le même nextId → id dupliqué. Repro exécutée dans
+  l'audit. Fix : release conditionnée au pid propriétaire (lire owner avant rmSync), vol d'orphelin
+  atomique via renameSync. Test concurrence : deux écrivains, aucun ne supprime le verrou de
+  l'autre.
+refs:
+  - src/lib/taskWrites.ts#withLock
+links: []
+dependsOn: []
+epic: audit-remediation
+source: ai
+createdAt: "2026-07-18T23:54:38"
+updatedAt: "2026-07-18T23:54:53"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

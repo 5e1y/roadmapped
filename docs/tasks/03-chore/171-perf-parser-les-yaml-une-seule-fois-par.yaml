@@ -1,0 +1,33 @@
+id: 366
+code: null
+title: >-
+  Perf : parser les YAML une seule fois par requête (TaskFileMap → objets), cache invalidé par le
+  watcher
+status: todo
+tags:
+  - perf
+  - io
+size: null
+heat: 75
+detail: >-
+  Audit perf #357 (finding principal, docs/audit-performance-2026-07.md). TaskFileMap est
+  Record<string,string> : chaque /api/tree re-lit ET re-parse ~350 fichiers 3× (buildTaskTree +
+  validateAll + unicité id) = ~1050 yaml.load/requête, 2-4s à froid sur HDD. Fix : parser une fois,
+  passer les objets parsés aux validateurs (changer la frontière TaskFileMap ou mémoïser le parse) ;
+  cache du tree invalidé par le fs.watch DÉJÀ existant (api.ts) — une lecture ne recharge que si un
+  fichier a changé. Impact direct sur le symptôme CPU/disque du user 8Go/HDD. Mesurer avant/après.
+refs:
+  - src/lib/taskWrites.ts#treeWithErrors
+  - src/lib/validate.ts
+  - src/server/api.ts
+links: []
+dependsOn: []
+epic: audit-remediation
+source: ai
+createdAt: "2026-07-18T23:54:39"
+updatedAt: "2026-07-18T23:54:39"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

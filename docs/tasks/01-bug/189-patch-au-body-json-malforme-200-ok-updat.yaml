@@ -1,0 +1,28 @@
+id: 364
+code: null
+title: PATCH au body JSON malformé → 200 OK + updatedAt fantôme (badge NEW sans modif)
+status: todo
+tags:
+  - bug
+size: null
+heat: 35
+detail: >-
+  Audit bugs #358 (MOYEN, docs/audit-bugs-2026-07.md). Un PATCH dont le body JSON est malformé ne
+  rejette pas : il retombe sur un update vide qui bumpe quand même updatedAt → badge NEW/toast live
+  déclenché sans aucune modification réelle. Fix : rejeter (400) un body qui ne parse pas / n'a
+  aucun champ patchable, ne pas toucher updatedAt si le patch est vide. Test : PATCH body='{' → 400,
+  updatedAt inchangé.
+refs:
+  - src/server/api.ts
+  - src/lib/taskWrites.ts
+links: []
+dependsOn: []
+epic: audit-remediation
+source: ai
+createdAt: "2026-07-18T23:54:39"
+updatedAt: "2026-07-18T23:54:39"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

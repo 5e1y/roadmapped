@@ -1,0 +1,30 @@
+id: 361
+code: null
+title: Le bouton Start du dashboard ne pose jamais startedAt (âge in_progress faux)
+status: todo
+tags:
+  - bug
+  - data-model
+size: null
+heat: 80
+detail: >-
+  Audit bugs #358 (HAUT-2, docs/audit-bugs-2026-07.md). Le bouton Start du dashboard émet PATCH
+  {status:'in_progress'} → updateTask, qui date completedAt mais n'a AUCUNE branche startedAt
+  (taskWrites.ts:553). Seuls CLI/MCP passent par startTask. Résultat : un ticket démarré depuis l'UI
+  a son âge in_progress calculé depuis createdAt (le bug que #82 visait, non couvert côté
+  dashboard). Fix : dans updateTask, sur passage à in_progress sans startedAt explicite et si
+  raw.startedAt absent, poser startedAt = now() (parité avec la branche completedAt/doneTask). Test
+  : PATCH in_progress via updateTask → startedAt posé.
+refs:
+  - src/lib/taskWrites.ts#updateTaskImpl
+links: []
+dependsOn: []
+epic: audit-remediation
+source: ai
+createdAt: "2026-07-18T23:54:38"
+updatedAt: "2026-07-18T23:54:38"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

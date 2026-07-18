@@ -1,0 +1,30 @@
+id: 360
+code: null
+title: "Durcir l'API locale : check Origin/Host + Content-Type sur les POST + CSP"
+status: todo
+tags:
+  - security
+  - hardening
+size: null
+heat: 80
+detail: >-
+  Audit sécurité #356 (HAUTE-2 + MOYENNE, docs/audit-securite-2026-07.md). readJsonBody (api.ts:227)
+  parse le body sans vérifier le Content-Type → une page web tierce peut POST sur localhost:port
+  sans preflight (CSRF), et /api/reveal devient un oracle d'existence dans le HOME. Fix : rejeter
+  les requêtes dont l'en-tête Host n'est pas localhost/127.0.0.1, exiger Content-Type
+  application/json sur les POST/PATCH, ajouter un en-tête CSP restrictif sur le HTML servi (défense
+  en profondeur avec le fix XSS #359). Tests : POST cross-origin rejeté, Content-Type text/plain
+  rejeté.
+refs:
+  - src/server/api.ts
+links: []
+dependsOn: []
+epic: audit-remediation
+source: ai
+createdAt: "2026-07-18T23:54:38"
+updatedAt: "2026-07-18T23:54:38"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

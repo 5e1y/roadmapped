@@ -1,0 +1,29 @@
+id: 365
+code: null
+title: "compareReleasesDesc : semver avec pré-version (-rc/-beta) mal classé (latent)"
+status: todo
+tags:
+  - bug
+  - latent
+size: null
+heat: 15
+detail: >-
+  Audit bugs #358 (MOYEN mais NON ATTEINGNABLE avec les données actuelles). compareReleasesDesc
+  (release.ts:20) fait split('.').parseInt → '0.2.3-rc.1' parse le segment '3-rc' à 3 et garde un 4e
+  segment, classant la rc au-dessus de la release finale. Aujourd'hui inoffensif : le champ release
+  ne contient que des X.Y.Z propres (auto-stamp #341) ou 'pre-release'. À corriger si un jour on
+  stampe des pré-versions. Fix : parser semver proprement (segments numériques stricts, pré-version
+  < release). Test : ordre 1.0.0 > 1.0.0-rc.1 > 0.9.9.
+refs:
+  - src/lib/release.ts#compareReleasesDesc
+links: []
+dependsOn: []
+epic: audit-remediation
+source: ai
+createdAt: "2026-07-18T23:54:39"
+updatedAt: "2026-07-18T23:54:39"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

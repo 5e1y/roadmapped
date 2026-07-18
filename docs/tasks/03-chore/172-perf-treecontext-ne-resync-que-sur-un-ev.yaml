@@ -1,0 +1,29 @@
+id: 367
+code: null
+title: "Perf : TreeContext ne resync que sur un event SSE pertinent (filtrer par paths)"
+status: todo
+tags:
+  - perf
+  - react
+size: null
+heat: 50
+detail: >-
+  Audit perf #357 (docs/audit-performance-2026-07.md). TreeContext recharge le tree entier (payload
+  ~630Ko) sur TOUT event SSE 'change', y compris une régé Graphify qui ne touche aucun ticket. Fix :
+  le broadcast SSE porte déjà (ou peut porter) les paths changés — ne recharger le tree que si un
+  fichier docs/tasks a bougé ; les events KB/graph vont au KbProvider, pas au TreeProvider. Réduit
+  les re-render en cascade. Test : event SSE hors docs/tasks → pas de reload du tree.
+refs:
+  - src/state/TreeContext.tsx
+  - src/server/api.ts
+links: []
+dependsOn: []
+epic: audit-remediation
+source: ai
+createdAt: "2026-07-18T23:54:39"
+updatedAt: "2026-07-18T23:54:39"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
