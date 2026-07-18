@@ -1,0 +1,43 @@
+id: 357
+code: null
+title: "Audit adversarial performance : mémoire, CPU, I/O — l'app ne doit rien peser"
+status: done
+tags:
+  - audit
+  - perf
+size: null
+heat: 75
+detail: >-
+  Recherche adversariale (prémisse : user 8Go RAM + HDD lent, suspicion fuite mémoire/CPU).
+  Périmètre : fuites côté serveur (clients SSE non nettoyés, watchers fs, buffers), relectures YAML
+  par requête, boucles de rendu React sur tick SSE, simulation KB (Barnes-Hut tourne-t-elle hors vue
+  KB ?), dagre re-layout, taille du bundle (warning 500kB préexistant), croissance non bornée de
+  .roadmapped-usage.jsonl, coûts au boot. Livrable : docs/audit-performance-2026-07.md — findings
+  démontrés (mesure ou lecture de code précise, fichier:ligne, impact estimé), quick wins vs
+  chantiers, zones saines listées.
+refs:
+  - src/server/api.ts
+  - src/lib/kbSim.ts
+  - src/components/KbGraph.tsx
+  - src/state/TreeContext.tsx
+links: []
+dependsOn: []
+epic: audit-adversarial
+source: ai
+createdAt: "2026-07-18T23:41:22"
+startedAt: "2026-07-18T23:41:23"
+updatedAt: "2026-07-18T23:53:46"
+completedAt: "2026-07-18T23:53:46"
+commit: fac186f
+outcome: >-
+  Audit perf livré (docs/audit-performance-2026-07.md). Prémisse 'fuite mémoire' INFIRMÉE (SSE
+  nettoyés api.ts:327, ring buffer borné, sim KB endormie hors onglet). Vrai problème : triple-parse
+  par requête — TaskFileMap est du texte brut re-parsé par buildTaskTree + validateAll + unicité id
+  (~1050 yaml.load/requête, 2-4s à froid HDD), + TreeContext resync total sur tout event SSE. 6
+  quick-wins, 3 chantiers. Zones saines listées (dagre mémoïsé WeakMap, rAF hors React, debounce
+  #147, auto-shutdown #330).
+verification: >-
+  Finding principal recoupé : TaskFileMap = Record<string,string> confirmé (tasks.ts:3),
+  treeWithErrors enchaîne bien buildTaskTree + validateAll sur le même texte brut, validate.ts:36
+  re-parse. Réel.
+release: 0.2.3
