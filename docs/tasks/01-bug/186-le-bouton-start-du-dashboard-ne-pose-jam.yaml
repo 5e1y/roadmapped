@@ -1,6 +1,6 @@
 id: 361
 title: Le bouton Start du dashboard ne pose jamais startedAt (âge in_progress faux)
-status: todo
+status: done
 tags:
   - bug
   - data-model
@@ -20,9 +20,20 @@ dependsOn: []
 epic: audit-remediation
 source: ai
 createdAt: "2026-07-18T23:54:38"
-updatedAt: "2026-07-18T23:54:38"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+startedAt: "2026-07-19T00:17:37"
+updatedAt: "2026-07-19T00:29:19"
+completedAt: "2026-07-19T00:29:19"
+commit: 2e35bc6
+outcome: >-
+  Le dashboard date désormais startedAt au passage in_progress. Branche ajoutée dans updateTaskImpl
+  (taskWrites.ts), calquée EXACTEMENT sur startTask (#82) : si patch.status==='in_progress' &&
+  status changé && !raw.startedAt && startedAt non fourni explicitement → raw.startedAt = now().
+  Sémantique de non-écrasement identique à startTask (!raw.startedAt : ni écrasé au re-passage, ni
+  posé si l'appelant fournit startedAt) ; seul un passage À in_progress déclenche (→todo/→done ne
+  posent aucun startedAt parasite) ; startedAt ajouté à stringFields (un patch explicite prime).
+  now() (#363) laissé tel quel.
+verification: >-
+  4 tests updateTask (status→in_progress pose startedAt ; patch explicite prime ; ticket déjà
+  démarré non écrasé ; →todo et →done sans startedAt parasite). Aucun test startTask/doneTask cassé.
+  tsc clean, suite complète 658/658 dans main post-merge, build OK.
+release: 0.2.3
