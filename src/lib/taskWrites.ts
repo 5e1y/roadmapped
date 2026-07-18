@@ -525,6 +525,7 @@ export interface UpdateTaskPatch {
   outcome?: string | null
   verification?: string | null
   release?: string | null
+  startedAt?: string | null
   completedAt?: string | null
   tags?: string[]
   refs?: string[]
@@ -541,7 +542,7 @@ export function updateTask(tasksDir: string, id: number, patch: UpdateTaskPatch)
 function updateTaskImpl(tasksDir: string, id: number, patch: UpdateTaskPatch): MutationResult {
   const stringFields: (keyof UpdateTaskPatch)[] = [
     'title', 'detail', 'status', 'epic', 'source',
-    'commit', 'outcome', 'verification', 'release', 'completedAt',
+    'commit', 'outcome', 'verification', 'release', 'startedAt', 'completedAt',
   ]
   const listFields: (keyof UpdateTaskPatch)[] = ['tags', 'refs', 'links', 'dependsOn']
   return patchActive(tasksDir, id, (raw) => {
@@ -556,6 +557,15 @@ function updateTaskImpl(tasksDir: string, id: number, patch: UpdateTaskPatch): M
     }
     // Journal de feedback (#149) : remplacement complet (l'UI renvoie le tableau modifié).
     if (patch.feedback !== undefined) raw.feedback = patch.feedback
+    // Parité avec startTask (#82/#361) : un passage À in_progress date le démarrage —
+    // le chemin dashboard (PATCH status) contournait startTask, laissant startedAt
+    // absent (âge in_progress faussement compté depuis createdAt). Même sémantique que
+    // startTask : posé une seule fois (`!raw.startedAt` ⇒ ni écrasé au re-passage, ni
+    // posé si l'appelant a fourni startedAt explicitement), même helper now(). Seul un
+    // passage À in_progress déclenche : →todo/→done ne posent jamais de startedAt parasite.
+    if (patch.startedAt === undefined && patch.status === 'in_progress' && patch.status !== prevStatus && !raw.startedAt) {
+      raw.startedAt = now() // #82 — cf. startTask
+    }
     // Parité avec doneTask : un passage à done date la complétion (le journal
     // de livraison), un retour en arrière la retire — sauf si l'appelant a
     // fourni completedAt explicitement.
