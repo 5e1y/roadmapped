@@ -5,7 +5,7 @@ import type { TaskNode } from './tasks'
 /** Tâche minimale pour les tests de comptage. */
 function mkTask(id: number, status: TaskNode['status'], subtasks: TaskNode[] = []): TaskNode {
   return {
-    id, kind: 'task', code: null, title: `T${id}`, status, tags: [], size: null, detail: null,
+    id, kind: 'task', title: `T${id}`, status, tags: [], detail: null,
     refs: [], links: [], dependsOn: [], epic: null, source: 'ai', createdAt: '2026-07-07', startedAt: null,
     completedAt: null, commit: null, outcome: null, verification: null, release: null,
     file: `docs/tasks/01-x/${id}.yaml`, subtasks,

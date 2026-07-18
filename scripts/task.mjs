@@ -135,7 +135,7 @@ Opening a session (machine-first: all the context in 1 call)
 Reading
   list [--section <key>] [--status todo|in_progress|done] [--type <t>] [--tag <tag>] [--json] [--json-full]
                             --type = filter by nature (section slug, "bug" or "01-bug");
-                            --json = lightweight (id,title,status,type,size,kind,heat);
+                            --json = lightweight (id,title,status,type,kind,heat);
                             --json-full = the full object (nextId + complete sections)
   show <id> [--json]        full detail of a task (titled deps/linked, global id e.g. 42)
   next [--count N] [--type t] [--json]
@@ -159,7 +159,7 @@ Reading
 
 Writing (id allocated from _meta.yaml; validated after EVERY write, full rollback on error)
   add --type <type> --title <t> [--detail <d>] [--tags a,b] [--heat 0-100]
-      [--size S|M|L] [--code <c>] [--refs a,b] [--links 1,2]
+      [--refs a,b] [--links 1,2]
       [--depends-on 1,2] [--epic <slug>] [--kind task|milestone]
       [--blocks 1,2] [--source ai|user] [--json]
                             --type is the NATURE (section slug, e.g. 02-feature) — REQUIRED
@@ -179,7 +179,7 @@ Writing (id allocated from _meta.yaml; validated after EVERY write, full rollbac
                             capture a note on a task WITHOUT a new ticket (#149).
                             Same scope → reopen (start <id>) + re-done; new scope → a quick.
   update <id> [--title] [--detail] [--status] [--tags] [--refs] [--links]
-      [--size] [--heat 0-100|--no-heat] [--code] [--source] [--commit] [--outcome] [--verification] [--release]
+      [--heat 0-100|--no-heat] [--source] [--commit] [--outcome] [--verification] [--release]
       [--depends-on 1,2] [--epic <slug>]
                             generic patch ("null" = reset a field to null;
                             --heat 0 / --no-heat cools the task (clears the field);
@@ -208,9 +208,9 @@ const CMD_USAGE = {
   done: 'Usage: done <id> [--commit <sha>] [--outcome <o>] [--verification <v>] [--release <r>] [--suggest-refs] [--resolve-feedback all|1,3]  (--release default: host package.json version)',
   feedback: 'Usage: feedback <id> "<text>" [--author <name>]',
   roadmap: 'Usage: roadmap [--json]',
-  add: 'Usage: add --type <type> --title <t> [--detail <d>] [--tags a,b] [--heat 0-100] [--size S|M|L]\n        [--code <c>] [--refs a,b] [--links 1,2] [--depends-on 1,2] [--epic <slug>]\n        [--kind task|milestone] [--blocks 1,2] [--source ai|user] [--json]  (--section/--stage = aliases of --type)',
+  add: 'Usage: add --type <type> --title <t> [--detail <d>] [--tags a,b] [--heat 0-100]\n        [--refs a,b] [--links 1,2] [--depends-on 1,2] [--epic <slug>]\n        [--kind task|milestone] [--blocks 1,2] [--source ai|user] [--json]  (--section/--stage = aliases of --type)',
   quick: 'Usage: quick "<title>" --type <t> [--tags a,b] [--heat 0-100] [--start] [--json]  (--type REQUIRED, #293)',
-  update: 'Usage: update <id> [--title ...] [--detail ...] [--status ...] [--heat 0-100|--no-heat] [--tags a,b] [--refs a,b]\n        [--links 1,2] [--depends-on 1,2] [--epic <slug>] [--size ...] [--code ...] [--outcome ...] …',
+  update: 'Usage: update <id> [--title ...] [--detail ...] [--status ...] [--heat 0-100|--no-heat] [--tags a,b] [--refs a,b]\n        [--links 1,2] [--depends-on 1,2] [--epic <slug>] [--outcome ...] …',
   kb: 'Usage: kb <neighborhood <taskId> | search "<query>" | node <nodeId> | doctor [--max-behind N] | refresh [--force]>\n' +
     '  (knowledge graph — built by Graphify at graphify-out/graph.json)\n' +
     '  doctor exit codes: 0 fresh/unknown · 1 unreadable · 2 absent · 3 stale (default threshold: 10 commits behind HEAD)\n' +
@@ -268,7 +268,7 @@ function cmdList(flags) {
   // raccourcis assumés (quick taggés debt) comme l'équivalent des commentaires ponytail:.
   if (typeof flags.tag === 'string') keepTasks((t) => t.tags.includes(flags.tag))
   // --json-full : l'objet intégral d'avant (consommateurs qui exigent le detail).
-  // --json (défaut) : ALLÉGÉ — id,title,status,type,size,kind,heat, sous-tâches
+  // --json (défaut) : ALLÉGÉ — id,title,status,type,kind,heat, sous-tâches
   // aplaties. Vérifié : aucun call-site programmatique de `list --json` (l'UI lit
   // /api/tasks → readTree, jamais le CLI ; seuls des docs le mentionnaient).
   if (flags['json-full']) {
@@ -278,7 +278,7 @@ function cmdList(flags) {
   if (flags.json) {
     const light = []
     const push = (t, type) =>
-      light.push({ id: t.id, title: t.title, status: t.status, type, size: t.size, kind: t.kind, heat: t.heat ?? null })
+      light.push({ id: t.id, title: t.title, status: t.status, type, kind: t.kind, heat: t.heat ?? null })
     for (const s of sections) for (const t of s.tasks) {
       push(t, s.key)
       for (const sub of t.subtasks) push(sub, s.key)
@@ -405,7 +405,7 @@ function parseHeat(value, usage) {
 
 function cmdAdd(flags) {
   rejectUnknownFlags(flags, [
-    'type', 'section', 'stage', 'title', 'heat', 'detail', 'tags', 'size', 'code', 'refs', 'links',
+    'type', 'section', 'stage', 'title', 'heat', 'detail', 'tags', 'refs', 'links',
     'depends-on', 'epic', 'milestone', 'kind', 'blocks', 'source', 'json',
   ], CMD_USAGE.add)
   requireFlags(flags, ['title'], CMD_USAGE.add)
@@ -434,8 +434,6 @@ function cmdAdd(flags) {
     kind: typeof flags.kind === 'string' ? flags.kind : 'task',
     detail: typeof flags.detail === 'string' ? flags.detail : null,
     tags: typeof flags.tags === 'string' ? splitList(flags.tags) : [],
-    size: typeof flags.size === 'string' ? flags.size : null,
-    code: typeof flags.code === 'string' ? flags.code : null,
     refs: typeof flags.refs === 'string' ? splitList(flags.refs) : [],
     links: typeof flags.links === 'string' ? splitList(flags.links).map(Number) : [],
     dependsOn: typeof flags['depends-on'] === 'string' ? parseDeps(flags['depends-on'], CMD_USAGE.add) : [],
@@ -578,7 +576,7 @@ function cmdDone(id, flags) {
 }
 
 function cmdUpdate(id, flags) {
-  const stringFields = ['title', 'detail', 'status', 'size', 'code', 'source', 'commit', 'outcome', 'verification', 'release', 'completedAt']
+  const stringFields = ['title', 'detail', 'status', 'source', 'commit', 'outcome', 'verification', 'release', 'completedAt']
   const listFields = ['tags', 'refs', 'links']
   rejectUnknownFlags(flags, [...stringFields, ...listFields, 'heat', 'no-heat', 'depends-on', 'epic', 'milestone'], CMD_USAGE.update)
   if (Object.keys(flags).length === 0) {

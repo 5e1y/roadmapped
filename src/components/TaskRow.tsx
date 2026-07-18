@@ -1,6 +1,5 @@
 import { Collapsible } from '@base-ui/react/collapsible'
 import { LockLocked } from 'trinil-react'
-import { Chip } from './Chip'
 import { TempBadge, rowTemperature } from './Temperature'
 import { Chevron, KindGlyph } from './glyphs'
 import { usePanel } from '../state/PanelContext'
@@ -19,8 +18,6 @@ import type { TaskNode } from '../lib/tasks'
 export function agentBrief(task: TaskNode): string {
   const meta = [
     `Status: ${task.status}`,
-    task.size && `Size: ${task.size}`,
-    task.code && `Code: ${task.code}`,
   ]
     .filter(Boolean)
     .join(' · ')
@@ -145,9 +142,7 @@ export function TaskRow({ task }: { task: TaskNode }) {
                 +{task.tags.length - 3}
               </span>
             )}
-            {task.code && <Chip label={task.code} mono />}
             {temp && <TempBadge t={temp} />}
-            {task.size && <Chip label={task.size} mono strong />}
           </span>
         </button>
       </div>

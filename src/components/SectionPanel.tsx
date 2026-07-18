@@ -40,8 +40,6 @@ export function CreateTaskPanel({ section }: { section: string }) {
   const [stage, setStage] = useState(section)
   const [title, setTitle] = useState('')
   const [tags, setTags] = useState<string[]>([])
-  const [size, setSize] = useState('')
-  const [code, setCode] = useState('')
   const [detail, setDetail] = useState('')
   const [dependsOn, setDependsOn] = useState<number[]>([])
   const [links, setLinks] = useState<number[]>([])
@@ -68,8 +66,6 @@ export function CreateTaskPanel({ section }: { section: string }) {
           section: stage,
           title,
           tags,
-          size: size || null,
-          code: code.trim() || null,
           detail: detail === '' ? null : detail,
           dependsOn,
           links,
@@ -108,20 +104,6 @@ export function CreateTaskPanel({ section }: { section: string }) {
             disabled={busy}
             onValueChange={setStage}
           />
-        </Field>
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Size">
-          <Select
-            aria-label="Size"
-            defaultValue=""
-            items={[{ value: '', label: '—' }, { value: 'S', label: 'S' }, { value: 'M', label: 'M' }, { value: 'L', label: 'L' }]}
-            disabled={busy}
-            onValueChange={setSize}
-          />
-        </Field>
-        <Field label="Code">
-          <TextInput value={code} disabled={busy} placeholder="FEAT-12" onChange={(e) => setCode(e.target.value)} onKeyDown={createOnEnter} />
         </Field>
       </div>
       <Field label="Tags">

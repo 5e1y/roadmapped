@@ -4,7 +4,6 @@ import { TYPES } from './tasks.ts'
 
 const TASK_STATUSES = ['todo', 'in_progress', 'done']
 const SECTION_STATUSES = ['open', 'done', 'dormant', 'abandoned']
-const SIZES = ['S', 'M', 'L', null]
 /** createdAt/completedAt : date seule (héritage) ou datetime local à la seconde (#84). */
 const DATE_OR_DATETIME = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2})?$/
 /** Slug d'epic : minuscules/chiffres/tirets, comme les ids de section (#133). */
@@ -17,7 +16,6 @@ function validateTask(task: TaskNode, path: string, errors: string[]) {
   if (typeof task.id !== 'number') errors.push(`${path}: id manquant ou invalide`)
   if (!task.title) errors.push(`${path}: title manquant`)
   if (!TASK_STATUSES.includes(task.status)) errors.push(`${path}: status invalide (${task.status})`)
-  if (!SIZES.includes(task.size)) errors.push(`${path}: size invalide (${task.size})`)
   // kind : 'task' | 'milestone' (toTaskNode met 'task' par défaut ; une valeur brute
   // invalide remonte telle quelle et est rejetée ici). L'ex-'quick' (#250) est
   // explicitement rejeté sur une tâche active — message dédié pour guider la migration.

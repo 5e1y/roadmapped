@@ -70,15 +70,13 @@ export interface TaskNode {
    * Nature du ticket : 'task' (défaut) ou 'milestone' (JALON : une tâche-cible que
    * d'autres verrouillent via dependsOn — aucune sémantique de lock nouvelle,
    * computeAvailability suffit ; rendu diamant). Le kind 'quick' a été supprimé (#250) :
-   * il était redondant avec `size` (S/M/L) une fois les colonnes passées par TYPE.
+   * il était redondant une fois les colonnes passées par TYPE.
    * ADDITIF : absent d'un YAML = 'task' (rétrocompat totale, aucun YAML existant ne change).
    */
   kind: 'task' | 'milestone'
-  code: string | null
   title: string
   status: 'todo' | 'in_progress' | 'done'
   tags: string[]
-  size: 'S' | 'M' | 'L' | null
   /**
    * Seed de priorité (#230/#231, « chaleur ») : 0–100, OPTIONNEL. Absent = froid (0) —
    * l'absence EST le zéro, aucun `heat: 0` n'est écrit (même régime que `kind` absent).
@@ -207,11 +205,13 @@ function toTaskNode(raw: any, file: string): TaskNode {
     // ADDITIF : kind absent = 'task'. Une valeur invalide remonte telle quelle
     // (ex: 'mega' ou l'ex-'quick' #250) et validate.ts la rejette — pas de coercion silencieuse.
     kind: raw.kind ?? 'task',
-    code: raw.code ?? null,
     title: raw.title,
     status: raw.status,
     tags: raw.tags ?? [],
-    size: raw.size ?? null,
+    // size (S/M/L) et code (#350) RETIRÉS du modèle : purement décoratifs, aucune
+    // logique ne les lisait. Rétrocompat lecture : un YAML externe qui porte encore
+    // `size:`/`code:` n'est pas rejeté — la clé inconnue est simplement ignorée ici
+    // (jamais parsée), et le prochain dump la laisse tomber (absente de FIELD_ORDER).
     // Frontière de parse : raw est any. Un heat absent = null (froid) ; une
     // valeur hors bornes/non numérique remonte telle quelle et validate.ts la rejette.
     heat: raw.heat ?? null,
