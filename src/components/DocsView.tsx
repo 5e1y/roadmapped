@@ -174,9 +174,10 @@ export function DocsView({ path, onSelectDoc }: { path: string | null; onSelectD
     )
   }
 
-  // dangerouslySetInnerHTML : contenu markdown LOCAL de l'utilisateur (docs/ du
-  // repo), rendu par un outil localhost sans multi-utilisateurs ni contenu
-  // distant — pas de surface XSS pertinente pour ce lecteur en lecture seule.
+  // dangerouslySetInnerHTML : un `docs/*.md` peut venir d'un repo tiers cloné ou
+  // être écrit par un agent depuis une entrée non fiable → surface XSS réelle
+  // (#359). `renderMarkdown` sanitise la sortie de marked via DOMPurify avant
+  // injection (point unique partagé avec le rendu du détail de tâche).
   const html = renderMarkdown(content ?? '')
   return shell(
     <div className="mx-auto max-w-3xl px-6 py-8">
