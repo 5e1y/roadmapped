@@ -1,7 +1,7 @@
 id: 351
 code: null
 title: "Spec : flux d'activité agent ultra précis — hooks Claude Code → onglet Activity"
-status: todo
+status: done
 tags:
   - activity
   - spec
@@ -27,9 +27,22 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-18T23:01:20"
-updatedAt: "2026-07-18T23:01:20"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+startedAt: "2026-07-18T23:29:18"
+updatedAt: "2026-07-18T23:31:35"
+completedAt: "2026-07-18T23:31:35"
+commit: 092c5a2
+outcome: >-
+  Spec écrite (docs/specs/2026-07-18-activity-hooks.md) : hooks Claude Code PostToolUse → POST
+  /api/activity (pattern /api/usage) → ring buffer mémoire 500 → SSE activity (socle #185) →
+  timeline de l'onglet Activity avec corrélation au ticket in_progress. 5 décisions structurantes :
+  métadonnées jamais de contenu, ring buffer sans persistance (les agrégats durables = compteur
+  #345), fire-and-forget partout (l'agent n'attend jamais), opt-in défaut OUI à l'install façon KB
+  #324, multi-repo via le port annoncé #274. Le terminal embarqué est explicitement rétrogradé en
+  nice-to-have : zéro PTY, zéro WebSocket, zéro auth nécessaires. 3 tickets d'exécution créés : #353
+  (endpoint+buffer+SSE), #354 (hook+install marker-block), #355 (UI timeline), chaînés par dependsOn
+  sous l'epic activity-live.
+verification: >-
+  Spec relue ; ancrages vérifiés dans le code réel (ensureSessionHook scripts/install.mjs:168, SSE
+  api.ts:267, pattern /api/usage) ; format stdin du hook explicitement flagué « à figer contre la
+  doc au ticket 1 » plutôt qu'affirmé de mémoire.
+release: 0.2.3

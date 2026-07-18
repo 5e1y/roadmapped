@@ -1,0 +1,34 @@
+id: 352
+code: null
+title: >-
+  Surface agent tag-aware : vocabulaire en usage injecté dans les descriptions MCP
+  (add/quick/update) + nudge d'une ligne dans le skill
+status: in_progress
+tags:
+  - dx
+  - mcp
+size: null
+detail: >-
+  Exécution de la reco de l'étude #344 (docs/specs/2026-07-18-tags-etude.md, option C validée par
+  Rémi) : (1) makeTools(ROOT,…) calcule au boot les top-N tags en usage (readTree → comptage, N≈12)
+  et les injecte dans la description du param tags des tools add/quick/update — ex. « réutilise le
+  vocabulaire existant : ux, design, kb… ; debt est load-bearing (ledger de dette) ». Une fois au
+  démarrage, coût token nul en régime. (2) SKILL.md : une ligne de nudge à add/quick — réutiliser un
+  tag existant, debt load-bearing. Pas d'obligation dure : un add sans tags reste valide. Test :
+  description générée contient les tags du fixture ; comptage correct.
+refs:
+  - scripts/mcp-server.mjs#makeTools
+  - docs/specs/2026-07-18-tags-etude.md
+  - .claude/skills/roadmapped/SKILL.md
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-18T23:29:17"
+startedAt: "2026-07-18T23:29:17"
+updatedAt: "2026-07-18T23:29:17"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

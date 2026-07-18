@@ -1,0 +1,26 @@
+id: 353
+code: null
+title: "Activity 1 : endpoint /api/activity + ring buffer 500 + event SSE activity"
+status: todo
+tags:
+  - activity
+size: null
+detail: >-
+  Spec docs/specs/2026-07-18-activity-hooks.md (décisions 1-3). Route POST /api/activity sur le
+  pattern exact de /api/usage (api.ts), schéma {ts, session, tool, target} — métadonnées seulement,
+  jamais de contenu. Ring buffer mémoire 500 événements (éviction FIFO, pas de fichier), push SSE
+  type 'activity' sur /api/events (socle #185). Tests : POST → buffer, éviction, push SSE reçu.
+refs:
+  - docs/specs/2026-07-18-activity-hooks.md
+  - src/server/api.ts
+links: []
+dependsOn: []
+epic: activity-live
+source: ai
+createdAt: "2026-07-18T23:31:21"
+updatedAt: "2026-07-18T23:31:21"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
