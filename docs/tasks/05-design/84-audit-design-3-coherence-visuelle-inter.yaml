@@ -1,11 +1,9 @@
 id: 109
-code: null
 title: Audit design 3 — cohérence visuelle inter-écrans (fonds, arrondis, dropdowns, espacements)
 status: done
 tags:
   - design
   - audit
-size: S
 detail: >-
   Inventaire des divergences visuelles entre écrans (npm run dev + captures) : fonds de page blanc
   vs gris selon l'écran (lister QUI a quoi), arrondis incohérents (ex. connu : text field du

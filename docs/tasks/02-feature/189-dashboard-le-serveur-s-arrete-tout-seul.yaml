@@ -1,5 +1,4 @@
 id: 330
-code: null
 title: >-
   Dashboard : le serveur s'arrête tout seul à la fermeture de la fenêtre (plus de serveurs zombies
   pendant des jours)
@@ -8,7 +7,6 @@ tags:
   - dashboard
   - dx
   - server
-size: S
 detail: >-
   Problème : `roadmapped dashboard` lance un serveur node qui survit à la fermeture de l'onglet →
   des serveurs traînent des jours, sans moyen évident de les arrêter. Fix : auto-shutdown opt-in via

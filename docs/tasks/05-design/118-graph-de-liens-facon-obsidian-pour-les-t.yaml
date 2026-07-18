@@ -1,5 +1,4 @@
 id: 146
-code: null
 title: >-
   Graph de liens façon Obsidian pour les tags — flanc droit Backlog, sous le radar Teams, clic =
   filtre par tag
@@ -7,7 +6,6 @@ status: done
 tags:
   - ux
   - fable
-size: L
 detail: >-
   Nouveau graphe de liens (façon Obsidian) visualisant les THÈMES (tags) des tickets OUVERTS (todo +
   in_progress). Objectif : voir sur quoi le travail se porte. Clic sur un tag → filtre le backlog

@@ -1,11 +1,9 @@
 id: 57
-code: null
 title: Tri par stage puis ancienneté — calculé par l'app, consommé par le skill
 status: done
 tags:
   - core
   - cli
-size: M
 detail: >-
   Demande Rémi (2026-07-07). (1) ORDRE canonique des tâches ouvertes : stage d'abord (une tâche
   Build passe avant une tâche Launch), puis ancienneté (id croissant = createdAt). Implémenté UNE

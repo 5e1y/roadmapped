@@ -1,11 +1,9 @@
 id: 64
-code: null
 title: Token economy 1 — skill scindé en noyau minimal + références routées
 status: done
 tags:
   - token-economy
   - skill
-size: M
 detail: >-
   ⛔ N'exécuter qu'après approbation de la spec par Rémi. Spec §1 + annexe pt 1 : réécrire SKILL.md
   en noyau ≤ 50 lignes (boussole 5 lignes, cycle take→done, commandes en 1 ligne, interdits

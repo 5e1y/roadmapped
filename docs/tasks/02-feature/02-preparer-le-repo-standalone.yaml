@@ -1,9 +1,7 @@
 id: 47
-code: null
 title: Préparer le repo standalone
 status: done
 tags: []
-size: null
 detail: >-
   Extraire Roadmaped de son incubation dans ZineKit vers un repo autonome : code, dépendances
   (@types/node explicite), config, backlog.

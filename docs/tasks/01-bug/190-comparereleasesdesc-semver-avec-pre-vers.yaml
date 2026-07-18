@@ -1,11 +1,9 @@
 id: 365
-code: null
 title: "compareReleasesDesc : semver avec pré-version (-rc/-beta) mal classé (latent)"
 status: todo
 tags:
   - bug
   - latent
-size: null
 heat: 15
 detail: >-
   Audit bugs #358 (MOYEN mais NON ATTEINGNABLE avec les données actuelles). compareReleasesDesc

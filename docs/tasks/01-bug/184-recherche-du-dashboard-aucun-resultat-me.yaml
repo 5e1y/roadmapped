@@ -1,11 +1,9 @@
 id: 348
-code: null
 title: "Recherche du dashboard : aucun résultat même sur un terme exact d'un titre de ticket"
 status: done
 tags:
   - ui
   - search
-size: null
 heat: 80
 detail: >-
   Constat Rémi (testé) : la recherche ne retourne rien, y compris pour des termes identiques

@@ -1,12 +1,10 @@
 id: 349
-code: null
 title: >-
   Retirer la progression globale du header de la vue Roadmap (GlobalProgress) — seule la progression
   par epic a du sens
 status: done
 tags:
   - ui
-size: null
 detail: null
 refs: []
 links: []

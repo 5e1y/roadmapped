@@ -1,11 +1,9 @@
 id: 53
-code: null
 title: Header unifié — même barre dans les 3 vues, filtres en dropdowns
 status: done
 tags:
   - ux
   - design
-size: M
 detail: >-
   Demande Rémi (2026-07-07) : un seul modèle de header (barre en haut, style vue Roadmap) dans les
   TROIS vues — hauteur STRICTEMENT identique à celle du header du panneau de tâche (SidePanel).

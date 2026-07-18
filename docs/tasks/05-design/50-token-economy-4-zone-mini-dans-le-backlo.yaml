@@ -1,12 +1,10 @@
 id: 67
-code: null
 title: Token economy 4 — zone Mini dans le Backlog (création inline, done rapide)
 status: done
 tags:
   - token-economy
   - ux
   - design
-size: M
 detail: >-
   ⛔ N'exécuter qu'après approbation de la spec par Rémi. RÉSERVÉ FABLE (design). Spec §3 UI : zone «
   Mini » compacte au-dessus de « À faire » dans le Backlog — lignes ultra-denses (glyphe, #id,

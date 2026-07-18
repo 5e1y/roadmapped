@@ -1,11 +1,9 @@
 id: 340
-code: null
 title: "Releases-chapitres 1 : backfill du champ release sur les ~317 tâches done"
 status: done
 tags:
   - releases
   - data-model
-size: null
 detail: >-
   Script one-shot qui mappe completedAt → version de release (via tags git + dates de publish npm
   0.1.x/0.2.x) et remplit release sur toutes les tâches done à release:null. Les tâches pré-npm

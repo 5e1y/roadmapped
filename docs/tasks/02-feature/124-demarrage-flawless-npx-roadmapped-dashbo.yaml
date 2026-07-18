@@ -1,12 +1,10 @@
 id: 152
-code: null
 title: >-
   Démarrage flawless : npx roadmapped dashboard ouvre le navigateur par défaut (--open) +
   découvrabilité
 status: done
 tags:
   - onboarding
-size: S
 detail: >-
   Rendre le lancement du dashboard « et boum la fenêtre s'ouvre », sans passer par l'agent (décision
   : PAS de skill /roadmapped run — brûlerait des tokens à chaque lancement pour une action

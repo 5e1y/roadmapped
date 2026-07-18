@@ -1,9 +1,7 @@
 id: 283
-code: null
 title: "How it works : stepper cliquable + retirer les aperçus (4 steps seuls)"
 status: done
 tags: []
-size: null
 heat: 50
 detail: >-
   Rendre la section pinned NAVIGABLE : cliquer une étape (ou des puces/points) saute à cette étape

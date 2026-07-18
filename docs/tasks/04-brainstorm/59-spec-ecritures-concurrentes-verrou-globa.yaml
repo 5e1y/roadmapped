@@ -1,11 +1,9 @@
 id: 77
-code: null
 title: "Spec — écritures concurrentes : verrou global de mutation"
 status: done
 tags:
   - spec
   - concurrency
-size: M
 detail: >-
   Brainstorm FAIT (3 questions tranchées par Rémi le 2026-07-07 : verrou mkdir global sur la
   mutation avec TTL 10s ; périmètre = verrou seul, serveur-écrivain-unique → spec MCP #73 ;

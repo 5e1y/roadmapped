@@ -1,5 +1,4 @@
 id: 312
-code: null
 title: >-
   KB (bug latent) : le clic sur un nœud n'ouvre jamais l'inspecteur — useZoomPan setPointerCapture
   au pointerdown avale le click du nœud
@@ -7,7 +6,6 @@ status: done
 tags:
   - kb
   - graphify
-size: null
 detail: null
 refs: []
 links: []

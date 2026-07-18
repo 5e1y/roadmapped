@@ -1,9 +1,7 @@
 id: 88
-code: null
 title: Notepad — 4e tab, liste gauche, éditeur ghost autosave + raccourcis
 status: done
 tags: []
-size: L
 detail: >-
   4e tab « Notepad » dans le header (après Docs). Layout : flanc gauche 420px (gabarit Docs/radar) =
   liste des notes triées par modification décroissante (nom + date, bouton « + note » = Cmd+N) ;

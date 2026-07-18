@@ -1,12 +1,10 @@
 id: 214
-code: null
 title: Charte graphique / brand guidelines — document
 status: todo
 tags:
   - design
   - brand
   - docs
-size: null
 detail: >-
   Rédiger la charte : couleurs (tokens actuels + éventuelle palette de marque), typographie, échelle
   d'espacement, usage du logo, do/don't, ton visuel, exemples. Dérivable de docs/design.md +

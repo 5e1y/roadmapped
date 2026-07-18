@@ -1,9 +1,7 @@
 id: 277
-code: null
 title: Première partie full-bleed + grille de colonnes visible
 status: done
 tags: []
-size: null
 detail: >-
   Hero + démo passent en pleine largeur (retirer le cap --container-max sur ces 2 sections). Garder
   les rails/colonnes façon Vercel VISIBLES en full-bleed : grille de colonnes régulière sur toute la

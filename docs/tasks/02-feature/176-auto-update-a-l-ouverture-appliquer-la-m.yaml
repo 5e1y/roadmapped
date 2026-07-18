@@ -1,11 +1,9 @@
 id: 294
-code: null
 title: >-
   Auto-update à l'ouverture : APPLIQUER la MAJ GitHub (skill+MCP+app), pas seulement notifier —
   supersede #207
 status: done
 tags: []
-size: null
 heat: 85
 detail: >-
   Rémi veut qu'à l'ouverture de roadmapped dans un repo, TOUT se mette à jour auto depuis GitHub

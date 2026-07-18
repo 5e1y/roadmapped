@@ -1,12 +1,10 @@
 id: 273
-code: null
 title: Sweep de cohérence docs (README, skill, guide) + spec de MAJ du site marketing
 status: done
 tags:
   - docs
   - publish
   - consistency
-size: null
 detail: >-
   Aligner tous les docs annexes sur la réalité actuelle après les gros changements récents : modèle
   jalons v2 (9 TYPES + température, plus de stages/teams/quick), dashboard COMPILÉ servi par un

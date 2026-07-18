@@ -1,5 +1,4 @@
 id: 313
-code: null
 title: >-
   KB : cliquer un ticket lié depuis l'inspecteur de nœud ouvre DEUX panneaux (nœud à gauche, ticket
   à droite) au lieu d'empiler
@@ -8,7 +7,6 @@ tags:
   - kb
   - graphify
   - ux
-size: null
 heat: 84
 detail: >-
   Retour Rémi. Aujourd'hui, depuis l'inspecteur d'un nœud (KbNodePanel « Tickets touching this »),

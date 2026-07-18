@@ -1,9 +1,7 @@
 id: 253
-code: null
 title: "Homepage : mascotte oiseau qui suit le curseur & se pose sur les divs (mini-jeu)"
 status: done
 tags: []
-size: null
 heat: 55
 detail: >-
   Le mini-jeu complet issu du proto (artifact f4bb3946) porté sur la homepage roadmapped.work.

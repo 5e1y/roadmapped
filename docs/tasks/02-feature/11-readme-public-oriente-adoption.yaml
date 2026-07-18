@@ -1,11 +1,9 @@
 id: 11
-code: null
 title: README public orienté adoption
 status: done
 tags:
   - open-source
   - marketing
-size: M
 detail: >-
   Réécrire le README pour un visiteur GitHub qui découvre le projet : pitch en 3 lignes, capture du
   dashboard, quickstart en 3 commandes, tableau des features, liens guide/skill, badges. ÉTAT :

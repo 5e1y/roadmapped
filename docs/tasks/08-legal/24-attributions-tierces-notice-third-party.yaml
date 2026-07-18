@@ -1,11 +1,9 @@
 id: 219
-code: null
 title: "Attributions tierces : NOTICE / THIRD-PARTY si requis"
 status: done
 tags:
   - legal
   - publish
-size: null
 detail: >-
   Selon l'audit des licences deps : produire un NOTICE / THIRD-PARTY-LICENSES si des dépendances
   l'exigent (BSD/MIT avec clause d'attribution, Apache-2.0 NOTICE…). Dépend de l'audit des licences.

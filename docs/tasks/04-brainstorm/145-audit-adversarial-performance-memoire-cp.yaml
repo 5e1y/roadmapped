@@ -1,11 +1,9 @@
 id: 357
-code: null
 title: "Audit adversarial performance : mémoire, CPU, I/O — l'app ne doit rien peser"
 status: done
 tags:
   - audit
   - perf
-size: null
 heat: 75
 detail: >-
   Recherche adversariale (prémisse : user 8Go RAM + HDD lent, suspicion fuite mémoire/CPU).

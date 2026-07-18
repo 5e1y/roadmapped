@@ -1,9 +1,7 @@
 id: 288
-code: null
 title: Migration domaine roadmapped.work → roadmapped.dev
 status: done
 tags: []
-size: null
 heat: 40
 detail: >-
   Passer le domaine public de roadmapped.work à roadmapped.dev (meilleur pour un outil dev : TLD

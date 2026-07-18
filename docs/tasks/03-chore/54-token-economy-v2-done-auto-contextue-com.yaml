@@ -1,11 +1,9 @@
 id: 71
-code: null
 title: Token economy v2 — done auto-contextué (commit HEAD + refs suggérées du diff)
 status: done
 tags:
   - token-economy
   - cli
-size: S
 detail: >-
   ⛔ Après la v1. Annexe pt 4 : au done sans --commit, l'app remplit le sha de HEAD ; --suggest-refs
   liste les fichiers du diff depuis le start de la tâche (git diff --name-only) pour confirmation —

@@ -1,5 +1,4 @@
 id: 310
-code: null
 title: >-
   Doc sync Graphify/KB partout : skill, README, gouvernance GitHub, + section site (mentionner
   Graphify)
@@ -8,7 +7,6 @@ tags:
   - kb
   - graphify
   - docs
-size: null
 heat: 75
 detail: >-
   Après la surface agent (#309). Passe de doc coordonnée (comme la sync install plus tôt) pour

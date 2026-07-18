@@ -1,5 +1,4 @@
 id: 131
-code: null
 title: >-
   Spec — hiérarchie & regroupement : epic (champ transverse) + milestones-jalons + progression
   (fusionne #6)
@@ -7,7 +6,6 @@ status: done
 tags:
   - spec
   - data-model
-size: M
 detail: >-
   Fusion décidée avec Rémi du besoin « epic/regroupement » et de #6 (progression + milestones).
   Décisions tranchées : (1) EPIC = dimension (champ), pas un nouveau type — on réutilise/renomme le

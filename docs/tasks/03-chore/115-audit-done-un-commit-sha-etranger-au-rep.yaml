@@ -1,12 +1,10 @@
 id: 143
-code: null
 title: >-
   Audit/done : un commit sha étranger au repo (travail dans un autre repo, ex. site) devient une
   ancre lastLogged non résolvable et coupe l'audit en silence — détecter/ignorer un sha absent
 status: done
 tags:
   - debt
-size: null
 detail: null
 refs: []
 links: []

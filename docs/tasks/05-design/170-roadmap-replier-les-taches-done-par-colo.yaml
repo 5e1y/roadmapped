@@ -1,5 +1,4 @@
 id: 244
-code: null
 title: >-
   Roadmap : replier les tâches DONE par colonne (« + N done ») au lieu de toutes les afficher
   barrées — colonnes imbuvables quand done affichés
@@ -8,7 +7,6 @@ tags:
   - dashboard
   - ux
   - roadmap
-size: null
 detail: null
 refs: []
 links: []

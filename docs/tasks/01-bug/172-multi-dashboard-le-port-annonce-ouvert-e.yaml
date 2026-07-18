@@ -1,12 +1,10 @@
 id: 274
-code: null
 title: "Multi-dashboard : le port annoncé/ouvert est faux quand 5173 est pris → ouvre le mauvais repo"
 status: done
 tags:
   - ui
   - dashboard
   - multi-repo
-size: null
 detail: >-
   serve.ts listenWithRetry : le callback de server.listen(port, cb) reste attaché comme listener
   'listening' quand le port échoue (EADDRINUSE). Au bind réussi du port suivant, TOUS les callbacks

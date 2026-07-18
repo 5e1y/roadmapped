@@ -1,5 +1,4 @@
 id: 204
-code: null
 title: >-
   Dashboard — savoir dans quel repo on est : titre header « Roadmapped ✕ repo » + /api/tree expose
   le repo hôte
@@ -7,7 +6,6 @@ status: done
 tags:
   - dashboard
   - publish
-size: null
 detail: >-
   Prio Rémi. Plusieurs dashboards ouverts (repos différents) → on ne sait pas lequel on regarde. Fix
   : le titre du header (ViewHeader, haut gauche) affiche « Roadmapped ✕ NomDuRepo » — le ✕

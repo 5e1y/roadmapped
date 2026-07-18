@@ -1,5 +1,4 @@
 id: 209
-code: null
 title: >-
   Titre d'epic terminé : gris comme une task barrée (conflit text-neutral-900 de ghostCls vs
   text-neutral-500 → forcer)
@@ -7,7 +6,6 @@ status: done
 tags:
   - dashboard
   - design
-size: null
 detail: null
 refs: []
 links: []

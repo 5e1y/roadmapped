@@ -1,9 +1,7 @@
 id: 280
-code: null
 title: "« How it works » : section pinned + scroll stepper (4 étapes)"
 status: done
 tags: []
-size: null
 heat: 50
 detail: >-
   Section sticky qui se fige pendant que les 4 étapes défilent une par une au scroll (progression

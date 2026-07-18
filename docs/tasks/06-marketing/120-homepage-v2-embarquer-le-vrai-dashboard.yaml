@@ -1,5 +1,4 @@
 id: 148
-code: null
 title: >-
   Homepage v2 : embarquer le VRAI dashboard (build démo read-only + iframe plein cadre) + terminal
   agent en fenêtre séparée
@@ -7,7 +6,6 @@ status: done
 tags:
   - marketing
   - fable
-size: L
 detail: >-
   Refonte de la homepage (#145 rejeté par Rémi : réplique vanilla trop divergente + volet agent
   fusionné à l'app = trompeur). Nouvelle approche : embarquer LITTÉRALEMENT le vrai dashboard React.

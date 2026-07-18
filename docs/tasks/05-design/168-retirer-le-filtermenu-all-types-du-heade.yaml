@@ -1,5 +1,4 @@
 id: 242
-code: null
 title: >-
   Retirer le FilterMenu 'All types' du header Backlog — redondant : le radar pose le filtre, le
   subheader de chips l'affiche et le retire
@@ -7,7 +6,6 @@ status: done
 tags:
   - dashboard
   - ux
-size: null
 detail: null
 refs: []
 links: []

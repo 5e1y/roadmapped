@@ -1,11 +1,9 @@
 id: 361
-code: null
 title: Le bouton Start du dashboard ne pose jamais startedAt (âge in_progress faux)
 status: todo
 tags:
   - bug
   - data-model
-size: null
 heat: 80
 detail: >-
   Audit bugs #358 (HAUT-2, docs/audit-bugs-2026-07.md). Le bouton Start du dashboard émet PATCH

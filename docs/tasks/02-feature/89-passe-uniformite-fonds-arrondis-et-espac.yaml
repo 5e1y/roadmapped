@@ -1,10 +1,8 @@
 id: 114
-code: null
 title: Passe uniformité — fonds, arrondis et espacements alignés sur design.md
 status: done
 tags:
   - design
-size: S
 detail: >-
   Appliquer les tokens de docs/design.md (#111) sur les écrans : LE fond de page canonique partout
   (fin du mélange blanc/gris relevé par #109), échelle d'arrondis unique, espacements harmonisés

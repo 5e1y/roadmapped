@@ -1,9 +1,7 @@
 id: 119
-code: null
 title: gitignore .DS_Store + détracker celui qui a fuité dans docs/tasks/
 status: done
 tags: []
-size: null
 detail: null
 refs: []
 links: []

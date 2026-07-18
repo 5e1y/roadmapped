@@ -1,5 +1,4 @@
 id: 309
-code: null
 title: >-
   KB agent surface (LE plus important) : MCP tools + skill + CLI `roadmapped kb` pour que les agents
   UTILISENT le graphe
@@ -10,7 +9,6 @@ tags:
   - mcp
   - skill
   - cli
-size: null
 heat: 88
 detail: >-
   Demande phare de Rémi : que les agents utilisent vraiment le knowledge graph. (1) MCP : ajouter

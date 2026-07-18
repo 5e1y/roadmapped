@@ -1,5 +1,4 @@
 id: 239
-code: null
 title: >-
   Repositionner le site 5e1y/roadmapped-site : la copy raconte encore idée→mature, la passer au
   modèle 9-types + température
@@ -7,7 +6,6 @@ status: done
 tags:
   - homepage
   - seo
-size: null
 detail: >-
   index.html (roadmapped-site) décrit encore l'ancien modèle : carte Features #2 dit "Eight fixed
   stages, from idea to mature, are your milestones", le pas 1 de How-it-works dit "filed in the

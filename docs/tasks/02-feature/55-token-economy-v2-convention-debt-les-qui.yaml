@@ -1,11 +1,9 @@
 id: 72
-code: null
 title: "Token economy v2 — convention #debt : les quick comme ledger de dette"
 status: done
 tags:
   - token-economy
   - docs
-size: S
 detail: >-
   ⛔ Après le ticket quick (#66). Annexe pt 5 : convention documentée dans le noyau du skill — un
   raccourci assumé (plafond connu, upgrade path) se trace en quick taggé debt, outcome nommant le

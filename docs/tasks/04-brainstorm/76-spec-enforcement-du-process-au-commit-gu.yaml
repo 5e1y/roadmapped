@@ -1,11 +1,9 @@
 id: 98
-code: null
 title: Spec — enforcement du process au commit (guard bloquant + signal sitrep + skill)
 status: done
 tags:
   - process
   - spec
-size: M
 detail: >-
   Transformer le brief de passation #94 (docs/process-enforcement-gap.md) en spec approuvée puis en
   tâches. Décisions déjà tranchées avec Rémi : hook pre-commit BLOQUANT (pas avertissement) ;

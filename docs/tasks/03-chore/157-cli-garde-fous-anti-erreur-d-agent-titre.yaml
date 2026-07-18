@@ -1,11 +1,9 @@
 id: 291
-code: null
 title: >-
   CLI: garde-fous anti-erreur d'agent (titre dans start/done/update, warning start-on-done) + étape
   anti-doublon dans le skill
 status: done
 tags: []
-size: S
 heat: 65
 detail: >-
   Suite post-mortem 2026-07-11 (agent sonnet: doublon #290/#239 + start 157 destructeur). 3 fixes

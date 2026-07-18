@@ -1,10 +1,8 @@
 id: 195
-code: null
 title: "Feedback 5 — UI panneau : section Feedback (ghost input) + badge open sur la ligne"
 status: done
 tags:
   - feedback
-size: null
 detail: null
 refs:
   - src/components/TaskPanel.tsx

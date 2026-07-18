@@ -1,5 +1,4 @@
 id: 228
-code: null
 title: >-
   Brainstorm : faire évoluer le système de jalons pour le post-launch (travail continu), pas
   seulement le launch
@@ -8,7 +7,6 @@ tags:
   - engineering
   - product
   - design
-size: null
 detail: >-
   Hésitation Rémi. Les 8 stages fixes immuables (01-idea → 08-mature) modélisent un LAUNCH produit
   (0→1) : parfait pour aller de l'idée à la maturité. MAIS une fois le produit lancé (cas actuel),

@@ -1,9 +1,7 @@
 id: 285
-code: null
 title: "Oiseau : en bas de page, arrête de suivre et se perche sur le R du footer"
 status: done
 tags: []
-size: null
 heat: 45
 detail: >-
   Quand l'utilisateur atteint le BAS de la page, l'oiseau cesse de suivre le curseur et retourne se

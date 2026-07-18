@@ -1,12 +1,10 @@
 id: 162
-code: null
 title: >-
   npm publish dry-run : npm pack, vérifier l'allowlist files, rendu README sur npm, zéro secret,
   dispo du nom 'roadmapped'
 status: done
 tags:
   - publish
-size: null
 detail: >-
   Préparation de #13 (publish repo). npm pack --dry-run → inspecter le tarball (bin, scripts, src,
   skills, index.html, vite.config.ts, tsconfig.json). Vérifier : pas de fichier sensible embarqué,

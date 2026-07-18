@@ -1,11 +1,9 @@
 id: 345
-code: null
 title: "Compteur d'usage local : quels tools MCP, commandes CLI et vues servent vraiment"
 status: done
 tags:
   - dx
   - mesure
-size: null
 detail: >-
   Préalable factuel à la passe de simplification : un append JSONL local (gitignoré) qui compte les
   appels par tool MCP, par commande CLI et par vue ouverte du dashboard. Zéro réseau, zéro

@@ -1,5 +1,4 @@
 id: 269
-code: null
 title: Mode sombre + switch dans le header
 status: done
 tags:
@@ -7,7 +6,6 @@ tags:
   - dashboard
   - ds
   - dark-mode
-size: null
 detail: >-
   Thème sombre pour toute l'app, basculable par un switch (Base UI) dans le header. Défaut =
   prefers-color-scheme, choix mémorisé (localStorage), appliqué via data-theme sur <html>. Levier :

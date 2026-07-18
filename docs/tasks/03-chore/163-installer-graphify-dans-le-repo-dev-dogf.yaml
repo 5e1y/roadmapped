@@ -1,5 +1,4 @@
 id: 328
-code: null
 title: >-
   Installer Graphify dans le repo dev (dogfood réel) via roadmapped upgrade + enregistrer MCP natif
   + refresh graphe
@@ -8,7 +7,6 @@ tags:
   - kb
   - graphify
   - dogfood
-size: null
 detail: null
 refs: []
 links: []

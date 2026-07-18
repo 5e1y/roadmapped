@@ -1,11 +1,9 @@
 id: 28
-code: null
 title: Panneau v2 — SectionPanel aligné + passe finale des critères
 status: done
 tags:
   - panel
   - ux
-size: M
 detail: >-
   Aligner SectionPanel sur le paradigme lecture d'abord (titre/note lisibles, édition au clic, mêmes
   feedbacks inline, statut de section en français) — même grammaire visuelle que TaskPanel. Puis

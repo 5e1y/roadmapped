@@ -1,11 +1,9 @@
 id: 100
-code: null
 title: Guard 1 — task.mjs guard + hook pre-commit committé + activation npm prepare
 status: done
 tags:
   - process
   - enforcement
-size: M
 detail: >-
   Nouvelle commande CLI `guard` (scripts/task.mjs) : exit 0 si rien de stagé, OU tous les fichiers
   stagés sous docs/tasks/, OU .git/MERGE_HEAD présent, OU ≥1 tâche in_progress (readTree +

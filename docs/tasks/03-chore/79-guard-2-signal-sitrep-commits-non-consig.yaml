@@ -1,11 +1,9 @@
 id: 101
-code: null
 title: Guard 2 — signal sitrep « commits non consignés » (CLI + MCP)
 status: done
 tags:
   - process
   - enforcement
-size: S
 detail: >-
   Helper node-only `unloggedCommits(tree)` dans src/lib/render.ts (à côté de git()) : prend le
   `commit` de la tâche au completedAt le plus récent (actives + archive), compte `git rev-list

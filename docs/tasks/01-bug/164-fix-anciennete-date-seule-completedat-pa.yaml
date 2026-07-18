@@ -1,5 +1,4 @@
 id: 232
-code: null
 title: >-
   Fix ancienneté : date seule (completedAt) parsée en UTC minuit → décalage jusqu'à ~24h (« 22h ago
   » pour aujourd'hui)
@@ -7,7 +6,6 @@ status: done
 tags:
   - bug
   - dashboard
-size: null
 detail: null
 refs: []
 links: []

@@ -1,9 +1,7 @@
 id: 292
-code: null
 title: "Relative-time « il y a X » faux : completedAt stocké en date seule (fix incomplet de #84)"
 status: done
 tags: []
-size: null
 heat: 80
 detail: >-
   Cause racine (agent, repro TZ Paris) : completedAt est stampé par today() (date seule

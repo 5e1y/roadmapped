@@ -1,11 +1,9 @@
 id: 351
-code: null
 title: "Spec : flux d'activité agent ultra précis — hooks Claude Code → onglet Activity"
 status: done
 tags:
   - activity
   - spec
-size: null
 heat: 70
 detail: >-
   Cœur de l'idée terminal de Rémi : avoir la main sur TOUT ce que fait l'agent pour un onglet

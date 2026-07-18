@@ -1,12 +1,10 @@
 id: 175
-code: null
 title: >-
   Contraste : titre de colonne vide RoadmapColumns:166 (neutral-300→500) + placeholder tiret no-tags
   ui.tsx:388 (neutral-400→500)
 status: done
 tags:
   - a11y
-size: null
 detail: null
 refs: []
 links: []

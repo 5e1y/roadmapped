@@ -1,5 +1,4 @@
 id: 315
-code: null
 title: "KB filtres : vraie checkbox (case vide visible + cochée quand actif) au lieu d'un slot vide/coche"
 status: done
 tags:
@@ -7,7 +6,6 @@ tags:
   - graphify
   - ux
   - filters
-size: null
 heat: 72
 detail: >-
   Retour Rémi : dans FilterMenu (src/components/ViewHeader.tsx), l'item sélectionné montre une

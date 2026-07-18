@@ -1,9 +1,7 @@
 id: 93
-code: null
 title: "MCP socle 4 — guide : activation .mcp.json + catalogue des tools"
 status: done
 tags: []
-size: S
 detail: >-
   Documenter dans docs/guide.md : comment activer le serveur MCP (redémarrer Claude Code pour
   charger .mcp.json ; coexiste avec le skill/CLI), et le catalogue des 14 tools (lecture + écriture)

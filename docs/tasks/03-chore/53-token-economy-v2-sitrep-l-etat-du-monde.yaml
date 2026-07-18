@@ -1,11 +1,9 @@
 id: 70
-code: null
 title: "Token economy v2 — sitrep : l'état du monde en 30 lignes"
 status: done
 tags:
   - token-economy
   - cli
-size: S
 detail: >-
   ⛔ Après la v1. Annexe pt 3 : task.mjs sitrep = ouverture de session en un appel — N done
   aujourd'hui (titres), in_progress avec âge, les 3 prochaines de la file, validate en un mot,

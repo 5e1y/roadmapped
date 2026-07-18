@@ -1,9 +1,7 @@
 id: 45
-code: null
 title: Idée initiale — Roadmaped, gestion de projet locale agent-first
 status: done
 tags: []
-size: null
 detail: >-
   Le problème : piloter le travail d'un agent (Claude Code) sur un projet exige une source de vérité
   locale, versionnée, lisible par l'agent comme par l'humain — les outils SaaS restent hors-repo et

@@ -1,9 +1,7 @@
 id: 254
-code: null
 title: "Oiseau : impossible de se poser sur les derniers encarts blancs"
 status: done
 tags: []
-size: null
 heat: 60
 detail: >-
   Sur la home, l'oiseau ne se pose pas sur les dernières cartes/encarts blancs (bas de page). Diag

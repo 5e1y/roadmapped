@@ -1,12 +1,10 @@
 id: 215
-code: null
 title: Peaufiner la DA du dashboard — passe de polish UI
 status: done
 tags:
   - design
   - dashboard
   - ux
-size: null
 detail: >-
   Passe de raffinement visuel sur le dashboard existant : cohérence des espacements/rythmes, états
   (hover/focus/empty/loading), micro-interactions, alignements, densité, contraste. Rester dans le

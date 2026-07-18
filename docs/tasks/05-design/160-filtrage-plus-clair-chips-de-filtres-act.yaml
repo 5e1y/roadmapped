@@ -1,5 +1,4 @@
 id: 210
-code: null
 title: >-
   Filtrage plus clair : chips de filtres actifs + clear-all en haut du backlog (fix cul-de-sac petit
   écran) + affordance de désélection
@@ -8,7 +7,6 @@ tags:
   - dashboard
   - design
   - ux
-size: null
 detail: >-
   Demande Rémi (quickshot). Trois problèmes de filtrage : (1) pas clair qu'il faut recliquer un
   élément (team dans le radar, tag dans la matrice nodale/TagGraph) pour revenir à la normale ; (2)

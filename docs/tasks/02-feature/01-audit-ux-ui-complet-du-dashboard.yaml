@@ -1,11 +1,9 @@
 id: 1
-code: null
 title: Audit UX/UI complet du dashboard
 status: done
 tags:
   - ux
   - audit
-size: S
 detail: >-
   Parcourir chaque vue avec des données réelles (ce backlog de lancement) : Backlog, Roadmap
   Colonnes, Roadmap Graphe, Docs, side panel de tâche. Consigner chaque friction : hiérarchie

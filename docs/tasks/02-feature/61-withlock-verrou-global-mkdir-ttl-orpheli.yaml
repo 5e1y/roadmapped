@@ -1,9 +1,7 @@
 id: 83
-code: null
 title: withLock — verrou global mkdir + TTL orphelin (TDD concurrence réelle)
 status: done
 tags: []
-size: M
 detail: >-
   Sérialise TOUTE mutation via withLock(tasksDir, fn) dans taskWrites.ts : mkdir docs/tasks/.lock
   (atomique tous FS) autour de allocation→écriture→validation→libération (finally). Toutes les

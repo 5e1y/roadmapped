@@ -1,12 +1,10 @@
 id: 60
-code: null
 title: Radar — cartes HTML à taille fixe et traits non-scalants (lisibilité)
 status: done
 tags:
   - ux
   - design
   - bug
-size: S
 detail: >-
   Retour Rémi (2026-07-07, capture) : à petite taille le radar reste illisible — cause racine : les
   cartes vivent DANS le SVG, donc leur typo rétrécit proportionnellement, et les traits (strokeWidth

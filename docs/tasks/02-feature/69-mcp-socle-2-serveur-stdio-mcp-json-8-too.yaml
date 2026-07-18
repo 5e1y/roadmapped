@@ -1,9 +1,7 @@
 id: 91
-code: null
 title: MCP socle 2 — serveur stdio + .mcp.json + 8 tools de lecture
 status: done
 tags: []
-size: L
 detail: >-
   scripts/mcp-server.mjs : instancie @modelcontextprotocol/sdk (transport stdio, Node ≥22.18),
   résout tasksDir via loadPaths(). Enregistre les 8 tools de LECTURE : sitrep, brief, next, show,

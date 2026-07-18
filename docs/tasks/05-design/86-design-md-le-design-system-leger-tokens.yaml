@@ -1,11 +1,9 @@
 id: 111
-code: null
 title: "design.md — le design system léger : tokens, composants BaseUI canoniques, règles"
 status: done
 tags:
   - design
   - docs
-size: M
 detail: >-
   Créer docs/design.md — un Design.md, PAS un design system complet (décision : YAGNI pour un
   dashboard local ; le doc peut devenir un système si l'app grossit). Contenu, nourri par les 3

@@ -1,12 +1,10 @@
 id: 107
-code: null
 title: Audit a11y 1 — navigation clavier complète du dashboard
 status: done
 tags:
   - design
   - a11y
   - audit
-size: M
 detail: >-
   Parcourir TOUTE l'app au clavier seul (npm run dev, sans souris) : les 4 tabs, Backlog (lignes,
   quick-add mini), Roadmap (colonnes + graphe), Docs (arbre), Notepad, SidePanel/TaskPanel, chaque

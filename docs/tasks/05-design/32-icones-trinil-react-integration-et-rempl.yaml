@@ -1,12 +1,10 @@
 id: 48
-code: null
 title: Icônes trinil-react — intégration et remplacement des SVG inline
 status: done
 tags:
   - ux
   - design
   - icons
-size: S
 detail: >-
   Installer trinil-react (vérifié : v1.3.9 npm, 1055 icônes outline, tree-shakeable, zéro dep, API
   size/color=currentColor/strokeWidth/className/ariaLabel — banque perso de Rémi). Remplacer les SVG

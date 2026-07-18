@@ -1,5 +1,4 @@
 id: 240
-code: null
 title: >-
   BUG onboarding : init dans un repo SANS package.json → devDep roadmapped non ajoutée → npm install
   ne matérialise pas node_modules/roadmapped → .mcp.json + hooks pointent vers un fichier inexistant
@@ -9,7 +8,6 @@ status: done
 tags:
   - publish
   - onboarding
-size: null
 detail: null
 refs: []
 links: []

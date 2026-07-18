@@ -1,11 +1,9 @@
 id: 25
-code: null
 title: Panneau v2 — mode lecture (structure, markdown, relations)
 status: done
 tags:
   - panel
   - ux
-size: L
 detail: >-
   Réécrire TaskPanel en « lecture d'abord » selon la spec §Structure : en-tête (#id + glyphe + titre
   en gros), ligne de chips métadonnées, détail rendu markdown (marked, réutiliser les styles

@@ -1,11 +1,9 @@
 id: 144
-code: null
 title: "Implémenter graph-v2 : dagre (flux de dépendances) + zoom/pan + surlignage amont/aval (spec #4)"
 status: done
 tags:
   - ux
   - fable
-size: L
 detail: >-
   Implémenter docs/specs/2026-07-08-graph-v2.md (décision Rémi 2026-07-08 : DAGRE, on abandonne les
   colonnes-par-stage pour un layout flux-de-dépendances rankdir LR, croisements minimisés).

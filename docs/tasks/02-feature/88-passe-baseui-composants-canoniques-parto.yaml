@@ -1,11 +1,9 @@
 id: 113
-code: null
 title: Passe BaseUI — composants canoniques partout, zéro élément en dur
 status: done
 tags:
   - design
   - baseui
-size: M
 detail: >-
   Appliquer la section « composants canoniques » de docs/design.md (#111) : remplacer chaque
   variante en dur par le composant BaseUI retenu, centralisé dans src/components/ui.tsx. Cas connus

@@ -1,12 +1,10 @@
 id: 222
-code: null
 title: "Config du repo GitHub 5e1y/roadmapped : description, topics, About, social preview, badges"
 status: done
 tags:
   - support
   - publish
   - github
-size: null
 detail: >-
   Soigner la vitrine du repo : description courte (ton Rémi), topics/keywords pour la découvrabilité
   (project-management, ai-agents, yaml, cli, dashboard, local-first…), image de social preview,

@@ -1,11 +1,9 @@
 id: 187
-code: null
 title: Live 4 — updatedAt au niveau ticket (prérequis badges NEW)
 status: done
 tags:
   - live
   - data-model
-size: null
 detail: null
 refs:
   - src/lib/validate.ts

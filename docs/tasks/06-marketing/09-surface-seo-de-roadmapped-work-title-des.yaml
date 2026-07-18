@@ -1,5 +1,4 @@
 id: 165
-code: null
 title: >-
   Surface SEO de roadmapped.work : title/description/OG/Twitter/canonical + JSON-LD
   SoftwareApplication + robots.txt + sitemap.xml + llms.txt
@@ -7,7 +6,6 @@ status: done
 tags:
   - seo
   - homepage
-size: null
 detail: >-
   Aucune balise SEO en place. Ajouter à la landing : <title> ciblé, meta description, Open Graph
   (og:title/description/image/url/type), Twitter card, canonical, JSON-LD SoftwareApplication (nom,

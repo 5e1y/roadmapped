@@ -1,5 +1,4 @@
 id: 303
-code: null
 title: >-
   Spec : intégrer Graphify (knowledge base) dans le dashboard Roadmapped — archi + UI (onglet « kb »
   vs sous-onglet Docs « Documents / Knowledge base »)
@@ -8,7 +7,6 @@ tags:
   - kb
   - graphify
   - spec
-size: null
 heat: 80
 detail: >-
   Demande Rémi : intégrer Graphify (github.com/safishamsi/graphify, graphify.net — skill open-source

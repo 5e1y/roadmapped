@@ -1,12 +1,10 @@
 id: 159
-code: null
 title: >-
   package.json : métadonnées de publication manquantes (repository, license, description, keywords,
   author, homepage, bugs)
 status: done
 tags:
   - publish
-size: null
 detail: null
 refs: []
 links: []

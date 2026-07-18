@@ -1,11 +1,9 @@
 id: 331
-code: null
 title: "Post LinkedIn (FR) : Roadmapped × Graphify — visualise tes tasks ET ta codebase"
 status: done
 tags:
   - linkedin
   - graphify
-size: S
 detail: >-
   Rédiger un post LinkedIn en français, dans le tone of voice de Rémi (docs/tone-of-voice.md :
   direct, pince-sans-rire, jamais négatif, transparence désarmante, anti-marketing assumé).

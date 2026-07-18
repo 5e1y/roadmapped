@@ -1,12 +1,10 @@
 id: 132
-code: null
 title: >-
   Verrouiller les décisions Rémi (verrou jalon iii, libellé epic, .ts strip-types, hook chaîné,
   survol graphe, épinglé doublon) dans les specs
 status: done
 tags:
   - spec
-size: null
 detail: null
 refs: []
 links: []

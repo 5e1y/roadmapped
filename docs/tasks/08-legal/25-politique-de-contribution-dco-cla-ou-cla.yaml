@@ -1,11 +1,9 @@
 id: 220
-code: null
 title: "Politique de contribution : DCO/CLA ou clause claire (droits sur les contributions)"
 status: done
 tags:
   - legal
   - publish
-size: null
 detail: >-
   Décider et documenter le cadre légal des contributions externes : DCO (Signed-off-by) léger, ou
   CLA, ou clause « inbound=outbound » dans CONTRIBUTING. Éviter l'ambiguïté sur la propriété/licence

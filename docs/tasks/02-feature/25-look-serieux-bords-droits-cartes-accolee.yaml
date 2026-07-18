@@ -1,11 +1,9 @@
 id: 38
-code: null
 title: "Look sérieux : bords droits, cartes accolées, hover qui respecte la sélection"
 status: done
 tags:
   - ux
   - design
-size: S
 detail: >-
   Trois décisions design de Rémi (2026-07-07). (1) Le hover gris ne doit JAMAIS masquer l'état
   sélectionné : sur l'élément ouvert dans le panneau, le survol garde l'accent (cartes

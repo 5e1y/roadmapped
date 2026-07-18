@@ -1,5 +1,4 @@
 id: 321
-code: null
 title: >-
   KB : figer les paramètres de sim par défaut choisis par Rémi (spring 160, repulsion −200,
   centering 0.040, friction 0.50, settle 240, theta 0.50, radius 7/40)
@@ -7,7 +6,6 @@ status: done
 tags:
   - kb
   - graphify
-size: null
 heat: 85
 detail: >-
   Rémi a tuné via le panneau Display (#318) et validé ces défauts pour KB_SIM (src/lib/kbSim.ts) :

@@ -1,11 +1,9 @@
 id: 343
-code: null
 title: "Vue Graphe : epics comme filtres (même fonctionnement que la Roadmap)"
 status: done
 tags:
   - ui
   - graph
-size: null
 detail: >-
   Le graphe de dépendances devient quasi inutilisable dès qu'on utilise des epics (constat Rémi).
   Reprendre le mécanisme éprouvé de la vue Roadmap : la bande d'epics (EpicBand) comme filtre. Un

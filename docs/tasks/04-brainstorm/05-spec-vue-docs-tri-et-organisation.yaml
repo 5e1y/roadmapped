@@ -1,11 +1,9 @@
 id: 5
-code: null
 title: "Spec — vue Docs : tri et organisation"
 status: done
 tags:
   - ux
   - spec
-size: S
 detail: >-
   Brainstorm avec Rémi : l'arbre docs actuel est brut. Spécifier : tri (alphabétique / récemment
   modifié), regroupement logique (specs, guides, audits), recherche/filtre dans l'arbre, métadonnées

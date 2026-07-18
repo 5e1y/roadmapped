@@ -1,9 +1,7 @@
 id: 335
-code: null
 title: Logo Graphify officiel dans l'empty state de la vue Knowledge base
 status: done
 tags: []
-size: null
 detail: null
 refs:
   - src/components/KbGraph.tsx#GraphifyMark

@@ -1,5 +1,4 @@
 id: 200
-code: null
 title: >-
   node_modules hôte à 109 Mo : l'install tire vite/react/tailwind (deps du dashboard) dans chaque
   repo utilisateur
@@ -7,7 +6,6 @@ status: done
 tags:
   - publish
   - perf
-size: null
 detail: >-
   Un utilisateur qui veut juste CLI+MCP de gestion de tâches se retrouve avec 109 Mo de node_modules
   (React, Vite, Tailwind, @base-ui, dagre, trinil, marked). Piste : déplacer les deps DASHBOARD-only

@@ -1,12 +1,10 @@
 id: 76
-code: null
 title: "Spec — Notepad : incubateur d'idées et créateur de prompts"
 status: done
 tags:
   - spec
   - ux
   - notepad
-size: M
 detail: >-
   Brainstorm FAIT (3 questions tranchées par Rémi le 2026-07-07 : docs/notes/ gitignoré exclu de
   Docs ; v1 = socle + pièces jointes en liens/reveal Finder + copier pour l'agent ; auto-archive à

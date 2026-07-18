@@ -1,9 +1,7 @@
 id: 286
-code: null
 title: "Mobile : wordmark « Roadmapped » sur 2 lignes (Road / mapped) en fill"
 status: done
 tags: []
-size: null
 heat: 45
 detail: >-
   Sur mobile (petits écrans), le wordmark géant se casse en 2 lignes « Road » puis « mapped »,

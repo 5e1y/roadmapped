@@ -1,9 +1,7 @@
 id: 281
-code: null
 title: Régénérer la démo embarquée (dernière version de l'app)
 status: done
 tags: []
-size: null
 heat: 55
 detail: >-
   npm run build:demo dans le repo app → dist-demo/ → recopier dans site/demo/ (remplace l'ancienne

@@ -1,5 +1,4 @@
 id: 156
-code: null
 title: >-
   Homepage : retirer l'epic du tree démo (placement colonnes/graphe correct) + re-snapshot de la
   dernière app
@@ -7,7 +6,6 @@ status: done
 tags:
   - marketing
   - fable
-size: M
 detail: >-
   Deux corrections sur la démo homepage (#148). (1) BUG placement : le tree démo (src/demo/tree.ts)
   met tous les tickets dans un epic « homepage » → la logique de regroupement (#135) les colle en UN

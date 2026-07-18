@@ -1,5 +1,4 @@
 id: 320
-code: null
 title: >-
   KB graphe : fond/encadré derrière les labels de nœuds (lisibilité en densité) + état ACTIF du nœud
   sélectionné (fill accent plein, iso aperçu thème backlog)
@@ -9,7 +8,6 @@ tags:
   - graphify
   - renderer
   - ux
-size: null
 heat: 84
 detail: >-
   Retour Rémi (capture, densité intense). (1) LABELS ILLISIBLES sur fond dense : ajouter un

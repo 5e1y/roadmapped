@@ -1,11 +1,9 @@
 id: 338
-code: null
 title: >-
   README GitHub restylé : hero centré (oiseau > titre > baseline), prompt agent en premier dans un
   code block copiable, nouvelle image démo, copy densifiée
 status: done
 tags: []
-size: null
 detail: null
 refs:
   - README.md

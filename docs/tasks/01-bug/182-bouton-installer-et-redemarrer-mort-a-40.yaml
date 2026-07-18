@@ -1,12 +1,10 @@
 id: 336
-code: null
 title: >-
   Bouton « installer et redémarrer » mort : (a) 409 quand l'autoUpdate a déjà réécrit le lock (le
   process qui tourne reste vieux), (b) le restart perd le port d'origine (l'onglet sonde un port
   mort) — amplifié par #330
 status: done
 tags: []
-size: null
 detail: null
 refs:
   - src/server/api.ts#/api/update

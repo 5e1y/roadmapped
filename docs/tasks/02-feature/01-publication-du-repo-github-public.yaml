@@ -1,10 +1,8 @@
 id: 13
-code: null
 title: Publication du repo GitHub public
 status: done
 tags:
   - open-source
-size: S
 detail: >-
   Créer le repo GitHub public (roadmaped), pousser main, vérifier que la CI passe au vert sur le
   vrai repo, activer Issues et Discussions, renseigner description + topics (project-management,

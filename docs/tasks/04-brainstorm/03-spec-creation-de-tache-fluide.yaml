@@ -1,11 +1,9 @@
 id: 3
-code: null
 title: Spec — création de tâche fluide
 status: done
 tags:
   - ux
   - spec
-size: S
 detail: >-
   Brainstorm avec Rémi : documenter la friction actuelle de la création (nombre de clics, champs, où
   atterrit le focus), puis specifier une création rapide : saisie du titre inline dans la section,

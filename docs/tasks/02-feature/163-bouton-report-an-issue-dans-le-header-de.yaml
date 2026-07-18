@@ -1,12 +1,10 @@
 id: 227
-code: null
 title: Bouton « Report an issue » dans le header de l'app → GitHub new issue
 status: done
 tags:
   - engineering
   - dashboard
   - github
-size: null
 detail: >-
   Demandé par la team support pour canaliser les feedbacks users depuis l'app. Ajouter un contrôle
   discret dans le header (ViewHeader, cluster droit, cohérent avec Activity/FilterMenu) « Report an

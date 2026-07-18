@@ -1,5 +1,4 @@
 id: 323
-code: null
 title: >-
   Analyse : Graphify par DÉFAUT à l'install (bootstrap Python via uv) + audit de l'ancrage profond
   skill/MCP/CLI pour que les agents naviguent par le graphe (économie tokens ~70%)
@@ -9,7 +8,6 @@ tags:
   - graphify
   - spec
   - install
-size: null
 heat: 90
 detail: >-
   Décision Rémi (2026-07-12) : Graphify n'est PAS un opt-in, c'est le CŒUR de Roadmapped — il réduit

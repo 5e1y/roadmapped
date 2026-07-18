@@ -1,5 +1,4 @@
 id: 316
-code: null
 title: >-
   KB : graphe physique LIVE façon Obsidian — simulation de forces continue, nœuds qui se déplacent
   (pas de switch), drag interactif, « génération » animée à l'ouverture au lieu d'un fade
@@ -10,7 +9,6 @@ tags:
   - renderer
   - perf
   - ux
-size: null
 heat: 80
 detail: >-
   Retour Rémi (le rendu KB doit devenir vivant). Passer du layout PRÉ-CALCULÉ statique (kbLayout +

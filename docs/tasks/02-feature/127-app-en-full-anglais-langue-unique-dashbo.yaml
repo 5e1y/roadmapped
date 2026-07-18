@@ -1,11 +1,9 @@
 id: 155
-code: null
 title: "App en full anglais (langue unique) : dashboard UI + CLI + skill + docs"
 status: done
 tags:
   - i18n
   - fable
-size: L
 detail: >-
   Décision Rémi : tout en anglais, langue UNIQUE (pas d'i18n, pas de bascule). Périmètre TOTAL : (1)
   Dashboard UI — tous les libellés visibles des composants React (boutons « Terminer »→ Finish,

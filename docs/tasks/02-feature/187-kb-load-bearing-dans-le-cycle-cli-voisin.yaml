@@ -1,5 +1,4 @@
 id: 325
-code: null
 title: >-
   KB load-bearing dans le cycle CLI : voisinage KB embarqué d'office dans take/brief + ligne KB
   (+staleness) dans sitrep + nudge --update dans done + kb refresh (AST) + kb doctor seuils
@@ -9,7 +8,6 @@ tags:
   - graphify
   - cli
   - agent
-size: null
 heat: 92
 detail: >-
   Cœur de l'ancrage (docs/specs/graphify-anchoring.md P0/P2) : rendre la KB LOAD-BEARING dans

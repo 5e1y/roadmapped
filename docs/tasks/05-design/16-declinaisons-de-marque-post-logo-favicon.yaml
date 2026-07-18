@@ -1,12 +1,10 @@
 id: 216
-code: null
 title: "Déclinaisons de marque post-logo : favicon, app icons, og image réelle"
 status: todo
 tags:
   - design
   - brand
   - assets
-size: null
 detail: >-
   Une fois le logo prêt : produire favicon(s), app/tab icons, et une VRAIE og image de marque
   (remplace l'og.png texte provisoire du site #208). Décliner sur le dashboard (titre/onglet) et le

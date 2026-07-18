@@ -1,5 +1,4 @@
 id: 199
-code: null
 title: >-
   BUG install : init écrit roadmapped@^0.1.0 (registre npm non publié) → npm install 404 chez
   l'hôte, MCP+guard+hooks cassés. Sourcer depuis github:5e1y/roadmapped
@@ -7,7 +6,6 @@ status: done
 tags:
   - bug
   - publish
-size: null
 detail: null
 refs: []
 links: []

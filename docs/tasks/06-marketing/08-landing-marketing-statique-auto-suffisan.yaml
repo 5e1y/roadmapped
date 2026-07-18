@@ -1,5 +1,4 @@
 id: 164
-code: null
 title: >-
   Landing marketing statique auto-suffisante (site/index.html) — mobile-first, DS monochrome+accent,
   embarque la démo
@@ -7,7 +6,6 @@ status: done
 tags:
   - marketing
   - homepage
-size: null
 detail: >-
   Aucune landing n'existe dans le repo (seulement docs/site-copy.md + le build démo). Construire une
   page HTML unique auto-suffisante (CSS inline), mobile-first, alignée design.md (monochrome +

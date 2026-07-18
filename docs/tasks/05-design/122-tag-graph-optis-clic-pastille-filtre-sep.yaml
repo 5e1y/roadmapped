@@ -1,12 +1,10 @@
 id: 150
-code: null
 title: >-
   Tag-graph optis : clic pastille = filtre, séparateur full-width, radar ancré en haut (visu nodal
   dessous)
 status: done
 tags:
   - ux
-size: S
 detail: >-
   Retours Rémi sur le tag-graph (#146), une seule passe (TagGraph.tsx + Backlog.tsx + tagGraph.ts).
   (1) Clic sur la PASTILLE (le <circle> SVG) active/désactive le filtre comme le label — aujourd'hui

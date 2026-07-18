@@ -1,11 +1,9 @@
 id: 217
-code: null
 title: "Licence du projet : confirmer MIT, fichier LICENSE (holder, année), cohérence README/site"
 status: done
 tags:
   - legal
   - publish
-size: null
 detail: >-
   Vérifier/poser la licence : fichier LICENSE MIT correct (titulaire = Rémi Courtillon, année),
   badge et mentions cohérents entre LICENSE, package.json (champ license), README et le site

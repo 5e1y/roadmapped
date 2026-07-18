@@ -1,5 +1,4 @@
 id: 307
-code: null
 title: >-
   KB : un nœud concept/rationale adossé à un docs/*.md s'ouvre en OS-reveal au lieu du viewer Docs
   (routage par file_type au lieu de l'extension)
@@ -7,7 +6,6 @@ status: done
 tags:
   - kb
   - graphify
-size: null
 detail: null
 refs: []
 links: []

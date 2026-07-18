@@ -1,12 +1,10 @@
 id: 43
-code: null
 title: "Stages+teams — vues : stages estompés, badge et filtre team, panneau"
 status: done
 tags:
   - refactor
   - ux
   - design
-size: L
 detail: >-
   RÉSERVÉ FABLE (design). Spec §Vues : stages vides estompés et resserrés (~180px) dans
   Colonnes+Graphe, chemin des 8 toujours visible ; accordéons Backlog = stages (vides estompés

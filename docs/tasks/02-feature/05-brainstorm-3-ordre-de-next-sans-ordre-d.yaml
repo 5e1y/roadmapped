@@ -1,5 +1,4 @@
 id: 231
-code: null
 title: >-
   Brainstorm 3 : ordre de next SANS ordre d'epics — « température » (spectre continu) + signaux
   graphe (blocages) + ancienneté
@@ -7,7 +6,6 @@ status: done
 tags:
   - engineering
   - product
-size: null
 detail: >-
   Suite de #230. CONTRAINTE DURE de Rémi : AUCUN ordre dans/entre les epics — la proposition « ordre
   de _epics.yaml = priorité » (#230 §5) est REJETÉE. Les epics restent des regroupements NON

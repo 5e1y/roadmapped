@@ -1,5 +1,4 @@
 id: 248
-code: null
 title: >-
   Commande roadmapped migrate + garde de version : industrialiser migrate-types.mjs en commande
   CLI/bin, + un message clair quand validate rejette un ancien modèle (8 stages/team) au lieu de
@@ -10,7 +9,6 @@ tags:
   - publish
   - onboarding
   - migration
-size: null
 detail: null
 refs: []
 links: []

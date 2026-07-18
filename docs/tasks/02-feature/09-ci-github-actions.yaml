@@ -1,11 +1,9 @@
 id: 9
-code: null
 title: CI GitHub Actions
 status: done
 tags:
   - open-source
   - ci
-size: S
 detail: >-
   Créer .github/workflows/ci.yml : déclenché sur push et pull_request, Node 22, npm ci, puis npm run
   test (vitest) et npm run build (tsc -b + vite build, couvre le typecheck). Ajouter le badge CI

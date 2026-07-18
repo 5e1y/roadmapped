@@ -1,12 +1,10 @@
 id: 103
-code: null
 title: "Guard 4 — guide : section enforcement (règle, hook, signal, échappatoire)"
 status: done
 tags:
   - process
   - enforcement
   - docs
-size: S
 detail: >-
   Courte section dans docs/guide.md (près du workflow / après la section MCP) : la règle « tout
   changement du repo = une unité roadmaped, done = frontière » ; le hook pre-commit guard

@@ -1,11 +1,9 @@
 id: 50
-code: null
 title: Backlog v2 — liste plate en deux colonnes (ouverts / terminés)
 status: done
 tags:
   - ux
   - design
-size: L
 detail: >-
   Batch design Rémi (2026-07-07) — refonte de la vue Backlog : PLUS d'accordéons par stage (les
   stages vivent dans la Roadmap). Liste plate en DEUX colonnes : gauche = tickets ouverts (todo +

@@ -1,5 +1,4 @@
 id: 246
-code: null
 title: >-
   Roadmap : passe de densité/lisibilité générale quand beaucoup de tickets (espacements, troncature,
   hauteur de carte, perf de scroll)
@@ -8,7 +7,6 @@ tags:
   - dashboard
   - ux
   - roadmap
-size: null
 detail: null
 refs: []
 links: []

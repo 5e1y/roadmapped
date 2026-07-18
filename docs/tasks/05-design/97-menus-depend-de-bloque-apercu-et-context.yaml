@@ -1,5 +1,4 @@
 id: 125
-code: null
 title: >-
   Menus « dépend de » / « bloque » : aperçu et contexte des tâches (filtre + mini-carte façon
   backlog/roadmap)
@@ -7,7 +6,6 @@ status: done
 tags:
   - ux
   - panel
-size: M
 detail: >-
   Les combobox de dépendances/liens ne montrent que le titre — trop peu de contexte pour choisir la
   bonne tâche. Ajouter un aperçu rapide par item (façon carte roadmap ou item de backlog : #, titre,

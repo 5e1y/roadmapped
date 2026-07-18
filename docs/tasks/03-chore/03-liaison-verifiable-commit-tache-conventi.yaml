@@ -1,5 +1,4 @@
 id: 104
-code: null
 title: >-
   Liaison vérifiable commit↔tâche (convention #id parsée, audit des orphelins) — différée de la spec
   enforcement
@@ -7,7 +6,6 @@ status: done
 tags:
   - debt
   - process
-size: null
 detail: null
 refs: []
 links: []

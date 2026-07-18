@@ -1,9 +1,7 @@
 id: 271
-code: null
 title: "Mascotte header app : tête navy illisible en dark mode → theme-aware"
 status: done
 tags: []
-size: null
 heat: 45
 detail: >-
   BirdMascot (header de l'app) a une palette fixe : la tête navy #0F1225 se fond sur fond sombre en
