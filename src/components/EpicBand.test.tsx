@@ -7,8 +7,8 @@ import type { TaskNode, TaskTree, SectionNode } from '../lib/tasks'
 afterEach(cleanup)
 
 const base: TaskNode = {
-  id: 1, kind: 'task', code: null, title: 'Tâche', status: 'todo',
-  tags: [], size: null,
+  id: 1, kind: 'task', title: 'Tâche', status: 'todo',
+  tags: [],
   detail: null, refs: [], links: [], dependsOn: [], epic: null,
   source: 'ai', createdAt: '2026-06-24', startedAt: null, completedAt: null, commit: null,
   outcome: null, verification: null, release: null,

@@ -19,7 +19,7 @@ Flat YAML/markdown files under `docs/tasks/` are the ONLY source of truth (no pa
 | a note/change on an **existing** ticket | **open** → `feedback <id> "…"` · **done + same scope** → reopen (`start <id>`) + re-`done` · **done + new scope** → a `quick` |
 | a **slice** of a ticket, meaningless on its own | a **subtask** of it (`references/formats.md`) |
 | part of a **named effort**, or you're filing **3+ related** tickets | give each its own type + the **same `--epic <slug>`** (grouping — does NOT prioritise) |
-| an **isolated** size-S fix, nothing to decide | `quick "<title>" --type <t>` |
+| an **isolated**, small fix, nothing to decide | `quick "<title>" --type <t>` |
 | a standalone unit with real context | `add --type <t> …`, normal cycle |
 | multi-task, architecture calls to make | spec first (`references/planning.md`), THEN the tasks |
 
@@ -86,7 +86,7 @@ For `sitrep`/`take`/`brief`/`next`/`quick`/`add`/`start`/`done`: open NO referen
 - ❌ Hand-editing a YAML when the CLI covers the operation, or touching `_meta.yaml`/reusing an id.
 - ❌ Starting a locked task or bypassing a dependency without explicit agreement.
 - ❌ `done` without an honest `--outcome` (and `--verification` actually run for a `task`) — never "should work".
-- ❌ Creating a 10th type, renaming a type, writing a `team`/`stage` field (removed from the schema), or a status/size outside the enum.
+- ❌ Creating a 10th type, renaming a type, writing a `team`/`stage`/`size`/`code` field (removed from the schema), or a status outside the enum.
 - ❌ Reordering `_epics.yaml` to "prioritize" — epics don't order anything; use `--heat` or a dependency instead.
 - ❌ Coding anything non-trivial (rung 4) without an approved spec first.
 - ❌ Creating a parallel markdown plan file — a plan IS tasks chained by `dependsOn`.

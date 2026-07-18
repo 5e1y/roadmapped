@@ -5,8 +5,8 @@ import type { TaskNode } from './tasks'
 /** Fabrique minimale de TaskNode (mêmes défauts que les autres tests). */
 function task(over: Partial<TaskNode>): TaskNode {
   return {
-    id: 1, kind: 'task', code: null, title: 't', status: 'todo',
-    tags: [], size: null,
+    id: 1, kind: 'task', title: 't', status: 'todo',
+    tags: [],
     detail: null, refs: [], links: [], dependsOn: [], epic: null,
     source: 'ai', createdAt: '2026-07-01', startedAt: null, completedAt: null,
     commit: null, outcome: null, verification: null, release: null,

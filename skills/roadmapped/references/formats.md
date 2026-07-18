@@ -77,11 +77,9 @@ Worked edge cases:
 ```yaml
 id: 42                    # allocated by the CLI from _meta.yaml — never chosen by hand
 kind: milestone           # ADDITIVE — absent = task (default). milestone = MILESTONE (see § Milestones). ('quick' removed #250.)
-code: B3                  # optional, short human code (null otherwise)
 title: "Task title"
 status: todo              # todo | in_progress | done — NOTHING else
 tags: [bug, perf]         # free-form, [] if none
-size: M                   # S | M | L | null
 heat: null                # OPTIONAL priority seed, 0-100 (2 decimals max) — null/absent = cold. See § Temperature.
 detail: |
   The WHAT and the WHY, known pitfalls, the definition of done.
@@ -122,7 +120,7 @@ note: "Something is broken or doesn't behave as promised — product, site, tool
 
 **The dashboard's Roadmap view = the backlog's 9 types** (one column per type, canonical order, empty type dimmed). A task's state (done / available / locked) is **computed** from `status` + `dependsOn` — never stored. There's nothing to create: sorting each task into the right type AND setting its `dependsOn` IS building the roadmap.
 
-**Progress**: `sitrep` displays a `progress: x/y (pct%)` line (abandoned/dormant types excluded); `task.mjs roadmap` details overall + per-epic progress. Simple task count, no weighting by size.
+**Progress**: `sitrep` displays a `progress: x/y (pct%)` line (abandoned/dormant types excluded); `task.mjs roadmap` details overall + per-epic progress. Simple task count, no weighting.
 
 ### Temperature — the priority signal (replaces the old stage order)
 

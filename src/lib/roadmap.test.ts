@@ -6,7 +6,7 @@ import type { TaskTree, TaskNode, SectionNode } from './tasks'
 /** Fabrique une tâche minimale ; les champs non pertinents prennent des défauts. */
 function task(id: number, status: TaskNode['status'], dependsOn: number[] = [], epic: string | null = null): TaskNode {
   return {
-    id, kind: 'task', code: null, title: `T${id}`, status, tags: [], size: null, detail: null,
+    id, kind: 'task', title: `T${id}`, status, tags: [], detail: null,
     refs: [], links: [], dependsOn, epic, source: 'ai', createdAt: '2026-07-07', startedAt: null,
     completedAt: null, commit: null, outcome: null, verification: null, release: null,
     file: `docs/tasks/01-x/${id}.yaml`, subtasks: [],

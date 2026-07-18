@@ -8,7 +8,7 @@ const INIT = 'roadmapped:seenInit'
 
 function node(id: number, updatedAt: string | null): TaskNode {
   return {
-    id, kind: 'task', code: null, title: `T${id}`, status: 'todo', tags: [], size: null,
+    id, kind: 'task', title: `T${id}`, status: 'todo', tags: [],
     detail: null, refs: [], links: [], dependsOn: [], epic: null,
     source: 'ai', createdAt: '2026-07-09', startedAt: null, updatedAt, completedAt: null,
     commit: null, outcome: null, verification: null, release: null,
