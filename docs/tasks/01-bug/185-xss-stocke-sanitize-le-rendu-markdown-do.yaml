@@ -1,6 +1,6 @@
 id: 359
 title: "XSS stocké : sanitize le rendu markdown (DOMPurify) — detail/outcome de ticket et docs/*.md"
-status: todo
+status: done
 tags:
   - security
   - xss
@@ -21,9 +21,23 @@ dependsOn: []
 epic: audit-remediation
 source: ai
 createdAt: "2026-07-18T23:54:38"
-updatedAt: "2026-07-18T23:54:38"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+startedAt: "2026-07-19T00:01:27"
+updatedAt: "2026-07-19T00:11:51"
+completedAt: "2026-07-19T00:11:51"
+commit: 080f102
+outcome: >-
+  XSS stocké corrigé : renderMarkdown (src/components/Markdown.tsx, point unique — DocsView y passe
+  déjà) sanitise la sortie de marked via DOMPurify avant dangerouslySetInnerHTML. Config
+  SANITIZE_CONFIG : USE_PROFILES html-only (pas de SVG/MathML), ALLOWED_URI_REGEXP restreint à
+  http(s)/mailto/ancres #slug/relatifs (javascript: et data: rejetés), ADD_ATTR ['id'] pour
+  préserver les ancres de heading du scroll interne. Neutralisés par défaut : script,
+  iframe/object/embed, tous les on*. Dépendance dompurify ^3.4.12 (types bundlés en v3, pas de
+  @types) ; rendu client-only (render.ts Node produit du texte, pas d'HTML) donc pas besoin
+  d'isomorphic. Commentaires trompeurs « pas de surface XSS » retirés. Impact bundle ~10.5kB gz.
+verification: >-
+  10 tests Markdown.test.tsx : <img onerror>/onerror retiré, <script> neutralisé, [x](javascript:)
+  href retiré, <iframe> retiré, onclick retiré ; ET markdown légitime préservé (lien https
+  cliquable, bloc code, heading garde id=#slug, listes/tables, img https). Regex ALLOWED_URI tracé à
+  la main : javascript:/data: rejetés, #slug/relatifs admis. tsc clean, suite complète 642/642,
+  build OK, bundle dist contient la sanitisation.
+release: 0.2.3
