@@ -5,6 +5,7 @@ import {
 import { join, relative, dirname } from 'node:path'
 import yaml from 'js-yaml'
 import { buildTaskTree } from './tasks.ts'
+import { findHostRoot } from './paths.ts'
 import { validateTaskTree, validateIdUniquenessAcrossFiles } from './validate.ts'
 import type { TaskTree, TaskNode, TaskFileMap, FeedbackItem } from './tasks'
 import { TYPES } from './tasks.ts'
@@ -425,9 +426,30 @@ interface DoneOpts {
   commit?: string
   outcome?: string
   verification?: string
-  release?: string
+  /** Version de release (#341). ABSENT (undefined) → auto-stamp de la version du
+   *  package.json HÔTE (#341). String → priorité. `null` explicite → efface le champ. */
+  release?: string | null
   /** Résout les feedbacks à la clôture (#149) : 'all' ou des positions 1-based. */
   resolveFeedback?: 'all' | number[]
+}
+
+/**
+ * Version du package.json du repo HÔTE, pour l'auto-stamp de release au done (#341).
+ * La racine hôte est RE-DÉRIVÉE du tasksDir via findHostRoot (le même mécanisme que
+ * loadPaths) — robuste à un tasksDir custom (remonte jusqu'au marqueur config/.git),
+ * là où un simple `../../` casserait. null (jamais d'erreur) si pas de package.json,
+ * JSON illisible, ou champ `version` absent/non-string : le done ne doit JAMAIS
+ * casser sur un hôte sans package versionné.
+ */
+function hostPackageVersion(tasksDir: string): string | null {
+  try {
+    const json = JSON.parse(readFileSync(join(findHostRoot(tasksDir), 'package.json'), 'utf8')) as {
+      version?: unknown
+    }
+    return typeof json.version === 'string' && json.version.trim() !== '' ? json.version : null
+  } catch {
+    return null
+  }
 }
 
 export function doneTask(tasksDir: string, id: number, opts: DoneOpts): MutationResult {
@@ -461,7 +483,12 @@ function doneTaskImpl(tasksDir: string, id: number, opts: DoneOpts): MutationRes
     if (typeof opts.commit === 'string') raw.commit = opts.commit
     if (typeof opts.outcome === 'string') raw.outcome = opts.outcome
     if (typeof opts.verification === 'string') raw.verification = opts.verification
-    if (typeof opts.release === 'string') raw.release = opts.release
+    // Release (#341) : un opts.release explicite garde TOUJOURS la priorité — string
+    // (valeur) ou null (efface). ABSENT → auto-stamp de la version du package.json
+    // hôte (null si absent/sans version) ; à défaut on préserve un release déjà posé
+    // (re-done après réouverture), sinon null. Aucune erreur possible.
+    if (opts.release !== undefined) raw.release = opts.release
+    else raw.release = hostPackageVersion(tasksDir) ?? raw.release ?? null
     // Résolution des feedbacks à la clôture (#149) : 'all' ou positions 1-based.
     if (opts.resolveFeedback && Array.isArray(raw.feedback)) {
       ;(raw.feedback as { resolved: boolean }[]).forEach((f, i) => {
