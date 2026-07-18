@@ -15,7 +15,7 @@ epic: null
 source: ai
 createdAt: "2026-07-09T17:58:49"
 startedAt: "2026-07-10T10:31:54"
-updatedAt: "2026-07-10T10:34:38"
+updatedAt: "2026-07-18T21:29:40"
 completedAt: "2026-07-10"
 commit: 79b9f46
 outcome: >-
@@ -26,4 +26,4 @@ outcome: >-
 verification: >-
   End-to-end sur dashboard réel : PATCH heat=60 sur #201 → température 14,15° → 34,15° (seed
   60/3=20) ; heat=150 → rejeté (« heat hors bornes ») ; heat=null → froid. tsc 0.
-release: null
+release: pre-release

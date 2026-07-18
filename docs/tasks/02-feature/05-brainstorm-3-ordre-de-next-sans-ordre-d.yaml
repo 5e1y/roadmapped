@@ -40,7 +40,7 @@ epic: null
 source: ai
 createdAt: "2026-07-09T15:30:23"
 startedAt: "2026-07-09T15:30:29"
-updatedAt: "2026-07-09T15:57:05"
+updatedAt: "2026-07-18T21:29:37"
 completedAt: "2026-07-09"
 commit: "3843248"
 outcome: >-
@@ -57,4 +57,4 @@ verification: >-
   Doc relu (§2 formule + tiers + base + §3 tri). Cohérent, arrondis vérifiés par Fable (Python),
   mini-exemple démontre la propriété clé : bug jamais seedé #320 (48,67°) dépasse design seed-maxé
   #310 (45,62°). Aucune trace résiduelle du 50/50 hors §2.5 (alternative écartée). Livrable-doc.
-release: null
+release: pre-release

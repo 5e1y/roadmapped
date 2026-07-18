@@ -28,6 +28,7 @@ dependsOn:
 epic: vues-dashboard
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:46"
 completedAt: "2026-07-07"
 commit: abd6778
 outcome: >-
@@ -39,4 +40,4 @@ verification: >-
   Stages/Teams ; dropdown Teams joué (sélection marketing reflétée sur le trigger, effacement) ;
   filtre stage GTM appliqué depuis le header (2 ouvertes restantes constatées sur capture). 128
   tests + build verts.
-release: null
+release: pre-release

@@ -18,7 +18,7 @@ epic: legal-readiness
 source: ai
 createdAt: "2026-07-09T13:55:19"
 startedAt: "2026-07-10T11:24:32"
-updatedAt: "2026-07-10T11:26:14"
+updatedAt: "2026-07-18T21:29:52"
 completedAt: "2026-07-10"
 commit: 2c3d8ce
 outcome: >-
@@ -35,4 +35,4 @@ verification: >-
   react/react-dom MIT, @base-ui/react MIT, tailwind MIT, vite MIT, marked MIT, js-yaml MIT,
   @modelcontextprotocol/sdk MIT, @dagrejs/dagre MIT. Grep copyleft (GPL|LGPL|AGPL) = 0
   correspondance dans les champs license.
-release: null
+release: pre-release

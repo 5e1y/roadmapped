@@ -30,6 +30,7 @@ epic: null
 source: ai
 createdAt: "2026-07-08T16:21:53"
 startedAt: "2026-07-08T16:22:30"
+updatedAt: "2026-07-18T21:29:43"
 completedAt: "2026-07-08"
 commit: 08814b0
 outcome: >-
@@ -54,4 +55,4 @@ verification: >-
   (toutes les deps du backlog pointent vers des tâches actives). Backlog rendu sans section Archive,
   panneau done sans bouton Archiver (headless Fable, 0 erreur console). Contenu docs/tasks/*.yaml
   intact.
-release: null
+release: pre-release

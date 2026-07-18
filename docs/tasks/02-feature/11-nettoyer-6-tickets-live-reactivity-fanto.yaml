@@ -13,7 +13,7 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-09T01:25:01"
-updatedAt: "2026-07-09T01:25:03"
+updatedAt: "2026-07-18T21:29:37"
 completedAt: "2026-07-09"
 commit: d082c36
 outcome: >-
@@ -22,4 +22,4 @@ outcome: >-
   créées (todo, sans deps). Les vrais tickets implémentés sont #185-190. Rien ne dépendait des
   fantômes (vérifié). nextId inchangé (196) — aucun id réutilisé.
 verification: null
-release: null
+release: pre-release

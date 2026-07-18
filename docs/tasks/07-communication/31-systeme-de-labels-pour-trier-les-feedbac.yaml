@@ -18,7 +18,7 @@ epic: community-github
 source: ai
 createdAt: "2026-07-09T13:55:51"
 startedAt: "2026-07-11T12:57:04"
-updatedAt: "2026-07-11T12:57:31"
+updatedAt: "2026-07-18T21:29:52"
 completedAt: "2026-07-11T12:57:31"
 commit: 1e04ec1
 outcome: >-
@@ -31,4 +31,4 @@ outcome: >-
 verification: >-
   gh label list --repo 5e1y/roadmapped : les 4 nouveaux labels présents et corrects
   (nom/couleur/description vérifiés dans la sortie).
-release: null
+release: pre-release

@@ -16,7 +16,7 @@ epic: feedback-mode
 source: ai
 createdAt: "2026-07-09T00:24:09"
 startedAt: "2026-07-09T01:14:42"
-updatedAt: "2026-07-09T01:15:26"
+updatedAt: "2026-07-18T21:29:40"
 completedAt: "2026-07-09"
 commit: 887b466
 outcome: >-
@@ -26,4 +26,4 @@ outcome: >-
   section d'assouplissement #149 pointant la spec feedback-mode. Docs-only, cohérent avec
   l'implémentation #191-193.
 verification: null
-release: null
+release: pre-release

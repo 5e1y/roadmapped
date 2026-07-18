@@ -19,9 +19,10 @@ refs:
   - src/components/SectionAccordion.tsx
 links: []
 dependsOn: []
-milestone: null
+epic: null
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:44"
 completedAt: "2026-07-08"
 commit: 5b0ed76
 outcome: >-
@@ -35,4 +36,4 @@ verification: >-
   Spec relue intégralement (202 l.) — complète, non tronquée, exacte sur le code existant (numéros
   de ligne vérifiés). Livrable éditorial. Point ouvert à trancher : backlog plat regroupé par
   section (une ligne inline par bloc) vs ligne unique sur section par défaut.
-release: null
+release: pre-release

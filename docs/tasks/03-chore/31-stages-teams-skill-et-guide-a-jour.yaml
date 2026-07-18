@@ -28,6 +28,7 @@ dependsOn:
 epic: stages-teams
 source: ai
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:42"
 completedAt: "2026-07-07"
 commit: 1dd2360
 outcome: >-
@@ -39,4 +40,4 @@ verification: >-
   128 tests verts. L'agent a re-exécuté chaque commande documentée (lectures sur le vrai repo migré,
   écritures en sandbox aux 8 stages) et a même rattrapé un drift de compteur causé par ma
   consignation concurrente de #43.
-release: null
+release: pre-release

@@ -35,7 +35,7 @@ epic: knowledge-base
 source: ai
 createdAt: "2026-07-11T18:47:17"
 startedAt: "2026-07-11T18:47:24"
-updatedAt: "2026-07-11T19:02:55"
+updatedAt: "2026-07-18T21:29:41"
 completedAt: "2026-07-11T19:02:55"
 commit: 293be99
 outcome: >-
@@ -60,4 +60,4 @@ verification: >-
   schéma/install/scripts. Échantillon posé en graphify-out/graph.json (local, non committé) pour
   preview. NON vérifié par moi (pas de navigateur) : le rendu visuel du graphe + le toggle en vrai —
   à valider par Rémi dans son dev server.
-release: null
+release: 0.1.0

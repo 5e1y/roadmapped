@@ -16,7 +16,7 @@ epic: null
 source: ai
 createdAt: "2026-07-09T18:25:46"
 startedAt: "2026-07-09T18:28:28"
-updatedAt: "2026-07-10T09:54:02"
+updatedAt: "2026-07-18T21:29:43"
 completedAt: "2026-07-10"
 commit: d0f9797
 outcome: >-
@@ -24,4 +24,4 @@ outcome: >-
   worktree (roadmapped vit sur main, les tâches d'un worktree sont invisibles jusqu'au merge) ;
   l'agent worktree travaille le code, pas les tickets ; on done dans main après intégration.
 verification: null
-release: null
+release: pre-release

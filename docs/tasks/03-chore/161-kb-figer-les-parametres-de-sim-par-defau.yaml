@@ -27,7 +27,7 @@ epic: knowledge-base
 source: ai
 createdAt: "2026-07-12T16:23:19"
 startedAt: "2026-07-12T16:23:23"
-updatedAt: "2026-07-12T16:38:51"
+updatedAt: "2026-07-18T21:29:44"
 completedAt: "2026-07-12T16:38:51"
 commit: 4262ff8
 outcome: >-
@@ -41,4 +41,4 @@ outcome: >-
 verification: >-
   npx tsc --noEmit clean ; npx vitest run 550/550. Valeurs confirmées dans KB_SIM (sed). fromParam
   du slider settle retombe exactement sur 240.
-release: null
+release: 0.1.0

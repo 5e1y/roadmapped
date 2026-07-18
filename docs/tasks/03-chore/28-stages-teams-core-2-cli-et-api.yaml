@@ -26,6 +26,7 @@ dependsOn:
 epic: stages-teams
 source: ai
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:42"
 completedAt: "2026-07-07"
 commit: 26473a0
 outcome: >-
@@ -34,4 +35,4 @@ outcome: >-
 verification: >-
   Tests CLI sandbox étendus (add sans --team refusé, enum contrôlée, --zone rejeté, list --team)
   verts dans la suite complète 128/128 revérifiée par moi ; agentBrief affiche Team.
-release: null
+release: pre-release

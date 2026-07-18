@@ -19,9 +19,9 @@ dependsOn:
 epic: lancement
 source: ai
 createdAt: "2026-07-07"
-updatedAt: "2026-07-09T13:29:36"
+updatedAt: "2026-07-18T21:29:49"
 completedAt: "2026-07-09"
 commit: NA
 outcome: Déploiement fait via cloudflare
 verification: Le site est en ligne sur roadmapped.work
-release: null
+release: pre-release

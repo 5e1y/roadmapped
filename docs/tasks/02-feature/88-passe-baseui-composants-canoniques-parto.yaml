@@ -26,6 +26,7 @@ dependsOn:
 epic: design-system
 source: user
 createdAt: "2026-07-08T01:57:19"
+updatedAt: "2026-07-18T21:29:39"
 completedAt: "2026-07-08"
 commit: 86da857
 outcome: >-
@@ -39,4 +40,4 @@ verification: >-
   Implémentation par agent délégué, revue du diff par l'orchestrateur (8 fichiers, API Select
   defaultValue/onValueChange vérifiée conforme à l'usage TaskPanel, state team non réinitialisé) ;
   225 tests + build verts ; grep select natif → zéro hit dans src/components
-release: null
+release: pre-release

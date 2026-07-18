@@ -16,7 +16,7 @@ epic: null
 source: ai
 createdAt: "2026-07-09T16:10:18"
 startedAt: "2026-07-09T16:10:18"
-updatedAt: "2026-07-09T16:10:45"
+updatedAt: "2026-07-18T21:29:35"
 completedAt: "2026-07-09"
 commit: 0325bb6
 outcome: >-
@@ -29,4 +29,4 @@ verification: >-
   Reproduit node+Chrome : datetime « now » → « 9 minutes ago » (OK) ; date seule « 2026-07-09 » → «
   14 hours ago » avant fix (UTC minuit), « just now » après. tsc 0 erreur, 7 tests relativeTime
   verts (dont régression TZ-indépendante : date seule == datetime-local minuit).
-release: null
+release: pre-release

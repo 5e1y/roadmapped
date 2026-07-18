@@ -18,6 +18,7 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-08T18:03:09"
+updatedAt: "2026-07-18T21:29:37"
 completedAt: "2026-07-08"
 commit: 2d2215e
 outcome: >-
@@ -27,4 +28,4 @@ outcome: >-
   présents (bin/roadmapped.mjs, scripts/task.mjs, skills/roadmapped/, src/, index.html). version
   0.1.0, engines node>=22.18. Prêt à publier (reste : confirmer l'URL repo + npm publish par Rémi).
 verification: null
-release: null
+release: pre-release

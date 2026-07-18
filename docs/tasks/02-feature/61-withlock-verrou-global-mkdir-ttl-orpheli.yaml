@@ -22,6 +22,7 @@ dependsOn: []
 epic: ecritures-concurrentes
 source: ai
 createdAt: "2026-07-08"
+updatedAt: "2026-07-18T21:29:38"
 completedAt: "2026-07-08"
 commit: 1f4338b
 outcome: >-
@@ -31,4 +32,4 @@ verification: >-
   8 add réellement parallèles (spawn async) → 8 ids uniques consécutifs zéro échec + validate OK ;
   orphelin daté vieux volé ; verrou frais → timeout 150ms avec message exploitable ; libération en
   finally même si fn lève ; 183 tests + build verts
-release: null
+release: pre-release

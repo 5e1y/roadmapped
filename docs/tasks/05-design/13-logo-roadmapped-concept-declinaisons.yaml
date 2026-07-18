@@ -24,7 +24,7 @@ epic: brand-identity
 source: ai
 createdAt: "2026-07-09T13:54:49"
 startedAt: "2026-07-10T16:46:54"
-updatedAt: "2026-07-10T16:59:29"
+updatedAt: "2026-07-18T21:29:45"
 completedAt: "2026-07-10"
 commit: f3234ed
 outcome: >-
@@ -34,4 +34,4 @@ outcome: >-
 verification: >-
   tsc -b clean. Favicon + GIF régénérés miroir et vérifiés (URI/pixels). Header : x inversé
   (cols-1-c) dans la boucle de dessin.
-release: null
+release: pre-release

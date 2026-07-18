@@ -14,6 +14,7 @@ dependsOn: []
 epic: hierarchie-regroupement
 source: ai
 createdAt: "2026-07-08T11:12:08"
+updatedAt: "2026-07-18T21:29:45"
 completedAt: "2026-07-08"
 commit: fc8be9f
 outcome: >-
@@ -24,4 +25,4 @@ outcome: >-
   heuristique). Chaque spec porte un bloc « Décision verrouillée » — référence ferme pour
   l'implémentation (y compris Fable).
 verification: 5 specs éditées et relues, un bloc décision par fichier ; commit fc8be9f. Livrable éditorial.
-release: null
+release: pre-release

@@ -16,7 +16,7 @@ epic: site-v3
 source: ai
 createdAt: "2026-07-10T23:56:51"
 startedAt: "2026-07-10T23:57:40"
-updatedAt: "2026-07-10T23:58:02"
+updatedAt: "2026-07-18T21:29:45"
 completedAt: "2026-07-10"
 commit: "8420512"
 outcome: >-
@@ -28,4 +28,4 @@ outcome: >-
 verification: >-
   Spec relue (pas de TBD, scope explicite, alternatives écartées documentées) ; direction hero et
   interaction How-it-works validées par Rémi avant découpage.
-release: null
+release: pre-release

@@ -19,7 +19,7 @@ epic: logo
 source: ai
 createdAt: "2026-07-10T16:48:48"
 startedAt: "2026-07-10T16:49:44"
-updatedAt: "2026-07-10T17:34:30"
+updatedAt: "2026-07-18T21:29:50"
 completedAt: "2026-07-10"
 commit: 9ca1f7d
 outcome: >-
@@ -35,4 +35,4 @@ verification: >-
   réellement peint + dédoublonnage) validé par simulation headless de Fable (7 assertions). Poussé
   sur main du site → Cloudflare Pages auto-deploy sur push. Rendu live à valider à l'œil sur
   roadmapped.work par Rémi.
-release: roadmapped-site @ 9ca1f7d (Cloudflare Pages, auto-deploy on push to main)
+release: pre-release

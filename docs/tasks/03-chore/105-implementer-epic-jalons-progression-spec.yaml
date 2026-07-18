@@ -25,6 +25,7 @@ dependsOn: []
 epic: hierarchie-regroupement
 source: ai
 createdAt: "2026-07-08T11:18:55"
+updatedAt: "2026-07-18T21:29:43"
 completedAt: "2026-07-08"
 commit: d549cf5
 outcome: >-
@@ -47,4 +48,4 @@ verification: >-
   run dev boote HTTP 200, /api/tree valide, zéro erreur. Rendu visuel fin (diamant, combobox,
   regroupement) à valider à l'œil par Rémi ; EpicCombobox = seul comportement Base UI réellement
   neuf, sans test d'interaction DOM (couvert typecheck/build).
-release: null
+release: pre-release

@@ -24,6 +24,7 @@ dependsOn: []
 epic: design-system
 source: user
 createdAt: "2026-07-08T01:56:38"
+updatedAt: "2026-07-18T21:29:46"
 completedAt: "2026-07-08"
 commit: 75c4103
 outcome: >-
@@ -39,4 +40,4 @@ verification: >-
   extrait className ; variantes canoniques proposées adossées à l'existant majoritaire (doctrine
   tri-couche d'index.css:23, Chip, ghostCls, ErrorBanner) ; resynchronisation open-doc vérifiée par
   grep post-renommage
-release: null
+release: pre-release

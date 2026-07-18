@@ -15,7 +15,7 @@ epic: live-reactivity
 source: ai
 createdAt: "2026-07-09T00:23:53"
 startedAt: "2026-07-09T00:37:48"
-updatedAt: "2026-07-09T00:38:51"
+updatedAt: "2026-07-18T21:29:48"
 completedAt: "2026-07-09"
 commit: dea8a09
 outcome: >-
@@ -26,4 +26,4 @@ outcome: >-
   proprement, zéro régression, l'accent in_progress bien présent (still ne montre pas l'animation
   mais classe+keyframe corrects).
 verification: null
-release: null
+release: pre-release

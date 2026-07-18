@@ -34,7 +34,7 @@ epic: knowledge-base
 source: ai
 createdAt: "2026-07-12T14:54:08"
 startedAt: "2026-07-12T14:54:13"
-updatedAt: "2026-07-12T15:05:11"
+updatedAt: "2026-07-18T21:29:41"
 completedAt: "2026-07-12T15:05:11"
 commit: a900493
 outcome: >-
@@ -56,4 +56,4 @@ verification: >-
   build OK. git status : uniquement App.tsx/SidePanel.tsx/PanelContext.tsx/KbNodePanel.tsx +
   PanelContext.test.ts, rien côté serveur/schéma/install/scripts. Rendu réel (2 panneaux, focus,
   close/back) à valider par Rémi dans son dev server.
-release: null
+release: 0.1.0

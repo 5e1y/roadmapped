@@ -22,9 +22,10 @@ refs:
   - src/lib/taskWrites.ts
 links: []
 dependsOn: []
-milestone: null
+epic: null
 source: ai
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:35"
 completedAt: "2026-07-07"
 commit: de480f6
 outcome: >-
@@ -35,4 +36,4 @@ verification: >-
   tags: []), revérifié par moi : diff minimal relu (4 lignes cmdUpdate), nouveau
   scripts/task.test.mjs pilote le vrai binaire en sous-processus (4 tests), suite complète 113/113
   verte.
-release: null
+release: pre-release

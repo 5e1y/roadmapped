@@ -11,6 +11,7 @@ dependsOn: []
 epic: polish-ui
 source: ai
 createdAt: "2026-07-08T09:15:43"
+updatedAt: "2026-07-18T21:29:45"
 completedAt: "2026-07-08"
 commit: 2b90300
 outcome: >-
@@ -24,4 +25,4 @@ verification: >-
   dans @layer base ; ordre des couches « theme, base, components, utilities » confirmé → les
   utilitaires cursor-* overrident la base (cursor-text du Notepad préservé). tsc non requis (CSS
   pur).
-release: null
+release: pre-release

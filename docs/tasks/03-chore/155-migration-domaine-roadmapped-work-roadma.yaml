@@ -19,7 +19,7 @@ epic: site-v3
 source: ai
 createdAt: "2026-07-11T00:42:56"
 startedAt: "2026-07-11T00:43:27"
-updatedAt: "2026-07-11T00:56:30"
+updatedAt: "2026-07-18T21:29:43"
 completedAt: "2026-07-11"
 commit: dabf1f9
 outcome: >-
@@ -32,4 +32,4 @@ outcome: >-
 verification: >-
   grep littéral : 0 roadmapped.work restant côté site (index/style/bird/demo). curl : roadmapped.dev
   = 200 OK ; roadmapped.work = pas de résolution DNS à la racine (fix infra à faire par Rémi).
-release: null
+release: pre-release

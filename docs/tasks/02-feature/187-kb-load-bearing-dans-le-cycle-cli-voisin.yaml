@@ -36,7 +36,7 @@ epic: knowledge-base
 source: ai
 createdAt: "2026-07-12T17:20:53"
 startedAt: "2026-07-12T17:21:08"
-updatedAt: "2026-07-12T17:42:58"
+updatedAt: "2026-07-18T21:29:41"
 completedAt: "2026-07-12T17:42:58"
 commit: 4408b54
 outcome: >-
@@ -63,4 +63,4 @@ verification: >-
   take/brief/sitrep/done/next existants passent inchangés. Écarts : nudge « refs hors graphe » (spec
   B.3) hors périmètre ; nudge done CLI-only (MCP renvoie warnings noyau) ; kb refresh vérifié via
   branche instructions réelle + faux binaire (graphify pas installé sur la machine).
-release: null
+release: 0.1.0

@@ -16,6 +16,7 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-08T18:03:14"
+updatedAt: "2026-07-18T21:29:49"
 completedAt: "2026-07-08"
 commit: 9d92b15
 outcome: >-
@@ -26,4 +27,4 @@ outcome: >-
   (pas de bourrage — GitHub ne le récompense pas, le guide de voix l'interdit). L'About+topics
   nécessitent le remote public → part de #13.
 verification: null
-release: null
+release: pre-release

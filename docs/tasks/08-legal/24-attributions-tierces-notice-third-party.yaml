@@ -17,7 +17,7 @@ epic: legal-readiness
 source: ai
 createdAt: "2026-07-09T13:55:22"
 startedAt: "2026-07-10T11:27:54"
-updatedAt: "2026-07-10T11:28:04"
+updatedAt: "2026-07-18T21:29:52"
 completedAt: "2026-07-10"
 commit: 2c3d8ce
 outcome: >-
@@ -35,4 +35,4 @@ verification: >-
   (vérifié sur react, caniuse-lite, lightningcss). Aucune licence n'exige d'attribution DANS un
   artefact distribué distinct de la copie du paquet — condition non déclenchée par notre mode de
   distribution (source).
-release: null
+release: pre-release

@@ -27,7 +27,7 @@ epic: null
 source: ai
 createdAt: "2026-07-11T09:39:27"
 startedAt: "2026-07-11T09:39:31"
-updatedAt: "2026-07-11T09:41:50"
+updatedAt: "2026-07-18T21:29:36"
 completedAt: "2026-07-11T09:41:50"
 commit: cb09d00
 outcome: >-
@@ -37,4 +37,4 @@ outcome: >-
 verification: >-
   vitest 58/58 (relativeTime + taskWrites), tsc --noEmit clean. done #292 ci-dessous écrit un
   completedAt datetime (preuve).
-release: null
+release: pre-release

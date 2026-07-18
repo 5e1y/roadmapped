@@ -12,6 +12,7 @@ dependsOn: []
 epic: notepad
 source: ai
 createdAt: "2026-07-08T01:14:06"
+updatedAt: "2026-07-18T21:29:46"
 completedAt: "2026-07-08"
 commit: a030d99
 outcome: >-
@@ -24,4 +25,4 @@ verification: >-
   :5173. Cause racine tracée : Tailwind v4 (@import tailwindcss, utilitaires en @layer) + Base UI
   coexistent ; le CSS non-layered l'emporte sur le layered → seul l'inline (ou !important) tue le
   halo.
-release: null
+release: pre-release

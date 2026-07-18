@@ -19,6 +19,7 @@ dependsOn: []
 epic: lancement
 source: ai
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:37"
 completedAt: "2026-07-07"
 commit: "5448528"
 outcome: >-
@@ -29,4 +30,4 @@ verification: >-
   CONTRIBUTING.md (scripts npm réels vérifiés, 2 imprécisions corrigées : validate = YAML seul, pas
   d'id de section), CoC v2.1 avec contact réel, templates avec frontmatter YAML validé js-yaml,
   liens relatifs vérifiés par test -f/-d.
-release: null
+release: pre-release

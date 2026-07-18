@@ -12,6 +12,7 @@ dependsOn: []
 epic: polish-ui
 source: ai
 createdAt: "2026-07-08T09:28:38"
+updatedAt: "2026-07-18T21:29:47"
 completedAt: "2026-07-08"
 commit: 22baf9f
 outcome: >-
@@ -22,4 +23,4 @@ outcome: >-
 verification: >-
   tsc clean, 233 tests verts, app boote (HTTP 200). Position de la scrollbar — à valider à l'œil par
   Rémi.
-release: null
+release: pre-release

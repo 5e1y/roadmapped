@@ -25,6 +25,7 @@ epic: graph-v2
 source: ai
 createdAt: "2026-07-08T14:55:21"
 startedAt: "2026-07-08T14:55:36"
+updatedAt: "2026-07-18T21:29:39"
 completedAt: "2026-07-08"
 commit: 7e70fe3
 outcome: >-
@@ -51,4 +52,4 @@ verification: >-
   #1→#7→site→lancement→#14 en trait plein, reste voilé, revient à la sortie (06/09) ; nœud-epic «
   site 3/4 » déplié avec ses membres ; chips stage+team ; contrôles −/Ajuster/100%/+ ; clic →
   panneau. Conforme spec + décision colonnes-abandonnées.
-release: null
+release: pre-release

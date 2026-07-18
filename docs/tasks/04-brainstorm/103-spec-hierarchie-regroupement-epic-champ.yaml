@@ -26,6 +26,7 @@ dependsOn: []
 epic: hierarchie-regroupement
 source: ai
 createdAt: "2026-07-08T10:51:11"
+updatedAt: "2026-07-18T21:29:45"
 completedAt: "2026-07-08"
 commit: bba577d
 outcome: >-
@@ -42,4 +43,4 @@ verification: >-
   »). Migration vérifiée nulle (grep : 0 tâche avec milestone non-null, _roadmaps.yaml absent).
   Points ouverts : libellé affiché epic/projet/thème ; regroupement epic vs stage par défaut ; alias
   CLI --milestone déprécié.
-release: null
+release: pre-release

@@ -30,7 +30,7 @@ epic: null
 source: ai
 createdAt: "2026-07-09T13:52:41"
 startedAt: "2026-07-09T13:52:44"
-updatedAt: "2026-07-09T14:23:09"
+updatedAt: "2026-07-18T21:29:48"
 completedAt: "2026-07-09"
 commit: 492a2ed
 outcome: >-
@@ -42,7 +42,7 @@ verification: >-
   Serveur réel + hook : /api/tree renvoie update{installed:8a509b9, remote:dd00eef} ; compare URL
   https://github.com/5e1y/roadmapped/compare/8a509b9...dd00eef → curl HTTP 200 (ne 404 plus). tsc 0
   erreur, 28 tests (updateNotifier+api) verts.
-release: null
+release: pre-release
 feedback:
   - date: "2026-07-09T14:20:55"
     author: user

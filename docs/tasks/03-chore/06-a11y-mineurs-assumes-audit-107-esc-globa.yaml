@@ -16,6 +16,7 @@ dependsOn: []
 epic: a11y
 source: ai
 createdAt: "2026-07-08T02:44:27"
+updatedAt: "2026-07-18T21:29:42"
 completedAt: "2026-07-08"
 commit: 72853bf
 outcome: >-
@@ -32,4 +33,4 @@ verification: >-
   toujours câblé à TeamsRadar.onSelect. Les 3 changements sont des gardes/suppressions revues au
   code (contains, isConnected, retrait onClick) — pas d'outillage e2e pour piloter les frappes Esc,
   non exécuté.
-release: null
+release: pre-release

@@ -9,9 +9,10 @@ detail: null
 refs: []
 links: []
 dependsOn: []
-milestone: null
+epic: null
 source: ai
 createdAt: "2026-07-08T12:13:09"
+updatedAt: "2026-07-18T21:29:39"
 completedAt: "2026-07-08"
 commit: 457209e
 outcome: >-
@@ -25,4 +26,4 @@ verification: >-
   celle du CLI add --blocks (déjà couverte par task.test.mjs). Suite ciblée seulement (Fable édite
   src/components en parallèle → suite complète non lancée pour éviter la contamination). Le tool
   sera actif après redémarrage du serveur MCP (comme tout #133).
-release: null
+release: pre-release

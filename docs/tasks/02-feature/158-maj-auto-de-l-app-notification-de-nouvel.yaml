@@ -27,7 +27,7 @@ epic: null
 source: ai
 createdAt: "2026-07-09T10:21:09"
 startedAt: "2026-07-09T10:21:48"
-updatedAt: "2026-07-09T10:40:34"
+updatedAt: "2026-07-18T21:29:40"
 completedAt: "2026-07-09"
 commit: "5006751"
 outcome: >-
@@ -44,7 +44,7 @@ verification: >-
   → silence ; lock forcé sur commit ancien → notice « (5982339 → 5715898) » ; self-host (.git) →
   silence ; git ls-remote renvoie bien le HEAD distant (571589...). tsc 0 erreur, 399 tests verts
   (dont shaFromResolved).
-release: null
+release: pre-release
 feedback:
   - date: "2026-07-09T10:28:26"
     author: claude

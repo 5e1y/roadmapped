@@ -20,6 +20,7 @@ dependsOn: []
 epic: site
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:49"
 completedAt: "2026-07-08"
 commit: b285e78
 outcome: >-
@@ -31,4 +32,4 @@ verification: >-
   Relecture du livrable : toutes les sections listées dans le detail du ticket présentes, EN,
   chiffres factuels, superlatifs interdits absents. Livrable éditorial — pas d'artefact runtime à
   exécuter.
-release: null
+release: pre-release

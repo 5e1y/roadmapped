@@ -21,6 +21,7 @@ dependsOn:
 epic: token-economy
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:42"
 completedAt: "2026-07-08"
 commit: e2d1c42
 outcome: >-
@@ -29,4 +30,4 @@ outcome: >-
 verification: >-
   sitrep rejoué sur le vrai repo : 6 lignes, 'validate: OK', done du jour plafonné à 8 titres + (+38
   autres), in_progress (8) avec âge, alerte #debt #82 ; 2 tests CLI verts
-release: null
+release: pre-release

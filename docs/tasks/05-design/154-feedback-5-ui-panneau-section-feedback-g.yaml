@@ -15,7 +15,7 @@ epic: feedback-mode
 source: ai
 createdAt: "2026-07-09T00:24:09"
 startedAt: "2026-07-09T01:15:58"
-updatedAt: "2026-07-09T01:23:00"
+updatedAt: "2026-07-18T21:29:48"
 completedAt: "2026-07-09"
 commit: 0322b22
 outcome: >-
@@ -32,4 +32,4 @@ outcome: >-
   visible en capture car la tâche test était un quick (zone Mini, rendu compact) — logique triviale
   couverte par tsc+tests.
 verification: null
-release: null
+release: pre-release

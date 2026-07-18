@@ -17,6 +17,7 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-08T18:03:16"
+updatedAt: "2026-07-18T21:29:47"
 completedAt: "2026-07-08"
 commit: 5291fd2
 outcome: >-
@@ -29,4 +30,4 @@ outcome: >-
   RoadmapView:61 toggle show-done gris-comme-état (choix design). CLEAN : tri-couche, monochrome,
   radii, Base UI/select natif, langage de sélection. Fixes → tickets séparés.
 verification: grep anti-patterns sur src/components/** + lecture ciblée des hits par un subagent d'audit.
-release: null
+release: pre-release

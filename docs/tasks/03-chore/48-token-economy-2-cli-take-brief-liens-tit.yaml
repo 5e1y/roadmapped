@@ -26,6 +26,7 @@ dependsOn: []
 epic: token-economy
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:42"
 completedAt: "2026-07-07"
 commit: e9150bd
 outcome: >-
@@ -36,4 +37,4 @@ verification: >-
   Revérifié par moi après la mort du rapport de l'agent : brief 28 rejoué (deps titrées « #27 …
   (faite) », rappel done en pied), show 68 titré, list --json allégé constaté, quick sans titre →
   usage exact en 2 lignes. 162 tests (30 nouveaux) + build verts relancés par moi.
-release: null
+release: pre-release

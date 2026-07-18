@@ -12,7 +12,7 @@ epic: site-v2
 source: ai
 createdAt: "2026-07-10T22:04:51"
 startedAt: "2026-07-10T22:16:19"
-updatedAt: "2026-07-10T22:33:09"
+updatedAt: "2026-07-18T21:29:51"
 completedAt: "2026-07-10"
 commit: e72c76c
 outcome: >-
@@ -20,4 +20,4 @@ outcome: >-
   appliquée avant paint, cascade tokens (:root[data-theme] surcharge la media query dans les 2
   sens), meta theme-color mis à jour. (Distinct du #269 app dashboard, non demandé ici.)
 verification: "grep : data-theme/ui:theme présents dans index.html du site ; node --check du script OK."
-release: null
+release: pre-release

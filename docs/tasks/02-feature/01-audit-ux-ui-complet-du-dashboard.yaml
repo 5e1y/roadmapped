@@ -21,9 +21,10 @@ refs:
   - src/index.css
 links: []
 dependsOn: []
-milestone: null
+epic: null
 source: ai
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:36"
 completedAt: "2026-07-07"
 commit: 9b36243
 outcome: >-
@@ -34,4 +35,4 @@ verification: >-
   6 auditeurs de code parallèles (46 findings structurés) ; bloquants vérifiés par moi dans le code
   (SidePanel.tsx:18 keydown global sans blur ; mode Colonnes sans états, confirmé au pixel). Doc
   relu, 185 lignes, routage complet.
-release: null
+release: pre-release

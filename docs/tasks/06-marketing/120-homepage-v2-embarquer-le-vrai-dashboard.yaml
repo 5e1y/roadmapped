@@ -31,6 +31,7 @@ epic: site
 source: ai
 createdAt: "2026-07-08T15:26:29"
 startedAt: "2026-07-08T15:30:46"
+updatedAt: "2026-07-18T21:29:50"
 completedAt: "2026-07-08"
 commit: c634fe8
 outcome: >-
@@ -55,4 +56,4 @@ verification: >-
   fenêtres séparées, vrai dashboard à droite (radar+tag-graph+backlog 4e mur), conforme. QA headless
   Fable : toggle DANS l'iframe, clic→panneau lecture, édition→refus poli, light/dark, mobile
   scroll-x=0. Rendu live à valider par Rémi après redéploiement Cloudflare.
-release: null
+release: pre-release

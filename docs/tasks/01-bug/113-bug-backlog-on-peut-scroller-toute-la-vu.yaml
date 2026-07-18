@@ -11,9 +11,10 @@ detail: null
 refs: []
 links: []
 dependsOn: []
-milestone: null
+epic: null
 source: ai
 createdAt: "2026-07-08T12:26:54"
+updatedAt: "2026-07-18T21:29:35"
 completedAt: "2026-07-08"
 commit: 6fb8c04
 outcome: >-
@@ -27,4 +28,4 @@ outcome: >-
 verification: >-
   tsc clean, 290 tests verts, build OK, boot HTTP 200. Mesuré en headless par Fable AVANT/APRÈS :
   docSH 1998→900, molette radar scrollY 1098→0. Bug confirmé disparu.
-release: null
+release: pre-release

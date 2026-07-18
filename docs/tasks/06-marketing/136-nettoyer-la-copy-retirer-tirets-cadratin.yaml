@@ -14,7 +14,7 @@ epic: site-v2
 source: ai
 createdAt: "2026-07-10T22:04:23"
 startedAt: "2026-07-10T22:05:30"
-updatedAt: "2026-07-10T22:15:30"
+updatedAt: "2026-07-18T21:29:50"
 completedAt: "2026-07-10"
 commit: 476a025
 outcome: >-
@@ -22,4 +22,4 @@ outcome: >-
   remplacés par ponctuation vraie ou reformulation. Négations creuses simplifiées. Restent 2 « — »
   dans un commentaire dev (hors copy).
 verification: "grep : 0 &mdash; ; 2 — résiduels en commentaire seulement."
-release: null
+release: pre-release

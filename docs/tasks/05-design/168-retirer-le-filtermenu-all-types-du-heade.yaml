@@ -16,11 +16,11 @@ epic: null
 source: ai
 createdAt: "2026-07-09T18:25:46"
 startedAt: "2026-07-09T18:26:07"
-updatedAt: "2026-07-10T09:54:03"
+updatedAt: "2026-07-18T21:29:48"
 completedAt: "2026-07-10"
 commit: 934316a
 outcome: >-
   FilterMenu 'All types' retiré du header Backlog (redondant avec radar + chips du subheader).
   typeOptions + import FilterMenu nettoyés. tsc 0.
 verification: null
-release: null
+release: pre-release

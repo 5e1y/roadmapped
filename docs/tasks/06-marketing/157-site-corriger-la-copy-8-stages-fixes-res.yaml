@@ -28,11 +28,11 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-11T08:36:50"
-updatedAt: "2026-07-11T08:39:52"
+updatedAt: "2026-07-18T21:29:51"
 completedAt: "2026-07-11"
 commit: 2df0f4b
 outcome: >-
   Doublon de #239 identifié après coup (le vrai ticket pour cette copy existait déjà depuis le
   2026-07-09) — travail unifié sous #239, aucun changement produit propre à ce ticket.
 verification: null
-release: null
+release: pre-release

@@ -21,6 +21,7 @@ dependsOn:
 epic: mcp-server
 source: ai
 createdAt: "2026-07-08"
+updatedAt: "2026-07-18T21:29:38"
 completedAt: "2026-07-08"
 commit: 306b3fe
 outcome: >-
@@ -31,4 +32,4 @@ verification: >-
   Cycle complet PAR TOOLS (take→done) sur sandbox, YAML relu status=done ; add team invalide →
   isError + rollback (vérifié aussi sur stdio RÉEL contre le vrai backlog : nextId inchangé, zéro
   tâche parasite) ; quick sans outcome → isError ; 14 tests MCP + 206 tests + build verts
-release: null
+release: pre-release

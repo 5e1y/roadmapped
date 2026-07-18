@@ -14,7 +14,7 @@ epic: null
 source: ai
 createdAt: "2026-07-09T01:37:44"
 startedAt: "2026-07-09T01:37:44"
-updatedAt: "2026-07-09T01:38:01"
+updatedAt: "2026-07-18T21:29:50"
 completedAt: "2026-07-09"
 commit: b15ef6c
 outcome: >-
@@ -25,4 +25,4 @@ outcome: >-
   robots/sitemap/llms, meta) restent récupérables via git si utiles au repo externe. Le vrai
   SEO/l'amélioration doivent cibler roadmapped-site.
 verification: null
-release: null
+release: pre-release

@@ -27,7 +27,7 @@ epic: jalons-v2
 source: ai
 createdAt: "2026-07-09T16:14:04"
 startedAt: "2026-07-09T17:58:50"
-updatedAt: "2026-07-09T18:13:45"
+updatedAt: "2026-07-18T21:29:40"
 completedAt: "2026-07-09"
 commit: 021db07
 outcome: >-
@@ -39,4 +39,4 @@ outcome: >-
 verification: >-
   grep obsolètes vérifié (occurrences restantes justifiées : champ supprimé, alias dépréciés,
   exemples de rejet). validate OK (9 sections). SKILL compass correct.
-release: null
+release: pre-release

@@ -36,7 +36,7 @@ epic: knowledge-base
 source: ai
 createdAt: "2026-07-12T14:20:56"
 startedAt: "2026-07-12T14:21:00"
-updatedAt: "2026-07-12T14:38:44"
+updatedAt: "2026-07-18T21:29:49"
 completedAt: "2026-07-12T14:38:44"
 commit: 73d6a7a
 outcome: >-
@@ -62,4 +62,4 @@ verification: >-
   0.33→1.25 inspecteur ouvert, trigger border-color rgb(37,99,235), popup borné 487px overflow auto,
   coche présente. Commit LOCAL 73d6a7a — PAS encore poussé (attente décision main-vs-branche de
   Rémi).
-release: null
+release: 0.1.0

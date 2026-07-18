@@ -20,6 +20,7 @@ dependsOn:
 epic: lancement
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:49"
 completedAt: "2026-07-08"
 commit: f168c87
 outcome: >-
@@ -35,4 +36,4 @@ verification: >-
   Doc relu intégralement (garde-fou qualité) : voix conforme, chiffres cohérents avec le repo,
   aucune URL inventée, aucune durée, chutes sèches en place. Contenus exacts par canal = définition
   de fini du ticket, atteinte. Livrable éditorial (pas d'artefact runtime).
-release: null
+release: pre-release

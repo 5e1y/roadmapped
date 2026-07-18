@@ -17,7 +17,7 @@ epic: site-v2
 source: ai
 createdAt: "2026-07-10T22:04:19"
 startedAt: "2026-07-10T22:05:30"
-updatedAt: "2026-07-10T22:15:28"
+updatedAt: "2026-07-18T21:29:50"
 completedAt: "2026-07-10"
 commit: 476a025
 outcome: >-
@@ -25,4 +25,4 @@ outcome: >-
   tickets tracés → lit/écrit via CLI+skill → tu review le diff → dashboard live). Arbre de fichiers
   gardé comme visuel d'appui.
 verification: Section .how-grid présente, nouvelle copy en place.
-release: null
+release: pre-release

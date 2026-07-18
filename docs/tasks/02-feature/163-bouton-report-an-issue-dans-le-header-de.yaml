@@ -22,7 +22,7 @@ epic: community-github
 source: ai
 createdAt: "2026-07-09T13:55:55"
 startedAt: "2026-07-10T22:35:10"
-updatedAt: "2026-07-10T22:36:38"
+updatedAt: "2026-07-18T21:29:40"
 completedAt: "2026-07-10"
 commit: 095947e
 outcome: >-
@@ -39,4 +39,4 @@ verification: >-
   on GitHub » = 1), href = /issues/new?template=bug_report.yml exact, target=_blank. Capture du
   header : bouton bug rendu entre Activity et le toggle lune, style bordé cohérent avec le reste du
   cluster.
-release: null
+release: pre-release

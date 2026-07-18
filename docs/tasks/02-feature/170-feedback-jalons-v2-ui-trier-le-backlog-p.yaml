@@ -15,7 +15,7 @@ epic: null
 source: ai
 createdAt: "2026-07-09T18:05:40"
 startedAt: "2026-07-09T18:05:40"
-updatedAt: "2026-07-09T18:12:40"
+updatedAt: "2026-07-18T21:29:40"
 completedAt: "2026-07-09"
 commit: 6328c8a
 outcome: >-
@@ -27,4 +27,4 @@ outcome: >-
 verification: >-
   tsc 0. Dashboard réel screenshoté : radar 9 types affiché avec charges (feature 6, comm 6, design
   5, legal 5…), To-do trié 14°→7°→5°.
-release: null
+release: pre-release

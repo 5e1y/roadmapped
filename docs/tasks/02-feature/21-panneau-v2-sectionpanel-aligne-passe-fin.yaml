@@ -21,9 +21,10 @@ refs:
 links: []
 dependsOn:
   - 27
-milestone: null
+epic: null
 source: ai
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:38"
 completedAt: "2026-07-08"
 commit: 76df14a
 outcome: >-
@@ -39,4 +40,4 @@ verification: >-
   tsc clean, 326 tests, build OK, boot HTTP 200. QA visuel (capture 03) : statut « ouverte », titre
   « Build Stage », note ghost, chemin « docs/tasks/04-build » en pied confirmés. Critères audit
   cochés dans le doc.
-release: null
+release: pre-release

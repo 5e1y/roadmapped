@@ -26,6 +26,7 @@ dependsOn: []
 epic: process-enforcement
 source: user
 createdAt: "2026-07-08T01:36:52"
+updatedAt: "2026-07-18T21:29:43"
 completedAt: "2026-07-08"
 commit: 0e6458e
 outcome: >-
@@ -38,4 +39,4 @@ verification: >-
   non-initialisé, e2e vrais commits refusé/accepté via le hook) ; 222 tests + build verts ; hook
   observé tirer sur le VRAI commit de livraison (GIT_TRACE : start_command
   scripts/githooks/pre-commit) et laisser passer grâce au ticket in_progress
-release: null
+release: pre-release

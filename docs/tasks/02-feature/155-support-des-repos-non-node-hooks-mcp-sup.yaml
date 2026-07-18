@@ -18,7 +18,7 @@ epic: null
 source: ai
 createdAt: "2026-07-09T02:15:35"
 startedAt: "2026-07-10T11:41:39"
-updatedAt: "2026-07-10T11:41:54"
+updatedAt: "2026-07-18T21:29:40"
 completedAt: "2026-07-10"
 commit: 82e2dd3
 outcome: >-
@@ -34,4 +34,4 @@ verification: >-
   README.md relu (bloc Requirements + non-Node sous la section install) ; setup.md §0 relu (note
   prérequis avant « host root »). Cohérent avec la garde Node ≥ 22.18 déjà présente dans
   bin/roadmapped.mjs (échec clair si Node trop vieux).
-release: null
+release: pre-release

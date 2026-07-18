@@ -26,6 +26,7 @@ epic: site
 source: ai
 createdAt: "2026-07-08T16:22:22"
 startedAt: "2026-07-08T17:38:58"
+updatedAt: "2026-07-18T21:29:50"
 completedAt: "2026-07-08"
 commit: 9bc44d8
 outcome: >-
@@ -44,4 +45,4 @@ verification: >-
   (Backlog/Roadmap/Docs/Notepad, Columns/Graph, done, Available, Missing prerequisites, notes de
   stage EN). Les 2 objectifs #156 confirmés. Push site vérifié f022cfd..966e6b8. Rendu live à
   valider par Rémi après redéploiement Cloudflare.
-release: null
+release: pre-release

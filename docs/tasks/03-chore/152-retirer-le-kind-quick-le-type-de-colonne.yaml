@@ -38,7 +38,7 @@ epic: null
 source: ai
 createdAt: "2026-07-10T10:36:56"
 startedAt: "2026-07-10T11:19:40"
-updatedAt: "2026-07-10T11:19:57"
+updatedAt: "2026-07-18T21:29:43"
 completedAt: "2026-07-10"
 commit: a059ad2
 outcome: >-
@@ -55,4 +55,4 @@ verification: >-
   ne bloque plus). validate OK (234 tâches, 0 quick actif). Dashboard réel : plus de zone Mini
   (liste To-do unique triée température) ; `quick "titre"` en CLI → task (kind absent). Nettoyé les
   ids de test (nextId=252).
-release: null
+release: pre-release

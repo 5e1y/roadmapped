@@ -21,6 +21,7 @@ dependsOn:
 epic: site
 source: ai
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:37"
 completedAt: "2026-07-08"
 commit: 1c9a08b
 outcome: >-
@@ -33,4 +34,4 @@ verification: >-
   README relu, liens internes inchangés (guide.md, skill, LICENSE, dashboard.png présents). Badge CI
   volontairement NON ajouté : repo pas encore public, slug GitHub inconnu — à faire avec la
   publication (#13). Livrable éditorial.
-release: null
+release: pre-release

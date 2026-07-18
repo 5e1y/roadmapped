@@ -14,9 +14,10 @@ refs:
   - scripts/task.mjs#cmdSitrep
 links: []
 dependsOn: []
-milestone: null
+epic: null
 source: ai
 createdAt: "2026-07-08"
+updatedAt: "2026-07-18T21:29:43"
 completedAt: "2026-07-08"
 commit: cb02194
 outcome: >-
@@ -31,4 +32,4 @@ verification: >-
   createdAt dans stalePassepartout + les 4 fabriques mises à jour). Réel : node scripts/task.mjs
   start 82 a écrit startedAt: "2026-07-08T09:21:11" dans le seul YAML de #82 (pas de diff de masse)
   ; sitrep affiche #82 (0j) en lisant startedAt ; validate OK sur 109 tâches.
-release: null
+release: pre-release

@@ -16,7 +16,7 @@ epic: null
 source: ai
 createdAt: "2026-07-11T19:40:56"
 startedAt: "2026-07-11T19:40:56"
-updatedAt: "2026-07-11T19:41:29"
+updatedAt: "2026-07-18T21:29:36"
 completedAt: "2026-07-11T19:41:29"
 commit: 9cf4b52
 outcome: >-
@@ -27,4 +27,4 @@ outcome: >-
   OPEN_DOC_EVENT, quel que soit file_type ; le reste (code/autre) → reveal. Bug révélé par le vrai
   graphe (82 nœuds concept/rationale).
 verification: npx tsc --noEmit exit 0. Changement de condition d'une ligne, aucun autre code touché.
-release: null
+release: 0.1.0

@@ -27,7 +27,7 @@ epic: null
 source: ai
 createdAt: "2026-07-09T10:21:17"
 startedAt: "2026-07-09T10:27:01"
-updatedAt: "2026-07-09T10:35:56"
+updatedAt: "2026-07-18T21:29:50"
 completedAt: "2026-07-09"
 commit: 687c982
 outcome: >-
@@ -46,4 +46,4 @@ verification: >-
   jour, grille 8 cartes symétrique, nouvelles features présentes, thème clair/sombre OK. grep de
   contrôle vide (0 occurrence OWNER/npm install/scripts/task.mjs/_archive/brand-mark). og.png
   vérifié 1200×630 on-brand.
-release: null
+release: pre-release

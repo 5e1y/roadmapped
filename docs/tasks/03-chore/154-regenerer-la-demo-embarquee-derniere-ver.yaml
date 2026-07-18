@@ -18,7 +18,7 @@ epic: site-v3
 source: ai
 createdAt: "2026-07-10T23:57:13"
 startedAt: "2026-07-11T00:01:28"
-updatedAt: "2026-07-11T00:03:02"
+updatedAt: "2026-07-18T21:29:43"
 completedAt: "2026-07-11"
 commit: "0212477"
 outcome: >-
@@ -26,4 +26,4 @@ outcome: >-
   dist-demo → recopiée dans site/demo/ (index.html + assets). Fini la vieille build ; la démo
   reflète l'app actuelle.
 verification: Build OK (vite), site/demo/index.html + assets présents après copie.
-release: null
+release: pre-release

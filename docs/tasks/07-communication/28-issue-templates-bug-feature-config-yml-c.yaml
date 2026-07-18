@@ -19,7 +19,7 @@ epic: community-github
 source: ai
 createdAt: "2026-07-09T13:55:41"
 startedAt: "2026-07-10T22:33:18"
-updatedAt: "2026-07-10T22:34:29"
+updatedAt: "2026-07-18T21:29:52"
 completedAt: "2026-07-10"
 commit: b7e2b9d
 outcome: >-
@@ -40,4 +40,4 @@ verification: >-
   contact_links complets (name/url/about). bug=8 éléments (4 requis), feature=5 éléments (1 requis +
   garde-fou), config=2 liens. Anciens .md supprimés via git rm. Dépendance notée : le lien
   Discussions résout une fois #224 (activer Discussions) fait.
-release: null
+release: pre-release

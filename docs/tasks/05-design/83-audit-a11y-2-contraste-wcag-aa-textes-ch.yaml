@@ -25,6 +25,7 @@ dependsOn: []
 epic: a11y
 source: user
 createdAt: "2026-07-08T01:56:30"
+updatedAt: "2026-07-18T21:29:46"
 completedAt: "2026-07-08"
 commit: 75c4103
 outcome: >-
@@ -38,4 +39,4 @@ verification: >-
   Tous les ratios CALCULÉS (formule WCAG relative luminance depuis les oklch Tailwind v4 converties,
   script node de l'agent) — aucun estimé ; paires exactes citées dans le rapport (ex. #a1a1a1 sur
   #ffffff = 2.58:1) ; propositions vérifiées passantes (#737373 = 4.74:1)
-release: null
+release: pre-release

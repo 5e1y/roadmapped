@@ -18,9 +18,10 @@ refs:
   - src/lib/tasks.ts
 links: []
 dependsOn: []
-milestone: null
+epic: null
 source: ai
 createdAt: "2026-07-08"
+updatedAt: "2026-07-18T21:29:38"
 completedAt: "2026-07-08"
 commit: 0072ca5
 outcome: >-
@@ -30,4 +31,4 @@ verification: >-
   addTask relu → createdAt datetime (test) ; validate accepte les 2 formats et rejette 'hier'
   (tests) ; validate OK sur le backlog réel (82 tâches, dates seules) SANS migration ; 186 tests +
   build verts
-release: null
+release: pre-release

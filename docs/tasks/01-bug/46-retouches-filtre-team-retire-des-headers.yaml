@@ -29,6 +29,7 @@ dependsOn:
 epic: vues-dashboard
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:35"
 completedAt: "2026-07-07"
 commit: 7fc1341
 outcome: >-
@@ -40,4 +41,4 @@ verification: >-
   (capture), chevron fermé › vérifié au pixel. Cause racine du bug chevron : trinil-react 1.3.9
   inverse les paths ChevronLeft/ChevronRight — contourné avec commentaire, à corriger dans la lib.
   132 tests + build verts.
-release: null
+release: pre-release

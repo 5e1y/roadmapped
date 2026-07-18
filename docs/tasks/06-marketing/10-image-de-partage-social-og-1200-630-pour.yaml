@@ -16,6 +16,7 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-08T18:03:12"
+updatedAt: "2026-07-18T21:29:49"
 completedAt: "2026-07-08"
 commit: f179dbe
 outcome: >-
@@ -25,4 +26,4 @@ outcome: >-
   'npx roadmapped init', halo d'accent discret. Référencé par og:image/twitter:image de la landing.
   Régénérer : chrome --headless=new --window-size=1200,630 --screenshot.
 verification: null
-release: null
+release: pre-release

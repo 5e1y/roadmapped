@@ -29,6 +29,7 @@ epic: live-reactivity
 source: ai
 createdAt: "2026-07-08T15:11:14"
 startedAt: "2026-07-08T15:11:19"
+updatedAt: "2026-07-18T21:29:45"
 completedAt: "2026-07-08"
 commit: 137a109
 outcome: >-
@@ -41,4 +42,4 @@ outcome: >-
   avec difficulté, SANS tiering Fable (annulé). Points laissés à Rémi balisés 'À confirmer'.
   Sous-tickets d'implémentation à créer à l'approbation (zéro code avant).
 verification: null
-release: null
+release: pre-release

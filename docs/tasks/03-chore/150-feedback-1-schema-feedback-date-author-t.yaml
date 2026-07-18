@@ -17,7 +17,7 @@ epic: feedback-mode
 source: ai
 createdAt: "2026-07-09T00:24:07"
 startedAt: "2026-07-09T00:48:26"
-updatedAt: "2026-07-09T00:51:09"
+updatedAt: "2026-07-18T21:29:43"
 completedAt: "2026-07-09"
 commit: ff1f048
 outcome: >-
@@ -28,4 +28,4 @@ outcome: >-
   round-trip (absent quand vide, un feedback survit à un update via le dump additif), tsc clean, 384
   tests.
 verification: null
-release: null
+release: pre-release

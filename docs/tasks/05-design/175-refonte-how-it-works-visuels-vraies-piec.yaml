@@ -32,7 +32,7 @@ epic: null
 source: ai
 createdAt: "2026-07-11T15:34:25"
 startedAt: "2026-07-11T15:34:30"
-updatedAt: "2026-07-11T16:22:55"
+updatedAt: "2026-07-18T21:29:49"
 completedAt: "2026-07-11T16:22:55"
 commit: 0abb101
 outcome: >-
@@ -51,4 +51,4 @@ verification: >-
   display: none` (règle mobile). Pré-commit : HTMLParser 0 orpheline/non fermée, CSS accolades
   248/248, 0 couleur en dur dans le diff, 4 data-bird-perch intacts, diff limité à #how-it-works.
   Rendu mobile à valider par Rémi.
-release: null
+release: 0.1.0

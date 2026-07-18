@@ -21,6 +21,7 @@ dependsOn: []
 epic: mcp-server
 source: ai
 createdAt: "2026-07-08"
+updatedAt: "2026-07-18T21:29:38"
 completedAt: "2026-07-08"
 commit: bec8b90
 outcome: >-
@@ -29,4 +30,4 @@ outcome: >-
 verification: >-
   32 tests CLI inchangés verts (refactor transparent) + render.test.ts (6 tests directs) + build
   vert ; sitrep/brief réels rendent le même contenu qu'avant
-release: null
+release: pre-release

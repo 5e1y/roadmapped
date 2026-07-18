@@ -34,7 +34,7 @@ epic: jalons-v2
 source: ai
 createdAt: "2026-07-09T16:13:42"
 startedAt: "2026-07-09T17:33:32"
-updatedAt: "2026-07-09T17:58:19"
+updatedAt: "2026-07-18T21:29:48"
 completedAt: "2026-07-09"
 commit: 0ddccd7
 outcome: >-
@@ -46,4 +46,4 @@ outcome: >-
 verification: >-
   tsc 0, 426 tests verts, dashboard réel screenshoté : 9 colonnes-types, thermomètres+valeurs sur
   chaque carte, bande d'epics avec pastilles/progression, filtre type/epic en interaction.
-release: null
+release: pre-release

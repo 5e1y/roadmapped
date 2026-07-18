@@ -29,7 +29,7 @@ epic: null
 source: ai
 createdAt: "2026-07-09T02:56:50"
 startedAt: "2026-07-09T09:49:12"
-updatedAt: "2026-07-09T09:52:00"
+updatedAt: "2026-07-18T21:29:38"
 completedAt: "2026-07-09"
 commit: fd09239
 outcome: >-
@@ -42,4 +42,4 @@ verification: >-
   part sur 5174 (« Port 5173 in use, trying another »), curl confirme 5173 hostRoot=repo réel et
   5174 hostRoot=/tmp/fakerepo repoName=fakerepo. Relance même repo → « already open → 5173 », exit
   0.
-release: null
+release: pre-release

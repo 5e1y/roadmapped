@@ -27,6 +27,7 @@ dependsOn: []
 epic: a11y
 source: user
 createdAt: "2026-07-08T01:56:24"
+updatedAt: "2026-07-18T21:29:46"
 completedAt: "2026-07-08"
 commit: 75c4103
 outcome: >-
@@ -41,4 +42,4 @@ verification: >-
   vérifiés dans node_modules/@base-ui/react (ComboboxChipRemove.js, useFocusableWhenDisabled.js
   cités) ; chaque finding porte fichier:ligne + extrait de code ; rapport relu et structuré par
   sévérité
-release: null
+release: pre-release

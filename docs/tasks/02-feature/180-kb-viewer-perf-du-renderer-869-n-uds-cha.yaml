@@ -33,7 +33,7 @@ epic: knowledge-base
 source: ai
 createdAt: "2026-07-12T13:41:17"
 startedAt: "2026-07-12T13:41:49"
-updatedAt: "2026-07-12T14:07:54"
+updatedAt: "2026-07-18T21:29:41"
 completedAt: "2026-07-12T14:07:54"
 commit: b1fa489
 outcome: >-
@@ -58,4 +58,4 @@ verification: >-
   45→405→675→869 nœuds entre t=190 et t=800ms, survol→voisinage, recherche (24 lit/845 dim +
   recentrage), filtre inferred, clic→inspecteur — 4 screenshots. Rendu visuel final à valider par
   Rémi.
-release: null
+release: 0.1.0

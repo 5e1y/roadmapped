@@ -22,7 +22,7 @@ epic: null
 source: ai
 createdAt: "2026-07-11T08:53:34"
 startedAt: "2026-07-11T08:53:40"
-updatedAt: "2026-07-11T09:19:52"
+updatedAt: "2026-07-18T21:29:44"
 completedAt: "2026-07-11"
 commit: e089286
 outcome: >-
@@ -31,4 +31,4 @@ outcome: >-
 verification: >-
   Testé en live : update/start #291 affichent le titre ; start #290 (done) affiche '⚠ was done since
   2026-07-11 — reopening' puis #290 restauré à HEAD ; validate OK.
-release: null
+release: pre-release

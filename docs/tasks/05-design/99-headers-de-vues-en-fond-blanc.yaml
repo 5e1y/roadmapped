@@ -12,6 +12,7 @@ dependsOn: []
 epic: polish-ui
 source: ai
 createdAt: "2026-07-08T09:28:32"
+updatedAt: "2026-07-18T21:29:47"
 completedAt: "2026-07-08"
 commit: b7331ab
 outcome: >-
@@ -20,4 +21,4 @@ outcome: >-
 verification: >-
   tsc clean, 233 tests verts, app boote (HTTP 200). Changement visuel (fond blanc) — rendu à valider
   à l'œil par Rémi, non signé visuellement par l'agent.
-release: null
+release: pre-release

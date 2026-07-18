@@ -16,7 +16,7 @@ epic: site-v3
 source: ai
 createdAt: "2026-07-10T23:57:05"
 startedAt: "2026-07-11T00:01:27"
-updatedAt: "2026-07-11T00:15:09"
+updatedAt: "2026-07-18T21:29:51"
 completedAt: "2026-07-11"
 commit: 4b32403
 outcome: >-
@@ -25,4 +25,4 @@ outcome: >-
   colonnes légèrement bleuies (--grid-line), numéros d'étape 01-04 + bord actif du stepper en
   --accent, lignes + du diff en accent (pas de vert). Zéro orange UI (réservé oiseau).
 verification: Accents via tokens, cohérents clair/sombre.
-release: null
+release: pre-release

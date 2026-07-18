@@ -27,6 +27,7 @@ dependsOn:
 epic: panneau-v2
 source: ai
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:38"
 completedAt: "2026-07-07"
 commit: be39d57
 outcome: >-
@@ -37,4 +38,4 @@ verification: >-
   Design retravaillé par moi après rejet du swap par Rémi. Vérifié au pixel (Playwright) : repos =
   lecture pure, focus titre = contour sans changement de taille, tick « enregistré » observé après
   édition de zone, valeur relue dans le YAML sur disque puis restaurée. 113 tests + build verts.
-release: null
+release: pre-release

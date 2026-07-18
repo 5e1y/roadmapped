@@ -28,7 +28,7 @@ epic: knowledge-base
 source: ai
 createdAt: "2026-07-12T15:03:53"
 startedAt: "2026-07-12T15:23:05"
-updatedAt: "2026-07-12T15:44:05"
+updatedAt: "2026-07-18T21:29:51"
 completedAt: "2026-07-12T15:44:05"
 commit: 70acb11
 outcome: >-
@@ -50,4 +50,4 @@ verification: >-
   couleur en dur (hors accent/commentaires), 1 seule section KB, crédit+liens Graphify présents,
   responsive 390px sans débordement, thèmes clair/sombre OK (screenshots agent). Rendu final à
   valider par Rémi.
-release: null
+release: 0.1.0

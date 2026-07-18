@@ -36,7 +36,7 @@ epic: knowledge-base
 source: ai
 createdAt: "2026-07-12T13:41:29"
 startedAt: "2026-07-12T13:41:49"
-updatedAt: "2026-07-12T14:08:03"
+updatedAt: "2026-07-18T21:29:41"
 completedAt: "2026-07-12T14:08:03"
 commit: b1fa489
 outcome: >-
@@ -56,4 +56,4 @@ verification: >-
   npx tsc --noEmit clean ; npx vitest run 502/502 (dont kbQuery 6 + mcp tool-count 14→17 + CLI
   sandbox). kb doctor exécuté en réel : « 869 nodes · 2214 edges · 46 communities », staleness
   détectée. Division avec Graphify natif documentée (le nôtre = pont tâche⇄graphe).
-release: null
+release: 0.1.0

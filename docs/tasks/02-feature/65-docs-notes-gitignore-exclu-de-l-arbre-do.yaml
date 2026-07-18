@@ -17,6 +17,7 @@ dependsOn: []
 epic: notepad
 source: ai
 createdAt: "2026-07-08"
+updatedAt: "2026-07-18T21:29:38"
 completedAt: "2026-07-08"
 commit: d491b55
 outcome: >-
@@ -27,4 +28,4 @@ verification: >-
   Créer docs/notes/_probe.md → git status propre (ignoré, vérifié en réel) ; test docs : notes/
   racine exclu, plans/notes conservé ; test ensureGitignore idempotent (ajoute 1×, jamais 2) ; 214
   tests + build verts
-release: null
+release: pre-release

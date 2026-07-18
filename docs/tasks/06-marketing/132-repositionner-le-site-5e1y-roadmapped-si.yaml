@@ -30,7 +30,7 @@ epic: null
 source: ai
 createdAt: "2026-07-09T18:13:45"
 startedAt: "2026-07-11T08:39:57"
-updatedAt: "2026-07-11T08:41:03"
+updatedAt: "2026-07-18T21:29:50"
 completedAt: "2026-07-11"
 commit: 762e5b5
 outcome: >-
@@ -43,4 +43,4 @@ verification: >-
   confirmer qu'il ne reste que les mentions légitimes (classes CSS demo-stage/how-stage, et "not a
   stage rank" qui est la nouvelle phrase intentionnelle). Poussé sur roadmapped-site/main,
   déploiement Cloudflare Pages déclenché.
-release: null
+release: pre-release

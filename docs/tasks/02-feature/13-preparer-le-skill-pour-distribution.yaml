@@ -28,6 +28,7 @@ dependsOn:
 epic: null
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:37"
 completedAt: "2026-07-08"
 commit: null
 outcome: >-
@@ -46,4 +47,4 @@ verification: >-
   atterrit bien dans l'archive de l'HÔTE (pas de l'install).
   references/frontmatter/chemins/commandes audités et cohérents. Pas de commit propre : le code du
   skill était déjà livré par #139 (15b4f77) et #133 (d549cf5) ; #14 est une passe de vérification.
-release: null
+release: pre-release

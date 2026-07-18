@@ -22,6 +22,7 @@ dependsOn:
 epic: mcp-server
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:44"
 completedAt: "2026-07-08"
 commit: e6ac18a
 outcome: >-
@@ -32,4 +33,4 @@ verification: >-
   Brainstorm 3 questions tranchées par Rémi (distribution/coexistence/périmètre) ; spec rédigée avec
   écartés + décisions techniques + critères de fini ; 4 tâches créées avec detail complet + refs
   spec, chaîne de deps confirmée, validate OK (82 tâches)
-release: null
+release: pre-release

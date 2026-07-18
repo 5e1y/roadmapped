@@ -25,6 +25,7 @@ dependsOn:
 epic: panneau-v2
 source: ai
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:38"
 completedAt: "2026-07-07"
 commit: be39d57
 outcome: >-
@@ -37,4 +38,4 @@ verification: >-
   outcome + completedAt, bouton Archiver apparu. Cause racine du faux échec précédent : full-reload
   Vite sur écriture YAML, corrigé (watch.ignored) et re-vérifié : 0 reload pendant une sauvegarde,
   Esc = blur+save panneau ouvert, 2e Esc ferme.
-release: null
+release: pre-release

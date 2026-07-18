@@ -24,6 +24,7 @@ dependsOn:
 epic: a11y
 source: user
 createdAt: "2026-07-08T01:57:30"
+updatedAt: "2026-07-18T21:29:39"
 completedAt: "2026-07-08"
 commit: a25b305
 outcome: >-
@@ -41,4 +42,4 @@ verification: >-
   onBlur ne PATCHe que si changed() ; états vides décoratifs et disabled volontairement laissés) ;
   225 tests + build verts ; grep final : plus aucun neutral-300/400 informatif hors 2 titres vides
   décoratifs et disabled exempts
-release: null
+release: pre-release

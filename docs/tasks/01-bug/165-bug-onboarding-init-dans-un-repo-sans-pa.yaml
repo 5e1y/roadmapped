@@ -18,7 +18,7 @@ epic: null
 source: ai
 createdAt: "2026-07-09T18:25:45"
 startedAt: "2026-07-09T18:27:37"
-updatedAt: "2026-07-10T09:54:02"
+updatedAt: "2026-07-18T21:29:35"
 completedAt: "2026-07-10"
 commit: 0a1a02c
 outcome: >-
@@ -29,4 +29,4 @@ outcome: >-
 verification: >-
   Testé réel : repo sans package.json → abandon, aucun .mcp.json ni config écrit ; avec package.json
   → init complet. install.test 29 verts (dont le nouveau test d'abort). tsc 0.
-release: null
+release: pre-release

@@ -26,6 +26,7 @@ epic: full-english
 source: ai
 createdAt: "2026-07-08T16:22:07"
 startedAt: "2026-07-08T16:54:01"
+updatedAt: "2026-07-18T21:29:39"
 completedAt: "2026-07-08"
 commit: 2c6559b
 outcome: >-
@@ -49,4 +50,4 @@ verification: >-
   contenu des tâches (voulu). Grep final : plus aucune string d'UI française dans les composants
   (dernier résidu TagGraph #150 traduit). Réalisé sans Fable (politique tokens) : 3 Sonnet guidés +
   résidus manuels.
-release: null
+release: pre-release

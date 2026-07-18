@@ -28,6 +28,7 @@ epic: distribution
 source: ai
 createdAt: "2026-07-08T15:43:30"
 startedAt: "2026-07-08T16:06:42"
+updatedAt: "2026-07-18T21:29:39"
 completedAt: "2026-07-08"
 commit: 3ed2242
 outcome: >-
@@ -47,4 +48,4 @@ verification: >-
   instance sur 5173, 2e appel node bin/roadmapped.mjs dashboard → « déjà ouvert →
   http://localhost:5173/ » exit 0 sans relancer. E2E : runInit dans un hôte vierge écrit CLAUDE.md
   contenant « npx roadmapped dashboard ».
-release: null
+release: pre-release

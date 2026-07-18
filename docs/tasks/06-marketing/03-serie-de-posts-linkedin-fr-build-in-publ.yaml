@@ -21,6 +21,7 @@ epic: null
 source: ai
 createdAt: "2026-07-08T17:59:22"
 startedAt: "2026-07-08T17:59:33"
+updatedAt: "2026-07-18T21:29:49"
 completedAt: "2026-07-08"
 commit: a13c9fc
 outcome: >-
@@ -29,4 +30,4 @@ outcome: >-
   produit, méta-post). Applique tone-of-voice.md. Chiffres snapshot 2026-07-08 (145/139, 373 tests)
   à re-vérifier avant publication. Notes cadence/visuel/EN incluses.
 verification: null
-release: null
+release: pre-release

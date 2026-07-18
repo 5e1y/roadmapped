@@ -27,7 +27,7 @@ epic: knowledge-base
 source: ai
 createdAt: "2026-07-11T19:25:50"
 startedAt: "2026-07-11T19:25:54"
-updatedAt: "2026-07-11T19:40:34"
+updatedAt: "2026-07-18T21:29:44"
 completedAt: "2026-07-11T19:40:34"
 commit: 998d3b0
 outcome: >-
@@ -49,4 +49,4 @@ verification: >-
   {code 731, rationale 82, concept 42, document 14}, source_file repo-relatifs réels
   (scripts/install.mjs…). Ce n'est plus la fixture 14-nœuds. graph.json committé (998d3b0, 988K),
   cache/+report bien ignorés (git status propre).
-release: null
+release: 0.1.0

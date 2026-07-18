@@ -17,11 +17,12 @@ refs:
   - src/components/glyphs.tsx
 links: []
 dependsOn: []
-milestone: null
+epic: null
 source: ai
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:35"
 completedAt: "2026-07-07"
 commit: null
 outcome: Bug reglé
 verification: null
-release: null
+release: pre-release

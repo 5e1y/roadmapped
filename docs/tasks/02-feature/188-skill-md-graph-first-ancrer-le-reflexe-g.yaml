@@ -35,7 +35,7 @@ epic: knowledge-base
 source: ai
 createdAt: "2026-07-12T17:21:03"
 startedAt: "2026-07-12T17:21:09"
-updatedAt: "2026-07-12T17:27:19"
+updatedAt: "2026-07-18T21:29:41"
 completedAt: "2026-07-12T17:27:19"
 commit: 2a89dca
 outcome: >-
@@ -59,4 +59,4 @@ verification: >-
   mentionne la KB (grep = 4 occurrences kb/knowledge graph dans SKILL.md). Commité 2a89dca.
   Cohérence des noms de commandes vérifiée par l'agent. Rendu à relire par Rémi (ton/densité du
   skill).
-release: null
+release: 0.1.0

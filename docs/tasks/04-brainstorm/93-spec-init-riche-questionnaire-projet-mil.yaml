@@ -28,6 +28,7 @@ dependsOn: []
 epic: distribution
 source: ai
 createdAt: "2026-07-08T09:27:46"
+updatedAt: "2026-07-18T21:29:45"
 completedAt: "2026-07-08"
 commit: b953bea
 outcome: >-
@@ -43,4 +44,4 @@ verification: >-
   Spec relue (287 l.), complète, ancrée à references/setup.md et formats.md. Reste : implémentation
   à confier à Fable 5. Dépendance : la frontière install/init suppose #12 tranché (éviter la
   double-écriture de config).
-release: null
+release: pre-release

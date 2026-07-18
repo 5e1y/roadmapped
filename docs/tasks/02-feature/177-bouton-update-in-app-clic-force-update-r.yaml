@@ -28,7 +28,7 @@ epic: null
 source: ai
 createdAt: "2026-07-11T10:36:01"
 startedAt: "2026-07-11T10:36:05"
-updatedAt: "2026-07-11T10:40:02"
+updatedAt: "2026-07-18T21:29:41"
 completedAt: "2026-07-11T10:40:02"
 commit: 2f2b74c
 outcome: >-
@@ -40,4 +40,4 @@ verification: >-
   :5199, POST /api/update → HTTP 409 {ok:false} (self-host protégé, aucun restart ni npm install),
   serveur resté up. LIMITE : le flux complet click→install→restart→reload non exerçable en self-host
   (409 par design) — à valider sur un repo consommateur après push.
-release: null
+release: pre-release

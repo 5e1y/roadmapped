@@ -21,7 +21,7 @@ epic: brand-identity
 source: ai
 createdAt: "2026-07-09T13:55:01"
 startedAt: "2026-07-11T12:40:39"
-updatedAt: "2026-07-11T12:51:39"
+updatedAt: "2026-07-18T21:29:48"
 completedAt: "2026-07-11T12:51:14"
 commit: b35ff6b
 outcome: >-
@@ -37,4 +37,4 @@ outcome: >-
 verification: >-
   npx tsc --noEmit exit 0 (clean) ; npx vitest run 30 fichiers / 444 tests verts ; git diff vérifié
   = uniquement className/transition/token/commentaires, zéro ligne de logique.
-release: null
+release: pre-release

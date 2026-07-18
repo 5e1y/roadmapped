@@ -30,6 +30,7 @@ dependsOn:
 epic: stages-teams
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:42"
 completedAt: "2026-07-07"
 commit: 4512d92
 outcome: >-
@@ -42,4 +43,4 @@ verification: >-
   resserrés à 180px, compteurs sidebar corrects 6/35/4). Test TaskRow adapté à l'abréviation
   (128/128 verts), build tsc vert. Le Select team du panneau réutilise le composant ghost éprouvé
   (compilé, non re-vérifié au pixel).
-release: null
+release: pre-release

@@ -16,7 +16,7 @@ epic: site-v2
 source: ai
 createdAt: "2026-07-10T22:04:13"
 startedAt: "2026-07-10T22:05:29"
-updatedAt: "2026-07-10T22:15:23"
+updatedAt: "2026-07-18T21:29:35"
 completedAt: "2026-07-10"
 commit: 476a025
 outcome: >-
@@ -28,4 +28,4 @@ verification: >-
   node --check OK ; sim headless étendue 9/9 (encart marqué perchable, wrapper transparent ignoré,
   fallback survit à un marqué). Marks présents après réconciliation (grep). Rendu live à valider sur
   la branche.
-release: null
+release: pre-release

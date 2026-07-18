@@ -29,6 +29,7 @@ dependsOn: []
 epic: hierarchie-regroupement
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:44"
 completedAt: "2026-07-08"
 commit: 762ac6f
 outcome: >-
@@ -44,4 +45,4 @@ verification: >-
   marqueur kind:'milestone' ; alternatives (i) verrouille stages postérieurs / (ii) tout le backlog.
   Aussi à confirmer : % compte simple vs pondéré size ; sort du champ legacy
   milestone/_roadmaps.yaml.
-release: null
+release: pre-release

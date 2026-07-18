@@ -27,6 +27,7 @@ dependsOn:
 epic: vues-dashboard
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:46"
 completedAt: "2026-07-07"
 commit: 80bf8c4
 outcome: >-
@@ -37,4 +38,4 @@ verification: >-
   dropdown header « marketing » et liste filtrée (#16 en tête), radar visible panneau ouvert à
   1600px (2xl) et caché à 1280px puis revenu à la fermeture, clic vide → « Toutes les teams ».
   Capture de la vue fusionnée relue. 132 tests + build verts.
-release: null
+release: pre-release

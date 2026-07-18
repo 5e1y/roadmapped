@@ -28,6 +28,7 @@ dependsOn:
 epic: token-economy
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:38"
 completedAt: "2026-07-07"
 commit: dffd595
 outcome: >-
@@ -39,4 +40,4 @@ verification: >-
   (grep = 0 renvoi), planning.md + delegation.md créés, delegation dispatche via brief <id>. Sanity
   : les 3 nouvelles commandes citées existent dans --help. Sonnet a inspecté take en lecture seule
   (jamais exécuté). Aucune divergence CLI/spec.
-release: null
+release: pre-release

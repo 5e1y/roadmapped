@@ -17,7 +17,7 @@ epic: site-v3
 source: ai
 createdAt: "2026-07-10T23:57:02"
 startedAt: "2026-07-11T00:01:27"
-updatedAt: "2026-07-11T00:15:05"
+updatedAt: "2026-07-18T21:29:51"
 completedAt: "2026-07-11"
 commit: 4b32403
 outcome: >-
@@ -26,4 +26,4 @@ outcome: >-
   bas), fixed z-index:-1 pointer-events:none. --px-tile supprimé des 3 blocs de tokens. Clair :
   --dot navy-bleu 14% ; sombre : bleu clair 10%.
 verification: "grep : 0 résidu px-tile, radial-gradient présent. Calque sous le contenu, ne croise pas l'oiseau."
-release: null
+release: pre-release

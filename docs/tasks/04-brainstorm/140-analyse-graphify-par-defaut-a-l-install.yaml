@@ -52,7 +52,7 @@ epic: knowledge-base
 source: ai
 createdAt: "2026-07-12T17:10:55"
 startedAt: "2026-07-12T17:11:00"
-updatedAt: "2026-07-12T17:20:16"
+updatedAt: "2026-07-18T21:29:45"
 completedAt: "2026-07-12T17:20:16"
 commit: 3714d65
 outcome: >-
@@ -79,4 +79,4 @@ verification: >-
   docs/specs/graphify-anchoring.md écrit (23Ko), commité 3714d65 ; aucun code touché. Sources
   Graphify vérifiées par l'agent (README 71.5×, serve.py 7 outils, doc uv python-downloads automatic
   + matrice plateformes). Tailles mesurées sur GitHub Releases 2026-07-12.
-release: null
+release: 0.1.0

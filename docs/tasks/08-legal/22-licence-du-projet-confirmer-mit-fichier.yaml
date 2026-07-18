@@ -18,7 +18,7 @@ epic: legal-readiness
 source: ai
 createdAt: "2026-07-09T13:55:15"
 startedAt: "2026-07-10T11:26:23"
-updatedAt: "2026-07-10T11:26:32"
+updatedAt: "2026-07-18T21:29:52"
 completedAt: "2026-07-10"
 commit: 2c3d8ce
 outcome: >-
@@ -32,4 +32,4 @@ verification: >-
   Lecture directe des 4 sources : fichier LICENSE (l.1-3), package.json (champ license), README.md
   (l.3 badge, l.104 footer, l.51 pitch) — MIT + Rémi Courtillon + 2026 partout, zéro incohérence
   (pas de package.json sans champ license).
-release: null
+release: pre-release

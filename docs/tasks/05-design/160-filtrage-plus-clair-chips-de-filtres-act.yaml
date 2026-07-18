@@ -30,7 +30,7 @@ epic: null
 source: ai
 createdAt: "2026-07-09T13:29:48"
 startedAt: "2026-07-09T13:30:00"
-updatedAt: "2026-07-09T13:48:39"
+updatedAt: "2026-07-18T21:29:48"
 completedAt: "2026-07-09"
 commit: e27a1eb
 outcome: >-
@@ -39,7 +39,7 @@ outcome: >-
 verification: >-
   Vrai dashboard (Chrome headless, recherche « live » active) : chip « live » × sans trait bleu +
   Clear all, propre. tsc 0 erreur.
-release: null
+release: pre-release
 feedback:
   - date: "2026-07-09T13:47:04"
     author: user

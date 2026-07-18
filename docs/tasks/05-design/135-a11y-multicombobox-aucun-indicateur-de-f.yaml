@@ -15,6 +15,7 @@ epic: null
 source: ai
 createdAt: "2026-07-08T18:27:46"
 startedAt: "2026-07-08T18:27:46"
+updatedAt: "2026-07-18T21:29:48"
 completedAt: "2026-07-08"
 commit: 292bf10
 outcome: >-
@@ -24,4 +25,4 @@ outcome: >-
   éprouvé de TagsCombobox (focus-within). Vérif : tsc clean, 373 tests verts. NOTE: aussi remonté
   ui.tsx:388 (tiret no-tags) neutral-400→500 dans le commit #175.
 verification: null
-release: null
+release: pre-release

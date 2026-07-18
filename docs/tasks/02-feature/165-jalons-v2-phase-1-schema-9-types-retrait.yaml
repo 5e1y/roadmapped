@@ -34,7 +34,7 @@ epic: jalons-v2
 source: ai
 createdAt: "2026-07-09T16:13:20"
 startedAt: "2026-07-09T16:17:28"
-updatedAt: "2026-07-09T17:32:35"
+updatedAt: "2026-07-18T21:29:40"
 completedAt: "2026-07-09"
 commit: d894412
 outcome: >-
@@ -45,4 +45,4 @@ outcome: >-
 verification: >-
   tsc 0, validate OK (9 sections, 219 tasks), dashboard rend 9 colonnes-types. Bascule sur main
   vérifiée (tsc/tests/validate/boot).
-release: null
+release: pre-release

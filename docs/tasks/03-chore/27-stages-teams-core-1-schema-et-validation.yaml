@@ -29,6 +29,7 @@ dependsOn: []
 epic: stages-teams
 source: ai
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:42"
 completedAt: "2026-07-07"
 commit: 26473a0
 outcome: >-
@@ -38,4 +39,4 @@ verification: >-
   TDD vérifié dans le transcript (7 invariants rouges avant durcissement) ; revérifié par moi : 128
   tests + build verts relancés, validate rejette bien les sections non canoniques (implicite : le
   backlog n'a validé qu'après migration complète).
-release: null
+release: pre-release

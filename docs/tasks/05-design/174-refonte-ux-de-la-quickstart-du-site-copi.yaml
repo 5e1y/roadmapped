@@ -26,7 +26,7 @@ epic: install-methods
 source: ai
 createdAt: "2026-07-11T15:15:55"
 startedAt: "2026-07-11T15:15:58"
-updatedAt: "2026-07-11T15:21:39"
+updatedAt: "2026-07-18T21:29:49"
 completedAt: "2026-07-11T15:21:39"
 commit: d3fda6f
 outcome: >-
@@ -44,4 +44,4 @@ verification: >-
   Pré-commit : HTMLParser 0 balise orpheline/non fermée, CSS 185/185 accolades, 8 data-copy-text =
   commandes exactes, aucune couleur en dur (vars only), JS 0 ligne modifiée, les 2 .prompt-copy
   hero/final-CTA intacts.
-release: null
+release: 0.1.0

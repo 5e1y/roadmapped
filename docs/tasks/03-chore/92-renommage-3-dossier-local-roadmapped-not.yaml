@@ -24,6 +24,7 @@ dependsOn:
 epic: renommage
 source: user
 createdAt: "2026-07-08T01:57:44"
+updatedAt: "2026-07-18T21:29:43"
 completedAt: "2026-07-08"
 commit: 3dd82d6
 outcome: >-
@@ -37,4 +38,4 @@ verification: >-
   Post-mv observé : ls montre Roadmapped réel + symlink Roadmaped→Roadmapped ; git status propre,
   task.mjs validate OK (107 tâches), core.hooksPath intact (scripts/githooks, relatif — voyage avec
   le dossier, npm install non requis) ; les deux dossiers projects présents dans ~/.claude
-release: null
+release: pre-release

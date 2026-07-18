@@ -24,7 +24,7 @@ epic: null
 source: ai
 createdAt: "2026-07-10T22:05:52"
 startedAt: "2026-07-10T22:06:09"
-updatedAt: "2026-07-10T22:25:52"
+updatedAt: "2026-07-18T21:29:40"
 completedAt: "2026-07-10"
 commit: 97baddc
 outcome: >-
@@ -52,4 +52,4 @@ verification: >-
   tableau en-tête+filets, sélection accent-tint). data-theme=dark au boot confirmé (anti-flash OK).
   Toggle : clic dark→light, data-theme + localStorage=light. Aucun hex de style résiduel (grep
   composants+css vide hors tokens/mascotte exemptée).
-release: null
+release: pre-release

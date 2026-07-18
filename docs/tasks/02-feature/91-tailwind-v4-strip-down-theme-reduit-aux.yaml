@@ -24,6 +24,7 @@ dependsOn:
 epic: design-system
 source: user
 createdAt: "2026-07-08T01:57:37"
+updatedAt: "2026-07-18T21:29:39"
 completedAt: "2026-07-08"
 commit: 748f2c6
 outcome: >-
@@ -38,4 +39,4 @@ verification: >-
   Build vert avant/après avec tailles CSS comparées (26576→26576) ; grep du CSS émis : neutral-500
   présent, aucune trace red/amber ; grep src : zéro classe hors palette, zéro hex arbitraire hors
   shadow inset var ; 225 tests verts
-release: null
+release: pre-release

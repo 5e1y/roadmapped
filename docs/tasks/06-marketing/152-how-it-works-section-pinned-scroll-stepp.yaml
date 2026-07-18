@@ -20,7 +20,7 @@ epic: site-v3
 source: ai
 createdAt: "2026-07-10T23:57:09"
 startedAt: "2026-07-11T00:01:28"
-updatedAt: "2026-07-11T00:15:13"
+updatedAt: "2026-07-18T21:29:51"
 completedAt: "2026-07-11"
 commit: 4b32403
 outcome: >-
@@ -33,4 +33,4 @@ outcome: >-
 verification: >-
   node --check des 6 scripts inline OK (Fable) ; markup stepper présent (grep) ; fallback scopé sous
   html.js-stepper. Rendu du pin/crossfade à valider à l'œil en preview.
-release: null
+release: pre-release

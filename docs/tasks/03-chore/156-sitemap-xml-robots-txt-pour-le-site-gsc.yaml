@@ -12,7 +12,7 @@ epic: null
 source: ai
 createdAt: "2026-07-11T01:05:30"
 startedAt: "2026-07-11T01:05:30"
-updatedAt: "2026-07-11T01:06:14"
+updatedAt: "2026-07-18T21:29:44"
 completedAt: "2026-07-11"
 commit: 47b2544
 outcome: >-
@@ -21,4 +21,4 @@ outcome: >-
   racine du site. Servis tels quels par Cloudflare Pages sur roadmapped.dev/sitemap.xml et
   /robots.txt.
 verification: XML validé (xml.dom.minidom parse OK). Poussé sur main → déploiement Pages. À soumettre dans GSC.
-release: null
+release: pre-release

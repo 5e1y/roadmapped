@@ -16,6 +16,7 @@ epic: hierarchie-regroupement
 source: ai
 createdAt: "2026-07-08T15:37:56"
 startedAt: "2026-07-08T16:02:53"
+updatedAt: "2026-07-18T21:29:35"
 completedAt: "2026-07-08"
 commit: a89051d
 outcome: >-
@@ -28,4 +29,4 @@ verification: >-
   tsc clean ; vitest 378/378 ; boot HTTP 200. Changement de 3 lignes calquant le pattern done établi
   (TaskRow : text-neutral-500 line-through). Rendu à valider à l'œil par Rémi (un epic 100% done
   dans la colonne Terminées apparaît barré/grisé).
-release: null
+release: pre-release

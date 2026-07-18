@@ -25,7 +25,7 @@ epic: null
 source: ai
 createdAt: "2026-07-18T21:14:38"
 startedAt: "2026-07-18T21:18:46"
-updatedAt: "2026-07-18T21:26:46"
+updatedAt: "2026-07-18T21:29:45"
 completedAt: "2026-07-18T21:26:46"
 commit: f4b3766
 outcome: >-
@@ -40,4 +40,4 @@ verification: >-
   Livrable relu en entier ; 2 preuves clés re-vérifiées contre le code réel (render.ts:222 filtre
   debt du sitrep, mcp-server.mjs:297 schéma tags sans description) — exactes. Aucun autre fichier
   modifié par l'agent (git status propre hors livrable).
-release: null
+release: 0.2.3

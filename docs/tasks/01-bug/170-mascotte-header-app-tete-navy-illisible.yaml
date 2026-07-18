@@ -16,7 +16,7 @@ epic: brand-identity
 source: ai
 createdAt: "2026-07-10T22:48:51"
 startedAt: "2026-07-10T22:49:17"
-updatedAt: "2026-07-10T22:50:40"
+updatedAt: "2026-07-18T21:29:35"
 completedAt: "2026-07-10"
 commit: "8238163"
 outcome: >-
@@ -24,4 +24,4 @@ outcome: >-
   (lisible sur le header sombre #171717, distincte du corps blanc), inchangée en clair. Re-bake au
   changement de thème (theme dans les deps de l'effet).
 verification: tsc -b clean. Swap conditionnel sur le theme du hook, autres couleurs inchangées.
-release: null
+release: pre-release

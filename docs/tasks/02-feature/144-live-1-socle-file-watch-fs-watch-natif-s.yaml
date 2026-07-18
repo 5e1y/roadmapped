@@ -16,6 +16,7 @@ epic: live-reactivity
 source: ai
 createdAt: "2026-07-09T00:23:50"
 startedAt: "2026-07-09T00:24:49"
+updatedAt: "2026-07-18T21:29:40"
 completedAt: "2026-07-09"
 commit: cc34b7e
 outcome: >-
@@ -27,4 +28,4 @@ outcome: >-
   installDemoApi). Vérif LIVE : vite boot port 5188, curl -N /api/events → ': connected' puis
   'event: change' au touch d'un YAML (1 event, salve coalescée). tsc clean, 373 tests.
 verification: null
-release: null
+release: pre-release

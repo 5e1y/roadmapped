@@ -27,6 +27,7 @@ dependsOn: []
 epic: renommage
 source: user
 createdAt: "2026-07-08T01:56:46"
+updatedAt: "2026-07-18T21:29:39"
 completedAt: "2026-07-08"
 commit: 63813c8
 outcome: >-
@@ -39,4 +40,4 @@ verification: >-
   225 tests verts dont le nouveau test rétrocompat (sandbox renommé en ancien nom → CLI fonctionne)
   ; build vert ; serveur MCP relancé sur stdio répond serverInfo name=roadmapped ; grep roadmaped
   sur le périmètre vivant → zéro hit hors mention volontaire de rétrocompat
-release: null
+release: pre-release

@@ -18,6 +18,7 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-08T18:03:08"
+updatedAt: "2026-07-18T21:29:39"
 completedAt: "2026-07-08"
 commit: 94c68cf
 outcome: >-
@@ -28,4 +29,4 @@ outcome: >-
   EXIT=0 toutes lignes anglaises, npx roadmapped --help anglais, grep accents = 0 sur les 4
   fichiers, tsc --noEmit clean. design.md traité séparément en #170.
 verification: null
-release: null
+release: pre-release

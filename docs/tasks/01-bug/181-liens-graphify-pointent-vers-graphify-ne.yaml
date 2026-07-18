@@ -18,7 +18,7 @@ epic: null
 source: ai
 createdAt: "2026-07-14T01:32:16"
 startedAt: "2026-07-14T01:44:34"
-updatedAt: "2026-07-14T01:46:44"
+updatedAt: "2026-07-18T21:29:36"
 completedAt: "2026-07-14T01:46:44"
 commit: 7c72e7a
 outcome: >-
@@ -31,4 +31,4 @@ verification: >-
   grep graphify.net → 0 occurrence dans les deux repos ; CI publish success ; npm dist-tag
   latest=0.2.2 ; GitHub Release v0.2.2 créée par le CI ; site poussé (d4f2672, Cloudflare
   redéploie).
-release: null
+release: 0.2.2

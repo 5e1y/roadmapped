@@ -26,7 +26,7 @@ epic: null
 source: ai
 createdAt: "2026-07-10T10:39:26"
 startedAt: "2026-07-10T10:39:39"
-updatedAt: "2026-07-10T10:48:48"
+updatedAt: "2026-07-18T21:29:40"
 completedAt: "2026-07-10"
 commit: 382d505
 outcome: >-
@@ -39,4 +39,4 @@ verification: >-
   e2e dashboard réel : throwaway 02-feature (base 14) → PATCH {type:05-design} → fichier déplacé en
   05-design/, base température → 12 ; type inconnu « 99-bogus » rejeté (message clair). tsc 0, 50
   tests taskWrites (dont 3 moveTask), guard/validate OK (9 sections).
-release: null
+release: pre-release

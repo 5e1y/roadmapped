@@ -11,9 +11,10 @@ detail: null
 refs: []
 links: []
 dependsOn: []
-milestone: null
+epic: null
 source: ai
 createdAt: "2026-07-08T12:25:17"
+updatedAt: "2026-07-18T21:29:39"
 completedAt: "2026-07-08"
 commit: 15b4f77
 outcome: >-
@@ -40,4 +41,4 @@ verification: >-
   stage), CLI de l'install lancé DEPUIS lui → sitrep « avancement 0/0, done 0 » + validate se plaint
   des stages manquants de l'HÔTE, PLUS les 131 de l'install. Le bug #123 est bien corrigé. Scratch
   nettoyé.
-release: null
+release: pre-release

@@ -17,7 +17,7 @@ epic: null
 source: ai
 createdAt: "2026-07-14T03:17:25"
 startedAt: "2026-07-14T03:17:25"
-updatedAt: "2026-07-14T03:19:44"
+updatedAt: "2026-07-18T21:29:52"
 completedAt: "2026-07-14T03:19:43"
 commit: 3c8c7dd
 outcome: >-
@@ -30,4 +30,4 @@ verification: >-
   Rendu vérifié via gh api readme (Accept: html) : div align=center survit, gif + h1 présents ; relu
   contre docs/tone-of-voice.md ; aucune perte factuelle (claim ~30/85 Mo KB restauré après une
   simplification trop agressive).
-release: null
+release: 0.2.3

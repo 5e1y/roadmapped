@@ -17,11 +17,11 @@ epic: roadmap-readability
 source: ai
 createdAt: "2026-07-09T18:25:46"
 startedAt: "2026-07-10T10:30:57"
-updatedAt: "2026-07-10T10:50:49"
+updatedAt: "2026-07-18T21:29:48"
 completedAt: "2026-07-10"
 commit: 2930d5a
 outcome: >-
   Epics DONE repliés dans la bande d'epics : n'affiche par défaut que les epics non terminés, les
   all-done derrière un bouton « + N done » (session). La bande passe de ~24 cartes à ~5.
 verification: "Capture done-OFF : bande = 1 rangée de 5 epics non-done."
-release: null
+release: pre-release

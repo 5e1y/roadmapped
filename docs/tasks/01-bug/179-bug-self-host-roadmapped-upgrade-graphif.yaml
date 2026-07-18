@@ -20,7 +20,7 @@ epic: null
 source: ai
 createdAt: "2026-07-12T18:02:28"
 startedAt: "2026-07-12T20:30:45"
-updatedAt: "2026-07-12T20:47:10"
+updatedAt: "2026-07-18T21:29:36"
 completedAt: "2026-07-12T20:47:10"
 commit: a14d0e8
 outcome: null
@@ -31,4 +31,4 @@ verification: >-
   sidecar roadmapped.config.local.json bien gitignoré (git check-ignore), (4) graph.json réindexé =
   0 occurrence du chemin fuité, (5) node task.mjs kb search résout toujours via le sidecar, (6)
   sauvegarde datée graphify-out/20*/ désormais ignorée.
-release: null
+release: 0.2.0

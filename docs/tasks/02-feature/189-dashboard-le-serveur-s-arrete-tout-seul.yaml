@@ -25,7 +25,7 @@ epic: null
 source: user
 createdAt: "2026-07-12T20:58:29"
 startedAt: "2026-07-12T20:58:34"
-updatedAt: "2026-07-12T21:02:45"
+updatedAt: "2026-07-18T21:29:41"
 completedAt: "2026-07-12T21:02:45"
 commit: 30d7c31
 outcome: null
@@ -37,4 +37,4 @@ verification: >-
   onglet), s'arrête tout seul après ~5s de grâce avec le log 'fenêtre fermée — arrêt du serveur
   (port libéré)'. Opt-in vérifié : le plugin dev Vite appelle createApiMiddleware sans opts → npm
   run dev jamais impacté.
-release: null
+release: 0.2.0

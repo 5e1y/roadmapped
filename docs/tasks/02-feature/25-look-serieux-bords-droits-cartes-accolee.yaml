@@ -28,6 +28,7 @@ dependsOn: []
 epic: design-system
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:38"
 completedAt: "2026-07-07"
 commit: 3e4651a
 outcome: >-
@@ -38,4 +39,4 @@ verification: >-
   hover ne masque plus la sélection). Captures relues : colonnes accolées bordures fusionnées,
   backlog carré avec filet accent, popups/chips/consignation droits. Inputs et boutons toujours
   arrondis (fieldCls/ghostCls/actionBtn intacts). 113 tests + build verts.
-release: null
+release: pre-release

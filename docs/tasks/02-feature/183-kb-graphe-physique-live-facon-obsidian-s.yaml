@@ -40,7 +40,7 @@ epic: knowledge-base
 source: ai
 createdAt: "2026-07-12T15:12:46"
 startedAt: "2026-07-12T15:12:59"
-updatedAt: "2026-07-12T15:52:24"
+updatedAt: "2026-07-18T21:29:41"
 completedAt: "2026-07-12T15:52:24"
 commit: "8742772"
 outcome: >-
@@ -70,4 +70,4 @@ verification: >-
   tailles∝degré/arêtes inférées pointillées. Périmètre : rien touché
   serveur/schéma/install/scripts/ViewHeader. Rendu réel (génération/drag) à valider par Rémi dans
   son dev server.
-release: null
+release: 0.1.0

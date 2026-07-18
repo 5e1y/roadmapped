@@ -25,6 +25,7 @@ dependsOn:
 epic: vues-dashboard
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:45"
 completedAt: "2026-07-07"
 commit: 8211b24
 outcome: >-
@@ -35,4 +36,4 @@ verification: >-
   puis id desc, header complet ; recherche « spec » filtre la colonne ouverte (asserté) ; clic stage
   sidebar = filtre surligné accent + Select re-clé ; archive conservée en bas. 128 tests + build
   verts.
-release: null
+release: pre-release

@@ -21,7 +21,7 @@ epic: null
 source: ai
 createdAt: "2026-07-09T02:15:34"
 startedAt: "2026-07-10T22:54:55"
-updatedAt: "2026-07-10T23:22:29"
+updatedAt: "2026-07-18T21:29:42"
 completedAt: "2026-07-10"
 commit: 996b6ec
 outcome: >-
@@ -54,4 +54,4 @@ verification: >-
   react/vite/@base-ui/dagre/tailwind/trinil/marked, dist/index.html présent dans le paquet,
   index.html/vite.config/src-demo exclus. Hook pre-commit auto-testé (il a rebuild+staged dist à ce
   commit). grep dagre = graphLayout.ts seul.
-release: null
+release: pre-release

@@ -33,7 +33,7 @@ epic: knowledge-base
 source: ai
 createdAt: "2026-07-11T19:08:07"
 startedAt: "2026-07-11T19:08:10"
-updatedAt: "2026-07-11T19:22:02"
+updatedAt: "2026-07-18T21:29:41"
 completedAt: "2026-07-11T19:22:02"
 commit: 54765f2
 outcome: >-
@@ -60,4 +60,4 @@ verification: >-
   surveillés. NON vérifié par moi (pas de navigateur) : inspecteur/recherche/filtres/live en rendu
   réel — à valider par Rémi dans son dev server (l'échantillon graphify-out/graph.json local peuple
   la vue).
-release: null
+release: 0.1.0

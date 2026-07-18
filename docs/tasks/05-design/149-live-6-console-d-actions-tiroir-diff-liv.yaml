@@ -14,7 +14,7 @@ epic: live-reactivity
 source: ai
 createdAt: "2026-07-09T00:23:54"
 startedAt: "2026-07-09T00:45:16"
-updatedAt: "2026-07-09T00:47:27"
+updatedAt: "2026-07-18T21:29:48"
 completedAt: "2026-07-09"
 commit: 0f558c0
 outcome: >-
@@ -26,4 +26,4 @@ outcome: >-
   383 tests, capture du dashboard réel — bouton Activity monté, zéro casse. Cycle live repose sur la
   chaîne SSE (#185, vérifiée live) + diff (#186, testé).
 verification: null
-release: null
+release: pre-release

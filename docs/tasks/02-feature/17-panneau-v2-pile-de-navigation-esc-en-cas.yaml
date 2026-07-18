@@ -27,6 +27,7 @@ dependsOn: []
 epic: panneau-v2
 source: ai
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:37"
 completedAt: "2026-07-07"
 commit: 105aa67
 outcome: >-
@@ -36,4 +37,4 @@ verification: >-
   Vérifié au navigateur par l'agent (2 scénarios Playwright : ouverture/focus/Esc-ferme +
   Esc-blur-d'abord) et par moi : build tsc strict vert, aucun consommateur cassé (compat target
   préservée), 109 tests verts.
-release: null
+release: pre-release

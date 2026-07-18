@@ -21,6 +21,7 @@ dependsOn:
 epic: token-economy
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:38"
 completedAt: "2026-07-08"
 commit: e2d1c42
 outcome: >-
@@ -30,4 +31,4 @@ outcome: >-
 verification: >-
   list --tag debt sort #82 (exemple réel créé : âge sitrep depuis createdAt) et exclut les autres ;
   2 tests CLI verts ; convention dans SKILL.md et guide.md
-release: null
+release: pre-release

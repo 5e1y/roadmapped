@@ -24,6 +24,7 @@ dependsOn:
 epic: design-system
 source: user
 createdAt: "2026-07-07"
+updatedAt: "2026-07-18T21:29:38"
 completedAt: "2026-07-07"
 commit: 5ad66ba
 outcome: >-
@@ -33,4 +34,4 @@ verification: >-
   Un seul changement dans glyphs.tsx (currentColor + text-accent conditionnel) propagé partout ;
   glyphes bleus constatés sur les captures Backlog et Graphe (#9, #11, #36, #37) ;
   done/todo/available restés monochromes comme voulu. 113 tests verts.
-release: null
+release: pre-release

@@ -13,7 +13,7 @@ epic: null
 source: ai
 createdAt: "2026-07-14T22:28:18"
 startedAt: "2026-07-14T22:28:18"
-updatedAt: "2026-07-14T23:02:23"
+updatedAt: "2026-07-18T21:29:52"
 completedAt: "2026-07-14T23:02:23"
 commit: 480cfd3
 outcome: >-
@@ -26,4 +26,4 @@ verification: >-
   tools MCP, 5 releases via git log package.json, palette 4 couleurs birdFrames.ts) ; auto-contrôle
   template : structure H1+description+chiffres+essentiel+5 sections, 0 mot interdit (grep), ~850
   mots de prose
-release: null
+release: 0.2.3

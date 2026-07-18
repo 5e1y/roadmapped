@@ -14,11 +14,11 @@ epic: site-v2
 source: ai
 createdAt: "2026-07-10T22:04:24"
 startedAt: "2026-07-10T22:05:31"
-updatedAt: "2026-07-10T22:15:33"
+updatedAt: "2026-07-18T21:29:50"
 completedAt: "2026-07-10"
 commit: 476a025
 outcome: >-
   Infos vérifiées/à jour : distribution github-only (npx github:5e1y/roadmapped, jamais npm), liens
   GitHub corrects vers 5e1y/roadmapped.
 verification: Liens et commande d'install conformes à la doctrine.
-release: null
+release: pre-release

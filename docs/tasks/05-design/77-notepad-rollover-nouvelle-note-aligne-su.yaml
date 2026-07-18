@@ -12,6 +12,7 @@ dependsOn: []
 epic: notepad
 source: ai
 createdAt: "2026-07-08T01:31:25"
+updatedAt: "2026-07-18T21:29:46"
 completedAt: "2026-07-08"
 commit: 27e55fa
 outcome: >-
@@ -20,4 +21,4 @@ outcome: >-
 verification: >-
   Build vert ; classe hover:bg-neutral-100 confirmée dans NotepadView, identique au ghostCls de
   ui.tsx. (Rendu à confirmer visuellement au refresh.)
-release: null
+release: pre-release

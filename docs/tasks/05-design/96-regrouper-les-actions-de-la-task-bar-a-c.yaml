@@ -13,9 +13,10 @@ detail: >-
 refs: []
 links: []
 dependsOn: []
-milestone: null
+epic: null
 source: ai
 createdAt: "2026-07-08T09:28:18"
+updatedAt: "2026-07-18T21:29:47"
 completedAt: "2026-07-08"
 commit: 76df14a
 outcome: >-
@@ -28,4 +29,4 @@ outcome: >-
 verification: >-
   tsc clean, 326 tests, build OK, boot HTTP 200. QA visuel (capture 01) : une seule barre «
   Terminer… (noir) · Copier le brief agent · Supprimer (droite) » confirmée.
-release: null
+release: pre-release

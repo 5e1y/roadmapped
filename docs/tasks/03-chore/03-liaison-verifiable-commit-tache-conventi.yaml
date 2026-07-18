@@ -15,6 +15,7 @@ dependsOn: []
 epic: process-enforcement
 source: ai
 createdAt: "2026-07-08T01:46:24"
+updatedAt: "2026-07-18T21:29:41"
 completedAt: "2026-07-08"
 commit: 3ff033e
 outcome: >-
@@ -28,4 +29,4 @@ verification: >-
   compte+détail). Run réel `node scripts/task.mjs audit` → « 2 commit(s) · ✔ 2 lié(s) · 0 orphelin ·
   0 référence morte » : parsing #id, classification et range git validés bout en bout sur le vrai
   dépôt.
-release: null
+release: pre-release

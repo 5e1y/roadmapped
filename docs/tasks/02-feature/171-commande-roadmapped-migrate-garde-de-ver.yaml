@@ -19,7 +19,7 @@ epic: null
 source: ai
 createdAt: "2026-07-10T10:00:20"
 startedAt: "2026-07-10T11:34:54"
-updatedAt: "2026-07-10T11:35:24"
+updatedAt: "2026-07-18T21:29:40"
 completedAt: "2026-07-10"
 commit: b2f6c13
 outcome: >-
@@ -41,4 +41,4 @@ verification: >-
   garde validate affiche le bon message (« 2 tâches vieux dossiers, 2 team:, 1 quick ») ; migrate
   déplace #1 eng+quick→02-feature (team/kind retirés), #2 marketing+posts→07-communication, supprime
   les vieux dossiers, recrée les 9 _section.yaml, re-validate = OK 9 sections.
-release: null
+release: pre-release
