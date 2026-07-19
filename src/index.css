@@ -161,6 +161,7 @@
   --radius-interactive: 6px;
   --radius-listitem: 6px;
   --radius-surface: 6px;
+  --spacing-listgap: 8px;   /* listes en cartes séparées (décision Rémi) */
 }
 :root[data-theme-name="github"][data-theme="dark"] {
   --color-accent: #1f6feb;        /* blob bouton GitHub sombre, blanc/encre lisible */
@@ -225,6 +226,51 @@
   --color-page: #0a0a0a;
   --color-white: #171717;
   --color-neutral-200: #2f2f2f;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * LISTE TOKENISÉE (theming P4, #395) — l'espacement ET l'arrondi des rangées sont
+ * pilotés par les tokens `--spacing-listgap` et `--radius-listitem` d'un THÈME.
+ * Chaque item de 1er niveau est une CARTE bordée (`.rm-list-item`) ; le conteneur
+ * `.rm-list` les empile. La marge négative `calc(--spacing-listgap - 1px)` fait
+ * que :
+ *   • listgap 0 (défaut) → -1px : les cartes se chevauchent d'1px, leurs bordures
+ *     fusionnent en un seul filet = la « liste collée » historique (look inchangé) ;
+ *   • listgap > 0 → vraies cartes séparées, arrondies par --radius-listitem.
+ * D'où les DEUX tokens dédiés (design.md §1). `overflow:hidden` clippe le survol et
+ * le contenu déplié (membres d'epic, panneaux de release) au rayon de la carte.
+ * ═══════════════════════════════════════════════════════════════════════════ */
+/* @layer components : les utilitaires Tailwind (bg-active, hover:bg-rollover…)
+   vivent dans @layer utilities, POSTÉRIEUR → ils surchargent le fond par défaut
+   d'une carte (rangée sélectionnée / survolée). */
+@layer components {
+  .rm-list { display: flex; flex-direction: column; }
+  /* Bordure en BOX-SHADOW INSET, jamais en `border` (#395, décision Rémi) : un
+     trait ne doit PAS occuper de largeur dans le DOM (sinon décalage d'1px à chaque
+     niveau d'imbrication). Le ring `inset 0 0 0 1px` est peint À L'INTÉRIEUR (zéro
+     largeur de layout), suit le rayon, se compose avec les élévations. Le collapse
+     `calc(gap - 1px)` fait chevaucher les bandes inset de deux cartes voisines à
+     gap 0 → un seul filet d'1px (liste collée, look historique) ; à gap > 0 elles
+     se séparent en cartes — sans jamais décaler la mise en page. */
+  .rm-list-item {
+    box-shadow: inset 0 0 0 1px var(--color-border);
+    border-radius: var(--radius-listitem);
+    background-color: var(--color-foreground);
+    overflow: hidden;
+  }
+  .rm-list > .rm-list-item + .rm-list-item { margin-top: calc(var(--spacing-listgap) - 1px); }
+
+  /* Variante HORIZONTALE (bande d'epics de Roadmap/Deps) : mêmes tokens ListItem/
+     ListGap → à gap 0 les cartes sont COLLÉES, à gap > 0 elles se séparent et
+     s'arrondissent, comme le reste de l'interface (décision Rémi). L'écart passe
+     par `gap` (pas de collapse : le wrap sur plusieurs lignes s'y prête mal). */
+  .rm-list-row { display: flex; flex-wrap: wrap; gap: var(--spacing-listgap); }
+
+  /* Groupe IMBRIQUÉ (membres d'un epic, panneau d'une release) : le même token
+     `--spacing-listgap` sert de padding interne → à gap 0 aucun retrait (flush,
+     look collé) ; à gap > 0 les cartes-membres se détachent EN RETRAIT = « cartes
+     dans des cartes » (décision Rémi). */
+  .rm-nest { padding: var(--spacing-listgap); }
 }
 
 /*

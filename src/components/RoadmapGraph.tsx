@@ -457,13 +457,15 @@ function GraphCard({ model, task, pos, dimmed, focused, onHoverChange }: NodeChr
   // Fond blanc TOUJOURS opaque ; l'état estompé s'exprime par la bordure et
   // l'encre. Tâche ouverte dans le panneau → bordure accent (#36).
   const isOpenInPanel = top?.type === 'task' && top.id === task.id
-  // Sélection = langage du Backlog (fond + filet gauche) ; nœud focalisé
-  // (survol) → contour neutral-900 ; hover ≠ sélection.
+  // Bordure en RING (box-shadow inset, zéro largeur de layout — #395). Langage
+  // unique : courant = fond Active ; focalisé (clavier/graphe) = ring ACCENT (le
+  // token de focus/attention) ; défaut = ring Border + survol = fond Rollover.
+  // JAMAIS de bordure animée au survol (décision Rémi).
   const skin = isOpenInPanel
-    ? 'border border-border bg-active shadow-[inset_2px_0_0_var(--color-accent)]'
+    ? 'bg-active ring-1 ring-inset ring-border'
     : focused
-      ? 'border border-neutral-900 bg-foreground'
-      : 'border border-border bg-foreground transition-colors hover:border-neutral-400'
+      ? 'bg-foreground ring-1 ring-inset ring-accent'
+      : 'bg-foreground ring-1 ring-inset ring-border transition-colors hover:bg-rollover'
   const dim = state === 'done' || state === 'locked'
   const titleCls = task.status === 'done' ? 'text-textsoft line-through' : dim ? 'text-textsoft' : 'text-texthard'
   return (
@@ -537,7 +539,7 @@ function EpicGraphNode({ epic, pos, avail, dimmed, focused, onHoverChange }: Nod
   const pct = progress.total === 0 ? 0 : Math.round((progress.done / progress.total) * 100)
   return (
     <div
-      className={`absolute border bg-foreground transition-colors ${focused ? 'border-neutral-900' : 'border-border hover:border-neutral-400'}`}
+      className={`absolute bg-foreground ring-1 ring-inset transition-colors ${focused ? 'ring-accent' : 'ring-border hover:bg-rollover'}`}
       style={{ left: pos.x, top: pos.y, width: pos.w }}
       onPointerEnter={() => onHoverChange(true)}
       onPointerLeave={() => onHoverChange(false)}
@@ -587,7 +589,7 @@ function EpicGraphNode({ epic, pos, avail, dimmed, focused, onHoverChange }: Nod
                 type="button"
                 onClick={() => openTask(t.id)}
                 title={t.title}
-                className={`flex w-full items-center gap-2 px-3 py-1 text-left ${isOpenInPanel ? 'bg-active shadow-[inset_2px_0_0_var(--color-accent)]' : 'hover:bg-rollover'}`}
+                className={`flex w-full items-center gap-2 px-3 py-1 text-left ${isOpenInPanel ? 'bg-active' : 'hover:bg-rollover'}`}
                 style={{ height: MEMBER_H }}
               >
                 {st === 'locked'

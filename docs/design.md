@@ -146,31 +146,42 @@ Most live in `src/components/ui.tsx` (the exceptions, still canonical: `Chip` in
    ViewHeader must be identical across all 4 tabs. No hardcoded background hex in the
    className (RoadmapColumns' sticky `bg-[#fafafa]` → utility/var).
 2. **"Active/selected" language — TWO registers, each a primitive (#380/#381)**:
-   - **Current row** (an item open in the panel, a selected list entry):
-     `bg-accent-tint` + left rule `shadow-[inset_2px_0_0_var(--color-accent)]`.
-     Source: `rowStateClass(isCurrent)` in `ui.tsx` — used by TaskRow, the Overview
-     preview, the Activity feed, Docs tree, etc. NEVER re-inline it per view.
-   - **Enclenched control** (a toggle/filter that is ON — #311): border-accent +
-     `bg-accent-tint` + `font-medium`. Source: `TogglePill` in `ui.tsx` — used by
-     the FilterMenu trigger, the KB toggles, the Overview segmented control.
-   Gray `bg-neutral-100` is hover ONLY, never selection (single legacy deviant:
-   DocsTree → #113). An INERT element (a static warning badge) must NOT wear either
-   accent register — it reads as neutral (a live toggle is the only thing that looks
-   "on"). The accent-tint left-rule (2px) means "current"; a neutral 1px left border
-   means "nesting" (subtasks); a thick left border means "error" (ErrorBanner) —
-   three distinct meanings, never mixed.
-3. **Ghost input pattern** (Rémi's decision, settled): editable fields are PERMANENT
-   camouflaged inputs (`ghostCls`) — invisible at rest, hover `bg-neutral-100`, focus
-   border + white background. **Never** a read→input swap, never a pencil step.
-4. **Focus**: visible everywhere (the global `:focus-visible` is authoritative;
+   - **Current row** (an item open in the panel, a selected list entry): `bg-active`
+     FILL ONLY. The left accent rule (`shadow-[inset_2px_0_0_…]`) was **removed**
+     (#395, Rémi): too much of a Roadmapped-specific marker, it clashed with the
+     other themes. Source: `rowStateClass(isCurrent)` in `ui.tsx` — used by TaskRow,
+     the Roadmap cards, the Overview preview, the Activity feed, Docs tree, etc.
+     NEVER re-inline it per view.
+   - **Enclenched control** (a toggle/filter that is ON — #311): ring-accent +
+     `bg-active` + `font-medium`. Source: `TogglePill` in `ui.tsx`.
+   Gray Rollover is hover ONLY, never selection. An INERT element (a static warning
+   badge) must NOT wear either register.
+   **Hover NEVER animates a border** (#395, Rémi): a row/card hover changes the FILL
+   to `Rollover` only. Animating a border colour (the old `hover:border-neutral-400`)
+   is banned.
+3. **Borders are `box-shadow`, never the `border` utility** (#395, Rémi): a rule must
+   NOT occupy width in the DOM (a 1px `border` shifts nested layouts by 1px per level).
+   Cards/rows use the inset-ring utilities `.rm-list` / `.rm-list-item` / `.rm-list-row`
+   / `.rm-nest` (index.css, `@layer components`): `box-shadow: inset 0 0 0 1px Border`,
+   radius = `--radius-listitem`, gap = `--spacing-listgap`. Standalone cards (graph
+   nodes) use Tailwind `ring-1 ring-inset ring-border`. Border colour is `Border`, or
+   `accent` when active/focused — never a raw neutral shade. **Lists are token-driven**:
+   at `ListGap` 0 rows are glued (rings collapse to one 1px seam); at `ListGap` > 0 they
+   separate into `ListItem`-rounded cards, and nested groups (epic members, release
+   panels, the epic band) inset into "cards within cards". Same tokens everywhere → one
+   theme dials the density of the whole app.
+4. **Ghost input pattern** (Rémi's decision, settled): editable fields are PERMANENT
+   camouflaged inputs (`ghostCls`) — invisible at rest, hover `bg-rollover`, focus
+   ring + surface background. **Never** a read→input swap, never a pencil step.
+5. **Focus**: visible everywhere (the global `:focus-visible` is authoritative;
    neutralizing it via `focus:outline-none`/inline without a replacement is forbidden). A
    control revealed on hover ALSO reveals on focus (`focus-visible:opacity-100`). After an
    action that unmounts the focused element (delete, add, exit edit), focus is explicitly
    REPLACED (next row, combobox input, panel container) — never abandoned on body.
-5. **Keyboard**: everything interactive is a `<button>` (or handled by Base UI). A
+6. **Keyboard**: everything interactive is a `<button>` (or handled by Base UI). A
    `role="button"` responds to Enter AND Space. No mouse-only clickable zone carrying a
    non-redundant action.
-6. **Monochrome**: any color outside accent/neutrals is a bug (the Notepad's amber and red
+7. **Monochrome**: any color outside accent/neutrals is a bug (the Notepad's amber and red
    → removed in #113).
 
 ## 4. States — empty / loading / error (#384)
