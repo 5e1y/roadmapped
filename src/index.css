@@ -44,19 +44,24 @@
    * primitives ci-dessus, donc ils suivent le basculement clair/sombre SANS être
    * redéfinis dans le bloc dark. La refonte « alléger » = régler ces tokens.
    *
-   * 8 COULEURS (mapping depuis l'échelle numérique, cf. design.md §1) :
-   *   Active     = accent (état actif/sélection/in_progress : traits, icônes)
+   * 9 COULEURS (mapping depuis l'échelle numérique, cf. design.md §1) :
+   *   Active     = fond des éléments actifs/sélectionnés (accent-tint, bleu CLAIR)
    *   Rollover   = survol de rangée/surface (neutral-50 : > carte en sombre)
-   *   Action     = fond des éléments ACTIFS/sélectionnés (accent-tint)
-   *   Foreground = surface (carte, panneau, popup, flanc)
+   *   Action     = fond des boutons primaires (accent, bleu ; remplace l'ancien noir)
+   *   accent     = LE trait/point d'attention (barre gauche de rangée, glyphe
+   *                in_progress, icône active) — même bleu qu'Action mais rôle
+   *                distinct : Action = un FOND cliquable, accent = une MARQUE
+   *   Foreground = surface (carte, panneau, popup, flanc) — et texte sur Action
+   *                (symétrie de bascule : blanc/#2563eb en clair ≈ encre/#3b82f6
+   *                en sombre, ~5,8:1 des deux côtés, zéro token « on-accent »)
    *   Background = page (sous les surfaces)
-   *   TextHard   = encre primaire (= aussi le fond des boutons primaires)
+   *   TextHard   = encre primaire (texte SEULEMENT — plus le fond des boutons)
    *   TextSoft   = texte atténué / méta (plancher contraste #108) ; disabled/décoratif se replie ici
    *   Border     = filets, séparateurs, bordures de contrôle
    */
-  --color-active: var(--color-accent);
+  --color-active: var(--color-accent-tint);
   --color-rollover: var(--color-neutral-50);
-  --color-action: var(--color-accent-tint);
+  --color-action: var(--color-accent);
   --color-foreground: var(--color-white);
   --color-background: var(--color-page);
   --color-texthard: var(--color-neutral-900);

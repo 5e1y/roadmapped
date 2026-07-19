@@ -16,21 +16,27 @@ values** (color + form). Light/dark are two themes; N more are cheap. Défini da
 `src/index.css` (@theme) ; les tokens couleur aliasent les primitives → ils suivent
 le swap clair/sombre sans redéfinition.
 
-**Colors (8)** — `bg-active`, `text-textsoft`, `border-border`, … (utilitaires Tailwind) :
+**Colors (9)** — `bg-active`, `bg-action`, `text-textsoft`, `border-border`, … (utilitaires Tailwind) :
 
 | Token | Role | Maps from (numeric) |
 |---|---|---|
-| `Active` | active/selection/in_progress marks (lines, icons, accent text) | `accent` |
+| `Active` | fill of active/selected elements (current row bg, toggle on) | `accent-tint` (bleu clair) |
 | `Rollover` | row/surface hover | `neutral-50` |
-| `Action` | fill of ACTIVE/selected elements (row current, toggle on) | `accent-tint` |
-| `Foreground` | surface (card, panel, popup, side) | `white`/card |
+| `Action` | **primary-button fill (blue)** — replaces the old black button | `accent` |
+| `accent` | THE attention mark: left rule on rows, in_progress glyph, active icon/text. Same blue as `Action` but a distinct ROLE (Action = clickable *fill*, accent = a *mark*) | `accent` |
+| `Foreground` | surface (card, panel, popup, side) — **and text on `Action`** (flip symmetry: white/#2563eb light ≈ ink/#3b82f6 dark, ~5.8:1 both sides, no `on-accent` token) | `white`/card |
 | `Background` | page (under surfaces) | `page` |
-| `TextHard` | primary ink (+ solid primary-button fill) | `neutral-900` |
+| `TextHard` | primary ink — **text only** (no longer any button fill) | `neutral-900` |
 | `TextSoft` | muted/meta text (contrast floor #108) ; disabled & decorative fold here | `neutral-500` |
 | `Border` | rules, separators, control borders | `neutral-200` |
 
-The intermediate greys (300/400/600/700) collapse into these 8 — that IS the
-"alléger". Nothing carries meaning below `TextSoft`'s contrast.
+The intermediate greys (300/400/600/700) collapse into these — that IS the
+"alléger". Nothing carries meaning below `TextSoft`'s contrast. **Decision (Rémi):
+buttons go black → blue.** The old inverted black button (`bg-neutral-900 text-white`)
+becomes `bg-action text-foreground`; the flip symmetry keeps the label readable in
+both themes without a dedicated on-accent token. `Active` (light-blue fill) and
+`accent` (the blue mark) are the classic selected-row pair: `bg-active` + a left
+`accent` rule.
 
 **Radii (4)** — `rounded-interactive`, `rounded-listitem`, `rounded-surface`, `rounded-round` :
 
