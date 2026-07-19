@@ -6,7 +6,8 @@ import { type TaskNode } from '../lib/tasks'
 import { TaskList, sortOpen, sortDone } from './TaskColumns'
 
 import { useTagFilter, useTypeFilter } from '../state/filters'
-import { ViewHeader } from './ViewHeader'
+import { ViewShell } from './ViewHeader'
+import { TreeStateGuard } from './ui'
 
 /** Accord singulier/pluriel élémentaire (anglais). */
 const plural = (n: number, s: string) => `${n} ${s}${n === 1 ? '' : 's'}`
@@ -45,7 +46,7 @@ function RemovableChip({ label, onRemove, ariaLabel }: { label: string; onRemove
  * dans la sidebar et s'applique aussi).
  */
 export function Backlog() {
-  const { tree, errors, loading, loadError } = useTree()
+  const { tree } = useTree()
   const { openCreateTask } = usePanel()
   const [tagFilter, setTagFilter] = useTagFilter()
   const [typeFilter, setTypeFilter] = useTypeFilter()
@@ -60,35 +61,45 @@ export function Backlog() {
     if (refocusSearch.current) { refocusSearch.current = false; searchRef.current?.focus() }
   })
 
-  if (loading && !tree) {
-    return <div className="mx-auto max-w-3xl px-6 py-8 text-sm text-neutral-500">Loading…</div>
-  }
-  if (loadError) {
-    return (
-      <div className="mx-auto max-w-3xl px-6 py-8">
-        <h1 className="text-lg font-semibold tracking-tight">Server unreachable</h1>
-        <p className="mt-1 font-mono text-xs text-neutral-500">{loadError}</p>
+  // « + tâche » : Feature par défaut (modifiable dans le panneau de création).
+  const createIn = '02-feature'
+
+  // Header TOUJOURS monté (design.md §4) : recherche + « + task » vivent dans le
+  // ViewShell, y compris pendant chargement/erreur — le champ recherche (searchRef)
+  // ne remonte donc jamais, garantissant le refocus post-retrait de chip (#385).
+  const controls = (
+    <>
+      <div className="relative w-56">
+        <Search size={13} className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-neutral-500" />
+        <input
+          ref={searchRef}
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search…"
+          aria-label="Search tasks"
+          className="w-full rounded-md border border-neutral-300 bg-white py-1 pl-7 pr-2 text-xs text-neutral-900 transition-colors placeholder:text-neutral-500 focus:border-neutral-900 focus:outline-none"
+        />
       </div>
+      <button
+        type="button"
+        onClick={() => openCreateTask(createIn)}
+        className="rounded-md border border-neutral-900 bg-neutral-900 px-2.5 py-1 text-xs text-white transition-colors hover:bg-neutral-700"
+      >
+        + task
+      </button>
+    </>
+  )
+
+  // États (chargement / serveur mort / validation) sous le header : la garde
+  // PARTAGÉE `TreeStateGuard` (ui.tsx, #384) — `detail` = liste des fichiers
+  // fautifs, le Backlog étant la vue de détail des erreurs.
+  if (!tree) {
+    return (
+      <ViewShell controls={controls}>
+        <TreeStateGuard detail>{null}</TreeStateGuard>
+      </ViewShell>
     )
   }
-  if (errors.length > 0) {
-    return (
-      <div className="mx-auto max-w-3xl px-6 py-8">
-        <h1 className="text-lg font-semibold tracking-tight">
-          {errors.length} validation error{errors.length > 1 ? 's' : ''} in docs/tasks/
-        </h1>
-        <p className="mt-1 text-sm text-neutral-500">
-          Fix the offending files — nothing renders until the source is healthy.
-        </p>
-        <ul className="mt-6 flex flex-col divide-y divide-neutral-100 border border-neutral-200 bg-white">
-          {errors.map((e, i) => (
-            <li key={i} className="px-4 py-2.5 font-mono text-xs text-neutral-700">{e}</li>
-          ))}
-        </ul>
-      </div>
-    )
-  }
-  if (!tree) return null
 
   const q = query.trim().toLowerCase()
   const typeOf = new Map<number, string>()
@@ -116,38 +127,17 @@ export function Backlog() {
   const open = sortOpen(all.filter((t) => t.status !== 'done' && matches(t)))
   const done = sortDone(all.filter((t) => t.status === 'done' && matches(t)))
 
-  // « + tâche » : Feature par défaut (modifiable dans le panneau de création).
-  const createIn = '02-feature'
-
   // Filtres actifs (#210) : type + tag + recherche. La barre de chips ne
   // s'affiche que s'il y en a ; « Clear all » remet tout à zéro d'un coup.
   const hasFilters = typeFilter.length > 0 || tagFilter.length > 0 || q !== ''
   const clearAll = () => { setTypeFilter([]); setTagFilter([]); setQuery('') }
 
   return (
-    <div className="flex h-full flex-col">
-      {/* Header unifié (modèle Roadmap) : filtres en dropdowns, hauteur = panneau. */}
-      <ViewHeader meta={`${plural(open.length, 'open')} · ${plural(done.length, 'done')}`}>
-        <div className="relative w-56">
-          <Search size={13} className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-neutral-500" />
-          <input
-            ref={searchRef}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search…"
-            aria-label="Search tasks"
-            className="w-full rounded-md border border-neutral-300 bg-white py-1 pl-7 pr-2 text-xs text-neutral-900 transition-colors placeholder:text-neutral-500 focus:border-neutral-900 focus:outline-none"
-          />
-        </div>
-        <button
-          type="button"
-          onClick={() => openCreateTask(createIn)}
-          className="rounded-md border border-neutral-900 bg-neutral-900 px-2.5 py-1 text-xs text-white transition-colors hover:bg-neutral-700"
-        >
-          + task
-        </button>
-      </ViewHeader>
-
+    <ViewShell meta={`${plural(open.length, 'open')} · ${plural(done.length, 'done')}`} controls={controls}>
+      {/* Garde partagée : même avec un arbre présent, des erreurs de VALIDATION
+          reprennent la main (parité avec l'ancien early-return) — `detail` liste
+          les fichiers fautifs, le Backlog étant la vue de détail. */}
+      <TreeStateGuard detail>
       {/* Colonne liste = barre de filtres actifs (toujours visible) + scroller.
           Occupe toute la largeur (#186) : le flanc radar/graphe des tags a
           migré vers l'Overview (#375). */}
@@ -191,6 +181,7 @@ export function Backlog() {
           </div>
         </div>
       </div>
-    </div>
+      </TreeStateGuard>
+    </ViewShell>
   )
 }
