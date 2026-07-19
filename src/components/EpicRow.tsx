@@ -261,9 +261,15 @@ export function EpicRow({ slug, title, tasks, progress, persistKey, forceOpen = 
         </div>
       )}
       <Collapsible.Panel>
-        {/* Même langage d'imbrication que les sous-tâches d'une TaskRow. */}
-        <div className="ml-9 divide-y divide-neutral-100 border-l border-border">
-          {tasks.map((t) => <TaskRow key={t.id} task={t} />)}
+        {/* Cartes-dans-cartes (#395) : membres en cartes tokenisées, retrait piloté
+            par --spacing-listgap (.rm-nest). À gap 0 = flush, bordures fusionnées
+            (liste collée) ; à gap > 0 = cartes en retrait dans la carte-epic. */}
+        <div className="rm-list rm-nest">
+          {tasks.map((t) => (
+            <div key={t.id} className="rm-list-item">
+              <TaskRow task={t} />
+            </div>
+          ))}
         </div>
       </Collapsible.Panel>
     </Collapsible.Root>

@@ -91,10 +91,8 @@ function EpicCard({ item, active, onSelect }: {
       onClick={() => onSelect(active ? null : item.slug)}
       aria-pressed={active}
       title={`${item.title} — ${item.progress.done}/${item.progress.total} tasks done. ${active ? 'Click to show every epic again.' : 'Click to filter the columns on this epic.'}`}
-      className={`flex w-48 flex-col gap-0.5 border px-2.5 py-1.5 text-left transition-colors ${
-        active
-          ? 'border-border bg-active shadow-[inset_2px_0_0_var(--color-accent)]'
-          : 'border-border bg-foreground hover:border-neutral-400'
+      className={`rm-list-item flex w-48 flex-col gap-0.5 px-2.5 py-1.5 text-left transition-colors ${
+        active ? 'bg-active' : 'hover:bg-rollover'
       }`}
     >
       <span className="flex items-center gap-1.5">
@@ -162,7 +160,7 @@ export function EpicBand({ items, doneItems = [], selected, onSelect }: {
               type="button"
               onClick={() => onSelect(null)}
               title="Clear the epic filter"
-              className="flex min-w-0 items-center gap-1 bg-active px-2 py-0.5 text-[11px] text-texthard shadow-[inset_2px_0_0_var(--color-accent)] transition-colors hover:text-texthard"
+              className="flex min-w-0 items-center gap-1 bg-active px-2 py-0.5 text-[11px] text-texthard transition-colors hover:text-texthard"
             >
               <span className="min-w-0 truncate">{selectedItem.title}</span>
               <span aria-hidden>×</span>
@@ -172,7 +170,7 @@ export function EpicBand({ items, doneItems = [], selected, onSelect }: {
         <Collapsible.Panel>
           {/* Hauteur bornée + scroll interne (#245) : ~2 rangées de cartes visibles. */}
           <div className="max-h-32 overflow-y-auto pb-1 pt-1.5">
-            <div className="flex flex-wrap gap-1.5">
+            <div className="rm-list-row">
               {items.map((item) => (
                 <EpicCard key={item.slug} item={item} active={selected === item.slug} onSelect={onSelect} />
               ))}
@@ -182,7 +180,7 @@ export function EpicBand({ items, doneItems = [], selected, onSelect }: {
                   aria-expanded={showDoneEpics}
                   onClick={() => setShowDoneEpics(!showDoneEpics)}
                   title={showDoneEpics ? 'Fold the completed epics' : 'Unfold the completed epics'}
-                  className="border border-border bg-foreground px-2.5 text-xs text-textsoft transition-colors hover:border-neutral-400 hover:text-texthard"
+                  className="rm-list-item flex items-center px-2.5 text-xs text-textsoft transition-colors hover:bg-rollover hover:text-texthard"
                 >
                   {showDoneEpics ? '− done' : `+ ${doneItems.length} done`}
                 </button>

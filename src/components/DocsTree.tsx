@@ -77,7 +77,7 @@ function DocsTreeFile({
       className={`flex w-full items-baseline gap-2 py-1.5 pr-4 text-left text-sm transition-colors ${
         // Langage « actif » universel (design.md §3.2) : accent-tint + filet gauche —
         // le gris neutral-100 est réservé au hover. Lignes de liste carrées.
-        active ? 'bg-action text-texthard shadow-[inset_2px_0_0_var(--color-accent)]' : 'text-textsoft hover:bg-rollover'
+        active ? 'bg-active text-texthard' : 'text-textsoft hover:bg-rollover'
       }`}
       style={{ paddingLeft: BASE_PADDING_PX + depth * INDENT_PX + INDENT_PX }}
       title={node.name}

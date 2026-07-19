@@ -13,11 +13,12 @@ import { useTree } from '../state/TreeContext'
  */
 
 // Langage de SÉLECTION de l'app (design.md §3.2) — l'item « courant » (ouvert
-// dans le panneau) : fond accent-tint + barre inset accent 2px à gauche. Source
-// UNIQUE, à réutiliser partout où une ligne peut être « la courante » (#380) :
-// TaskRow, l'aperçu Overview, le feed Activity… — plus de recette inline par écran.
-// Non-courant → survol de rangée neutral-50 (le hover-ligne canonique, pas 100).
-export const CURRENT_ROW = 'bg-active shadow-[inset_2px_0_0_var(--color-accent)]'
+// dans le panneau) : fond Active (accent-tint) SEUL. Le trait inset accent à
+// gauche a été retiré (#395, décision Rémi) : trop marqueur Roadmapped, il
+// s'intégrait mal dans les autres thèmes (GitHub, Claude…). Source UNIQUE, à
+// réutiliser partout où une ligne peut être « la courante » (#380) : TaskRow,
+// l'aperçu Overview, le feed Activity… Non-courant → survol Rollover.
+export const CURRENT_ROW = 'bg-active'
 export const rowStateClass = (isCurrent: boolean) =>
   isCurrent ? CURRENT_ROW : 'hover:bg-rollover'
 

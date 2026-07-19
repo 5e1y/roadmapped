@@ -252,7 +252,7 @@ export function NotepadView() {
               <div
                 key={n.slug}
                 className={`group flex items-center gap-2 px-4 py-1.5 text-sm ${
-                  n.slug === slug ? 'bg-action text-texthard shadow-[inset_2px_0_0_var(--color-accent)]' : 'text-textsoft hover:bg-rollover'
+                  n.slug === slug ? 'bg-active text-texthard' : 'text-textsoft hover:bg-rollover'
                 }`}
               >
                 <button type="button" onClick={() => openNote(n.slug)} className="min-w-0 flex-1 truncate text-left">

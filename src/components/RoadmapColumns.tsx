@@ -35,13 +35,10 @@ function TaskCard({ task, state, missing, blocksCount = 0 }: { task: TaskNode; s
   // s'exprime par la bordure et l'encre (pas d'opacity), la disponibilité par la
   // bordure pleine marquée. Tâche ouverte dans le panneau → bordure accent (#36).
   const isOpenInPanel = top?.type === 'task' && top.id === task.id
-  // Le hover ne masque JAMAIS la sélection : une carte ouverte reste accent
-  // sous la souris (sinon le clic paraît « gris » jusqu'au mouse exit).
-  // Sélection = même langage que le Backlog (fond accent + filet gauche) ;
-  // les disponibles n'ont PLUS de contour fort (décision Rémi batch 2).
-  const skin = isOpenInPanel
-    ? 'border border-border bg-active shadow-[inset_2px_0_0_var(--color-accent)]'
-    : 'border border-border bg-foreground transition-colors hover:z-10 hover:border-neutral-400'
+  // Langage de sélection UNIQUE de l'app (design.md §3.2) : courant = fond Active,
+  // sinon survol = fond Rollover. JAMAIS de bordure animée (le ring reste Border,
+  // porté par .rm-list-item) — le survol ne touche que le FOND (décision Rémi).
+  const skin = isOpenInPanel ? 'bg-active' : 'transition-colors hover:bg-rollover'
   const dim = state === 'done' || state === 'locked'
   const titleCls = task.status === 'done' ? 'text-textsoft line-through' : dim ? 'text-textsoft' : 'text-texthard'
   const subs = task.subtasks.length > 0 ? countTasksDeep(task.subtasks) : null
@@ -49,7 +46,7 @@ function TaskCard({ task, state, missing, blocksCount = 0 }: { task: TaskNode; s
   return (
     // Densité (#246) : py-2 / gap-1 — la carte gagne ~6px sans perdre une info.
     <button type="button" onClick={() => openTask(task.id)} title={task.title}
-      className={`relative -mt-px flex w-full flex-col gap-1 px-3 py-2 text-left first:mt-0 ${skin}`}>
+      className={`rm-list-item relative flex w-full flex-col gap-1 px-3 py-2 text-left ${skin}`}>
       <div className="flex items-start gap-2">
         <span className="flex h-5 shrink-0 items-center">
           {state === 'locked'
@@ -158,7 +155,7 @@ function Column({ section, scope, open, done, avail, blocksOf }: {
           transversal vit dans la bande d'epics au-dessus, chaque tâche chez
           son type. Les cartes à liseré fort (sélection) passent au-dessus
           (z-10) pour que leur bordure ne soit pas mangée par la suivante. */}
-      <div className="flex min-w-0 flex-col pt-1.5">
+      <div className="rm-list min-w-0 pt-1.5">
         {open.map((task) => (
           <TaskCard key={task.id} task={task} state={avail.get(task.id) ?? 'available'} missing={missingPrereqs(task, avail)} blocksCount={blocksOf(task)} />
         ))}
@@ -168,13 +165,13 @@ function Column({ section, scope, open, done, avail, blocksOf }: {
           <Collapsible.Root open={doneOpen} onOpenChange={setDoneOpen}>
             <Collapsible.Trigger
               title={doneOpen ? 'Fold the completed tasks of this column' : 'Unfold the completed tasks of this column'}
-              className="-mt-px flex w-full items-center gap-1.5 border border-border bg-foreground px-3 py-1.5 text-left text-xs text-textsoft hover:bg-rollover hover:text-texthard"
+              className="rm-list-item flex w-full items-center gap-1.5 px-3 py-1.5 text-left text-xs text-textsoft transition-colors hover:bg-rollover hover:text-texthard"
             >
               <Chevron />
               {done.length} done
             </Collapsible.Trigger>
             <Collapsible.Panel>
-              <div className="-mt-px flex min-w-0 flex-col">
+              <div className="rm-list min-w-0">
                 {done.map((task) => (
                   <TaskCard key={task.id} task={task} state={avail.get(task.id) ?? 'available'} missing={missingPrereqs(task, avail)} blocksCount={blocksOf(task)} />
                 ))}

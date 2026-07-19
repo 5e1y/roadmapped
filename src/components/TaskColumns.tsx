@@ -88,8 +88,13 @@ function ReleaseSection({ release, items, tree, defaultOpen, filtered = false }:
         </span>
       </div>
       <Collapsible.Panel>
-        <div className="divide-y divide-neutral-100 border-t border-neutral-100">
-          {items.map((i) => <ListItemRow key={keyOf(i)} item={i} tree={tree} filtered={filtered} />)}
+        {/* Cartes-dans-cartes (#395) : mêmes tokens que les membres d'epic. */}
+        <div className="rm-list rm-nest">
+          {items.map((i) => (
+            <div key={keyOf(i)} className="rm-list-item">
+              <ListItemRow item={i} tree={tree} filtered={filtered} />
+            </div>
+          ))}
         </div>
       </Collapsible.Panel>
     </Collapsible.Root>
@@ -156,27 +161,35 @@ export function TaskList({ open, done, tree, filtered }: {
             bien un item à rendre. Garder open.length faisait « Nothing open »
             malgré un match. */}
         {openItems.length === 0 ? empty('Nothing open') : (
-          <div className="divide-y divide-neutral-100 border border-border bg-foreground">
-            {visible.map((i) => <ListItemRow key={keyOf(i)} item={i} tree={tree} filtered={filtered} />)}
+          <div className="rm-list">
+            {visible.map((i) => (
+              <div key={keyOf(i)} className="rm-list-item">
+                <ListItemRow item={i} tree={tree} filtered={filtered} />
+              </div>
+            ))}
             {hidden > 0 && (
-              <button
-                ref={toggleRef}
-                type="button"
-                onClick={() => toggleShowAll(true)}
-                className="w-full px-4 py-2.5 text-center text-xs text-textsoft hover:bg-rollover hover:text-texthard"
-              >
-                Show {hidden} more
-              </button>
+              <div className="rm-list-item">
+                <button
+                  ref={toggleRef}
+                  type="button"
+                  onClick={() => toggleShowAll(true)}
+                  className="w-full px-4 py-2.5 text-center text-xs text-textsoft hover:bg-rollover hover:text-texthard"
+                >
+                  Show {hidden} more
+                </button>
+              </div>
             )}
             {showAll && openItems.length > PREVIEW && (
-              <button
-                ref={toggleRef}
-                type="button"
-                onClick={() => toggleShowAll(false)}
-                className="w-full px-4 py-2.5 text-center text-xs text-textsoft hover:bg-rollover hover:text-texthard"
-              >
-                Show less
-              </button>
+              <div className="rm-list-item">
+                <button
+                  ref={toggleRef}
+                  type="button"
+                  onClick={() => toggleShowAll(false)}
+                  className="w-full px-4 py-2.5 text-center text-xs text-textsoft hover:bg-rollover hover:text-texthard"
+                >
+                  Show less
+                </button>
+              </div>
             )}
           </div>
         )}
@@ -190,9 +203,11 @@ export function TaskList({ open, done, tree, filtered }: {
             les done d'epics COMPLETS y vivent, `done` brut peut en contenir qui
             partent côté ouvert (epic incomplet). */}
         {doneItems.length === 0 ? empty('Nothing done yet') : (
-          <div className="divide-y divide-neutral-100 border border-border bg-foreground">
+          <div className="rm-list">
             {releaseGroups.map((g, idx) => (
-              <ReleaseSection key={g.release} release={g.release} items={g.items} tree={tree} defaultOpen={idx === 0} filtered={filtered} />
+              <div key={g.release} className="rm-list-item">
+                <ReleaseSection release={g.release} items={g.items} tree={tree} defaultOpen={idx === 0} filtered={filtered} />
+              </div>
             ))}
           </div>
         )}
