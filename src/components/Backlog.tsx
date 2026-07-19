@@ -1,11 +1,9 @@
-import { useLayoutEffect, useRef, useState } from 'react'
-import { Search } from 'trinil-react'
 import { useTree } from '../state/TreeContext'
-import { usePanel } from '../state/PanelContext'
 import { type TaskNode } from '../lib/tasks'
 import { TaskList, sortOpen, sortDone } from './TaskColumns'
 
 import { useTagFilter, useTypeFilter } from '../state/filters'
+import { useSearch } from '../state/search'
 import { ViewShell } from './ViewHeader'
 import { TreeStateGuard } from './ui'
 
@@ -47,55 +45,27 @@ function RemovableChip({ label, onRemove, ariaLabel }: { label: string; onRemove
  */
 export function Backlog() {
   const { tree } = useTree()
-  const { openCreateTask } = usePanel()
   const [tagFilter, setTagFilter] = useTagFilter()
   const [typeFilter, setTypeFilter] = useTypeFilter()
-  const [query, setQuery] = useState('')
-  // #385 — retirer un chip (ou « Clear all ») démonte le bouton focalisé → focus
-  // perdu sur <body> (design.md §3.4). On replace le focus sur le champ recherche,
-  // toujours monté dans le header, quel que soit l'état des filtres.
-  const searchRef = useRef<HTMLInputElement>(null)
-  const refocusSearch = useRef(false)
-  const removeFilter = (fn: () => void) => { refocusSearch.current = true; fn() }
-  useLayoutEffect(() => {
-    if (refocusSearch.current) { refocusSearch.current = false; searchRef.current?.focus() }
-  })
-
-  // « + tâche » : Feature par défaut (modifiable dans le panneau de création).
-  const createIn = '02-feature'
-
-  // Header TOUJOURS monté (design.md §4) : recherche + « + task » vivent dans le
-  // ViewShell, y compris pendant chargement/erreur — le champ recherche (searchRef)
-  // ne remonte donc jamais, garantissant le refocus post-retrait de chip (#385).
-  const controls = (
-    <>
-      <div className="relative w-56">
-        <Search size={13} className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-textsoft" />
-        <input
-          ref={searchRef}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search…"
-          aria-label="Search tasks"
-          className="w-full rounded-interactive ring-1 ring-inset ring-border bg-foreground py-1 pl-7 pr-2 text-xs text-texthard transition-colors placeholder:text-textsoft"
-        />
-      </div>
-      <button
-        type="button"
-        onClick={() => openCreateTask(createIn)}
-        className="rounded-interactive bg-action px-2.5 py-1 text-xs text-foreground transition-[filter] hover:brightness-95"
-      >
-        + task
-      </button>
-    </>
-  )
+  // Recherche GLOBALE (#395) : la barre vit dans le header commun (search.tsx) —
+  // le Backlog consomme la requête pour filtrer. Le « + task » aussi est global.
+  const { query, setQuery } = useSearch()
+  // #385 — retirer un chip démonte le bouton focalisé → focus perdu sur <body>.
+  // On replace le focus sur la barre de recherche GLOBALE (toujours montée dans
+  // le header), retrouvée par son aria-label.
+  const removeFilter = (fn: () => void) => {
+    fn()
+    requestAnimationFrame(() => {
+      document.querySelector<HTMLInputElement>('input[aria-label="Search tasks"]')?.focus()
+    })
+  }
 
   // États (chargement / serveur mort / validation) sous le header : la garde
   // PARTAGÉE `TreeStateGuard` (ui.tsx, #384) — `detail` = liste des fichiers
   // fautifs, le Backlog étant la vue de détail des erreurs.
   if (!tree) {
     return (
-      <ViewShell controls={controls}>
+      <ViewShell>
         <TreeStateGuard detail>{null}</TreeStateGuard>
       </ViewShell>
     )
@@ -133,7 +103,7 @@ export function Backlog() {
   const clearAll = () => { setTypeFilter([]); setTagFilter([]); setQuery('') }
 
   return (
-    <ViewShell meta={`${plural(open.length, 'open')} · ${plural(done.length, 'done')}`} controls={controls}>
+    <ViewShell meta={`${plural(open.length, 'open')} · ${plural(done.length, 'done')}`}>
       {/* Garde partagée : même avec un arbre présent, des erreurs de VALIDATION
           reprennent la main (parité avec l'ancien early-return) — `detail` liste
           les fichiers fautifs, le Backlog étant la vue de détail. */}

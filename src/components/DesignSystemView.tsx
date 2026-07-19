@@ -430,18 +430,17 @@ export function DesignSystemView({ onBack }: { onBack: () => void }) {
 
   return (
     <div className="flex h-full flex-col">
-      <ViewHeader meta="Design System">
-        <button
-          type="button"
-          onClick={onBack}
-          className="flex items-center gap-1 rounded-interactive ring-1 ring-inset ring-border bg-foreground px-2 py-1 text-xs text-textsoft transition-colors hover:bg-rollover"
-        >
-          <ChevronLeft size={11} aria-hidden="true" />
-          Back
-        </button>
-      </ViewHeader>
+      <ViewHeader meta="Design System" />
       <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="mx-auto max-w-4xl px-6 py-8">
+          <button
+            type="button"
+            onClick={onBack}
+            className="mb-4 flex items-center gap-1 rounded-interactive ring-1 ring-inset ring-border bg-foreground px-2 py-1 text-xs text-textsoft transition-colors hover:bg-rollover"
+          >
+            <ChevronLeft size={11} aria-hidden="true" />
+            Back
+          </button>
           <div className="mb-6">
             <h1 className="text-sm font-semibold tracking-tight text-texthard">Design System</h1>
             <p className="mt-1 text-xs text-textsoft">
