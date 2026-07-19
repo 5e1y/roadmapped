@@ -46,9 +46,11 @@ A systemic decision, not case by case:
   buttons, icon buttons).
 - **`rounded-md` (6px)**: reserved for the h-12 header controls (search, "+ task",
   tabs, filters) and floating cards (graph zoom, radar).
-- **Square (no radius)**: surfaces (cards, accordions, popups, banners, toasts),
-  chips, and list rows (the "backlog row" template).
-- `rounded-full`: progress bars only.
+- **Square (no radius)**: surfaces (cards, accordions, banners, toasts), chips, and
+  list rows (the "backlog row" template). A floating MENU anchored to a header
+  control (FilterMenu/KbDisplayMenu popover) follows its trigger's `rounded-md`;
+  a standalone popup/banner/toast stays square. No `rounded-lg` anywhere (#380).
+- `rounded-full`: progress bars and status dots only.
 
 ### Spacing — canonical templates
 
@@ -57,7 +59,25 @@ A systemic decision, not case by case:
 - Fixed left side: `w-[420px]` + `py-2`, inner rows `px-4`.
 - Micro-labels: **two levels only** — `text-xs font-medium` for view list headers,
   `text-[11px] font-medium` for panel field labels. Ink:
-  `text-neutral-500` (post-promotion).
+  `text-neutral-500` (post-promotion). No third register (no `uppercase tracking-wide`).
+
+### Typography scale — named levels (audit §2, #383)
+
+One scale for the whole app; a role picks a level, never an arbitrary px:
+
+| Level | Class | Role |
+|---|---|---|
+| title | `text-sm font-semibold` (`tracking-tight`) | view/panel/section titles, epic titles |
+| body | `text-sm` | task titles, doc prose, primary content |
+| label | `text-xs font-medium` | list headers, buttons, controls |
+| field-label | `text-[11px] font-medium` | panel field labels |
+| meta | `text-[11px]` (mono for ids/dates/counts) | **all** metadata — dates, counters, tags, paths, ages. NEVER 12px (the 11/12 oscillation was the #1 typo drift) |
+| micro | 10px floor → 11px | nothing smaller than 11px renders |
+
+### Vertical rhythm — one row height
+
+List rows share ONE height (`px-4 py-2`); no ad-hoc `py-[5px]`/`py-2.5` variants.
+A task card is identical in Roadmap columns and the Dependencies graph.
 
 ## 2. Canonical components — Base UI everywhere, zero handmade element
 
@@ -83,9 +103,20 @@ Most live in `src/components/ui.tsx` (the exceptions, still canonical: `Chip` in
    #ffffff / rules #e5e5e5. A view NEVER sets `bg-white` on its root — the
    ViewHeader must be identical across all 4 tabs. No hardcoded background hex in the
    className (RoadmapColumns' sticky `bg-[#fafafa]` → utility/var).
-2. **Universal "active/selected" language**: `bg-accent-tint` + left rule
-   `shadow-[inset_2px_0_0_var(--color-accent)]`. Gray `bg-neutral-100` is reserved for
-   hover — never for selection (single deviant: DocsTree → #113).
+2. **"Active/selected" language — TWO registers, each a primitive (#380/#381)**:
+   - **Current row** (an item open in the panel, a selected list entry):
+     `bg-accent-tint` + left rule `shadow-[inset_2px_0_0_var(--color-accent)]`.
+     Source: `rowStateClass(isCurrent)` in `ui.tsx` — used by TaskRow, the Overview
+     preview, the Activity feed, Docs tree, etc. NEVER re-inline it per view.
+   - **Enclenched control** (a toggle/filter that is ON — #311): border-accent +
+     `bg-accent-tint` + `font-medium`. Source: `TogglePill` in `ui.tsx` — used by
+     the FilterMenu trigger, the KB toggles, the Overview segmented control.
+   Gray `bg-neutral-100` is hover ONLY, never selection (single legacy deviant:
+   DocsTree → #113). An INERT element (a static warning badge) must NOT wear either
+   accent register — it reads as neutral (a live toggle is the only thing that looks
+   "on"). The accent-tint left-rule (2px) means "current"; a neutral 1px left border
+   means "nesting" (subtasks); a thick left border means "error" (ErrorBanner) —
+   three distinct meanings, never mixed.
 3. **Ghost input pattern** (Rémi's decision, settled): editable fields are PERMANENT
    camouflaged inputs (`ghostCls`) — invisible at rest, hover `bg-neutral-100`, focus
    border + white background. **Never** a read→input swap, never a pencil step.
@@ -99,5 +130,37 @@ Most live in `src/components/ui.tsx` (the exceptions, still canonical: `Chip` in
    non-redundant action.
 6. **Monochrome**: any color outside accent/neutrals is a bug (the Notepad's amber and red
    → removed in #113).
+
+## 4. States — empty / loading / error (#384)
+
+- **The header never disappears.** Loading and error render INSIDE the view shell
+  (`<ViewShell>`): the `ViewHeader` (theme toggle, report-a-bug) stays reachable.
+- **Loading**: `Loading…` in the centered template (`mx-auto max-w-3xl px-6 py-8`).
+- **Empty**: ONE `<EmptyState>` — centered, optional glyph + a title
+  (`text-sm font-medium text-neutral-700`) + an optional one-line hint
+  (`text-xs text-neutral-500`). Same register on every view.
+- **Error**: `ErrorBanner` (role=alert, left rule neutral-900) or the shared
+  `TreeStateGuard` for tree-load failures — one pattern, never ad hoc. A view must
+  never be a silent blank when the server is unreachable (Overview honors loadError).
+- **Language**: the UI is English (Rémi's decision). Ticket/doc CONTENT is verbatim.
+
+## 5. Data-viz & iconography (#386)
+
+The radar, the created-vs-closed area chart, the KB graph and the Dependencies
+graph are ONE visual family:
+
+- **Edge semantics — universal**: a SOLID stroke = an explicit/known relationship;
+  a DASHED stroke (`3 3`) = inferred/weak. (KB: EXTRACTED solid, INFERRED dashed;
+  Dependencies: explicit `dependsOn` are SOLID.) Never the reverse.
+- **Emphasis stroke**: `1.5` everywhere; emphasis is carried by color/ink, not by a
+  thicker or dashed line.
+- **`vector-effect="non-scaling-stroke"`** on every stroke inside a zoomable or
+  responsive SVG (graphs, chart) — line weight is constant regardless of zoom/size.
+- **Accent is rare here too**: a viz is neutral at rest; accent marks the ONE
+  highlighted/selected series or node only (radar polygon is neutral unless selected).
+- **Grid/axes**: `neutral-200`, decorative only.
+- **Glyph family**: status = circle (todo hollow / in_progress half / done full),
+  milestone = diamond, epic = square — `currentColor`, stroke via tokens, one trait
+  weight. Icons come from `trinil-react`; no bespoke one-off icon set.
 </content>
 </invoke>
