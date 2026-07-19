@@ -1,6 +1,6 @@
 id: 376
 title: "UX 5 : écran Overview étape 2 — chart créés vs fermés par semaine"
-status: todo
+status: done
 tags:
   - overview
   - ui
@@ -21,9 +21,22 @@ dependsOn:
 epic: overview-activity
 source: ai
 createdAt: "2026-07-19T11:53:39"
-updatedAt: "2026-07-19T11:53:39"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+startedAt: "2026-07-19T12:14:38"
+updatedAt: "2026-07-19T12:21:10"
+completedAt: "2026-07-19T12:21:10"
+commit: 194c834
+outcome: >-
+  Overview étape 2 : carte « Créés vs fermés / semaine ». Composant SVG maison WeeklyFlowChart
+  (fonction pure, props WeekBucket[]) alimenté par createdVsClosedByWeek (#374, aucun recalcul).
+  Barres GROUPÉES (2/semaine) — choix justifié : ~2-3 semaines d'historique, une double courbe de
+  2-3 points se lit mal. Monochrome + accent rare : créés = flux entrant en neutral-400, fermés = le
+  débit mis en avant en accent (seule série colorée) ; tokens CSS only, zéro hex. Gridlines Y
+  0/milieu/max, étiquettes semaine DD/MM (lundi ISO), légende, valeurs au-dessus des barres, état
+  vide géré. Carte pleine largeur lg:col-span-2 entre les demi-cartes et le graphe de tags ; les 3
+  cartes de l'étape 1 intactes.
+verification: >-
+  tsc clean, suite 713/713 (exclusions worktrees ; WeeklyFlowChart.test 6 cas + baseline). VÉRIF
+  VISUELLE (Playwright pleine page) : les 4 cartes de l'Overview relues — radar, aperçu à bascules,
+  chart hebdo (légende Créés/Fermés, barres 313 créés / 309 fermés, accent sur Fermés), graphe de
+  tags. Build OK.
+release: 0.2.3
