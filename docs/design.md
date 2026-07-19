@@ -9,7 +9,43 @@ component, and every rule. Any deviation found in the code is a bug, not a varia
 
 ## 1. Tokens
 
-### Colors — monochrome + ONE accent
+### Semantic tokens — THE theming contract (Rémi)
+
+Components call SEMANTIC tokens (roles), never numeric shades. A **theme = these
+values** (color + form). Light/dark are two themes; N more are cheap. Défini dans
+`src/index.css` (@theme) ; les tokens couleur aliasent les primitives → ils suivent
+le swap clair/sombre sans redéfinition.
+
+**Colors (8)** — `bg-active`, `text-textsoft`, `border-border`, … (utilitaires Tailwind) :
+
+| Token | Role | Maps from (numeric) |
+|---|---|---|
+| `Active` | active/selection/in_progress marks (lines, icons, accent text) | `accent` |
+| `Rollover` | row/surface hover | `neutral-50` |
+| `Action` | fill of ACTIVE/selected elements (row current, toggle on) | `accent-tint` |
+| `Foreground` | surface (card, panel, popup, side) | `white`/card |
+| `Background` | page (under surfaces) | `page` |
+| `TextHard` | primary ink (+ solid primary-button fill) | `neutral-900` |
+| `TextSoft` | muted/meta text (contrast floor #108) ; disabled & decorative fold here | `neutral-500` |
+| `Border` | rules, separators, control borders | `neutral-200` |
+
+The intermediate greys (300/400/600/700) collapse into these 8 — that IS the
+"alléger". Nothing carries meaning below `TextSoft`'s contrast.
+
+**Radii (4)** — `rounded-interactive`, `rounded-listitem`, `rounded-surface`, `rounded-round` :
+
+| Token | Default | Role |
+|---|---|---|
+| `Interactive` | 6px | controls: buttons, inputs, toggles, filter menus, zoom bar (merges old 4/6) |
+| `ListItem` | 0 | list rows — **0 = glued list by default**; a theme raises it for separated-card lists |
+| `Surface` | 8px | cards, panels, popups, banners |
+| `Round` | 9999px | gauges, status dots, avatars |
+
+**Spacing (6)** — `p-xs … p-xl`, `gap-listgap`, … : `XS`4 · `S`8 · `M`12 · `L`16 ·
+`XL`24 · `ListGap`0. **ListGap = 0 (glued rows) by default**; a theme raises it to
+separate list items (paired with `ListItem` radius) — hence the two dedicated tokens.
+
+### Colors — the underlying primitives (mapped above)
 
 The doctrine (Rémi's decision #36, index.css): **the only color is the accent blue**,
 reserved for active elements and points of attention. Its rarity makes it spottable.
