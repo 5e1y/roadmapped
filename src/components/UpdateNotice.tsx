@@ -142,7 +142,7 @@ function UpdateNoticeInner({ update }: { update: { installed: string; remote: st
                   type="button"
                   onClick={() => void runUpdate()}
                   disabled={phase === 'updating'}
-                  className="flex items-center justify-center gap-1.5 rounded-interactive bg-action px-2.5 py-1.5 text-xs font-medium text-foreground transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-70"
+                  className="flex items-center justify-center gap-1.5 rounded-interactive bg-action px-2.5 py-1.5 text-xs font-medium text-foreground transition-[filter,opacity] hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   <Download size={11} className="shrink-0" />
                   {phase === 'updating' ? 'Updating & restarting…' : 'Update & restart'}

@@ -137,7 +137,7 @@ export function TreeStateGuard({ detail = false, children }: { detail?: boolean;
 // 2px accent — indicateur de focus UNIQUE partagé par tous les cousins (ghost,
 // Select, Combobox). Aucune largeur DOM (ring = box-shadow).
 export const fieldCls =
-  'w-full rounded-interactive bg-background px-2 py-1.5 text-sm text-texthard ring-1 ring-inset ring-border transition focus:bg-foreground disabled:bg-background disabled:text-textsoft'
+  'w-full rounded-interactive bg-background px-2 py-1.5 text-sm text-texthard ring-1 ring-inset ring-border transition-[background-color,box-shadow] focus:bg-foreground disabled:bg-background disabled:text-textsoft'
 
 /**
  * Peau « ghost » (décision Rémi 2026-07-07) : l'élément éditable est un input
@@ -155,7 +155,7 @@ export const ghostCls =
  * destructif global : non — monochrome assumé).
  */
 export const primaryBtn =
-  'rounded-interactive bg-action px-2.5 py-1 text-xs text-foreground transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50'
+  'rounded-interactive bg-action px-2.5 py-1 text-xs text-foreground transition-[filter] hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50'
 export const actionBtn =
   'rounded-interactive ring-1 ring-inset ring-border px-2.5 py-1 text-[11px] text-texthard transition-colors hover:bg-rollover disabled:opacity-50'
 
@@ -389,7 +389,7 @@ export function Select({
     >
       <BaseSelect.Trigger
         aria-label={ariaLabel}
-        className={`${ghost ? `${ghostCls} text-sm` : compact ? 'w-full rounded-interactive bg-foreground px-2.5 py-1 text-xs text-texthard ring-1 ring-inset ring-border transition-shadow' : fieldCls} flex items-center justify-between gap-2 text-left data-[disabled]:opacity-60 data-[disabled]:text-textsoft ${ghost ? 'data-[disabled]:bg-transparent' : ''}`}
+        className={`${ghost ? `${ghostCls} text-sm` : compact ? 'w-full rounded-interactive bg-foreground px-2.5 py-1 text-xs text-texthard ring-1 ring-inset ring-border transition-colors hover:bg-rollover' : fieldCls} flex items-center justify-between gap-2 text-left data-[disabled]:opacity-60 data-[disabled]:text-textsoft ${ghost ? 'data-[disabled]:bg-transparent' : ''}`}
       >
         <BaseSelect.Value />
         <BaseSelect.Icon className="shrink-0 text-textsoft">
@@ -508,8 +508,8 @@ export function TagsCombobox({ tags, suggestions, disabled = false, onSave }: {
   if (disabled) {
     return (
       <div className="flex flex-wrap items-center gap-1.5 px-1.5 py-1">
-        {tags.length === 0 && <span className="text-[12px] text-textsoft">—</span>}
-        {tags.map((t) => <span key={t} className="text-[12px] text-textsoft">#{t}</span>)}
+        {tags.length === 0 && <span className="text-sm text-textsoft">—</span>}
+        {tags.map((t) => <span key={t} className="text-sm text-textsoft">#{t}</span>)}
       </div>
     )
   }
@@ -536,7 +536,7 @@ export function TagsCombobox({ tags, suggestions, disabled = false, onSave }: {
         {selected.map((item) => (
           <Combobox.Chip
             key={item.id}
-            className="flex items-center gap-1 text-[12px] text-textsoft"
+            className="flex items-center gap-1 text-sm text-textsoft"
           >
             #{item.value}
             <Combobox.ChipRemove aria-label={`Remove ${item.value}`} className="shrink-0 rounded-interactive text-textsoft hover:text-texthard">
@@ -547,7 +547,7 @@ export function TagsCombobox({ tags, suggestions, disabled = false, onSave }: {
         <Combobox.Input
           aria-label="Tags"
           placeholder={selected.length === 0 ? '+ tag' : '+'}
-          className="min-w-[60px] flex-1 bg-transparent text-[12px] text-texthard placeholder:text-textsoft focus:outline-none"
+          className="min-w-[60px] flex-1 bg-transparent text-sm text-texthard placeholder:text-textsoft focus:outline-none"
         />
       </Combobox.Chips>
       <Combobox.Portal>

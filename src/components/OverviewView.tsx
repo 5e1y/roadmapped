@@ -113,10 +113,6 @@ export function OverviewView() {
   const { tree } = useTree()
   const { openTask, top } = usePanel()
   const [mode, setMode] = useState<PreviewMode>('urgent')
-  // Radar en LECTURE : l'état de sélection est LOCAL et ne filtre AUCUNE liste
-  // ici (le filtrage type→backlog vit dans le Backlog). Recliquer un axe le
-  // désélectionne — le radar reste une carte de charge, pas un contrôle de vue.
-  const [radarType, setRadarType] = useState('')
 
   const today = useMemo(() => todayLocal(), [])
   const counts = useMemo(() => (tree ? openCountsByType(tree) : new Map<string, number>()), [tree])
@@ -164,15 +160,23 @@ export function OverviewView() {
       <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="mx-auto max-w-6xl px-6 py-6">
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            {/* 1 — Radar par type (LECTURE). */}
+            {/* Rangée 1 (retour Rémi) — radar | chart CÔTE À CÔTE : deux viz de
+                hauteur comparable, fini la colonne à moitié vide. */}
+            {/* 1 — Radar par type (LECTURE pure, la sélection ne filtrait rien). */}
             <Card title="Load by type">
               <div className="p-4">
-                <TypesRadar counts={counts} selected={radarType} onSelect={setRadarType} />
+                <TypesRadar counts={counts} />
               </div>
             </Card>
 
-            {/* 3 — Aperçu 5 tickets à 3 bascules. */}
-            <Card title="Backlog preview">
+            {/* 2 — Graphe en aires créés-vs-fermés par JOUR (aires lissées superposées,
+                style shadcn). Données via createdVsClosedByDay — jamais recomptées ici. */}
+            <Card title="Created vs closed / day">
+              <FlowAreaChart data={dailyFlow} />
+            </Card>
+
+            {/* Rangée 2 — Aperçu 5 tickets à 3 bascules, PLEINE LARGEUR sous la rangée. */}
+            <Card title="Backlog preview" className="lg:col-span-2">
               <div className="flex h-full flex-col">
                 <div className="shrink-0 px-4 pb-3 pt-1">
                   <Segmented value={mode} onChange={setMode} />
@@ -191,14 +195,7 @@ export function OverviewView() {
               </div>
             </Card>
 
-            {/* 4 — Graphe en aires créés-vs-fermés par JOUR (#376, étape 2 ; style
-                shadcn, retour Rémi). Pleine largeur, aires lissées superposées.
-                Données via createdVsClosedByDay — jamais recomptées ici. */}
-            <Card title="Created vs closed / day" className="lg:col-span-2">
-              <FlowAreaChart data={dailyFlow} />
-            </Card>
-
-            {/* 2 — Graphe nodal des TAGS via KbGraph (visualiseur Graphify réutilisé).
+            {/* Rangée 3 — Graphe nodal des TAGS via KbGraph (visualiseur Graphify réutilisé).
                 Le clic-nœud est NEUTRALISÉ (onNodeClick no-op) : un tag n'ouvre pas
                 de KbNodePanel. Hauteur FIXE (KbGraph prend tout l'espace de son
                 conteneur — il n'est pas fait pour s'auto-dimensionner dans une carte). */}

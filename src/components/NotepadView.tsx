@@ -232,7 +232,7 @@ export function NotepadView() {
       {!warned && (
         <div className="flex items-center justify-between gap-3 bg-background px-4 py-1.5 text-xs text-texthard shadow-[inset_0_-1px_0_var(--color-border)]">
           <span>Local notes — not versioned, not saved by git (docs/notes/).</span>
-          <button type="button" onClick={dismissWarning} className="shrink-0 font-medium text-texthard hover:text-texthard">OK</button>
+          <button type="button" onClick={dismissWarning} className="shrink-0 rounded-interactive px-1.5 font-medium text-textsoft transition-colors hover:bg-rollover hover:text-texthard">OK</button>
         </div>
       )}
 
@@ -270,7 +270,7 @@ export function NotepadView() {
                   }}
                   title="Delete note"
                   aria-label={`Delete note ${n.title || n.slug}`}
-                  className="shrink-0 text-textsoft opacity-0 transition-opacity hover:text-texthard focus-visible:opacity-100 group-hover:opacity-100"
+                  className="shrink-0 rounded-interactive p-0.5 text-textsoft opacity-0 transition-[opacity,background-color,color] hover:bg-rollover hover:text-texthard focus-visible:opacity-100 group-hover:opacity-100"
                 >✕</button>
               </div>
             ))}

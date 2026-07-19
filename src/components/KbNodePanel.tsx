@@ -49,7 +49,7 @@ export function KbNodePanel({ nodeId }: { nodeId: string }) {
             type="button"
             onClick={() => openKbNodeSource(node, root, close)}
             title={node.sourceFile}
-            className="flex min-w-0 items-baseline gap-2 px-1.5 py-1 text-left font-mono text-xs text-texthard underline decoration-neutral-500 underline-offset-2 hover:decoration-neutral-800"
+            className="flex min-w-0 items-baseline gap-2 rounded-interactive px-1.5 py-1 text-left font-mono text-xs text-texthard underline decoration-textsoft underline-offset-2 transition-colors hover:bg-rollover"
           >
             <span className="min-w-0 truncate">{node.sourceFile}</span>
             {node.sourceLocation && <span className="shrink-0 text-neutral-400">{node.sourceLocation}</span>}

@@ -468,12 +468,13 @@ function GraphCard({ model, task, pos, dimmed, focused, onHoverChange }: NodeChr
       : 'bg-foreground ring-1 ring-inset ring-border transition-colors hover:bg-rollover'
   const dim = state === 'done' || state === 'locked'
   const titleCls = task.status === 'done' ? 'text-textsoft line-through' : dim ? 'text-textsoft' : 'text-texthard'
+  // Halo de voisinage (ring accent + estompe) piloté au POINTEUR seulement : au
+  // clavier, l'outline :focus-visible global suffit — un ring accent EN PLUS
+  // ferait un double indicateur de focus (#395).
   return (
     <button type="button" onClick={() => openTask(task.id)} title={task.title}
       onPointerEnter={() => onHoverChange(true)}
       onPointerLeave={() => onHoverChange(false)}
-      onFocus={(e) => { if (e.currentTarget.matches(':focus-visible')) onHoverChange(true) }}
-      onBlur={() => onHoverChange(false)}
       className={`absolute flex flex-col gap-1.5 overflow-hidden rounded-listitem px-3 py-2.5 text-left ${skin}`}
       style={{ left: pos.x, top: pos.y, width: pos.w, minHeight: pos.h }}>
       <div className="flex items-center gap-2">
@@ -537,14 +538,16 @@ function EpicGraphNode({ epic, pos, avail, dimmed, focused, onHoverChange }: Nod
   const progress = epicProgress(tree, epic.slug)
   const partial = epic.tasks.length < progress.total
   const pct = progress.total === 0 ? 0 : Math.round((progress.done / progress.total) * 100)
+  // PAS d'overflow-hidden : il clipperait l'outline :focus-visible des boutons
+  // internes (en-tête + membres) → focus clavier invisible. Le rayon arrondit déjà
+  // le fond propre du nœud ; le `pb-1` du bloc membres écarte leurs coins du bas
+  // arrondi. Halo au POINTEUR seulement (pas onFocus) pour ne pas doubler l'outline.
   return (
     <div
-      className={`absolute overflow-hidden rounded-listitem bg-foreground ring-1 ring-inset transition-colors ${focused ? 'ring-accent' : 'ring-border hover:bg-rollover'}`}
+      className={`absolute rounded-listitem bg-foreground ring-1 ring-inset transition-colors ${focused ? 'ring-accent' : 'ring-border hover:bg-rollover'}`}
       style={{ left: pos.x, top: pos.y, width: pos.w }}
       onPointerEnter={() => onHoverChange(true)}
       onPointerLeave={() => onHoverChange(false)}
-      onFocus={(e) => { if (e.target.matches(':focus-visible')) onHoverChange(true) }}
-      onBlur={() => onHoverChange(false)}
     >
       <button
         type="button"
