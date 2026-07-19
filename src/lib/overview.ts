@@ -68,6 +68,19 @@ export interface WeekBucket {
   closed: number
 }
 
+export interface DayBucket {
+  /** Jour "YYYY-MM-DD" (local). */
+  day: string
+  created: number
+  closed: number
+}
+
+/** Minuit LOCAL du jour calendaire de `iso` (pas de décalage semaine). */
+function localDay(iso: string): Date {
+  const [y, m, d] = iso.slice(0, 10).split('-').map(Number)
+  return new Date(y, (m ?? 1) - 1, d ?? 1)
+}
+
 /** Lundi ISO (00:00 local) de la semaine contenant la date nue de `iso`. */
 function isoMonday(iso: string): Date {
   const [y, m, d] = iso.slice(0, 10).split('-').map(Number)
@@ -119,6 +132,38 @@ export function createdVsClosedByWeek(tree: TaskTree): WeekBucket[] {
     out.push({ weekStart: key, created: created.get(key) ?? 0, closed: closed.get(key) ?? 0 })
     if (key === last) break
     cursor.setDate(cursor.getDate() + 7)
+  }
+  return out
+}
+
+/**
+ * Créés vs fermés par JOUR (#376) — pour le graphe en aires de l'Overview, qui a
+ * besoin de densité (l'hebdo ne donne que ~3 points). Jours vides comblés entre
+ * le 1er et le dernier. Parse LOCAL des dates nues (piège UTC #232/#363).
+ */
+export function createdVsClosedByDay(tree: TaskTree): DayBucket[] {
+  const tasks = activeTasks(tree)
+  const created = new Map<string, number>()
+  const closed = new Map<string, number>()
+  const bump = (map: Map<string, number>, key: string) => map.set(key, (map.get(key) ?? 0) + 1)
+
+  for (const t of tasks) {
+    if (t.createdAt) bump(created, ymd(localDay(t.createdAt)))
+    if (t.status === 'done' && t.completedAt) bump(closed, ymd(localDay(t.completedAt)))
+  }
+
+  const days = [...new Set([...created.keys(), ...closed.keys()])].sort()
+  if (days.length === 0) return []
+
+  const out: DayBucket[] = []
+  const cursor = localDay(days[0])
+  const last = days[days.length - 1]
+  let guard = 0
+  while (guard++ < 100_000) {
+    const key = ymd(cursor)
+    out.push({ day: key, created: created.get(key) ?? 0, closed: closed.get(key) ?? 0 })
+    if (key === last) break
+    cursor.setDate(cursor.getDate() + 1) // +1 jour, arithmétique LOCALE
   }
   return out
 }
