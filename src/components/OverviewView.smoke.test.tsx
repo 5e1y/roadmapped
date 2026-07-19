@@ -68,32 +68,32 @@ describe('OverviewView — smoke étape 1 (#375)', () => {
   it('monte sans jeter (header + les 3 cartes)', () => {
     const { container } = frame(<OverviewView />)
     expect(container.querySelector('header')).toBeInTheDocument()
-    expect(screen.getByText('Charge par type')).toBeInTheDocument()
-    expect(screen.getByText('Aperçu du backlog')).toBeInTheDocument()
+    expect(screen.getByText('Load by type')).toBeInTheDocument()
+    expect(screen.getByText('Backlog preview')).toBeInTheDocument()
     expect(screen.getByText('Graphe des tags')).toBeInTheDocument()
   })
 
   it('expose les 3 bascules et change la liste d\'aperçu selon la bascule active', () => {
     frame(<OverviewView />)
 
-    const anciens = screen.getByRole('button', { name: 'Anciens', pressed: false })
-    const recents = screen.getByRole('button', { name: 'Récents', pressed: false })
-    expect(screen.getByRole('button', { name: 'Urgents', pressed: true })).toBeInTheDocument()
+    const oldest = screen.getByRole('button', { name: 'Oldest', pressed: false })
+    const recent = screen.getByRole('button', { name: 'Recent', pressed: false })
+    expect(screen.getByRole('button', { name: 'Urgent', pressed: true })).toBeInTheDocument()
 
     // Anciens → le plus ancien créé en tête (#10).
-    fireEvent.click(anciens)
-    expect(screen.getByRole('button', { name: 'Anciens', pressed: true })).toBeInTheDocument()
+    fireEvent.click(oldest)
+    expect(screen.getByRole('button', { name: 'Oldest', pressed: true })).toBeInTheDocument()
     expect(firstPreviewId()).toBe('#10')
 
     // Récents → le plus récemment ajouté en tête (#11) : la liste a bien changé.
-    fireEvent.click(recents)
-    expect(screen.getByRole('button', { name: 'Récents', pressed: true })).toBeInTheDocument()
+    fireEvent.click(recent)
+    expect(screen.getByRole('button', { name: 'Recent', pressed: true })).toBeInTheDocument()
     expect(firstPreviewId()).toBe('#11')
   })
 
   it('ouvre le TaskPanel au clic d\'une ligne (openTask via usePanel)', () => {
     frame(<OverviewView />)
-    fireEvent.click(screen.getByRole('button', { name: 'Anciens' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Oldest' }))
     // La ligne #10 est un bouton cliquable — le clic ne jette pas (openTask empile).
     const row = screen.getByText('#10').closest('button')!
     expect(row).toBeInTheDocument()

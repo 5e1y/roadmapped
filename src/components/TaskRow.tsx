@@ -2,6 +2,7 @@ import { Collapsible } from '@base-ui/react/collapsible'
 import { LockLocked } from 'trinil-react'
 import { TempBadge, rowTemperature } from './Temperature'
 import { Chevron, KindGlyph } from './glyphs'
+import { rowStateClass } from './ui'
 import { usePanel } from '../state/PanelContext'
 import { useOptionalTree } from '../state/TreeContext'
 import { usePersistentFlag } from '../state/uiPersist'
@@ -70,7 +71,7 @@ export function TaskRow({ task }: { task: TaskNode }) {
     <Collapsible.Root open={open} onOpenChange={setOpen}>
       {/* Le padding vertical vit dans les éléments INTERACTIFS (pas le
           conteneur) : toute la hauteur de la ligne est cliquable. */}
-      <div className={`flex w-full flex-wrap items-center gap-2 px-4 text-sm ${isOpenInPanel ? 'bg-accent-tint shadow-[inset_2px_0_0_var(--color-accent)]' : 'hover:bg-neutral-50'}`}>
+      <div className={`flex w-full flex-wrap items-center gap-2 px-4 text-sm ${rowStateClass(isOpenInPanel)}`}>
         {/* Chevron = toggle des sous-tâches, rendu UNIQUEMENT si la tâche en a. Pas de
             spacer fantôme sinon (#97) : les lignes sans sous-tâche s'alignent à gauche. */}
         {hasSubs && (

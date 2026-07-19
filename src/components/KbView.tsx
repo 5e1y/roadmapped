@@ -28,7 +28,7 @@ export function KbView() {
   const typeOpts = useMemo(() => (graph ? fileTypeOptions(graph.nodes) : []), [graph])
 
   if (loading && !graph) {
-    return <div className="mx-auto max-w-2xl px-6 py-8 text-sm text-neutral-500">Chargement…</div>
+    return <div className="mx-auto max-w-2xl px-6 py-8 text-sm text-neutral-500">Loading…</div>
   }
 
   if (error) {
@@ -106,8 +106,10 @@ export function KbView() {
 
         <div className="ml-auto flex items-center gap-3 font-mono text-[11px] text-neutral-500">
           {stale && (
-            <span className="rounded border border-accent bg-accent-tint px-1.5 py-0.5 text-neutral-900" title="Le corpus a changé depuis la génération — relance /graphify --update">
-              peut-être obsolète
+            // Badge INERTE (#380) : registre neutre, PAS le costume accent d'un toggle
+            // enclenché — c'est un avertissement statique, pas un contrôle actif.
+            <span className="rounded border border-neutral-300 bg-neutral-100 px-1.5 py-0.5 text-neutral-600" title="The corpus changed since generation — run /graphify --update">
+              maybe stale
             </span>
           )}
           <span>{graph.stats.nodes} nodes · {graph.stats.edges} edges · {graph.stats.communities} communities</span>

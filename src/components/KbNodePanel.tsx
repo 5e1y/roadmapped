@@ -69,7 +69,7 @@ export function KbNodePanel({ nodeId }: { nodeId: string }) {
       <div className="flex flex-col gap-1">
         <div className="px-1.5 text-[11px] font-medium text-neutral-500">Tickets touching this</div>
         {tickets.length === 0 ? (
-          <p className="px-1.5 text-xs text-neutral-500">Aucun ticket ne référence ce fichier.</p>
+          <p className="px-1.5 text-xs text-neutral-500">No ticket references this file.</p>
         ) : (
           <div className="flex flex-col">
             {tickets.map((id) => {

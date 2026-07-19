@@ -16,7 +16,7 @@ const DATA: DayBucket[] = [
 describe('FlowAreaChart (#376)', () => {
   it('rend un SVG avec une aire + une ligne par série (2 séries → 2 aires, 2 lignes)', () => {
     const { container } = render(<FlowAreaChart data={DATA} />)
-    expect(screen.getByRole('img', { name: /créés vs fermés/i })).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: /created vs closed/i })).toBeInTheDocument()
     // 2 gradients (créés/fermés) + 2 aires remplies + 2 lignes de crête.
     expect(container.querySelectorAll('linearGradient')).toHaveLength(2)
     const filled = container.querySelectorAll('path[fill^="url("]')
@@ -25,10 +25,10 @@ describe('FlowAreaChart (#376)', () => {
     expect(strokes.length).toBeGreaterThanOrEqual(2)
   })
 
-  it('affiche la légende Créés / Fermés', () => {
+  it('affiche la legend Created / Closed', () => {
     render(<FlowAreaChart data={DATA} />)
-    expect(screen.getByText('Créés')).toBeInTheDocument()
-    expect(screen.getByText('Fermés')).toBeInTheDocument()
+    expect(screen.getByText('Created')).toBeInTheDocument()
+    expect(screen.getByText('Closed')).toBeInTheDocument()
   })
 
   it('étiquette les jours au format DD/MM (premier et dernier présents)', () => {
@@ -39,6 +39,6 @@ describe('FlowAreaChart (#376)', () => {
 
   it('état vide géré', () => {
     render(<FlowAreaChart data={[]} />)
-    expect(screen.getByText(/pas encore d'activité/i)).toBeInTheDocument()
+    expect(screen.getByText(/no activity to chart/i)).toBeInTheDocument()
   })
 })

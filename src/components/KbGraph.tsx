@@ -331,7 +331,7 @@ export function KbGraph({ graph, filters, query, onNodeClick: onNodeClickProp }:
       )}
       {searching && matches.size === 0 && (
         <div className="absolute left-3 top-3 z-10 rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-[11px] text-neutral-600 shadow-sm">
-          Aucun nœud ne matche « {query} ».
+          No node matches “{query}”.
         </div>
       )}
 

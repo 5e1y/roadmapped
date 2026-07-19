@@ -27,10 +27,10 @@ export function localMidnight(ms: number): number {
 /** En-tête d'un groupe : relatif (aujourd'hui / hier) sinon date courte. */
 export function dayLabel(dayMs: number, nowMs: number): string {
   const today = localMidnight(nowMs)
-  if (dayMs === today) return "Aujourd'hui"
+  if (dayMs === today) return "Today"
   const t = new Date(today)
   const yesterday = new Date(t.getFullYear(), t.getMonth(), t.getDate() - 1).getTime()
-  if (dayMs === yesterday) return 'Hier'
+  if (dayMs === yesterday) return 'Yesterday'
   const d = new Date(dayMs)
   const p = (n: number) => String(n).padStart(2, '0')
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`
