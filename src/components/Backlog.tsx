@@ -77,7 +77,7 @@ export function Backlog() {
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search…"
           aria-label="Search tasks"
-          className="w-full rounded-interactive ring-1 ring-inset ring-border bg-foreground py-1 pl-7 pr-2 text-xs text-texthard transition-colors placeholder:text-textsoft focus:ring-accent focus:outline-none"
+          className="w-full rounded-interactive ring-1 ring-inset ring-border bg-foreground py-1 pl-7 pr-2 text-xs text-texthard transition-colors placeholder:text-textsoft"
         />
       </div>
       <button
