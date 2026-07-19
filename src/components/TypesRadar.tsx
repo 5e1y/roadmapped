@@ -47,7 +47,7 @@ export function TypesRadar({ counts }: {
   const poly = TYPE_META.map((t, i) => vertex(i, rOf(t.key)).join(',')).join(' ')
   return (
     // role="img" : radar de lecture, plus de contrôles (la sélection ne filtrait rien).
-    <div className="relative aspect-square w-full" role="img" aria-label="Load by type">
+    <div className="relative aspect-square w-full" role="img" aria-label="Open tickets by type">
       <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="absolute inset-[15%] h-[70%] w-[70%] overflow-visible" aria-hidden="true">
         {Array.from({ length: RINGS }, (_, k) => (
           <polygon key={k} points={ringPath(((k + 1) / RINGS) * R)} fill="none" stroke="var(--color-neutral-200)" strokeWidth={1} vectorEffect="non-scaling-stroke" />
@@ -56,13 +56,13 @@ export function TypesRadar({ counts }: {
           const [x, y] = vertex(i, R)
           return <line key={i} x1={CX} y1={CY} x2={x} y2={y} stroke="var(--color-neutral-200)" strokeWidth={1} vectorEffect="non-scaling-stroke" />
         })}
-        {/* Le polygone de charge est la DONNÉE, pas une sélection : NEUTRE au repos
-            (doctrine accent = rare/sélection). L'accent est réservé au sommet du
-            type sélectionné + aux cartes actives. Trait d'emphase unifié à 1.5. */}
-        <polygon points={poly} fill="var(--color-neutral-400)" fillOpacity={0.1} stroke="var(--color-neutral-400)" strokeWidth={1.5} strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+        {/* Le polygone de charge = LA donnée, en ACCENT (#395, Rémi) : le radar
+            n'a plus de sélection à réserver l'accent (labels en lecture), autant
+            colorer la donnée. Aire accent 10 % + trait accent 1.5. */}
+        <polygon points={poly} fill="var(--color-accent)" fillOpacity={0.12} stroke="var(--color-accent)" strokeWidth={1.5} strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
         {TYPE_META.map((t, i) => {
           const [x, y] = vertex(i, rOf(t.key))
-          return <circle key={t.key} cx={x} cy={y} r={4} fill="var(--color-neutral-400)" />
+          return <circle key={t.key} cx={x} cy={y} r={4} fill="var(--color-accent)" />
         })}
       </svg>
       {/* Étiquettes HTML à taille FIXE (LECTURE — plus des contrôles), ancrées vers

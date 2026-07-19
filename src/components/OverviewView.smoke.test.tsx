@@ -69,7 +69,7 @@ describe('OverviewView — smoke étape 1 (#375)', () => {
   it('monte sans jeter (header + les 3 cartes)', () => {
     const { container } = frame(<OverviewView />)
     expect(container.querySelector('header')).toBeInTheDocument()
-    expect(screen.getByText('Load by type')).toBeInTheDocument()
+    expect(screen.getByText('Open tickets by type')).toBeInTheDocument()
     expect(screen.getByText('Backlog preview')).toBeInTheDocument()
     expect(screen.getByText('Open tickets by tag')).toBeInTheDocument()
   })
