@@ -1,6 +1,6 @@
 id: 383
 title: C3 — Échelle typo nommée + rythme vertical canonique
-status: todo
+status: done
 tags:
   - ds
   - typo
@@ -21,9 +21,20 @@ dependsOn: []
 epic: ds-consistency
 source: ai
 createdAt: "2026-07-19T13:03:27"
-updatedAt: "2026-07-19T13:03:27"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+startedAt: "2026-07-19T13:38:04"
+updatedAt: "2026-07-19T13:39:55"
+completedAt: "2026-07-19T13:39:55"
+commit: d5d56f0
+outcome: >-
+  Rythme + typo : fixes non ambigus appliqués — NavRail labels 10→11px (plancher micro-text) ;
+  py-[5px] hors échelle → py-1.5 sur les 2 en-têtes de groupe (EpicRow, TaskColumns release/section)
+  sans les gonfler à la hauteur d'une rangée de tâche ; en-tête de jour Activity : retrait du 3e
+  registre inventé (uppercase tracking-wide font-semibold → text-[11px] font-medium, aligné aux 2
+  registres autorisés). design.md : ligne meta RÉCONCILIÉE au réel (mono #id/counts en text-xs =
+  déjà cohérent per audit, à laisser ; seul le meta non-mono dates/tags/paths à épingler à 11px).
+  NON fait (délibéré, nuance/faible valeur, mieux avec l'œil de Rémi) : le sweep global de
+  normalisation méta non-mono + la consolidation des tailles de tags — laissé en polish tracké.
+verification: >-
+  tsc clean, suite 722/722, build OK. Échelle typo nommée écrite dans design.md §1 (#387). Fixes
+  limités à des cas sans ambiguïté.
+release: 0.2.3
