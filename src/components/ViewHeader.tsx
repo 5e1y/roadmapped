@@ -23,9 +23,20 @@ export function ViewHeader({ meta }: {
   meta?: ReactNode
 }) {
   const { repoName } = useTree()
-  const { setView } = useView()
+  const { view, setView } = useView()
   const { query, setQuery } = useSearch()
   const { openCreateTask } = usePanel()
+  // Focus depuis une AUTRE vue : setView('backlog') remonte le header (chaque vue a
+  // le sien) → l'input courant est démonté et perd le focus. On re-focus le NOUVEL
+  // input (retrouvé par aria-label) après le commit React (#395, retour Rémi).
+  const onSearchFocus = () => {
+    if (view === 'backlog') return
+    setView('backlog')
+    requestAnimationFrame(() => {
+      const el = document.querySelector<HTMLInputElement>('input[aria-label="Search tasks"]')
+      if (el) { el.focus(); const n = el.value.length; el.setSelectionRange(n, n) }
+    })
+  }
   return (
     <header className="grid h-12 shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-4 shadow-[inset_0_-1px_0_var(--color-border)] bg-foreground px-4">
       {/* Colonne 1 (gauche) — titre marque × repo + méta de vue. */}
@@ -47,7 +58,7 @@ export function ViewHeader({ meta }: {
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          onFocus={() => setView('backlog')}
+          onFocus={onSearchFocus}
           placeholder="Search tasks…"
           aria-label="Search tasks"
           className="w-full rounded-interactive bg-background py-1 pl-7 pr-2 text-xs text-texthard ring-1 ring-inset ring-border transition-[background-color] placeholder:text-textsoft focus:bg-foreground"

@@ -35,7 +35,7 @@ describe('eventsFromDiff', () => {
     }
     expect(eventsFromDiff(diff, '10:00:00')).toEqual([
       { at: '10:00:00', verb: 'created', id: 7, title: 'New task' },
-      { at: '10:00:00', verb: 'finished', id: 3, title: 'Ship it' },
+      { at: '10:00:00', verb: 'finished', id: 3, title: 'Ship it', from: 'in_progress', to: 'done' },
       { at: '10:00:00', verb: 'edited', id: 5, title: 'Tweaked' },
       { at: '10:00:00', verb: 'removed', id: 9, title: '' },
     ])

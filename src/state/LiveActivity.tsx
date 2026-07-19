@@ -28,6 +28,9 @@ export interface LiveEvent {
   id: number
   /** Vide pour `removed` : le titre n'existe plus dans le tree — l'UI n'affiche que #id. */
   title: string
+  /** Transition de statut (feed Activity #395) — présent SEULEMENT pour un changement de statut. */
+  from?: import('../lib/tasks').TaskNode['status']
+  to?: import('../lib/tasks').TaskNode['status']
 }
 
 /** Entrée du log : l'événement décoré d'une clé stable et de son heure d'arrivée. */
@@ -54,7 +57,7 @@ export function verbForStatus(from: string, to: string): LiveVerb {
 export function eventsFromDiff(diff: TreeDiff, at: string = clock()): LiveEvent[] {
   return [
     ...diff.appeared.map((t) => ({ at, verb: 'created' as const, id: t.id, title: t.title })),
-    ...diff.statusChanges.map((c) => ({ at, verb: verbForStatus(c.from, c.to), id: c.id, title: c.title })),
+    ...diff.statusChanges.map((c) => ({ at, verb: verbForStatus(c.from, c.to), id: c.id, title: c.title, from: c.from, to: c.to })),
     ...diff.edited.map((t) => ({ at, verb: 'edited' as const, id: t.id, title: t.title })),
     ...diff.removed.map((id) => ({ at, verb: 'removed' as const, id, title: '' })),
   ]

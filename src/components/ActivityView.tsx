@@ -1,23 +1,24 @@
+import { useMemo } from 'react'
 import { ArrowRotateCcw, Check, EditPen, Play, Plus, Pulse, Trash, Undo } from 'trinil-react'
 import { useLiveActivity, type LiveEntry, type LiveVerb } from '../state/LiveActivity'
 import { usePanel } from '../state/PanelContext'
+import { useTree } from '../state/TreeContext'
 import { groupByDay } from '../lib/activityFeed'
-import { EmptyState, rowStateClass } from './ui'
+import { flattenTasks } from '../lib/treeDiff'
+import { KindGlyph, StatusGlyph } from './glyphs'
+import { rowTemperature, TempBadge } from './Temperature'
+import { EmptyState } from './ui'
 import { ViewHeader } from './ViewHeader'
+import type { TaskNode } from '../lib/tasks'
 
 /*
- * Onglet Activity (#372 stub → rempli en #377) : feed timestampé plein écran,
- * version ÉTENDUE de l'ex-overlay du header (LiveActivityMenu, SUPPRIMÉ en #377 :
- * il était orphelin depuis que le bouton a quitté le header en #372). EntryRow +
- * les icônes-verbes en viennent, migrés ici (plus d'air : icône/texte plus grands,
- * titre NON tronqué). Consomme `useLiveActivity().log` (inchangé : session-only,
- * plafond 200, alimenté par le diff SSE) et le groupe par JOUR local (activityFeed).
- * Hors provider (build démo statique, smoke test sans LiveActivityProvider) :
- * log vide → état vide.
+ * Onglet Activity (#395, refonte feed) — plus des lignes plein écran mais un FEED
+ * façon Twitter, colonne 400px centrée : chaque changement est une CARTE (icône du
+ * verbe à gauche, l'action + #id, l'heure à droite, le titre, puis un APERÇU :
+ * la transition de statut pour un changement d'état, un résumé du ticket
+ * (type + tags + température) pour une création). Session seulement (l'historique
+ * hors-session, c'est `git log` sur docs/tasks/). Groupé par jour (en-têtes collants).
  */
-
-/** Durée pendant laquelle une entrée fraîche s'allume (cf. .live-entry-in, index.css). */
-const FRESH_MS = 2000
 
 const VERB_ICON: Record<LiveVerb, typeof Plus> = {
   created: Plus,
@@ -28,37 +29,71 @@ const VERB_ICON: Record<LiveVerb, typeof Plus> = {
   edited: EditPen,
   removed: Trash,
 }
+const VERB_LABEL: Record<LiveVerb, string> = {
+  created: 'Created', started: 'Started', finished: 'Finished', reopened: 'Reopened',
+  'moved to todo': 'Moved to To do', edited: 'Edited', removed: 'Removed',
+}
+const STATUS_LABEL: Record<TaskNode['status'], string> = {
+  todo: 'To do', in_progress: 'In progress', done: 'Done',
+}
+/** Type lisible depuis le chemin `docs/tasks/NN-type/…` (ex. « 01-bug » → « bug »). */
+const typeOf = (task: TaskNode): string =>
+  task.file.split('/').slice(-2, -1)[0]?.replace(/^\d+-/, '') ?? ''
 
-function EntryRow({ entry, isCurrent, onOpenTask }: { entry: LiveEntry; isCurrent: boolean; onOpenTask: (id: number) => void }) {
+function EventCard({ entry, task, isCurrent, onOpenTask }: {
+  entry: LiveEntry
+  task: TaskNode | undefined
+  isCurrent: boolean
+  onOpenTask: (id: number) => void
+}) {
   const Icon = VERB_ICON[entry.verb]
-  // A removed task is no longer navigable: inert row, same visual register.
+  const fresh = Date.now() - entry.receivedAt < 2000
   const gone = entry.verb === 'removed'
-  const fresh = Date.now() - entry.receivedAt < FRESH_MS
+  const temp = task ? rowTemperature(task) : null
+
   const body = (
     <>
-      <Icon size={14} className="mt-0.5 shrink-0 text-textsoft" aria-hidden="true" />
-      <span className="shrink-0 font-medium text-texthard">{entry.verb}</span>
-      <span className="shrink-0 font-mono text-xs text-textsoft">#{entry.id}</span>
-      {entry.title && (
-        <span className="min-w-0 flex-1 text-textsoft" title={entry.title}>
-          {entry.title}
+      <div className="flex items-center gap-2">
+        <span className="flex size-6 shrink-0 items-center justify-center rounded-round bg-background text-textsoft">
+          <Icon size={13} aria-hidden="true" />
         </span>
+        <span className="text-sm font-medium text-texthard">{VERB_LABEL[entry.verb]}</span>
+        <span className="font-mono text-xs text-textsoft">#{entry.id}</span>
+        <span className="ml-auto shrink-0 font-mono text-[11px] tabular-nums text-textsoft">{entry.at}</span>
+      </div>
+      {entry.title && <div className="text-sm text-texthard">{entry.title}</div>}
+      {/* Aperçu : la transition de statut (ce qui a changé)… */}
+      {entry.from && entry.to && (
+        <div className="flex items-center gap-1.5 text-[11px] text-textsoft">
+          <StatusGlyph status={entry.from} />
+          <span>{STATUS_LABEL[entry.from]}</span>
+          <span aria-hidden="true">→</span>
+          <StatusGlyph status={entry.to} />
+          <span className="font-medium text-texthard">{STATUS_LABEL[entry.to]}</span>
+        </div>
       )}
-      <span className="ml-auto shrink-0 pl-3 font-mono text-xs tabular-nums text-textsoft">{entry.at}</span>
+      {/* …ou un résumé du ticket créé (type + tags + température). */}
+      {entry.verb === 'created' && task && (
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-textsoft">
+          <span className="flex items-center gap-1">
+            <KindGlyph task={task} />
+            {typeOf(task)}
+          </span>
+          {task.tags.slice(0, 3).map((t) => <span key={t}>#{t}</span>)}
+          {temp && <TempBadge t={temp} />}
+        </div>
+      )}
     </>
   )
-  // Full screen: more air than the overlay (py-2.5/px-4, text-sm), title not
-  // truncated → items-start to keep the icon aligned when the title wraps.
-  const cls = `flex w-full items-start gap-3 px-4 py-2.5 text-left text-sm ${fresh ? 'live-entry-in' : ''}`
-  if (gone) return <div className={cls}>{body}</div>
-  // Current ticket highlighted via the shared selection language (#380) — and the
-  // canonical row hover (neutral-50), not the divergent neutral-100 of before.
+
+  const cls = `rm-node flex flex-col gap-1.5 p-3 ${fresh ? 'live-entry-in' : ''}`
+  if (gone) return <div className={`${cls} opacity-70`}>{body}</div>
   return (
     <button
       type="button"
       onClick={() => onOpenTask(entry.id)}
       aria-current={isCurrent ? 'true' : undefined}
-      className={`${cls} ${rowStateClass(isCurrent)}`}
+      className={`${cls} w-full text-left transition-colors ${isCurrent ? 'bg-active' : 'hover:bg-rollover'}`}
     >
       {body}
     </button>
@@ -68,8 +103,10 @@ function EntryRow({ entry, isCurrent, onOpenTask }: { entry: LiveEntry; isCurren
 export function ActivityView() {
   const activity = useLiveActivity()
   const { openTask, top } = usePanel()
+  const { tree } = useTree()
   const log = activity?.log ?? []
   const groups = groupByDay(log)
+  const byId = useMemo(() => (tree ? flattenTasks(tree) : new Map<number, TaskNode>()), [tree])
 
   return (
     <div className="flex h-full flex-col">
@@ -80,25 +117,29 @@ export function ActivityView() {
             className="h-full"
             glyph={<Pulse size={22} />}
             title="No activity this session"
-            hint="Live changes to your tasks show up here. The full history lives in your git log over docs/tasks/ — every done is a commit."
+            hint="Live changes to your tasks show up here as a feed. The full history lives in your git log over docs/tasks/ — every done is a commit."
           />
         ) : (
-          <ul>
+          <div className="mx-auto max-w-[400px] px-3 py-4">
             {groups.map((group) => (
-              <li key={group.dayMs}>
-                <div className="sticky top-0 z-10 bg-foreground px-4 py-1.5 text-[11px] font-medium text-textsoft shadow-[inset_0_-1px_0_var(--color-border)]">
+              <div key={group.dayMs} className="mb-1">
+                <div className="sticky top-0 z-10 -mx-3 bg-background px-3 py-1.5 text-[11px] font-medium text-textsoft">
                   {group.label}
                 </div>
-                <ul className="rm-list">
+                <div className="flex flex-col gap-2 pt-2">
                   {group.entries.map((entry) => (
-                    <li key={entry.key} className="rm-list-item">
-                      <EntryRow entry={entry} isCurrent={top?.type === 'task' && top.id === entry.id} onOpenTask={openTask} />
-                    </li>
+                    <EventCard
+                      key={entry.key}
+                      entry={entry}
+                      task={byId.get(entry.id)}
+                      isCurrent={top?.type === 'task' && top.id === entry.id}
+                      onOpenTask={openTask}
+                    />
                   ))}
-                </ul>
-              </li>
+                </div>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
       </div>
     </div>
