@@ -25,9 +25,11 @@ const EXPLORE: NavItem[] = [
   { id: 'notepad', label: 'Notes', Icon: Pencil },
 ]
 
-/** Filet de séparation du rail (mascotte↔items, groupe travail↔exploration). */
+/** Filet de séparation du rail (mascotte↔items, groupe travail↔exploration).
+ *  Plus d'air AU-DESSUS (mt-3) qu'en-dessous : détache le filet de l'élément qui
+ *  le précède (mascotte / dernier item du groupe) sans l'éloigner du suivant. */
 function Rule() {
-  return <div className="my-1 h-px w-7 shrink-0 bg-neutral-200" aria-hidden="true" />
+  return <div className="mb-1 mt-3 h-px w-7 shrink-0 bg-neutral-200" aria-hidden="true" />
 }
 
 /**
