@@ -1,0 +1,34 @@
+id: 386
+title: >-
+  C5 — Data-viz d'une même famille : trancher le pointillé 3-3, trait d'emphase unique,
+  non-scaling-stroke, supprimer TagGraph mort
+status: todo
+tags:
+  - ds
+  - dataviz
+heat: 52
+detail: >-
+  Spec docs/specs/2026-07-19-ds-consistency.md chantier C5
+  (docs/ds-review-2026-07/6-iconographie.md). DÉCISION à prendre : pointillé 3 3 = INFERRED dans
+  KbGraph.tsx:441 MAIS = défaut dans RoadmapGraph.tsx:399 (sens opposés, deux graphes jumeaux) → un
+  seul encodage. Trait d'emphase 3 valeurs (radar 2 / chart-KB 1.5 / roadmap 1.25) → 1.
+  non-scaling-stroke absent de RoadmapGraph zoomable + FlowAreaChart responsive → ajouter. Gris de
+  grille radar neutral-300 vs chart neutral-200 (même page Overview) → 1. Radar seule viz accent
+  plein hors sélection (TypesRadar.tsx:63). Supprimer TagGraph.tsx + lib/tagGraph.ts + test (morts
+  depuis l'Overview via KbGraph).
+refs:
+  - src/components/KbGraph.tsx
+  - src/components/RoadmapGraph.tsx
+  - src/components/TypesRadar.tsx
+  - src/lib/tagGraph.ts
+links: []
+dependsOn: []
+epic: ds-consistency
+source: ai
+createdAt: "2026-07-19T13:03:28"
+updatedAt: "2026-07-19T13:03:28"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

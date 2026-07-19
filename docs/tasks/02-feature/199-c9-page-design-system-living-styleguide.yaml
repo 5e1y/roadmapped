@@ -1,0 +1,31 @@
+id: 388
+title: C9 — Page « Design System » (living styleguide) + raccourci clavier
+status: todo
+tags:
+  - ds
+  - ui
+heat: 48
+detail: >-
+  Spec docs/specs/2026-07-19-ds-consistency.md chantier C9 (demande Rémi). Écran interne accessible
+  via raccourci clavier (ex. g d) — pas forcément dans le rail — rendant le système depuis les VRAIS
+  composants : échantillons de tokens couleur (clair/sombre), échelle typo (C3), primitives
+  (boutons, chips, TogglePill C1, cartes, états C4), glyphes, les 2 registres de sélection, la
+  doctrine strate/rayon, les tables barre-gauche/tint. Sert de garde-fou : toute dérive future s'y
+  voit. À construire APRÈS C0-C3 (miroir des primitives unifiées).
+refs:
+  - src/App.tsx
+  - docs/design.md
+links: []
+dependsOn:
+  - 380
+  - 381
+  - 383
+epic: ds-consistency
+source: ai
+createdAt: "2026-07-19T13:03:28"
+updatedAt: "2026-07-19T13:03:28"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

@@ -1,0 +1,31 @@
+id: 381
+title: >-
+  C1 — Langage « actif/sélectionné » unifié : primitive TogglePill + réconcilier les 4 variantes +
+  design.md §3.2
+status: todo
+tags:
+  - ds
+  - ui
+heat: 70
+detail: >-
+  Spec docs/specs/2026-07-19-ds-consistency.md chantier C1 (docs/ds-review-2026-07/3-composants.md
+  C1, 1-tokens.md H3). Une primitive unique pour l'état actif/enclenché (recodé inline ≥6× en 3
+  dialectes : ViewHeader.tsx:105, KbView.tsx:91, KbDisplayMenu.tsx:74, TagGraph/TypesRadar,
+  OverviewView.tsx:88). Réconcilier en 1 (ou 2 registres documentés : rangée-courante vs
+  contrôle-enclenché #311). Écrire le 2e registre dans design.md §3.2 (jamais écrit). Ne pas casser
+  les 7 surfaces déjà conformes.
+refs:
+  - src/components/ViewHeader.tsx
+  - src/components/KbView.tsx
+  - docs/design.md
+links: []
+dependsOn: []
+epic: ds-consistency
+source: ai
+createdAt: "2026-07-19T13:03:27"
+updatedAt: "2026-07-19T13:03:27"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

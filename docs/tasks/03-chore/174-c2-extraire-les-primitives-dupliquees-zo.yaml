@@ -1,0 +1,32 @@
+id: 382
+title: >-
+  C2 — Extraire les primitives dupliquées (ZoomControls, mini-row, RemoveButton/IconButton/bouton
+  primaire, chips, recherche)
+status: todo
+tags:
+  - ds
+  - refactor
+heat: 58
+detail: >-
+  Spec docs/specs/2026-07-19-ds-consistency.md chantier C2 (docs/ds-review-2026-07/3-composants.md).
+  ZoomControls (KbGraph.tsx:316 ↔ RoadmapGraph.tsx:343 copie ligne à ligne) ; ligne-tâche mini
+  réimplémentée 5× (ui.tsx:218, TaskPanel.tsx:146, KbNodePanel.tsx:79, OverviewView.tsx:106,
+  ActivityView.tsx:31) ; exporter les primitives déjà écrites mais locales (RemoveButton
+  TaskPanel.tsx:132, bouton primaire header, IconButton ViewHeader.tsx:58) ; unifier chips sur
+  Chip.tsx (RemovableChip Backlog.tsx:22 rounded-md à corriger) ; 2 recherches header → 1.
+refs:
+  - src/components/KbGraph.tsx
+  - src/components/RoadmapGraph.tsx
+  - src/components/ui.tsx
+  - src/components/Chip.tsx
+links: []
+dependsOn: []
+epic: ds-consistency
+source: ai
+createdAt: "2026-07-19T13:03:27"
+updatedAt: "2026-07-19T13:03:27"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
