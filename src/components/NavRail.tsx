@@ -1,5 +1,5 @@
 import { type ComponentType } from 'react'
-import { List, LayoutColumns, GitBranch, NodeGraph, FileDoc, Notebook } from 'trinil-react'
+import { List, LayoutColumns, GitBranch, NodeGraph, FileDoc, Pencil } from 'trinil-react'
 import { useView, type View } from '../state/ViewContext'
 import { BirdMascot } from './BirdMascot'
 
@@ -20,7 +20,7 @@ const WORK: NavItem[] = [
 const EXPLORE: NavItem[] = [
   { id: 'graph', label: 'Graph', Icon: NodeGraph },
   { id: 'docs', label: 'Docs', Icon: FileDoc },
-  { id: 'notepad', label: 'Notes', Icon: Notebook },
+  { id: 'notepad', label: 'Notes', Icon: Pencil },
 ]
 
 /**
@@ -46,14 +46,21 @@ function NavButton({ item }: { item: NavItem }) {
       type="button"
       onClick={() => setView(item.id)}
       aria-current={active ? 'page' : undefined}
-      className={`flex min-h-11 w-full flex-col items-center gap-1 rounded-md px-1 py-2 text-[10px] font-medium leading-none transition-colors ${
-        active
-          ? 'bg-accent-tint text-accent'
-          : 'text-neutral-500 hover:bg-neutral-100 hover:text-neutral-800'
-      }`}
+      className="group flex w-full flex-col items-center gap-1 py-1 text-[10px] font-medium leading-none"
     >
-      <Icon size={20} />
-      <span>{item.label}</span>
+      {/* Highlight UNIQUEMENT derrière l'icône (façon Figma) : carré arrondi qui
+          réagit au survol (group-hover) et à l'état actif — le label reste du
+          texte nu. La cible cliquable reste le bouton entier (icône + label). */}
+      <span
+        className={`flex size-9 items-center justify-center rounded-md transition-colors ${
+          active
+            ? 'bg-accent-tint text-accent'
+            : 'text-neutral-500 group-hover:bg-neutral-100 group-hover:text-neutral-800'
+        }`}
+      >
+        <Icon size={18} />
+      </span>
+      <span className={active ? 'text-neutral-900' : 'text-neutral-600'}>{item.label}</span>
     </button>
   )
 }
