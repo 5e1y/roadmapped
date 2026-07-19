@@ -44,7 +44,7 @@ function EntryRow({ entry, isCurrent, onOpenTask }: { entry: LiveEntry; isCurren
           {entry.title}
         </span>
       )}
-      <span className="ml-auto shrink-0 pl-3 font-mono text-xs tabular-nums text-neutral-400">{entry.at}</span>
+      <span className="ml-auto shrink-0 pl-3 font-mono text-xs tabular-nums text-neutral-500">{entry.at}</span>
     </>
   )
   // Full screen: more air than the overlay (py-2.5/px-4, text-sm), title not

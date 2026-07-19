@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import { Search } from 'trinil-react'
 import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
@@ -50,6 +50,15 @@ export function Backlog() {
   const [tagFilter, setTagFilter] = useTagFilter()
   const [typeFilter, setTypeFilter] = useTypeFilter()
   const [query, setQuery] = useState('')
+  // #385 — retirer un chip (ou « Clear all ») démonte le bouton focalisé → focus
+  // perdu sur <body> (design.md §3.4). On replace le focus sur le champ recherche,
+  // toujours monté dans le header, quel que soit l'état des filtres.
+  const searchRef = useRef<HTMLInputElement>(null)
+  const refocusSearch = useRef(false)
+  const removeFilter = (fn: () => void) => { refocusSearch.current = true; fn() }
+  useLayoutEffect(() => {
+    if (refocusSearch.current) { refocusSearch.current = false; searchRef.current?.focus() }
+  })
 
   if (loading && !tree) {
     return <div className="mx-auto max-w-3xl px-6 py-8 text-sm text-neutral-500">Loading…</div>
@@ -122,6 +131,7 @@ export function Backlog() {
         <div className="relative w-56">
           <Search size={13} className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-neutral-500" />
           <input
+            ref={searchRef}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search…"
@@ -148,18 +158,18 @@ export function Backlog() {
             <div className="mx-auto flex max-w-3xl flex-wrap items-center gap-1.5 px-6 py-2">
               {typeFilter.map((k) => (
                 <RemovableChip key={`type:${k}`} label={typeLabel.get(k) ?? k} ariaLabel={`Remove type filter: ${typeLabel.get(k) ?? k}`}
-                  onRemove={() => setTypeFilter(typeFilter.filter((x) => x !== k))} />
+                  onRemove={() => removeFilter(() => setTypeFilter(typeFilter.filter((x) => x !== k)))} />
               ))}
               {tagFilter.map((t) => (
                 <RemovableChip key={`tag:${t}`} label={`#${t}`} ariaLabel={`Remove tag filter: ${t}`}
-                  onRemove={() => setTagFilter(tagFilter.filter((x) => x !== t))} />
+                  onRemove={() => removeFilter(() => setTagFilter(tagFilter.filter((x) => x !== t)))} />
               ))}
               {q !== '' && (
-                <RemovableChip label={`“${query.trim()}”`} ariaLabel="Clear search" onRemove={() => setQuery('')} />
+                <RemovableChip label={`“${query.trim()}”`} ariaLabel="Clear search" onRemove={() => removeFilter(() => setQuery(''))} />
               )}
               <button
                 type="button"
-                onClick={clearAll}
+                onClick={() => removeFilter(clearAll)}
                 className="ml-1 rounded-md px-2 py-0.5 text-xs text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
               >
                 Clear all

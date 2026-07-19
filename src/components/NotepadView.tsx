@@ -47,6 +47,11 @@ export function NotepadView() {
   const contentRef = useRef('')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const backdropRef = useRef<HTMLDivElement>(null)
+  // #385 — supprimer une note démonte son ✕ : sans remplacement, focus perdu sur
+  // <body> (design.md §3.4). On replace le focus sur « New note », toujours monté
+  // en tête de liste (le rAF de openNote, quand une note voisine s'ouvre, garde
+  // sa priorité — c'est un placement de focus tout aussi valide).
+  const newNoteRef = useRef<HTMLButtonElement>(null)
   const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   slugRef.current = slug
   contentRef.current = content
@@ -235,6 +240,7 @@ export function NotepadView() {
         <div className="flex w-[420px] shrink-0 flex-col border-r border-neutral-200 bg-white py-2">
           {/* Création EN TÊTE de liste (pas de bouton en haut à droite, pas de ⌘N). */}
           <button
+            ref={newNoteRef}
             type="button" onClick={createNote}
             className="flex items-center gap-2 border-b border-neutral-100 px-4 py-2 text-left text-sm text-neutral-500 hover:bg-neutral-100 hover:text-neutral-800"
           >
@@ -258,7 +264,9 @@ export function NotepadView() {
                 <button
                   type="button"
                   onClick={() => {
-                    if (window.confirm(`Delete note "${n.title || n.slug}"?`)) void removeNote(n.slug)
+                    if (window.confirm(`Delete note "${n.title || n.slug}"?`)) {
+                      void removeNote(n.slug).then(() => newNoteRef.current?.focus())
+                    }
                   }}
                   title="Delete note"
                   aria-label={`Delete note ${n.title || n.slug}`}
