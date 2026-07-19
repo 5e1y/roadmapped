@@ -1,6 +1,6 @@
 id: 385
 title: "C6 — a11y : BLOQUANT nœuds KB au clavier + régressions contraste #108 + focus après action"
-status: in_progress
+status: done
 tags:
   - a11y
   - bug
@@ -23,9 +23,21 @@ epic: ds-consistency
 source: ai
 createdAt: "2026-07-19T13:03:28"
 startedAt: "2026-07-19T13:26:44"
-updatedAt: "2026-07-19T13:26:44"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+updatedAt: "2026-07-19T13:37:16"
+completedAt: "2026-07-19T13:37:16"
+commit: f4afba1
+outcome: >-
+  a11y (chantier C6, dont le seul BLOQUANT de la revue). (1) Nœuds du graphe KB : <circle> gagne
+  role=button + tabIndex=0 + aria-label + onKeyDown Enter/Espace, + onFocus/onBlur qui déclenche le
+  surlignage de voisinage comme le survol. Le clavier suit EXACTEMENT le chemin du clic (onOpen →
+  prop onNodeClick override #375, sinon openKbNode+centrage) — plus d'action souris-seule. Plafond
+  tab-order (roving à faire) commenté. (2) Contraste #108 : timestamp Activity neutral-400→500 ;
+  axes FlowAreaChart 9px/neutral-400 → 11px/neutral-500 (PAD élargi pour ne pas clipper). (3) Focus
+  replacé après action : Backlog (retrait chip/clear → recherche), Show more/less (bouton jumeau), ✕
+  note (New note). Restes hors périmètre signalés (sourceLocation TaskPanel/KbNodePanel, placeholder
+  KbView=zone C1, ghost textarea Enter=ui.tsx).
+verification: >-
+  KbGraph.test.tsx (3) : role/tabIndex/aria-label présents ; Enter ET Espace activent via
+  onNodeClick (même chemin que le clic, spy) ; sans onNodeClick, Enter ouvre l'inspecteur sans
+  jeter. tsc clean, suite 719/719, build OK. FlowAreaChart 4 tests toujours verts après 9→11px.
+release: 0.2.3
