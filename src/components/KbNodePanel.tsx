@@ -49,7 +49,7 @@ export function KbNodePanel({ nodeId }: { nodeId: string }) {
             type="button"
             onClick={() => openKbNodeSource(node, root, close)}
             title={node.sourceFile}
-            className="flex min-w-0 items-baseline gap-2 px-1.5 py-1 text-left font-mono text-xs text-neutral-800 underline decoration-neutral-500 underline-offset-2 hover:decoration-neutral-800"
+            className="flex min-w-0 items-baseline gap-2 px-1.5 py-1 text-left font-mono text-xs text-texthard underline decoration-neutral-500 underline-offset-2 hover:decoration-neutral-800"
           >
             <span className="min-w-0 truncate">{node.sourceFile}</span>
             {node.sourceLocation && <span className="shrink-0 text-neutral-400">{node.sourceLocation}</span>}
@@ -83,7 +83,7 @@ export function KbNodePanel({ nodeId }: { nodeId: string }) {
                 >
                   {t && <KindGlyph task={t} />}
                   <span className="shrink-0 font-mono text-xs text-textsoft">#{id}</span>
-                  <span className={`min-w-0 truncate ${t?.status === 'done' ? 'text-textsoft line-through' : 'text-neutral-800'}`}>
+                  <span className={`min-w-0 truncate ${t?.status === 'done' ? 'text-textsoft line-through' : 'text-texthard'}`}>
                     {t ? t.title : '(introuvable)'}
                   </span>
                 </button>

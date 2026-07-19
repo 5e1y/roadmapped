@@ -14,7 +14,7 @@ import type { SectionNode, TaskNode } from '../lib/tasks'
 function ProgressBar({ done, total }: { done: number; total: number }) {
   const pct = total === 0 ? 0 : Math.round((done / total) * 100)
   return (
-    <div className="h-1 w-full overflow-hidden rounded-round bg-neutral-200">
+    <div className="h-1 w-full overflow-hidden rounded-round bg-border">
       <div className="h-full bg-accent" style={{ width: `${pct}%` }} />
     </div>
   )
@@ -132,7 +132,7 @@ function Column({ section, scope, open, done, avail, blocksOf }: {
             aria-label={`Edit section ${section.title}`}
             title="Edit section"
             onClick={() => openSection(section.key)}
-            className="rounded-interactive p-1 text-textsoft opacity-0 transition-opacity hover:bg-neutral-200 hover:text-texthard focus-visible:opacity-100 group-hover:opacity-100"
+            className="rounded-interactive p-1 text-textsoft opacity-0 transition-opacity hover:bg-rollover hover:text-texthard focus-visible:opacity-100 group-hover:opacity-100"
           >
             <EditPen size={12} />
           </button>

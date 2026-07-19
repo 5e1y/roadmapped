@@ -51,9 +51,9 @@ describe('edgeStyle (#386 — grammaire du pointillé unifiée : dépendances = 
 
   it('l’emphase du chemin survolé passe par la couleur + l’épaisseur, pas le motif', () => {
     // fort = plus foncé ET plus épais ; base et atténué gardent l’épaisseur de grille (1).
-    expect(edgeStyle('strong')).toEqual({ stroke: 'var(--color-neutral-900)', strokeWidth: 1.5, markerEnd: 'url(#rm-arrow-strong)' })
-    expect(edgeStyle('default')).toEqual({ stroke: 'var(--color-neutral-500)', strokeWidth: 1, markerEnd: 'url(#rm-arrow)' })
-    expect(edgeStyle('dim')).toEqual({ stroke: 'var(--color-neutral-200)', strokeWidth: 1, markerEnd: 'url(#rm-arrow-dim)' })
+    expect(edgeStyle('strong')).toEqual({ stroke: 'var(--color-texthard)', strokeWidth: 1.5, markerEnd: 'url(#rm-arrow-strong)' })
+    expect(edgeStyle('default')).toEqual({ stroke: 'var(--color-textsoft)', strokeWidth: 1, markerEnd: 'url(#rm-arrow)' })
+    expect(edgeStyle('dim')).toEqual({ stroke: 'var(--color-border)', strokeWidth: 1, markerEnd: 'url(#rm-arrow-dim)' })
   })
 })
 

@@ -30,19 +30,19 @@ export const rowStateClass = (isCurrent: boolean) =>
  * CONTRÔLE que l'on presse pour l'enclencher.
  *
  * Dialecte canonique (le plus riche, le plus utilisé) :
- *   repos  → bord neutral-300 + fond blanc + encre 600, survol neutral-100
- *   ACTIF  → bord accent + fond accent-tint + font-medium + encre 900
- * Rayon 4px (`rounded-interactive`) = « contrôle du corps » de la doctrine strate (design.md
- * §1). Focus-visible hérité du :focus-visible global (index.css).
+ *   repos  → ring Border + fond Foreground + encre TextSoft, survol Rollover
+ *   ACTIF  → ring Accent + fond Active + font-medium + encre TextHard
+ * Bordure en RING box-shadow (jamais `border` : zéro largeur DOM, #395). Rayon
+ * `rounded-interactive`. Focus-visible hérité du :focus-visible global (index.css).
  *
  * Se compose comme trigger de Popover via `render={<TogglePill active=… />}` :
  * Base UI fusionne ses props (onClick, aria-expanded, ref) sur le <button>.
  */
 const togglePillCls = (active: boolean) =>
-  `flex items-center gap-1.5 rounded-interactive border px-2.5 py-1 text-xs transition-colors ${
+  `flex items-center gap-1.5 rounded-interactive px-2.5 py-1 text-xs transition-colors ${
     active
-      ? 'border-accent bg-active font-medium text-texthard'
-      : 'border-neutral-300 bg-foreground text-textsoft hover:bg-rollover'
+      ? 'ring-1 ring-inset ring-accent bg-active font-medium text-texthard'
+      : 'ring-1 ring-inset ring-border bg-foreground text-textsoft hover:bg-rollover'
   }`
 
 export const TogglePill = forwardRef<HTMLButtonElement, ComponentProps<'button'> & { active: boolean }>(
@@ -117,9 +117,9 @@ export function TreeStateGuard({ detail = false, children }: { detail?: boolean;
             <p className="mt-1 text-sm text-textsoft">
               Fix the offending files — nothing renders until the source is healthy.
             </p>
-            <ul className="mt-6 flex flex-col divide-y divide-neutral-100 border border-border bg-foreground">
+            <ul className="rm-list mt-6 bg-foreground">
               {errors.map((e, i) => (
-                <li key={i} className="px-4 py-2.5 font-mono text-xs text-texthard">{e}</li>
+                <li key={i} className="rm-list-item px-4 py-2.5 font-mono text-xs text-texthard">{e}</li>
               ))}
             </ul>
           </>
@@ -132,10 +132,12 @@ export function TreeStateGuard({ detail = false, children }: { detail?: boolean;
   return <>{children}</>
 }
 
-// Bordure neutral-300 conservée (design.md §2, option douce de l'audit #108) :
-// le champ se différencie du fond par bg-neutral-50 au repos, blanc au focus.
+// Champ canonique : au repos un puits légèrement enfoncé (fond Background + ring
+// Border 1px inset). Au focus il « remonte » (fond Foreground) et le ring passe à
+// 2px accent — indicateur de focus UNIQUE partagé par tous les cousins (ghost,
+// Select, Combobox). Aucune largeur DOM (ring = box-shadow).
 export const fieldCls =
-  'w-full rounded-interactive border border-neutral-300 bg-neutral-50 px-2 py-1.5 text-sm text-texthard transition-colors focus:border-neutral-900 focus:bg-foreground focus:outline-none disabled:bg-neutral-50 disabled:text-neutral-400'
+  'w-full rounded-interactive bg-background px-2 py-1.5 text-sm text-texthard ring-1 ring-inset ring-border transition focus:bg-foreground focus:outline-none focus:ring-2 focus:ring-accent disabled:bg-background disabled:text-textsoft'
 
 /**
  * Peau « ghost » (décision Rémi 2026-07-07) : l'élément éditable est un input
@@ -144,7 +146,7 @@ export const fieldCls =
  * d'index.css). Jamais de swap lecture→input, jamais d'étape crayon.
  */
 export const ghostCls =
-  'w-full rounded-interactive border border-transparent bg-transparent px-1.5 py-1 text-texthard transition-colors hover:bg-rollover focus:border-neutral-300 focus:bg-foreground focus:outline-none disabled:text-textsoft disabled:hover:bg-transparent'
+  'w-full rounded-interactive bg-transparent px-1.5 py-1 text-texthard transition-colors hover:bg-rollover focus:ring-2 focus:ring-inset focus:ring-accent focus:bg-foreground focus:outline-none disabled:text-textsoft disabled:hover:bg-transparent'
 
 /**
  * Boutons canoniques des panneaux (design.md §2) — source unique :
@@ -153,9 +155,9 @@ export const ghostCls =
  * destructif global : non — monochrome assumé).
  */
 export const primaryBtn =
-  'rounded-interactive border border-action bg-action px-2.5 py-1 text-xs text-foreground transition hover:brightness-95 disabled:cursor-not-allowed disabled:border-neutral-300 disabled:bg-neutral-300'
+  'rounded-interactive bg-action px-2.5 py-1 text-xs text-foreground transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50'
 export const actionBtn =
-  'rounded-interactive border border-neutral-300 px-2.5 py-1 text-[11px] text-texthard transition-colors hover:bg-rollover disabled:opacity-50'
+  'rounded-interactive ring-1 ring-inset ring-border px-2.5 py-1 text-[11px] text-texthard transition-colors hover:bg-rollover disabled:opacity-50'
 
 /** ✓ fugace « enregistré » posé sur la zone sauvée (spec §Feedback des panneaux). */
 export function SavedTick({ show }: { show: boolean }) {
@@ -172,7 +174,7 @@ export function SavedTick({ show }: { show: boolean }) {
 export function FieldError({ errs }: { errs?: string[] }) {
   if (!errs || errs.length === 0) return null
   return (
-    <div className="flex items-start gap-1.5 px-1.5 text-[11px] text-neutral-800">
+    <div className="flex items-start gap-1.5 px-1.5 text-[11px] text-texthard">
       <Warning size={11} className="mt-px shrink-0" />
       <span className="font-mono">{errs.join(' · ')}</span>
     </div>
@@ -203,7 +205,7 @@ export const blurOnEnter = (e: KeyboardEvent<HTMLInputElement>) => {
 export function ErrorBanner({ errors }: { errors: string[] }) {
   if (errors.length === 0) return null
   return (
-    <div role="alert" className="border border-l-4 border-neutral-900 bg-neutral-100 px-3 py-2 text-xs text-neutral-800">
+    <div role="alert" className="rounded-surface bg-foreground px-3 py-2 text-xs text-textsoft shadow-[inset_3px_0_0_var(--color-accent)]">
       <div className="mb-1 flex items-center gap-1.5 font-semibold text-texthard">
         <Warning size={12} className="shrink-0" />
         Error
@@ -387,7 +389,7 @@ export function Select({
     >
       <BaseSelect.Trigger
         aria-label={ariaLabel}
-        className={`${ghost ? `${ghostCls} text-sm` : compact ? 'w-full rounded-interactive border border-neutral-300 bg-foreground px-2.5 py-1 text-xs text-texthard transition-colors focus:border-neutral-900 focus:outline-none' : fieldCls} flex items-center justify-between gap-2 text-left data-[disabled]:bg-neutral-50 data-[disabled]:text-textsoft ${ghost ? 'data-[disabled]:bg-transparent' : ''}`}
+        className={`${ghost ? `${ghostCls} text-sm` : compact ? 'w-full rounded-interactive bg-foreground px-2.5 py-1 text-xs text-texthard ring-1 ring-inset ring-border transition-shadow focus:outline-none focus:ring-2 focus:ring-accent' : fieldCls} flex items-center justify-between gap-2 text-left data-[disabled]:opacity-60 data-[disabled]:text-textsoft ${ghost ? 'data-[disabled]:bg-transparent' : ''}`}
       >
         <BaseSelect.Value />
         <BaseSelect.Icon className="shrink-0 text-textsoft">
@@ -401,7 +403,7 @@ export function Select({
               <BaseSelect.Item
                 key={item.value}
                 value={item.value}
-                className="flex cursor-default items-center justify-between gap-2 px-2.5 py-1.5 text-sm text-texthard data-[highlighted]:bg-neutral-100"
+                className="flex cursor-default items-center justify-between gap-2 px-2.5 py-1.5 text-sm text-texthard data-[highlighted]:bg-rollover"
               >
                 <BaseSelect.ItemText>{item.label}</BaseSelect.ItemText>
                 <BaseSelect.ItemIndicator className="text-texthard">
@@ -460,7 +462,7 @@ export function AddCombobox({ items, placeholder, onAdd, 'aria-label': ariaLabel
                 <Combobox.Item
                   key={item.value}
                   value={item}
-                  className="flex cursor-default items-center px-2.5 py-1.5 text-sm text-texthard data-[highlighted]:bg-neutral-100"
+                  className="flex cursor-default items-center px-2.5 py-1.5 text-sm text-texthard data-[highlighted]:bg-rollover"
                 >
                   <RelOption item={item} />
                 </Combobox.Item>
@@ -530,7 +532,7 @@ export function TagsCombobox({ tags, suggestions, disabled = false, onSave }: {
         onSave(next.filter((i) => !i.creatable).map((i) => i.value))
       }}
     >
-      <Combobox.Chips className={`${ghostCls} flex flex-wrap items-center gap-1.5 focus-within:border-neutral-300 focus-within:bg-foreground`}>
+      <Combobox.Chips className={`${ghostCls} flex flex-wrap items-center gap-1.5 focus-within:ring-2 focus-within:ring-inset focus-within:ring-accent focus-within:bg-foreground`}>
         {selected.map((item) => (
           <Combobox.Chip
             key={item.id}
@@ -557,7 +559,7 @@ export function TagsCombobox({ tags, suggestions, disabled = false, onSave }: {
                 <Combobox.Item
                   key={item.id}
                   value={item}
-                  className="flex cursor-default items-center gap-2 px-2.5 py-1.5 text-sm text-texthard data-[highlighted]:bg-neutral-100"
+                  className="flex cursor-default items-center gap-2 px-2.5 py-1.5 text-sm text-texthard data-[highlighted]:bg-rollover"
                 >
                   {item.creatable ? (
                     <>
@@ -644,7 +646,7 @@ export function EpicCombobox({ value, suggestions, disabled = false, onSave, toS
                   <Combobox.Item
                     key={item}
                     value={item}
-                    className="flex cursor-default items-center gap-2 px-2.5 py-1.5 text-sm text-texthard data-[highlighted]:bg-neutral-100"
+                    className="flex cursor-default items-center gap-2 px-2.5 py-1.5 text-sm text-texthard data-[highlighted]:bg-rollover"
                   >
                     {known.includes(item) ? (
                       <>
@@ -672,7 +674,7 @@ export function EpicCombobox({ value, suggestions, disabled = false, onSave, toS
           aria-label="Remove epic"
           title="Remove epic"
           onClick={() => onSave(null)}
-          className="shrink-0 rounded-interactive p-1 text-textsoft opacity-0 transition-opacity hover:bg-neutral-200 hover:text-texthard focus-visible:opacity-100 group-hover:opacity-100"
+          className="shrink-0 rounded-interactive p-1 text-textsoft opacity-0 transition-opacity hover:bg-rollover hover:text-texthard focus-visible:opacity-100 group-hover:opacity-100"
         >
           <Cross size={9} />
         </button>
@@ -702,11 +704,11 @@ export function MultiCombobox({
       value={selected}
       onValueChange={(objs: SelectItem[]) => onValueChange(objs.map((o) => Number(o.value)))}
     >
-      <Combobox.Chips className={`${fieldCls} flex flex-wrap items-center gap-1 focus-within:border-neutral-900 focus-within:bg-foreground`}>
+      <Combobox.Chips className={`${fieldCls} flex flex-wrap items-center gap-1 focus-within:ring-2 focus-within:ring-inset focus-within:ring-accent focus-within:bg-foreground`}>
         {selected.map((item) => (
           <Combobox.Chip
             key={item.value}
-            className="flex max-w-full items-center gap-1 bg-neutral-100 px-1.5 py-0.5 text-xs text-texthard"
+            className="flex max-w-full items-center gap-1 bg-active px-1.5 py-0.5 text-xs text-texthard"
           >
             <span className="min-w-0 max-w-[200px] truncate" title={item.label}>{item.label}</span>
             <Combobox.ChipRemove className="shrink-0 text-textsoft hover:text-texthard" aria-label={`Remove ${item.label}`}>
@@ -731,7 +733,7 @@ export function MultiCombobox({
                 <Combobox.Item
                   key={item.value}
                   value={item}
-                  className="flex cursor-default items-center gap-2 px-2.5 py-1.5 text-sm text-texthard data-[highlighted]:bg-neutral-100"
+                  className="flex cursor-default items-center gap-2 px-2.5 py-1.5 text-sm text-texthard data-[highlighted]:bg-rollover"
                 >
                   <RelOption item={item} />
                   <Combobox.ItemIndicator className="shrink-0 text-texthard">

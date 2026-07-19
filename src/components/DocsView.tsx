@@ -102,7 +102,7 @@ export function DocsView({ path, onSelectDoc }: { path: string | null; onSelectD
     <div className="flex h-full flex-col">
       <ViewHeader meta={path ?? undefined} />
       <div className="flex min-h-0 flex-1">
-        <div className="flex w-[420px] shrink-0 flex-col border-r border-border bg-foreground py-2">
+        <div className="flex w-[420px] shrink-0 flex-col bg-foreground py-2 shadow-[inset_-1px_0_0_var(--color-border)]">
           <div className="shrink-0 px-4 pb-1.5 text-[11px] font-medium text-textsoft">Files</div>
           <div className="min-h-0 flex-1 overflow-y-auto">
             {docs.loading && !docs.tree && <p className="px-4 text-xs text-textsoft">Loading…</p>}

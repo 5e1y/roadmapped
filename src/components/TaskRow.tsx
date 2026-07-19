@@ -149,9 +149,11 @@ export function TaskRow({ task }: { task: TaskNode }) {
       </div>
       {hasSubs && (
         <Collapsible.Panel>
-          <div className="ml-9 divide-y divide-neutral-100 border-l border-border">
+          <div className="rm-list rm-nest ml-9">
             {task.subtasks.map((sub) => (
-              <TaskRow key={sub.id} task={sub} />
+              <div key={sub.id} className="rm-list-item">
+                <TaskRow task={sub} />
+              </div>
             ))}
           </div>
         </Collapsible.Panel>

@@ -280,7 +280,7 @@ export function EpicRow({ slug, title, tasks, progress, persistKey, forceOpen = 
 export function EpicProgressBar({ done, total }: { done: number; total: number }) {
   const pct = total === 0 ? 0 : Math.round((done / total) * 100)
   return (
-    <span aria-hidden className="h-1 w-14 overflow-hidden rounded-round bg-neutral-200">
+    <span aria-hidden className="h-1 w-14 overflow-hidden rounded-round bg-border">
       <span className="block h-full bg-accent" style={{ width: `${pct}%` }} />
     </span>
   )

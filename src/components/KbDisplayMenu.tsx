@@ -108,7 +108,7 @@ export function KbDisplayMenu() {
               type="button"
               onClick={() => setKbSimOverrides({})}
               disabled={!dirty}
-              className="flex w-full border-t border-neutral-100 px-3 py-1.5 text-left text-xs text-textsoft transition-colors enabled:hover:bg-rollover enabled:hover:text-neutral-700 disabled:text-neutral-400"
+              className="flex w-full shadow-[inset_0_1px_0_var(--color-border)] px-3 py-1.5 text-left text-xs text-textsoft transition-colors enabled:hover:bg-rollover enabled:hover:text-neutral-700 disabled:text-neutral-400"
             >
               Reset defaults
             </button>

@@ -227,13 +227,13 @@ function SectionPanelBody({ dir }: { dir: string }) {
             const v = e.target.value === '' ? null : e.target.value
             if ((section.note ?? null) !== v) void save('note', { note: v })
           }}
-          className="text-sm leading-relaxed placeholder:text-neutral-500"
+          className="text-sm leading-relaxed placeholder:text-textsoft"
         />
         <FieldError errs={errors.note} />
       </div>
 
       {/* Pied : le chemin technique, relégué ici (audit UX — même place que TaskPanel). */}
-      <div className="mt-auto border-t border-border pt-3">
+      <div className="mt-auto pt-3 shadow-[inset_0_1px_0_var(--color-border)]">
         <div className="truncate font-mono text-[11px] text-textsoft" title={sectionPath}>{sectionPath}</div>
       </div>
     </div>

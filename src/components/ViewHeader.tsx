@@ -23,7 +23,7 @@ export function ViewHeader({ meta, children }: {
 }) {
   const { repoName } = useTree()
   return (
-    <header className="flex h-12 shrink-0 items-center justify-between gap-4 border-b border-border bg-foreground px-4">
+    <header className="flex h-12 shrink-0 items-center justify-between gap-4 shadow-[inset_0_-1px_0_var(--color-border)] bg-foreground px-4">
       <div className="flex min-w-0 items-center gap-4">
         {/* Marque × repo (#204) : savoir sur quel repo pointe CE dashboard quand
             plusieurs sont ouverts. Le × séparateur en graisse Light (décision Rémi) ;
@@ -57,7 +57,7 @@ export function ViewHeader({ meta, children }: {
           rel="noopener noreferrer"
           aria-label="Report an issue on GitHub"
           title="Report an issue"
-          className="flex items-center rounded-interactive border border-neutral-300 bg-foreground px-2 py-1 text-textsoft transition-colors hover:bg-rollover"
+          className="flex items-center rounded-interactive ring-1 ring-inset ring-border bg-foreground px-2 py-1 text-textsoft transition-colors hover:bg-rollover"
         >
           <Bug size={12} className="my-0.5" />
         </a>
@@ -185,7 +185,7 @@ export function FilterMenu({ allLabel, options, selected, onChange, multiple = f
               <Popover.Close
                 render={<button type="button" />}
                 onClick={() => onChange([])}
-                className="flex w-full border-t border-neutral-100 px-2.5 py-1.5 text-left text-xs text-textsoft hover:bg-rollover hover:text-texthard"
+                className="flex w-full shadow-[inset_0_1px_0_var(--color-border)] px-2.5 py-1.5 text-left text-xs text-textsoft hover:bg-rollover hover:text-texthard"
               >
                 Clear filter
               </Popover.Close>
