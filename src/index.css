@@ -37,6 +37,48 @@
   --color-neutral-700: oklch(0.371 0 0);
   --color-neutral-800: oklch(0.269 0 0);
   --color-neutral-900: oklch(0.205 0 0);
+
+  /* ─────────────────────────────────────────────────────────────────────────
+   * TOKENS SÉMANTIQUES (theming-foundations, décision Rémi) — la couche que les
+   * composants appellent désormais. Un THÈME = ces valeurs. Ils ALIASENT les
+   * primitives ci-dessus, donc ils suivent le basculement clair/sombre SANS être
+   * redéfinis dans le bloc dark. La refonte « alléger » = régler ces tokens.
+   *
+   * 8 COULEURS (mapping depuis l'échelle numérique, cf. design.md §1) :
+   *   Active     = accent (état actif/sélection/in_progress : traits, icônes)
+   *   Rollover   = survol de rangée/surface (neutral-50 : > carte en sombre)
+   *   Action     = fond des éléments ACTIFS/sélectionnés (accent-tint)
+   *   Foreground = surface (carte, panneau, popup, flanc)
+   *   Background = page (sous les surfaces)
+   *   TextHard   = encre primaire (= aussi le fond des boutons primaires)
+   *   TextSoft   = texte atténué / méta (plancher contraste #108) ; disabled/décoratif se replie ici
+   *   Border     = filets, séparateurs, bordures de contrôle
+   */
+  --color-active: var(--color-accent);
+  --color-rollover: var(--color-neutral-50);
+  --color-action: var(--color-accent-tint);
+  --color-foreground: var(--color-white);
+  --color-background: var(--color-page);
+  --color-texthard: var(--color-neutral-900);
+  --color-textsoft: var(--color-neutral-500);
+  --color-border: var(--color-neutral-200);
+
+  /* 4 RAYONS : Interactive (contrôles, fusionne l'ancien 4/6px) · ListItem
+   * (rangées — 0 = liste collée par défaut, le token que les thèmes aèrent) ·
+   * Surface (cartes/panneaux/popups) · Round (jauges, points, avatars). */
+  --radius-interactive: 6px;
+  --radius-listitem: 0px;
+  --radius-surface: 8px;
+  --radius-round: 9999px;
+
+  /* 6 ESPACEMENTS : échelle générique + ListGap (0 = rangées collées par défaut ;
+   * un thème le monte pour des listes en cartes séparées, avec ListItem arrondi). */
+  --spacing-xs: 4px;
+  --spacing-s: 8px;
+  --spacing-m: 12px;
+  --spacing-l: 16px;
+  --spacing-xl: 24px;
+  --spacing-listgap: 0px;
 }
 
 /*
