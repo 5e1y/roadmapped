@@ -1,9 +1,9 @@
 import { useMemo, useState, type ReactNode } from 'react'
-import { ViewHeader } from './ViewHeader'
+import { ViewShell } from './ViewHeader'
 import { TypesRadar } from './TypesRadar'
 import { KbGraph } from './KbGraph'
 import { TempBadge } from './Temperature'
-import { rowStateClass, TogglePill } from './ui'
+import { EmptyState, rowStateClass, TogglePill, TreeStateGuard } from './ui'
 import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
 import { FlowAreaChart } from './FlowAreaChart'
@@ -129,14 +129,15 @@ export function OverviewView() {
     return recentlyAdded(tree, 5)
   }, [tree, mode, today])
 
+  // Overview honore désormais loadError (#384, H2) : la garde PARTAGÉE remplace
+  // l'ancien « waiting for the backlog… » à l'infini quand le serveur est mort —
+  // elle montre « Server unreachable » / « Loading… » comme les autres vues, sous
+  // le header. Rendue depuis le corps du ViewShell (le header reste visible).
   if (!tree) {
     return (
-      <div className="flex h-full flex-col">
-        <ViewHeader />
-        <div className="flex min-h-0 flex-1 items-center justify-center">
-          <p className="text-sm text-neutral-500">Overview — waiting for the backlog…</p>
-        </div>
-      </div>
+      <ViewShell>
+        <TreeStateGuard>{null}</TreeStateGuard>
+      </ViewShell>
     )
   }
 
@@ -156,8 +157,8 @@ export function OverviewView() {
   }
 
   return (
-    <div className="flex h-full flex-col">
-      <ViewHeader />
+    <ViewShell>
+      <TreeStateGuard>
       {/* Scroller sur la PAGE (#fafafa, jamais redéclaré) : la grille s'empile en
           une colonne sur petit écran, deux à partir de lg. */}
       <div className="min-h-0 flex-1 overflow-y-auto">
@@ -177,7 +178,7 @@ export function OverviewView() {
                   <Segmented value={mode} onChange={setMode} />
                 </div>
                 {preview.length === 0 ? (
-                  <p className="px-4 py-8 text-center text-xs text-neutral-500">No tickets to show.</p>
+                  <EmptyState className="py-8" title="No tickets to show" />
                 ) : (
                   <div className="divide-y divide-neutral-100 border-t border-neutral-100">
                     {preview.map((t) => (
@@ -205,13 +206,13 @@ export function OverviewView() {
                   <KbGraph graph={tagGraphData} filters={NEUTRAL_FILTERS} query="" onNodeClick={() => {}} />
                 </div>
               ) : (
-                <p className="px-4 py-12 text-center text-xs text-neutral-500">
-                  No tags on tickets yet — the graph appears once a ticket carries tags.</p>
+                <EmptyState className="py-12" title="No tags on tickets yet" hint="The graph appears once a ticket carries tags." />
               )}
             </Card>
           </div>
         </div>
       </div>
-    </div>
+      </TreeStateGuard>
+    </ViewShell>
   )
 }

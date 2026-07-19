@@ -69,6 +69,29 @@ export function ViewHeader({ meta, children }: {
   )
 }
 
+/**
+ * Coquille de vue canonique (design.md §4, #384) : le squelette partagé par les
+ * 8 vues — `flex h-full flex-col` + `ViewHeader` TOUJOURS monté + le corps en
+ * dessous. Le header ne disparaît JAMAIS pendant loading/erreur (régression H1 :
+ * Backlog/Roadmap/Deps le faisaient sauter) — la garde d'état (`TreeStateGuard`)
+ * et les états vides vivent DANS `children`, sous le header. Le corps garde sa
+ * propre gestion du scroll (chaque vue pose son `min-h-0 flex-1`).
+ */
+export function ViewShell({ meta, controls, children }: {
+  /** Info discrète après le titre, transmise au ViewHeader (compteurs, chemin…). */
+  meta?: ReactNode
+  /** Contrôles propres à la vue, alignés à droite du header. */
+  controls?: ReactNode
+  children: ReactNode
+}) {
+  return (
+    <div className="flex h-full flex-col">
+      <ViewHeader meta={meta}>{controls}</ViewHeader>
+      {children}
+    </div>
+  )
+}
+
 interface FilterOption {
   value: string
   label: string

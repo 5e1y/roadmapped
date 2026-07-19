@@ -2,9 +2,10 @@ import { Select as BaseSelect } from '@base-ui/react/select'
 import { Input as BaseInput } from '@base-ui/react/input'
 import { Combobox } from '@base-ui/react/combobox'
 import { Toast } from '@base-ui/react/toast'
-import { forwardRef, useEffect, useRef, useState, type ComponentProps, type KeyboardEvent } from 'react'
+import { forwardRef, useEffect, useRef, useState, type ComponentProps, type KeyboardEvent, type ReactNode } from 'react'
 import { Check, ChevronDown, Cross, Plus, Warning } from 'trinil-react'
 import { KindGlyph } from './glyphs'
+import { useTree } from '../state/TreeContext'
 
 /**
  * Mini-kit de primitives Base UI stylées monochrome — source unique des
@@ -58,6 +59,77 @@ export const TogglePill = forwardRef<HTMLButtonElement, ComponentProps<'button'>
     )
   },
 )
+
+/**
+ * État VIDE canonique (design.md §4, #384) — UNE seule primitive pour les ~12
+ * empty states qui divergeaient (dashed box, héro, `<p>` nu…). Centré : glyphe
+ * optionnel (encre neutral-300, purement décoratif → aria-hidden) + titre
+ * (`text-sm font-medium text-neutral-700`) + indice optionnel sur une ligne
+ * (`text-xs text-neutral-500`). Le `className` porte le calage vertical/hauteur
+ * du contexte : `h-full` en pleine zone, `py-8`/`py-12` dans une carte.
+ */
+export function EmptyState({ glyph, title, hint, className = '' }: {
+  glyph?: ReactNode
+  title: ReactNode
+  hint?: ReactNode
+  className?: string
+}) {
+  return (
+    <div className={`flex flex-col items-center justify-center gap-2 px-6 text-center ${className}`}>
+      {glyph && <div className="text-neutral-300" aria-hidden="true">{glyph}</div>}
+      <p className="text-sm font-medium text-neutral-700">{title}</p>
+      {hint && <p className="max-w-sm text-xs text-neutral-500">{hint}</p>}
+    </div>
+  )
+}
+
+/**
+ * Garde d'état de l'arbre de tâches (design.md §4, #384) — source UNIQUE des
+ * états chargement / erreur serveur / erreurs de validation, PARTAGÉE par le
+ * Backlog, la Roadmap, la vue Dépendances et l'Overview (ex-`RoadmapStateGuard`
+ * dupliqué verbatim dans le Backlog). Rendu SOUS le header : montée dans le corps
+ * d'un `<ViewShell>`, elle laisse le `ViewHeader` toujours visible. Rend
+ * `children` une fois l'arbre sain. `detail` = liste des erreurs de validation
+ * dans une carte (le Backlog est la vue de détail) ; sinon renvoi vers le Backlog.
+ */
+export function TreeStateGuard({ detail = false, children }: { detail?: boolean; children: ReactNode }) {
+  const { tree, errors, loading, loadError } = useTree()
+  if (loading && !tree) {
+    return <div className="mx-auto max-w-3xl px-6 py-8 text-sm text-neutral-500">Loading…</div>
+  }
+  if (loadError) {
+    return (
+      <div className="mx-auto max-w-3xl px-6 py-8">
+        <h1 className="text-lg font-semibold tracking-tight">Server unreachable</h1>
+        <p className="mt-1 font-mono text-xs text-neutral-500">{loadError}</p>
+      </div>
+    )
+  }
+  if (errors.length > 0) {
+    return (
+      <div className="mx-auto max-w-3xl px-6 py-8">
+        <h1 className="text-lg font-semibold tracking-tight">
+          {errors.length} validation error{errors.length > 1 ? 's' : ''} in docs/tasks/
+        </h1>
+        {detail ? (
+          <>
+            <p className="mt-1 text-sm text-neutral-500">
+              Fix the offending files — nothing renders until the source is healthy.
+            </p>
+            <ul className="mt-6 flex flex-col divide-y divide-neutral-100 border border-neutral-200 bg-white">
+              {errors.map((e, i) => (
+                <li key={i} className="px-4 py-2.5 font-mono text-xs text-neutral-700">{e}</li>
+              ))}
+            </ul>
+          </>
+        ) : (
+          <p className="mt-1 text-sm text-neutral-500">The roadmap will render once the source is healthy — details in the Backlog.</p>
+        )}
+      </div>
+    )
+  }
+  return <>{children}</>
+}
 
 // Bordure neutral-300 conservée (design.md §2, option douce de l'audit #108) :
 // le champ se différencie du fond par bg-neutral-50 au repos, blanc au focus.

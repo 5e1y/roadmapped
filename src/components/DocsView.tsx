@@ -2,7 +2,7 @@ import { useEffect, useState, type MouseEvent } from 'react'
 import { renderMarkdown } from './Markdown'
 import { ViewHeader } from './ViewHeader'
 import { DocsTree } from './DocsTree'
-import { ErrorBanner } from './ui'
+import { EmptyState, ErrorBanner } from './ui'
 import { useDocsTree } from '../state/useDocsTree'
 
 /**
@@ -112,7 +112,7 @@ export function DocsView({ path, onSelectDoc }: { path: string | null; onSelectD
                 <ErrorBanner errors={[`Couldn’t load: ${docs.loadError}`]} />
               </div>
             )}
-            {docs.tree && docs.tree.length === 0 && <p className="px-4 text-xs text-neutral-500">No .md document.</p>}
+            {docs.tree && docs.tree.length === 0 && <EmptyState className="py-6" title="No .md document" />}
             {docs.tree && docs.tree.length > 0 && (
               <DocsTree nodes={docs.tree} docPath={path} onSelectDoc={onSelectDoc} />
             )}
@@ -124,11 +124,7 @@ export function DocsView({ path, onSelectDoc }: { path: string | null; onSelectD
   )
 
   if (!path) {
-    return shell(
-      <div className="flex h-full items-center justify-center text-sm text-neutral-500">
-        Select a document
-      </div>,
-    )
+    return shell(<EmptyState className="h-full" title="Select a document" />)
   }
 
   if (loading) {

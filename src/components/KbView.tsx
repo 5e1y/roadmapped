@@ -4,7 +4,7 @@ import { useKb } from '../state/KbContext'
 import { KbGraph, GraphifyMark } from './KbGraph'
 import { KbDisplayMenu } from './KbDisplayMenu'
 import { FilterMenu } from './ViewHeader'
-import { ErrorBanner, TogglePill } from './ui'
+import { EmptyState, ErrorBanner, TogglePill } from './ui'
 import { communityOptions, fileTypeOptions, type KbFilters } from '../lib/kbFilter'
 import { relativeTime, absoluteDate } from '../lib/relativeTime'
 
@@ -41,16 +41,15 @@ export function KbView() {
     )
   }
 
-  if (!graph) return <EmptyState />
+  if (!graph) return <KbHero />
 
   if (graph.nodes.length === 0) {
     return (
-      <div className="mx-auto max-w-2xl px-6 py-8">
-        <h1 className="text-lg font-semibold tracking-tight text-neutral-900">Empty graph</h1>
-        <p className="mt-1 text-sm text-neutral-500">
-          The detected corpus had nothing extractable. Re-run <code className="font-mono">/graphify .</code> at the repo root.
-        </p>
-      </div>
+      <EmptyState
+        className="h-full"
+        title="Empty graph"
+        hint={<>The detected corpus had nothing extractable. Re-run <code className="font-mono">/graphify .</code> at the repo root.</>}
+      />
     )
   }
 
@@ -122,7 +121,12 @@ export function KbView() {
   )
 }
 
-function EmptyState() {
+/**
+ * Héro d'ONBOARDING (cas à part assumé, design.md §4 M1) : le graphe n'existe pas
+ * encore → pédagogie (logo + commande d'installation + lien). Distinct de la
+ * primitive `EmptyState` partagée — ici on guide, on ne signale pas juste un vide.
+ */
+function KbHero() {
   return (
     <div className="mx-auto flex h-full max-w-xl flex-col justify-center px-6 py-8">
       <div className="mb-3">

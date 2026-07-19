@@ -1,6 +1,6 @@
-import { ViewHeader } from './ViewHeader'
+import { ViewShell } from './ViewHeader'
 import { RoadmapGraph } from './RoadmapGraph'
-import { RoadmapStateGuard } from './RoadmapView'
+import { TreeStateGuard } from './ui'
 
 /**
  * Vue Dépendances = le graphe de flux de dépendances (dagre, prérequis →
@@ -10,19 +10,21 @@ import { RoadmapStateGuard } from './RoadmapView'
  *
  * showDone=false figé (#342) — le graphe garde tout de même les done qui sont
  * dépendances transitives de tickets affichés (arêtes intègres).
+ *
+ * États : même garde PARTAGÉE que la Roadmap et le Backlog (`TreeStateGuard`,
+ * #384), rendue sous le header commun (`ViewShell`) — plus de header qui saute.
  */
 export function DependenciesView({ epicFilter, onEpicFilter }: {
   epicFilter: string | null
   onEpicFilter: (slug: string | null) => void
 }) {
   return (
-    <RoadmapStateGuard>
-      <div className="flex h-full flex-col">
-        <ViewHeader />
+    <ViewShell>
+      <TreeStateGuard>
         <div className="min-h-0 flex-1 overflow-auto">
           <RoadmapGraph showDone={false} epicFilter={epicFilter} onEpicFilter={onEpicFilter} />
         </div>
-      </div>
-    </RoadmapStateGuard>
+      </TreeStateGuard>
+    </ViewShell>
   )
 }
