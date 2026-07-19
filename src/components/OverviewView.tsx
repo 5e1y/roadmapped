@@ -39,9 +39,9 @@ const NEUTRAL_FILTERS: KbFilters = { communities: [], fileTypes: [], hideInferre
 /** Carte de la grille — coquille tri-couche (bg-white + filet), titre optionnel. */
 function Card({ title, children, className = '' }: { title?: string; children: ReactNode; className?: string }) {
   return (
-    <section className={`flex flex-col overflow-hidden rounded-interactive border border-border bg-foreground ${className}`}>
+    <section className={`flex flex-col overflow-hidden rounded-surface bg-foreground ring-1 ring-inset ring-border ${className}`}>
       {title && (
-        <h2 className="shrink-0 border-b border-border px-4 py-2 text-xs font-medium text-textsoft">{title}</h2>
+        <h2 className="shrink-0 px-4 py-2 text-xs font-medium text-textsoft shadow-[inset_0_-1px_0_var(--color-border)]">{title}</h2>
       )}
       <div className="min-h-0 flex-1">{children}</div>
     </section>
@@ -180,9 +180,11 @@ export function OverviewView() {
                 {preview.length === 0 ? (
                   <EmptyState className="py-8" title="No tickets to show" />
                 ) : (
-                  <div className="divide-y divide-neutral-100 border-t border-neutral-100">
+                  <div className="rm-list">
                     {preview.map((t) => (
-                      <PreviewRow key={t.id} task={t} hint={hintOf(t)} isCurrent={top?.type === 'task' && top.id === t.id} onOpen={openTask} />
+                      <div key={t.id} className="rm-list-item">
+                        <PreviewRow task={t} hint={hintOf(t)} isCurrent={top?.type === 'task' && top.id === t.id} onOpen={openTask} />
+                      </div>
                     ))}
                   </div>
                 )}
