@@ -29,23 +29,20 @@ epic: rail-nav
 source: ai
 createdAt: "2026-07-19T01:05:40"
 startedAt: "2026-07-19T01:47:15"
-updatedAt: "2026-07-19T01:58:19"
-completedAt: "2026-07-19T01:58:19"
-commit: 92fa02d
+updatedAt: "2026-07-19T11:22:04"
+completedAt: "2026-07-19T11:22:04"
+commit: 5232a94
 outcome: >-
-  NavRail livré : rail vertical d'icônes façon Figma (w-16, fond carte, bord droit fin) remplaçant
-  les tabs horizontaux du header. Mascotte pixel en tête (migrée du header → header garde le titre
-  marque×repo, pas de duplication). 6 vues empilées icône+label court : groupe travail
-  (Backlog/Roadmap/Deps) · filet · groupe exploration (Graph/Docs/Notes). Actif = accent
-  (bg-accent-tint text-accent, currentColor sur l'icône), inactif gris. 6 icônes line monochromes
-  dans glyphs.tsx (viewBox 16, currentColor, cohérentes avec les glyphs existants). Câblé comme
-  flanc gauche du Shell (ViewProvider remonté sur toute la rangée flex,
-  SidePanel/LiveActivityProvider intacts). Tabs retirés de ViewHeader.
+  NavRail livré + rework icônes (retour Rémi : les SVG faits main du 1er jet juraient). Les 6 icônes
+  passent en trinil-react — la lib d'icônes de TOUTE l'app (header, Backlog, radar…) : Backlog=List,
+  Roadmap=LayoutColumns, Deps=GitBranch, Graph=NodeGraph, Docs=FileDoc, Notes=Notebook. Wrapper
+  NavIcon + 6 fonctions bespoke retirés de glyphs.tsx (import ReactNode devenu orphelin retiré
+  aussi). Type Icon élargi à ComponentType (les icônes trinil sont des FC). Reste inchangé : rail
+  vertical façon Figma, mascotte en tête, actif=accent, 2 groupes séparés par un filet, a11y (nav
+  aria-label, aria-current, cibles ≥44px, labels texte).
 verification: >-
-  tsc clean, suite 682/682 (dont NavRail.test : 6 items+labels, aria-current sur l'actif,
-  clic→setView bon id). VÉRIF VISUELLE RÉELLE (Playwright sur build servi port 8099) : 4 captures
-  relues — Backlog clair (rail + Terminées pliées par release), Dépendances clair (bande epics +
-  graphe dagre, vue 1er niveau), Graphe nodal sombre (2511 nœuds), Docs sombre. Rail correct clair
-  ET sombre, item actif en accent, mascotte theme-aware, a11y (nav aria-label, cibles ≥44px, labels
-  texte).
+  tsc clean, suite 682/682 (NavRail.test toujours vert : 6 items, aria-current, clic→setView). Les 6
+  noms d'icônes vérifiés présents dans trinil-react. VÉRIF VISUELLE (Playwright, build servi) :
+  capture Backlog relue — icônes cohérentes avec le trait fin trinil du reste de l'app, plus l'effet
+  corps étranger. Build OK.
 release: 0.2.3
