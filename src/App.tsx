@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { TreeProvider, useTree } from './state/TreeContext'
 import { PanelProvider, usePanel, isDualStack, type PanelEntry } from './state/PanelContext'
 import { ViewProvider, type View } from './state/ViewContext'
@@ -16,10 +16,11 @@ import { OverviewView } from './components/OverviewView'
 import { ActivityView } from './components/ActivityView'
 import { DocsView } from './components/DocsView'
 import { NotepadView } from './components/NotepadView'
+import { DesignSystemView } from './components/DesignSystemView'
 import { LiveActivityProvider } from './state/LiveActivity'
 import { OPEN_DOC_EVENT } from './lib/events'
 
-function MainView({ view, docPath, onSelectDoc, epicFilter, onEpicFilter }: {
+function MainView({ view, docPath, onSelectDoc, epicFilter, onEpicFilter, onExitDesignSystem }: {
   view: View
   docPath: string | null
   onSelectDoc: (path: string) => void
@@ -27,6 +28,8 @@ function MainView({ view, docPath, onSelectDoc, epicFilter, onEpicFilter }: {
   // survivre au changement de vue (état de session, pas persisté).
   epicFilter: string | null
   onEpicFilter: (slug: string | null) => void
+  // Retour de la page Design System (#388) vers la vue précédente.
+  onExitDesignSystem: () => void
 }) {
   if (view === 'overview') return <OverviewView />
   if (view === 'backlog') return <Backlog />
@@ -35,6 +38,7 @@ function MainView({ view, docPath, onSelectDoc, epicFilter, onEpicFilter }: {
   if (view === 'graph') return <GraphView />
   if (view === 'activity') return <ActivityView />
   if (view === 'notepad') return <NotepadView />
+  if (view === 'designsystem') return <DesignSystemView onBack={onExitDesignSystem} />
   return <DocsView path={docPath} onSelectDoc={onSelectDoc} />
 }
 
@@ -118,7 +122,9 @@ function Shell() {
   const [view, setView] = useState<View>(() => {
     try {
       const v = localStorage.getItem('nav:view')
-      const known: View[] = ['overview', 'backlog', 'roadmap', 'dependencies', 'graph', 'activity', 'docs', 'notepad']
+      // 'designsystem' incluse (#388) : hors NavRail mais vue courante à part
+      // entière — persistée/restaurée comme les 8 autres (rechargement idempotent).
+      const known: View[] = ['overview', 'backlog', 'roadmap', 'dependencies', 'graph', 'activity', 'docs', 'notepad', 'designsystem']
       if (known.includes(v as View)) return v as View
     } catch { /* localStorage indisponible */ }
     return 'backlog'
@@ -131,6 +137,39 @@ function Shell() {
   })
 
   useEffect(() => { try { localStorage.setItem('nav:view', view) } catch { /* ignore */ } }, [view])
+
+  // Vue précédente (hors Design System) : la page DS (#388) y retourne au Back/Esc.
+  // Ref plutôt que state — pas besoin de re-rendre, juste de mémoriser d'où on vient.
+  const prevViewRef = useRef<View>(view === 'designsystem' ? 'backlog' : view)
+  useEffect(() => { if (view !== 'designsystem') prevViewRef.current = view }, [view])
+
+  // Raccourci clavier GLOBAL (#388, chantier C9) : « g » puis « d » (façon vim)
+  // ouvre la page Design System — hors NavRail, elle n'a pas d'autre porte d'entrée.
+  // Garde-fou : ignoré si le focus est dans un champ éditable (input/textarea/select/
+  // contenteditable) pour ne pas voler des frappes de saisie ; ignoré aussi sous
+  // modificateur (⌘/Ctrl/Alt). Le « g » s'arme 800 ms puis se désarme seul ; toute
+  // autre touche l'annule. La sortie (Back / Échap) est gérée par la vue elle-même.
+  useEffect(() => {
+    let armed = false
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const disarm = () => { armed = false; if (timer) clearTimeout(timer) }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return
+      const el = e.target as HTMLElement | null
+      const tag = el?.tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || el?.isContentEditable) { disarm(); return }
+      if (e.key === 'g') {
+        armed = true
+        if (timer) clearTimeout(timer)
+        timer = setTimeout(() => { armed = false }, 800)
+        return
+      }
+      if (e.key === 'd' && armed) { disarm(); setView('designsystem'); return }
+      disarm()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => { window.removeEventListener('keydown', onKey); if (timer) clearTimeout(timer) }
+  }, [])
   // #138 — hygiène one-shot : la clé du toggle « grouper par epic » (retiré en
   // #135) n'est plus ni lue ni écrite, mais traîne dans les localStorage existants.
   useEffect(() => { try { localStorage.removeItem('backlog:groupByEpic') } catch { /* ignore */ } }, [])
@@ -168,6 +207,7 @@ function Shell() {
       : view === 'activity' ? 'Activity'
       : view === 'docs' ? 'Docs'
       : view === 'notepad' ? 'Notepad'
+      : view === 'designsystem' ? 'Design System'
       : 'Backlog'
     document.title = repoName ? `${repoName} · ${name} · Roadmapped` : `${name} · Roadmapped`
   }, [view, docPath, repoName])
@@ -190,7 +230,7 @@ function Shell() {
       <div className="flex h-screen w-screen overflow-hidden">
         <NavRail />
         <main className="min-w-0 flex-1 overflow-y-auto">
-          <MainView view={view} docPath={docPath} onSelectDoc={setDocPath} epicFilter={epicFilter} onEpicFilter={setEpicFilter} />
+          <MainView view={view} docPath={docPath} onSelectDoc={setDocPath} epicFilter={epicFilter} onEpicFilter={setEpicFilter} onExitDesignSystem={() => setView(prevViewRef.current)} />
         </main>
         <PanelHost />
       </div>
