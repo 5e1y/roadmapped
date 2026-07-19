@@ -83,7 +83,7 @@ export function Backlog() {
       <button
         type="button"
         onClick={() => openCreateTask(createIn)}
-        className="rounded-interactive bg-action px-2.5 py-1 text-xs text-foreground transition hover:brightness-95"
+        className="rounded-interactive bg-action px-2.5 py-1 text-xs text-foreground transition-[filter] hover:brightness-95"
       >
         + task
       </button>

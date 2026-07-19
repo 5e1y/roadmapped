@@ -276,6 +276,11 @@
     border-radius: inherit;
     box-shadow: inset 0 0 0 1px var(--color-border);
   }
+  /* Item-carte qui EST un toggle enclenché (aria-pressed) : son filet passe en
+     ACCENT (registre « contrôle actif », design.md §3.2). Sans ça le ::after neutre,
+     peint au-dessus du fond, recouvrait un éventuel ring-accent posé sur l'élément
+     → la sélection paraissait neutre (EpicCard de la bande, #395). */
+  .rm-list-item[aria-pressed="true"]::after { box-shadow: inset 0 0 0 1px var(--color-accent); }
   .rm-list > .rm-list-item + .rm-list-item { margin-top: calc(var(--spacing-listgap) - 1px); }
 
   /* Variante HORIZONTALE (bande d'epics de Roadmap/Deps) : mêmes tokens ListItem/

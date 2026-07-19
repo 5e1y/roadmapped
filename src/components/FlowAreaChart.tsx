@@ -76,64 +76,78 @@ export function FlowAreaChart({ data }: { data: DayBucket[] }) {
   const stride = Math.max(1, Math.round((data.length - 1) / 4))
   for (let i = 0; i < data.length; i += stride) tickIdx.add(i)
 
+  const xTicks = [...tickIdx].sort((a, b) => a - b)
+  const pct = (n: number, total: number) => `${(n / total) * 100}%`
+
   return (
     <div className="px-4 pb-3 pt-1">
       {/* Légende — même registre que les autres viz de l'Overview. */}
       <div className="mb-2 flex items-center gap-4 text-[11px] text-textsoft">
         <span className="flex items-center gap-1.5">
-          <span className="inline-block h-2 w-2 rounded-round bg-neutral-400" aria-hidden="true" /> Created
+          <span className="inline-block h-2 w-2 rounded-round" style={{ backgroundColor: 'var(--color-textsoft)' }} aria-hidden="true" /> Created
         </span>
         <span className="flex items-center gap-1.5">
           <span className="inline-block h-2 w-2 rounded-round bg-accent" aria-hidden="true" /> Closed
         </span>
       </div>
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label="Created vs closed per day">
-        <defs>
-          <linearGradient id="flow-created" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="var(--color-neutral-400)" stopOpacity="0.35" />
-            <stop offset="100%" stopColor="var(--color-neutral-400)" stopOpacity="0" />
-          </linearGradient>
-          <linearGradient id="flow-closed" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="var(--color-accent)" stopOpacity="0.35" />
-            <stop offset="100%" stopColor="var(--color-accent)" stopOpacity="0" />
-          </linearGradient>
-        </defs>
+      {/* Conteneur relatif : le SVG remplit sa largeur (hauteur via viewBox), les
+          ÉTIQUETTES sont en overlay HTML — taille en px FIXES, indépendante de la
+          largeur (un <text> SVG est mis à l'échelle par le viewBox → énorme en
+          pleine largeur, minuscule en colonne ; retour Rémi). Positions en % =
+          coordonnées viewBox / dimension. */}
+      <div className="relative w-full">
+        <svg viewBox={`0 0 ${W} ${H}`} className="block w-full" role="img" aria-label="Created vs closed per day">
+          <defs>
+            <linearGradient id="flow-created" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="var(--color-textsoft)" stopOpacity="0.28" />
+              <stop offset="100%" stopColor="var(--color-textsoft)" stopOpacity="0" />
+            </linearGradient>
+            <linearGradient id="flow-closed" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="var(--color-accent)" stopOpacity="0.32" />
+              <stop offset="100%" stopColor="var(--color-accent)" stopOpacity="0" />
+            </linearGradient>
+          </defs>
 
-        {/* Repères Y : 0, milieu, max. */}
-        {[0, 0.5, 1].map((f) => {
-          const y = BASE_Y - f * PLOT_H
-          return (
-            <g key={f}>
-              <line x1={PAD.left} y1={y} x2={W - PAD.right} y2={y} stroke="var(--color-neutral-200)" strokeWidth="1" vectorEffect="non-scaling-stroke" />
-              <text x={PAD.left - 6} y={y + 3} textAnchor="end" className="fill-neutral-500" fontSize="11" fontFamily="ui-monospace, monospace">
-                {Math.round(f * max)}
-              </text>
-            </g>
-          )
-        })}
+          {/* Repères Y : 0, milieu, max (lignes SEULEMENT — les chiffres sont en HTML). */}
+          {[0, 0.5, 1].map((f) => {
+            const y = BASE_Y - f * PLOT_H
+            return (
+              <line key={f} x1={PAD.left} y1={y} x2={W - PAD.right} y2={y} stroke="var(--color-border)" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+            )
+          })}
 
-        {/* Aires superposées : créés (neutre) dessous, fermés (accent) au-dessus. */}
-        <path d={smoothArea(createdPts)} fill="url(#flow-created)" />
-        <path d={smoothArea(closedPts)} fill="url(#flow-closed)" />
-        {/* Lignes de crête par-dessus les aires. */}
-        <path d={smoothLine(createdPts)} fill="none" stroke="var(--color-neutral-400)" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-        <path d={smoothLine(closedPts)} fill="none" stroke="var(--color-accent)" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+          {/* Aires superposées : créés (neutre) dessous, fermés (accent) au-dessus. */}
+          <path d={smoothArea(createdPts)} fill="url(#flow-created)" />
+          <path d={smoothArea(closedPts)} fill="url(#flow-closed)" />
+          {/* Lignes de crête par-dessus les aires. */}
+          <path d={smoothLine(createdPts)} fill="none" stroke="var(--color-textsoft)" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+          <path d={smoothLine(closedPts)} fill="none" stroke="var(--color-accent)" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+        </svg>
 
-        {/* Étiquettes X. */}
-        {[...tickIdx].sort((a, b) => a - b).map((i) => (
-          <text
+        {/* Étiquettes Y (overlay HTML, alignées à droite juste avant le tracé). */}
+        {[0, 0.5, 1].map((f) => (
+          <span
+            key={f}
+            className="pointer-events-none absolute -translate-y-1/2 font-mono text-[10px] tabular-nums text-textsoft"
+            style={{ left: pct(PAD.left - 4, W), top: pct(BASE_Y - f * PLOT_H, H), transform: 'translate(-100%, -50%)' }}
+          >
+            {Math.round(f * max)}
+          </span>
+        ))}
+        {/* Étiquettes X (overlay HTML, ancrées début/milieu/fin). */}
+        {xTicks.map((i) => (
+          <span
             key={i}
-            x={createdPts[i][0]}
-            y={H - 6}
-            textAnchor={i === 0 ? 'start' : i === data.length - 1 ? 'end' : 'middle'}
-            className="fill-neutral-500"
-            fontSize="11"
-            fontFamily="ui-monospace, monospace"
+            className="pointer-events-none absolute bottom-0 font-mono text-[10px] text-textsoft"
+            style={{
+              left: pct(createdPts[i][0], W),
+              transform: i === 0 ? 'translateX(0)' : i === data.length - 1 ? 'translateX(-100%)' : 'translateX(-50%)',
+            }}
           >
             {short(data[i].day)}
-          </text>
+          </span>
         ))}
-      </svg>
+      </div>
     </div>
   )
 }

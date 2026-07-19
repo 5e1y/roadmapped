@@ -214,7 +214,7 @@ function RefLine({ refPath, onRemove }: { refPath: string; onRemove?: () => void
             window.dispatchEvent(new CustomEvent(OPEN_DOC_EVENT, { detail: refPath.replace(/^docs\//, '') }))
             close()
           }}
-          className="min-w-0 flex-1 truncate px-1.5 py-0.5 text-left font-mono text-xs text-texthard underline decoration-neutral-500 underline-offset-2 hover:decoration-neutral-800"
+          className="min-w-0 flex-1 truncate rounded-interactive px-1.5 py-0.5 text-left font-mono text-xs text-texthard underline decoration-textsoft underline-offset-2 transition-colors hover:bg-rollover"
         >
           {refPath}
         </button>
