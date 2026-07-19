@@ -4,9 +4,15 @@ import { createContext, useContext, type ReactNode } from 'react'
 // (ex-Docs>KB). #372 ajoute Overview (toutes les visualisations, sorties du Backlog)
 // et Activity (le feed, ex-overlay du header). Roadmap = colonnes seules ; Docs =
 // documents seuls ; Backlog = liste pure.
+//
+// 'designsystem' (#388, chantier C9) est une vue À PART : hors NavRail (décision
+// Rémi), atteinte SEULEMENT par un raccourci clavier global (« g » puis « d », cf.
+// Shell/App.tsx). Elle n'apparaît donc pas dans la nav utilisateur mais partage le
+// même mécanisme de vue courante (persistance, titre d'onglet).
 export type View =
   | 'overview' | 'backlog' | 'roadmap' | 'dependencies'
   | 'graph' | 'activity' | 'docs' | 'notepad'
+  | 'designsystem'
 
 interface ViewState {
   view: View
