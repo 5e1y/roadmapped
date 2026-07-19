@@ -2,7 +2,7 @@ id: 384
 title: >-
   C4 — États unifiés : ViewShell (header persistant) + TreeStateGuard généralisé + EmptyState +
   Overview honore loadError
-status: todo
+status: done
 tags:
   - ds
   - states
@@ -22,9 +22,22 @@ dependsOn: []
 epic: ds-consistency
 source: ai
 createdAt: "2026-07-19T13:03:28"
-updatedAt: "2026-07-19T13:03:28"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+startedAt: "2026-07-19T13:45:05"
+updatedAt: "2026-07-19T14:01:55"
+completedAt: "2026-07-19T14:01:55"
+commit: 4057cfd
+outcome: >-
+  États unifiés (chantier C4, ferme ds-consistency). 3 primitives (ui.tsx/ViewHeader) : ViewShell
+  (header TOUJOURS monté pendant loading/erreur), TreeStateGuard (garde d'arbre partagée, généralise
+  l'ex-RoadmapStateGuard ; le doublon verbatim du Backlog supprimé ; messages Loading…/Server
+  unreachable/validation préservés dans le gabarit centré canonique), EmptyState
+  ({glyph?,title,hint?}). Vues migrées : Backlog (early-returns → ViewShell+TreeStateGuard,
+  recherche/+task dans controls donc montés en erreur), Roadmap/Dependencies (garde SOUS le header),
+  Overview (HONORE loadError → « Server unreachable » au lieu du « waiting » infini si serveur
+  mort), Graph. Empty states harmonisés sur EmptyState (Backlog/Activity/Overview/Docs/KbView) ;
+  KbHero gardé en cas spécial. KbGraph/RoadmapGraph internes non touchés.
+verification: >-
+  tsc clean, suite 738/738 (12 nouveaux : header présent + Loading…/Server unreachable pour
+  Backlog/Roadmap/Deps/Overview en loading ET serveur mort ; EmptyState registre ; Overview
+  loadError). build OK.
+release: 0.2.3
