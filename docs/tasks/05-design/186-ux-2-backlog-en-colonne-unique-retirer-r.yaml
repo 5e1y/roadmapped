@@ -1,0 +1,26 @@
+id: 373
+title: "UX 2 : Backlog en colonne unique — retirer radar + graphe de tags du flanc gauche"
+status: todo
+tags:
+  - ui
+detail: >-
+  Spec docs/specs/2026-07-19-overview-activity-ux.md ticket 2. Dans Backlog.tsx : supprimer le <div>
+  flanc gauche (l.169-183 : TypesRadar + TagGraph), les imports TagGraph/TypesRadar/tagGraph
+  (l.10-12) et les calculs devenus morts (themeTags l.89-91, load l.106-113 SI plus utilisés
+  ailleurs — vérifier). La liste passe pleine largeur. Les chips de filtre actif (l.188-211, hors
+  flanc) restent fonctionnels. Ne PAS supprimer TypesRadar.tsx ni TagGraph.tsx (réutilisés dans
+  l'Overview au ticket 4). Vérifier tsc/vitest/build + que le filtre type/tag reste opérant via les
+  chips.
+refs:
+  - src/components/Backlog.tsx
+links: []
+dependsOn: []
+epic: overview-activity
+source: ai
+createdAt: "2026-07-19T11:53:15"
+updatedAt: "2026-07-19T11:53:15"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
