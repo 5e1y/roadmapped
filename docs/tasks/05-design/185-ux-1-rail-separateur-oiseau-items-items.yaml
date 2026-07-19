@@ -1,0 +1,33 @@
+id: 372
+title: >-
+  UX 1 : rail — séparateur oiseau↔items + items Overview & Activity (View→8), routes stub, retrait
+  bouton Activity du header
+status: todo
+tags:
+  - ui
+  - nav
+detail: >-
+  Spec docs/specs/2026-07-19-overview-activity-ux.md ticket 1. NavRail : ajouter un séparateur
+  (filet) entre la mascotte et le 1er item. Étendre View à 8 (ajouter 'overview' et 'activity').
+  Ajouter les items Overview et Activity au rail (Overview en tête du groupe travail ; Activity dans
+  le groupe exploration près de Graph). Router 'overview' et 'activity' dans MainView vers des
+  composants STUB (placeholder « à venir ») — le contenu réel vient aux tickets 4/5/6. localStorage
+  nav:view validé sur 8 valeurs, document.title 8 noms. RETIRER <LiveActivityMenu/> du header
+  (ViewHeader.tsx l.50 + import l.5) — le LiveActivityProvider RESTE (il alimente le futur onglet).
+  Icônes trinil-react cohérentes (Overview=Dashboard ou LayoutGrid, Activity=Pulse ou Activity).
+refs:
+  - src/components/NavRail.tsx
+  - src/state/ViewContext.tsx
+  - src/App.tsx
+  - src/components/ViewHeader.tsx
+links: []
+dependsOn: []
+epic: overview-activity
+source: ai
+createdAt: "2026-07-19T11:53:15"
+updatedAt: "2026-07-19T11:53:15"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

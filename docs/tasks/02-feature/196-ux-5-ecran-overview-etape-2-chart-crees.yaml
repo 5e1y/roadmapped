@@ -1,0 +1,29 @@
+id: 376
+title: "UX 5 : écran Overview étape 2 — chart créés vs fermés par semaine"
+status: todo
+tags:
+  - overview
+  - ui
+detail: >-
+  Spec docs/specs/2026-07-19-overview-activity-ux.md ticket 5. Ajouter à l'Overview (#375) une carte
+  chart créés-vs-fermés hebdomadaire, alimentée par createdVsClosedByWeek (#374). Rendu SVG maison
+  cohérent avec le radar/graphes existants (pas de lib de charting tierce ; monochrome + accent
+  rare, tokens CSS). Deux séries par semaine (créés vs fermés) — barres groupées ou double courbe,
+  au choix le plus lisible sur ~quelques semaines. Axe temps lisible, état vide géré.
+  tsc/vitest/build + smoke visuel.
+refs:
+  - src/lib/roadmap.ts
+  - src/components/TypesRadar.tsx
+links: []
+dependsOn:
+  - 374
+  - 375
+epic: overview-activity
+source: ai
+createdAt: "2026-07-19T11:53:39"
+updatedAt: "2026-07-19T11:53:39"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

@@ -1,0 +1,39 @@
+id: 375
+title: >-
+  UX 4 : écran Overview étape 1 — radar déplacé + graphe tags via KbGraph + aperçu 5 tickets à 3
+  bascules
+status: todo
+tags:
+  - overview
+  - ui
+detail: >-
+  Spec docs/specs/2026-07-19-overview-activity-ux.md ticket 4. Remplir la route stub 'overview'
+  (créée au #372) : grille de cartes (design.md tri-couche, monochrome+accent). (1) TypesRadar
+  déplacé du Backlog. (2) Graphe nodal des TAGS via KbGraph RÉUTILISÉ TEL QUEL : adaptateur
+  tagGraph(tasks)→KbGraphData (tag→KbNode id=label=tag, community=cluster ou 0, fileType factice,
+  sourceFile null ; co-occurrence→KbEdge confidence:'EXTRACTED', weight) ; filters neutre
+  {communities:[],fileTypes:[],hideInferred:false} ; clic-nœud NEUTRALISÉ (un tag n'ouvre pas
+  KbNodePanel — no-op ou variante sans usePanel). ATTENTION couplage KbGraph :
+  KbSimDriver/kbLayout/kbFilter/troncature/zoom-pan — vérifier qu'il tourne avec un petit graphe de
+  tags. (3) Aperçu 5 tickets avec 3 bascules exclusives (5 plus urgents / 5 plus anciens / 5
+  derniers ajoutés) via les helpers #374, chaque ligne cliquable ouvre le TaskPanel. État de
+  session. tsc/vitest/build + smoke visuel.
+refs:
+  - src/components/KbGraph.tsx
+  - src/components/TypesRadar.tsx
+  - src/lib/tagGraph.ts
+  - src/server/kb.ts
+  - src/lib/roadmap.ts
+links: []
+dependsOn:
+  - 372
+  - 374
+epic: overview-activity
+source: ai
+createdAt: "2026-07-19T11:53:39"
+updatedAt: "2026-07-19T11:53:39"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

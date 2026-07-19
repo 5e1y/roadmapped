@@ -1,0 +1,30 @@
+id: 377
+title: "UX 6 : onglet Activity — feed timestampé plein écran (version étendue de l'overlay)"
+status: todo
+tags:
+  - activity
+  - ui
+detail: >-
+  Spec docs/specs/2026-07-19-overview-activity-ux.md ticket 6. Remplir la route stub 'activity'
+  (#372) : feed plein écran réutilisant useLiveActivity().log (state/LiveActivity.tsx). Version
+  étendue/détaillée de l'overlay LiveActivityMenu : chaque entrée = icône-verbe + verbe + #id +
+  titre + heure (entry.at). Grouper par JOUR (dériver le jour depuis entry.receivedAt epoch ms —
+  LiveEntry.at n'a que HH:MM:SS) avec en-têtes « Aujourd'hui / Hier / date ». Reste session-only
+  (historique complet = git log, décision existante) ; état vide géré (« aucune activité cette
+  session »). DA monochrome + accent. Réutiliser les icônes-verbes existantes de l'overlay.
+  tsc/vitest/build + smoke visuel.
+refs:
+  - src/components/LiveActivityMenu.tsx
+  - src/state/LiveActivity.tsx
+links: []
+dependsOn:
+  - 372
+epic: overview-activity
+source: ai
+createdAt: "2026-07-19T11:53:39"
+updatedAt: "2026-07-19T11:53:39"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

@@ -1,0 +1,28 @@
+id: 374
+title: "UX 3 : helpers Overview — tris ancienneté/récence + bucketiseur créés-vs-fermés hebdo (+ tests)"
+status: todo
+tags:
+  - overview
+  - data
+detail: >-
+  Spec docs/specs/2026-07-19-overview-activity-ux.md ticket 3. Dans src/lib/roadmap.ts (ou un lib
+  dédié overview.ts) : exporter ageInDays (aujourd'hui privé) ; ajouter des sélecteurs purs pour
+  l'Overview : top-N par température desc (réutiliser nextQueue/temperature), top-N plus anciens
+  (createdAt asc, fallback id asc), top-N derniers ajoutés (createdAt desc / id desc) ; et
+  createdVsClosedByWeek(tasks) → séries hebdomadaires {weekStart, created, closed} bucketisant
+  createdAt et completedAt par ISO-semaine (attention timezone : completedAt nus en local, cf.
+  #340/#363). Tests unitaires purs : buckets corrects, semaines vides comblées, tri stable.
+refs:
+  - src/lib/roadmap.ts
+  - src/lib/tasks.ts
+links: []
+dependsOn: []
+epic: overview-activity
+source: ai
+createdAt: "2026-07-19T11:53:15"
+updatedAt: "2026-07-19T11:53:15"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

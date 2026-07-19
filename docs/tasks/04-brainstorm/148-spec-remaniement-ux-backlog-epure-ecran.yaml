@@ -1,0 +1,37 @@
+id: 371
+title: "Spec : remaniement UX — Backlog épuré, écran Overview, onglet Activity"
+status: done
+tags:
+  - ux
+  - nav
+  - spec
+heat: 70
+detail: >-
+  Spec docs/specs/2026-07-19-overview-activity-ux.md — décisions Rémi verrouillées : Backlog
+  redevient une liste pure (radar + graphe tags retirés du flanc), toutes les viz migrent dans un
+  écran Overview dédié, Activity devient un onglet plein (overlay du header retiré). Overview PAR
+  ÉTAPES (squelette+2 graphes+aperçu 5 tickets, puis chart créés-vs-fermés hebdo). Graphe de tags =
+  KbGraph réutilisé tel quel (adapter tags→contrat KbGraphData, clic-nœud neutralisé). 6 tickets
+  d'exécution.
+refs:
+  - docs/specs/2026-07-19-overview-activity-ux.md
+links: []
+dependsOn: []
+epic: overview-activity
+source: ai
+createdAt: "2026-07-19T11:53:15"
+updatedAt: "2026-07-19T11:53:52"
+completedAt: "2026-07-19T11:53:52"
+commit: 13712bd
+outcome: >-
+  Spec écrite (docs/specs/2026-07-19-overview-activity-ux.md). Décisions Rémi via questions :
+  Overview par étapes, graphe tags = KbGraph réutilisé tel quel, créés-vs-fermés hebdo. Repérage
+  complet intégré (ancres Backlog flanc l.169-183, contrat KbGraphData, couplage
+  KbGraph→KbSimDriver/usePanel à neutraliser pour les tags, état LiveActivity session-only, helpers
+  de tri manquants). 6 tickets créés (#372 rail+nav, #373 backlog épuré, #374 helpers, #375 Overview
+  étape 1, #376 chart hebdo, #377 Activity) chaînés par dependsOn.
+verification: >-
+  Spec ancrée sur le repérage réel. Point de vigilance documenté : réutiliser KbGraph pour les tags
+  est couplé (sim de forces, zoom/pan, clic→KbNodePanel) → adaptateur données + neutralisation du
+  clic requis, pas un simple swap de props.
+release: 0.2.3
