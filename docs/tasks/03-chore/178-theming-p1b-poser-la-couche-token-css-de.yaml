@@ -1,0 +1,25 @@
+id: 392
+title: Theming P1b — poser la couche token (CSS des 9 rôles × thèmes + module de recettes d'état)
+status: todo
+tags:
+  - theming
+  - ds
+detail: >-
+  Spec docs/specs/2026-07-19-theming-foundations.md §1. Définir en CSS les 9 rôles sous :root et
+  :root[data-theme=dark] (généralise le mécanisme #269), les tokens de forme, et un module de
+  recettes d'état (state()/classes modulaires) exportant current/toggled/hover/disabled/invalid.
+  SANS migrer les usages (P2). La couche existe, prête à être appelée.
+refs:
+  - docs/specs/2026-07-19-theming-foundations.md
+links: []
+dependsOn:
+  - 391
+epic: theming-foundations
+source: ai
+createdAt: "2026-07-19T14:02:37"
+updatedAt: "2026-07-19T14:02:37"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

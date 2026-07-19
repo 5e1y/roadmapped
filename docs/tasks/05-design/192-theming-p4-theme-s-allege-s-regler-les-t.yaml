@@ -1,0 +1,24 @@
+id: 395
+title: "Theming P4 — thème(s) allégé(s) : régler les tokens (air, filets, poids)"
+status: todo
+tags:
+  - theming
+  - ds
+detail: >-
+  Spec docs/specs/2026-07-19-theming-foundations.md §3 P4. Une fois tout tokenisé : LA refonte
+  visuelle « alléger » devient un réglage de tokens (moins de filets, plus d'air, type plus léger)
+  qui propage partout d'un coup, au lieu d'une passe fichier par fichier.
+refs:
+  - docs/specs/2026-07-19-theming-foundations.md
+links: []
+dependsOn:
+  - 393
+epic: theming-foundations
+source: ai
+createdAt: "2026-07-19T14:02:37"
+updatedAt: "2026-07-19T14:02:37"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
