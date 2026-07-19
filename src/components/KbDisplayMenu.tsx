@@ -79,7 +79,7 @@ export function KbDisplayMenu() {
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Positioner sideOffset={4} align="end" className="z-50">
-          <Popover.Popup className="w-64 overflow-hidden rounded-surface border border-border bg-foreground shadow-sm">
+          <Popover.Popup className="w-64 overflow-hidden rounded-interactive bg-foreground ring-1 ring-inset ring-border shadow-sm">
             <div className="max-h-[60vh] overflow-y-auto px-3 py-2">
               {SLIDERS.map((s) => {
                 const cur = overrides[s.key] ?? KB_SIM[s.key]

@@ -103,7 +103,7 @@ function UpdateNoticeInner({ update }: { update: { installed: string; remote: st
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Positioner sideOffset={4} align="end" className="z-50">
-          <Popover.Popup className="w-80 origin-[var(--transform-origin)] border border-border bg-foreground shadow-lg transition-[opacity,transform] duration-150 ease-out data-[ending-style]:scale-[0.98] data-[ending-style]:opacity-0 data-[starting-style]:scale-[0.98] data-[starting-style]:opacity-0 motion-reduce:transition-none">
+          <Popover.Popup className="w-80 origin-[var(--transform-origin)] rounded-surface bg-foreground shadow-lg ring-1 ring-inset ring-border transition-[opacity,transform] duration-150 ease-out data-[ending-style]:scale-[0.98] data-[ending-style]:opacity-0 data-[starting-style]:scale-[0.98] data-[starting-style]:opacity-0 motion-reduce:transition-none">
             <div className="flex items-baseline justify-between border-b border-border px-3 py-2">
               <Popover.Title className="text-xs font-semibold text-texthard">Update available</Popover.Title>
               <a
@@ -131,7 +131,7 @@ function UpdateNoticeInner({ update }: { update: { installed: string; remote: st
                   <div className="flex items-stretch gap-1.5">
                     {/* break-all : la commande entière reste visible (pas de scroll
                         horizontal caché dans un popup de 320px). */}
-                    <code className="min-w-0 flex-1 break-all border border-border bg-neutral-50 px-2 py-1.5 font-mono text-[11px] leading-relaxed text-neutral-800">
+                    <code className="min-w-0 flex-1 break-all rounded-interactive ring-1 ring-inset ring-border bg-neutral-50 px-2 py-1.5 font-mono text-[11px] leading-relaxed text-texthard">
                       {command}
                     </code>
                     <CopyCommandButton command={command} />

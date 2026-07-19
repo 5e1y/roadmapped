@@ -29,7 +29,7 @@ export function ThemePicker() {
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Positioner sideOffset={4} align="end" className="z-50">
-          <Popover.Popup className="w-44 origin-[var(--transform-origin)] overflow-hidden rounded-surface border border-border bg-foreground py-1 shadow-lg transition-[opacity,transform] duration-150 ease-out data-[ending-style]:scale-[0.98] data-[ending-style]:opacity-0 data-[starting-style]:scale-[0.98] data-[starting-style]:opacity-0 motion-reduce:transition-none">
+          <Popover.Popup className="w-44 origin-[var(--transform-origin)] overflow-hidden rounded-interactive bg-foreground ring-1 ring-inset ring-border py-1 shadow-lg transition-[opacity,transform] duration-150 ease-out data-[ending-style]:scale-[0.98] data-[ending-style]:opacity-0 data-[starting-style]:scale-[0.98] data-[starting-style]:opacity-0 motion-reduce:transition-none">
             {THEME_NAMES.map((t) => {
               const active = t === name
               return (

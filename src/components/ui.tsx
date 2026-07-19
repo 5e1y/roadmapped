@@ -284,7 +284,7 @@ export function ToastViewport() {
         <Toast.Root
           key={toast.id}
           toast={toast}
-          className="border border-border bg-foreground px-3 py-2.5 shadow-lg transition-opacity duration-150 data-[ending]:opacity-0 data-[starting]:opacity-0 motion-reduce:transition-none"
+          className="rounded-surface bg-foreground px-3 py-2.5 shadow-lg ring-1 ring-inset ring-border transition-opacity duration-150 data-[ending]:opacity-0 data-[starting]:opacity-0 motion-reduce:transition-none"
         >
           {/* Aligné sur le popup Activity (filet neutral-200, shadow-lg, rounded-md,
               monochrome) — un petit Check accent signale la tâche bouclée (l'accent
@@ -396,7 +396,7 @@ export function Select({
       </BaseSelect.Trigger>
       <BaseSelect.Portal>
         <BaseSelect.Positioner sideOffset={4} className="z-50">
-          <BaseSelect.Popup className="min-w-[var(--anchor-width)] border border-border bg-foreground py-1 shadow-sm">
+          <BaseSelect.Popup className="min-w-[var(--anchor-width)] rounded-interactive bg-foreground py-1 shadow-sm ring-1 ring-inset ring-border">
             {items.map((item) => (
               <BaseSelect.Item
                 key={item.value}
@@ -453,7 +453,7 @@ export function AddCombobox({ items, placeholder, onAdd, 'aria-label': ariaLabel
         <Combobox.Positioner sideOffset={4} className="z-50">
           {/* Largeur = celle du champ (pas min-) : les lignes riches (#125)
               tronquent leur titre au lieu de dilater le popup à l'écran. */}
-          <Combobox.Popup className="max-h-64 w-[var(--anchor-width)] overflow-y-auto border border-border bg-foreground py-1 shadow-sm">
+          <Combobox.Popup className="max-h-64 w-[var(--anchor-width)] overflow-y-auto rounded-interactive bg-foreground py-1 shadow-sm ring-1 ring-inset ring-border">
             <Combobox.Empty className="px-2.5 py-1.5 text-sm text-textsoft">No tasks.</Combobox.Empty>
             <Combobox.List>
               {(item: SelectItem) => (
@@ -550,7 +550,7 @@ export function TagsCombobox({ tags, suggestions, disabled = false, onSave }: {
       </Combobox.Chips>
       <Combobox.Portal>
         <Combobox.Positioner sideOffset={4} className="z-50">
-          <Combobox.Popup className="max-h-56 min-w-[var(--anchor-width)] overflow-y-auto border border-border bg-foreground py-1 shadow-sm">
+          <Combobox.Popup className="max-h-56 min-w-[var(--anchor-width)] overflow-y-auto rounded-interactive bg-foreground py-1 shadow-sm ring-1 ring-inset ring-border">
             <Combobox.Empty className="px-2.5 py-1.5 text-sm text-textsoft">No tags.</Combobox.Empty>
             <Combobox.List>
               {(item: TagItem) => (
@@ -637,7 +637,7 @@ export function EpicCombobox({ value, suggestions, disabled = false, onSave, toS
         />
         <Combobox.Portal>
           <Combobox.Positioner sideOffset={4} className="z-50">
-            <Combobox.Popup className="max-h-56 min-w-[var(--anchor-width)] overflow-y-auto border border-border bg-foreground py-1 shadow-sm">
+            <Combobox.Popup className="max-h-56 min-w-[var(--anchor-width)] overflow-y-auto rounded-interactive bg-foreground py-1 shadow-sm ring-1 ring-inset ring-border">
               <Combobox.Empty className="px-2.5 py-1.5 text-sm text-textsoft">No epics.</Combobox.Empty>
               <Combobox.List>
                 {(item: string) => (
@@ -724,7 +724,7 @@ export function MultiCombobox({
         <Combobox.Positioner sideOffset={4} className="z-50">
           {/* Largeur = celle du champ (pas min-) : les lignes riches (#125)
               tronquent leur titre au lieu de dilater le popup à l'écran. */}
-          <Combobox.Popup className="max-h-64 w-[var(--anchor-width)] overflow-y-auto border border-border bg-foreground py-1 shadow-sm">
+          <Combobox.Popup className="max-h-64 w-[var(--anchor-width)] overflow-y-auto rounded-interactive bg-foreground py-1 shadow-sm ring-1 ring-inset ring-border">
             <Combobox.Empty className="px-2.5 py-1.5 text-sm text-textsoft">No tasks.</Combobox.Empty>
             <Combobox.List>
               {(item: SelectItem) => (
