@@ -28,7 +28,7 @@ export function KbNodePanel({ nodeId }: { nodeId: string }) {
   }, [tree, graph, nodeId])
 
   if (!graph || !node) {
-    return <p className="text-sm text-neutral-500">Node not found (le graphe a peut-être changé).</p>
+    return <p className="text-sm text-neutral-500">Node not found (the graph may have changed).</p>
   }
 
   return (
