@@ -258,10 +258,23 @@
      gap 0 → un seul filet d'1px (liste collée, look historique) ; à gap > 0 elles
      se séparent en cartes — sans jamais décaler la mise en page. */
   .rm-list-item {
-    box-shadow: inset 0 0 0 1px var(--color-border);
+    position: relative;
     border-radius: var(--radius-listitem);
     background-color: var(--color-foreground);
     overflow: hidden;
+  }
+  /* Le ring (bordure) en ::after AU-DESSUS du contenu (#395, retour Rémi) : un
+     box-shadow inset porté par le CONTENEUR est recouvert par le fond OPAQUE d'un
+     enfant sélectionné (bg-active) — la bordure disparaissait sur les éléments
+     actifs (visible en thème GitHub). Le pseudo-élément, peint en dernier, garde le
+     filet visible quel que soit le fond. pointer-events:none = clics transparents. */
+  .rm-list-item::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px var(--color-border);
   }
   .rm-list > .rm-list-item + .rm-list-item { margin-top: calc(var(--spacing-listgap) - 1px); }
 
@@ -532,11 +545,22 @@ body {
   max-width: 100%;
 }
 
-/* Focus clavier lisible partout (audit UX) — monochrome, offset pour rester
-   visible aussi autour des surfaces sombres (nav active). */
-:focus-visible {
-  outline: 2px solid var(--color-neutral-900);
-  outline-offset: 2px;
+/* Focus clavier — INDICATEUR UNIQUE de l'app (#395, retour Rémi) : un outline
+   accent 2px, offset pour rester visible autour des surfaces sombres. En @layer
+   base → un composite (chips-combobox) peut le neutraliser sur son input interne
+   (`focus:outline-none`, couche utilities) et porter le focus sur sa boîte. Ne JAMAIS
+   ajouter un ring de focus par champ en plus : ça double l'indicateur. */
+@layer base {
+  /* outline-color fixé en accent PARTOUT (#395, retour Rémi) : sans ça, sur un
+     élément avec `transition`/`transition-colors`, l'outline-color anime de
+     currentColor (noir) vers accent au focus → flash noir→bleu. En figeant la
+     valeur, il n'y a plus rien à animer — l'outline apparaît directement en accent.
+     Invisible tant que :focus-visible ne pose pas outline-style/width. */
+  * { outline-color: var(--color-accent); }
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
 }
 
 /* Variante panneau du rendu markdown : métrique IDENTIQUE à la textarea ghost
