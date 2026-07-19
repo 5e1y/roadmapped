@@ -1,5 +1,5 @@
 import { type ComponentType } from 'react'
-import { List, LayoutColumns, GitBranch, NodeGraph, FileDoc, Pencil } from 'trinil-react'
+import { Dashboard, List, LayoutColumns, GitBranch, NodeGraph, Pulse, FileDoc, Pencil } from 'trinil-react'
 import { useView, type View } from '../state/ViewContext'
 import { BirdMascot } from './BirdMascot'
 
@@ -13,15 +13,22 @@ type NavItem = { id: View; label: string; Icon: ComponentType<{ size?: number }>
 // l'EXPLORATION (Graphe, Docs, Notes). Labels COURTS pour tenir sous l'icône dans
 // une bande de 64 px, mais toujours du texte visible (jamais d'icône seule).
 const WORK: NavItem[] = [
+  { id: 'overview', label: 'Overview', Icon: Dashboard },
   { id: 'backlog', label: 'Backlog', Icon: List },
   { id: 'roadmap', label: 'Roadmap', Icon: LayoutColumns },
   { id: 'dependencies', label: 'Deps', Icon: GitBranch },
 ]
 const EXPLORE: NavItem[] = [
   { id: 'graph', label: 'Graph', Icon: NodeGraph },
+  { id: 'activity', label: 'Activity', Icon: Pulse },
   { id: 'docs', label: 'Docs', Icon: FileDoc },
   { id: 'notepad', label: 'Notes', Icon: Pencil },
 ]
+
+/** Filet de séparation du rail (mascotte↔items, groupe travail↔exploration). */
+function Rule() {
+  return <div className="my-1 h-px w-7 shrink-0 bg-neutral-200" aria-hidden="true" />
+}
 
 /**
  * Le RAIL de navigation vertical (#370) — remplace les tabs horizontaux du header
@@ -74,13 +81,15 @@ export function NavRail() {
       {/* Mascotte = le logo en tête du rail (comme Figma). Décorative (aria-hidden
           dans le composant) — c'est le titre du header qui nomme l'app. */}
       <BirdMascot />
-      <div className="mt-2 flex w-full flex-col gap-1">
+      {/* Séparateur mascotte ↕ navigation (#372) : détache le logo des vues. */}
+      <Rule />
+      <div className="flex w-full flex-col gap-1">
         {WORK.map((item) => (
           <NavButton key={item.id} item={item} />
         ))}
       </div>
       {/* Filet de groupe : travail ↕ exploration. */}
-      <div className="my-1 h-px w-7 shrink-0 bg-neutral-200" aria-hidden="true" />
+      <Rule />
       <div className="flex w-full flex-col gap-1">
         {EXPLORE.map((item) => (
           <NavButton key={item.id} item={item} />
