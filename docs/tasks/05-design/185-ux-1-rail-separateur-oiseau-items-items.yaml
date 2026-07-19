@@ -2,7 +2,7 @@ id: 372
 title: >-
   UX 1 : rail — séparateur oiseau↔items + items Overview & Activity (View→8), routes stub, retrait
   bouton Activity du header
-status: todo
+status: done
 tags:
   - ui
   - nav
@@ -25,9 +25,23 @@ dependsOn: []
 epic: overview-activity
 source: ai
 createdAt: "2026-07-19T11:53:15"
-updatedAt: "2026-07-19T11:53:15"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+startedAt: "2026-07-19T11:54:54"
+updatedAt: "2026-07-19T12:02:04"
+completedAt: "2026-07-19T12:02:04"
+commit: a059308
+outcome: >-
+  Rail + plomberie nav : View→8 (ajout 'overview' et 'activity'). NavRail : séparateur (filet) entre
+  la mascotte et les items (helper Rule réutilisé aussi pour le filet travail↔exploration) ;
+  Overview (icône Dashboard) en tête du groupe travail, Activity (icône Pulse, cohérente avec
+  l'ex-overlay) dans le groupe exploration. MainView route 'overview'→OverviewView et
+  'activity'→ActivityView (stubs placeholder, remplis en #375/#376/#377). localStorage nav:view
+  validé sur 8, document.title 8 noms. Bouton Activity RETIRÉ du header (ViewHeader :
+  LiveActivityMenu + import ôtés) ; LiveActivityProvider reste au niveau App pour alimenter le futur
+  onglet. Note : LiveActivityMenu.tsx devient orphelin — laissé pour #377 qui en réutilisera
+  EntryRow/icônes-verbes.
+verification: >-
+  tsc clean, suite complète 692/692 (NavRail.test étendu à 8 items). VÉRIF VISUELLE (Playwright
+  build servi) : rail à 8 items relu — séparateur sous la mascotte + filet travail↔exploration
+  présents, Overview/Activity avec leurs icônes, stub Overview s'affiche, header sans bouton
+  Activity. Build OK.
+release: 0.2.3
