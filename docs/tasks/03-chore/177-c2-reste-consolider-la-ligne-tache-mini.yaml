@@ -1,0 +1,21 @@
+id: 390
+title: >-
+  C2 reste : consolider la ligne-tâche mini (5×), exporter RemoveButton/IconButton/bouton primaire,
+  trancher le rayon des chips de filtre — arbitrages DS à revoir avec Rémi
+status: todo
+tags:
+  - ds
+  - debt
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-19T13:44:32"
+updatedAt: "2026-07-19T13:44:32"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
