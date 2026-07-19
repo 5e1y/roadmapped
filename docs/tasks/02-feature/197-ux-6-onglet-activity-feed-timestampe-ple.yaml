@@ -1,6 +1,6 @@
 id: 377
 title: "UX 6 : onglet Activity — feed timestampé plein écran (version étendue de l'overlay)"
-status: in_progress
+status: done
 tags:
   - activity
   - ui
@@ -23,9 +23,19 @@ epic: overview-activity
 source: ai
 createdAt: "2026-07-19T11:53:39"
 startedAt: "2026-07-19T12:02:15"
-updatedAt: "2026-07-19T12:02:15"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+updatedAt: "2026-07-19T12:14:29"
+completedAt: "2026-07-19T12:14:29"
+commit: 17b06c0
+outcome: >-
+  Onglet Activity = feed timestampé plein écran. src/lib/activityFeed.ts : groupByDay pur (jour
+  dérivé de receivedAt epoch ms via minuit LOCAL, labels Aujourd'hui/Hier/date, ordre récent→ancien
+  préservé). ActivityView : EntryRow migré depuis LiveActivityMenu (icône-verbe + verbe + #id +
+  titre NON tronqué + heure), en-têtes de jour sticky, clic→openTask, état vide (« aucune activité
+  cette session » + mention git log). LiveActivityMenu.tsx SUPPRIMÉ (orphelin depuis #372, parts
+  utiles migrées, zéro duplication). Consomme useLiveActivity().log (source inchangée).
+verification: >-
+  tsc clean, suite 707/707 (exclusions worktrees). activityFeed.test (5, dont frontière minuit
+  local) + ActivityView.smoke (2). VÉRIF VISUELLE (Playwright) : PATCH live sur #337 pendant SSE
+  connecté → entrée « edited #337 » apparaît sous « AUJOURD'HUI » avec heure 12:12:08, header « 1
+  this session ». #337 restauré après le test. Header sans bouton Activity.
+release: 0.2.3

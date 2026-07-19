@@ -2,7 +2,7 @@ id: 375
 title: >-
   UX 4 : écran Overview étape 1 — radar déplacé + graphe tags via KbGraph + aperçu 5 tickets à 3
   bascules
-status: in_progress
+status: done
 tags:
   - overview
   - ui
@@ -32,9 +32,22 @@ epic: overview-activity
 source: ai
 createdAt: "2026-07-19T11:53:39"
 startedAt: "2026-07-19T12:02:15"
-updatedAt: "2026-07-19T12:02:15"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+updatedAt: "2026-07-19T12:14:30"
+completedAt: "2026-07-19T12:14:30"
+commit: 17b06c0
+outcome: >-
+  Overview étape 1 : grille de cartes (tri-couche). (1) Charge par type = TypesRadar déplacé du
+  Backlog, en lecture (counts = ouverts par type, sélection locale non-filtrante). (2) Graphe des
+  tags via KbGraph RÉUTILISÉ TEL QUEL (décision Rémi, continuité DS) : adaptateur pur
+  src/lib/tagKbGraph.ts (tagGraph→KbGraphData : tag→KbNode fileType:'tag', co-occurrence→KbEdge
+  EXTRACTED) + prop optionnelle onNodeClick ajoutée à KbGraph pour NEUTRALISER le clic-nœud (un tag
+  n'ouvre pas KbNodePanel) sans changer KbView (défaut = comportement historique). (3) Aperçu 5
+  tickets à 3 bascules exclusives (Urgents=température+TempBadge / Anciens=âge / Récents=date
+  d'ajout) via helpers #374, clic→openTask.
+verification: >-
+  tsc clean, suite 707/707. tagKbGraph.test (5, contrat KbNode/KbEdge) + OverviewView.smoke (3, les
+  3 bascules changent la liste, clic openTask). KbView vérifié inchangé (onNodeClick absent = chemin
+  historique). VÉRIF VISUELLE (Playwright pleine page) : 3 cartes relues — radar, aperçu à bascules
+  avec badges température, graphe de tags dans le visualiseur Graphify (nœuds/arêtes/Fit-zoom
+  identiques au graphe KB). Build OK.
+release: 0.2.3
