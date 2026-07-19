@@ -92,7 +92,7 @@ function EpicCard({ item, active, onSelect }: {
       aria-pressed={active}
       title={`${item.title} — ${item.progress.done}/${item.progress.total} tasks done. ${active ? 'Click to show every epic again.' : 'Click to filter the columns on this epic.'}`}
       className={`rm-list-item flex w-48 flex-col gap-0.5 px-2.5 py-1.5 text-left transition-colors ${
-        active ? 'bg-active' : 'hover:bg-rollover'
+        active ? 'bg-active ring-1 ring-inset ring-accent' : 'hover:bg-rollover'
       }`}
     >
       <span className="flex items-center gap-1.5">
@@ -142,7 +142,7 @@ export function EpicBand({ items, doneItems = [], selected, onSelect }: {
   const selectedItem = [...items, ...doneItems].find((i) => i.slug === selected) ?? null
   return (
     <Collapsible.Root open={!collapsed} onOpenChange={(o) => setCollapsed(!o)}>
-      <div className="shrink-0 border-b border-border px-6 py-1.5">
+      <div className="shrink-0 shadow-[inset_0_-1px_0_var(--color-border)] px-6 py-1.5">
         <div className="flex items-center gap-2">
           <Collapsible.Trigger
             title="Epics — click a card to filter the board"

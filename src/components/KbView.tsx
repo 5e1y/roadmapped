@@ -62,14 +62,14 @@ export function KbView() {
   return (
     <div className="flex h-full flex-col">
       {/* Barre d'outils KB : recherche à gauche, filtres + stats à droite. */}
-      <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-border bg-foreground px-4 py-1.5">
+      <div className="flex shrink-0 flex-wrap items-center gap-2 shadow-[inset_0_-1px_0_var(--color-border)] bg-foreground px-4 py-1.5">
         <input
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search nodes…"
           aria-label="Search knowledge base nodes"
-          className="w-48 rounded-interactive border border-border bg-foreground px-2.5 py-1 text-xs text-neutral-800 placeholder:text-neutral-400 focus:border-neutral-400 focus:outline-none"
+          className="w-48 rounded-interactive ring-1 ring-inset ring-border bg-foreground px-2.5 py-1 text-xs text-texthard placeholder:text-neutral-400 focus:ring-accent focus:outline-none"
         />
         <FilterMenu
           allLabel="All communities"
@@ -103,7 +103,7 @@ export function KbView() {
           {stale && (
             // Badge INERTE (#380) : registre neutre, PAS le costume accent d'un toggle
             // enclenché — c'est un avertissement statique, pas un contrôle actif.
-            <span className="rounded-interactive border border-border bg-neutral-100 px-1.5 py-0.5 text-textsoft" title="The corpus changed since generation — run /graphify --update">
+            <span className="rounded-interactive ring-1 ring-inset ring-border bg-background px-1.5 py-0.5 text-textsoft" title="The corpus changed since generation — run /graphify --update">
               maybe stale
             </span>
           )}
@@ -136,7 +136,7 @@ function KbHero() {
       <p className="mt-2 text-sm text-textsoft">
         The graph is built with Graphify (open source, MIT), from Claude Code:
       </p>
-      <pre className="mt-3 overflow-x-auto border border-border bg-neutral-50 px-3 py-2 font-mono text-xs text-texthard">
+      <pre className="mt-3 overflow-x-auto ring-1 ring-inset ring-border bg-background px-3 py-2 font-mono text-xs text-texthard">
 {`pip install graphifyy && graphify install   # once
 /graphify .                                 # in Claude Code, at the root`}
       </pre>
@@ -147,7 +147,7 @@ function KbHero() {
         href="https://github.com/Graphify-Labs/graphify"
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-3 self-start rounded-interactive border border-border bg-foreground px-2.5 py-1 text-xs text-textsoft transition-colors hover:bg-rollover"
+        className="mt-3 self-start rounded-interactive ring-1 ring-inset ring-border bg-foreground px-2.5 py-1 text-xs text-textsoft transition-colors hover:bg-rollover"
       >
         Learn more about Graphify ↗
       </a>

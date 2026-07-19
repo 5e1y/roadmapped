@@ -9,10 +9,10 @@
 export function Chip({ label, mono = false, strong = false }: { label: string; mono?: boolean; strong?: boolean }) {
   return (
     <span
-      className={`inline-flex items-center border px-1.5 py-px text-[11px] leading-4 ${
+      className={`inline-flex items-center ring-1 ring-inset px-1.5 py-px text-[11px] leading-4 ${
         strong
-          ? 'border-neutral-300 bg-neutral-100 font-medium text-textsoft'
-          : 'border-border bg-neutral-50 text-textsoft'
+          ? 'ring-border bg-background font-medium text-texthard'
+          : 'ring-border bg-background text-textsoft'
       } ${mono ? 'font-mono' : ''}`}
     >
       {label}

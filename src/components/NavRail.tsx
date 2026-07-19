@@ -29,7 +29,7 @@ const EXPLORE: NavItem[] = [
  *  Plus d'air AU-DESSUS (mt-3) qu'en-dessous : détache le filet de l'élément qui
  *  le précède (mascotte / dernier item du groupe) sans l'éloigner du suivant. */
 function Rule() {
-  return <div className="mb-1 mt-3 h-px w-7 shrink-0 bg-neutral-200" aria-hidden="true" />
+  return <div className="mb-1 mt-3 h-px w-7 shrink-0 bg-border" aria-hidden="true" />
 }
 
 /**
@@ -64,7 +64,7 @@ function NavButton({ item }: { item: NavItem }) {
         className={`flex size-9 items-center justify-center rounded-interactive transition-colors ${
           active
             ? 'bg-active text-accent'
-            : 'text-textsoft group-hover:bg-rollover group-hover:text-neutral-800'
+            : 'text-textsoft group-hover:bg-rollover group-hover:text-texthard'
         }`}
       >
         <Icon size={18} />
@@ -78,7 +78,7 @@ export function NavRail() {
   return (
     <nav
       aria-label="Vues"
-      className="flex h-full w-16 shrink-0 flex-col items-center gap-1 border-r border-border bg-foreground px-2 py-3"
+      className="flex h-full w-16 shrink-0 flex-col items-center gap-1 shadow-[inset_-1px_0_0_var(--color-border)] bg-foreground px-2 py-3"
     >
       {/* Mascotte = le logo en tête du rail (comme Figma). Décorative (aria-hidden
           dans le composant) — c'est le titre du header qui nomme l'app. */}

@@ -12,15 +12,15 @@ export function ZoomControls({ onZoomOut, onFit, onReset, onZoomIn }: {
   onZoomIn: () => void
 }) {
   return (
-    <div className="absolute right-3 top-3 z-10 flex items-center overflow-hidden rounded-interactive border border-neutral-300 bg-foreground shadow-sm">
+    <div className="absolute right-3 top-3 z-10 flex items-center overflow-hidden rounded-interactive ring-1 ring-inset ring-border bg-foreground shadow-sm">
       <button type="button" onClick={onZoomOut} aria-label="Zoom out"
         className="px-2.5 py-1 text-sm text-textsoft transition-colors hover:bg-rollover">−</button>
       <button type="button" onClick={onFit}
-        className="border-l border-border px-2.5 py-1 text-xs text-textsoft transition-colors hover:bg-rollover">Fit</button>
+        className="shadow-[inset_1px_0_0_var(--color-border)] px-2.5 py-1 text-xs text-textsoft transition-colors hover:bg-rollover">Fit</button>
       <button type="button" onClick={onReset} aria-label="Reset zoom to 100%"
-        className="border-l border-border px-2.5 py-1 text-xs text-textsoft transition-colors hover:bg-rollover">100 %</button>
+        className="shadow-[inset_1px_0_0_var(--color-border)] px-2.5 py-1 text-xs text-textsoft transition-colors hover:bg-rollover">100 %</button>
       <button type="button" onClick={onZoomIn} aria-label="Zoom in"
-        className="border-l border-border px-2.5 py-1 text-sm text-textsoft transition-colors hover:bg-rollover">+</button>
+        className="shadow-[inset_1px_0_0_var(--color-border)] px-2.5 py-1 text-sm text-textsoft transition-colors hover:bg-rollover">+</button>
     </div>
   )
 }

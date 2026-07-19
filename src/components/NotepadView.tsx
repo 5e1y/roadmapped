@@ -230,14 +230,14 @@ export function NotepadView() {
       {/* Bandeau d'avertissement en registre monochrome (modèle ErrorBanner, design.md §3.6) —
           l'ambre était la seule couleur hors palette du dashboard. */}
       {!warned && (
-        <div className="flex items-center justify-between gap-3 border-b border-border bg-neutral-50 px-4 py-1.5 text-xs text-texthard">
+        <div className="flex items-center justify-between gap-3 bg-background px-4 py-1.5 text-xs text-texthard shadow-[inset_0_-1px_0_var(--color-border)]">
           <span>Local notes — not versioned, not saved by git (docs/notes/).</span>
           <button type="button" onClick={dismissWarning} className="shrink-0 font-medium text-texthard hover:text-texthard">OK</button>
         </div>
       )}
 
       <div className="flex min-h-0 flex-1">
-        <div className="flex w-[420px] shrink-0 flex-col border-r border-border bg-foreground py-2">
+        <div className="flex w-[420px] shrink-0 flex-col bg-foreground py-2 shadow-[inset_-1px_0_0_var(--color-border)]">
           {/* Création EN TÊTE de liste (pas de bouton en haut à droite, pas de ⌘N). */}
           <button
             ref={newNoteRef}
@@ -289,7 +289,7 @@ export function NotepadView() {
           <div className="flex min-h-0 flex-1 flex-col">
             {/* Éditeur = textarea nue + backdrop d'affordance (#89). Le tint au drag
                 signale la cible de drop (accent-tint, le registre « actif » du dashboard). */}
-            <div className={`relative min-h-0 w-full flex-1 ${dragging ? 'bg-action' : ''}`}>
+            <div className={`relative min-h-0 w-full flex-1 ${dragging ? 'bg-active' : ''}`}>
               <div
                 ref={backdropRef}
                 aria-hidden="true"
@@ -306,7 +306,7 @@ export function NotepadView() {
                           data-fileline={i}
                           data-filepath={p}
                           className={`underline decoration-1 underline-offset-4 ${
-                            hoverLine === i ? 'bg-action decoration-accent' : 'decoration-neutral-300'
+                            hoverLine === i ? 'bg-rollover decoration-accent' : 'decoration-neutral-300'
                           }`}
                         >{l}</span>
                       ) : l}
@@ -343,7 +343,7 @@ export function NotepadView() {
                 // Le :focus-visible global (index.css, hors @layer) bat toute classe
                 // utilitaire Tailwind (layered) → outline tué en inline, qui gagne toujours.
                 style={{ outline: 'none', boxShadow: 'none' }}
-                className={`absolute inset-0 h-full w-full resize-none border-0 bg-transparent text-texthard placeholder:text-neutral-500 ${EDITOR_METRICS}`}
+                className={`absolute inset-0 h-full w-full resize-none border-0 bg-transparent text-texthard placeholder:text-textsoft ${EDITOR_METRICS}`}
               />
             </div>
             <div className="flex w-full shrink-0 items-center justify-between px-[max(1.5rem,calc((100%-48rem)/2))] py-1.5 font-mono text-[11px] text-textsoft">

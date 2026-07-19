@@ -86,7 +86,7 @@ export function ActivityView() {
           <ul>
             {groups.map((group) => (
               <li key={group.dayMs}>
-                <div className="sticky top-0 z-10 border-b border-border bg-foreground px-4 py-1.5 text-[11px] font-medium text-textsoft">
+                <div className="sticky top-0 z-10 bg-foreground px-4 py-1.5 text-[11px] font-medium text-textsoft shadow-[inset_0_-1px_0_var(--color-border)]">
                   {group.label}
                 </div>
                 <ul className="rm-list">

@@ -247,7 +247,7 @@ export function filterGraphToEpic(
 /** Ton d'une arête sous surlignage : sur le chemin amont/aval, hors chemin, neutre. */
 type EdgeTone = 'default' | 'strong' | 'dim'
 
-const EDGE_STROKE: Record<EdgeTone, string> = { default: 'var(--color-neutral-500)', strong: 'var(--color-neutral-900)', dim: 'var(--color-neutral-200)' }
+const EDGE_STROKE: Record<EdgeTone, string> = { default: 'var(--color-textsoft)', strong: 'var(--color-texthard)', dim: 'var(--color-border)' }
 const EDGE_MARKER: Record<EdgeTone, string> = { default: 'url(#rm-arrow)', strong: 'url(#rm-arrow-strong)', dim: 'url(#rm-arrow-dim)' }
 
 /**
@@ -389,13 +389,13 @@ function GraphCanvas({ tree, showDone, selected }: { tree: TaskTree; showDone: b
           <svg className="pointer-events-none absolute inset-0" width={layout.width} height={layout.height}>
             <defs>
               <marker id="rm-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                <path d="M0 0 L8 4 L0 8 z" fill="var(--color-neutral-500)" />
+                <path d="M0 0 L8 4 L0 8 z" fill="var(--color-textsoft)" />
               </marker>
               <marker id="rm-arrow-strong" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                <path d="M0 0 L8 4 L0 8 z" fill="var(--color-neutral-900)" />
+                <path d="M0 0 L8 4 L0 8 z" fill="var(--color-texthard)" />
               </marker>
               <marker id="rm-arrow-dim" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                <path d="M0 0 L8 4 L0 8 z" fill="var(--color-neutral-200)" />
+                <path d="M0 0 L8 4 L0 8 z" fill="var(--color-border)" />
               </marker>
             </defs>
             {model.edges.map(({ from, to }) => {
@@ -440,7 +440,7 @@ function GraphCanvas({ tree, showDone, selected }: { tree: TaskTree; showDone: b
     d'opacity sur le conteneur, sinon les arêtes transparaissent) — on pose un
     voile blanc par-dessus l'encre, monochrome et sans nouvelle couleur. */
 function DimVeil() {
-  return <span aria-hidden className="pointer-events-none absolute inset-0 bg-white/70" />
+  return <span aria-hidden className="pointer-events-none absolute inset-0 bg-foreground/70" />
 }
 
 interface NodeChrome {
@@ -565,7 +565,7 @@ function EpicGraphNode({ epic, pos, avail, dimmed, focused, onHoverChange }: Nod
             {epic.tasks.length} task{epic.tasks.length === 1 ? '' : 's'}{partial ? ' here' : ''}
           </span>
           <span className="ml-auto flex items-center gap-1.5">
-            <span aria-hidden className="inline-block h-1 w-14 overflow-hidden rounded-round bg-neutral-200">
+            <span aria-hidden className="inline-block h-1 w-14 overflow-hidden rounded-round bg-border">
               <span className="block h-full bg-accent" style={{ width: `${pct}%` }} />
             </span>
             <span
@@ -579,7 +579,7 @@ function EpicGraphNode({ epic, pos, avail, dimmed, focused, onHoverChange }: Nod
         </div>
       </button>
       {open && (
-        <div className="border-t border-neutral-100 pb-1">
+        <div className="shadow-[inset_0_1px_0_var(--color-border)] pb-1">
           {epic.tasks.map((t) => {
             const st = avail.get(t.id) ?? 'available'
             const isOpenInPanel = top?.type === 'task' && top.id === t.id

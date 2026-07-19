@@ -20,7 +20,7 @@ export function ThemeToggle() {
       onClick={() => setMode(nextMode(mode))}
       aria-label={`${LABEL[mode]} (click to cycle)`}
       title={LABEL[mode]}
-      className="flex items-center rounded-interactive border border-neutral-300 bg-foreground px-2 py-1 text-textsoft transition-colors hover:bg-rollover"
+      className="flex items-center rounded-interactive ring-1 ring-inset ring-border bg-foreground px-2 py-1 text-textsoft transition-colors hover:bg-rollover"
     >
       {/* my-0.5 : cale l'icône dans la boîte 16px d'une ligne text-xs → même
           hauteur exacte que les triggers FilterMenu voisins (py-1). */}

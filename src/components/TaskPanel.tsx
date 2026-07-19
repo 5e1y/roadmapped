@@ -136,7 +136,7 @@ function RemoveButton({ label, onClick }: { label: string; onClick: () => void }
       aria-label={label}
       title={label}
       onClick={(e) => { e.stopPropagation(); onClick() }}
-      className="shrink-0 rounded-interactive p-1 text-textsoft opacity-0 transition-opacity hover:bg-neutral-200 hover:text-neutral-700 focus-visible:opacity-100 group-hover:opacity-100"
+      className="shrink-0 rounded-interactive p-1 text-textsoft opacity-0 transition-opacity hover:bg-rollover hover:text-texthard focus-visible:opacity-100 group-hover:opacity-100"
     >
       <Cross size={9} />
     </button>
@@ -167,7 +167,7 @@ function RelationRow({ tree, id, badge, onRemove }: {
         <span className="shrink-0 font-mono text-xs text-textsoft">#{t.id}</span>
         <span
           title={t.title}
-          className={`min-w-0 truncate ${t.status === 'done' ? 'text-textsoft line-through' : 'text-neutral-800'}`}
+          className={`min-w-0 truncate ${t.status === 'done' ? 'text-textsoft line-through' : 'text-texthard'}`}
         >
           {t.title}
         </span>
@@ -214,7 +214,7 @@ function RefLine({ refPath, onRemove }: { refPath: string; onRemove?: () => void
             window.dispatchEvent(new CustomEvent(OPEN_DOC_EVENT, { detail: refPath.replace(/^docs\//, '') }))
             close()
           }}
-          className="min-w-0 flex-1 truncate px-1.5 py-0.5 text-left font-mono text-xs text-neutral-800 underline decoration-neutral-500 underline-offset-2 hover:decoration-neutral-800"
+          className="min-w-0 flex-1 truncate px-1.5 py-0.5 text-left font-mono text-xs text-texthard underline decoration-neutral-500 underline-offset-2 hover:decoration-neutral-800"
         >
           {refPath}
         </button>
@@ -250,7 +250,7 @@ function KbConnections({ tree, taskId }: { tree: TaskTree; taskId: number }) {
       title={n.sourceFile ?? n.label}
       className="group flex w-full items-center gap-2 px-1.5 py-1 text-left text-sm hover:bg-rollover disabled:cursor-default disabled:hover:bg-transparent"
     >
-      <span className="min-w-0 flex-1 truncate text-neutral-800">{n.label}</span>
+      <span className="min-w-0 flex-1 truncate text-texthard">{n.label}</span>
       <span className="shrink-0 font-mono text-[11px] text-textsoft">{n.fileType}</span>
       {n.sourceLocation && <span className="shrink-0 font-mono text-[11px] text-neutral-400">{n.sourceLocation}</span>}
     </button>
@@ -291,7 +291,7 @@ function DoneForm({ task, busy, onCancel, onSubmit }: {
   const canDone = outcome.trim().length > 0 && !busy
 
   return (
-    <div className="mt-2 flex flex-col gap-2.5 border border-border bg-neutral-50 p-3">
+    <div className="mt-2 flex flex-col gap-2.5 ring-1 ring-inset ring-border bg-background p-3">
       <label className="flex flex-col gap-1">
         <span className="text-[11px] font-medium text-textsoft">Outcome — what was delivered (required)</span>
         <AutoTextArea
@@ -719,7 +719,7 @@ function TaskPanelBody({ id }: { id: number }) {
             onClick={(e) => { if (!(e.target as HTMLElement).closest('a')) openDetailEditor({ x: e.clientX, y: e.clientY }) }}
             // Un role="button" répond à Entrée ET Espace (design.md §3.5).
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDetailEditor() } }}
-            className="cursor-text border border-transparent px-1.5 py-1 transition-colors hover:bg-rollover"
+            className="cursor-text rounded-interactive ring-1 ring-inset ring-transparent px-1.5 py-1 transition-colors hover:bg-rollover"
           >
             {task.detail ? (
               <Markdown source={task.detail} className="doc-prose--panel" />
@@ -829,10 +829,10 @@ function TaskPanelBody({ id }: { id: number }) {
           {feedback.map((f, i) => (
             <div
               key={i}
-              className={`flex items-start gap-2 border-l-2 py-1 pl-2 ${f.resolved ? 'border-border' : 'border-accent'}`}
+              className={`flex items-start gap-2 py-1 pl-2 ${f.resolved ? 'shadow-[inset_2px_0_0_var(--color-border)]' : 'shadow-[inset_2px_0_0_var(--color-accent)]'}`}
             >
               <div className="min-w-0 flex-1">
-                <div className={`whitespace-pre-wrap break-words text-sm ${f.resolved ? 'text-textsoft line-through' : 'text-neutral-800'}`}>
+                <div className={`whitespace-pre-wrap break-words text-sm ${f.resolved ? 'text-textsoft line-through' : 'text-texthard'}`}>
                   {f.text}
                 </div>
                 <div className="mt-0.5 flex items-center gap-1 text-[11px] text-textsoft">
@@ -873,7 +873,7 @@ function TaskPanelBody({ id }: { id: number }) {
       </div>
 
       {/* Consignation : inputs ghost permanents (corrections rares mais directes). */}
-      <div className="flex flex-col gap-1 border border-border bg-neutral-50 px-2 py-2">
+      <div className="flex flex-col gap-1 ring-1 ring-inset ring-border bg-foreground px-2 py-2">
         <div className="flex items-center gap-2 px-1.5">
           <div className="text-[11px] font-medium text-textsoft">Log</div>
           <SavedTick show={savedIn('outcome', 'verification', 'commit', 'release')} />
@@ -917,7 +917,7 @@ function TaskPanelBody({ id }: { id: number }) {
       </div>
 
       {/* Pied : le chemin technique, relégué ici (audit UX). */}
-      <div className="mt-auto border-t border-border pt-3">
+      <div className="mt-auto pt-3 shadow-[inset_0_1px_0_var(--color-border)]">
         <div className="truncate font-mono text-[11px] text-textsoft" title={task.file}>{task.file}</div>
       </div>
     </div>

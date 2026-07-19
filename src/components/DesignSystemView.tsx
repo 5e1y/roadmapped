@@ -30,6 +30,7 @@ import {
 const COLOR_TOKENS = [
   '--color-accent',
   '--color-accent-tint',
+  '--color-active',
   '--color-page',
   '--color-white',
   '--color-neutral-50',
@@ -69,7 +70,7 @@ function useTokenValues(names: readonly string[]): Record<string, string> {
 /** Carte tri-couche (surface #ffffff, filet neutral-200, carrée = surface, design.md §1). */
 function Section({ title, source, children }: { title: string; source: string; children: ReactNode }) {
   return (
-    <section className="border border-border bg-foreground p-5">
+    <section className="ring-1 ring-inset ring-border bg-foreground p-5">
       <div className="mb-4 flex items-baseline justify-between gap-3">
         <h2 className="text-sm font-semibold tracking-tight text-texthard">{title}</h2>
         <span className="shrink-0 font-mono text-[11px] text-textsoft">{source}</span>
@@ -86,8 +87,9 @@ function Legend({ children }: { children: ReactNode }) {
 
 // ── Couleurs / tokens ────────────────────────────────────────────────────────
 const COLOR_ROLES: Record<string, string> = {
-  '--color-accent': 'active · selection · in_progress',
-  '--color-accent-tint': 'selection background',
+  '--color-accent': 'active icon · in_progress · focus ring',
+  '--color-accent-tint': 'accent gauge fill',
+  '--color-active': 'selection / current background (bg-active)',
   '--color-page': 'body background',
   '--color-white': 'card surface',
   '--color-neutral-50': 'row hover',
@@ -110,7 +112,7 @@ function ColorsSection() {
         {COLOR_TOKENS.map((token) => (
           <div key={token} className="flex items-center gap-3">
             <span
-              className="size-9 shrink-0 border border-border"
+              className="size-9 shrink-0 ring-1 ring-inset ring-border"
               style={{ backgroundColor: `var(${token})` }}
               aria-hidden="true"
             />
@@ -146,9 +148,9 @@ const TYPE_LEVELS: { name: string; cls: string; role: string; sample: ReactNode 
 function TypographySection() {
   return (
     <Section title="Typography scale" source="design.md §1">
-      <div className="flex flex-col divide-y divide-neutral-200">
+      <div className="flex flex-col">
         {TYPE_LEVELS.map((lvl) => (
-          <div key={lvl.name} className="flex items-baseline gap-4 py-2">
+          <div key={lvl.name} className="flex items-baseline gap-4 py-2 shadow-[inset_0_-1px_0_var(--color-border)] last:shadow-none">
             <span className="w-24 shrink-0 font-mono text-[11px] text-textsoft">{lvl.name}</span>
             <span className={`min-w-0 flex-1 truncate text-texthard ${lvl.cls}`}>{lvl.sample}</span>
             <span className="hidden shrink-0 text-[11px] text-textsoft sm:block">{lvl.role}</span>
@@ -170,21 +172,21 @@ function RadiiSection() {
     <Section title="Corner radii & layer" source="design.md §1">
       <div className="flex flex-wrap items-end gap-6">
         <div className="flex flex-col items-center gap-2">
-          <span className="flex h-9 items-center rounded border border-neutral-300 bg-foreground px-2.5 text-xs text-textsoft">
+          <span className="flex h-9 items-center rounded ring-1 ring-inset ring-border bg-foreground px-2.5 text-xs text-textsoft">
             control
           </span>
           <span className="font-mono text-[11px] text-textsoft">rounded · 4px</span>
           <span className="text-[11px] text-textsoft">body control</span>
         </div>
         <div className="flex flex-col items-center gap-2">
-          <span className="flex h-9 items-center rounded-md border border-neutral-300 bg-foreground px-2.5 text-xs text-textsoft">
+          <span className="flex h-9 items-center rounded-md ring-1 ring-inset ring-border bg-foreground px-2.5 text-xs text-textsoft">
             header / floating
           </span>
           <span className="font-mono text-[11px] text-textsoft">rounded-md · 6px</span>
           <span className="text-[11px] text-textsoft">header + floating card</span>
         </div>
         <div className="flex flex-col items-center gap-2">
-          <span className="flex h-9 items-center border border-neutral-300 bg-foreground px-2.5 text-xs text-textsoft">
+          <span className="flex h-9 items-center ring-1 ring-inset ring-border bg-foreground px-2.5 text-xs text-textsoft">
             surface
           </span>
           <span className="font-mono text-[11px] text-textsoft">square · 0</span>
@@ -265,7 +267,7 @@ function SelectionSection() {
       <div className="grid gap-6 sm:grid-cols-2">
         <div>
           <div className="mb-2 text-[11px] font-medium text-textsoft">Current row (rowStateClass / CURRENT_ROW)</div>
-          <div className="border border-border">
+          <div className="ring-1 ring-inset ring-border">
             <FakeRow current />
             <FakeRow />
           </div>
@@ -432,7 +434,7 @@ export function DesignSystemView({ onBack }: { onBack: () => void }) {
         <button
           type="button"
           onClick={onBack}
-          className="flex items-center gap-1 rounded-interactive border border-neutral-300 bg-foreground px-2 py-1 text-xs text-textsoft transition-colors hover:bg-rollover"
+          className="flex items-center gap-1 rounded-interactive ring-1 ring-inset ring-border bg-foreground px-2 py-1 text-xs text-textsoft transition-colors hover:bg-rollover"
         >
           <ChevronLeft size={11} aria-hidden="true" />
           Back

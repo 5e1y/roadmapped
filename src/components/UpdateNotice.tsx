@@ -44,7 +44,7 @@ function CopyCommandButton({ command }: { command: string }) {
       type="button"
       onClick={() => void copy()}
       aria-label={copied ? 'Copied' : 'Copy upgrade command'}
-      className="flex shrink-0 items-center gap-1 self-stretch rounded-interactive border border-neutral-300 bg-foreground px-2 text-[11px] text-texthard transition-colors hover:bg-rollover"
+      className="flex shrink-0 items-center gap-1 self-stretch rounded-interactive ring-1 ring-inset ring-border bg-foreground px-2 text-[11px] text-texthard transition-colors hover:bg-rollover"
     >
       {copied ? <Check size={10} className="shrink-0" /> : <Copy size={10} className="shrink-0" />}
       {copied ? 'copied' : 'copy'}
@@ -94,7 +94,7 @@ function UpdateNoticeInner({ update }: { update: { installed: string; remote: st
     <Popover.Root>
       <Popover.Trigger
         aria-label="Update available"
-        className="flex items-center gap-1.5 rounded-interactive border border-neutral-300 bg-foreground px-2.5 py-1 text-xs text-textsoft transition-colors hover:bg-rollover data-[popup-open]:bg-neutral-100 data-[popup-open]:text-texthard"
+        className="flex items-center gap-1.5 rounded-interactive ring-1 ring-inset ring-border bg-foreground px-2.5 py-1 text-xs text-textsoft transition-colors hover:bg-rollover data-[popup-open]:bg-active data-[popup-open]:text-texthard"
       >
         <Download size={11} className="text-textsoft" />
         Update
@@ -104,7 +104,7 @@ function UpdateNoticeInner({ update }: { update: { installed: string; remote: st
       <Popover.Portal>
         <Popover.Positioner sideOffset={4} align="end" className="z-50">
           <Popover.Popup className="w-80 origin-[var(--transform-origin)] rounded-surface bg-foreground shadow-lg ring-1 ring-inset ring-border transition-[opacity,transform] duration-150 ease-out data-[ending-style]:scale-[0.98] data-[ending-style]:opacity-0 data-[starting-style]:scale-[0.98] data-[starting-style]:opacity-0 motion-reduce:transition-none">
-            <div className="flex items-baseline justify-between border-b border-border px-3 py-2">
+            <div className="flex items-baseline justify-between shadow-[inset_0_-1px_0_var(--color-border)] px-3 py-2">
               <Popover.Title className="text-xs font-semibold text-texthard">Update available</Popover.Title>
               <a
                 href={compareUrl}
@@ -131,7 +131,7 @@ function UpdateNoticeInner({ update }: { update: { installed: string; remote: st
                   <div className="flex items-stretch gap-1.5">
                     {/* break-all : la commande entière reste visible (pas de scroll
                         horizontal caché dans un popup de 320px). */}
-                    <code className="min-w-0 flex-1 break-all rounded-interactive ring-1 ring-inset ring-border bg-neutral-50 px-2 py-1.5 font-mono text-[11px] leading-relaxed text-texthard">
+                    <code className="min-w-0 flex-1 break-all rounded-interactive ring-1 ring-inset ring-border bg-background px-2 py-1.5 font-mono text-[11px] leading-relaxed text-texthard">
                       {command}
                     </code>
                     <CopyCommandButton command={command} />
@@ -142,7 +142,7 @@ function UpdateNoticeInner({ update }: { update: { installed: string; remote: st
                   type="button"
                   onClick={() => void runUpdate()}
                   disabled={phase === 'updating'}
-                  className="flex items-center justify-center gap-1.5 rounded-interactive border border-action bg-action px-2.5 py-1.5 text-xs font-medium text-foreground transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-70"
+                  className="flex items-center justify-center gap-1.5 rounded-interactive bg-action px-2.5 py-1.5 text-xs font-medium text-foreground transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   <Download size={11} className="shrink-0" />
                   {phase === 'updating' ? 'Updating & restarting…' : 'Update & restart'}
@@ -157,7 +157,7 @@ function UpdateNoticeInner({ update }: { update: { installed: string; remote: st
             <Popover.Close
               render={<button type="button" />}
               onClick={dismiss}
-              className="flex w-full border-t border-neutral-100 px-3 py-1.5 text-left text-[11px] text-textsoft hover:bg-rollover hover:text-texthard"
+              className="flex w-full shadow-[inset_0_1px_0_var(--color-border)] px-3 py-1.5 text-left text-[11px] text-textsoft hover:bg-rollover hover:text-texthard"
             >
               Hide for this session
             </Popover.Close>

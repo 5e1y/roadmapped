@@ -22,7 +22,7 @@ const plural = (n: number, s: string) => `${n} ${s}${n === 1 ? '' : 's'}`
  */
 function RemovableChip({ label, onRemove, ariaLabel }: { label: string; onRemove: () => void; ariaLabel: string }) {
   return (
-    <span className="inline-flex max-w-[16rem] items-center gap-1 rounded-interactive border border-border bg-foreground py-0.5 pl-2 pr-1 text-xs text-texthard">
+    <span className="inline-flex max-w-[16rem] items-center gap-1 rounded-interactive ring-1 ring-inset ring-border bg-foreground py-0.5 pl-2 pr-1 text-xs text-texthard">
       <span className="min-w-0 truncate">{label}</span>
       <button
         type="button"
@@ -77,13 +77,13 @@ export function Backlog() {
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search…"
           aria-label="Search tasks"
-          className="w-full rounded-interactive border border-border bg-foreground py-1 pl-7 pr-2 text-xs text-texthard transition-colors placeholder:text-textsoft focus:border-neutral-900 focus:outline-none"
+          className="w-full rounded-interactive ring-1 ring-inset ring-border bg-foreground py-1 pl-7 pr-2 text-xs text-texthard transition-colors placeholder:text-textsoft focus:ring-accent focus:outline-none"
         />
       </div>
       <button
         type="button"
         onClick={() => openCreateTask(createIn)}
-        className="rounded-interactive border border-action bg-action px-2.5 py-1 text-xs text-foreground transition hover:brightness-95"
+        className="rounded-interactive bg-action px-2.5 py-1 text-xs text-foreground transition hover:brightness-95"
       >
         + task
       </button>
@@ -144,7 +144,7 @@ export function Backlog() {
       <div className="flex min-h-0 flex-1 flex-col">
         {/* Chips de filtres actifs (#210) : toujours visibles au-dessus du scroller. */}
         {hasFilters && (
-          <div className="shrink-0 border-b border-border bg-foreground">
+          <div className="shrink-0 bg-foreground shadow-[inset_0_-1px_0_var(--color-border)]">
             <div className="mx-auto flex max-w-3xl flex-wrap items-center gap-1.5 px-6 py-2">
               {typeFilter.map((k) => (
                 <RemovableChip key={`type:${k}`} label={typeLabel.get(k) ?? k} ariaLabel={`Remove type filter: ${typeLabel.get(k) ?? k}`}

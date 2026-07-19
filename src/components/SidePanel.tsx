@@ -96,9 +96,9 @@ export function SidePanel({
       role="dialog"
       aria-label={title}
       tabIndex={-1}
-      className="flex w-[380px] shrink-0 flex-col border-l border-border bg-foreground focus:outline-none"
+      className="flex w-[380px] shrink-0 flex-col shadow-[inset_1px_0_0_var(--color-border)] bg-foreground focus:outline-none"
     >
-      <header className="flex h-12 shrink-0 items-center justify-between border-b border-border px-4">
+      <header className="flex h-12 shrink-0 items-center justify-between shadow-[inset_0_-1px_0_var(--color-border)] px-4">
         <div className="flex min-w-0 items-center gap-2">
           {onBack && (
             <button

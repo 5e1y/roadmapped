@@ -33,7 +33,7 @@ export function MilestoneGlyph({ status }: { status: TaskNode['status'] }) {
   const label = { todo: 'milestone to reach', in_progress: 'milestone in progress', done: 'milestone reached' }[status]
   return (
     <svg
-      className={`shrink-0 ${status === 'in_progress' ? 'text-accent pulse-live' : 'text-texthard'}`}
+      className={`shrink-0 ${status === 'in_progress' ? 'text-accent pulse-live' : status === 'todo' ? 'text-textsoft' : 'text-texthard'}`}
       width="10"
       height="10"
       viewBox="0 0 10 10"
@@ -49,7 +49,7 @@ export function MilestoneGlyph({ status }: { status: TaskNode['status'] }) {
           <path d="M5 1.1 L1.1 5 L5 8.9 Z" fill="currentColor" />
         </>
       ) : (
-        <path d="M5 1.1 L8.9 5 L5 8.9 L1.1 5 Z" fill="none" stroke="var(--color-neutral-500)" strokeWidth="1" />
+        <path d="M5 1.1 L8.9 5 L5 8.9 L1.1 5 Z" fill="none" stroke="currentColor" strokeWidth="1" />
       )}
     </svg>
   )
@@ -64,7 +64,7 @@ export function EpicGlyph({ status }: { status: TaskNode['status'] }) {
   const label = { todo: 'epic not started', in_progress: 'epic in progress', done: 'epic done' }[status]
   return (
     <svg
-      className={`shrink-0 ${status === 'in_progress' ? 'text-accent pulse-live' : 'text-texthard'}`}
+      className={`shrink-0 ${status === 'in_progress' ? 'text-accent pulse-live' : status === 'todo' ? 'text-textsoft' : 'text-texthard'}`}
       width="10"
       height="10"
       viewBox="0 0 10 10"
@@ -80,7 +80,7 @@ export function EpicGlyph({ status }: { status: TaskNode['status'] }) {
           <rect x="1.5" y="1.5" width="3.5" height="7" fill="currentColor" />
         </>
       ) : (
-        <rect x="1.5" y="1.5" width="7" height="7" fill="none" stroke="var(--color-neutral-500)" strokeWidth="1" />
+        <rect x="1.5" y="1.5" width="7" height="7" fill="none" stroke="currentColor" strokeWidth="1" />
       )}
     </svg>
   )
@@ -97,7 +97,7 @@ export function StatusGlyph({ status }: { status: TaskNode['status'] }) {
   const label = { todo: 'todo', in_progress: 'in progress', done: 'done' }[status]
   return (
     <svg
-      className={`shrink-0 ${status === 'in_progress' ? 'text-accent pulse-live' : 'text-texthard'}`}
+      className={`shrink-0 ${status === 'in_progress' ? 'text-accent pulse-live' : status === 'todo' ? 'text-textsoft' : 'text-texthard'}`}
       width="10"
       height="10"
       viewBox="0 0 10 10"
@@ -113,7 +113,7 @@ export function StatusGlyph({ status }: { status: TaskNode['status'] }) {
           <path d="M5 1.25 A3.75 3.75 0 0 0 5 8.75 Z" fill="currentColor" />
         </>
       ) : (
-        <circle cx="5" cy="5" r="3.75" fill="none" stroke="var(--color-neutral-500)" strokeWidth="1" />
+        <circle cx="5" cy="5" r="3.75" fill="none" stroke="currentColor" strokeWidth="1" />
       )}
     </svg>
   )

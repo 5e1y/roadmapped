@@ -23,7 +23,7 @@ export function ThemePicker() {
       <Popover.Trigger
         aria-label={`Theme: ${THEME_LABELS[name]} (click to change)`}
         title="Theme"
-        className="flex items-center rounded-interactive border border-neutral-300 bg-foreground px-2 py-1 text-textsoft transition-colors hover:bg-rollover data-[popup-open]:bg-neutral-100 data-[popup-open]:text-texthard"
+        className="flex items-center rounded-interactive ring-1 ring-inset ring-border bg-foreground px-2 py-1 text-textsoft transition-colors hover:bg-rollover data-[popup-open]:bg-active data-[popup-open]:text-texthard"
       >
         <ColorPalette size={12} className="my-0.5" />
       </Popover.Trigger>
