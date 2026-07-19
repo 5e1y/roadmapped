@@ -69,7 +69,7 @@ export function KbView() {
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search nodes…"
           aria-label="Search knowledge base nodes"
-          className="w-48 rounded-interactive ring-1 ring-inset ring-border bg-foreground px-2.5 py-1 text-xs text-texthard placeholder:text-neutral-400 focus:ring-accent focus:outline-none"
+          className="w-48 rounded-interactive ring-1 ring-inset ring-border bg-foreground px-2.5 py-1 text-xs text-texthard placeholder:text-textsoft"
         />
         <FilterMenu
           allLabel="All communities"
