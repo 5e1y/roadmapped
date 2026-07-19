@@ -474,7 +474,7 @@ function GraphCard({ model, task, pos, dimmed, focused, onHoverChange }: NodeChr
       onPointerLeave={() => onHoverChange(false)}
       onFocus={(e) => { if (e.currentTarget.matches(':focus-visible')) onHoverChange(true) }}
       onBlur={() => onHoverChange(false)}
-      className={`absolute flex flex-col gap-1.5 px-3 py-2.5 text-left ${skin}`}
+      className={`absolute flex flex-col gap-1.5 overflow-hidden rounded-listitem px-3 py-2.5 text-left ${skin}`}
       style={{ left: pos.x, top: pos.y, width: pos.w, minHeight: pos.h }}>
       <div className="flex items-center gap-2">
         {state === 'locked'
@@ -539,7 +539,7 @@ function EpicGraphNode({ epic, pos, avail, dimmed, focused, onHoverChange }: Nod
   const pct = progress.total === 0 ? 0 : Math.round((progress.done / progress.total) * 100)
   return (
     <div
-      className={`absolute bg-foreground ring-1 ring-inset transition-colors ${focused ? 'ring-accent' : 'ring-border hover:bg-rollover'}`}
+      className={`absolute overflow-hidden rounded-listitem bg-foreground ring-1 ring-inset transition-colors ${focused ? 'ring-accent' : 'ring-border hover:bg-rollover'}`}
       style={{ left: pos.x, top: pos.y, width: pos.w }}
       onPointerEnter={() => onHoverChange(true)}
       onPointerLeave={() => onHoverChange(false)}

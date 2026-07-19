@@ -60,7 +60,11 @@
    *   Border     = filets, séparateurs, bordures de contrôle
    */
   --color-active: var(--color-accent-tint);
-  --color-rollover: var(--color-neutral-50);
+  /* Rollover = OVERLAY TRANSLUCIDE (#395, Rémi) : un neutral-50 OPAQUE est
+     invisible sur le fond Background (page grise). Un voile noir léger assombrit
+     ce qu'il y a dessous → le survol se voit sur la carte blanche ET sur la page
+     grise ET sur une carte déjà teintée. */
+  --color-rollover: rgb(0 0 0 / 0.045);
   --color-action: var(--color-accent);
   --color-foreground: var(--color-white);
   --color-background: var(--color-page);
@@ -107,6 +111,7 @@
 
   --color-accent: #3b82f6;        /* #2563eb ne tient que 3,5:1 sur la carte */
   --color-accent-tint: #1c2636;   /* accent 14 % dans la carte, OPAQUE (graphe) */
+  --color-rollover: rgb(255 255 255 / 0.06);  /* voile CLAIR en sombre (le noir n'y ferait rien) */
 
   --color-white: oklch(0.205 0 0);       /* carte #171717 */
   --color-page: oklch(0.168 0 0);        /* page ≈ #0f0f0f (sous la carte) */

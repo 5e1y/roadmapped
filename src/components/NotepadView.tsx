@@ -247,7 +247,7 @@ export function NotepadView() {
             <span className="text-base leading-none text-textsoft">+</span>
             New note
           </button>
-          <div className="rm-list min-h-0 flex-1 overflow-y-auto">
+          <div className="rm-list rm-nest min-h-0 flex-1 overflow-y-auto">
             {notes.map((n) => (
               <div
                 key={n.slug}

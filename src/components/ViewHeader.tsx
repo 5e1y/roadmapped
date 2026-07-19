@@ -132,7 +132,7 @@ export function FilterMenu({ allLabel, options, selected, onChange, multiple = f
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Positioner sideOffset={4} align="end" className="z-50">
-          <Popover.Popup className="w-56 overflow-hidden rounded-surface border border-border bg-foreground shadow-sm">
+          <Popover.Popup className="w-56 overflow-hidden rounded-interactive bg-foreground ring-1 ring-inset ring-border shadow-sm">
             {/* Hauteur bornée + scroll : 46 communautés ne doivent pas remplir
                 l'écran (#311). Le pied « Clear » reste ÉPINGLÉ sous la liste. */}
             <div className="max-h-[60vh] overflow-y-auto py-1">

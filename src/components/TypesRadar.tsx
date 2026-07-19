@@ -86,10 +86,10 @@ export function TypesRadar({ counts, selected, onSelect }: {
               top: `${50 + sin * 38}%`,
               transform: 'translate(-50%, -50%)',
             }}
-            className={`absolute flex items-center gap-1 whitespace-nowrap rounded-interactive border px-1.5 py-0.5 text-[11px] transition-colors ${
+            className={`absolute flex items-center gap-1 whitespace-nowrap rounded-interactive px-1.5 py-0.5 text-[11px] ring-1 ring-inset transition-colors ${
               active
-                ? 'border-accent bg-action font-medium text-texthard'
-                : 'border-border bg-foreground text-texthard hover:border-neutral-400 hover:text-neutral-900'
+                ? 'bg-active font-medium text-texthard ring-accent'
+                : 'bg-foreground text-texthard ring-border hover:bg-rollover'
             }`}
           >
             <Icon size={11} className={active ? 'text-accent' : 'text-textsoft'} />
