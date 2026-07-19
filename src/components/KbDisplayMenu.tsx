@@ -2,6 +2,7 @@ import { Popover } from '@base-ui/react/popover'
 import { SlidersHorizontal } from 'trinil-react'
 import { KB_SIM, type KbSimParams } from '../lib/kbSim'
 import { setKbSimOverrides, useKbSimOverrides } from '../state/kbSimParams'
+import { TogglePill } from './ui'
 
 /**
  * Panneau « Display » de la Knowledge base (#318) : les paramètres de la sim
@@ -71,9 +72,7 @@ export function KbDisplayMenu() {
       <Popover.Trigger
         aria-label="Display settings"
         title="Display settings — force simulation parameters (live)"
-        className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs transition-colors ${
-          dirty ? 'border-accent bg-accent-tint text-neutral-900' : 'border-neutral-300 bg-white text-neutral-600 hover:bg-neutral-100'
-        }`}
+        render={<TogglePill active={dirty} />}
       >
         <SlidersHorizontal size={12} />
         Display
