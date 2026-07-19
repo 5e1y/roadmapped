@@ -4,15 +4,21 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script>
-      // Anti-flash thème (#269) : pose data-theme AVANT le premier paint (sans lui,
-      // un rechargement en sombre flashe blanc). Inline + synchrone obligatoire.
-      // Miroir exact de resolveTheme() dans src/state/theme.ts.
+      // Anti-flash thème (#269, #394) : pose data-theme (mode) ET data-theme-name
+      // (palette) AVANT le premier paint (sans ça, un rechargement en sombre / sur un
+      // thème non-Roadmapped flashe la base claire). Inline + synchrone obligatoire.
+      // Miroir exact de resolveTheme()/resolveThemeName() dans src/state/theme.ts.
       (function () {
         var t = null
         try { t = localStorage.getItem('ui:theme') } catch (e) {}
         if (t !== 'dark' && t !== 'light')
           t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
         document.documentElement.dataset.theme = t
+        var n = null
+        try { n = localStorage.getItem('ui:theme-name') } catch (e) {}
+        // Roadmapped = base (pas de bloc CSS) → on ne pose l'attribut que pour les autres.
+        if (n === 'github' || n === 'cursor' || n === 'claude' || n === 'codex')
+          document.documentElement.dataset.themeName = n
       })()
     </script>
     <title>Roadmapped</title>

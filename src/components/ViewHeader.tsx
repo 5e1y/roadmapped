@@ -4,6 +4,7 @@ import { type ReactNode } from 'react'
 import { useTree } from '../state/TreeContext'
 import { UpdateNotice } from './UpdateNotice'
 import { ThemeToggle } from './ThemeToggle'
+import { ThemePicker } from './ThemePicker'
 import { TogglePill } from './ui'
 
 /**
@@ -60,8 +61,9 @@ export function ViewHeader({ meta, children }: {
         >
           <Bug size={12} className="my-0.5" />
         </a>
-        {/* Bascule clair/sombre (#269) : dernier élément du chrome d'app, avant
-            les contrôles propres à la vue (filtres, recherche, + task). */}
+        {/* Palette (#394) + bascule clair/sombre (#269) : deux axes de theming,
+            derniers éléments du chrome d'app avant les contrôles propres à la vue. */}
+        <ThemePicker />
         <ThemeToggle />
         {children}
       </div>
