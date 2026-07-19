@@ -49,7 +49,20 @@ const NODE_DRAG_THRESHOLD = 4
 const prefersReducedMotion = (): boolean =>
   typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches
 
-export function KbGraph({ graph, filters, query }: { graph: KbGraphData; filters: KbFilters; query: string }) {
+export function KbGraph({ graph, filters, query, onNodeClick: onNodeClickProp }: {
+  graph: KbGraphData
+  filters: KbFilters
+  query: string
+  /**
+   * #375 — override du CLIC sur un nœud. Non fourni (défaut, KbView) : ouvre
+   * l'inspecteur KbNodePanel (openKbNode) et centre la caméra — comportement
+   * historique INCHANGÉ. Fourni (Overview des tags) : REMPLACE ce comportement
+   * (un no-op par ex.) — un tag n'est pas un nœud de code, KbNodePanel n'aurait
+   * pas de sens ; à terme ce hook pourra poser un filtre tag→tickets. Le survol,
+   * le drag, le zoom/pan restent identiques dans les deux modes.
+   */
+  onNodeClick?: (id: string) => void
+}) {
   const { openKbNode, stack } = usePanel()
   // #320 — nœud SÉLECTIONNÉ (inspecteur KbNodePanel visible) : peint en accent
   // plein. En mode double panneau (#313) le kb-node est SOUS le task — kbNodeIdOf
@@ -164,8 +177,16 @@ export function KbGraph({ graph, filters, query }: { graph: KbGraphData; filters
   zpRef.current = zp
   // Un drag de nœud qui vient de finir ne doit PAS compter comme un clic.
   const justDraggedRef = useRef(false)
+  // Handler d'override tenu par ref : NodesLayer est mémoïsé, onNodeClick doit
+  // rester STABLE (une nouvelle identité de prop à chaque render ne doit pas le
+  // recréer). Défaut = comportement KbView (openKbNode + centrage).
+  const onNodeClickPropRef = useRef(onNodeClickProp)
+  onNodeClickPropRef.current = onNodeClickProp
   const onNodeClick = useCallback((id: string) => {
     if (justDraggedRef.current) return
+    // #375 — override fourni (Overview) : on NEUTRALISE l'ouverture de
+    // KbNodePanel et on délègue (no-op / futur filtre). KbView ne passe rien.
+    if (onNodeClickPropRef.current) { onNodeClickPropRef.current(id); return }
     openKbNode(id)
     const p = shownRef.current?.nodes.get(id)
     if (!p) return
