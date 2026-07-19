@@ -1,0 +1,48 @@
+id: 379
+title: Revue adversariale DS + spec d'ajustement — cohérence UI/design system sur TOUTE l'app
+status: done
+tags:
+  - ds
+  - ui
+  - audit
+  - spec
+heat: 80
+detail: >-
+  Revue adversariale (brief négatif : « le DSM est furieux, l'app est un bordel, aucune DA continue
+  »). 6 dimensions auditées en parallèle par des instances Fable, chacune sur TOUS les écrans
+  (Backlog, Overview, Roadmap, Dependencies, Graph, Activity, Docs, Notepad + rail + panneaux) : (1)
+  tokens/couleur/thème, (2) typo/espacement, (3) composants/primitives, (4) layout/shell/états, (5)
+  interaction/motion/a11y, (6) iconographie/langage visuel. Chaque finding avec fichier:ligne +
+  preuve (pas d'invention malgré le brief négatif). Livrable : docs/specs/ grosse spec d'ajustement
+  + epic de fixes + une page « Design System » dans l'app (raccourci clavier) pour que le DSM
+  contrôle/suive. Référence : docs/design.md (auditer l'adhérence ET les trous de design.md
+  lui-même).
+refs:
+  - docs/design.md
+  - src/components
+links: []
+dependsOn: []
+epic: ds-consistency
+source: ai
+createdAt: "2026-07-19T12:37:29"
+startedAt: "2026-07-19T12:37:29"
+updatedAt: "2026-07-19T13:02:14"
+completedAt: "2026-07-19T13:02:14"
+commit: 998c576
+outcome: >-
+  Revue adversariale DS sur TOUTE l'app, 7 dimensions Fable (tokens, typo, composants, layout,
+  interaction, iconographie + 7e passe langage-de-forme demandée par Rémi). 7 rapports persistés
+  dans docs/ds-review-2026-07/, synthèse dans docs/specs/2026-07-19-ds-consistency.md. Verdict : le
+  brief « aucune DA » est exagéré — socle solide (tokens/thème/tri-couche/glyphes/kit
+  ui.tsx/focus/reduced-motion), désordre à la couche au-dessus. Finding transversal (3 agents) :
+  langage actif éclaté en 4 variantes vs 1 promise §3.2. Axe DA sémantique (Rémi) : doctrine de
+  forme EXISTE (rayon=strate, pas interactivité, ~90% suivie) ; langage de sélection propagé sur 7
+  surfaces, s'arrête aux 2 vues récentes (Overview PreviewRow + Activity EntryRow — les exemples de
+  Rémi, confirmés one-liners). 1 BLOQUANT a11y (nœuds KB souris-seule). 9 chantiers C0-C9 dont page
+  Design System à raccourci clavier.
+verification: >-
+  Chaque agent a démontré fichier:ligne (garde-fou anti-invention malgré le brief négatif) et listé
+  le sain. Exemple Rémi vérifié à la main : TaskRow.tsx:64/73 (bg-accent-tint + barre inset piloté
+  par isOpenInPanel) vs OverviewView PreviewRow (hover seul, commentaire « même contrat » faux).
+  Doctrine strate confirmée dans design.md:43-51.
+release: 0.2.3
