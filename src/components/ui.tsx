@@ -2,7 +2,7 @@ import { Select as BaseSelect } from '@base-ui/react/select'
 import { Input as BaseInput } from '@base-ui/react/input'
 import { Combobox } from '@base-ui/react/combobox'
 import { Toast } from '@base-ui/react/toast'
-import { useEffect, useRef, useState, type ComponentProps, type KeyboardEvent } from 'react'
+import { forwardRef, useEffect, useRef, useState, type ComponentProps, type KeyboardEvent } from 'react'
 import { Check, ChevronDown, Cross, Plus, Warning } from 'trinil-react'
 import { KindGlyph } from './glyphs'
 
@@ -19,6 +19,45 @@ import { KindGlyph } from './glyphs'
 export const CURRENT_ROW = 'bg-accent-tint shadow-[inset_2px_0_0_var(--color-accent)]'
 export const rowStateClass = (isCurrent: boolean) =>
   isCurrent ? CURRENT_ROW : 'hover:bg-neutral-50'
+
+/**
+ * Langage « contrôle ENCLENCHÉ/actif » (design.md §3.2, registre « pill bordée »,
+ * décision #311) — source UNIQUE des toggles / filtres / bascules. À NE PAS
+ * confondre avec le registre « ligne courante » ci-dessus (rowStateClass /
+ * CURRENT_ROW, #380) : celui-là décore une RANGÉE sélectionnée ; celui-ci un
+ * CONTRÔLE que l'on presse pour l'enclencher.
+ *
+ * Dialecte canonique (le plus riche, le plus utilisé) :
+ *   repos  → bord neutral-300 + fond blanc + encre 600, survol neutral-100
+ *   ACTIF  → bord accent + fond accent-tint + font-medium + encre 900
+ * Rayon 4px (`rounded`) = « contrôle du corps » de la doctrine strate (design.md
+ * §1). Focus-visible hérité du :focus-visible global (index.css).
+ *
+ * Se compose comme trigger de Popover via `render={<TogglePill active=… />}` :
+ * Base UI fusionne ses props (onClick, aria-expanded, ref) sur le <button>.
+ */
+const togglePillCls = (active: boolean) =>
+  `flex items-center gap-1.5 rounded border px-2.5 py-1 text-xs transition-colors ${
+    active
+      ? 'border-accent bg-accent-tint font-medium text-neutral-900'
+      : 'border-neutral-300 bg-white text-neutral-600 hover:bg-neutral-100'
+  }`
+
+export const TogglePill = forwardRef<HTMLButtonElement, ComponentProps<'button'> & { active: boolean }>(
+  function TogglePill({ active, className, children, ...rest }, ref) {
+    return (
+      <button
+        type="button"
+        {...rest}
+        ref={ref}
+        aria-pressed={active}
+        className={`${togglePillCls(active)}${className ? ` ${className}` : ''}`}
+      >
+        {children}
+      </button>
+    )
+  },
+)
 
 // Bordure neutral-300 conservée (design.md §2, option douce de l'audit #108) :
 // le champ se différencie du fond par bg-neutral-50 au repos, blanc au focus.
