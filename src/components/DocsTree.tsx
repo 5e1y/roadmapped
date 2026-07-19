@@ -19,7 +19,7 @@ export function DocsTree({
   depth?: number
 }) {
   return (
-    <ul className={depth > 0 ? 'rm-list rm-nest' : 'rm-list'}>
+    <ul className="rm-list rm-nest">
       {nodes.map((node) => (
         <li key={node.path} className="rm-list-item">
           {node.children ? (

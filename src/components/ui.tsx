@@ -137,7 +137,7 @@ export function TreeStateGuard({ detail = false, children }: { detail?: boolean;
 // 2px accent — indicateur de focus UNIQUE partagé par tous les cousins (ghost,
 // Select, Combobox). Aucune largeur DOM (ring = box-shadow).
 export const fieldCls =
-  'w-full rounded-interactive bg-background px-2 py-1.5 text-sm text-texthard ring-1 ring-inset ring-border transition focus:bg-foreground focus:outline-none focus:ring-2 focus:ring-accent disabled:bg-background disabled:text-textsoft'
+  'w-full rounded-interactive bg-background px-2 py-1.5 text-sm text-texthard ring-1 ring-inset ring-border transition focus:bg-foreground disabled:bg-background disabled:text-textsoft'
 
 /**
  * Peau « ghost » (décision Rémi 2026-07-07) : l'élément éditable est un input
@@ -146,7 +146,7 @@ export const fieldCls =
  * d'index.css). Jamais de swap lecture→input, jamais d'étape crayon.
  */
 export const ghostCls =
-  'w-full rounded-interactive bg-transparent px-1.5 py-1 text-texthard transition-colors hover:bg-rollover focus:ring-2 focus:ring-inset focus:ring-accent focus:bg-foreground focus:outline-none disabled:text-textsoft disabled:hover:bg-transparent'
+  'w-full rounded-interactive bg-transparent px-1.5 py-1 text-texthard transition-colors hover:bg-rollover focus:bg-foreground disabled:text-textsoft disabled:hover:bg-transparent'
 
 /**
  * Boutons canoniques des panneaux (design.md §2) — source unique :
@@ -389,7 +389,7 @@ export function Select({
     >
       <BaseSelect.Trigger
         aria-label={ariaLabel}
-        className={`${ghost ? `${ghostCls} text-sm` : compact ? 'w-full rounded-interactive bg-foreground px-2.5 py-1 text-xs text-texthard ring-1 ring-inset ring-border transition-shadow focus:outline-none focus:ring-2 focus:ring-accent' : fieldCls} flex items-center justify-between gap-2 text-left data-[disabled]:opacity-60 data-[disabled]:text-textsoft ${ghost ? 'data-[disabled]:bg-transparent' : ''}`}
+        className={`${ghost ? `${ghostCls} text-sm` : compact ? 'w-full rounded-interactive bg-foreground px-2.5 py-1 text-xs text-texthard ring-1 ring-inset ring-border transition-shadow' : fieldCls} flex items-center justify-between gap-2 text-left data-[disabled]:opacity-60 data-[disabled]:text-textsoft ${ghost ? 'data-[disabled]:bg-transparent' : ''}`}
       >
         <BaseSelect.Value />
         <BaseSelect.Icon className="shrink-0 text-textsoft">

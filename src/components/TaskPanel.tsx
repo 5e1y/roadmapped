@@ -804,7 +804,7 @@ function TaskPanelBody({ id }: { id: number }) {
               e.currentTarget.value = ''
               if (!task.refs.includes(v)) void save('refs', true, { refs: [...task.refs, v] })
             }}
-            className="font-mono text-xs"
+            className="text-sm"
           />
         </div>
         <FieldError errs={errors.refs} />
