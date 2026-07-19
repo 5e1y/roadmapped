@@ -28,14 +28,14 @@ export function KbNodePanel({ nodeId }: { nodeId: string }) {
   }, [tree, graph, nodeId])
 
   if (!graph || !node) {
-    return <p className="text-sm text-neutral-500">Node not found (the graph may have changed).</p>
+    return <p className="text-sm text-textsoft">Node not found (the graph may have changed).</p>
   }
 
   return (
     <div className="flex min-h-full flex-col gap-5">
       <div className="flex flex-col gap-1.5">
-        <h2 className="text-base font-semibold leading-snug tracking-tight text-neutral-900">{node.label}</h2>
-        <div className="flex items-center gap-2 text-[11px] text-neutral-500">
+        <h2 className="text-base font-semibold leading-snug tracking-tight text-texthard">{node.label}</h2>
+        <div className="flex items-center gap-2 text-[11px] text-textsoft">
           <span className="font-mono">{node.fileType}</span>
           {node.community >= 0 && <span className="font-mono">community {node.community}</span>}
         </div>
@@ -44,7 +44,7 @@ export function KbNodePanel({ nodeId }: { nodeId: string }) {
       {/* Fichier source : cliquable (code → reveal, doc → Vue Docs). */}
       {node.sourceFile && (
         <div className="flex flex-col gap-0.5">
-          <div className="px-1.5 text-[11px] font-medium text-neutral-500">Source</div>
+          <div className="px-1.5 text-[11px] font-medium text-textsoft">Source</div>
           <button
             type="button"
             onClick={() => openKbNodeSource(node, root, close)}
@@ -60,16 +60,16 @@ export function KbNodePanel({ nodeId }: { nodeId: string }) {
       {/* Rationale (le POURQUOI, quand Graphify l'a attaché sur un nœud de doc). */}
       {node.rationale && (
         <div className="flex flex-col gap-0.5">
-          <div className="px-1.5 text-[11px] font-medium text-neutral-500">Rationale</div>
-          <p className="px-1.5 text-sm text-neutral-700">{node.rationale}</p>
+          <div className="px-1.5 text-[11px] font-medium text-textsoft">Rationale</div>
+          <p className="px-1.5 text-sm text-texthard">{node.rationale}</p>
         </div>
       )}
 
       {/* Tickets touching this — index inverse kbLink. */}
       <div className="flex flex-col gap-1">
-        <div className="px-1.5 text-[11px] font-medium text-neutral-500">Tickets touching this</div>
+        <div className="px-1.5 text-[11px] font-medium text-textsoft">Tickets touching this</div>
         {tickets.length === 0 ? (
-          <p className="px-1.5 text-xs text-neutral-500">No ticket references this file.</p>
+          <p className="px-1.5 text-xs text-textsoft">No ticket references this file.</p>
         ) : (
           <div className="flex flex-col">
             {tickets.map((id) => {
@@ -79,11 +79,11 @@ export function KbNodePanel({ nodeId }: { nodeId: string }) {
                   key={id}
                   type="button"
                   onClick={() => openTask(id)}
-                  className="flex min-w-0 items-center gap-2 px-1.5 py-1 text-left text-sm hover:bg-neutral-100"
+                  className="flex min-w-0 items-center gap-2 px-1.5 py-1 text-left text-sm hover:bg-rollover"
                 >
                   {t && <KindGlyph task={t} />}
-                  <span className="shrink-0 font-mono text-xs text-neutral-500">#{id}</span>
-                  <span className={`min-w-0 truncate ${t?.status === 'done' ? 'text-neutral-500 line-through' : 'text-neutral-800'}`}>
+                  <span className="shrink-0 font-mono text-xs text-textsoft">#{id}</span>
+                  <span className={`min-w-0 truncate ${t?.status === 'done' ? 'text-textsoft line-through' : 'text-neutral-800'}`}>
                     {t ? t.title : '(introuvable)'}
                   </span>
                 </button>

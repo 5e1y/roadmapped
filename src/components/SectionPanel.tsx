@@ -23,7 +23,7 @@ const SECTION_STATUS_ITEMS: SelectItem[] = [
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="flex flex-col gap-1">
-      <span className="text-[11px] font-medium text-neutral-500">{label}</span>
+      <span className="text-[11px] font-medium text-textsoft">{label}</span>
       {children}
     </label>
   )
@@ -160,7 +160,7 @@ function SectionPanelBody({ dir }: { dir: string }) {
   const [errors, setErrors] = useState<Record<string, string[]>>({})
   const [savedField, setSavedField] = useState<string | null>(null)
   const section = tree?.sections.find((s) => s.key === dir)
-  if (!section) return <p className="text-sm text-neutral-500">Section not found.</p>
+  if (!section) return <p className="text-sm text-textsoft">Section not found.</p>
   const sectionPath = `docs/tasks/${dir}`
 
   const flash = (field: string) => {
@@ -206,7 +206,7 @@ function SectionPanelBody({ dir }: { dir: string }) {
         <FieldError errs={errors.status} />
         {/* Titre canonique (lecture seule) — même typo que le titre de tâche,
             même retrait px-1.5 que les champs ghost. */}
-        <h3 className="px-1.5 py-1 text-base font-semibold leading-snug tracking-tight text-neutral-900">
+        <h3 className="px-1.5 py-1 text-base font-semibold leading-snug tracking-tight text-texthard">
           {section.title}
         </h3>
       </div>
@@ -214,7 +214,7 @@ function SectionPanelBody({ dir }: { dir: string }) {
       {/* Note : textarea ghost permanente (jamais de swap), sauvegarde au blur. */}
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
-          <div className="px-1.5 text-[11px] font-medium text-neutral-500">Note</div>
+          <div className="px-1.5 text-[11px] font-medium text-textsoft">Note</div>
           <SavedTick show={savedField === 'note'} />
         </div>
         <GhostAutoTextArea
@@ -233,8 +233,8 @@ function SectionPanelBody({ dir }: { dir: string }) {
       </div>
 
       {/* Pied : le chemin technique, relégué ici (audit UX — même place que TaskPanel). */}
-      <div className="mt-auto border-t border-neutral-200 pt-3">
-        <div className="truncate font-mono text-[11px] text-neutral-500" title={sectionPath}>{sectionPath}</div>
+      <div className="mt-auto border-t border-border pt-3">
+        <div className="truncate font-mono text-[11px] text-textsoft" title={sectionPath}>{sectionPath}</div>
       </div>
     </div>
   )

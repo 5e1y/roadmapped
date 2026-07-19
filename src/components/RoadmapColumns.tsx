@@ -14,7 +14,7 @@ import type { SectionNode, TaskNode } from '../lib/tasks'
 function ProgressBar({ done, total }: { done: number; total: number }) {
   const pct = total === 0 ? 0 : Math.round((done / total) * 100)
   return (
-    <div className="h-1 w-full overflow-hidden rounded-full bg-neutral-200">
+    <div className="h-1 w-full overflow-hidden rounded-round bg-neutral-200">
       <div className="h-full bg-accent" style={{ width: `${pct}%` }} />
     </div>
   )
@@ -40,10 +40,10 @@ function TaskCard({ task, state, missing, blocksCount = 0 }: { task: TaskNode; s
   // Sélection = même langage que le Backlog (fond accent + filet gauche) ;
   // les disponibles n'ont PLUS de contour fort (décision Rémi batch 2).
   const skin = isOpenInPanel
-    ? 'border border-neutral-200 bg-accent-tint shadow-[inset_2px_0_0_var(--color-accent)]'
-    : 'border border-neutral-200 bg-white transition-colors hover:z-10 hover:border-neutral-400'
+    ? 'border border-border bg-active shadow-[inset_2px_0_0_var(--color-accent)]'
+    : 'border border-border bg-foreground transition-colors hover:z-10 hover:border-neutral-400'
   const dim = state === 'done' || state === 'locked'
-  const titleCls = task.status === 'done' ? 'text-neutral-500 line-through' : dim ? 'text-neutral-500' : 'text-neutral-900'
+  const titleCls = task.status === 'done' ? 'text-textsoft line-through' : dim ? 'text-textsoft' : 'text-texthard'
   const subs = task.subtasks.length > 0 ? countTasksDeep(task.subtasks) : null
   const temp = rowTemperature(task)
   return (
@@ -53,10 +53,10 @@ function TaskCard({ task, state, missing, blocksCount = 0 }: { task: TaskNode; s
       <div className="flex items-start gap-2">
         <span className="flex h-5 shrink-0 items-center">
           {state === 'locked'
-            ? <LockLocked size={11} className="shrink-0 text-neutral-500" ariaLabel="Locked" />
+            ? <LockLocked size={11} className="shrink-0 text-textsoft" ariaLabel="Locked" />
             : <KindGlyph task={task} />}
         </span>
-        <span className="shrink-0 font-mono text-xs leading-5 text-neutral-500">#{task.id}</span>
+        <span className="shrink-0 font-mono text-xs leading-5 text-textsoft">#{task.id}</span>
         <span className={`min-w-0 line-clamp-2 text-sm ${titleCls}`}>
           {task.title}
         </span>
@@ -65,18 +65,18 @@ function TaskCard({ task, state, missing, blocksCount = 0 }: { task: TaskNode; s
           + ligne d'état. Les cartes done n'affichent plus de chips (le détail
           vit dans le panneau) — cohérence entre états et avec le Graphe. */}
       {state === 'locked' ? (
-        <span className="text-[11px] text-neutral-500">
+        <span className="text-[11px] text-textsoft">
           Missing prerequisites{missing.length ? ` (${missing.map((d) => `#${d}`).join(' ')})` : ''}
         </span>
       ) : state === 'available' ? (
-        <span className="text-[11px] font-medium text-neutral-700">Available</span>
+        <span className="text-[11px] font-medium text-texthard">Available</span>
       ) : null}
       {subs && (
-        <span className="font-mono text-[11px] text-neutral-500">{subs.done}/{subs.total} subtasks</span>
+        <span className="font-mono text-[11px] text-textsoft">{subs.done}/{subs.total} subtasks</span>
       )}
       {/* Jalon (#133) : le poids du verrou — combien de tâches ce diamant retient. */}
       {task.kind === 'milestone' && blocksCount > 0 && (
-        <span className="text-[11px] text-neutral-500">blocks {blocksCount}</span>
+        <span className="text-[11px] text-textsoft">blocks {blocksCount}</span>
       )}
       {/* Température (#235) — coin bas droit, l'emplacement exact de l'ex-chip team. */}
       {temp && <span className="absolute bottom-1.5 right-2"><TempBadge t={temp} /></span>}
@@ -119,9 +119,9 @@ function Column({ section, scope, open, done, avail, blocksOf }: {
       {/* bg-page (pas neutral-50) : le header colle sur la PAGE — depuis le split
           page/neutral-50 (#269), neutral-50 est plus clair que la page en sombre
           et dessinait une bande. En clair les deux valent ~#fafafa. */}
-      <div className="group sticky top-0 z-20 flex items-baseline justify-between gap-2 bg-page pb-0.5 pt-5">
+      <div className="group sticky top-0 z-20 flex items-baseline justify-between gap-2 bg-background pb-0.5 pt-5">
         <span
-          className={`min-w-0 truncate text-sm font-semibold tracking-tight ${empty ? 'text-neutral-500' : 'text-neutral-900'}`}
+          className={`min-w-0 truncate text-sm font-semibold tracking-tight ${empty ? 'text-textsoft' : 'text-texthard'}`}
           title={section.title}
         >
           {section.title}
@@ -135,20 +135,20 @@ function Column({ section, scope, open, done, avail, blocksOf }: {
             aria-label={`Edit section ${section.title}`}
             title="Edit section"
             onClick={() => openSection(section.key)}
-            className="rounded p-1 text-neutral-500 opacity-0 transition-opacity hover:bg-neutral-200 hover:text-neutral-700 focus-visible:opacity-100 group-hover:opacity-100"
+            className="rounded-interactive p-1 text-textsoft opacity-0 transition-opacity hover:bg-neutral-200 hover:text-texthard focus-visible:opacity-100 group-hover:opacity-100"
           >
             <EditPen size={12} />
           </button>
           {statusLabel && !empty && <Chip label={statusLabel} />}
           {/* Compteur porteur de sens même à 0/0 : plancher neutral-500 (audit #108). */}
-          <span className="font-mono text-xs text-neutral-500">{doneCount}/{total}</span>
+          <span className="font-mono text-xs text-textsoft">{doneCount}/{total}</span>
         </span>
       </div>
       {/* Type vide = estompé : ni note ni barre, l'espace va aux types peuplés.
           Note CLAMPÉE à 2 lignes (#246) : une note longue gonflait la rangée
           subgrid de TOUTES les colonnes — l'intégrale vit dans le title. */}
       {section.note && !empty ? (
-        <p className="line-clamp-2 text-xs leading-relaxed text-neutral-500" title={section.note}>{section.note}</p>
+        <p className="line-clamp-2 text-xs leading-relaxed text-textsoft" title={section.note}>{section.note}</p>
       ) : (
         <div aria-hidden />
       )}
@@ -168,7 +168,7 @@ function Column({ section, scope, open, done, avail, blocksOf }: {
           <Collapsible.Root open={doneOpen} onOpenChange={setDoneOpen}>
             <Collapsible.Trigger
               title={doneOpen ? 'Fold the completed tasks of this column' : 'Unfold the completed tasks of this column'}
-              className="-mt-px flex w-full items-center gap-1.5 border border-neutral-200 bg-white px-3 py-1.5 text-left text-xs text-neutral-500 hover:bg-neutral-50 hover:text-neutral-700"
+              className="-mt-px flex w-full items-center gap-1.5 border border-border bg-foreground px-3 py-1.5 text-left text-xs text-textsoft hover:bg-rollover hover:text-texthard"
             >
               <Chevron />
               {done.length} done

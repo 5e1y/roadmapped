@@ -79,16 +79,16 @@ export function KbDisplayMenu() {
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Positioner sideOffset={4} align="end" className="z-50">
-          <Popover.Popup className="w-64 overflow-hidden rounded-md border border-neutral-200 bg-white shadow-sm">
+          <Popover.Popup className="w-64 overflow-hidden rounded-surface border border-border bg-foreground shadow-sm">
             <div className="max-h-[60vh] overflow-y-auto px-3 py-2">
               {SLIDERS.map((s) => {
                 const cur = overrides[s.key] ?? KB_SIM[s.key]
                 const ui = s.fromParam ? s.fromParam(cur) : cur
                 return (
                   <label key={s.key} className="block py-1.5">
-                    <span className="flex items-baseline justify-between gap-2 text-xs text-neutral-600">
+                    <span className="flex items-baseline justify-between gap-2 text-xs text-textsoft">
                       <span>{s.label}</span>
-                      <span className="font-mono text-[11px] text-neutral-500">{s.fmt(ui)}</span>
+                      <span className="font-mono text-[11px] text-textsoft">{s.fmt(ui)}</span>
                     </span>
                     <input
                       type="range"
@@ -108,7 +108,7 @@ export function KbDisplayMenu() {
               type="button"
               onClick={() => setKbSimOverrides({})}
               disabled={!dirty}
-              className="flex w-full border-t border-neutral-100 px-3 py-1.5 text-left text-xs text-neutral-500 transition-colors enabled:hover:bg-neutral-100 enabled:hover:text-neutral-700 disabled:text-neutral-400"
+              className="flex w-full border-t border-neutral-100 px-3 py-1.5 text-left text-xs text-textsoft transition-colors enabled:hover:bg-rollover enabled:hover:text-neutral-700 disabled:text-neutral-400"
             >
               Reset defaults
             </button>

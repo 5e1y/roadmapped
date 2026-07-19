@@ -75,15 +75,15 @@ function ReleaseSection({ release, items, tree, defaultOpen, filtered = false }:
     <Collapsible.Root open={open} onOpenChange={setOpen}>
       <div
         data-panel-open={open ? '' : undefined}
-        className="relative flex w-full items-center gap-2 px-4 py-1.5 text-sm hover:bg-neutral-50"
+        className="relative flex w-full items-center gap-2 px-4 py-1.5 text-sm hover:bg-rollover"
       >
         <Collapsible.Trigger
           aria-label={`Release ${release} — ${count} done`}
           className="absolute inset-0 h-full w-full"
         />
         <Chevron />
-        <span className="pointer-events-none min-w-0 truncate font-medium text-neutral-700">{release}</span>
-        <span aria-hidden className="pointer-events-none ml-auto shrink-0 font-mono text-[11px] text-neutral-500">
+        <span className="pointer-events-none min-w-0 truncate font-medium text-texthard">{release}</span>
+        <span aria-hidden className="pointer-events-none ml-auto shrink-0 font-mono text-[11px] text-textsoft">
           {count}
         </span>
       </div>
@@ -146,7 +146,7 @@ export function TaskList({ open, done, tree, filtered }: {
   return (
     <div className="flex flex-col gap-8">
       <section>
-        <h2 className="mb-2 flex items-baseline justify-between px-1 text-xs font-medium text-neutral-500">
+        <h2 className="mb-2 flex items-baseline justify-between px-1 text-xs font-medium text-textsoft">
           <span>To do — hottest first</span>
           <span className="font-mono text-[11px]">{open.length}</span>
         </h2>
@@ -156,14 +156,14 @@ export function TaskList({ open, done, tree, filtered }: {
             bien un item à rendre. Garder open.length faisait « Nothing open »
             malgré un match. */}
         {openItems.length === 0 ? empty('Nothing open') : (
-          <div className="divide-y divide-neutral-100 border border-neutral-200 bg-white">
+          <div className="divide-y divide-neutral-100 border border-border bg-foreground">
             {visible.map((i) => <ListItemRow key={keyOf(i)} item={i} tree={tree} filtered={filtered} />)}
             {hidden > 0 && (
               <button
                 ref={toggleRef}
                 type="button"
                 onClick={() => toggleShowAll(true)}
-                className="w-full px-4 py-2.5 text-center text-xs text-neutral-500 hover:bg-neutral-50 hover:text-neutral-700"
+                className="w-full px-4 py-2.5 text-center text-xs text-textsoft hover:bg-rollover hover:text-texthard"
               >
                 Show {hidden} more
               </button>
@@ -173,7 +173,7 @@ export function TaskList({ open, done, tree, filtered }: {
                 ref={toggleRef}
                 type="button"
                 onClick={() => toggleShowAll(false)}
-                className="w-full px-4 py-2.5 text-center text-xs text-neutral-500 hover:bg-neutral-50 hover:text-neutral-700"
+                className="w-full px-4 py-2.5 text-center text-xs text-textsoft hover:bg-rollover hover:text-texthard"
               >
                 Show less
               </button>
@@ -182,7 +182,7 @@ export function TaskList({ open, done, tree, filtered }: {
         )}
       </section>
       <section>
-        <h2 className="mb-2 flex items-baseline justify-between px-1 text-xs font-medium text-neutral-500">
+        <h2 className="mb-2 flex items-baseline justify-between px-1 text-xs font-medium text-textsoft">
           <span>Done — most recently completed first</span>
           <span className="font-mono text-[11px]">{done.length}</span>
         </h2>
@@ -190,7 +190,7 @@ export function TaskList({ open, done, tree, filtered }: {
             les done d'epics COMPLETS y vivent, `done` brut peut en contenir qui
             partent côté ouvert (epic incomplet). */}
         {doneItems.length === 0 ? empty('Nothing done yet') : (
-          <div className="divide-y divide-neutral-100 border border-neutral-200 bg-white">
+          <div className="divide-y divide-neutral-100 border border-border bg-foreground">
             {releaseGroups.map((g, idx) => (
               <ReleaseSection key={g.release} release={g.release} items={g.items} tree={tree} defaultOpen={idx === 0} filtered={filtered} />
             ))}

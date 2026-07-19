@@ -93,53 +93,53 @@ export function TaskRow({ task }: { task: TaskNode }) {
           className="flex min-w-0 flex-1 items-center gap-2 py-2.5 text-left"
         >
           {locked
-            ? <LockLocked size={11} className="shrink-0 text-neutral-500" ariaLabel="Locked" />
+            ? <LockLocked size={11} className="shrink-0 text-textsoft" ariaLabel="Locked" />
             : <KindGlyph task={task} />}
           {/* Badge NEW/non-lu (#147, Live 5) : point accent sur un ticket apparu ou
               changé depuis la dernière lecture ; retiré à l'ouverture du panneau. */}
           {isNew(task) && (
             <span
-              className="size-1.5 shrink-0 rounded-full bg-accent"
+              className="size-1.5 shrink-0 rounded-round bg-accent"
               role="status"
               aria-label="New or updated since you last viewed it"
             />
           )}
-          <span className="shrink-0 font-mono text-xs text-neutral-500">#{task.id}</span>
+          <span className="shrink-0 font-mono text-xs text-textsoft">#{task.id}</span>
           {/* Une ligne STRICTE (pattern Linear) : le titre tronque (tooltip natif),
               les chips restent ancrés à droite. Familles différenciées (cf.
               Chip.tsx), tags en texte léger plafonnés à 3 (+n), source retiré —
               le détail complet vit dans le panneau. */}
           <span
             title={task.title}
-            className={`min-w-0 truncate ${isDone ? 'text-neutral-500 line-through' : 'text-neutral-900'}`}
+            className={`min-w-0 truncate ${isDone ? 'text-textsoft line-through' : 'text-texthard'}`}
           >
             {task.title}
           </span>
           <span className="ml-auto flex shrink-0 items-center gap-1.5">
             {/* Liste une-colonne : la date de bouclage passe sur la ligne. */}
             {task.completedAt && (
-              <span className="font-mono text-[11px] text-neutral-500" title={absoluteDate(task.completedAt)}>{relativeTime(task.completedAt)}</span>
+              <span className="font-mono text-[11px] text-textsoft" title={absoluteDate(task.completedAt)}>{relativeTime(task.completedAt)}</span>
             )}
             {openFeedback > 0 && (
-              <span className="text-[11px] text-neutral-500" title={`${openFeedback} open feedback item(s)`}>
+              <span className="text-[11px] text-textsoft" title={`${openFeedback} open feedback item(s)`}>
                 feedback {openFeedback}
               </span>
             )}
             {hasSubs && (
-              <span className="font-mono text-[11px] text-neutral-500">
+              <span className="font-mono text-[11px] text-textsoft">
                 {subDone}/{task.subtasks.length}
               </span>
             )}
             {blocksCount > 0 && (
-              <span className="text-[11px] text-neutral-500" title={`This milestone locks ${blocksCount} task(s) via dependsOn`}>
+              <span className="text-[11px] text-textsoft" title={`This milestone locks ${blocksCount} task(s) via dependsOn`}>
                 blocks {blocksCount}
               </span>
             )}
             {task.tags.slice(0, 3).map((t) => (
-              <span key={t} className="text-[11px] text-neutral-500">#{t}</span>
+              <span key={t} className="text-[11px] text-textsoft">#{t}</span>
             ))}
             {task.tags.length > 3 && (
-              <span className="text-[11px] text-neutral-500" title={task.tags.slice(3).join(', ')}>
+              <span className="text-[11px] text-textsoft" title={task.tags.slice(3).join(', ')}>
                 +{task.tags.length - 3}
               </span>
             )}
@@ -149,7 +149,7 @@ export function TaskRow({ task }: { task: TaskNode }) {
       </div>
       {hasSubs && (
         <Collapsible.Panel>
-          <div className="ml-9 divide-y divide-neutral-100 border-l border-neutral-200">
+          <div className="ml-9 divide-y divide-neutral-100 border-l border-border">
             {task.subtasks.map((sub) => (
               <TaskRow key={sub.id} task={sub} />
             ))}

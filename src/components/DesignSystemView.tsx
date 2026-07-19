@@ -69,10 +69,10 @@ function useTokenValues(names: readonly string[]): Record<string, string> {
 /** Carte tri-couche (surface #ffffff, filet neutral-200, carrée = surface, design.md §1). */
 function Section({ title, source, children }: { title: string; source: string; children: ReactNode }) {
   return (
-    <section className="border border-neutral-200 bg-white p-5">
+    <section className="border border-border bg-foreground p-5">
       <div className="mb-4 flex items-baseline justify-between gap-3">
-        <h2 className="text-sm font-semibold tracking-tight text-neutral-900">{title}</h2>
-        <span className="shrink-0 font-mono text-[11px] text-neutral-500">{source}</span>
+        <h2 className="text-sm font-semibold tracking-tight text-texthard">{title}</h2>
+        <span className="shrink-0 font-mono text-[11px] text-textsoft">{source}</span>
       </div>
       {children}
     </section>
@@ -81,7 +81,7 @@ function Section({ title, source, children }: { title: string; source: string; c
 
 /** La règle en une phrase, sous les éléments vivants (le « pourquoi » du bloc). */
 function Legend({ children }: { children: ReactNode }) {
-  return <p className="mt-4 text-xs leading-relaxed text-neutral-500">{children}</p>
+  return <p className="mt-4 text-xs leading-relaxed text-textsoft">{children}</p>
 }
 
 // ── Couleurs / tokens ────────────────────────────────────────────────────────
@@ -110,14 +110,14 @@ function ColorsSection() {
         {COLOR_TOKENS.map((token) => (
           <div key={token} className="flex items-center gap-3">
             <span
-              className="size-9 shrink-0 border border-neutral-200"
+              className="size-9 shrink-0 border border-border"
               style={{ backgroundColor: `var(${token})` }}
               aria-hidden="true"
             />
             <div className="min-w-0">
-              <div className="truncate font-mono text-[11px] text-neutral-900">{token.replace('--color-', '')}</div>
-              <div className="truncate font-mono text-[11px] text-neutral-500">{values[token] || '—'}</div>
-              <div className="truncate text-[11px] text-neutral-500">{COLOR_ROLES[token]}</div>
+              <div className="truncate font-mono text-[11px] text-texthard">{token.replace('--color-', '')}</div>
+              <div className="truncate font-mono text-[11px] text-textsoft">{values[token] || '—'}</div>
+              <div className="truncate text-[11px] text-textsoft">{COLOR_ROLES[token]}</div>
             </div>
           </div>
         ))}
@@ -149,9 +149,9 @@ function TypographySection() {
       <div className="flex flex-col divide-y divide-neutral-200">
         {TYPE_LEVELS.map((lvl) => (
           <div key={lvl.name} className="flex items-baseline gap-4 py-2">
-            <span className="w-24 shrink-0 font-mono text-[11px] text-neutral-500">{lvl.name}</span>
-            <span className={`min-w-0 flex-1 truncate text-neutral-900 ${lvl.cls}`}>{lvl.sample}</span>
-            <span className="hidden shrink-0 text-[11px] text-neutral-500 sm:block">{lvl.role}</span>
+            <span className="w-24 shrink-0 font-mono text-[11px] text-textsoft">{lvl.name}</span>
+            <span className={`min-w-0 flex-1 truncate text-texthard ${lvl.cls}`}>{lvl.sample}</span>
+            <span className="hidden shrink-0 text-[11px] text-textsoft sm:block">{lvl.role}</span>
           </div>
         ))}
       </div>
@@ -170,34 +170,34 @@ function RadiiSection() {
     <Section title="Corner radii & layer" source="design.md §1">
       <div className="flex flex-wrap items-end gap-6">
         <div className="flex flex-col items-center gap-2">
-          <span className="flex h-9 items-center rounded border border-neutral-300 bg-white px-2.5 text-xs text-neutral-600">
+          <span className="flex h-9 items-center rounded border border-neutral-300 bg-foreground px-2.5 text-xs text-textsoft">
             control
           </span>
-          <span className="font-mono text-[11px] text-neutral-500">rounded · 4px</span>
-          <span className="text-[11px] text-neutral-500">body control</span>
+          <span className="font-mono text-[11px] text-textsoft">rounded · 4px</span>
+          <span className="text-[11px] text-textsoft">body control</span>
         </div>
         <div className="flex flex-col items-center gap-2">
-          <span className="flex h-9 items-center rounded-md border border-neutral-300 bg-white px-2.5 text-xs text-neutral-600">
+          <span className="flex h-9 items-center rounded-md border border-neutral-300 bg-foreground px-2.5 text-xs text-textsoft">
             header / floating
           </span>
-          <span className="font-mono text-[11px] text-neutral-500">rounded-md · 6px</span>
-          <span className="text-[11px] text-neutral-500">header + floating card</span>
+          <span className="font-mono text-[11px] text-textsoft">rounded-md · 6px</span>
+          <span className="text-[11px] text-textsoft">header + floating card</span>
         </div>
         <div className="flex flex-col items-center gap-2">
-          <span className="flex h-9 items-center border border-neutral-300 bg-white px-2.5 text-xs text-neutral-600">
+          <span className="flex h-9 items-center border border-neutral-300 bg-foreground px-2.5 text-xs text-textsoft">
             surface
           </span>
-          <span className="font-mono text-[11px] text-neutral-500">square · 0</span>
-          <span className="text-[11px] text-neutral-500">cards, chips, rows, banners</span>
+          <span className="font-mono text-[11px] text-textsoft">square · 0</span>
+          <span className="text-[11px] text-textsoft">cards, chips, rows, banners</span>
         </div>
         <div className="flex flex-col items-center gap-2">
           <span className="flex h-9 w-24 items-center">
-            <span className="h-1.5 w-full overflow-hidden rounded-full bg-neutral-200">
-              <span className="block h-full w-2/3 rounded-full bg-accent" />
+            <span className="h-1.5 w-full overflow-hidden rounded-round bg-neutral-200">
+              <span className="block h-full w-2/3 rounded-round bg-accent" />
             </span>
           </span>
-          <span className="font-mono text-[11px] text-neutral-500">rounded-full</span>
-          <span className="text-[11px] text-neutral-500">progress bars, status dots</span>
+          <span className="font-mono text-[11px] text-textsoft">rounded-round</span>
+          <span className="text-[11px] text-textsoft">progress bars, status dots</span>
         </div>
       </div>
       <Legend>
@@ -232,7 +232,7 @@ function PrimitivesSection() {
           <div className="w-64">
             <GhostInput defaultValue="Camouflaged input — hover / focus me" aria-label="Ghost field demo" />
           </div>
-          <span className="font-mono text-[11px] text-neutral-500">{ghostCls.includes('bg-transparent') ? 'transparent at rest' : ''}</span>
+          <span className="font-mono text-[11px] text-textsoft">{ghostCls.includes('bg-transparent') ? 'transparent at rest' : ''}</span>
         </Row>
         <Row label="Error banner">
           <div className="w-full max-w-md">
@@ -251,7 +251,7 @@ function PrimitivesSection() {
 function Row({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-      <span className="w-28 shrink-0 text-[11px] font-medium text-neutral-500">{label}</span>
+      <span className="w-28 shrink-0 text-[11px] font-medium text-textsoft">{label}</span>
       <div className="flex flex-1 flex-wrap items-center gap-3">{children}</div>
     </div>
   )
@@ -264,23 +264,23 @@ function SelectionSection() {
     <Section title="Selection language — two registers" source="design.md §3.2">
       <div className="grid gap-6 sm:grid-cols-2">
         <div>
-          <div className="mb-2 text-[11px] font-medium text-neutral-500">Current row (rowStateClass / CURRENT_ROW)</div>
-          <div className="border border-neutral-200">
+          <div className="mb-2 text-[11px] font-medium text-textsoft">Current row (rowStateClass / CURRENT_ROW)</div>
+          <div className="border border-border">
             <FakeRow current />
             <FakeRow />
           </div>
-          <p className="mt-2 text-[11px] text-neutral-500">
-            <span className="font-mono">bg-accent-tint</span> + 2px inset accent left rule —
+          <p className="mt-2 text-[11px] text-textsoft">
+            <span className="font-mono">bg-active</span> + 2px inset accent left rule —
             an item open in the panel / a selected list entry.
           </p>
         </div>
         <div>
-          <div className="mb-2 text-[11px] font-medium text-neutral-500">Enclenched control (TogglePill)</div>
+          <div className="mb-2 text-[11px] font-medium text-textsoft">Enclenched control (TogglePill)</div>
           <div className="flex items-center gap-3">
             <TogglePill active={pressed} onClick={() => setPressed((v) => !v)}>On</TogglePill>
             <TogglePill active={false}>Off</TogglePill>
           </div>
-          <p className="mt-2 text-[11px] text-neutral-500">
+          <p className="mt-2 text-[11px] text-textsoft">
             <span className="font-mono">border-accent</span> + tint + font-medium — a toggle /
             filter that is pressed ON (#311).
           </p>
@@ -300,8 +300,8 @@ function FakeRow({ current = false }: { current?: boolean }) {
   return (
     <div className={`flex items-center gap-2 px-4 py-2 ${current ? CURRENT_ROW : rowStateClass(false)}`}>
       <StatusGlyph status={current ? 'in_progress' : 'todo'} />
-      <span className="font-mono text-[11px] text-neutral-500">#{current ? '388' : '389'}</span>
-      <span className="min-w-0 flex-1 truncate text-sm text-neutral-900">
+      <span className="font-mono text-[11px] text-textsoft">#{current ? '388' : '389'}</span>
+      <span className="min-w-0 flex-1 truncate text-sm text-texthard">
         {current ? 'This row is current' : 'This row is idle (hover me)'}
       </span>
     </div>
@@ -358,12 +358,12 @@ function GlyphsSection() {
 function GlyphSet({ title, items }: { title: string; items: [string, ReactNode][] }) {
   return (
     <div>
-      <div className="mb-2 text-[11px] font-medium text-neutral-500">{title}</div>
+      <div className="mb-2 text-[11px] font-medium text-textsoft">{title}</div>
       <div className="flex gap-4">
         {items.map(([label, glyph]) => (
           <div key={label} className="flex flex-col items-center gap-1">
             {glyph}
-            <span className="font-mono text-[11px] text-neutral-500">{label}</span>
+            <span className="font-mono text-[11px] text-textsoft">{label}</span>
           </div>
         ))}
       </div>
@@ -392,7 +392,7 @@ function DataVizSection() {
           <text x="122" y="34" className="fill-neutral-500" fontSize="11">explicit — solid</text>
           <text x="122" y="64" className="fill-neutral-500" fontSize="11">inferred — dashed</text>
         </svg>
-        <ul className="flex flex-col gap-1.5 text-[11px] text-neutral-500">
+        <ul className="flex flex-col gap-1.5 text-[11px] text-textsoft">
           <li>· solid stroke = explicit / known · dashed <span className="font-mono">3 3</span> = inferred / weak (never the reverse)</li>
           <li>· emphasis is color/ink, not a thicker line — stroke <span className="font-mono">1.5</span> everywhere</li>
           <li>· <span className="font-mono">vector-effect: non-scaling-stroke</span> on every zoomable/responsive stroke</li>
@@ -432,7 +432,7 @@ export function DesignSystemView({ onBack }: { onBack: () => void }) {
         <button
           type="button"
           onClick={onBack}
-          className="flex items-center gap-1 rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs text-neutral-600 transition-colors hover:bg-neutral-100"
+          className="flex items-center gap-1 rounded-interactive border border-neutral-300 bg-foreground px-2 py-1 text-xs text-textsoft transition-colors hover:bg-rollover"
         >
           <ChevronLeft size={11} aria-hidden="true" />
           Back
@@ -441,8 +441,8 @@ export function DesignSystemView({ onBack }: { onBack: () => void }) {
       <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="mx-auto max-w-4xl px-6 py-8">
           <div className="mb-6">
-            <h1 className="text-sm font-semibold tracking-tight text-neutral-900">Design System</h1>
-            <p className="mt-1 text-xs text-neutral-500">
+            <h1 className="text-sm font-semibold tracking-tight text-texthard">Design System</h1>
+            <p className="mt-1 text-xs text-textsoft">
               Living styleguide — rendered from the real components and tokens (not screenshots).
               It mirrors <span className="font-mono">docs/design.md</span>; any future drift shows up
               here first. Reached with <span className="font-mono">g</span> then{' '}

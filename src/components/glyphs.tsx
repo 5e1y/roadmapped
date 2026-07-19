@@ -16,7 +16,7 @@ export function Chevron() {
   // ⚠️ trinil-react 1.3.9 inverse ChevronLeft/ChevronRight (le path de
   // « Right » pointe à gauche) : on importe ChevronLeft pour pointer à DROITE
   // fermé. À simplifier quand la lib sera corrigée (signalé à Rémi).
-  return <ChevronLeft size={11} className="chev pointer-events-none shrink-0 text-neutral-500" />
+  return <ChevronLeft size={11} className="chev pointer-events-none shrink-0 text-textsoft" />
 }
 
 /**
@@ -33,7 +33,7 @@ export function MilestoneGlyph({ status }: { status: TaskNode['status'] }) {
   const label = { todo: 'milestone to reach', in_progress: 'milestone in progress', done: 'milestone reached' }[status]
   return (
     <svg
-      className={`shrink-0 ${status === 'in_progress' ? 'text-accent pulse-live' : 'text-neutral-900'}`}
+      className={`shrink-0 ${status === 'in_progress' ? 'text-accent pulse-live' : 'text-texthard'}`}
       width="10"
       height="10"
       viewBox="0 0 10 10"
@@ -64,7 +64,7 @@ export function EpicGlyph({ status }: { status: TaskNode['status'] }) {
   const label = { todo: 'epic not started', in_progress: 'epic in progress', done: 'epic done' }[status]
   return (
     <svg
-      className={`shrink-0 ${status === 'in_progress' ? 'text-accent pulse-live' : 'text-neutral-900'}`}
+      className={`shrink-0 ${status === 'in_progress' ? 'text-accent pulse-live' : 'text-texthard'}`}
       width="10"
       height="10"
       viewBox="0 0 10 10"
@@ -97,7 +97,7 @@ export function StatusGlyph({ status }: { status: TaskNode['status'] }) {
   const label = { todo: 'todo', in_progress: 'in progress', done: 'done' }[status]
   return (
     <svg
-      className={`shrink-0 ${status === 'in_progress' ? 'text-accent pulse-live' : 'text-neutral-900'}`}
+      className={`shrink-0 ${status === 'in_progress' ? 'text-accent pulse-live' : 'text-texthard'}`}
       width="10"
       height="10"
       viewBox="0 0 10 10"

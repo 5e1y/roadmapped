@@ -322,12 +322,12 @@ export function KbGraph({ graph, filters, query, onNodeClick: onNodeClickProp }:
       />
 
       {truncated && (
-        <div className="absolute left-3 top-3 z-10 rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-[11px] text-neutral-600 shadow-sm">
+        <div className="absolute left-3 top-3 z-10 rounded-surface border border-border bg-foreground px-2.5 py-1 text-[11px] text-textsoft shadow-sm">
           Graphe tronqué aux {KB_MAX_NODES} nœuds les plus connectés — filtre pour zoomer.
         </div>
       )}
       {searching && matches.size === 0 && (
-        <div className="absolute left-3 top-3 z-10 rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-[11px] text-neutral-600 shadow-sm">
+        <div className="absolute left-3 top-3 z-10 rounded-surface border border-border bg-foreground px-2.5 py-1 text-[11px] text-textsoft shadow-sm">
           No node matches “{query}”.
         </div>
       )}
@@ -660,11 +660,11 @@ function PoweredByGraphify() {
       href="https://graphify.com/"
       target="_blank"
       rel="noopener noreferrer"
-      className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1.5 rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-[11px] text-neutral-500 shadow-sm transition-colors hover:border-neutral-400 hover:text-neutral-700"
+      className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1.5 rounded-surface border border-border bg-foreground px-2.5 py-1 text-[11px] text-textsoft shadow-sm transition-colors hover:border-neutral-400 hover:text-neutral-700"
     >
       powered by
       <GraphifyMark />
-      <span className="font-medium text-neutral-700">graphify</span>
+      <span className="font-medium text-texthard">graphify</span>
     </a>
   )
 }

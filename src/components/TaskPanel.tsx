@@ -103,7 +103,7 @@ function caretOffsetFromClick(container: HTMLElement, x: number, y: number, raw:
 }
 
 function SectionLabel({ children }: { children: ReactNode }) {
-  return <div className="px-1.5 text-[11px] font-medium text-neutral-500">{children}</div>
+  return <div className="px-1.5 text-[11px] font-medium text-textsoft">{children}</div>
 }
 
 /**
@@ -136,7 +136,7 @@ function RemoveButton({ label, onClick }: { label: string; onClick: () => void }
       aria-label={label}
       title={label}
       onClick={(e) => { e.stopPropagation(); onClick() }}
-      className="shrink-0 rounded p-1 text-neutral-500 opacity-0 transition-opacity hover:bg-neutral-200 hover:text-neutral-700 focus-visible:opacity-100 group-hover:opacity-100"
+      className="shrink-0 rounded-interactive p-1 text-textsoft opacity-0 transition-opacity hover:bg-neutral-200 hover:text-neutral-700 focus-visible:opacity-100 group-hover:opacity-100"
     >
       <Cross size={9} />
     </button>
@@ -154,24 +154,24 @@ function RelationRow({ tree, id, badge, onRemove }: {
   const t = findTaskInTree(tree, id)
   if (!t) {
     // Ne devrait pas arriver (deps validées) — on reste lisible plutôt que de planter.
-    return <div className="px-1.5 py-1 font-mono text-xs text-neutral-500">#{id}</div>
+    return <div className="px-1.5 py-1 font-mono text-xs text-textsoft">#{id}</div>
   }
   return (
     <div className="group flex items-center">
       <button
         type="button"
         onClick={() => openTask(id)}
-        className="flex min-w-0 flex-1 items-center gap-2 px-1.5 py-1 text-left text-sm hover:bg-neutral-100"
+        className="flex min-w-0 flex-1 items-center gap-2 px-1.5 py-1 text-left text-sm hover:bg-rollover"
       >
         <KindGlyph task={t} />
-        <span className="shrink-0 font-mono text-xs text-neutral-500">#{t.id}</span>
+        <span className="shrink-0 font-mono text-xs text-textsoft">#{t.id}</span>
         <span
           title={t.title}
-          className={`min-w-0 truncate ${t.status === 'done' ? 'text-neutral-500 line-through' : 'text-neutral-800'}`}
+          className={`min-w-0 truncate ${t.status === 'done' ? 'text-textsoft line-through' : 'text-neutral-800'}`}
         >
           {t.title}
         </span>
-        {badge && <span className="ml-auto shrink-0 text-[11px] text-neutral-500">{badge}</span>}
+        {badge && <span className="ml-auto shrink-0 text-[11px] text-textsoft">{badge}</span>}
       </button>
       {onRemove && <RemoveButton label={`Remove #${id}`} onClick={onRemove} />}
     </div>
@@ -219,7 +219,7 @@ function RefLine({ refPath, onRemove }: { refPath: string; onRemove?: () => void
           {refPath}
         </button>
       ) : (
-        <div className="min-w-0 flex-1 truncate px-1.5 py-0.5 font-mono text-xs text-neutral-600" title={refPath}>{refPath}</div>
+        <div className="min-w-0 flex-1 truncate px-1.5 py-0.5 font-mono text-xs text-textsoft" title={refPath}>{refPath}</div>
       )}
       {onRemove && <RemoveButton label={`Remove ${refPath}`} onClick={onRemove} />}
     </div>
@@ -248,10 +248,10 @@ function KbConnections({ tree, taskId }: { tree: TaskTree; taskId: number }) {
       onClick={() => openKbNodeSource(n, root, close)}
       disabled={!n.sourceFile}
       title={n.sourceFile ?? n.label}
-      className="group flex w-full items-center gap-2 px-1.5 py-1 text-left text-sm hover:bg-neutral-100 disabled:cursor-default disabled:hover:bg-transparent"
+      className="group flex w-full items-center gap-2 px-1.5 py-1 text-left text-sm hover:bg-rollover disabled:cursor-default disabled:hover:bg-transparent"
     >
       <span className="min-w-0 flex-1 truncate text-neutral-800">{n.label}</span>
-      <span className="shrink-0 font-mono text-[11px] text-neutral-500">{n.fileType}</span>
+      <span className="shrink-0 font-mono text-[11px] text-textsoft">{n.fileType}</span>
       {n.sourceLocation && <span className="shrink-0 font-mono text-[11px] text-neutral-400">{n.sourceLocation}</span>}
     </button>
   )
@@ -291,9 +291,9 @@ function DoneForm({ task, busy, onCancel, onSubmit }: {
   const canDone = outcome.trim().length > 0 && !busy
 
   return (
-    <div className="mt-2 flex flex-col gap-2.5 border border-neutral-200 bg-neutral-50 p-3">
+    <div className="mt-2 flex flex-col gap-2.5 border border-border bg-neutral-50 p-3">
       <label className="flex flex-col gap-1">
-        <span className="text-[11px] font-medium text-neutral-500">Outcome — what was delivered (required)</span>
+        <span className="text-[11px] font-medium text-textsoft">Outcome — what was delivered (required)</span>
         <AutoTextArea
           autoFocus
           value={outcome}
@@ -302,16 +302,16 @@ function DoneForm({ task, busy, onCancel, onSubmit }: {
         />
       </label>
       <label className="flex flex-col gap-1">
-        <span className="text-[11px] font-medium text-neutral-500">Verification (optional)</span>
+        <span className="text-[11px] font-medium text-textsoft">Verification (optional)</span>
         <TextInput value={verification} onChange={(e) => setVerification(e.target.value)} placeholder="How the artifact was verified." />
       </label>
       <div className="grid grid-cols-2 gap-2">
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] font-medium text-neutral-500">Commit (optional)</span>
+          <span className="text-[11px] font-medium text-textsoft">Commit (optional)</span>
           <TextInput value={commit} onChange={(e) => setCommit(e.target.value)} placeholder="sha" />
         </label>
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] font-medium text-neutral-500">Release (optional)</span>
+          <span className="text-[11px] font-medium text-textsoft">Release (optional)</span>
           <TextInput value={release} onChange={(e) => setRelease(e.target.value)} placeholder="v0.1.0" />
         </label>
       </div>
@@ -378,7 +378,7 @@ function TaskPanelBody({ id }: { id: number }) {
   useEffect(() => {
     if (task) markTaskSeen(task)
   }, [task?.id, task?.updatedAt]) // eslint-disable-line react-hooks/exhaustive-deps
-  if (!tree || !task) return <p className="text-sm text-neutral-500">Task not found (reload).</p>
+  if (!tree || !task) return <p className="text-sm text-textsoft">Task not found (reload).</p>
 
   // Même source d'état que la Roadmap : computeAvailability (aucun recalcul
   // maison). 'locked' = prérequis non faits → cadenas au lieu du glyphe.
@@ -498,7 +498,7 @@ function TaskPanelBody({ id }: { id: number }) {
     setDetailEditing(true)
   }
 
-  const titleCls = task.status === 'done' ? 'text-neutral-500 line-through' : 'text-neutral-900'
+  const titleCls = task.status === 'done' ? 'text-textsoft line-through' : 'text-texthard'
 
   return (
     <div className="flex min-h-full flex-col gap-5">
@@ -508,9 +508,9 @@ function TaskPanelBody({ id }: { id: number }) {
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center gap-1.5">
           {locked
-            ? <LockLocked size={11} className="shrink-0 text-neutral-500" ariaLabel="Locked" />
+            ? <LockLocked size={11} className="shrink-0 text-textsoft" ariaLabel="Locked" />
             : <KindGlyph task={task} />}
-          <span className="font-mono text-xs text-neutral-500">#{task.id}</span>
+          <span className="font-mono text-xs text-textsoft">#{task.id}</span>
           <div className="w-32">
             <Select
               ghost
@@ -630,13 +630,13 @@ function TaskPanelBody({ id }: { id: number }) {
           <SectionLabel>Temperature</SectionLabel>
           <div className="flex items-center gap-2 px-1.5 py-0.5" title={tempTitle(task.temperature)}>
             <ThermoGlyph value={task.temperature.value} size={14} />
-            <span className="font-mono text-sm text-neutral-900">{formatTemp(task.temperature.value, 2)}</span>
-            <span className="font-mono text-[11px] text-neutral-500">{tempBreakdown(task.temperature)}</span>
+            <span className="font-mono text-sm text-texthard">{formatTemp(task.temperature.value, 2)}</span>
+            <span className="font-mono text-[11px] text-textsoft">{tempBreakdown(task.temperature)}</span>
           </div>
           {/* Boost manuel (#237) : le seed `heat` 0–100 (le tiers HUMAIN, /3 dans la
               température). Vide = froid. NaN → erreur inline ; l'API valide 0–100 / 2 déc. */}
           <div className="mt-0.5 flex items-center gap-1.5 px-1.5 py-0.5">
-            <label htmlFor="task-heat" className="text-[11px] text-neutral-500">boost</label>
+            <label htmlFor="task-heat" className="text-[11px] text-textsoft">boost</label>
             <GhostInput
               id="task-heat"
               key={task.heat ?? 'none'}
@@ -719,12 +719,12 @@ function TaskPanelBody({ id }: { id: number }) {
             onClick={(e) => { if (!(e.target as HTMLElement).closest('a')) openDetailEditor({ x: e.clientX, y: e.clientY }) }}
             // Un role="button" répond à Entrée ET Espace (design.md §3.5).
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDetailEditor() } }}
-            className="cursor-text border border-transparent px-1.5 py-1 transition-colors hover:bg-neutral-100"
+            className="cursor-text border border-transparent px-1.5 py-1 transition-colors hover:bg-rollover"
           >
             {task.detail ? (
               <Markdown source={task.detail} className="doc-prose--panel" />
             ) : (
-              <p className="text-xs text-neutral-500">No detail. Click to add.</p>
+              <p className="text-xs text-textsoft">No detail. Click to add.</p>
             )}
           </div>
         )}
@@ -824,18 +824,18 @@ function TaskPanelBody({ id }: { id: number }) {
         </div>
         <div className="flex flex-col gap-0.5">
           {feedback.length === 0 && (
-            <p className="px-1.5 text-xs text-neutral-500">No feedback yet.</p>
+            <p className="px-1.5 text-xs text-textsoft">No feedback yet.</p>
           )}
           {feedback.map((f, i) => (
             <div
               key={i}
-              className={`flex items-start gap-2 border-l-2 py-1 pl-2 ${f.resolved ? 'border-neutral-200' : 'border-accent'}`}
+              className={`flex items-start gap-2 border-l-2 py-1 pl-2 ${f.resolved ? 'border-border' : 'border-accent'}`}
             >
               <div className="min-w-0 flex-1">
-                <div className={`whitespace-pre-wrap break-words text-sm ${f.resolved ? 'text-neutral-500 line-through' : 'text-neutral-800'}`}>
+                <div className={`whitespace-pre-wrap break-words text-sm ${f.resolved ? 'text-textsoft line-through' : 'text-neutral-800'}`}>
                   {f.text}
                 </div>
-                <div className="mt-0.5 flex items-center gap-1 text-[11px] text-neutral-500">
+                <div className="mt-0.5 flex items-center gap-1 text-[11px] text-textsoft">
                   {f.resolved && <Check size={10} className="shrink-0" />}
                   <span>{f.author}</span>
                   <span>·</span>
@@ -873,12 +873,12 @@ function TaskPanelBody({ id }: { id: number }) {
       </div>
 
       {/* Consignation : inputs ghost permanents (corrections rares mais directes). */}
-      <div className="flex flex-col gap-1 border border-neutral-200 bg-neutral-50 px-2 py-2">
+      <div className="flex flex-col gap-1 border border-border bg-neutral-50 px-2 py-2">
         <div className="flex items-center gap-2 px-1.5">
-          <div className="text-[11px] font-medium text-neutral-500">Log</div>
+          <div className="text-[11px] font-medium text-textsoft">Log</div>
           <SavedTick show={savedIn('outcome', 'verification', 'commit', 'release')} />
         </div>
-        <div className="px-1.5 text-xs text-neutral-500">
+        <div className="px-1.5 text-xs text-textsoft">
           <span title={absoluteDate(task.createdAt)}>created {relativeTime(task.createdAt)}</span>
           {task.completedAt ? <> · <span title={absoluteDate(task.completedAt)}>completed {relativeTime(task.completedAt)}</span></> : ''}
         </div>
@@ -889,7 +889,7 @@ function TaskPanelBody({ id }: { id: number }) {
           { field: 'release', label: 'release', value: task.release, area: false },
         ] as const).map(({ field, label, value, area }) => (
           <label key={field} className="flex flex-col">
-            <span className="px-1.5 text-[11px] text-neutral-500">{label}</span>
+            <span className="px-1.5 text-[11px] text-textsoft">{label}</span>
             {area ? (
               <GhostAutoTextArea
                 key={`${field}-${value ?? ''}`}
@@ -917,8 +917,8 @@ function TaskPanelBody({ id }: { id: number }) {
       </div>
 
       {/* Pied : le chemin technique, relégué ici (audit UX). */}
-      <div className="mt-auto border-t border-neutral-200 pt-3">
-        <div className="truncate font-mono text-[11px] text-neutral-500" title={task.file}>{task.file}</div>
+      <div className="mt-auto border-t border-border pt-3">
+        <div className="truncate font-mono text-[11px] text-textsoft" title={task.file}>{task.file}</div>
       </div>
     </div>
   )

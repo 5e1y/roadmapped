@@ -93,23 +93,23 @@ function EpicCard({ item, active, onSelect }: {
       title={`${item.title} — ${item.progress.done}/${item.progress.total} tasks done. ${active ? 'Click to show every epic again.' : 'Click to filter the columns on this epic.'}`}
       className={`flex w-48 flex-col gap-0.5 border px-2.5 py-1.5 text-left transition-colors ${
         active
-          ? 'border-neutral-200 bg-accent-tint shadow-[inset_2px_0_0_var(--color-accent)]'
-          : 'border-neutral-200 bg-white hover:border-neutral-400'
+          ? 'border-border bg-active shadow-[inset_2px_0_0_var(--color-accent)]'
+          : 'border-border bg-foreground hover:border-neutral-400'
       }`}
     >
       <span className="flex items-center gap-1.5">
         <EpicGlyph status={item.status} />
-        <span className={`min-w-0 truncate text-[13px] font-medium ${isDone ? 'text-neutral-500 line-through' : 'text-neutral-900'}`}>
+        <span className={`min-w-0 truncate text-[13px] font-medium ${isDone ? 'text-textsoft line-through' : 'text-texthard'}`}>
           {item.title}
         </span>
       </span>
       <span className="flex w-full items-center gap-1.5">
-        <span className="min-w-0 truncate text-[11px] text-neutral-500">
+        <span className="min-w-0 truncate text-[11px] text-textsoft">
           {pills || 'all done'}
         </span>
         <span className="ml-auto flex shrink-0 items-center gap-1.5">
           <EpicProgressBar done={item.progress.done} total={item.progress.total} />
-          <span className="font-mono text-[11px] text-neutral-500">
+          <span className="font-mono text-[11px] text-textsoft">
             {item.progress.done}/{item.progress.total}
           </span>
         </span>
@@ -144,11 +144,11 @@ export function EpicBand({ items, doneItems = [], selected, onSelect }: {
   const selectedItem = [...items, ...doneItems].find((i) => i.slug === selected) ?? null
   return (
     <Collapsible.Root open={!collapsed} onOpenChange={(o) => setCollapsed(!o)}>
-      <div className="shrink-0 border-b border-neutral-200 px-6 py-1.5">
+      <div className="shrink-0 border-b border-border px-6 py-1.5">
         <div className="flex items-center gap-2">
           <Collapsible.Trigger
             title="Epics — click a card to filter the board"
-            className="flex items-center gap-1.5 rounded px-1 py-0.5 text-xs font-medium text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-700"
+            className="flex items-center gap-1.5 rounded-interactive px-1 py-0.5 text-xs font-medium text-textsoft transition-colors hover:bg-rollover hover:text-texthard"
           >
             <Chevron />
             Epics
@@ -162,7 +162,7 @@ export function EpicBand({ items, doneItems = [], selected, onSelect }: {
               type="button"
               onClick={() => onSelect(null)}
               title="Clear the epic filter"
-              className="flex min-w-0 items-center gap-1 bg-accent-tint px-2 py-0.5 text-[11px] text-neutral-700 shadow-[inset_2px_0_0_var(--color-accent)] transition-colors hover:text-neutral-900"
+              className="flex min-w-0 items-center gap-1 bg-active px-2 py-0.5 text-[11px] text-texthard shadow-[inset_2px_0_0_var(--color-accent)] transition-colors hover:text-texthard"
             >
               <span className="min-w-0 truncate">{selectedItem.title}</span>
               <span aria-hidden>×</span>
@@ -182,7 +182,7 @@ export function EpicBand({ items, doneItems = [], selected, onSelect }: {
                   aria-expanded={showDoneEpics}
                   onClick={() => setShowDoneEpics(!showDoneEpics)}
                   title={showDoneEpics ? 'Fold the completed epics' : 'Unfold the completed epics'}
-                  className="border border-neutral-200 bg-white px-2.5 text-xs text-neutral-500 transition-colors hover:border-neutral-400 hover:text-neutral-700"
+                  className="border border-border bg-foreground px-2.5 text-xs text-textsoft transition-colors hover:border-neutral-400 hover:text-texthard"
                 >
                   {showDoneEpics ? '− done' : `+ ${doneItems.length} done`}
                 </button>

@@ -96,27 +96,27 @@ export function SidePanel({
       role="dialog"
       aria-label={title}
       tabIndex={-1}
-      className="flex w-[380px] shrink-0 flex-col border-l border-neutral-200 bg-white focus:outline-none"
+      className="flex w-[380px] shrink-0 flex-col border-l border-border bg-foreground focus:outline-none"
     >
-      <header className="flex h-12 shrink-0 items-center justify-between border-b border-neutral-200 px-4">
+      <header className="flex h-12 shrink-0 items-center justify-between border-b border-border px-4">
         <div className="flex min-w-0 items-center gap-2">
           {onBack && (
             <button
               type="button"
               onClick={onBack}
               aria-label="Back"
-              className="rounded p-1 text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-700"
+              className="rounded-interactive p-1 text-textsoft transition-colors hover:bg-rollover hover:text-texthard"
             >
               <ArrowLeft size={14} />
             </button>
           )}
-          <h2 className="truncate text-sm font-semibold tracking-tight text-neutral-900">{title}</h2>
+          <h2 className="truncate text-sm font-semibold tracking-tight text-texthard">{title}</h2>
         </div>
         <button
           type="button"
           onClick={onClose}
           aria-label="Close panel"
-          className="rounded p-1 text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-700"
+          className="rounded-interactive p-1 text-textsoft transition-colors hover:bg-rollover hover:text-texthard"
         >
           <Cross size={13} />
         </button>
