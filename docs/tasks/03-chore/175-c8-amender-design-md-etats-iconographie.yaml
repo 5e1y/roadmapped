@@ -2,7 +2,7 @@ id: 387
 title: >-
   C8 — Amender design.md : états, iconographie/data-viz, 2e registre de sélection, tables
   barre-gauche/tint, échelle typo
-status: todo
+status: done
 tags:
   - ds
   - docs
@@ -22,9 +22,21 @@ dependsOn: []
 epic: ds-consistency
 source: ai
 createdAt: "2026-07-19T13:03:28"
-updatedAt: "2026-07-19T13:03:28"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+updatedAt: "2026-07-19T13:23:35"
+completedAt: "2026-07-19T13:23:35"
+commit: 140a128
+outcome: >-
+  design.md amendé pour refléter les décisions de la revue DS. Ajouts/corrections : §3.2 réécrit en
+  2 REGISTRES de sélection (current row = rowStateClass tint+barre inset ; enclenched control =
+  TogglePill border-accent+tint+medium #311) + sémantiques barre-gauche (2px accent=current / 1px
+  neutral=nesting / thick=error) et badge inerte jamais accentué ; §1 radii (menus flottants de
+  header = rounded-md du trigger, standalone = carré, plus de rounded-lg) ; §1 échelle typo NOMMÉE 6
+  niveaux (meta=11px, fin de l'oscillation 11/12) + rythme vertical une hauteur ; §4 États (header
+  persistant via ViewShell, EmptyState unique, ErrorBanner/TreeStateGuard, langue = anglais) ; §5
+  Data-viz & iconographie (plein=explicite/pointillé=inféré, emphase stroke 1.5, non-scaling-stroke,
+  accent rare, grille neutral-200, famille de glyphes). Sert de référence au DSM et de contrat pour
+  C1-C6.
+verification: >-
+  Doc relu ; cohérent avec les décisions prises (sélection, pointillé=inféré, anglais) et avec
+  docs/ds-review-2026-07/7-langage-forme.md (tableaux barre/tint). Pas de code touché.
+release: 0.2.3
