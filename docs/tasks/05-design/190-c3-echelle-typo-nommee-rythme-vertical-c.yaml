@@ -1,0 +1,29 @@
+id: 383
+title: C3 — Échelle typo nommée + rythme vertical canonique
+status: todo
+tags:
+  - ds
+  - typo
+heat: 55
+detail: >-
+  Spec docs/specs/2026-07-19-ds-consistency.md chantier C3 (docs/ds-review-2026-07/2-typo.md,
+  échelle 6 niveaux proposée). Fixer l'oscillation méta 11/12px (dates/compteurs/tags/chemins, 7
+  findings). Une hauteur de rangée canonique (py-[5px] hors échelle
+  TaskColumns.tsx:77/EpicRow.tsx:235 → 3 hauteurs dans la même liste Backlog). NavRail 10→11px
+  (design.md:41). Activity en-tête jour uppercase tracking-wide = 3e registre inventé → ramener aux
+  2 autorisés. Carte tâche Roadmap vs Deps alignée.
+refs:
+  - src/components/TaskColumns.tsx
+  - src/components/NavRail.tsx
+  - docs/design.md
+links: []
+dependsOn: []
+epic: ds-consistency
+source: ai
+createdAt: "2026-07-19T13:03:27"
+updatedAt: "2026-07-19T13:03:27"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

@@ -1,0 +1,30 @@
+id: 384
+title: >-
+  C4 — États unifiés : ViewShell (header persistant) + TreeStateGuard généralisé + EmptyState +
+  Overview honore loadError
+status: todo
+tags:
+  - ds
+  - states
+heat: 62
+detail: >-
+  Spec docs/specs/2026-07-19-ds-consistency.md chantier C4 (docs/ds-review-2026-07/4-layout.md).
+  <ViewShell> : le header RESTE visible pendant loading/erreur (disparaît aujourd'hui sur
+  Backlog/Roadmap/Deps, pas Overview/Graph). Généraliser RoadmapStateGuard → TreeStateGuard
+  (Backlog.tsx:54 le duplique). Overview ignore loadError (OverviewView.tsx:140 → « en attente… » à
+  l'infini si serveur mort) → corriger. <EmptyState> unique (12 empty states, ~6 registres).
+refs:
+  - src/components/OverviewView.tsx
+  - src/components/RoadmapView.tsx
+  - src/components/Backlog.tsx
+links: []
+dependsOn: []
+epic: ds-consistency
+source: ai
+createdAt: "2026-07-19T13:03:28"
+updatedAt: "2026-07-19T13:03:28"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

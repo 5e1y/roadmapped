@@ -1,0 +1,30 @@
+id: 385
+title: "C6 — a11y : BLOQUANT nœuds KB au clavier + régressions contraste #108 + focus après action"
+status: todo
+tags:
+  - a11y
+  - bug
+heat: 82
+detail: >-
+  Spec docs/specs/2026-07-19-ds-consistency.md chantier C6
+  (docs/ds-review-2026-07/5-interaction.md). BLOQUANT : nœuds du graphe KB souris-seule
+  (KbGraph.tsx:560, <circle> cliquable sans tabIndex/role/clavier ; le graphe Deps jumeau utilise de
+  vrais <button>) → aligner. Contraste #108 régressé : timestamp Activity neutral-400 2,52:1
+  (ActivityView.tsx:46), axes FlowAreaChart 9px neutral-400, +4 textes < neutral-500 → remonter.
+  Focus perdu après action hors panneaux (Show more/less TaskColumns.tsx:153, chips filtres, ✕ note,
+  Enter ghost textareas). Cibles <40px, hover neutral-50 vs 100.
+refs:
+  - src/components/KbGraph.tsx
+  - src/components/ActivityView.tsx
+  - src/components/FlowAreaChart.tsx
+links: []
+dependsOn: []
+epic: ds-consistency
+source: ai
+createdAt: "2026-07-19T13:03:28"
+updatedAt: "2026-07-19T13:03:28"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

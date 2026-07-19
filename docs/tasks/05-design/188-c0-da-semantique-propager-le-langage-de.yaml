@@ -1,0 +1,34 @@
+id: 380
+title: >-
+  C0 — DA sémantique : propager le langage de sélection (Overview + Activity) + badge inerte +
+  rounded-lg
+status: todo
+tags:
+  - ds
+  - ui
+heat: 78
+detail: >-
+  Spec docs/specs/2026-07-19-ds-consistency.md chantier C0 (détail
+  docs/ds-review-2026-07/7-langage-forme.md). (1) OverviewView.tsx:106 PreviewRow et (2)
+  ActivityView.tsx:54 EntryRow : refléter le TICKET COURANT comme TaskRow (isOpenInPanel →
+  bg-accent-tint + barre inset accent) — aujourd'hui hover seul, le commentaire « même contrat que
+  TaskRow » est faux. (3) KbView.tsx:109 : le badge inerte « peut-être obsolète » porte le costume
+  du toggle actif (border-accent+tint) à côté de vrais toggles → lui donner un rendu inerte
+  distinct. (4) OverviewView.tsx:41 : cartes rounded-lg = seul rayon hors doctrine strate
+  (design.md:43-51) → carré comme GraphCard/EpicCard.
+refs:
+  - src/components/OverviewView.tsx
+  - src/components/ActivityView.tsx
+  - src/components/KbView.tsx
+  - src/components/TaskRow.tsx
+links: []
+dependsOn: []
+epic: ds-consistency
+source: ai
+createdAt: "2026-07-19T13:03:27"
+updatedAt: "2026-07-19T13:03:27"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

@@ -1,0 +1,30 @@
+id: 387
+title: >-
+  C8 — Amender design.md : états, iconographie/data-viz, 2e registre de sélection, tables
+  barre-gauche/tint, échelle typo
+status: todo
+tags:
+  - ds
+  - docs
+heat: 40
+detail: >-
+  Spec docs/specs/2026-07-19-ds-consistency.md chantier C8. La doctrine de forme (strates/rayons)
+  existe déjà ; TROUS à combler : section états (vide/chargement/erreur), section
+  iconographie/data-viz, le 2e registre de sélection « enclenché » (#311, jamais écrit), les
+  sémantiques multi-sens de la barre gauche (courant/imbrication/erreur) et du tint
+  (sélection/hover/drop) en tableaux, l'échelle typo nommée (C3). Doit refléter les décisions de
+  C0-C6. Source des tableaux : docs/ds-review-2026-07/7-langage-forme.md.
+refs:
+  - docs/design.md
+  - docs/ds-review-2026-07/7-langage-forme.md
+links: []
+dependsOn: []
+epic: ds-consistency
+source: ai
+createdAt: "2026-07-19T13:03:28"
+updatedAt: "2026-07-19T13:03:28"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
