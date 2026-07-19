@@ -187,7 +187,7 @@ export function OverviewView() {
                 {preview.length === 0 ? (
                   <EmptyState className="py-8" title="No tickets to show" />
                 ) : (
-                  <div className="rm-list">
+                  <div className="rm-list rm-nest">
                     {preview.map((t) => (
                       <div key={t.id} className="rm-list-item">
                         <PreviewRow task={t} hint={hintOf(t)} isCurrent={top?.type === 'task' && top.id === t.id} onOpen={openTask} />
