@@ -557,6 +557,13 @@ const NodesLayer = memo(function NodesLayer({
                 pointerEvents="none"
               />
             )}
+            {/* #385 — nœud accessible au clavier : le graphe jumeau (Deps) rend de
+                vrais <button> ; ici le nœud est un <circle> SVG, on lui donne donc
+                role/tabIndex/aria-label + Enter/Espace. Le clavier appelle onOpen —
+                EXACTEMENT le même chemin que le clic (override #375 compris : si
+                onNodeClick fourni → lui, sinon openKbNode). Plafond de tab-order :
+                le sous-graphe est tronqué (KB_MAX_NODES) mais peut rester grand —
+                acceptable pour lever le bloquant a11y ; roving tabindex à suivre. */}
             <circle
               cx={0} cy={0} r={p.r}
               className={driver && !initialIds.has(node.id) ? 'kb-in cursor-pointer' : 'cursor-pointer'}
@@ -566,10 +573,21 @@ const NodesLayer = memo(function NodesLayer({
               strokeOpacity={tone.stroke}
               strokeWidth={1.5}
               vectorEffect="non-scaling-stroke"
+              tabIndex={0}
+              role="button"
+              aria-label={node.label}
               onPointerDown={driver ? (e) => onNodeDown(node.id, e) : undefined}
               onPointerEnter={() => onFocus(node.id)}
               onPointerLeave={() => onFocus(null)}
+              onFocus={() => onFocus(node.id)}
+              onBlur={() => onFocus(null)}
               onClick={() => onOpen(node.id)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  onOpen(node.id)
+                }
+              }}
             >
               <title>{`${node.label} · ${node.fileType}${node.sourceFile ? ` · ${node.sourceFile}` : ''}`}</title>
             </circle>

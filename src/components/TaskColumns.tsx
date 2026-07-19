@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import { Collapsible } from '@base-ui/react/collapsible'
 import { TaskRow } from './TaskRow'
 import { EpicRow, splitBacklogItems, type EpicListItem } from './EpicRow'
@@ -115,6 +115,15 @@ export function TaskList({ open, done, tree, filtered }: {
   filtered?: boolean
 }) {
   const [showAll, setShowAll] = useState(false)
+  // #385 — « Show more/less » se démonte au clic (le bouton cliqué disparaît, son
+  // jumeau le remplace) : focus perdu sur <body> (design.md §3.4). On replace le
+  // focus sur le bouton jumeau après la bascule, jamais au montage initial.
+  const toggleRef = useRef<HTMLButtonElement>(null)
+  const refocusToggle = useRef(false)
+  const toggleShowAll = (next: boolean) => { refocusToggle.current = true; setShowAll(next) }
+  useLayoutEffect(() => {
+    if (refocusToggle.current) { refocusToggle.current = false; toggleRef.current?.focus() }
+  }, [showAll])
   const epics = allEpics(tree)
   // Complétion GLOBALE (epicProgress, sous-tâches comprises) : c'est elle qui
   // décide du côté, pas le sous-ensemble filtré affiché.
@@ -152,8 +161,9 @@ export function TaskList({ open, done, tree, filtered }: {
             {visible.map((i) => <ListItemRow key={keyOf(i)} item={i} tree={tree} filtered={filtered} />)}
             {hidden > 0 && (
               <button
+                ref={toggleRef}
                 type="button"
-                onClick={() => setShowAll(true)}
+                onClick={() => toggleShowAll(true)}
                 className="w-full px-4 py-2.5 text-center text-xs text-neutral-500 hover:bg-neutral-50 hover:text-neutral-700"
               >
                 Show {hidden} more
@@ -161,8 +171,9 @@ export function TaskList({ open, done, tree, filtered }: {
             )}
             {showAll && openItems.length > PREVIEW && (
               <button
+                ref={toggleRef}
                 type="button"
-                onClick={() => setShowAll(false)}
+                onClick={() => toggleShowAll(false)}
                 className="w-full px-4 py-2.5 text-center text-xs text-neutral-500 hover:bg-neutral-50 hover:text-neutral-700"
               >
                 Show less
