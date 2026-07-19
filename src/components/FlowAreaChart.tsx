@@ -58,7 +58,7 @@ export function FlowAreaChart({ data }: { data: DayBucket[] }) {
   if (data.length === 0) {
     return (
       <div className="flex h-full min-h-[200px] items-center justify-center px-4 text-center text-xs text-neutral-500">
-        Pas encore d'activité à tracer.
+        No activity to chart yet.
       </div>
     )
   }
@@ -79,13 +79,13 @@ export function FlowAreaChart({ data }: { data: DayBucket[] }) {
       {/* Légende — même registre que les autres viz de l'Overview. */}
       <div className="mb-2 flex items-center gap-4 text-[11px] text-neutral-500">
         <span className="flex items-center gap-1.5">
-          <span className="inline-block h-2 w-2 rounded-full bg-neutral-400" aria-hidden="true" /> Créés
+          <span className="inline-block h-2 w-2 rounded-full bg-neutral-400" aria-hidden="true" /> Created
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="inline-block h-2 w-2 rounded-full bg-accent" aria-hidden="true" /> Fermés
+          <span className="inline-block h-2 w-2 rounded-full bg-accent" aria-hidden="true" /> Closed
         </span>
       </div>
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label="Créés vs fermés par jour">
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label="Created vs closed per day">
         <defs>
           <linearGradient id="flow-created" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="var(--color-neutral-400)" stopOpacity="0.35" />

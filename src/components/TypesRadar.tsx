@@ -48,7 +48,7 @@ export function TypesRadar({ counts, selected, onSelect }: {
   const poly = TYPE_META.map((t, i) => vertex(i, rOf(t.key)).join(',')).join(' ')
   return (
     // role="group" (pas "img") : les N boutons aria-pressed restent des contrôles.
-    <div className="relative aspect-square w-full" role="group" aria-label="Charge par type">
+    <div className="relative aspect-square w-full" role="group" aria-label="Load by type">
       <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="absolute inset-[15%] h-[70%] w-[70%] overflow-visible" aria-hidden="true">
         {Array.from({ length: RINGS }, (_, k) => (
           <polygon key={k} points={ringPath(((k + 1) / RINGS) * R)} fill="none" stroke="var(--color-neutral-300)" strokeWidth={1} vectorEffect="non-scaling-stroke" />

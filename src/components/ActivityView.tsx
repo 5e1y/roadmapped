@@ -2,6 +2,7 @@ import { ArrowRotateCcw, Check, EditPen, Play, Plus, Pulse, Trash, Undo } from '
 import { useLiveActivity, type LiveEntry, type LiveVerb } from '../state/LiveActivity'
 import { usePanel } from '../state/PanelContext'
 import { groupByDay } from '../lib/activityFeed'
+import { rowStateClass } from './ui'
 import { ViewHeader } from './ViewHeader'
 
 /*
@@ -28,9 +29,9 @@ const VERB_ICON: Record<LiveVerb, typeof Plus> = {
   removed: Trash,
 }
 
-function EntryRow({ entry, onOpenTask }: { entry: LiveEntry; onOpenTask: (id: number) => void }) {
+function EntryRow({ entry, isCurrent, onOpenTask }: { entry: LiveEntry; isCurrent: boolean; onOpenTask: (id: number) => void }) {
   const Icon = VERB_ICON[entry.verb]
-  // Une tâche supprimée n'est plus navigable : ligne inerte, même registre visuel.
+  // A removed task is no longer navigable: inert row, same visual register.
   const gone = entry.verb === 'removed'
   const fresh = Date.now() - entry.receivedAt < FRESH_MS
   const body = (
@@ -46,12 +47,19 @@ function EntryRow({ entry, onOpenTask }: { entry: LiveEntry; onOpenTask: (id: nu
       <span className="ml-auto shrink-0 pl-3 font-mono text-xs tabular-nums text-neutral-400">{entry.at}</span>
     </>
   )
-  // Plein écran : plus d'air que l'overlay (py-2.5/px-4, text-sm), titre non tronqué
-  // → items-start pour aligner l'icône quand le titre passe à la ligne.
+  // Full screen: more air than the overlay (py-2.5/px-4, text-sm), title not
+  // truncated → items-start to keep the icon aligned when the title wraps.
   const cls = `flex w-full items-start gap-3 px-4 py-2.5 text-left text-sm ${fresh ? 'live-entry-in' : ''}`
   if (gone) return <div className={cls}>{body}</div>
+  // Current ticket highlighted via the shared selection language (#380) — and the
+  // canonical row hover (neutral-50), not the divergent neutral-100 of before.
   return (
-    <button type="button" onClick={() => onOpenTask(entry.id)} className={`${cls} hover:bg-neutral-100`}>
+    <button
+      type="button"
+      onClick={() => onOpenTask(entry.id)}
+      aria-current={isCurrent ? 'true' : undefined}
+      className={`${cls} ${rowStateClass(isCurrent)}`}
+    >
       {body}
     </button>
   )
@@ -59,7 +67,7 @@ function EntryRow({ entry, onOpenTask }: { entry: LiveEntry; onOpenTask: (id: nu
 
 export function ActivityView() {
   const activity = useLiveActivity()
-  const { openTask } = usePanel()
+  const { openTask, top } = usePanel()
   const log = activity?.log ?? []
   const groups = groupByDay(log)
 
@@ -70,10 +78,10 @@ export function ActivityView() {
         {log.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center gap-2 px-6 text-center">
             <Pulse size={22} className="text-neutral-300" aria-hidden="true" />
-            <p className="mt-1 text-sm font-medium text-neutral-700">Aucune activité pour cette session</p>
+            <p className="mt-1 text-sm font-medium text-neutral-700">No activity this session</p>
             <p className="max-w-sm text-xs text-neutral-500">
-              Les changements en direct de vos tâches apparaissent ici. L'historique complet vit
-              dans votre git log sur docs/tasks/ — chaque done est un commit.
+              Live changes to your tasks show up here. The full history lives in your
+              git log over docs/tasks/ — every done is a commit.
             </p>
           </div>
         ) : (
@@ -86,7 +94,7 @@ export function ActivityView() {
                 <ul className="divide-y divide-neutral-100">
                   {group.entries.map((entry) => (
                     <li key={entry.key}>
-                      <EntryRow entry={entry} onOpenTask={openTask} />
+                      <EntryRow entry={entry} isCurrent={top?.type === 'task' && top.id === entry.id} onOpenTask={openTask} />
                     </li>
                   ))}
                 </ul>

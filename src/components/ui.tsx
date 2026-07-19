@@ -11,6 +11,15 @@ import { KindGlyph } from './glyphs'
  * champs de formulaire du dashboard (panneaux tâche/section/création).
  */
 
+// Langage de SÉLECTION de l'app (design.md §3.2) — l'item « courant » (ouvert
+// dans le panneau) : fond accent-tint + barre inset accent 2px à gauche. Source
+// UNIQUE, à réutiliser partout où une ligne peut être « la courante » (#380) :
+// TaskRow, l'aperçu Overview, le feed Activity… — plus de recette inline par écran.
+// Non-courant → survol de rangée neutral-50 (le hover-ligne canonique, pas 100).
+export const CURRENT_ROW = 'bg-accent-tint shadow-[inset_2px_0_0_var(--color-accent)]'
+export const rowStateClass = (isCurrent: boolean) =>
+  isCurrent ? CURRENT_ROW : 'hover:bg-neutral-50'
+
 // Bordure neutral-300 conservée (design.md §2, option douce de l'audit #108) :
 // le champ se différencie du fond par bg-neutral-50 au repos, blanc au focus.
 export const fieldCls =

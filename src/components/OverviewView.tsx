@@ -3,6 +3,7 @@ import { ViewHeader } from './ViewHeader'
 import { TypesRadar } from './TypesRadar'
 import { KbGraph } from './KbGraph'
 import { TempBadge } from './Temperature'
+import { rowStateClass } from './ui'
 import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
 import { FlowAreaChart } from './FlowAreaChart'
@@ -38,7 +39,7 @@ const NEUTRAL_FILTERS: KbFilters = { communities: [], fileTypes: [], hideInferre
 /** Carte de la grille — coquille tri-couche (bg-white + filet), titre optionnel. */
 function Card({ title, children, className = '' }: { title?: string; children: ReactNode; className?: string }) {
   return (
-    <section className={`flex flex-col overflow-hidden rounded-lg border border-neutral-200 bg-white ${className}`}>
+    <section className={`flex flex-col overflow-hidden rounded border border-neutral-200 bg-white ${className}`}>
       {title && (
         <h2 className="shrink-0 border-b border-neutral-200 px-4 py-2 text-xs font-medium text-neutral-500">{title}</h2>
       )}
@@ -65,9 +66,9 @@ function openCountsByType(tree: TaskTree): Map<string, number> {
 
 type PreviewMode = 'urgent' | 'old' | 'recent'
 const MODES: { key: PreviewMode; label: string }[] = [
-  { key: 'urgent', label: 'Urgents' },
-  { key: 'old', label: 'Anciens' },
-  { key: 'recent', label: 'Récents' },
+  { key: 'urgent', label: 'Urgent' },
+  { key: 'old', label: 'Oldest' },
+  { key: 'recent', label: 'Recent' },
 ]
 
 /**
@@ -77,7 +78,7 @@ const MODES: { key: PreviewMode; label: string }[] = [
  */
 function Segmented({ value, onChange }: { value: PreviewMode; onChange: (m: PreviewMode) => void }) {
   return (
-    <div role="group" aria-label="Choisir l'aperçu" className="inline-flex rounded-md border border-neutral-300 bg-white p-0.5">
+    <div role="group" aria-label="Choose preview" className="inline-flex rounded-md border border-neutral-300 bg-white p-0.5">
       {MODES.map((m) => {
         const active = m.key === value
         return (
@@ -99,16 +100,18 @@ function Segmented({ value, onChange }: { value: PreviewMode; onChange: (m: Prev
 }
 
 /**
- * Une ligne d'aperçu : #id + titre tronqué + un indice contextuel (température
- * pour les urgents, âge pour les anciens, date d'ajout pour les récents). Toute
- * la ligne ouvre le TaskPanel (usePanel.openTask) — même contrat que TaskRow.
+ * A preview row: #id + truncated title + a contextual hint (temperature for
+ * urgent, age for oldest, add date for recent). The whole row opens the
+ * TaskPanel — and reflects the CURRENT ticket via the shared selection language
+ * (#380, rowStateClass) exactly like TaskRow, so the open one is highlighted.
  */
-function PreviewRow({ task, hint, onOpen }: { task: TaskNode; hint: ReactNode; onOpen: (id: number) => void }) {
+function PreviewRow({ task, hint, isCurrent, onOpen }: { task: TaskNode; hint: ReactNode; isCurrent: boolean; onOpen: (id: number) => void }) {
   return (
     <button
       type="button"
       onClick={() => onOpen(task.id)}
-      className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm transition-colors hover:bg-neutral-50"
+      aria-current={isCurrent ? 'true' : undefined}
+      className={`flex w-full items-center gap-2 px-4 py-2 text-left text-sm transition-colors ${rowStateClass(isCurrent)}`}
     >
       <span className="shrink-0 font-mono text-xs text-neutral-500">#{task.id}</span>
       <span title={task.title} className="min-w-0 flex-1 truncate text-neutral-900">{task.title}</span>
@@ -119,7 +122,7 @@ function PreviewRow({ task, hint, onOpen }: { task: TaskNode; hint: ReactNode; o
 
 export function OverviewView() {
   const { tree } = useTree()
-  const { openTask } = usePanel()
+  const { openTask, top } = usePanel()
   const [mode, setMode] = useState<PreviewMode>('urgent')
   // Radar en LECTURE : l'état de sélection est LOCAL et ne filtre AUCUNE liste
   // ici (le filtrage type→backlog vit dans le Backlog). Recliquer un axe le
@@ -142,7 +145,7 @@ export function OverviewView() {
       <div className="flex h-full flex-col">
         <ViewHeader />
         <div className="flex min-h-0 flex-1 items-center justify-center">
-          <p className="text-sm text-neutral-500">Overview — en attente du backlog…</p>
+          <p className="text-sm text-neutral-500">Overview — waiting for the backlog…</p>
         </div>
       </div>
     )
@@ -152,7 +155,7 @@ export function OverviewView() {
     if (mode === 'urgent') return <TempBadge t={temperature(tree, task, today)} />
     if (mode === 'old') {
       const age = task.createdAt ? ageInDays(task.createdAt, today) : null
-      return <span className="font-mono text-[11px] text-neutral-500">{age === null ? '—' : `${age} j`}</span>
+      return <span className="font-mono text-[11px] text-neutral-500">{age === null ? '—' : `${age}d`}</span>
     }
     return task.createdAt ? (
       <span className="font-mono text-[11px] text-neutral-500" title={absoluteDate(task.createdAt)}>
@@ -172,24 +175,24 @@ export function OverviewView() {
         <div className="mx-auto max-w-6xl px-6 py-6">
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             {/* 1 — Radar par type (LECTURE). */}
-            <Card title="Charge par type">
+            <Card title="Load by type">
               <div className="p-4">
                 <TypesRadar counts={counts} selected={radarType} onSelect={setRadarType} />
               </div>
             </Card>
 
             {/* 3 — Aperçu 5 tickets à 3 bascules. */}
-            <Card title="Aperçu du backlog">
+            <Card title="Backlog preview">
               <div className="flex h-full flex-col">
                 <div className="shrink-0 px-4 pb-3 pt-1">
                   <Segmented value={mode} onChange={setMode} />
                 </div>
                 {preview.length === 0 ? (
-                  <p className="px-4 py-8 text-center text-xs text-neutral-500">Aucun ticket à afficher.</p>
+                  <p className="px-4 py-8 text-center text-xs text-neutral-500">No tickets to show.</p>
                 ) : (
                   <div className="divide-y divide-neutral-100 border-t border-neutral-100">
                     {preview.map((t) => (
-                      <PreviewRow key={t.id} task={t} hint={hintOf(t)} onOpen={openTask} />
+                      <PreviewRow key={t.id} task={t} hint={hintOf(t)} isCurrent={top?.type === 'task' && top.id === t.id} onOpen={openTask} />
                     ))}
                   </div>
                 )}
@@ -199,7 +202,7 @@ export function OverviewView() {
             {/* 4 — Graphe en aires créés-vs-fermés par JOUR (#376, étape 2 ; style
                 shadcn, retour Rémi). Pleine largeur, aires lissées superposées.
                 Données via createdVsClosedByDay — jamais recomptées ici. */}
-            <Card title="Créés vs fermés / jour" className="lg:col-span-2">
+            <Card title="Created vs closed / day" className="lg:col-span-2">
               <FlowAreaChart data={dailyFlow} />
             </Card>
 
@@ -214,8 +217,7 @@ export function OverviewView() {
                 </div>
               ) : (
                 <p className="px-4 py-12 text-center text-xs text-neutral-500">
-                  Aucun tag sur les tickets — le graphe apparaîtra dès qu'un ticket portera des tags.
-                </p>
+                  No tags on tickets yet — the graph appears once a ticket carries tags.</p>
               )}
             </Card>
           </div>

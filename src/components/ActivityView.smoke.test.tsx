@@ -40,6 +40,6 @@ describe('ActivityView (#377) — smoke de montage', () => {
 
   it('affiche l\'état vide quand le log est vide', () => {
     frame()
-    expect(screen.getByText('Aucune activité pour cette session')).toBeInTheDocument()
+    expect(screen.getByText('No activity this session')).toBeInTheDocument()
   })
 })

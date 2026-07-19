@@ -24,8 +24,8 @@ describe('dayLabel', () => {
     const today = localMidnight(NOW)
     const yesterday = new Date(2026, 6, 18, 0, 0, 0).getTime()
     const older = new Date(2026, 6, 15, 0, 0, 0).getTime()
-    expect(dayLabel(today, NOW)).toBe("Aujourd'hui")
-    expect(dayLabel(yesterday, NOW)).toBe('Hier')
+    expect(dayLabel(today, NOW)).toBe("Today")
+    expect(dayLabel(yesterday, NOW)).toBe('Yesterday')
     expect(dayLabel(older, NOW)).toBe('2026-07-15')
   })
 })
@@ -43,7 +43,7 @@ describe('groupByDay', () => {
       at(2026, 7, 17, 14, 0, 0), // avant-hier
     ]
     const groups = groupByDay(log, NOW)
-    expect(groups.map((g) => g.label)).toEqual(["Aujourd'hui", 'Hier', '2026-07-17'])
+    expect(groups.map((g) => g.label)).toEqual(["Today", 'Yesterday', '2026-07-17'])
     expect(groups.map((g) => g.entries.length)).toEqual([2, 1, 1])
     // Contiguïté : les 2 entrées d'aujourd'hui restent dans l'ordre du log.
     expect(groups[0].entries).toEqual([log[0], log[1]])
@@ -56,6 +56,6 @@ describe('groupByDay', () => {
     ]
     const groups = groupByDay(log, NOW)
     expect(groups).toHaveLength(2)
-    expect(groups.map((g) => g.label)).toEqual(["Aujourd'hui", 'Hier'])
+    expect(groups.map((g) => g.label)).toEqual(["Today", 'Yesterday'])
   })
 })
