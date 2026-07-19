@@ -250,6 +250,20 @@ const EDGE_STROKE: Record<EdgeTone, string> = { default: 'var(--color-neutral-50
 const EDGE_MARKER: Record<EdgeTone, string> = { default: 'url(#rm-arrow)', strong: 'url(#rm-arrow-strong)', dim: 'url(#rm-arrow-dim)' }
 
 /**
+ * Style d'un trait d'arête selon son ton. Grammaire du pointillé unifiée
+ * (#386) : les dépendances sont des liens EXPLICITES (dependsOn) → trait PLEIN
+ * — le pointillé reste réservé à l'inféré/incertain (KbGraph). L'emphase du
+ * chemin survolé ne passe donc PLUS par plein-vs-pointillé mais par la COULEUR
+ * (neutral-900 fort / neutral-500 base / neutral-200 atténué), l'ÉPAISSEUR
+ * (1.5 emphase / 1 base — échelle unique de la data-viz) et la flèche teintée.
+ * `non-scaling-stroke` : le graphe est zoomable, le trait doit rester constant.
+ * Pur, testé à part.
+ */
+export function edgeStyle(tone: EdgeTone): { stroke: string; strokeWidth: number; markerEnd: string } {
+  return { stroke: EDGE_STROKE[tone], strokeWidth: tone === 'strong' ? 1.5 : 1, markerEnd: EDGE_MARKER[tone] }
+}
+
+/**
  * Vue achievement : layout FLUX-DE-DÉPENDANCES (dagre, prérequis → dépendant).
  * La bande d'epics (#343) coiffe le graphe comme en vue Colonnes : mêmes cartes,
  * même sélection/désélection, MÊME état (remonté à RoadmapView) — passer d'une
@@ -371,8 +385,9 @@ function GraphCanvas({ tree, showDone, selected }: { tree: TaskTree; showDone: b
           className="relative"
           style={{ width: layout.width, height: layout.height, transform: `translate(${tx}px, ${ty}px) scale(${scale})`, transformOrigin: '0 0' }}
         >
-          {/* Arêtes (derrière les cartes), tête de flèche = direction. Le chemin
-              amont/aval survolé passe en trait plein #171717, le reste s'atténue. */}
+          {/* Arêtes (derrière les cartes), toutes PLEINES (dépendances explicites),
+              tête de flèche = direction. Le chemin amont/aval survolé se distingue
+              par la couleur (neutral-900) + l'épaisseur (1.5), le reste s'atténue. */}
           <svg className="pointer-events-none absolute inset-0" width={layout.width} height={layout.height}>
             <defs>
               <marker id="rm-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
@@ -388,16 +403,16 @@ function GraphCanvas({ tree, showDone, selected }: { tree: TaskTree; showDone: b
             {model.edges.map(({ from, to }) => {
               const pts = layout.edges.get(`${from}->${to}`)?.points
               if (!pts || pts.length < 2) return null
-              const tone = edgeTone(from, to)
+              const s = edgeStyle(edgeTone(from, to))
               return (
                 <path
                   key={`${from}->${to}`}
                   d={roundedEdgePath(pts)}
                   fill="none"
-                  stroke={EDGE_STROKE[tone]}
-                  strokeWidth={tone === 'strong' ? 1.25 : 1}
-                  strokeDasharray={tone === 'strong' ? undefined : '3 3'}
-                  markerEnd={EDGE_MARKER[tone]}
+                  stroke={s.stroke}
+                  strokeWidth={s.strokeWidth}
+                  markerEnd={s.markerEnd}
+                  vectorEffect="non-scaling-stroke"
                 />
               )
             })}
