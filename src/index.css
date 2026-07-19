@@ -156,43 +156,46 @@
  * l'encre-carte (≥4,5:1). C'est la contrainte de choix des valeurs ci-dessous.
  * ═══════════════════════════════════════════════════════════════════════════ */
 
-/* ── GitHub : bleu signature, coins à 6px partout, gris froids ── */
+/* ── GitHub : bleu signature, gris froids. Background↔Foreground INVERSÉS (page
+      blanche, cartes grises — décision Rémi) + arrondis augmentés. ── */
 :root[data-theme-name="github"] {
   --color-accent: #0969da;
   --color-accent-tint: #ddf4ff;
-  --color-page: #f6f8fa;
-  --color-white: #ffffff;
+  --color-page: #ffffff;          /* page BLANCHE (ex-carte) */
+  --color-white: #f6f8fa;         /* cartes GRISES (ex-page) */
   --color-neutral-200: #d0d7de;
-  --radius-interactive: 6px;
-  --radius-listitem: 6px;
-  --radius-surface: 6px;
+  --radius-interactive: 8px;
+  --radius-listitem: 8px;
+  --radius-surface: 12px;
   --spacing-listgap: 8px;   /* listes en cartes séparées (décision Rémi) */
 }
 :root[data-theme-name="github"][data-theme="dark"] {
   --color-accent: #1f6feb;        /* blob bouton GitHub sombre, blanc/encre lisible */
   --color-accent-tint: #121d2f;
-  --color-page: #0d1117;
-  --color-white: #161b22;
+  --color-page: #161b22;          /* inversé */
+  --color-white: #0d1117;         /* inversé */
   --color-neutral-200: #30363d;
 }
 
-/* ── Cursor : bleu net, coins NETS (sharp), surfaces quasi-noires ── */
+/* ── Cursor : couleur principale = NOIR (décision Rémi), sur un thème très
+      légèrement BEIGE. Monochrome noir/blanc, coins nets. ── */
 :root[data-theme-name="cursor"] {
-  --color-accent: #0b6bcb;
-  --color-accent-tint: #e6f1fd;
-  --color-page: #ffffff;
-  --color-white: #fbfbfa;
-  --color-neutral-200: #e5e5e5;
+  --color-accent: #1a1a17;        /* NOIR (légèrement chaud) = bouton + marques */
+  --color-accent-tint: #eae7e0;   /* sélection : beige-gris (pas de bleu) */
+  --color-page: #f5f3ee;          /* beige très léger */
+  --color-white: #fdfcf8;         /* carte : beige plus clair */
+  --color-neutral-200: #e5e1d7;   /* filet chaud */
   --radius-interactive: 4px;
   --radius-listitem: 2px;
   --radius-surface: 4px;
+  --spacing-listgap: 4px;         /* ListItem arrondi → un gap (petit, coins nets) */
 }
 :root[data-theme-name="cursor"][data-theme="dark"] {
-  --color-accent: #4c9bff;
-  --color-accent-tint: #10233b;
-  --color-page: #0a0a0a;
-  --color-white: #141414;
-  --color-neutral-200: #2a2a2a;
+  --color-accent: #e8e6df;        /* clair/beige : encre-carte lisible dessus */
+  --color-accent-tint: #26251f;
+  --color-page: #0b0b09;          /* quasi-noir chaud */
+  --color-white: #161511;
+  --color-neutral-200: #2b2924;
 }
 
 /* ── Claude : terre de Sienne (clay), coins DOUX, neutres CHAUDS ── */
@@ -205,6 +208,7 @@
   --radius-interactive: 8px;
   --radius-listitem: 8px;
   --radius-surface: 12px;
+  --spacing-listgap: 8px;         /* ListItem doux → cartes séparées (thème aéré) */
 }
 :root[data-theme-name="claude"][data-theme="dark"] {
   --color-accent: #d97757;        /* clay clair, encre-carte lisible dessus */
@@ -224,6 +228,7 @@
   --radius-interactive: 6px;
   --radius-listitem: 4px;
   --radius-surface: 8px;
+  --spacing-listgap: 6px;         /* ListItem arrondi → un gap */
 }
 :root[data-theme-name="codex"][data-theme="dark"] {
   --color-accent: #19c37d;        /* vert vif, encre-carte lisible dessus */
