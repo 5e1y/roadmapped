@@ -1,6 +1,6 @@
 id: 395
 title: "Theming P4 — thème(s) allégé(s) : régler les tokens (air, filets, poids)"
-status: todo
+status: done
 tags:
   - theming
   - ds
@@ -16,9 +16,20 @@ dependsOn:
 epic: theming-foundations
 source: ai
 createdAt: "2026-07-19T14:02:37"
-updatedAt: "2026-07-19T14:02:37"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+startedAt: "2026-07-19T15:45:56"
+updatedAt: "2026-07-19T18:00:06"
+completedAt: "2026-07-19T18:00:06"
+commit: 796511b
+outcome: >-
+  Refonte theming + DS livrée : fondations de tokens sémantiques (9 couleurs/4 rayons/6 spacing), 5
+  thèmes intégrés (Roadmapped·GitHub·Cursor·Claude·Codex, 2 axes data-theme/data-theme-name),
+  densité par thème (ListGap/ListItem). Migration app-wide + 2 audits adversariaux (tokens statiques
+  114 écarts + états d'interaction 17) : bordures en box-shadow (::after / .rm-node), focus accent
+  unique + anti-flash, survol=Rollover translucide, sélection sans trait. Refonte UX : header global
+  (recherche centrée + task), page Settings (thème/bug/MAJ), feed Activity 400/800px, Overview
+  (bâtons par tag, radar accent, layout). design.md à jour.
+verification: >-
+  npx tsc --noEmit OK · npx vitest run 742/742 · npm run build OK · captures Playwright des 5 thèmes
+  en clair ET sombre (backlog, panneau, overview, deps, activity, settings) — bordures/focus/densité
+  cohérents
+release: 0.3.0
