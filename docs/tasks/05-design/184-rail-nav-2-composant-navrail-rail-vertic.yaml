@@ -29,20 +29,18 @@ epic: rail-nav
 source: ai
 createdAt: "2026-07-19T01:05:40"
 startedAt: "2026-07-19T01:47:15"
-updatedAt: "2026-07-19T11:22:04"
-completedAt: "2026-07-19T11:22:04"
-commit: 5232a94
+updatedAt: "2026-07-19T11:39:19"
+completedAt: "2026-07-19T11:39:19"
+commit: 3e34005
 outcome: >-
-  NavRail livré + rework icônes (retour Rémi : les SVG faits main du 1er jet juraient). Les 6 icônes
-  passent en trinil-react — la lib d'icônes de TOUTE l'app (header, Backlog, radar…) : Backlog=List,
-  Roadmap=LayoutColumns, Deps=GitBranch, Graph=NodeGraph, Docs=FileDoc, Notes=Notebook. Wrapper
-  NavIcon + 6 fonctions bespoke retirés de glyphs.tsx (import ReactNode devenu orphelin retiré
-  aussi). Type Icon élargi à ComponentType (les icônes trinil sont des FC). Reste inchangé : rail
-  vertical façon Figma, mascotte en tête, actif=accent, 2 groupes séparés par un filet, a11y (nav
-  aria-label, aria-current, cibles ≥44px, labels texte).
+  Polish rail (retours Rémi) : (1) highlight rollover ET actif porté par un carré arrondi autour de
+  l'ICÔNE SEULE (façon Figma) — le bouton devient 'group', le survol de tout le bouton n'allume que
+  le fond de l'icône via group-hover ; le label reste du texte nu (actif=neutral-900, sinon
+  neutral-600). (2) Icônes 20→18px dans un carré size-9. (3) Onglet Notepad : icône Notebook →
+  Pencil. La cible cliquable reste le bouton entier (icône+label), a11y intacte.
 verification: >-
-  tsc clean, suite 682/682 (NavRail.test toujours vert : 6 items, aria-current, clic→setView). Les 6
-  noms d'icônes vérifiés présents dans trinil-react. VÉRIF VISUELLE (Playwright, build servi) :
-  capture Backlog relue — icônes cohérentes avec le trait fin trinil du reste de l'app, plus l'effet
-  corps étranger. Build OK.
+  tsc clean, suite 682/682 (NavRail.test vert). VÉRIF VISUELLE (Playwright, build servi) : capture
+  zoomée du rail relue — Backlog actif = tint accent derrière l'icône seule, Roadmap survolé = gris
+  derrière l'icône seule, labels en texte nu, Notes = crayon. Conforme au modèle Figma fourni. Build
+  OK.
 release: 0.2.3
