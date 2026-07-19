@@ -5,9 +5,9 @@ import { KbGraph } from './KbGraph'
 import { TempBadge } from './Temperature'
 import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
-import { WeeklyFlowChart } from './WeeklyFlowChart'
+import { FlowAreaChart } from './FlowAreaChart'
 import { tagKbGraph } from '../lib/tagKbGraph'
-import { mostUrgent, oldest, recentlyAdded, createdVsClosedByWeek } from '../lib/overview'
+import { mostUrgent, oldest, recentlyAdded, createdVsClosedByDay } from '../lib/overview'
 import { activeTasks, temperature, ageInDays } from '../lib/roadmap'
 import { relativeTime, absoluteDate } from '../lib/relativeTime'
 import type { KbFilters } from '../lib/kbFilter'
@@ -129,7 +129,7 @@ export function OverviewView() {
   const today = useMemo(() => todayLocal(), [])
   const counts = useMemo(() => (tree ? openCountsByType(tree) : new Map<string, number>()), [tree])
   const tagGraphData = useMemo(() => (tree ? tagKbGraph(activeTasks(tree)) : null), [tree])
-  const weeklyFlow = useMemo(() => (tree ? createdVsClosedByWeek(tree) : []), [tree])
+  const dailyFlow = useMemo(() => (tree ? createdVsClosedByDay(tree) : []), [tree])
   const preview = useMemo(() => {
     if (!tree) return []
     if (mode === 'urgent') return mostUrgent(tree, 5, today)
@@ -196,11 +196,11 @@ export function OverviewView() {
               </div>
             </Card>
 
-            {/* 4 — Chart créés-vs-fermés par semaine (#376, étape 2). Pleine largeur :
-                barres groupées centrées (le svg plafonne à sa taille naturelle, pas
-                d'étirement). Données via createdVsClosedByWeek — jamais recomptées ici. */}
-            <Card title="Créés vs fermés / semaine" className="lg:col-span-2">
-              <WeeklyFlowChart data={weeklyFlow} />
+            {/* 4 — Graphe en aires créés-vs-fermés par JOUR (#376, étape 2 ; style
+                shadcn, retour Rémi). Pleine largeur, aires lissées superposées.
+                Données via createdVsClosedByDay — jamais recomptées ici. */}
+            <Card title="Créés vs fermés / jour" className="lg:col-span-2">
+              <FlowAreaChart data={dailyFlow} />
             </Card>
 
             {/* 2 — Graphe nodal des TAGS via KbGraph (visualiseur Graphify réutilisé).

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { mostUrgent, oldest, recentlyAdded, createdVsClosedByWeek } from './overview'
+import { mostUrgent, oldest, recentlyAdded, createdVsClosedByWeek, createdVsClosedByDay } from './overview'
 import { ageInDays } from './roadmap'
 import type { TaskTree, TaskNode, SectionNode } from './tasks'
 
@@ -114,5 +114,31 @@ describe('createdVsClosedByWeek — buckets, semaines vides, frontière locale',
 
   it('aucun ticket → tableau vide', () => {
     expect(createdVsClosedByWeek(tree([]))).toEqual([])
+  })
+})
+
+describe('createdVsClosedByDay — buckets quotidiens, jours vides comblés, parse local', () => {
+  it('bucketise par jour et comble les jours manquants', () => {
+    const t = tree([
+      task(1, { createdAt: '2026-07-10' }),
+      task(2, { createdAt: '2026-07-10' }),
+      task(3, { createdAt: '2026-07-13', status: 'done', completedAt: '2026-07-12' }),
+    ])
+    const d = createdVsClosedByDay(t)
+    expect(d.map((b) => b.day)).toEqual(['2026-07-10', '2026-07-11', '2026-07-12', '2026-07-13'])
+    expect(d[0]).toEqual({ day: '2026-07-10', created: 2, closed: 0 })
+    expect(d[1]).toEqual({ day: '2026-07-11', created: 0, closed: 0 }) // trou comblé
+    expect(d[2]).toEqual({ day: '2026-07-12', created: 0, closed: 1 })
+    expect(d[3]).toEqual({ day: '2026-07-13', created: 1, closed: 0 })
+  })
+
+  it('datetime tardif reste dans SON jour local (pas de bascule UTC)', () => {
+    const t = tree([task(1, { createdAt: '2026-07-19T23:30:00' })])
+    const d = createdVsClosedByDay(t)
+    expect(d).toEqual([{ day: '2026-07-19', created: 1, closed: 0 }])
+  })
+
+  it('aucun ticket → tableau vide', () => {
+    expect(createdVsClosedByDay(tree([]))).toEqual([])
   })
 })
