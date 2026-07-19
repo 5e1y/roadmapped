@@ -103,7 +103,7 @@ export function DocsView({ path, onSelectDoc }: { path: string | null; onSelectD
       <ViewHeader meta={path ?? undefined} />
       <div className="flex min-h-0 flex-1">
         <div className="flex w-[420px] shrink-0 flex-col border-r border-neutral-200 bg-white py-2">
-          <div className="shrink-0 px-4 pb-1.5 text-[11px] font-medium text-neutral-500">Fichiers</div>
+          <div className="shrink-0 px-4 pb-1.5 text-[11px] font-medium text-neutral-500">Files</div>
           <div className="min-h-0 flex-1 overflow-y-auto">
             {docs.loading && !docs.tree && <p className="px-4 text-xs text-neutral-500">Loading…</p>}
             {/* Registre d'erreur canonique (ErrorBanner, role=alert) — plus de boîte ad hoc. */}
