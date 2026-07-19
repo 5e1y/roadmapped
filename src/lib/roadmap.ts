@@ -175,14 +175,18 @@ const AUTO_CAP = 33.33 // ceinture du tiers machine
 const K_AGE = 90 // demi-vie de l'âge (jours)
 const K_BLOCK = 4 // demi-vie des blocages
 
-/** Date locale (fix #232) : "YYYY-MM-DD[T…]" → ms de minuit LOCAL du jour calendaire. */
-function localDayMs(iso: string): number {
+/** Date locale (fix #232) : "YYYY-MM-DD[T…]" → ms de minuit LOCAL du jour calendaire.
+ *  Exporté (#374) : le bucketiseur créés-vs-fermés de l'Overview réutilise ce parse
+ *  LOCAL (jamais `new Date(iso)`, qui lit une date nue "YYYY-MM-DD" en UTC → décalage
+ *  de jour/semaine à la frontière). Source unique du parsing de date du repo. */
+export function localDayMs(iso: string): number {
   const [y, m, d] = iso.slice(0, 10).split('-').map(Number)
   return new Date(y, (m ?? 1) - 1, d ?? 1).getTime()
 }
 
-/** Jours entiers écoulés de createdAt à today, en dates LOCALES (≥ 0). */
-function ageInDays(createdAt: string, today: string): number {
+/** Jours entiers écoulés de createdAt à today, en dates LOCALES (≥ 0).
+ *  Exporté (#374) pour que l'Overview affiche l'âge d'un ticket — logique inchangée. */
+export function ageInDays(createdAt: string, today: string): number {
   const days = Math.floor((localDayMs(today) - localDayMs(createdAt)) / 86_400_000)
   return days > 0 ? days : 0
 }
