@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { ArrowRotateCcw, Check, EditPen, Play, Plus, Pulse, Trash, Undo } from 'trinil-react'
 import { useLiveActivity, type LiveEntry, type LiveVerb } from '../state/LiveActivity'
 import { usePanel } from '../state/PanelContext'
@@ -108,6 +108,14 @@ export function ActivityView() {
   const groups = groupByDay(log)
   const byId = useMemo(() => (tree ? flattenTasks(tree) : new Map<number, TaskNode>()), [tree])
 
+  // Ouvrir l'onglet Activity = tout lu (le point de notif accent du rail s'éteint).
+  // Les events arrivés PENDANT qu'on regarde ne comptent pas comme non-lus.
+  const setOpen = activity?.setOpen
+  useEffect(() => {
+    setOpen?.(true)
+    return () => setOpen?.(false)
+  }, [setOpen])
+
   return (
     <div className="flex h-full flex-col">
       <ViewHeader meta={log.length > 0 ? `${log.length} this session` : undefined} />
@@ -120,7 +128,7 @@ export function ActivityView() {
             hint="Live changes to your tasks show up here as a feed. The full history lives in your git log over docs/tasks/ — every done is a commit."
           />
         ) : (
-          <div className="mx-auto max-w-[400px] px-3 py-4">
+          <div className="mx-auto max-w-[800px] px-3 py-4">
             {groups.map((group) => (
               <div key={group.dayMs} className="mb-1">
                 <div className="sticky top-0 z-10 -mx-3 bg-background px-3 py-1.5 text-[11px] font-medium text-textsoft">
