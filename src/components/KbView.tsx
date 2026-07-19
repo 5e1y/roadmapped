@@ -34,8 +34,8 @@ export function KbView() {
   if (error) {
     return (
       <div className="mx-auto max-w-2xl px-6 py-8">
-        <h1 className="text-lg font-semibold tracking-tight text-neutral-900">graph.json illisible</h1>
-        <p className="mt-1 text-sm text-neutral-500">Régénère le graphe avec <code className="font-mono">/graphify .</code>.</p>
+        <h1 className="text-lg font-semibold tracking-tight text-neutral-900">graph.json unreadable</h1>
+        <p className="mt-1 text-sm text-neutral-500">Regenerate the graph with <code className="font-mono">/graphify .</code>.</p>
         <div className="mt-3"><ErrorBanner errors={[error]} /></div>
       </div>
     )
@@ -46,9 +46,9 @@ export function KbView() {
   if (graph.nodes.length === 0) {
     return (
       <div className="mx-auto max-w-2xl px-6 py-8">
-        <h1 className="text-lg font-semibold tracking-tight text-neutral-900">Graphe vide</h1>
+        <h1 className="text-lg font-semibold tracking-tight text-neutral-900">Empty graph</h1>
         <p className="mt-1 text-sm text-neutral-500">
-          Le corpus détecté ne contenait rien d'extractible. Relance <code className="font-mono">/graphify .</code> à la racine du repo.
+          The detected corpus had nothing extractable. Re-run <code className="font-mono">/graphify .</code> at the repo root.
         </p>
       </div>
     )
@@ -110,7 +110,7 @@ export function KbView() {
           )}
           <span>{graph.stats.nodes} nodes · {graph.stats.edges} edges · {graph.stats.communities} communities</span>
           {graph.generatedAt && (
-            <span title={absoluteDate(graph.generatedAt)}>générée {relativeTime(graph.generatedAt)}</span>
+            <span title={absoluteDate(graph.generatedAt)}>built {relativeTime(graph.generatedAt)}</span>
           )}
         </div>
       </div>
@@ -128,16 +128,16 @@ function EmptyState() {
       <div className="mb-3">
         <GraphifyMark size={28} />
       </div>
-      <h1 className="text-lg font-semibold tracking-tight text-neutral-900">Knowledge base — pas encore générée</h1>
+      <h1 className="text-lg font-semibold tracking-tight text-neutral-900">Knowledge base — not generated yet</h1>
       <p className="mt-2 text-sm text-neutral-600">
-        Le graphe se construit avec Graphify (open source, MIT), depuis Claude Code :
+        The graph is built with Graphify (open source, MIT), from Claude Code:
       </p>
       <pre className="mt-3 overflow-x-auto border border-neutral-200 bg-neutral-50 px-3 py-2 font-mono text-xs text-neutral-700">
-{`pip install graphifyy && graphify install   # une fois
-/graphify .                                 # dans Claude Code, à la racine`}
+{`pip install graphifyy && graphify install   # once
+/graphify .                                 # in Claude Code, at the root`}
       </pre>
       <p className="mt-3 text-sm text-neutral-500">
-        Le dashboard lira <code className="font-mono">graphify-out/graph.json</code> automatiquement.
+        The dashboard will read <code className="font-mono">graphify-out/graph.json</code> automatically.
       </p>
       <a
         href="https://github.com/Graphify-Labs/graphify"
@@ -145,7 +145,7 @@ function EmptyState() {
         rel="noopener noreferrer"
         className="mt-3 self-start rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-xs text-neutral-600 transition-colors hover:bg-neutral-100"
       >
-        En savoir plus sur Graphify ↗
+        Learn more about Graphify ↗
       </a>
     </div>
   )
