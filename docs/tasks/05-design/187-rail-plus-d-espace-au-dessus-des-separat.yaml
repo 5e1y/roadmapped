@@ -4,14 +4,15 @@ status: done
 tags:
   - ui
 detail: null
-refs: []
+refs:
+  - src/components/NavRail.tsx
 links: []
 dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-19T12:07:22"
 startedAt: "2026-07-19T12:07:22"
-updatedAt: "2026-07-19T12:08:22"
+updatedAt: "2026-07-19T12:08:28"
 completedAt: "2026-07-19T12:08:22"
 commit: 0cdc4e2
 outcome: >-
