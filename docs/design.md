@@ -2,6 +2,9 @@
 
 **Status**: active (#111) · **Fed by**: docs/audit-a11y-2026-07.md (#107-109)
 **Enforced by**: #113 (BaseUI), #114 (uniformity), #115 (a11y), #116 (Tailwind)
+**Refonte #395** (theming multi-thème + repasse DS « alléger ») : tokens sémantiques,
+5 thèmes intégrés, bordures en box-shadow, focus accent unique, header global +
+Settings + feed Activity. Deux audits adversariaux (tokens statiques + états d'interaction).
 
 A Design.md, not a design system: this document settles every token, every canonical
 component, and every rule. Any deviation found in the code is a bug, not a variant.
@@ -23,9 +26,9 @@ le swap clair/sombre sans redéfinition.
 | `Active` | fill of active/selected elements (current row bg, toggle on) | `accent-tint` (bleu clair) |
 | `Rollover` | row/surface hover | `neutral-50` |
 | `Action` | **primary-button fill (blue)** — replaces the old black button | `accent` |
-| `accent` | THE attention mark: left rule on rows, in_progress glyph, active icon/text. Same blue as `Action` but a distinct ROLE (Action = clickable *fill*, accent = a *mark*) | `accent` |
+| `accent` | THE attention mark: in_progress glyph, active icon/text, focus ring, gauge fill. Same blue as `Action` but a distinct ROLE (Action = clickable *fill*, accent = a *mark*) | `accent` |
 | `Foreground` | surface (card, panel, popup, side) — **and text on `Action`** (flip symmetry: white/#2563eb light ≈ ink/#3b82f6 dark, ~5.8:1 both sides, no `on-accent` token) | `white`/card |
-| `Background` | page (under surfaces) | `page` |
+| `Background` | page (under surfaces) — **and recessed field fill** | `page` |
 | `TextHard` | primary ink — **text only** (no longer any button fill) | `neutral-900` |
 | `TextSoft` | muted/meta text (contrast floor #108) ; disabled & decorative fold here | `neutral-500` |
 | `Border` | rules, separators, control borders | `neutral-200` |
@@ -34,9 +37,11 @@ The intermediate greys (300/400/600/700) collapse into these — that IS the
 "alléger". Nothing carries meaning below `TextSoft`'s contrast. **Decision (Rémi):
 buttons go black → blue.** The old inverted black button (`bg-neutral-900 text-white`)
 becomes `bg-action text-foreground`; the flip symmetry keeps the label readable in
-both themes without a dedicated on-accent token. `Active` (light-blue fill) and
-`accent` (the blue mark) are the classic selected-row pair: `bg-active` + a left
-`accent` rule.
+both themes without a dedicated on-accent token. **Selected/current = `bg-active` FILL
+ONLY** — the old left accent rule was removed (#395): too Roadmapped-specific, it
+clashed with the other themes. `Rollover` is a **translucent overlay** (`rgb(0 0 0 /
+.045)` light, white in dark), not opaque `neutral-50`: it must show on the grey
+`Background` page as well as on a white card.
 
 **Radii (4)** — `rounded-interactive`, `rounded-listitem`, `rounded-surface`, `rounded-round` :
 
@@ -51,6 +56,25 @@ both themes without a dedicated on-accent token. `Active` (light-blue fill) and
 `XL`24 · `ListGap`0. **ListGap = 0 (glued rows) by default**; a theme raises it to
 separate list items (paired with `ListItem` radius) — hence the two dedicated tokens.
 
+### Theming — multi-theme, one contract
+
+The token layer above is the theming contract. A **theme = a set of these token
+values** (colour + shape/density). It lives on TWO orthogonal `<html>` axes:
+`data-theme` = **mode** (light/dark), `data-theme-name` = **palette family**. They
+compose. Both are set before first paint by the anti-flash script (`index.html`) and
+persisted (`ui:theme`, `ui:theme-name`).
+
+- **5 built-in themes** (`src/index.css`): **Roadmapped** (base) · **GitHub** ·
+  **Cursor** · **Claude** · **Codex**. Each redefines an *identity kit* — accent,
+  accent-tint, page, card, border + radii — in light AND dark; the rest of the neutral
+  scale inherits from the base (so text stays readable). Roadmapped = no block (base).
+- **Constraint on any new accent**: text on `Action` stays `Foreground` (no on-accent
+  token), so each accent must hold ≥4.5:1 — the LIGHT accent against white, the DARK
+  accent against the dark card.
+- **Dark mode is a value swap, not a parallel theme (#269)** — zero `dark:` variant, a
+  hardcoded hex is a dark-mode bug (SVG glyphs/graph/radar included).
+- Switched from the **Settings** view (rail, bottom), NOT the header.
+
 ### Colors — the underlying primitives (mapped above)
 
 The doctrine (Rémi's decision #36, index.css): **the only color is the accent blue**,
@@ -61,7 +85,7 @@ destructive states are expressed through an emphatic monochrome register (see §
 | Token | Light | Dark (#269) | Role |
 |---|---|---|---|
 | `--color-accent` | #2563eb | #3b82f6 | Active, selection, in_progress (5.17:1 on white ; #2563eb only 3.5:1 on the dark card → lightened) |
-| `--color-accent-tint` | #eef3fd | #1c2636 | Opaque selection background (+ left accent rule) |
+| `--color-accent-tint` | #eef3fd | #1c2636 | Opaque selection background (`Active` fill) |
 | `--color-page` | #fafafa | ≈#0f0f0f | THE body background — its OWN token (split from neutral-50: in dark the page sits *under* the card, while `hover:bg-neutral-50` must stay *above* it) |
 | card (`--color-white`) | #ffffff | #171717 | "Card" surfaces: list sides, cards, panels, popups. In dark the light ink becomes the surface |
 | rule (`neutral-200`) | #e5e5e5 | ≈#303030 | NON-interactive separator borders |
@@ -82,17 +106,13 @@ A systemic decision, not case by case:
 - `disabled` states: exempt from WCAG, keep the current rendering.
 - Micro-text: nothing below 10px; existing 10px to be bumped to 11px (audit §3).
 
-### Corner radii — two radii, one rule
+### Corner radii — the 4 semantic radii (supersedes the old 4/6px rule)
 
-- **`rounded` (4px)**: any control within the body of views and panels (inputs,
-  buttons, icon buttons).
-- **`rounded-md` (6px)**: reserved for the h-12 header controls (search, "+ task",
-  tabs, filters) and floating cards (graph zoom, radar).
-- **Square (no radius)**: surfaces (cards, accordions, banners, toasts), chips, and
-  list rows (the "backlog row" template). A floating MENU anchored to a header
-  control (FilterMenu/KbDisplayMenu popover) follows its trigger's `rounded-md`;
-  a standalone popup/banner/toast stays square. No `rounded-lg` anywhere (#380).
-- `rounded-full`: progress bars and status dots only.
+Radii are now the 4 tokens above (`Interactive` / `ListItem` / `Surface` / `Round`),
+theme-dialled — NOT the old hardcoded `rounded`/`rounded-md`. Mapping: any control
+(button, input, toggle, **floating menu** — Select/Combobox/Popover popups) →
+`rounded-interactive`; card/panel/banner/toast → `rounded-surface`; list row →
+`rounded-listitem`; gauge/dot/avatar → `rounded-round`. No `rounded-lg` anywhere (#380).
 
 ### Spacing — canonical templates
 
@@ -132,19 +152,18 @@ Most live in `src/components/ui.tsx` (the exceptions, still canonical: `Chip` in
 | Dropdown/select | `Select` (Base UI) — skins `fieldCls` / `ghost` / `compact` | The native `<select>` is forbidden (last holdout: MiniZone → #113) |
 | Adding a relation | `AddCombobox` (Base UI) | Post-add focus fix: #115 |
 | Multi tags + cross | `TagsCombobox` / `MultiCombobox` (Base UI Creatable) | ChipRemove cross: compliant Base UI pattern (tabIndex=-1 + ←/→ Backspace) — do not "fix" it |
-| Visible text field | `fieldCls` | Border: keep neutral-300 + differentiate via `bg-neutral-50` (audit's option B, less brutal than border-500) |
+| Visible text field | `fieldCls` | Recessed well: `bg-background` + `ring-1 ring-inset ring-border`; focus lifts to `bg-foreground` (the single accent `:focus-visible` outline is the focus mark — no per-field ring) |
 | Camouflaged text field | `ghostCls` / `GhostInput` | THE ghost pattern (§3) — every field "invisible at rest" uses it, including the inline-editable epic title and the `heat` boost input in the panel |
-| Error | `ErrorBanner` (+ `Toast` for the ephemeral) | role=alert, left border neutral-900 — DocsView and MiniZone fall in line (#113) |
+| Error | `ErrorBanner` (+ `Toast` for the ephemeral) | role=alert; left rule via `shadow-[inset_3px_0_0_var(--color-accent)]` (box-shadow, not `border`) on a `rounded-surface` card |
 | Popover/filters | `FilterMenu` (Base UI Popover) | Never use `Popover.Close disabled` (it makes the option inert) |
 | Metadata chip | `Chip` | The `code`/`size` chips on task rows and cards (same rendering in Backlog and Roadmap). Temperature is NOT a chip — it's the `TempBadge` thermometer (§ Temperature exception) |
-| Buttons | Panel primary: `rounded border-neutral-900 bg-neutral-900 px-2.5 py-1 text-xs text-white hover:bg-neutral-700` · Secondary: `actionBtn` (hover `bg-neutral-100`) · Header: same colors in `rounded-md` | The "inverted" hover (light→solid black) is forbidden; "Delete" = secondary (global destructive register: no — YAGNI, monochrome by design) |
+| Buttons | Primary (`primaryBtn`): `rounded-interactive bg-action text-foreground hover:brightness-95` (blue fill, `transition-[filter]`) · Secondary (`actionBtn`): `ring-1 ring-inset ring-border` + `hover:bg-rollover` | "Delete" = secondary (global destructive register: no — YAGNI, monochrome by design). No `border` utility on either (box-shadow ring) |
 
 ## 3. Rules
 
-1. **Strict three-layer**: page #fafafa (body, never redeclared by a view) / card
-   #ffffff / rules #e5e5e5. A view NEVER sets `bg-white` on its root — the
-   ViewHeader must be identical across all 4 tabs. No hardcoded background hex in the
-   className (RoadmapColumns' sticky `bg-[#fafafa]` → utility/var).
+1. **Strict three-layer** (via tokens): `Background` (page, body — never redeclared by
+   a view) / `Foreground` (card) / `Border` (rules). A view NEVER sets a surface colour
+   on its root; the header is identical on every view. No hardcoded background hex.
 2. **"Active/selected" language — TWO registers, each a primitive (#380/#381)**:
    - **Current row** (an item open in the panel, a selected list entry): `bg-active`
      FILL ONLY. The left accent rule (`shadow-[inset_2px_0_0_…]`) was **removed**
@@ -169,32 +188,56 @@ Most live in `src/components/ui.tsx` (the exceptions, still canonical: `Chip` in
    at `ListGap` 0 rows are glued (rings collapse to one 1px seam); at `ListGap` > 0 they
    separate into `ListItem`-rounded cards, and nested groups (epic members, release
    panels, the epic band) inset into "cards within cards". Same tokens everywhere → one
-   theme dials the density of the whole app.
+   theme dials the density of the whole app. The ring is painted by a `::after`
+   pseudo-element (`.rm-list-item` / `.rm-node`), ABOVE the content — a plain inset
+   box-shadow on a container is covered by an opaque child (a selected row's `bg-active`)
+   and the border vanishes on the active item. `.rm-node` = the same ring for a
+   container whose children are opaque (the Deps epic node), without `overflow-hidden`
+   (which would clip the children's focus outline).
 4. **Ghost input pattern** (Rémi's decision, settled): editable fields are PERMANENT
    camouflaged inputs (`ghostCls`) — invisible at rest, hover `bg-rollover`, focus
    ring + surface background. **Never** a read→input swap, never a pencil step.
-5. **Focus**: visible everywhere (the global `:focus-visible` is authoritative;
-   neutralizing it via `focus:outline-none`/inline without a replacement is forbidden). A
-   control revealed on hover ALSO reveals on focus (`focus-visible:opacity-100`). After an
-   action that unmounts the focused element (delete, add, exit edit), focus is explicitly
-   REPLACED (next row, combobox input, panel container) — never abandoned on body.
+5. **Focus — ONE indicator** (#395): the global `:focus-visible` outline, in **accent**
+   (`@layer base`, index.css). A focusable element must NOT add its own `focus:ring`/
+   `focus:border` — that doubles the indicator. `outline-color` is pinned to accent on
+   `*` so a `transition`/`transition-colors` never animates it (no black→blue flash);
+   for the same reason a focusable element uses a TARGETED transition (`transition-[…]`),
+   never bare `transition`. Composite widgets (chips-combobox) may carry a
+   `focus-within` ring on the box and silence the inner input's outline (`focus:outline-none`).
+   A control revealed on hover ALSO reveals on focus. After an action that unmounts the
+   focused element (delete, add, exit edit), focus is explicitly REPLACED — never on body.
 6. **Keyboard**: everything interactive is a `<button>` (or handled by Base UI). A
    `role="button"` responds to Enter AND Space. No mouse-only clickable zone carrying a
    non-redundant action.
 7. **Monochrome**: any color outside accent/neutrals is a bug (the Notepad's amber and red
    → removed in #113).
 
-## 4. States — empty / loading / error (#384)
+## 4. Shell — header, navigation, settings, activity (#395)
 
-- **The header never disappears.** Loading and error render INSIDE the view shell
-  (`<ViewShell>`): the `ViewHeader` (theme toggle, report-a-bug) stays reachable.
+- **Header (global, identical on every view)** — 3-column grid `[1fr auto 1fr]`:
+  title `Roadmapped × repo` (left), the **search bar CENTERED**, `+ task` immediately
+  to its right (never far-right). Search + `+ task` are GLOBAL (present on all views,
+  `ViewHeader` + `search.tsx`): focusing search navigates to Backlog (the only view
+  that filters) and re-focuses the new input after the view switch. Nothing else in the
+  header — theme, report-a-bug and the update banner moved OUT.
+- **NavRail** (left): the views, then **Settings** pinned at the bottom (gear).
+- **Settings view** = the home of the cross-cutting controls that used to clutter the
+  header: theme **mode** (light/dark/system) + **theme** (5 built-in), report-a-bug,
+  update banner.
+- **Activity** = a **feed**, NOT full-width rows: a 400px centred column of event CARDS
+  (icon + verb + `#id` + time; the ticket title; then a preview — the status transition
+  `from → to`, or the created ticket's type/tags/temperature). Session only; the durable
+  history is `git log` over `docs/tasks/`.
+
+### States — empty / loading / error (#384)
+
+- **The header never disappears** during loading/error (rendered inside `<ViewShell>`).
 - **Loading**: `Loading…` in the centered template (`mx-auto max-w-3xl px-6 py-8`).
 - **Empty**: ONE `<EmptyState>` — centered, optional glyph + a title
-  (`text-sm font-medium text-neutral-700`) + an optional one-line hint
-  (`text-xs text-neutral-500`). Same register on every view.
-- **Error**: `ErrorBanner` (role=alert, left rule neutral-900) or the shared
-  `TreeStateGuard` for tree-load failures — one pattern, never ad hoc. A view must
-  never be a silent blank when the server is unreachable (Overview honors loadError).
+  (`text-sm font-medium text-texthard`) + an optional one-line hint (`text-xs text-textsoft`).
+- **Error**: `ErrorBanner` (role=alert, inset-accent left rule) or the shared
+  `TreeStateGuard` for tree-load failures — one pattern. A view is never a silent blank
+  when the server is unreachable (Overview honors loadError).
 - **Language**: the UI is English (Rémi's decision). Ticket/doc CONTENT is verbatim.
 
 ## 5. Data-viz & iconography (#386)
@@ -210,8 +253,12 @@ graph are ONE visual family:
 - **`vector-effect="non-scaling-stroke"`** on every stroke inside a zoomable or
   responsive SVG (graphs, chart) — line weight is constant regardless of zoom/size.
 - **Accent is rare here too**: a viz is neutral at rest; accent marks the ONE
-  highlighted/selected series or node only (radar polygon is neutral unless selected).
-- **Grid/axes**: `neutral-200`, decorative only.
+  highlighted/selected series or node only (radar polygon is neutral; its labels are
+  read-only — the selection filtered nothing, removed #395). The Created line is
+  `TextSoft`, the Closed line `accent`.
+- **Grid/axes/strokes**: tokenised — `Border` for the grid, `TextSoft`/`TextHard` for
+  edge strokes; no raw `neutral-*` in the SVG. Chart axis labels are HTML overlays
+  (fixed px), not SVG `<text>` (which the viewBox scales — the huge "116" bug, #395).
 - **Glyph family**: status = circle (todo hollow / in_progress half / done full),
   milestone = diamond, epic = square — `currentColor`, stroke via tokens, one trait
   weight. Icons come from `trinil-react`; no bespoke one-off icon set.
