@@ -1,6 +1,6 @@
 id: 393
 title: "Theming P2 — codemod : migrer tout le code sur les rôles sémantiques + les recettes d'état"
-status: todo
+status: done
 tags:
   - theming
   - refactor
@@ -17,9 +17,15 @@ dependsOn:
 epic: theming-foundations
 source: ai
 createdAt: "2026-07-19T14:02:37"
-updatedAt: "2026-07-19T14:02:37"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+startedAt: "2026-07-19T14:26:07"
+updatedAt: "2026-07-19T14:58:29"
+completedAt: "2026-07-19T14:58:29"
+commit: 99f97e5
+outcome: >-
+  35 composants migrés vers les tokens sémantiques (couleur+rayon). Boutons primaires noir→bleu
+  (bg-action). Famille accent conservée (marques). Tranches B/C par agents Opus, tranche A à la main
+  (agent tué par session-limit). Spécimens de rayons DesignSystemView laissés littéraux → suivi.
+verification: >-
+  npx tsc --noEmit OK · npx vitest run 738/738 · capture Playwright clair+sombre : bouton bleu
+  confirmé, nav active bg-active+accent, tri-couche sombre intacte, zéro régression couleur
+release: 0.2.3
