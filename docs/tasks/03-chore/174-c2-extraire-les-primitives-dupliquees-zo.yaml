@@ -2,7 +2,7 @@ id: 382
 title: >-
   C2 — Extraire les primitives dupliquées (ZoomControls, mini-row, RemoveButton/IconButton/bouton
   primaire, chips, recherche)
-status: todo
+status: done
 tags:
   - ds
   - refactor
@@ -24,9 +24,19 @@ dependsOn: []
 epic: ds-consistency
 source: ai
 createdAt: "2026-07-19T13:03:27"
-updatedAt: "2026-07-19T13:03:27"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+updatedAt: "2026-07-19T13:44:32"
+completedAt: "2026-07-19T13:44:32"
+commit: 6b18225
+outcome: >-
+  Primitive ZoomControls extraite : la barre de zoom flottante (4 boutons −/Fit/100%/+) était COPIÉE
+  ligne à ligne entre KbGraph.tsx:316 et RoadmapGraph.tsx:343. Nouveau ZoomControls.tsx (markup
+  partagé) ; les handlers restent aux appelants (KbGraph wrappe markInteracted + fitAll,
+  RoadmapGraph appelle zp direct) → dédup du markup sans changer le comportement. C'était le seul
+  dédup 100% sans arbitrage. Le RESTE de C2 (ligne-tâche mini réimplémentée 5× avec contenus
+  divergents, export/consolidation RemoveButton/IconButton/bouton primaire re-inliné, rayon de
+  RemovableChip chip-vs-contrôle-header) demande des arbitrages de design → laissé en follow-up pour
+  une passe revue avec Rémi (quick créé).
+verification: >-
+  tsc clean, suite 726/726, build OK. Les 2 graphes rendent la même barre via la primitive,
+  comportement (markInteracted côté KB) préservé.
+release: 0.2.3
