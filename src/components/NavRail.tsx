@@ -1,29 +1,26 @@
+import { type ComponentType } from 'react'
+import { List, LayoutColumns, GitBranch, NodeGraph, FileDoc, Notebook } from 'trinil-react'
 import { useView, type View } from '../state/ViewContext'
 import { BirdMascot } from './BirdMascot'
-import {
-  BacklogIcon,
-  RoadmapIcon,
-  DependenciesIcon,
-  GraphIcon,
-  DocsIcon,
-  NotesIcon,
-} from './glyphs'
 
-type NavItem = { id: View; label: string; Icon: (p: { size?: number }) => JSX.Element }
+// Icônes du rail = trinil-react (la lib d'icônes de l'app, cf. header/Backlog/…) :
+// même langage de trait que le reste. Remplace les glyphs SVG faits main du 1er
+// jet de #370, qui juraient (retour Rémi).
+type NavItem = { id: View; label: string; Icon: ComponentType<{ size?: number }> }
 
 // Deux groupes séparés par un filet, comme le rail Figma sépare File/Agents/Assets
 // des Variables : d'abord le TRAVAIL (Backlog, Roadmap, Dépendances), puis
 // l'EXPLORATION (Graphe, Docs, Notes). Labels COURTS pour tenir sous l'icône dans
 // une bande de 64 px, mais toujours du texte visible (jamais d'icône seule).
 const WORK: NavItem[] = [
-  { id: 'backlog', label: 'Backlog', Icon: BacklogIcon },
-  { id: 'roadmap', label: 'Roadmap', Icon: RoadmapIcon },
-  { id: 'dependencies', label: 'Deps', Icon: DependenciesIcon },
+  { id: 'backlog', label: 'Backlog', Icon: List },
+  { id: 'roadmap', label: 'Roadmap', Icon: LayoutColumns },
+  { id: 'dependencies', label: 'Deps', Icon: GitBranch },
 ]
 const EXPLORE: NavItem[] = [
-  { id: 'graph', label: 'Graph', Icon: GraphIcon },
-  { id: 'docs', label: 'Docs', Icon: DocsIcon },
-  { id: 'notepad', label: 'Notes', Icon: NotesIcon },
+  { id: 'graph', label: 'Graph', Icon: NodeGraph },
+  { id: 'docs', label: 'Docs', Icon: FileDoc },
+  { id: 'notepad', label: 'Notes', Icon: Notebook },
 ]
 
 /**
