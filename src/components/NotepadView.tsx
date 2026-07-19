@@ -230,9 +230,9 @@ export function NotepadView() {
       {/* Bandeau d'avertissement en registre monochrome (modèle ErrorBanner, design.md §3.6) —
           l'ambre était la seule couleur hors palette du dashboard. */}
       {!warned && (
-        <div className="flex items-center justify-between gap-3 border-b border-border bg-neutral-50 px-4 py-1.5 text-xs text-neutral-800">
+        <div className="flex items-center justify-between gap-3 border-b border-border bg-neutral-50 px-4 py-1.5 text-xs text-texthard">
           <span>Local notes — not versioned, not saved by git (docs/notes/).</span>
-          <button type="button" onClick={dismissWarning} className="shrink-0 font-medium text-texthard hover:text-neutral-700">OK</button>
+          <button type="button" onClick={dismissWarning} className="shrink-0 font-medium text-texthard hover:text-texthard">OK</button>
         </div>
       )}
 
@@ -242,16 +242,16 @@ export function NotepadView() {
           <button
             ref={newNoteRef}
             type="button" onClick={createNote}
-            className="flex items-center gap-2 border-b border-neutral-100 px-4 py-2 text-left text-sm text-textsoft hover:bg-rollover hover:text-neutral-800"
+            className="flex items-center gap-2 px-4 py-2 text-left text-sm text-textsoft shadow-[inset_0_-1px_0_var(--color-border)] hover:bg-rollover hover:text-texthard"
           >
             <span className="text-base leading-none text-textsoft">+</span>
             New note
           </button>
-          <div className="min-h-0 flex-1 overflow-y-auto">
+          <div className="rm-list min-h-0 flex-1 overflow-y-auto">
             {notes.map((n) => (
               <div
                 key={n.slug}
-                className={`group flex items-center gap-2 px-4 py-1.5 text-sm ${
+                className={`rm-list-item group flex items-center gap-2 px-4 py-1.5 text-sm ${
                   n.slug === slug ? 'bg-active text-texthard' : 'text-textsoft hover:bg-rollover'
                 }`}
               >
@@ -270,7 +270,7 @@ export function NotepadView() {
                   }}
                   title="Delete note"
                   aria-label={`Delete note ${n.title || n.slug}`}
-                  className="shrink-0 text-textsoft opacity-0 transition-opacity hover:text-neutral-700 focus-visible:opacity-100 group-hover:opacity-100"
+                  className="shrink-0 text-textsoft opacity-0 transition-opacity hover:text-texthard focus-visible:opacity-100 group-hover:opacity-100"
                 >✕</button>
               </div>
             ))}
@@ -281,7 +281,7 @@ export function NotepadView() {
         {slug === null ? (
           <button
             type="button" onClick={createNote}
-            className="min-h-0 flex-1 cursor-text text-sm text-textsoft hover:text-neutral-700"
+            className="min-h-0 flex-1 cursor-text text-sm text-textsoft hover:text-texthard"
           >
             Click here to write a note
           </button>
@@ -343,7 +343,7 @@ export function NotepadView() {
                 // Le :focus-visible global (index.css, hors @layer) bat toute classe
                 // utilitaire Tailwind (layered) → outline tué en inline, qui gagne toujours.
                 style={{ outline: 'none', boxShadow: 'none' }}
-                className={`absolute inset-0 h-full w-full resize-none border-0 bg-transparent text-neutral-800 placeholder:text-neutral-500 ${EDITOR_METRICS}`}
+                className={`absolute inset-0 h-full w-full resize-none border-0 bg-transparent text-texthard placeholder:text-neutral-500 ${EDITOR_METRICS}`}
               />
             </div>
             <div className="flex w-full shrink-0 items-center justify-between px-[max(1.5rem,calc((100%-48rem)/2))] py-1.5 font-mono text-[11px] text-textsoft">
@@ -356,7 +356,7 @@ export function NotepadView() {
                   type="button"
                   onClick={() => void copyForAgent()}
                   title="Copy the cleaned note — [file: …] lines converted to bare paths (⇧⌘C)"
-                  className="shrink-0 text-textsoft hover:text-neutral-800"
+                  className="shrink-0 text-textsoft hover:text-texthard"
                 >copy for the agent&nbsp;&nbsp;⇧⌘C</button>
               </span>
             </div>

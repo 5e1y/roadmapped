@@ -89,9 +89,9 @@ export function ActivityView() {
                 <div className="sticky top-0 z-10 border-b border-border bg-foreground px-4 py-1.5 text-[11px] font-medium text-textsoft">
                   {group.label}
                 </div>
-                <ul className="divide-y divide-neutral-100">
+                <ul className="rm-list">
                   {group.entries.map((entry) => (
-                    <li key={entry.key}>
+                    <li key={entry.key} className="rm-list-item">
                       <EntryRow entry={entry} isCurrent={top?.type === 'task' && top.id === entry.id} onOpenTask={openTask} />
                     </li>
                   ))}
