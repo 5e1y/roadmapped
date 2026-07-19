@@ -1,5 +1,4 @@
 import { ChevronLeft } from 'trinil-react'
-import type { ReactNode } from 'react'
 import type { TaskNode } from '../lib/tasks'
 
 /**
@@ -92,111 +91,6 @@ export function KindGlyph({ task }: { task: Pick<TaskNode, 'kind' | 'status'> })
   return task.kind === 'milestone'
     ? <MilestoneGlyph status={task.status} />
     : <StatusGlyph status={task.status} />
-}
-
-/**
- * Icônes de NAVIGATION du rail (#370) — une par vue de 1er niveau. Line-icons
- * monochromes qui héritent de l'encre via `currentColor` : gris au repos, accent
- * quand l'item est actif (l'état vit sur le bouton parent, cf. NavRail). Même
- * langage de trait que les glyphs de statut (fait maison, pas de lib tierce) mais
- * un gabarit plus grand (viewBox 16, trait 1.3, bouts ronds) pour lire à ~20 px.
- * Décoratives : le LABEL TEXTE de l'item porte le sens (a11y), donc aria-hidden.
- */
-function NavIcon({ size = 20, children }: { size?: number; children: ReactNode }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 16 16"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.3"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      className="shrink-0"
-    >
-      {children}
-    </svg>
-  )
-}
-
-/** Backlog = liste (marqueurs + lignes). */
-export function BacklogIcon({ size }: { size?: number }) {
-  return (
-    <NavIcon size={size}>
-      <rect x="2" y="3" width="2.2" height="2.2" rx="0.4" />
-      <line x1="6.2" y1="4.1" x2="13.6" y2="4.1" />
-      <rect x="2" y="6.9" width="2.2" height="2.2" rx="0.4" />
-      <line x1="6.2" y1="8" x2="13.6" y2="8" />
-      <rect x="2" y="10.8" width="2.2" height="2.2" rx="0.4" />
-      <line x1="6.2" y1="11.9" x2="13.6" y2="11.9" />
-    </NavIcon>
-  )
-}
-
-/** Roadmap = colonnes (kanban / stages), hauteurs inégales. */
-export function RoadmapIcon({ size }: { size?: number }) {
-  return (
-    <NavIcon size={size}>
-      <rect x="2.2" y="2.5" width="3" height="11" rx="0.8" />
-      <rect x="6.5" y="2.5" width="3" height="7.5" rx="0.8" />
-      <rect x="10.8" y="2.5" width="3" height="9.5" rx="0.8" />
-    </NavIcon>
-  )
-}
-
-/** Dépendances = nœuds reliés (petit DAG : deux amonts → un aval). */
-export function DependenciesIcon({ size }: { size?: number }) {
-  return (
-    <NavIcon size={size}>
-      <line x1="5.5" y1="4.6" x2="10.5" y2="7.4" />
-      <line x1="5.5" y1="11.4" x2="10.5" y2="8.6" />
-      <circle cx="4" cy="4" r="1.9" />
-      <circle cx="4" cy="12" r="1.9" />
-      <circle cx="12" cy="8" r="1.9" />
-    </NavIcon>
-  )
-}
-
-/** Graphe = réseau / constellation (un moyeu, quatre satellites). */
-export function GraphIcon({ size }: { size?: number }) {
-  return (
-    <NavIcon size={size}>
-      <line x1="6.9" y1="7" x2="4" y2="4.5" />
-      <line x1="9.1" y1="7.1" x2="12" y2="4.8" />
-      <line x1="7" y1="9.1" x2="4.4" y2="11.8" />
-      <line x1="9.2" y1="9.2" x2="11.6" y2="11.6" />
-      <circle cx="8" cy="8" r="1.7" />
-      <circle cx="3" cy="3.6" r="1.2" />
-      <circle cx="13" cy="4.1" r="1.2" />
-      <circle cx="3.6" cy="12.7" r="1.2" />
-      <circle cx="12.4" cy="12.4" r="1.2" />
-    </NavIcon>
-  )
-}
-
-/** Docs = document (coin plié + lignes de texte). */
-export function DocsIcon({ size }: { size?: number }) {
-  return (
-    <NavIcon size={size}>
-      <path d="M4 2.2 H9.4 L12.5 5.3 V13.8 H4 Z" />
-      <path d="M9.3 2.4 V5.4 H12.4" />
-      <line x1="5.8" y1="8" x2="10.6" y2="8" />
-      <line x1="5.8" y1="10.1" x2="10.6" y2="10.1" />
-      <line x1="5.8" y1="12" x2="9" y2="12" />
-    </NavIcon>
-  )
-}
-
-/** Notes = crayon (Notepad). */
-export function NotesIcon({ size }: { size?: number }) {
-  return (
-    <NavIcon size={size}>
-      <path d="M10.4 2.6 L13.4 5.6 L6 13 L3 13.5 L3.5 10.5 Z" />
-      <line x1="9" y1="4" x2="12" y2="7" />
-    </NavIcon>
-  )
 }
 
 export function StatusGlyph({ status }: { status: TaskNode['status'] }) {
