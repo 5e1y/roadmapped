@@ -2,7 +2,7 @@ id: 386
 title: >-
   C5 — Data-viz d'une même famille : trancher le pointillé 3-3, trait d'emphase unique,
   non-scaling-stroke, supprimer TagGraph mort
-status: todo
+status: done
 tags:
   - ds
   - dataviz
@@ -26,9 +26,20 @@ dependsOn: []
 epic: ds-consistency
 source: ai
 createdAt: "2026-07-19T13:03:28"
-updatedAt: "2026-07-19T13:03:28"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+updatedAt: "2026-07-19T13:26:12"
+completedAt: "2026-07-19T13:26:12"
+commit: 9368be9
+outcome: >-
+  Data-viz d'une même famille. Pointillé=inféré/faible, plein=explicite/connu (décision) : les
+  arêtes dependsOn du RoadmapGraph passent en PLEIN (fini le 3 3 par défaut qui contredisait le KB)
+  ; l'emphase du chemin survolé migre sur couleur (neutral-900/500/200) + épaisseur (1.5/1) +
+  flèches teintées, extraite en edgeStyle(tone) pure. KbGraph (EXTRACTED plein/INFERRED pointillé)
+  intact = la référence. Trait d'emphase unifié à 1.5 (radar 2→1.5, roadmap 1.25→1.5).
+  non-scaling-stroke ajouté au RoadmapGraph zoomable + FlowAreaChart responsive. Grille radar
+  neutral-300→200 (aligné chart). Radar : polygone+sommets NEUTRES au repos, accent seulement sur le
+  type sélectionné. TagGraph.tsx (composant mort) supprimé ; lib/tagGraph.ts CONSERVÉ (tagKbGraph en
+  dépend).
+verification: >-
+  tsc clean, suite 716/716 (edgeStyle : 2 tests — aucun dasharray émis, mapping ton→style). build
+  OK. Décision pointillé cohérente avec design.md §5.
+release: 0.2.3
