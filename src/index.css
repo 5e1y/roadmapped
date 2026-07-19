@@ -283,6 +283,26 @@
   .rm-list-item[aria-pressed="true"]::after { box-shadow: inset 0 0 0 1px var(--color-accent); }
   .rm-list > .rm-list-item + .rm-list-item { margin-top: calc(var(--spacing-listgap) - 1px); }
 
+  /* Carte-CONTENEUR à enfants opaques (nœud-epic du graphe Deps) : le ring doit être
+     en ::after (AU-DESSUS des enfants) — sinon le fond opaque d'un membre sélectionné
+     (bg-active) recouvre le box-shadow inset du conteneur sur les côtés, et le membre
+     paraît déborder de la carte (#395, retour Rémi). PAS d'overflow-hidden : il
+     clipperait l'outline :focus-visible des boutons internes. `data-focused` → accent. */
+  .rm-node {
+    position: relative;
+    border-radius: var(--radius-listitem);
+    background-color: var(--color-foreground);
+  }
+  .rm-node::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px var(--color-border);
+  }
+  .rm-node[data-focused]::after { box-shadow: inset 0 0 0 1px var(--color-accent); }
+
   /* Variante HORIZONTALE (bande d'epics de Roadmap/Deps) : mêmes tokens ListItem/
      ListGap → à gap 0 les cartes sont COLLÉES, à gap > 0 elles se séparent et
      s'arrondissent, comme le reste de l'interface (décision Rémi). L'écart passe

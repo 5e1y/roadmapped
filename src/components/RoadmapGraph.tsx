@@ -544,7 +544,8 @@ function EpicGraphNode({ epic, pos, avail, dimmed, focused, onHoverChange }: Nod
   // arrondi. Halo au POINTEUR seulement (pas onFocus) pour ne pas doubler l'outline.
   return (
     <div
-      className={`absolute rounded-listitem bg-foreground ring-1 ring-inset transition-colors ${focused ? 'ring-accent' : 'ring-border hover:bg-rollover'}`}
+      data-focused={focused ? '' : undefined}
+      className={`rm-node absolute transition-colors ${focused ? '' : 'hover:bg-rollover'}`}
       style={{ left: pos.x, top: pos.y, width: pos.w }}
       onPointerEnter={() => onHoverChange(true)}
       onPointerLeave={() => onHoverChange(false)}
@@ -582,7 +583,7 @@ function EpicGraphNode({ epic, pos, avail, dimmed, focused, onHoverChange }: Nod
         </div>
       </button>
       {open && (
-        <div className="shadow-[inset_0_1px_0_var(--color-border)] pb-1">
+        <div className="shadow-[inset_0_1px_0_var(--color-border)]">
           {epic.tasks.map((t) => {
             const st = avail.get(t.id) ?? 'available'
             const isOpenInPanel = top?.type === 'task' && top.id === t.id
@@ -592,7 +593,9 @@ function EpicGraphNode({ epic, pos, avail, dimmed, focused, onHoverChange }: Nod
                 type="button"
                 onClick={() => openTask(t.id)}
                 title={t.title}
-                className={`flex w-full items-center gap-2 px-3 py-1 text-left ${isOpenInPanel ? 'bg-active' : 'hover:bg-rollover'}`}
+                // last:rounded-b-listitem : le fond du dernier membre épouse le coin
+                // bas arrondi de la carte (sans overflow-hidden, qui clipperait le focus).
+                className={`flex w-full items-center gap-2 px-3 py-1 text-left last:rounded-b-listitem ${isOpenInPanel ? 'bg-active' : 'hover:bg-rollover'}`}
                 style={{ height: MEMBER_H }}
               >
                 {st === 'locked'
