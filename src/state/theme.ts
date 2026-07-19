@@ -77,6 +77,46 @@ mq?.addEventListener('change', (e) => {
   applyTheme(e.matches ? 'dark' : 'light')
 })
 
+/* ─────────────────────────────────────────────────────────────────────────────
+ * NOM DE THÈME (#394) — axe ORTHOGONAL au clair/sombre. `data-theme-name` porte la
+ * FAMILLE de palette (couleur + rayons) ; chaque thème a sa variante claire ET
+ * sombre (index.css). Roadmapped = base (pas de bloc CSS) → on efface l'attribut.
+ * Même mécanique que le mode : source de vérité hors React (dataset + localStorage),
+ * store module-level pour garder les sélecteurs des vues synchrones.
+ * ───────────────────────────────────────────────────────────────────────────── */
+export type ThemeName = 'roadmapped' | 'github' | 'cursor' | 'claude' | 'codex'
+export const THEME_NAMES: ThemeName[] = ['roadmapped', 'github', 'cursor', 'claude', 'codex']
+export const THEME_LABELS: Record<ThemeName, string> = {
+  roadmapped: 'Roadmapped', github: 'GitHub', cursor: 'Cursor', claude: 'Claude', codex: 'Codex',
+}
+const NAME_KEY = 'ui:theme-name'
+
+/** Résolution PURE (testée) : un nom connu stocké prime ; sinon la base. Miroir du script anti-flash. */
+export function resolveThemeName(stored: string | null): ThemeName {
+  return (THEME_NAMES as string[]).includes(stored ?? '') ? (stored as ThemeName) : 'roadmapped'
+}
+
+function currentName(): ThemeName {
+  return resolveThemeName(document.documentElement.dataset.themeName ?? null)
+}
+
+/** Applique un nom de thème : Roadmapped efface l'attribut (base), les autres le posent. Fige + notify. */
+export function setThemeName(name: ThemeName): void {
+  try { localStorage.setItem(NAME_KEY, name) } catch { /* privé/SSR : l'attribut suffit pour la session */ }
+  if (name === 'roadmapped') delete document.documentElement.dataset.themeName
+  else document.documentElement.dataset.themeName = name
+  emit()
+}
+
+export function useThemeName(): [ThemeName, (n: ThemeName) => void] {
+  const name = useSyncExternalStore(
+    (fn) => { listeners.add(fn); return () => { listeners.delete(fn) } },
+    currentName,
+    () => 'roadmapped' as ThemeName,
+  )
+  return [name, useCallback((n: ThemeName) => setThemeName(n), [])]
+}
+
 export function useTheme(): [Theme, (t: Theme) => void] {
   const theme = useSyncExternalStore(
     (fn) => { listeners.add(fn); return () => { listeners.delete(fn) } },

@@ -128,6 +128,105 @@
 :root[data-theme="dark"] .shadow-sm { --tw-shadow-color: rgb(0 0 0 / 0.45); }
 :root[data-theme="dark"] .shadow-lg { --tw-shadow-color: rgb(0 0 0 / 0.6); }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+ * THÈMES INTÉGRÉS (theming P3, #394) — AXE ORTHOGONAL au clair/sombre.
+ * `data-theme` = clair/sombre (mode) ; `data-theme-name` = la FAMILLE de palette.
+ * Ils composent : un thème a une variante claire ET sombre. Roadmapped = la BASE
+ * (aucun bloc : `data-theme-name` absent ou "roadmapped" → @theme + le bloc dark
+ * ci-dessus s'appliquent seuls).
+ *
+ * Chaque thème ne redéfinit qu'un « kit d'identité » : accent, accent-tint, page,
+ * carte (--color-white), bordure (neutral-200) + les rayons. Le reste de l'échelle
+ * neutre (encre, plancher texte) hérite de la base → lisibilité garantie.
+ *
+ * SPÉCIFICITÉ : le bloc CLAIR d'un thème (`[data-theme-name="x"]`, 1 attribut) a la
+ * même force que le bloc dark de base (`[data-theme="dark"]`, 1 attribut). Pour que
+ * le sombre gagne en mode sombre, chaque thème A AUSSI un bloc dark à 2 attributs
+ * (`[data-theme-name="x"][data-theme="dark"]`) qui redéfinit les MÊMES clés couleur.
+ * Les rayons (indépendants du mode) ne sont posés qu'une fois, dans le bloc clair.
+ *
+ * PAS de 10e couleur « on-accent » : le texte de bouton reste `text-foreground`
+ * (= la carte). La symétrie de bascule tient parce que chaque accent CLAIR est
+ * assez foncé pour du blanc (≥4,5:1) et chaque accent SOMBRE assez lumineux pour
+ * l'encre-carte (≥4,5:1). C'est la contrainte de choix des valeurs ci-dessous.
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── GitHub : bleu signature, coins à 6px partout, gris froids ── */
+:root[data-theme-name="github"] {
+  --color-accent: #0969da;
+  --color-accent-tint: #ddf4ff;
+  --color-page: #f6f8fa;
+  --color-white: #ffffff;
+  --color-neutral-200: #d0d7de;
+  --radius-interactive: 6px;
+  --radius-listitem: 6px;
+  --radius-surface: 6px;
+}
+:root[data-theme-name="github"][data-theme="dark"] {
+  --color-accent: #1f6feb;        /* blob bouton GitHub sombre, blanc/encre lisible */
+  --color-accent-tint: #121d2f;
+  --color-page: #0d1117;
+  --color-white: #161b22;
+  --color-neutral-200: #30363d;
+}
+
+/* ── Cursor : bleu net, coins NETS (sharp), surfaces quasi-noires ── */
+:root[data-theme-name="cursor"] {
+  --color-accent: #0b6bcb;
+  --color-accent-tint: #e6f1fd;
+  --color-page: #ffffff;
+  --color-white: #fbfbfa;
+  --color-neutral-200: #e5e5e5;
+  --radius-interactive: 4px;
+  --radius-listitem: 2px;
+  --radius-surface: 4px;
+}
+:root[data-theme-name="cursor"][data-theme="dark"] {
+  --color-accent: #4c9bff;
+  --color-accent-tint: #10233b;
+  --color-page: #0a0a0a;
+  --color-white: #141414;
+  --color-neutral-200: #2a2a2a;
+}
+
+/* ── Claude : terre de Sienne (clay), coins DOUX, neutres CHAUDS ── */
+:root[data-theme-name="claude"] {
+  --color-accent: #c15f3c;
+  --color-accent-tint: #f6e8e1;
+  --color-page: #faf9f5;          /* crème */
+  --color-white: #ffffff;
+  --color-neutral-200: #e6e1d6;   /* filet chaud */
+  --radius-interactive: 8px;
+  --radius-listitem: 8px;
+  --radius-surface: 12px;
+}
+:root[data-theme-name="claude"][data-theme="dark"] {
+  --color-accent: #d97757;        /* clay clair, encre-carte lisible dessus */
+  --color-accent-tint: #3a2620;
+  --color-page: #262624;          /* charbon chaud */
+  --color-white: #30302e;
+  --color-neutral-200: #413d36;
+}
+
+/* ── Codex (OpenAI) : vert signature, coins medium, quasi-noir froid ── */
+:root[data-theme-name="codex"] {
+  --color-accent: #0a7a5c;        /* vert foncé assez pour du blanc (4,5:1) */
+  --color-accent-tint: #d7f5ec;
+  --color-page: #ffffff;
+  --color-white: #ffffff;
+  --color-neutral-200: #e5e5e5;
+  --radius-interactive: 6px;
+  --radius-listitem: 4px;
+  --radius-surface: 8px;
+}
+:root[data-theme-name="codex"][data-theme="dark"] {
+  --color-accent: #19c37d;        /* vert vif, encre-carte lisible dessus */
+  --color-accent-tint: #0f2620;
+  --color-page: #0a0a0a;
+  --color-white: #171717;
+  --color-neutral-200: #2f2f2f;
+}
+
 /*
  * Palette propre au dashboard : monochrome, volontairement minuscule.
  * AUCUN import du DS de l'app parente (l'ex-import de tokens.css posait
