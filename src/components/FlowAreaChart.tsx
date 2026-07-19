@@ -11,7 +11,9 @@ import type { DayBucket } from '../lib/overview'
 
 const W = 720
 const H = 240
-const PAD = { top: 14, right: 12, bottom: 22, left: 26 }
+// #385 — left/bottom élargis pour loger les étiquettes d'axes passées de 9 à
+// 11px (plancher micro-text design.md §1) sans rogner le tracé ni les chiffres.
+const PAD = { top: 14, right: 12, bottom: 26, left: 32 }
 const PLOT_W = W - PAD.left - PAD.right
 const PLOT_H = H - PAD.top - PAD.bottom
 const BASE_Y = PAD.top + PLOT_H
@@ -103,7 +105,7 @@ export function FlowAreaChart({ data }: { data: DayBucket[] }) {
           return (
             <g key={f}>
               <line x1={PAD.left} y1={y} x2={W - PAD.right} y2={y} stroke="var(--color-neutral-200)" strokeWidth="1" vectorEffect="non-scaling-stroke" />
-              <text x={PAD.left - 6} y={y + 3} textAnchor="end" className="fill-neutral-400" fontSize="9" fontFamily="ui-monospace, monospace">
+              <text x={PAD.left - 6} y={y + 3} textAnchor="end" className="fill-neutral-500" fontSize="11" fontFamily="ui-monospace, monospace">
                 {Math.round(f * max)}
               </text>
             </g>
@@ -124,8 +126,8 @@ export function FlowAreaChart({ data }: { data: DayBucket[] }) {
             x={createdPts[i][0]}
             y={H - 6}
             textAnchor={i === 0 ? 'start' : i === data.length - 1 ? 'end' : 'middle'}
-            className="fill-neutral-400"
-            fontSize="9"
+            className="fill-neutral-500"
+            fontSize="11"
             fontFamily="ui-monospace, monospace"
           >
             {short(data[i].day)}
