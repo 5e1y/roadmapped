@@ -2,7 +2,7 @@ id: 381
 title: >-
   C1 — Langage « actif/sélectionné » unifié : primitive TogglePill + réconcilier les 4 variantes +
   design.md §3.2
-status: todo
+status: in_progress
 tags:
   - ds
   - ui
@@ -23,7 +23,8 @@ dependsOn: []
 epic: ds-consistency
 source: ai
 createdAt: "2026-07-19T13:03:27"
-updatedAt: "2026-07-19T13:03:27"
+startedAt: "2026-07-19T13:21:14"
+updatedAt: "2026-07-19T13:21:14"
 completedAt: null
 commit: null
 outcome: null
