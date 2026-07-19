@@ -2,7 +2,7 @@ id: 380
 title: >-
   C0 — DA sémantique : propager le langage de sélection (Overview + Activity) + badge inerte +
   rounded-lg
-status: todo
+status: done
 tags:
   - ds
   - ui
@@ -26,9 +26,19 @@ dependsOn: []
 epic: ds-consistency
 source: ai
 createdAt: "2026-07-19T13:03:27"
-updatedAt: "2026-07-19T13:03:27"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+updatedAt: "2026-07-19T13:19:42"
+completedAt: "2026-07-19T13:19:42"
+commit: 2ca86a5
+outcome: >-
+  DA sémantique — langage de sélection unifié + propagé. Helper unique rowStateClass (ui.tsx) : item
+  courant = bg-accent-tint + barre inset accent 2px, non-courant = hover neutral-50 (le hover-ligne
+  canonique). Propagé à l'aperçu Overview (PreviewRow, isCurrent via top?.id) et au feed Activity
+  (EntryRow — corrige au passage le hover neutral-100 divergent). TaskRow rétrofit sur le même
+  helper (fin de la recette inline). Badge inerte KbView (stale) dé-accentué : registre neutre
+  (border-neutral-300 bg-neutral-100) au lieu du costume accent d'un toggle. Cartes Overview
+  rounded-lg → rounded (doctrine strate). Exemples de Rémi confirmés corrigés.
+verification: >-
+  tsc clean, suite 714/714. VÉRIF VISUELLE (Playwright) : clic sur une ligne d'aperçu Overview →
+  fond tint + barre gauche accent visibles (identique TaskRow). aria-current posé. Badge KbView en
+  neutre.
+release: 0.2.3
