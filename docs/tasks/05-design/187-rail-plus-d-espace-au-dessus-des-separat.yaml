@@ -1,0 +1,24 @@
+id: 378
+title: "Rail : plus d'espace au-dessus des séparateurs (oiseau↔filet, Deps↔filet)"
+status: done
+tags:
+  - ui
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-19T12:07:22"
+startedAt: "2026-07-19T12:07:22"
+updatedAt: "2026-07-19T12:08:22"
+completedAt: "2026-07-19T12:08:22"
+commit: 0cdc4e2
+outcome: >-
+  Filet de séparation du rail : mt-3/mb-1 (au lieu de my-1) — plus d'espace au-dessus de chaque
+  séparateur (mascotte↔filet et Deps↔filet) sans l'éloigner de l'élément qui suit. Retour Rémi : ils
+  étaient visuellement trop proches.
+verification: >-
+  tsc clean, build OK, capture Playwright relue : l'oiseau et Deps sont maintenant détachés de leur
+  filet.
+release: 0.2.3

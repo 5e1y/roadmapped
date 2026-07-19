@@ -2,7 +2,7 @@ id: 375
 title: >-
   UX 4 : écran Overview étape 1 — radar déplacé + graphe tags via KbGraph + aperçu 5 tickets à 3
   bascules
-status: todo
+status: in_progress
 tags:
   - overview
   - ui
@@ -31,7 +31,8 @@ dependsOn:
 epic: overview-activity
 source: ai
 createdAt: "2026-07-19T11:53:39"
-updatedAt: "2026-07-19T11:53:39"
+startedAt: "2026-07-19T12:02:15"
+updatedAt: "2026-07-19T12:02:15"
 completedAt: null
 commit: null
 outcome: null

@@ -1,6 +1,6 @@
 id: 377
 title: "UX 6 : onglet Activity — feed timestampé plein écran (version étendue de l'overlay)"
-status: todo
+status: in_progress
 tags:
   - activity
   - ui
@@ -22,7 +22,8 @@ dependsOn:
 epic: overview-activity
 source: ai
 createdAt: "2026-07-19T11:53:39"
-updatedAt: "2026-07-19T11:53:39"
+startedAt: "2026-07-19T12:02:15"
+updatedAt: "2026-07-19T12:02:15"
 completedAt: null
 commit: null
 outcome: null
