@@ -7,9 +7,6 @@ import { TaskList, sortOpen, sortDone } from './TaskColumns'
 
 import { useTagFilter, useTypeFilter } from '../state/filters'
 import { ViewHeader } from './ViewHeader'
-import { TagGraph } from './TagGraph'
-import { TypesRadar } from './TypesRadar'
-import { tagGraph } from '../lib/tagGraph'
 
 /** Accord singulier/pluriel élémentaire (anglais). */
 const plural = (n: number, s: string) => `${n} ${s}${n === 1 ? '' : 's'}`
@@ -49,7 +46,7 @@ function RemovableChip({ label, onRemove, ariaLabel }: { label: string; onRemove
  */
 export function Backlog() {
   const { tree, errors, loading, loadError } = useTree()
-  const { openCreateTask, top } = usePanel()
+  const { openCreateTask } = usePanel()
   const [tagFilter, setTagFilter] = useTagFilter()
   const [typeFilter, setTypeFilter] = useTypeFilter()
   const [query, setQuery] = useState('')
@@ -84,14 +81,6 @@ export function Backlog() {
   }
   if (!tree) return null
 
-  // Graphe des tags (#146/#150) : carte des THÈMES du projet entier — TOUS les
-  // tickets (done inclus), sous-tâches comprises. Le clic filtre la liste.
-  const themeTags = tagGraph(
-    tree.sections.filter((s) => s.status !== 'abandoned').flatMap((s) => s.tasks),
-  )
-  const tagSelected = tagFilter.length === 1 ? tagFilter[0] : ''
-  const tagSelect = (t: string) => setTagFilter(t ? [t] : [])
-
   const q = query.trim().toLowerCase()
   const typeOf = new Map<number, string>()
   const all: TaskNode[] = []
@@ -99,18 +88,6 @@ export function Backlog() {
     if (s.status === 'abandoned') continue
     for (const t of s.tasks) { all.push(t); typeOf.set(t.id, s.key) }
   }
-
-  // Charge du radar par TYPE (jalons v2 — successeur du radar de teams) : tickets
-  // OUVERTS par type, sous-tâches comprises, INDÉPENDANTE des filtres (le radar
-  // montre TOUT, la liste est filtrée). Sélection radar = le filtre type solo.
-  const load = new Map<string, number>()
-  const countLoad = (t: TaskNode, key: string) => {
-    if (t.status !== 'done') load.set(key, (load.get(key) ?? 0) + 1)
-    t.subtasks.forEach((s) => countLoad(s, key))
-  }
-  for (const s of tree.sections) if (s.status !== 'abandoned') s.tasks.forEach((t) => countLoad(t, s.key))
-  const radarSelected = typeFilter.length === 1 ? typeFilter[0] : ''
-  const radarSelect = (k: string) => setTypeFilter(k ? [k] : [])
 
   const matches = (t: TaskNode) =>
     (typeFilter.length === 0 || typeFilter.includes(typeOf.get(t.id) ?? '')) &&
@@ -161,30 +138,11 @@ export function Backlog() {
         </button>
       </ViewHeader>
 
-      <div className="flex min-h-0 flex-1">
-        {/* Flanc : radar de CHARGE par type (le « qui » devenu « quoi ») en haut,
-            puis le graphe des THÈMES (tags) en dessous. S'efface quand le panneau
-            est ouvert et que la place manque (< 2xl). Le radar montre TOUT, la
-            liste est filtrée ; recliquer le type actif le désélectionne. */}
-        <div
-          className={`${top !== null ? 'hidden 2xl:flex' : 'flex'} relative min-h-0 w-[420px] shrink-0 flex-col overflow-y-auto border-r border-neutral-200 bg-white py-2`}
-        >
-          <div className="flex w-full shrink-0 flex-col">
-            <TypesRadar counts={load} selected={radarSelected} onSelect={radarSelect} />
-            {(themeTags.nodes.length > 0 || tagSelected !== '') && (
-              <>
-                <div className="mt-2 border-t border-neutral-200" />
-                <div className="pt-2">
-                  <TagGraph graph={themeTags} selected={tagSelected} onSelect={tagSelect} />
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      {/* Colonne liste = barre de filtres actifs (toujours visible) + scroller. */}
+      {/* Colonne liste = barre de filtres actifs (toujours visible) + scroller.
+          Occupe toute la largeur (#186) : le flanc radar/graphe des tags a
+          migré vers l'Overview (#375). */}
       <div className="flex min-h-0 flex-1 flex-col">
-        {/* Chips de filtres actifs (#210) : AU-DESSUS du scroller et HORS du flanc
-            masqué → délestables même panneau ouvert sur petit écran. */}
+        {/* Chips de filtres actifs (#210) : toujours visibles au-dessus du scroller. */}
         {hasFilters && (
           <div className="shrink-0 border-b border-neutral-200 bg-white">
             <div className="mx-auto flex max-w-3xl flex-wrap items-center gap-1.5 px-6 py-2">
@@ -222,7 +180,6 @@ export function Backlog() {
             </div>
           </div>
         </div>
-      </div>
       </div>
     </div>
   )
