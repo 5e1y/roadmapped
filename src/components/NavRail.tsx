@@ -1,6 +1,7 @@
 import { type ComponentType } from 'react'
 import { Dashboard, List, LayoutColumns, GitBranch, NodeGraph, Pulse, FileDoc, Pencil, Gear } from 'trinil-react'
 import { useView, type View } from '../state/ViewContext'
+import { useLiveActivity } from '../state/LiveActivity'
 import { BirdMascot } from './BirdMascot'
 
 // Icônes du rail = trinil-react (la lib d'icônes de l'app, cf. header/Backlog/…) :
@@ -50,6 +51,11 @@ function NavButton({ item }: { item: NavItem }) {
   const { view, setView } = useView()
   const active = item.id === view
   const { Icon } = item
+  // Point de notif accent sur Activity quand des changements live ne sont pas lus
+  // (#395). L'onglet Activity remet à zéro à l'ouverture (setOpen). Hors provider
+  // (tests / build démo) : useLiveActivity() = null → pas de point.
+  const unread = useLiveActivity()?.unread ?? 0
+  const showDot = item.id === 'activity' && unread > 0 && !active
   return (
     <button
       type="button"
@@ -61,13 +67,19 @@ function NavButton({ item }: { item: NavItem }) {
           réagit au survol (group-hover) et à l'état actif — le label reste du
           texte nu. La cible cliquable reste le bouton entier (icône + label). */}
       <span
-        className={`flex size-9 items-center justify-center rounded-interactive transition-colors ${
+        className={`relative flex size-9 items-center justify-center rounded-interactive transition-colors ${
           active
             ? 'bg-active text-accent'
             : 'text-textsoft group-hover:bg-rollover group-hover:text-texthard'
         }`}
       >
         <Icon size={18} />
+        {showDot && (
+          <span
+            className="absolute right-1 top-1 size-1.5 rounded-round bg-accent"
+            aria-label={`${unread} unread`}
+          />
+        )}
       </span>
       <span className={active ? 'text-texthard' : 'text-textsoft'}>{item.label}</span>
     </button>

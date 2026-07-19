@@ -1,17 +1,15 @@
 import { useMemo, useState, type ReactNode } from 'react'
 import { ViewShell } from './ViewHeader'
 import { TypesRadar } from './TypesRadar'
-import { KbGraph } from './KbGraph'
+import { TagBars } from './TagBars'
 import { TempBadge } from './Temperature'
 import { EmptyState, rowStateClass, TogglePill, TreeStateGuard } from './ui'
 import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
 import { FlowAreaChart } from './FlowAreaChart'
-import { tagKbGraph } from '../lib/tagKbGraph'
 import { mostUrgent, oldest, recentlyAdded, createdVsClosedByDay } from '../lib/overview'
 import { activeTasks, temperature, ageInDays } from '../lib/roadmap'
 import { relativeTime, absoluteDate } from '../lib/relativeTime'
-import type { KbFilters } from '../lib/kbFilter'
 import type { TaskNode, TaskTree } from '../lib/tasks'
 
 /**
@@ -33,8 +31,12 @@ function todayLocal(): string {
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`
 }
 
-/** Filtres NEUTRES pour le graphe de tags : rien de masqué, tout visible. */
-const NEUTRAL_FILTERS: KbFilters = { communities: [], fileTypes: [], hideInferred: false }
+/** Fréquence des tags sur les tickets OUVERTS, du plus fréquent au moins, plafonné. */
+function tagFrequency(tree: TaskTree): { tag: string; count: number }[] {
+  const m = new Map<string, number>()
+  for (const t of activeTasks(tree)) for (const tag of t.tags) m.set(tag, (m.get(tag) ?? 0) + 1)
+  return [...m.entries()].map(([tag, count]) => ({ tag, count })).sort((a, b) => b.count - a.count).slice(0, 20)
+}
 
 /** Carte de la grille — coquille tri-couche (bg-white + filet), titre optionnel. */
 function Card({ title, children, className = '' }: { title?: string; children: ReactNode; className?: string }) {
@@ -116,7 +118,7 @@ export function OverviewView() {
 
   const today = useMemo(() => todayLocal(), [])
   const counts = useMemo(() => (tree ? openCountsByType(tree) : new Map<string, number>()), [tree])
-  const tagGraphData = useMemo(() => (tree ? tagKbGraph(activeTasks(tree)) : null), [tree])
+  const tagCounts = useMemo(() => (tree ? tagFrequency(tree) : []), [tree])
   const dailyFlow = useMemo(() => (tree ? createdVsClosedByDay(tree) : []), [tree])
   const preview = useMemo(() => {
     if (!tree) return []
@@ -198,17 +200,13 @@ export function OverviewView() {
               </div>
             </Card>
 
-            {/* Rangée 3 — Graphe nodal des TAGS via KbGraph (visualiseur Graphify réutilisé).
-                Le clic-nœud est NEUTRALISÉ (onNodeClick no-op) : un tag n'ouvre pas
-                de KbNodePanel. Hauteur FIXE (KbGraph prend tout l'espace de son
-                conteneur — il n'est pas fait pour s'auto-dimensionner dans une carte). */}
-            <Card title="Graphe des tags" className="lg:col-span-2">
-              {tagGraphData && tagGraphData.nodes.length > 0 ? (
-                <div className="h-[440px]">
-                  <KbGraph graph={tagGraphData} filters={NEUTRAL_FILTERS} query="" onNodeClick={() => {}} />
-                </div>
+            {/* Rangée 3 — Tickets ouverts par TAG (diagramme en bâtons verticaux,
+                décision Rémi : remplace l'ex-graphe nodal). */}
+            <Card title="Open tickets by tag" className="lg:col-span-2">
+              {tagCounts.length > 0 ? (
+                <TagBars data={tagCounts} />
               ) : (
-                <EmptyState className="py-12" title="No tags on tickets yet" hint="The graph appears once a ticket carries tags." />
+                <EmptyState className="py-12" title="No tags on tickets yet" hint="The chart appears once an open ticket carries tags." />
               )}
             </Card>
           </div>

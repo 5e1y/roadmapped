@@ -71,7 +71,7 @@ describe('OverviewView — smoke étape 1 (#375)', () => {
     expect(container.querySelector('header')).toBeInTheDocument()
     expect(screen.getByText('Load by type')).toBeInTheDocument()
     expect(screen.getByText('Backlog preview')).toBeInTheDocument()
-    expect(screen.getByText('Graphe des tags')).toBeInTheDocument()
+    expect(screen.getByText('Open tickets by tag')).toBeInTheDocument()
   })
 
   it('expose les 3 bascules et change la liste d\'aperçu selon la bascule active', () => {
