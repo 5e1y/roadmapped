@@ -102,7 +102,7 @@ export function FlowAreaChart({ data }: { data: DayBucket[] }) {
           const y = BASE_Y - f * PLOT_H
           return (
             <g key={f}>
-              <line x1={PAD.left} y1={y} x2={W - PAD.right} y2={y} stroke="var(--color-neutral-200)" strokeWidth="1" />
+              <line x1={PAD.left} y1={y} x2={W - PAD.right} y2={y} stroke="var(--color-neutral-200)" strokeWidth="1" vectorEffect="non-scaling-stroke" />
               <text x={PAD.left - 6} y={y + 3} textAnchor="end" className="fill-neutral-400" fontSize="9" fontFamily="ui-monospace, monospace">
                 {Math.round(f * max)}
               </text>
@@ -114,8 +114,8 @@ export function FlowAreaChart({ data }: { data: DayBucket[] }) {
         <path d={smoothArea(createdPts)} fill="url(#flow-created)" />
         <path d={smoothArea(closedPts)} fill="url(#flow-closed)" />
         {/* Lignes de crête par-dessus les aires. */}
-        <path d={smoothLine(createdPts)} fill="none" stroke="var(--color-neutral-400)" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
-        <path d={smoothLine(closedPts)} fill="none" stroke="var(--color-accent)" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
+        <path d={smoothLine(createdPts)} fill="none" stroke="var(--color-neutral-400)" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+        <path d={smoothLine(closedPts)} fill="none" stroke="var(--color-accent)" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
 
         {/* Étiquettes X. */}
         {[...tickIdx].sort((a, b) => a - b).map((i) => (

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { hiddenPrereqNote, roundedEdgePath, buildGraphModel, filterGraphToEpic } from './RoadmapGraph'
+import { hiddenPrereqNote, roundedEdgePath, buildGraphModel, filterGraphToEpic, edgeStyle } from './RoadmapGraph'
 import type { TaskNode, TaskTree, SectionNode } from '../lib/tasks'
 
 describe('hiddenPrereqNote (#138 — prérequis sans carte propre localisés)', () => {
@@ -39,6 +39,21 @@ describe('roundedEdgePath (arêtes dagre arrondies, graph-v2)', () => {
   it('dégénéré : vide → chaîne vide, point double toléré', () => {
     expect(roundedEdgePath([])).toBe('')
     expect(roundedEdgePath([{ x: 3, y: 4 }, { x: 3, y: 4 }, { x: 10, y: 4 }])).toBe('M 3 4 L 10 4')
+  })
+})
+
+describe('edgeStyle (#386 — grammaire du pointillé unifiée : dépendances = trait PLEIN)', () => {
+  it('aucun ton n’émet de pointillé — le pointillé est réservé à l’inféré (KbGraph)', () => {
+    for (const tone of ['default', 'strong', 'dim'] as const) {
+      expect(edgeStyle(tone)).not.toHaveProperty('strokeDasharray')
+    }
+  })
+
+  it('l’emphase du chemin survolé passe par la couleur + l’épaisseur, pas le motif', () => {
+    // fort = plus foncé ET plus épais ; base et atténué gardent l’épaisseur de grille (1).
+    expect(edgeStyle('strong')).toEqual({ stroke: 'var(--color-neutral-900)', strokeWidth: 1.5, markerEnd: 'url(#rm-arrow-strong)' })
+    expect(edgeStyle('default')).toEqual({ stroke: 'var(--color-neutral-500)', strokeWidth: 1, markerEnd: 'url(#rm-arrow)' })
+    expect(edgeStyle('dim')).toEqual({ stroke: 'var(--color-neutral-200)', strokeWidth: 1, markerEnd: 'url(#rm-arrow-dim)' })
   })
 })
 
