@@ -1,0 +1,25 @@
+id: 393
+title: "Theming P2 — codemod : migrer tout le code sur les rôles sémantiques + les recettes d'état"
+status: todo
+tags:
+  - theming
+  - refactor
+detail: >-
+  Spec docs/specs/2026-07-19-theming-foundations.md §3 P2. Le gros diff : tout
+  neutral-N/bg-white/accent-tint → le rôle sémantique ; tous les états inline → les recettes.
+  Codemod scripté guidé par la table P1 + revue + captures avant/après clair ET sombre. Suite verte
+  à chaque étape. C'est APRÈS la gate P1.
+refs:
+  - docs/specs/2026-07-19-theming-foundations.md
+links: []
+dependsOn:
+  - 392
+epic: theming-foundations
+source: ai
+createdAt: "2026-07-19T14:02:37"
+updatedAt: "2026-07-19T14:02:37"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

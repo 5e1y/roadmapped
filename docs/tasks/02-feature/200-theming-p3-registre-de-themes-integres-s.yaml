@@ -1,0 +1,26 @@
+id: 394
+title: Theming P3 — registre de thèmes intégrés + sélecteur N-thèmes + persistance
+status: todo
+tags:
+  - theming
+  - ui
+detail: >-
+  Spec docs/specs/2026-07-19-theming-foundations.md §2. Registre {nom, tokens} ; le ThemeToggle
+  actuel évolue en sélecteur N-thèmes ; persistance ui:theme (déjà là, anti-flash script gère
+  data-theme). Ajouter 1-2 thèmes de démo (dont un « aéré » jouant la densité) pour prouver la
+  bascule. La page Design System #388 = banc d'essai vivant.
+refs:
+  - docs/specs/2026-07-19-theming-foundations.md
+  - src/components/ThemeToggle.tsx
+links: []
+dependsOn:
+  - 392
+epic: theming-foundations
+source: ai
+createdAt: "2026-07-19T14:02:37"
+updatedAt: "2026-07-19T14:02:37"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

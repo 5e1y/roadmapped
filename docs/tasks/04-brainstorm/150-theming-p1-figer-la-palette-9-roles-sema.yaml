@@ -1,0 +1,30 @@
+id: 391
+title: >-
+  Theming P1 — figer la palette 9 rôles sémantiques + tokens de forme + jeu de recettes d'état (GATE
+  Rémi)
+status: todo
+tags:
+  - theming
+  - ds
+heat: 70
+detail: >-
+  Spec docs/specs/2026-07-19-theming-foundations.md §1. Livrable : la TABLE des 9 rôles couleur (bg,
+  surface, surface-hover, border, text, text-muted, text-faint, accent, accent-bg) avec valeurs
+  light+dark, + la correspondance depuis l'échelle numérique actuelle (neutral-50…900 → rôles) ; les
+  tokens de forme (radius-control/chrome, densité row-y/gap, stroke) ; le jeu FERMÉ de recettes
+  (current✓, toggled✓, hover, disabled, invalid, focus✓). Réécrire design.md §1. GATE : validation
+  Rémi de la table couleur AVANT toute migration (rayon d'explosion max). Ne migre RIEN.
+refs:
+  - docs/specs/2026-07-19-theming-foundations.md
+  - docs/design.md
+links: []
+dependsOn: []
+epic: theming-foundations
+source: ai
+createdAt: "2026-07-19T14:02:36"
+updatedAt: "2026-07-19T14:02:36"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null
