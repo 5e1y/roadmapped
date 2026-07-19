@@ -162,10 +162,14 @@ export function OverviewView() {
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             {/* Rangée 1 (retour Rémi) — radar | chart CÔTE À CÔTE : deux viz de
                 hauteur comparable, fini la colonne à moitié vide. */}
-            {/* 1 — Radar par type (LECTURE pure, la sélection ne filtrait rien). */}
+            {/* 1 — Radar par type (LECTURE pure, la sélection ne filtrait rien).
+                Borné en largeur (max-w) et centré : un radar carré plein cadre
+                serait ~540px de haut et déséquilibrerait la rangée face au chart. */}
             <Card title="Load by type">
-              <div className="p-4">
-                <TypesRadar counts={counts} />
+              <div className="flex h-full items-center justify-center p-4">
+                <div className="w-full max-w-[280px]">
+                  <TypesRadar counts={counts} />
+                </div>
               </div>
             </Card>
 

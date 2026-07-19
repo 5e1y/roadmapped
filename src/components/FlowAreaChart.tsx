@@ -80,9 +80,9 @@ export function FlowAreaChart({ data }: { data: DayBucket[] }) {
   const pct = (n: number, total: number) => `${(n / total) * 100}%`
 
   return (
-    <div className="px-4 pb-3 pt-1">
+    <div className="flex h-full flex-col px-4 pb-3 pt-1">
       {/* Légende — même registre que les autres viz de l'Overview. */}
-      <div className="mb-2 flex items-center gap-4 text-[11px] text-textsoft">
+      <div className="mb-2 flex shrink-0 items-center gap-4 text-[11px] text-textsoft">
         <span className="flex items-center gap-1.5">
           <span className="inline-block h-2 w-2 rounded-round" style={{ backgroundColor: 'var(--color-textsoft)' }} aria-hidden="true" /> Created
         </span>
@@ -95,8 +95,12 @@ export function FlowAreaChart({ data }: { data: DayBucket[] }) {
           largeur (un <text> SVG est mis à l'échelle par le viewBox → énorme en
           pleine largeur, minuscule en colonne ; retour Rémi). Positions en % =
           coordonnées viewBox / dimension. */}
-      <div className="relative w-full">
-        <svg viewBox={`0 0 ${W} ${H}`} className="block w-full" role="img" aria-label="Created vs closed per day">
+      <div className="relative min-h-[180px] w-full flex-1">
+        {/* preserveAspectRatio=none : le tracé s'ÉTIRE pour remplir la hauteur de la
+            carte (sinon un grand vide sous un chart court à côté du radar). Les
+            traits restent à 1,5px (vectorEffect non-scaling) et les étiquettes,
+            en overlay HTML positionné en %, suivent. */}
+        <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="block h-full w-full" role="img" aria-label="Created vs closed per day">
           <defs>
             <linearGradient id="flow-created" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="var(--color-textsoft)" stopOpacity="0.28" />
