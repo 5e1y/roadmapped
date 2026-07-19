@@ -1,0 +1,42 @@
+id: 389
+title: "C7 — UI tout en anglais : harmoniser les chaînes FR→EN (Activity, Overview, KB, Docs, états)"
+status: done
+tags:
+  - ds
+  - i18n
+heat: 45
+detail: >-
+  Décision Rémi : UI unique en ANGLAIS (l'app est en lang=en). Traduire toutes les chaînes visibles
+  FR restantes → EN : Activity (Aujourd'hui/Hier, « Aucune activité… »), Overview (titres de cartes,
+  bascules Urgents/Anciens/Récents, aperçu), KB/Docs (« Chargement… », messages), états vides/erreur
+  (« Chargement… » vs « Loading… »), KbNodePanel phrase mixte. NE PAS toucher : le CONTENU
+  utilisateur (tickets, docs), ni les décisions Rémi (tone-of-voice du produit). Grep systématique
+  des littéraux FR dans src/. Cohérence de casse/registre. Spec
+  docs/specs/2026-07-19-ds-consistency.md C7.
+refs:
+  - src/components/ActivityView.tsx
+  - src/components/OverviewView.tsx
+  - src/components/KbView.tsx
+links: []
+dependsOn: []
+epic: ds-consistency
+source: ai
+createdAt: "2026-07-19T13:07:07"
+startedAt: "2026-07-19T13:07:08"
+updatedAt: "2026-07-19T13:19:42"
+completedAt: "2026-07-19T13:19:42"
+commit: 2ca86a5
+outcome: >-
+  UI tout en anglais (décision Rémi). Traduites : Overview (labels bascules Urgent/Oldest/Recent,
+  titres de cartes Load by type/Backlog preview/Created vs closed per day, états vides, âge '{n}d',
+  aria), Activity (état vide + phrase git log), activityFeed (Today/Yesterday + test), DocsView
+  (Loading…/Couldn't load/No .md document/Select a document/error), KbView (Loading…), KbGraph (No
+  node matches), KbNodePanel (No ticket references this file), FlowAreaChart (légende
+  Created/Closed, aria, empty), TypesRadar (aria). Tests alignés (FlowAreaChart, OverviewView.smoke,
+  ActivityView.smoke, activityFeed). PÉRIMÈTRE : chrome UI du dashboard ; le CONTENU des tickets
+  reste tel quel. Note : les erreurs CLI/lib (taskWrites « Aucune tâche #id », withLock « Verrou »)
+  restent FR — CLI-facing, test-lockées — follow-up séparé si besoin.
+verification: >-
+  grep systématique : zéro littéral FR visible restant dans src/components (hors commentaires). tsc
+  clean, suite 714/714. Capture Overview : labels EN confirmés.
+release: 0.2.3
