@@ -8,6 +8,7 @@ import { edgePaths, buildAdjacency, nodesBox } from '../lib/kbScene'
 import { KbSimDriver } from './kbSimDriver'
 import { readKbSimOverrides, useKbSimOverrides } from '../state/kbSimParams'
 import type { KbGraph as KbGraphData, KbNode, KbEdge } from '../server/kb'
+import { ZoomControls } from './ZoomControls'
 
 /**
  * Rendu de la Knowledge base (#kb) : graphe force-directed dessiné en SVG —
@@ -313,16 +314,12 @@ export function KbGraph({ graph, filters, query, onNodeClick: onNodeClickProp }:
 
   return (
     <div className="relative h-full w-full">
-      <div className="absolute right-3 top-3 z-10 flex items-center overflow-hidden rounded-md border border-neutral-300 bg-white shadow-sm">
-        <button type="button" onClick={() => { markInteracted(); zp.zoomBy(1 / ZOOM_STEP) }} aria-label="Zoom out"
-          className="px-2.5 py-1 text-sm text-neutral-600 transition-colors hover:bg-neutral-100">−</button>
-        <button type="button" onClick={fitAll}
-          className="border-l border-neutral-200 px-2.5 py-1 text-xs text-neutral-600 transition-colors hover:bg-neutral-100">Fit</button>
-        <button type="button" onClick={() => { markInteracted(); zp.reset() }} aria-label="Reset zoom to 100%"
-          className="border-l border-neutral-200 px-2.5 py-1 text-xs text-neutral-600 transition-colors hover:bg-neutral-100">100 %</button>
-        <button type="button" onClick={() => { markInteracted(); zp.zoomBy(ZOOM_STEP) }} aria-label="Zoom in"
-          className="border-l border-neutral-200 px-2.5 py-1 text-sm text-neutral-600 transition-colors hover:bg-neutral-100">+</button>
-      </div>
+      <ZoomControls
+        onZoomOut={() => { markInteracted(); zp.zoomBy(1 / ZOOM_STEP) }}
+        onFit={fitAll}
+        onReset={() => { markInteracted(); zp.reset() }}
+        onZoomIn={() => { markInteracted(); zp.zoomBy(ZOOM_STEP) }}
+      />
 
       {truncated && (
         <div className="absolute left-3 top-3 z-10 rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-[11px] text-neutral-600 shadow-sm">

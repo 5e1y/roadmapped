@@ -15,6 +15,7 @@ import { EpicBand, epicBandView } from './EpicBand'
 import { epicStatusOf } from './EpicRow'
 import type { TaskTree, TaskNode } from '../lib/tasks'
 import { useZoomPan, ZOOM_STEP } from './useZoomPan'
+import { ZoomControls } from './ZoomControls'
 
 const CARD_W = 248, CARD_H = 72
 /** Hauteur d'une ligne membre dans un nœud-epic déplié (px-3 py-1 + text-sm). */
@@ -353,17 +354,14 @@ function GraphCanvas({ tree, showDone, selected }: { tree: TaskTree; showDone: b
 
   return (
     <div className="relative h-full w-full">
-      {/* Contrôles de zoom (épinglés, ne défilent pas avec le graphe) */}
-      <div className="absolute right-3 top-3 z-10 flex items-center overflow-hidden rounded-md border border-neutral-300 bg-white shadow-sm">
-        <button type="button" onClick={() => zp.zoomBy(1 / ZOOM_STEP)} aria-label="Zoom out"
-          className="px-2.5 py-1 text-sm text-neutral-600 transition-colors hover:bg-neutral-100">−</button>
-        <button type="button" onClick={zp.fit}
-          className="border-l border-neutral-200 px-2.5 py-1 text-xs text-neutral-600 transition-colors hover:bg-neutral-100">Fit</button>
-        <button type="button" onClick={zp.reset} aria-label="Reset zoom to 100%"
-          className="border-l border-neutral-200 px-2.5 py-1 text-xs text-neutral-600 transition-colors hover:bg-neutral-100">100 %</button>
-        <button type="button" onClick={() => zp.zoomBy(ZOOM_STEP)} aria-label="Zoom in"
-          className="border-l border-neutral-200 px-2.5 py-1 text-sm text-neutral-600 transition-colors hover:bg-neutral-100">+</button>
-      </div>
+      {/* Contrôles de zoom (épinglés, ne défilent pas avec le graphe) — primitive
+          partagée (#382). */}
+      <ZoomControls
+        onZoomOut={() => zp.zoomBy(1 / ZOOM_STEP)}
+        onFit={zp.fit}
+        onReset={zp.reset}
+        onZoomIn={() => zp.zoomBy(ZOOM_STEP)}
+      />
 
       {/* Viewport : overflow-hidden, drag = pan (le pointerdown sur une carte
           est laissé aux boutons), molette = zoom vers le curseur (natif, dans
