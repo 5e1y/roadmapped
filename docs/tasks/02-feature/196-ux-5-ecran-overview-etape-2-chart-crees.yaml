@@ -22,21 +22,21 @@ epic: overview-activity
 source: ai
 createdAt: "2026-07-19T11:53:39"
 startedAt: "2026-07-19T12:14:38"
-updatedAt: "2026-07-19T12:21:10"
-completedAt: "2026-07-19T12:21:10"
-commit: 194c834
+updatedAt: "2026-07-19T12:32:07"
+completedAt: "2026-07-19T12:32:07"
+commit: 95b2f95
 outcome: >-
-  Overview étape 2 : carte « Créés vs fermés / semaine ». Composant SVG maison WeeklyFlowChart
-  (fonction pure, props WeekBucket[]) alimenté par createdVsClosedByWeek (#374, aucun recalcul).
-  Barres GROUPÉES (2/semaine) — choix justifié : ~2-3 semaines d'historique, une double courbe de
-  2-3 points se lit mal. Monochrome + accent rare : créés = flux entrant en neutral-400, fermés = le
-  débit mis en avant en accent (seule série colorée) ; tokens CSS only, zéro hex. Gridlines Y
-  0/milieu/max, étiquettes semaine DD/MM (lundi ISO), légende, valeurs au-dessus des barres, état
-  vide géré. Carte pleine largeur lg:col-span-2 entre les demi-cartes et le graphe de tags ; les 3
-  cartes de l'étape 1 intactes.
+  Chart créés-vs-fermés RETRAVAILLÉ en graphe en AIRES (retour Rémi : réf shadcn, deux stats
+  superposées dans le même espace x/y, pas des barres). Bascule de granularité HEBDO→QUOTIDIENNE :
+  une aire lissée a besoin de densité (~3 points hebdo rendaient plat) ; le quotidien donne ~18
+  jours qui coulent, fidèle à la réf. Nouveau helper createdVsClosedByDay (buckets journaliers,
+  jours vides comblés, parse LOCAL des dates). Nouveau composant FlowAreaChart : SVG maison, courbe
+  lissée Catmull-Rom→Bézier, deux aires superposées à dégradé (créés=neutral, fermés=accent — seule
+  série colorée, monochrome+accent rare), repères Y 0/milieu/max, étiquettes DD/MM, légende, état
+  vide. Ancien WeeklyFlowChart (barres groupées) supprimé + son test.
 verification: >-
-  tsc clean, suite 713/713 (exclusions worktrees ; WeeklyFlowChart.test 6 cas + baseline). VÉRIF
-  VISUELLE (Playwright pleine page) : les 4 cartes de l'Overview relues — radar, aperçu à bascules,
-  chart hebdo (légende Créés/Fermés, barres 313 créés / 309 fermés, accent sur Fermés), graphe de
-  tags. Build OK.
+  tsc clean, suite 714/714 (createdVsClosedByDay 3 tests dont bascule UTC ; FlowAreaChart 4 tests :
+  2 aires+2 gradients+2 lignes, légende, étiquettes DD/MM, état vide). VÉRIF VISUELLE (Playwright,
+  carte cadrée) : rendu conforme à la réf shadcn — aires Créés(gris)/Fermés(accent) superposées,
+  dégradés vers la base, courbes fluides, 07/07→19/07, repères 0/58/116. Build OK.
 release: 0.2.3
