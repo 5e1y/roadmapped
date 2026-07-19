@@ -11,10 +11,12 @@ vi.mock('./BirdMascot', () => ({ BirdMascot: () => null }))
 afterEach(cleanup)
 
 const ITEMS: { view: View; label: string }[] = [
+  { view: 'overview', label: 'Overview' },
   { view: 'backlog', label: 'Backlog' },
   { view: 'roadmap', label: 'Roadmap' },
   { view: 'dependencies', label: 'Deps' },
   { view: 'graph', label: 'Graph' },
+  { view: 'activity', label: 'Activity' },
   { view: 'docs', label: 'Docs' },
   { view: 'notepad', label: 'Notes' },
 ]
@@ -28,7 +30,7 @@ function renderRail(view: View, setView: (v: View) => void = () => {}) {
 }
 
 describe('NavRail (#370)', () => {
-  it('rend les 6 vues avec un label texte visible chacune', () => {
+  it('rend les 8 vues avec un label texte visible chacune', () => {
     renderRail('backlog')
     for (const { label } of ITEMS) {
       expect(screen.getByRole('button', { name: label })).toBeVisible()

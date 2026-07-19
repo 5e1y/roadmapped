@@ -2,7 +2,6 @@ import { Popover } from '@base-ui/react/popover'
 import { ChevronDown, Bug, Check } from 'trinil-react'
 import { type ReactNode } from 'react'
 import { useTree } from '../state/TreeContext'
-import { LiveActivityMenu } from './LiveActivityMenu'
 import { UpdateNotice } from './UpdateNotice'
 import { ThemeToggle } from './ThemeToggle'
 
@@ -40,14 +39,14 @@ export function ViewHeader({ meta, children }: {
         </h1>
         {meta && <div className="min-w-0 truncate font-mono text-xs text-neutral-500">{meta}</div>}
       </div>
-      {/* Cluster droit : le panneau Activity (live, #205) d'abord — présent sur
-          les 4 vues, son état vit dans LiveActivityProvider (null hors provider :
-          tests, build démo statique) — puis les contrôles propres à la vue. */}
+      {/* Cluster droit : contrôles transverses puis ceux propres à la vue.
+          L'ex-overlay Activity a QUITTÉ le header (#372) — c'est désormais un
+          onglet plein (ActivityView) ; le LiveActivityProvider reste au niveau
+          App et alimente cet onglet. */}
       <div className="flex shrink-0 items-center gap-2">
         {/* Notif de MAJ (#211) : rendue seulement si une MAJ est dispo (update
-            non null) — présente sur les 4 vues, dismiss de session module-level. */}
+            non null), dismiss de session module-level. */}
         <UpdateNotice />
-        <LiveActivityMenu />
         {/* Report an issue (#227) : canalise les feedbacks users vers le form bug
             GitHub (#223). Lien externe icône-seule, même idiome que le toggle. */}
         <a

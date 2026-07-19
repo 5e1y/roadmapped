@@ -12,6 +12,8 @@ import { CreateTaskPanel, SectionPanel } from './components/SectionPanel'
 import { RoadmapView } from './components/RoadmapView'
 import { DependenciesView } from './components/DependenciesView'
 import { GraphView } from './components/GraphView'
+import { OverviewView } from './components/OverviewView'
+import { ActivityView } from './components/ActivityView'
 import { DocsView } from './components/DocsView'
 import { NotepadView } from './components/NotepadView'
 import { LiveActivityProvider } from './state/LiveActivity'
@@ -26,10 +28,12 @@ function MainView({ view, docPath, onSelectDoc, epicFilter, onEpicFilter }: {
   epicFilter: string | null
   onEpicFilter: (slug: string | null) => void
 }) {
+  if (view === 'overview') return <OverviewView />
   if (view === 'backlog') return <Backlog />
   if (view === 'roadmap') return <RoadmapView epicFilter={epicFilter} onEpicFilter={onEpicFilter} />
   if (view === 'dependencies') return <DependenciesView epicFilter={epicFilter} onEpicFilter={onEpicFilter} />
   if (view === 'graph') return <GraphView />
+  if (view === 'activity') return <ActivityView />
   if (view === 'notepad') return <NotepadView />
   return <DocsView path={docPath} onSelectDoc={onSelectDoc} />
 }
@@ -114,7 +118,7 @@ function Shell() {
   const [view, setView] = useState<View>(() => {
     try {
       const v = localStorage.getItem('nav:view')
-      const known: View[] = ['backlog', 'roadmap', 'dependencies', 'graph', 'docs', 'notepad']
+      const known: View[] = ['overview', 'backlog', 'roadmap', 'dependencies', 'graph', 'activity', 'docs', 'notepad']
       if (known.includes(v as View)) return v as View
     } catch { /* localStorage indisponible */ }
     return 'backlog'
@@ -157,9 +161,11 @@ function Shell() {
   useEffect(() => {
     const name =
       view === 'docs' && docPath ? docPath.split('/').pop()!.replace(/\.md$/, '')
+      : view === 'overview' ? 'Overview'
       : view === 'roadmap' ? 'Roadmap'
       : view === 'dependencies' ? 'Dependencies'
       : view === 'graph' ? 'Graph'
+      : view === 'activity' ? 'Activity'
       : view === 'docs' ? 'Docs'
       : view === 'notepad' ? 'Notepad'
       : 'Backlog'
@@ -196,10 +202,10 @@ export default function App() {
   return (
     <TreeProvider>
       <PanelProvider>
-        {/* Live updates V2 (#205) : l'état du panneau Activity (log, non-lus,
-            ouverture) vit au-dessus de Shell — il survit aux remontages de
-            ViewHeader (une instance par vue). Le déclencheur, lui, est rendu
-            par ViewHeader (LiveActivityMenu). */}
+        {/* Live updates V2 (#205) : l'état du log d'activité (entrées, non-lus)
+            vit au-dessus de Shell — il survit aux remontages de vue et alimente
+            désormais l'onglet Activity plein écran (#372/#377, ex-overlay du
+            header, retiré en #372). */}
         <KbProvider>
           <LiveActivityProvider>
             <Shell />
