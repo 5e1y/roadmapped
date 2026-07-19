@@ -163,13 +163,12 @@ export function OverviewView() {
             {/* Rangée 1 (retour Rémi) — radar | chart CÔTE À CÔTE : deux viz de
                 hauteur comparable, fini la colonne à moitié vide. */}
             {/* 1 — Radar par type (LECTURE pure, la sélection ne filtrait rien).
-                Borné en largeur (max-w) et centré : un radar carré plein cadre
-                serait ~540px de haut et déséquilibrerait la rangée face au chart. */}
+                PLEINE TAILLE : le radar a besoin de sa place (lisibilité des 9 axes) —
+                c'est le CHART qui s'étire en hauteur pour s'aligner sur lui (un graphe
+                x/y grandit sans coût d'UX), pas l'inverse (décision Rémi). */}
             <Card title="Load by type">
-              <div className="flex h-full items-center justify-center p-4">
-                <div className="w-full max-w-[280px]">
-                  <TypesRadar counts={counts} />
-                </div>
+              <div className="p-4">
+                <TypesRadar counts={counts} />
               </div>
             </Card>
 
