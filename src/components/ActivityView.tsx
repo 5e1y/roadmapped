@@ -36,15 +36,15 @@ function EntryRow({ entry, isCurrent, onOpenTask }: { entry: LiveEntry; isCurren
   const fresh = Date.now() - entry.receivedAt < FRESH_MS
   const body = (
     <>
-      <Icon size={14} className="mt-0.5 shrink-0 text-neutral-500" aria-hidden="true" />
-      <span className="shrink-0 font-medium text-neutral-700">{entry.verb}</span>
-      <span className="shrink-0 font-mono text-xs text-neutral-500">#{entry.id}</span>
+      <Icon size={14} className="mt-0.5 shrink-0 text-textsoft" aria-hidden="true" />
+      <span className="shrink-0 font-medium text-texthard">{entry.verb}</span>
+      <span className="shrink-0 font-mono text-xs text-textsoft">#{entry.id}</span>
       {entry.title && (
-        <span className="min-w-0 flex-1 text-neutral-600" title={entry.title}>
+        <span className="min-w-0 flex-1 text-textsoft" title={entry.title}>
           {entry.title}
         </span>
       )}
-      <span className="ml-auto shrink-0 pl-3 font-mono text-xs tabular-nums text-neutral-500">{entry.at}</span>
+      <span className="ml-auto shrink-0 pl-3 font-mono text-xs tabular-nums text-textsoft">{entry.at}</span>
     </>
   )
   // Full screen: more air than the overlay (py-2.5/px-4, text-sm), title not
@@ -86,7 +86,7 @@ export function ActivityView() {
           <ul>
             {groups.map((group) => (
               <li key={group.dayMs}>
-                <div className="sticky top-0 z-10 border-b border-neutral-200 bg-white px-4 py-1.5 text-[11px] font-medium text-neutral-500">
+                <div className="sticky top-0 z-10 border-b border-border bg-foreground px-4 py-1.5 text-[11px] font-medium text-textsoft">
                   {group.label}
                 </div>
                 <ul className="divide-y divide-neutral-100">

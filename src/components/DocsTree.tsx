@@ -48,7 +48,7 @@ function DocsTreeFolder({
     <Collapsible.Root open={open} onOpenChange={setOpen}>
       {/* Le padding vit dans le Trigger : toute la ligne (hauteur comprise) déplie le dossier. */}
       <Collapsible.Trigger
-        className="flex w-full items-center gap-1.5 py-1.5 pr-4 text-left text-sm text-neutral-600 hover:bg-neutral-100"
+        className="flex w-full items-center gap-1.5 py-1.5 pr-4 text-left text-sm text-textsoft hover:bg-rollover"
         style={{ paddingLeft: BASE_PADDING_PX + depth * INDENT_PX }}
       >
         <Chevron />
@@ -77,7 +77,7 @@ function DocsTreeFile({
       className={`flex w-full items-baseline gap-2 py-1.5 pr-4 text-left text-sm transition-colors ${
         // Langage « actif » universel (design.md §3.2) : accent-tint + filet gauche —
         // le gris neutral-100 est réservé au hover. Lignes de liste carrées.
-        active ? 'bg-accent-tint text-neutral-900 shadow-[inset_2px_0_0_var(--color-accent)]' : 'text-neutral-600 hover:bg-neutral-100'
+        active ? 'bg-action text-texthard shadow-[inset_2px_0_0_var(--color-accent)]' : 'text-textsoft hover:bg-rollover'
       }`}
       style={{ paddingLeft: BASE_PADDING_PX + depth * INDENT_PX + INDENT_PX }}
       title={node.name}
@@ -85,7 +85,7 @@ function DocsTreeFile({
       {/* .md implicite (tout l'arbre en est) — le nom brut reste en tooltip. */}
       <span className="min-w-0 flex-1 truncate">{node.name.replace(/\.md$/, '')}</span>
       {node.createdAt && (
-        <span className="shrink-0 font-mono text-[11px] text-neutral-500" title={absoluteDate(node.createdAt)}>{relativeTime(node.createdAt)}</span>
+        <span className="shrink-0 font-mono text-[11px] text-textsoft" title={absoluteDate(node.createdAt)}>{relativeTime(node.createdAt)}</span>
       )}
     </button>
   )

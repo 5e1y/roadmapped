@@ -59,7 +59,7 @@ const short = (iso: string) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}`
 export function FlowAreaChart({ data }: { data: DayBucket[] }) {
   if (data.length === 0) {
     return (
-      <div className="flex h-full min-h-[200px] items-center justify-center px-4 text-center text-xs text-neutral-500">
+      <div className="flex h-full min-h-[200px] items-center justify-center px-4 text-center text-xs text-textsoft">
         No activity to chart yet.
       </div>
     )
@@ -79,12 +79,12 @@ export function FlowAreaChart({ data }: { data: DayBucket[] }) {
   return (
     <div className="px-4 pb-3 pt-1">
       {/* Légende — même registre que les autres viz de l'Overview. */}
-      <div className="mb-2 flex items-center gap-4 text-[11px] text-neutral-500">
+      <div className="mb-2 flex items-center gap-4 text-[11px] text-textsoft">
         <span className="flex items-center gap-1.5">
-          <span className="inline-block h-2 w-2 rounded-full bg-neutral-400" aria-hidden="true" /> Created
+          <span className="inline-block h-2 w-2 rounded-round bg-neutral-400" aria-hidden="true" /> Created
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="inline-block h-2 w-2 rounded-full bg-accent" aria-hidden="true" /> Closed
+          <span className="inline-block h-2 w-2 rounded-round bg-accent" aria-hidden="true" /> Closed
         </span>
       </div>
       <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label="Created vs closed per day">

@@ -17,9 +17,9 @@ import { useTree } from '../state/TreeContext'
 // UNIQUE, à réutiliser partout où une ligne peut être « la courante » (#380) :
 // TaskRow, l'aperçu Overview, le feed Activity… — plus de recette inline par écran.
 // Non-courant → survol de rangée neutral-50 (le hover-ligne canonique, pas 100).
-export const CURRENT_ROW = 'bg-accent-tint shadow-[inset_2px_0_0_var(--color-accent)]'
+export const CURRENT_ROW = 'bg-active shadow-[inset_2px_0_0_var(--color-accent)]'
 export const rowStateClass = (isCurrent: boolean) =>
-  isCurrent ? CURRENT_ROW : 'hover:bg-neutral-50'
+  isCurrent ? CURRENT_ROW : 'hover:bg-rollover'
 
 /**
  * Langage « contrôle ENCLENCHÉ/actif » (design.md §3.2, registre « pill bordée »,
@@ -31,17 +31,17 @@ export const rowStateClass = (isCurrent: boolean) =>
  * Dialecte canonique (le plus riche, le plus utilisé) :
  *   repos  → bord neutral-300 + fond blanc + encre 600, survol neutral-100
  *   ACTIF  → bord accent + fond accent-tint + font-medium + encre 900
- * Rayon 4px (`rounded`) = « contrôle du corps » de la doctrine strate (design.md
+ * Rayon 4px (`rounded-interactive`) = « contrôle du corps » de la doctrine strate (design.md
  * §1). Focus-visible hérité du :focus-visible global (index.css).
  *
  * Se compose comme trigger de Popover via `render={<TogglePill active=… />}` :
  * Base UI fusionne ses props (onClick, aria-expanded, ref) sur le <button>.
  */
 const togglePillCls = (active: boolean) =>
-  `flex items-center gap-1.5 rounded border px-2.5 py-1 text-xs transition-colors ${
+  `flex items-center gap-1.5 rounded-interactive border px-2.5 py-1 text-xs transition-colors ${
     active
-      ? 'border-accent bg-accent-tint font-medium text-neutral-900'
-      : 'border-neutral-300 bg-white text-neutral-600 hover:bg-neutral-100'
+      ? 'border-accent bg-active font-medium text-texthard'
+      : 'border-neutral-300 bg-foreground text-textsoft hover:bg-rollover'
   }`
 
 export const TogglePill = forwardRef<HTMLButtonElement, ComponentProps<'button'> & { active: boolean }>(
@@ -64,8 +64,8 @@ export const TogglePill = forwardRef<HTMLButtonElement, ComponentProps<'button'>
  * État VIDE canonique (design.md §4, #384) — UNE seule primitive pour les ~12
  * empty states qui divergeaient (dashed box, héro, `<p>` nu…). Centré : glyphe
  * optionnel (encre neutral-300, purement décoratif → aria-hidden) + titre
- * (`text-sm font-medium text-neutral-700`) + indice optionnel sur une ligne
- * (`text-xs text-neutral-500`). Le `className` porte le calage vertical/hauteur
+ * (`text-sm font-medium text-texthard`) + indice optionnel sur une ligne
+ * (`text-xs text-textsoft`). Le `className` porte le calage vertical/hauteur
  * du contexte : `h-full` en pleine zone, `py-8`/`py-12` dans une carte.
  */
 export function EmptyState({ glyph, title, hint, className = '' }: {
@@ -77,8 +77,8 @@ export function EmptyState({ glyph, title, hint, className = '' }: {
   return (
     <div className={`flex flex-col items-center justify-center gap-2 px-6 text-center ${className}`}>
       {glyph && <div className="text-neutral-300" aria-hidden="true">{glyph}</div>}
-      <p className="text-sm font-medium text-neutral-700">{title}</p>
-      {hint && <p className="max-w-sm text-xs text-neutral-500">{hint}</p>}
+      <p className="text-sm font-medium text-texthard">{title}</p>
+      {hint && <p className="max-w-sm text-xs text-textsoft">{hint}</p>}
     </div>
   )
 }
@@ -95,13 +95,13 @@ export function EmptyState({ glyph, title, hint, className = '' }: {
 export function TreeStateGuard({ detail = false, children }: { detail?: boolean; children: ReactNode }) {
   const { tree, errors, loading, loadError } = useTree()
   if (loading && !tree) {
-    return <div className="mx-auto max-w-3xl px-6 py-8 text-sm text-neutral-500">Loading…</div>
+    return <div className="mx-auto max-w-3xl px-6 py-8 text-sm text-textsoft">Loading…</div>
   }
   if (loadError) {
     return (
       <div className="mx-auto max-w-3xl px-6 py-8">
         <h1 className="text-lg font-semibold tracking-tight">Server unreachable</h1>
-        <p className="mt-1 font-mono text-xs text-neutral-500">{loadError}</p>
+        <p className="mt-1 font-mono text-xs text-textsoft">{loadError}</p>
       </div>
     )
   }
@@ -113,17 +113,17 @@ export function TreeStateGuard({ detail = false, children }: { detail?: boolean;
         </h1>
         {detail ? (
           <>
-            <p className="mt-1 text-sm text-neutral-500">
+            <p className="mt-1 text-sm text-textsoft">
               Fix the offending files — nothing renders until the source is healthy.
             </p>
-            <ul className="mt-6 flex flex-col divide-y divide-neutral-100 border border-neutral-200 bg-white">
+            <ul className="mt-6 flex flex-col divide-y divide-neutral-100 border border-border bg-foreground">
               {errors.map((e, i) => (
-                <li key={i} className="px-4 py-2.5 font-mono text-xs text-neutral-700">{e}</li>
+                <li key={i} className="px-4 py-2.5 font-mono text-xs text-texthard">{e}</li>
               ))}
             </ul>
           </>
         ) : (
-          <p className="mt-1 text-sm text-neutral-500">The roadmap will render once the source is healthy — details in the Backlog.</p>
+          <p className="mt-1 text-sm text-textsoft">The roadmap will render once the source is healthy — details in the Backlog.</p>
         )}
       </div>
     )
@@ -134,7 +134,7 @@ export function TreeStateGuard({ detail = false, children }: { detail?: boolean;
 // Bordure neutral-300 conservée (design.md §2, option douce de l'audit #108) :
 // le champ se différencie du fond par bg-neutral-50 au repos, blanc au focus.
 export const fieldCls =
-  'w-full rounded border border-neutral-300 bg-neutral-50 px-2 py-1.5 text-sm text-neutral-900 transition-colors focus:border-neutral-900 focus:bg-white focus:outline-none disabled:bg-neutral-50 disabled:text-neutral-400'
+  'w-full rounded-interactive border border-neutral-300 bg-neutral-50 px-2 py-1.5 text-sm text-texthard transition-colors focus:border-neutral-900 focus:bg-foreground focus:outline-none disabled:bg-neutral-50 disabled:text-neutral-400'
 
 /**
  * Peau « ghost » (décision Rémi 2026-07-07) : l'élément éditable est un input
@@ -143,7 +143,7 @@ export const fieldCls =
  * d'index.css). Jamais de swap lecture→input, jamais d'étape crayon.
  */
 export const ghostCls =
-  'w-full rounded border border-transparent bg-transparent px-1.5 py-1 text-neutral-900 transition-colors hover:bg-neutral-100 focus:border-neutral-300 focus:bg-white focus:outline-none disabled:text-neutral-500 disabled:hover:bg-transparent'
+  'w-full rounded-interactive border border-transparent bg-transparent px-1.5 py-1 text-texthard transition-colors hover:bg-rollover focus:border-neutral-300 focus:bg-foreground focus:outline-none disabled:text-textsoft disabled:hover:bg-transparent'
 
 /**
  * Boutons canoniques des panneaux (design.md §2) — source unique :
@@ -152,15 +152,15 @@ export const ghostCls =
  * destructif global : non — monochrome assumé).
  */
 export const primaryBtn =
-  'rounded border border-neutral-900 bg-neutral-900 px-2.5 py-1 text-xs text-white transition-colors hover:bg-neutral-700 disabled:cursor-not-allowed disabled:border-neutral-300 disabled:bg-neutral-300'
+  'rounded-interactive border border-action bg-action px-2.5 py-1 text-xs text-foreground transition hover:brightness-95 disabled:cursor-not-allowed disabled:border-neutral-300 disabled:bg-neutral-300'
 export const actionBtn =
-  'rounded border border-neutral-300 px-2.5 py-1 text-[11px] text-neutral-700 transition-colors hover:bg-neutral-100 disabled:opacity-50'
+  'rounded-interactive border border-neutral-300 px-2.5 py-1 text-[11px] text-texthard transition-colors hover:bg-rollover disabled:opacity-50'
 
 /** ✓ fugace « enregistré » posé sur la zone sauvée (spec §Feedback des panneaux). */
 export function SavedTick({ show }: { show: boolean }) {
   if (!show) return null
   return (
-    <span className="flex shrink-0 items-center gap-1 text-[11px] text-neutral-500">
+    <span className="flex shrink-0 items-center gap-1 text-[11px] text-textsoft">
       <Check size={10} />
       saved
     </span>
@@ -203,7 +203,7 @@ export function ErrorBanner({ errors }: { errors: string[] }) {
   if (errors.length === 0) return null
   return (
     <div role="alert" className="border border-l-4 border-neutral-900 bg-neutral-100 px-3 py-2 text-xs text-neutral-800">
-      <div className="mb-1 flex items-center gap-1.5 font-semibold text-neutral-900">
+      <div className="mb-1 flex items-center gap-1.5 font-semibold text-texthard">
         <Warning size={12} className="shrink-0" />
         Error
       </div>
@@ -283,7 +283,7 @@ export function ToastViewport() {
         <Toast.Root
           key={toast.id}
           toast={toast}
-          className="border border-neutral-200 bg-white px-3 py-2.5 shadow-lg transition-opacity duration-150 data-[ending]:opacity-0 data-[starting]:opacity-0 motion-reduce:transition-none"
+          className="border border-border bg-foreground px-3 py-2.5 shadow-lg transition-opacity duration-150 data-[ending]:opacity-0 data-[starting]:opacity-0 motion-reduce:transition-none"
         >
           {/* Aligné sur le popup Activity (filet neutral-200, shadow-lg, rounded-md,
               monochrome) — un petit Check accent signale la tâche bouclée (l'accent
@@ -291,12 +291,12 @@ export function ToastViewport() {
           <div className="flex items-start gap-2">
             <Check size={12} className="mt-px shrink-0 text-accent" aria-hidden="true" />
             <div className="min-w-0 flex-1">
-              <Toast.Title className="text-xs font-semibold text-neutral-900" />
-              <Toast.Description className="mt-0.5 text-xs text-neutral-600" />
+              <Toast.Title className="text-xs font-semibold text-texthard" />
+              <Toast.Description className="mt-0.5 text-xs text-textsoft" />
             </div>
             <Toast.Close
               aria-label="Close"
-              className="shrink-0 rounded p-0.5 text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-700"
+              className="shrink-0 rounded-interactive p-0.5 text-textsoft transition-colors hover:bg-rollover hover:text-texthard"
             >
               <Cross size={10} />
             </Toast.Close>
@@ -341,15 +341,15 @@ function RelOption({ item }: { item: SelectItem }) {
   return (
     <span className="flex min-w-0 flex-1 items-center gap-2">
       <KindGlyph task={{ kind: p.kind, status: p.status }} />
-      <span className="shrink-0 font-mono text-xs text-neutral-500">#{p.id}</span>
+      <span className="shrink-0 font-mono text-xs text-textsoft">#{p.id}</span>
       <span
         title={p.title}
-        className={`min-w-0 truncate ${p.status === 'done' ? 'text-neutral-500 line-through' : 'text-neutral-900'}`}
+        className={`min-w-0 truncate ${p.status === 'done' ? 'text-textsoft line-through' : 'text-texthard'}`}
       >
         {p.title}
       </span>
       <span className="ml-auto flex shrink-0 items-center gap-1.5">
-        {p.stage && <span className="font-mono text-[11px] text-neutral-500">{p.stage}</span>}
+        {p.stage && <span className="font-mono text-[11px] text-textsoft">{p.stage}</span>}
       </span>
     </span>
   )
@@ -373,7 +373,7 @@ export function Select({
   /** Peau camouflée (ghostCls) — pour les champs permanents du panneau. */
   ghost?: boolean
   /** Variante compacte du corps des vues : hauteur réduite
-      (py-1, text-xs) — rounded 4px comme tout contrôle du corps (design.md §1). */
+      (py-1, text-xs) — rounded-interactive 4px comme tout contrôle du corps (design.md §1). */
   compact?: boolean
   'aria-label'?: string
 }) {
@@ -386,24 +386,24 @@ export function Select({
     >
       <BaseSelect.Trigger
         aria-label={ariaLabel}
-        className={`${ghost ? `${ghostCls} text-sm` : compact ? 'w-full rounded border border-neutral-300 bg-white px-2.5 py-1 text-xs text-neutral-700 transition-colors focus:border-neutral-900 focus:outline-none' : fieldCls} flex items-center justify-between gap-2 text-left data-[disabled]:bg-neutral-50 data-[disabled]:text-neutral-500 ${ghost ? 'data-[disabled]:bg-transparent' : ''}`}
+        className={`${ghost ? `${ghostCls} text-sm` : compact ? 'w-full rounded-interactive border border-neutral-300 bg-foreground px-2.5 py-1 text-xs text-texthard transition-colors focus:border-neutral-900 focus:outline-none' : fieldCls} flex items-center justify-between gap-2 text-left data-[disabled]:bg-neutral-50 data-[disabled]:text-textsoft ${ghost ? 'data-[disabled]:bg-transparent' : ''}`}
       >
         <BaseSelect.Value />
-        <BaseSelect.Icon className="shrink-0 text-neutral-500">
+        <BaseSelect.Icon className="shrink-0 text-textsoft">
           <ChevronDown size={10} />
         </BaseSelect.Icon>
       </BaseSelect.Trigger>
       <BaseSelect.Portal>
         <BaseSelect.Positioner sideOffset={4} className="z-50">
-          <BaseSelect.Popup className="min-w-[var(--anchor-width)] border border-neutral-200 bg-white py-1 shadow-sm">
+          <BaseSelect.Popup className="min-w-[var(--anchor-width)] border border-border bg-foreground py-1 shadow-sm">
             {items.map((item) => (
               <BaseSelect.Item
                 key={item.value}
                 value={item.value}
-                className="flex cursor-default items-center justify-between gap-2 px-2.5 py-1.5 text-sm text-neutral-900 data-[highlighted]:bg-neutral-100"
+                className="flex cursor-default items-center justify-between gap-2 px-2.5 py-1.5 text-sm text-texthard data-[highlighted]:bg-neutral-100"
               >
                 <BaseSelect.ItemText>{item.label}</BaseSelect.ItemText>
-                <BaseSelect.ItemIndicator className="text-neutral-900">
+                <BaseSelect.ItemIndicator className="text-texthard">
                   <Check size={10} />
                 </BaseSelect.ItemIndicator>
               </BaseSelect.Item>
@@ -446,20 +446,20 @@ export function AddCombobox({ items, placeholder, onAdd, 'aria-label': ariaLabel
         ref={inputRef}
         aria-label={ariaLabel ?? placeholder}
         placeholder={placeholder}
-        className={`${ghostCls} text-sm placeholder:text-neutral-500`}
+        className={`${ghostCls} text-sm placeholder:text-textsoft`}
       />
       <Combobox.Portal>
         <Combobox.Positioner sideOffset={4} className="z-50">
           {/* Largeur = celle du champ (pas min-) : les lignes riches (#125)
               tronquent leur titre au lieu de dilater le popup à l'écran. */}
-          <Combobox.Popup className="max-h-64 w-[var(--anchor-width)] overflow-y-auto border border-neutral-200 bg-white py-1 shadow-sm">
-            <Combobox.Empty className="px-2.5 py-1.5 text-sm text-neutral-500">No tasks.</Combobox.Empty>
+          <Combobox.Popup className="max-h-64 w-[var(--anchor-width)] overflow-y-auto border border-border bg-foreground py-1 shadow-sm">
+            <Combobox.Empty className="px-2.5 py-1.5 text-sm text-textsoft">No tasks.</Combobox.Empty>
             <Combobox.List>
               {(item: SelectItem) => (
                 <Combobox.Item
                   key={item.value}
                   value={item}
-                  className="flex cursor-default items-center px-2.5 py-1.5 text-sm text-neutral-900 data-[highlighted]:bg-neutral-100"
+                  className="flex cursor-default items-center px-2.5 py-1.5 text-sm text-texthard data-[highlighted]:bg-neutral-100"
                 >
                   <RelOption item={item} />
                 </Combobox.Item>
@@ -505,8 +505,8 @@ export function TagsCombobox({ tags, suggestions, disabled = false, onSave }: {
   if (disabled) {
     return (
       <div className="flex flex-wrap items-center gap-1.5 px-1.5 py-1">
-        {tags.length === 0 && <span className="text-[12px] text-neutral-500">—</span>}
-        {tags.map((t) => <span key={t} className="text-[12px] text-neutral-500">#{t}</span>)}
+        {tags.length === 0 && <span className="text-[12px] text-textsoft">—</span>}
+        {tags.map((t) => <span key={t} className="text-[12px] text-textsoft">#{t}</span>)}
       </div>
     )
   }
@@ -529,14 +529,14 @@ export function TagsCombobox({ tags, suggestions, disabled = false, onSave }: {
         onSave(next.filter((i) => !i.creatable).map((i) => i.value))
       }}
     >
-      <Combobox.Chips className={`${ghostCls} flex flex-wrap items-center gap-1.5 focus-within:border-neutral-300 focus-within:bg-white`}>
+      <Combobox.Chips className={`${ghostCls} flex flex-wrap items-center gap-1.5 focus-within:border-neutral-300 focus-within:bg-foreground`}>
         {selected.map((item) => (
           <Combobox.Chip
             key={item.id}
-            className="flex items-center gap-1 text-[12px] text-neutral-500"
+            className="flex items-center gap-1 text-[12px] text-textsoft"
           >
             #{item.value}
-            <Combobox.ChipRemove aria-label={`Remove ${item.value}`} className="shrink-0 rounded text-neutral-500 hover:text-neutral-700">
+            <Combobox.ChipRemove aria-label={`Remove ${item.value}`} className="shrink-0 rounded-interactive text-textsoft hover:text-texthard">
               <Cross size={8} />
             </Combobox.ChipRemove>
           </Combobox.Chip>
@@ -544,28 +544,28 @@ export function TagsCombobox({ tags, suggestions, disabled = false, onSave }: {
         <Combobox.Input
           aria-label="Tags"
           placeholder={selected.length === 0 ? '+ tag' : '+'}
-          className="min-w-[60px] flex-1 bg-transparent text-[12px] text-neutral-900 placeholder:text-neutral-500 focus:outline-none"
+          className="min-w-[60px] flex-1 bg-transparent text-[12px] text-texthard placeholder:text-textsoft focus:outline-none"
         />
       </Combobox.Chips>
       <Combobox.Portal>
         <Combobox.Positioner sideOffset={4} className="z-50">
-          <Combobox.Popup className="max-h-56 min-w-[var(--anchor-width)] overflow-y-auto border border-neutral-200 bg-white py-1 shadow-sm">
-            <Combobox.Empty className="px-2.5 py-1.5 text-sm text-neutral-500">No tags.</Combobox.Empty>
+          <Combobox.Popup className="max-h-56 min-w-[var(--anchor-width)] overflow-y-auto border border-border bg-foreground py-1 shadow-sm">
+            <Combobox.Empty className="px-2.5 py-1.5 text-sm text-textsoft">No tags.</Combobox.Empty>
             <Combobox.List>
               {(item: TagItem) => (
                 <Combobox.Item
                   key={item.id}
                   value={item}
-                  className="flex cursor-default items-center gap-2 px-2.5 py-1.5 text-sm text-neutral-900 data-[highlighted]:bg-neutral-100"
+                  className="flex cursor-default items-center gap-2 px-2.5 py-1.5 text-sm text-texthard data-[highlighted]:bg-neutral-100"
                 >
                   {item.creatable ? (
                     <>
-                      <Plus size={10} className="shrink-0 text-neutral-500" />
+                      <Plus size={10} className="shrink-0 text-textsoft" />
                       <span>Create “{item.creatable}”</span>
                     </>
                   ) : (
                     <>
-                      <Combobox.ItemIndicator className="shrink-0 text-neutral-900">
+                      <Combobox.ItemIndicator className="shrink-0 text-texthard">
                         <Check size={10} />
                       </Combobox.ItemIndicator>
                       <span>#{item.value}</span>
@@ -606,7 +606,7 @@ export function EpicCombobox({ value, suggestions, disabled = false, onSave, toS
 
   if (disabled) {
     return (
-      <div className="px-1.5 py-1 font-mono text-sm text-neutral-500">{value ?? '—'}</div>
+      <div className="px-1.5 py-1 font-mono text-sm text-textsoft">{value ?? '—'}</div>
     )
   }
 
@@ -632,29 +632,29 @@ export function EpicCombobox({ value, suggestions, disabled = false, onSave, toS
             if (trimmed === '' && value !== null) onSave(null)
             else setQuery(value ?? '')
           }}
-          className={`${ghostCls} font-mono text-sm placeholder:text-neutral-500`}
+          className={`${ghostCls} font-mono text-sm placeholder:text-textsoft`}
         />
         <Combobox.Portal>
           <Combobox.Positioner sideOffset={4} className="z-50">
-            <Combobox.Popup className="max-h-56 min-w-[var(--anchor-width)] overflow-y-auto border border-neutral-200 bg-white py-1 shadow-sm">
-              <Combobox.Empty className="px-2.5 py-1.5 text-sm text-neutral-500">No epics.</Combobox.Empty>
+            <Combobox.Popup className="max-h-56 min-w-[var(--anchor-width)] overflow-y-auto border border-border bg-foreground py-1 shadow-sm">
+              <Combobox.Empty className="px-2.5 py-1.5 text-sm text-textsoft">No epics.</Combobox.Empty>
               <Combobox.List>
                 {(item: string) => (
                   <Combobox.Item
                     key={item}
                     value={item}
-                    className="flex cursor-default items-center gap-2 px-2.5 py-1.5 text-sm text-neutral-900 data-[highlighted]:bg-neutral-100"
+                    className="flex cursor-default items-center gap-2 px-2.5 py-1.5 text-sm text-texthard data-[highlighted]:bg-neutral-100"
                   >
                     {known.includes(item) ? (
                       <>
-                        <Combobox.ItemIndicator className="shrink-0 text-neutral-900">
+                        <Combobox.ItemIndicator className="shrink-0 text-texthard">
                           <Check size={10} />
                         </Combobox.ItemIndicator>
                         <span className="font-mono">{item}</span>
                       </>
                     ) : (
                       <>
-                        <Plus size={10} className="shrink-0 text-neutral-500" />
+                        <Plus size={10} className="shrink-0 text-textsoft" />
                         <span>Create “{toSlug(item)}”</span>
                       </>
                     )}
@@ -671,7 +671,7 @@ export function EpicCombobox({ value, suggestions, disabled = false, onSave, toS
           aria-label="Remove epic"
           title="Remove epic"
           onClick={() => onSave(null)}
-          className="shrink-0 rounded p-1 text-neutral-500 opacity-0 transition-opacity hover:bg-neutral-200 hover:text-neutral-700 focus-visible:opacity-100 group-hover:opacity-100"
+          className="shrink-0 rounded-interactive p-1 text-textsoft opacity-0 transition-opacity hover:bg-neutral-200 hover:text-texthard focus-visible:opacity-100 group-hover:opacity-100"
         >
           <Cross size={9} />
         </button>
@@ -701,14 +701,14 @@ export function MultiCombobox({
       value={selected}
       onValueChange={(objs: SelectItem[]) => onValueChange(objs.map((o) => Number(o.value)))}
     >
-      <Combobox.Chips className={`${fieldCls} flex flex-wrap items-center gap-1 focus-within:border-neutral-900 focus-within:bg-white`}>
+      <Combobox.Chips className={`${fieldCls} flex flex-wrap items-center gap-1 focus-within:border-neutral-900 focus-within:bg-foreground`}>
         {selected.map((item) => (
           <Combobox.Chip
             key={item.value}
-            className="flex max-w-full items-center gap-1 bg-neutral-100 px-1.5 py-0.5 text-xs text-neutral-700"
+            className="flex max-w-full items-center gap-1 bg-neutral-100 px-1.5 py-0.5 text-xs text-texthard"
           >
             <span className="min-w-0 max-w-[200px] truncate" title={item.label}>{item.label}</span>
-            <Combobox.ChipRemove className="shrink-0 text-neutral-500 hover:text-neutral-700" aria-label={`Remove ${item.label}`}>
+            <Combobox.ChipRemove className="shrink-0 text-textsoft hover:text-texthard" aria-label={`Remove ${item.label}`}>
               <Cross size={8} />
             </Combobox.ChipRemove>
           </Combobox.Chip>
@@ -716,24 +716,24 @@ export function MultiCombobox({
         <Combobox.Input
           aria-label={ariaLabel}
           placeholder={selected.length === 0 ? placeholder : ''}
-          className="min-w-[80px] flex-1 bg-transparent text-sm text-neutral-900 focus:outline-none"
+          className="min-w-[80px] flex-1 bg-transparent text-sm text-texthard focus:outline-none"
         />
       </Combobox.Chips>
       <Combobox.Portal>
         <Combobox.Positioner sideOffset={4} className="z-50">
           {/* Largeur = celle du champ (pas min-) : les lignes riches (#125)
               tronquent leur titre au lieu de dilater le popup à l'écran. */}
-          <Combobox.Popup className="max-h-64 w-[var(--anchor-width)] overflow-y-auto border border-neutral-200 bg-white py-1 shadow-sm">
-            <Combobox.Empty className="px-2.5 py-1.5 text-sm text-neutral-500">No tasks.</Combobox.Empty>
+          <Combobox.Popup className="max-h-64 w-[var(--anchor-width)] overflow-y-auto border border-border bg-foreground py-1 shadow-sm">
+            <Combobox.Empty className="px-2.5 py-1.5 text-sm text-textsoft">No tasks.</Combobox.Empty>
             <Combobox.List>
               {(item: SelectItem) => (
                 <Combobox.Item
                   key={item.value}
                   value={item}
-                  className="flex cursor-default items-center gap-2 px-2.5 py-1.5 text-sm text-neutral-900 data-[highlighted]:bg-neutral-100"
+                  className="flex cursor-default items-center gap-2 px-2.5 py-1.5 text-sm text-texthard data-[highlighted]:bg-neutral-100"
                 >
                   <RelOption item={item} />
-                  <Combobox.ItemIndicator className="shrink-0 text-neutral-900">
+                  <Combobox.ItemIndicator className="shrink-0 text-texthard">
                     <Check size={10} />
                   </Combobox.ItemIndicator>
                 </Combobox.Item>

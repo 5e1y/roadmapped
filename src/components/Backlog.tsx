@@ -22,13 +22,13 @@ const plural = (n: number, s: string) => `${n} ${s}${n === 1 ? '' : 's'}`
  */
 function RemovableChip({ label, onRemove, ariaLabel }: { label: string; onRemove: () => void; ariaLabel: string }) {
   return (
-    <span className="inline-flex max-w-[16rem] items-center gap-1 rounded-md border border-neutral-300 bg-white py-0.5 pl-2 pr-1 text-xs text-neutral-700">
+    <span className="inline-flex max-w-[16rem] items-center gap-1 rounded-interactive border border-border bg-foreground py-0.5 pl-2 pr-1 text-xs text-texthard">
       <span className="min-w-0 truncate">{label}</span>
       <button
         type="button"
         onClick={onRemove}
         aria-label={ariaLabel}
-        className="flex size-4 shrink-0 items-center justify-center rounded text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
+        className="flex size-4 shrink-0 items-center justify-center rounded-interactive text-textsoft transition-colors hover:bg-rollover hover:text-texthard"
       >
         ×
       </button>
@@ -70,20 +70,20 @@ export function Backlog() {
   const controls = (
     <>
       <div className="relative w-56">
-        <Search size={13} className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-neutral-500" />
+        <Search size={13} className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-textsoft" />
         <input
           ref={searchRef}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search…"
           aria-label="Search tasks"
-          className="w-full rounded-md border border-neutral-300 bg-white py-1 pl-7 pr-2 text-xs text-neutral-900 transition-colors placeholder:text-neutral-500 focus:border-neutral-900 focus:outline-none"
+          className="w-full rounded-interactive border border-border bg-foreground py-1 pl-7 pr-2 text-xs text-texthard transition-colors placeholder:text-textsoft focus:border-neutral-900 focus:outline-none"
         />
       </div>
       <button
         type="button"
         onClick={() => openCreateTask(createIn)}
-        className="rounded-md border border-neutral-900 bg-neutral-900 px-2.5 py-1 text-xs text-white transition-colors hover:bg-neutral-700"
+        className="rounded-interactive border border-action bg-action px-2.5 py-1 text-xs text-foreground transition hover:brightness-95"
       >
         + task
       </button>
@@ -144,7 +144,7 @@ export function Backlog() {
       <div className="flex min-h-0 flex-1 flex-col">
         {/* Chips de filtres actifs (#210) : toujours visibles au-dessus du scroller. */}
         {hasFilters && (
-          <div className="shrink-0 border-b border-neutral-200 bg-white">
+          <div className="shrink-0 border-b border-border bg-foreground">
             <div className="mx-auto flex max-w-3xl flex-wrap items-center gap-1.5 px-6 py-2">
               {typeFilter.map((k) => (
                 <RemovableChip key={`type:${k}`} label={typeLabel.get(k) ?? k} ariaLabel={`Remove type filter: ${typeLabel.get(k) ?? k}`}
@@ -160,7 +160,7 @@ export function Backlog() {
               <button
                 type="button"
                 onClick={() => removeFilter(clearAll)}
-                className="ml-1 rounded-md px-2 py-0.5 text-xs text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
+                className="ml-1 rounded-interactive px-2 py-0.5 text-xs text-textsoft transition-colors hover:bg-rollover hover:text-texthard"
               >
                 Clear all
               </button>

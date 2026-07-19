@@ -281,7 +281,7 @@ export function RoadmapGraph({ showDone, epicFilter, onEpicFilter }: {
   const sections = tree.sections.filter((s) => s.status !== 'abandoned')
   if (sections.every((s) => s.tasks.length === 0)) {
     return (
-      <div className="px-6 py-8 text-sm text-neutral-500">
+      <div className="px-6 py-8 text-sm text-textsoft">
         Nothing to display — the graph is built from tasks and their dependencies.
       </div>
     )
@@ -330,7 +330,7 @@ function GraphCanvas({ tree, showDone, selected }: { tree: TaskTree; showDone: b
   )
   if (model.nodes.length === 0) {
     return (
-      <div className="px-6 py-8 text-sm text-neutral-500">
+      <div className="px-6 py-8 text-sm text-textsoft">
         Nothing to display — the graph is built from tasks and their dependencies.
       </div>
     )
@@ -460,12 +460,12 @@ function GraphCard({ model, task, pos, dimmed, focused, onHoverChange }: NodeChr
   // Sélection = langage du Backlog (fond + filet gauche) ; nœud focalisé
   // (survol) → contour neutral-900 ; hover ≠ sélection.
   const skin = isOpenInPanel
-    ? 'border border-neutral-200 bg-accent-tint shadow-[inset_2px_0_0_var(--color-accent)]'
+    ? 'border border-border bg-active shadow-[inset_2px_0_0_var(--color-accent)]'
     : focused
-      ? 'border border-neutral-900 bg-white'
-      : 'border border-neutral-200 bg-white transition-colors hover:border-neutral-400'
+      ? 'border border-neutral-900 bg-foreground'
+      : 'border border-border bg-foreground transition-colors hover:border-neutral-400'
   const dim = state === 'done' || state === 'locked'
-  const titleCls = task.status === 'done' ? 'text-neutral-500 line-through' : dim ? 'text-neutral-500' : 'text-neutral-900'
+  const titleCls = task.status === 'done' ? 'text-textsoft line-through' : dim ? 'text-textsoft' : 'text-texthard'
   return (
     <button type="button" onClick={() => openTask(task.id)} title={task.title}
       onPointerEnter={() => onHoverChange(true)}
@@ -476,9 +476,9 @@ function GraphCard({ model, task, pos, dimmed, focused, onHoverChange }: NodeChr
       style={{ left: pos.x, top: pos.y, width: pos.w, minHeight: pos.h }}>
       <div className="flex items-center gap-2">
         {state === 'locked'
-          ? <LockLocked size={11} className="shrink-0 text-neutral-500" ariaLabel="Locked" />
+          ? <LockLocked size={11} className="shrink-0 text-textsoft" ariaLabel="Locked" />
           : <KindGlyph task={task} />}
-        <span className="shrink-0 font-mono text-xs text-neutral-500">#{task.id}</span>
+        <span className="shrink-0 font-mono text-xs text-textsoft">#{task.id}</span>
         <span className={`min-w-0 truncate text-sm ${titleCls}`}>
           {task.title}
         </span>
@@ -487,7 +487,7 @@ function GraphCard({ model, task, pos, dimmed, focused, onHoverChange }: NodeChr
         // #138 : tous les prérequis sont cités par #id — ceux sans carte propre
         // (dans un epic replié, hors vue) sont localisés dans le tooltip.
         <span
-          className="text-[11px] text-neutral-500"
+          className="text-[11px] text-textsoft"
           title={model.hidden.length > 0 ? hiddenPrereqNote(model.hidden) : undefined}
         >
           Missing prerequisites
@@ -496,11 +496,11 @@ function GraphCard({ model, task, pos, dimmed, focused, onHoverChange }: NodeChr
             : ''}
         </span>
       ) : state === 'available' ? (
-        <span className="text-[11px] font-medium text-neutral-700">Available</span>
+        <span className="text-[11px] font-medium text-texthard">Available</span>
       ) : null /* done : contenu identique aux autres états, sans lignes (cohérence) */}
       {/* Jalon (#133) : le poids du verrou, même donnée que le panneau (« Blocks »). */}
       {task.kind === 'milestone' && model.blocksCount > 0 && (
-        <span className="text-[11px] text-neutral-500">blocks {model.blocksCount}</span>
+        <span className="text-[11px] text-textsoft">blocks {model.blocksCount}</span>
       )}
       {/* Footer chip : le stage devenu métadonnée (graph-v2 — le layout est le
           flux de dépendances). Même rendu que le Backlog : Chip (design.md §2). */}
@@ -537,7 +537,7 @@ function EpicGraphNode({ epic, pos, avail, dimmed, focused, onHoverChange }: Nod
   const pct = progress.total === 0 ? 0 : Math.round((progress.done / progress.total) * 100)
   return (
     <div
-      className={`absolute border bg-white transition-colors ${focused ? 'border-neutral-900' : 'border-neutral-200 hover:border-neutral-400'}`}
+      className={`absolute border bg-foreground transition-colors ${focused ? 'border-neutral-900' : 'border-border hover:border-neutral-400'}`}
       style={{ left: pos.x, top: pos.y, width: pos.w }}
       onPointerEnter={() => onHoverChange(true)}
       onPointerLeave={() => onHoverChange(false)}
@@ -556,18 +556,18 @@ function EpicGraphNode({ epic, pos, avail, dimmed, focused, onHoverChange }: Nod
         <div className="flex items-center gap-2">
           <Chevron />
           <EpicGlyph status={epicStatusOf(progress, epic.tasks)} />
-          <span className="min-w-0 truncate text-sm font-medium text-neutral-900">{epic.title}</span>
+          <span className="min-w-0 truncate text-sm font-medium text-texthard">{epic.title}</span>
         </div>
         <div className="flex items-center gap-1.5 pl-[26px]">
-          <span className="text-[11px] text-neutral-500">
+          <span className="text-[11px] text-textsoft">
             {epic.tasks.length} task{epic.tasks.length === 1 ? '' : 's'}{partial ? ' here' : ''}
           </span>
           <span className="ml-auto flex items-center gap-1.5">
-            <span aria-hidden className="inline-block h-1 w-14 overflow-hidden rounded-full bg-neutral-200">
+            <span aria-hidden className="inline-block h-1 w-14 overflow-hidden rounded-round bg-neutral-200">
               <span className="block h-full bg-accent" style={{ width: `${pct}%` }} />
             </span>
             <span
-              className="font-mono text-[11px] text-neutral-500"
+              className="font-mono text-[11px] text-textsoft"
               title={`Epic overall completion: ${progress.done}/${progress.total}`}
             >
               {progress.done}/{progress.total}
@@ -587,14 +587,14 @@ function EpicGraphNode({ epic, pos, avail, dimmed, focused, onHoverChange }: Nod
                 type="button"
                 onClick={() => openTask(t.id)}
                 title={t.title}
-                className={`flex w-full items-center gap-2 px-3 py-1 text-left ${isOpenInPanel ? 'bg-accent-tint shadow-[inset_2px_0_0_var(--color-accent)]' : 'hover:bg-neutral-50'}`}
+                className={`flex w-full items-center gap-2 px-3 py-1 text-left ${isOpenInPanel ? 'bg-active shadow-[inset_2px_0_0_var(--color-accent)]' : 'hover:bg-rollover'}`}
                 style={{ height: MEMBER_H }}
               >
                 {st === 'locked'
-                  ? <LockLocked size={11} className="shrink-0 text-neutral-500" ariaLabel="Locked" />
+                  ? <LockLocked size={11} className="shrink-0 text-textsoft" ariaLabel="Locked" />
                   : <KindGlyph task={t} />}
-                <span className="shrink-0 font-mono text-xs text-neutral-500">#{t.id}</span>
-                <span className={`min-w-0 truncate text-sm ${t.status === 'done' ? 'text-neutral-500 line-through' : 'text-neutral-900'}`}>
+                <span className="shrink-0 font-mono text-xs text-textsoft">#{t.id}</span>
+                <span className={`min-w-0 truncate text-sm ${t.status === 'done' ? 'text-textsoft line-through' : 'text-texthard'}`}>
                   {t.title}
                 </span>
               </button>

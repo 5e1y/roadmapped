@@ -22,7 +22,7 @@ export function ViewHeader({ meta, children }: {
 }) {
   const { repoName } = useTree()
   return (
-    <header className="flex h-12 shrink-0 items-center justify-between gap-4 border-b border-neutral-200 bg-white px-4">
+    <header className="flex h-12 shrink-0 items-center justify-between gap-4 border-b border-border bg-foreground px-4">
       <div className="flex min-w-0 items-center gap-4">
         {/* Marque × repo (#204) : savoir sur quel repo pointe CE dashboard quand
             plusieurs sont ouverts. Le × séparateur en graisse Light (décision Rémi) ;
@@ -30,15 +30,15 @@ export function ViewHeader({ meta, children }: {
             statique, avant 1er /api/tree) : marque seule, pas de × orphelin. La
             mascotte n'est PLUS ici (elle vit en tête du NavRail, #370). */}
         <h1 className="flex min-w-0 items-center gap-1.5 text-sm tracking-tight">
-          <span className="shrink-0 font-semibold text-neutral-900">Roadmapped</span>
+          <span className="shrink-0 font-semibold text-texthard">Roadmapped</span>
           {repoName && (
             <>
               <span className="shrink-0 font-light text-neutral-400" aria-hidden="true">×</span>
-              <span className="min-w-0 truncate font-medium text-neutral-700" title={repoName}>{repoName}</span>
+              <span className="min-w-0 truncate font-medium text-texthard" title={repoName}>{repoName}</span>
             </>
           )}
         </h1>
-        {meta && <div className="min-w-0 truncate font-mono text-xs text-neutral-500">{meta}</div>}
+        {meta && <div className="min-w-0 truncate font-mono text-xs text-textsoft">{meta}</div>}
       </div>
       {/* Cluster droit : contrôles transverses puis ceux propres à la vue.
           L'ex-overlay Activity a QUITTÉ le header (#372) — c'est désormais un
@@ -56,7 +56,7 @@ export function ViewHeader({ meta, children }: {
           rel="noopener noreferrer"
           aria-label="Report an issue on GitHub"
           title="Report an issue"
-          className="flex items-center rounded-md border border-neutral-300 bg-white px-2 py-1 text-neutral-600 transition-colors hover:bg-neutral-100"
+          className="flex items-center rounded-interactive border border-neutral-300 bg-foreground px-2 py-1 text-textsoft transition-colors hover:bg-rollover"
         >
           <Bug size={12} className="my-0.5" />
         </a>
@@ -126,11 +126,11 @@ export function FilterMenu({ allLabel, options, selected, onChange, multiple = f
           `render` et y fusionne onClick/aria-expanded. */}
       <Popover.Trigger aria-label={ariaLabel} render={<TogglePill active={selected.length > 0} />}>
         {label}
-        <ChevronDown size={9} className="text-neutral-500" />
+        <ChevronDown size={9} className="text-textsoft" />
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Positioner sideOffset={4} align="end" className="z-50">
-          <Popover.Popup className="w-56 overflow-hidden rounded-md border border-neutral-200 bg-white shadow-sm">
+          <Popover.Popup className="w-56 overflow-hidden rounded-surface border border-border bg-foreground shadow-sm">
             {/* Hauteur bornée + scroll : 46 communautés ne doivent pas remplir
                 l'écran (#311). Le pied « Clear » reste ÉPINGLÉ sous la liste. */}
             <div className="max-h-[60vh] overflow-y-auto py-1">
@@ -144,15 +144,15 @@ export function FilterMenu({ allLabel, options, selected, onChange, multiple = f
                 // quand non sélectionné, remplie + cochée (accent) quand actif —
                 // le signal ne dépend plus d'un fond de rangée. Alignement
                 // [case] label … count.
-                const cls = `flex w-full items-center gap-2 px-2.5 py-1.5 text-left text-xs hover:bg-neutral-100 ${
-                  active ? 'font-medium text-neutral-900'
-                  : o.count === 0 ? 'text-neutral-500' : 'text-neutral-600'
+                const cls = `flex w-full items-center gap-2 px-2.5 py-1.5 text-left text-xs hover:bg-rollover ${
+                  active ? 'font-medium text-texthard'
+                  : o.count === 0 ? 'text-textsoft' : 'text-textsoft'
                 }`
                 const body = (
                   <>
                     <span
                       className={`flex size-3.5 shrink-0 items-center justify-center rounded-[3px] border transition-colors ${
-                        active ? 'border-accent bg-accent-tint text-accent' : 'border-neutral-300'
+                        active ? 'border-accent bg-active text-accent' : 'border-neutral-300'
                       }`}
                       aria-hidden="true"
                     >
@@ -160,7 +160,7 @@ export function FilterMenu({ allLabel, options, selected, onChange, multiple = f
                     </span>
                     <span className="min-w-0 flex-1 truncate">{o.label}</span>
                     {o.count !== undefined && (
-                      <span className="shrink-0 font-mono text-[11px] text-neutral-500">{o.count}</span>
+                      <span className="shrink-0 font-mono text-[11px] text-textsoft">{o.count}</span>
                     )}
                   </>
                 )
@@ -183,7 +183,7 @@ export function FilterMenu({ allLabel, options, selected, onChange, multiple = f
               <Popover.Close
                 render={<button type="button" />}
                 onClick={() => onChange([])}
-                className="flex w-full border-t border-neutral-100 px-2.5 py-1.5 text-left text-xs text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700"
+                className="flex w-full border-t border-neutral-100 px-2.5 py-1.5 text-left text-xs text-textsoft hover:bg-rollover hover:text-texthard"
               >
                 Clear filter
               </Popover.Close>

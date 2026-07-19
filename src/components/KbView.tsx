@@ -28,14 +28,14 @@ export function KbView() {
   const typeOpts = useMemo(() => (graph ? fileTypeOptions(graph.nodes) : []), [graph])
 
   if (loading && !graph) {
-    return <div className="mx-auto max-w-2xl px-6 py-8 text-sm text-neutral-500">Loading…</div>
+    return <div className="mx-auto max-w-2xl px-6 py-8 text-sm text-textsoft">Loading…</div>
   }
 
   if (error) {
     return (
       <div className="mx-auto max-w-2xl px-6 py-8">
-        <h1 className="text-lg font-semibold tracking-tight text-neutral-900">graph.json unreadable</h1>
-        <p className="mt-1 text-sm text-neutral-500">Regenerate the graph with <code className="font-mono">/graphify .</code>.</p>
+        <h1 className="text-lg font-semibold tracking-tight text-texthard">graph.json unreadable</h1>
+        <p className="mt-1 text-sm text-textsoft">Regenerate the graph with <code className="font-mono">/graphify .</code>.</p>
         <div className="mt-3"><ErrorBanner errors={[error]} /></div>
       </div>
     )
@@ -62,14 +62,14 @@ export function KbView() {
   return (
     <div className="flex h-full flex-col">
       {/* Barre d'outils KB : recherche à gauche, filtres + stats à droite. */}
-      <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-neutral-200 bg-white px-4 py-1.5">
+      <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-border bg-foreground px-4 py-1.5">
         <input
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search nodes…"
           aria-label="Search knowledge base nodes"
-          className="w-48 rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-xs text-neutral-800 placeholder:text-neutral-400 focus:border-neutral-400 focus:outline-none"
+          className="w-48 rounded-interactive border border-border bg-foreground px-2.5 py-1 text-xs text-neutral-800 placeholder:text-neutral-400 focus:border-neutral-400 focus:outline-none"
         />
         <FilterMenu
           allLabel="All communities"
@@ -99,11 +99,11 @@ export function KbView() {
             persistés (ui:kb-graph-params) — pill accent quand customisés. */}
         <KbDisplayMenu />
 
-        <div className="ml-auto flex items-center gap-3 font-mono text-[11px] text-neutral-500">
+        <div className="ml-auto flex items-center gap-3 font-mono text-[11px] text-textsoft">
           {stale && (
             // Badge INERTE (#380) : registre neutre, PAS le costume accent d'un toggle
             // enclenché — c'est un avertissement statique, pas un contrôle actif.
-            <span className="rounded border border-neutral-300 bg-neutral-100 px-1.5 py-0.5 text-neutral-600" title="The corpus changed since generation — run /graphify --update">
+            <span className="rounded-interactive border border-border bg-neutral-100 px-1.5 py-0.5 text-textsoft" title="The corpus changed since generation — run /graphify --update">
               maybe stale
             </span>
           )}
@@ -132,22 +132,22 @@ function KbHero() {
       <div className="mb-3">
         <GraphifyMark size={28} />
       </div>
-      <h1 className="text-lg font-semibold tracking-tight text-neutral-900">Knowledge base — not generated yet</h1>
-      <p className="mt-2 text-sm text-neutral-600">
+      <h1 className="text-lg font-semibold tracking-tight text-texthard">Knowledge base — not generated yet</h1>
+      <p className="mt-2 text-sm text-textsoft">
         The graph is built with Graphify (open source, MIT), from Claude Code:
       </p>
-      <pre className="mt-3 overflow-x-auto border border-neutral-200 bg-neutral-50 px-3 py-2 font-mono text-xs text-neutral-700">
+      <pre className="mt-3 overflow-x-auto border border-border bg-neutral-50 px-3 py-2 font-mono text-xs text-texthard">
 {`pip install graphifyy && graphify install   # once
 /graphify .                                 # in Claude Code, at the root`}
       </pre>
-      <p className="mt-3 text-sm text-neutral-500">
+      <p className="mt-3 text-sm text-textsoft">
         The dashboard will read <code className="font-mono">graphify-out/graph.json</code> automatically.
       </p>
       <a
         href="https://github.com/Graphify-Labs/graphify"
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-3 self-start rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-xs text-neutral-600 transition-colors hover:bg-neutral-100"
+        className="mt-3 self-start rounded-interactive border border-border bg-foreground px-2.5 py-1 text-xs text-textsoft transition-colors hover:bg-rollover"
       >
         Learn more about Graphify ↗
       </a>

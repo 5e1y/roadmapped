@@ -39,9 +39,9 @@ const NEUTRAL_FILTERS: KbFilters = { communities: [], fileTypes: [], hideInferre
 /** Carte de la grille — coquille tri-couche (bg-white + filet), titre optionnel. */
 function Card({ title, children, className = '' }: { title?: string; children: ReactNode; className?: string }) {
   return (
-    <section className={`flex flex-col overflow-hidden rounded border border-neutral-200 bg-white ${className}`}>
+    <section className={`flex flex-col overflow-hidden rounded-interactive border border-border bg-foreground ${className}`}>
       {title && (
-        <h2 className="shrink-0 border-b border-neutral-200 px-4 py-2 text-xs font-medium text-neutral-500">{title}</h2>
+        <h2 className="shrink-0 border-b border-border px-4 py-2 text-xs font-medium text-textsoft">{title}</h2>
       )}
       <div className="min-h-0 flex-1">{children}</div>
     </section>
@@ -102,8 +102,8 @@ function PreviewRow({ task, hint, isCurrent, onOpen }: { task: TaskNode; hint: R
       aria-current={isCurrent ? 'true' : undefined}
       className={`flex w-full items-center gap-2 px-4 py-2 text-left text-sm transition-colors ${rowStateClass(isCurrent)}`}
     >
-      <span className="shrink-0 font-mono text-xs text-neutral-500">#{task.id}</span>
-      <span title={task.title} className="min-w-0 flex-1 truncate text-neutral-900">{task.title}</span>
+      <span className="shrink-0 font-mono text-xs text-textsoft">#{task.id}</span>
+      <span title={task.title} className="min-w-0 flex-1 truncate text-texthard">{task.title}</span>
       <span className="ml-auto flex shrink-0 items-center">{hint}</span>
     </button>
   )
@@ -145,14 +145,14 @@ export function OverviewView() {
     if (mode === 'urgent') return <TempBadge t={temperature(tree, task, today)} />
     if (mode === 'old') {
       const age = task.createdAt ? ageInDays(task.createdAt, today) : null
-      return <span className="font-mono text-[11px] text-neutral-500">{age === null ? '—' : `${age}d`}</span>
+      return <span className="font-mono text-[11px] text-textsoft">{age === null ? '—' : `${age}d`}</span>
     }
     return task.createdAt ? (
-      <span className="font-mono text-[11px] text-neutral-500" title={absoluteDate(task.createdAt)}>
+      <span className="font-mono text-[11px] text-textsoft" title={absoluteDate(task.createdAt)}>
         {relativeTime(task.createdAt)}
       </span>
     ) : (
-      <span className="font-mono text-[11px] text-neutral-500">—</span>
+      <span className="font-mono text-[11px] text-textsoft">—</span>
     )
   }
 

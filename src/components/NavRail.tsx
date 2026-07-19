@@ -61,15 +61,15 @@ function NavButton({ item }: { item: NavItem }) {
           réagit au survol (group-hover) et à l'état actif — le label reste du
           texte nu. La cible cliquable reste le bouton entier (icône + label). */}
       <span
-        className={`flex size-9 items-center justify-center rounded-md transition-colors ${
+        className={`flex size-9 items-center justify-center rounded-interactive transition-colors ${
           active
-            ? 'bg-accent-tint text-accent'
-            : 'text-neutral-500 group-hover:bg-neutral-100 group-hover:text-neutral-800'
+            ? 'bg-active text-accent'
+            : 'text-textsoft group-hover:bg-rollover group-hover:text-neutral-800'
         }`}
       >
         <Icon size={18} />
       </span>
-      <span className={active ? 'text-neutral-900' : 'text-neutral-600'}>{item.label}</span>
+      <span className={active ? 'text-texthard' : 'text-textsoft'}>{item.label}</span>
     </button>
   )
 }
@@ -78,7 +78,7 @@ export function NavRail() {
   return (
     <nav
       aria-label="Vues"
-      className="flex h-full w-16 shrink-0 flex-col items-center gap-1 border-r border-neutral-200 bg-white px-2 py-3"
+      className="flex h-full w-16 shrink-0 flex-col items-center gap-1 border-r border-border bg-foreground px-2 py-3"
     >
       {/* Mascotte = le logo en tête du rail (comme Figma). Décorative (aria-hidden
           dans le composant) — c'est le titre du header qui nomme l'app. */}

@@ -6,7 +6,7 @@ import { useOptionalTreeState } from '../state/TreeContext'
 /*
  * Notif de mise à jour (#211) : la ligne « update available » quitte le
  * terminal pour vivre dans le header, même famille que LiveActivityMenu —
- * Popover Base UI, trigger rounded-md h-aligné dans le cluster droit. Le point
+ * Popover Base UI, trigger rounded-interactive h-aligné dans le cluster droit. Le point
  * accent sur le trigger est le SEUL bleu : une MAJ dispo est un vrai point
  * d'attention (usage légitime de l'accent, design.md §1), le reste du popup
  * est monochrome strict.
@@ -44,7 +44,7 @@ function CopyCommandButton({ command }: { command: string }) {
       type="button"
       onClick={() => void copy()}
       aria-label={copied ? 'Copied' : 'Copy upgrade command'}
-      className="flex shrink-0 items-center gap-1 self-stretch rounded border border-neutral-300 bg-white px-2 text-[11px] text-neutral-700 transition-colors hover:bg-neutral-100"
+      className="flex shrink-0 items-center gap-1 self-stretch rounded-interactive border border-neutral-300 bg-foreground px-2 text-[11px] text-texthard transition-colors hover:bg-rollover"
     >
       {copied ? <Check size={10} className="shrink-0" /> : <Copy size={10} className="shrink-0" />}
       {copied ? 'copied' : 'copy'}
@@ -94,44 +94,44 @@ function UpdateNoticeInner({ update }: { update: { installed: string; remote: st
     <Popover.Root>
       <Popover.Trigger
         aria-label="Update available"
-        className="flex items-center gap-1.5 rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-xs text-neutral-600 transition-colors hover:bg-neutral-100 data-[popup-open]:bg-neutral-100 data-[popup-open]:text-neutral-900"
+        className="flex items-center gap-1.5 rounded-interactive border border-neutral-300 bg-foreground px-2.5 py-1 text-xs text-textsoft transition-colors hover:bg-rollover data-[popup-open]:bg-neutral-100 data-[popup-open]:text-texthard"
       >
-        <Download size={11} className="text-neutral-500" />
+        <Download size={11} className="text-textsoft" />
         Update
         {/* Le point d'attention : l'unique accent du composant. */}
-        <span className="size-1.5 rounded-full bg-accent" aria-hidden="true" />
+        <span className="size-1.5 rounded-round bg-accent" aria-hidden="true" />
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Positioner sideOffset={4} align="end" className="z-50">
-          <Popover.Popup className="w-80 origin-[var(--transform-origin)] border border-neutral-200 bg-white shadow-lg transition-[opacity,transform] duration-150 ease-out data-[ending-style]:scale-[0.98] data-[ending-style]:opacity-0 data-[starting-style]:scale-[0.98] data-[starting-style]:opacity-0 motion-reduce:transition-none">
-            <div className="flex items-baseline justify-between border-b border-neutral-200 px-3 py-2">
-              <Popover.Title className="text-xs font-semibold text-neutral-900">Update available</Popover.Title>
+          <Popover.Popup className="w-80 origin-[var(--transform-origin)] border border-border bg-foreground shadow-lg transition-[opacity,transform] duration-150 ease-out data-[ending-style]:scale-[0.98] data-[ending-style]:opacity-0 data-[starting-style]:scale-[0.98] data-[starting-style]:opacity-0 motion-reduce:transition-none">
+            <div className="flex items-baseline justify-between border-b border-border px-3 py-2">
+              <Popover.Title className="text-xs font-semibold text-texthard">Update available</Popover.Title>
               <a
                 href={compareUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center gap-1 text-[11px] text-neutral-500 underline underline-offset-2 hover:text-neutral-900"
+                className="flex items-center gap-1 text-[11px] text-textsoft underline underline-offset-2 hover:text-texthard"
               >
                 what changed
                 <ExternalLink size={9} className="shrink-0" />
               </a>
             </div>
             <div className="flex flex-col gap-2.5 px-3 py-2.5">
-              <Popover.Description className="text-xs text-neutral-600">
+              <Popover.Description className="text-xs text-textsoft">
                 A newer Roadmapped is on main.
               </Popover.Description>
               <div className="flex items-center gap-2 font-mono text-[11px]" aria-label={`Installed ${update.installed}, latest ${update.remote}`}>
-                <span className="text-neutral-500" title="installed">{update.installed}</span>
+                <span className="text-textsoft" title="installed">{update.installed}</span>
                 <ArrowRight size={9} className="shrink-0 text-neutral-400" aria-hidden="true" />
-                <span className="font-semibold text-neutral-900" title="latest on main">{update.remote}</span>
+                <span className="font-semibold text-texthard" title="latest on main">{update.remote}</span>
               </div>
               {phase === 'error' ? (
                 <div className="flex flex-col gap-1.5">
-                  <p className="text-[11px] text-neutral-500">Couldn’t start the update. Run it manually:</p>
+                  <p className="text-[11px] text-textsoft">Couldn’t start the update. Run it manually:</p>
                   <div className="flex items-stretch gap-1.5">
                     {/* break-all : la commande entière reste visible (pas de scroll
                         horizontal caché dans un popup de 320px). */}
-                    <code className="min-w-0 flex-1 break-all border border-neutral-200 bg-neutral-50 px-2 py-1.5 font-mono text-[11px] leading-relaxed text-neutral-800">
+                    <code className="min-w-0 flex-1 break-all border border-border bg-neutral-50 px-2 py-1.5 font-mono text-[11px] leading-relaxed text-neutral-800">
                       {command}
                     </code>
                     <CopyCommandButton command={command} />
@@ -142,14 +142,14 @@ function UpdateNoticeInner({ update }: { update: { installed: string; remote: st
                   type="button"
                   onClick={() => void runUpdate()}
                   disabled={phase === 'updating'}
-                  className="flex items-center justify-center gap-1.5 rounded border border-neutral-900 bg-neutral-900 px-2.5 py-1.5 text-xs font-medium text-white transition-colors hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-70"
+                  className="flex items-center justify-center gap-1.5 rounded-interactive border border-action bg-action px-2.5 py-1.5 text-xs font-medium text-foreground transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   <Download size={11} className="shrink-0" />
                   {phase === 'updating' ? 'Updating & restarting…' : 'Update & restart'}
                 </button>
               )}
               {phase === 'updating' && (
-                <p className="text-[11px] text-neutral-500 motion-safe:animate-pulse">
+                <p className="text-[11px] text-textsoft motion-safe:animate-pulse">
                   The dashboard restarts with the new version — this page reloads automatically.
                 </p>
               )}
@@ -157,7 +157,7 @@ function UpdateNoticeInner({ update }: { update: { installed: string; remote: st
             <Popover.Close
               render={<button type="button" />}
               onClick={dismiss}
-              className="flex w-full border-t border-neutral-100 px-3 py-1.5 text-left text-[11px] text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700"
+              className="flex w-full border-t border-neutral-100 px-3 py-1.5 text-left text-[11px] text-textsoft hover:bg-rollover hover:text-texthard"
             >
               Hide for this session
             </Popover.Close>

@@ -86,15 +86,15 @@ export function TypesRadar({ counts, selected, onSelect }: {
               top: `${50 + sin * 38}%`,
               transform: 'translate(-50%, -50%)',
             }}
-            className={`absolute flex items-center gap-1 whitespace-nowrap rounded-md border px-1.5 py-0.5 text-[11px] transition-colors ${
+            className={`absolute flex items-center gap-1 whitespace-nowrap rounded-interactive border px-1.5 py-0.5 text-[11px] transition-colors ${
               active
-                ? 'border-accent bg-accent-tint font-medium text-neutral-900'
-                : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400 hover:text-neutral-900'
+                ? 'border-accent bg-action font-medium text-texthard'
+                : 'border-border bg-foreground text-texthard hover:border-neutral-400 hover:text-neutral-900'
             }`}
           >
-            <Icon size={11} className={active ? 'text-accent' : 'text-neutral-500'} />
+            <Icon size={11} className={active ? 'text-accent' : 'text-textsoft'} />
             {t.label}
-            <span className={`font-mono text-[11px] ${active ? 'text-accent' : 'text-neutral-500'}`}>
+            <span className={`font-mono text-[11px] ${active ? 'text-accent' : 'text-textsoft'}`}>
               {counts.get(t.key) ?? 0}
             </span>
           </button>

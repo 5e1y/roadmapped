@@ -15,7 +15,7 @@ describe('TogglePill', () => {
     expect(btn).toHaveAttribute('aria-pressed', 'true')
     expect(btn).toHaveAttribute('type', 'button')
     expect(btn.className).toContain('border-accent')
-    expect(btn.className).toContain('bg-accent-tint')
+    expect(btn.className).toContain('bg-active')
     expect(btn.className).toContain('font-medium')
   })
 
@@ -46,14 +46,14 @@ describe('EmptyState', () => {
     const title = screen.getByText('Nothing open')
     expect(title.className).toContain('text-sm')
     expect(title.className).toContain('font-medium')
-    expect(title.className).toContain('text-neutral-700')
+    expect(title.className).toContain('text-texthard')
   })
 
   it('indice optionnel rendu quand fourni (neutral-500)', () => {
     render(<EmptyState title="No tags yet" hint="Add a tag to see the graph." />)
     const hint = screen.getByText('Add a tag to see the graph.')
     expect(hint.className).toContain('text-xs')
-    expect(hint.className).toContain('text-neutral-500')
+    expect(hint.className).toContain('text-textsoft')
   })
 
   it('glyphe optionnel est décoratif (aria-hidden) et absent par défaut', () => {
