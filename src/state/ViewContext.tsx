@@ -12,6 +12,7 @@ import { createContext, useContext, type ReactNode } from 'react'
 export type View =
   | 'overview' | 'backlog' | 'roadmap' | 'dependencies'
   | 'graph' | 'activity' | 'docs' | 'notepad'
+  | 'settings'
   | 'designsystem'
 
 interface ViewState {

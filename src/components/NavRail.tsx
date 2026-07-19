@@ -1,5 +1,5 @@
 import { type ComponentType } from 'react'
-import { Dashboard, List, LayoutColumns, GitBranch, NodeGraph, Pulse, FileDoc, Pencil } from 'trinil-react'
+import { Dashboard, List, LayoutColumns, GitBranch, NodeGraph, Pulse, FileDoc, Pencil, Gear } from 'trinil-react'
 import { useView, type View } from '../state/ViewContext'
 import { BirdMascot } from './BirdMascot'
 
@@ -96,6 +96,11 @@ export function NavRail() {
         {EXPLORE.map((item) => (
           <NavButton key={item.id} item={item} />
         ))}
+      </div>
+      {/* Settings ancré EN BAS du rail (#395) : thème + signalement de bug + MAJ.
+          mt-auto pousse le groupe tout en bas. */}
+      <div className="mt-auto flex w-full flex-col gap-1">
+        <NavButton item={{ id: 'settings', label: 'Settings', Icon: Gear }} />
       </div>
     </nav>
   )

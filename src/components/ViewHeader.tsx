@@ -1,35 +1,35 @@
 import { Popover } from '@base-ui/react/popover'
-import { ChevronDown, Bug, Check } from 'trinil-react'
+import { ChevronDown, Check, Search } from 'trinil-react'
 import { type ReactNode } from 'react'
 import { useTree } from '../state/TreeContext'
-import { UpdateNotice } from './UpdateNotice'
-import { ThemeToggle } from './ThemeToggle'
-import { ThemePicker } from './ThemePicker'
-import { TogglePill } from './ui'
+import { useView } from '../state/ViewContext'
+import { useSearch } from '../state/search'
+import { usePanel } from '../state/PanelContext'
+import { TogglePill, primaryBtn } from './ui'
 
 /**
- * LE header commun des vues (décision Rémi) : une barre en haut, hauteur
- * STRICTEMENT égale au header du panneau de tâche (h-12 partagé, cf.
- * SidePanel). La navigation entre vues vit désormais dans le RAIL vertical à
- * gauche (NavRail, #370) — plus de tabs ici. À gauche : le titre marque × repo
- * (la mascotte, elle, est passée en tête du rail pour ne pas être dupliquée).
- * À droite : le cluster Activity + dropdowns et actions propres à la vue.
+ * LE header commun des vues (décision Rémi, #395). Trois zones : le TITRE marque ×
+ * repo à gauche, la BARRE DE RECHERCHE globale CENTRÉE, le bouton « + task » juste
+ * à sa DROITE. Rien d'autre — le thème, le signalement de bug et la notif de MAJ
+ * ont migré dans la page Settings (rail). Grille 3 colonnes [1fr auto 1fr] pour que
+ * la recherche soit vraiment au centre quelle que soit la largeur du titre.
+ *
+ * Recherche GLOBALE : présente sur TOUS les écrans ; cliquer dedans ramène au
+ * Backlog (le seul écran qui filtre) et la requête (state App, cf. search.tsx) y
+ * pilote la liste. « + task » aussi présent partout (crée une Feature par défaut).
  */
-export function ViewHeader({ meta, children }: {
+export function ViewHeader({ meta }: {
   /** Info discrète après le titre (compteurs, chemin du doc…). */
   meta?: ReactNode
-  /** Contrôles alignés à droite (dropdowns, boutons, segmented). */
-  children?: ReactNode
 }) {
   const { repoName } = useTree()
+  const { setView } = useView()
+  const { query, setQuery } = useSearch()
+  const { openCreateTask } = usePanel()
   return (
-    <header className="flex h-12 shrink-0 items-center justify-between gap-4 shadow-[inset_0_-1px_0_var(--color-border)] bg-foreground px-4">
+    <header className="grid h-12 shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-4 shadow-[inset_0_-1px_0_var(--color-border)] bg-foreground px-4">
+      {/* Colonne 1 (gauche) — titre marque × repo + méta de vue. */}
       <div className="flex min-w-0 items-center gap-4">
-        {/* Marque × repo (#204) : savoir sur quel repo pointe CE dashboard quand
-            plusieurs sont ouverts. Le × séparateur en graisse Light (décision Rémi) ;
-            le repo tronque, marque + × ne rétrécissent pas. Sans repoName (build démo
-            statique, avant 1er /api/tree) : marque seule, pas de × orphelin. La
-            mascotte n'est PLUS ici (elle vit en tête du NavRail, #370). */}
         <h1 className="flex min-w-0 items-center gap-1.5 text-sm tracking-tight">
           <span className="shrink-0 font-semibold text-texthard">Roadmapped</span>
           {repoName && (
@@ -41,31 +41,24 @@ export function ViewHeader({ meta, children }: {
         </h1>
         {meta && <div className="min-w-0 truncate font-mono text-xs text-textsoft">{meta}</div>}
       </div>
-      {/* Cluster droit : contrôles transverses puis ceux propres à la vue.
-          L'ex-overlay Activity a QUITTÉ le header (#372) — c'est désormais un
-          onglet plein (ActivityView) ; le LiveActivityProvider reste au niveau
-          App et alimente cet onglet. */}
-      <div className="flex shrink-0 items-center gap-2">
-        {/* Notif de MAJ (#211) : rendue seulement si une MAJ est dispo (update
-            non null), dismiss de session module-level. */}
-        <UpdateNotice />
-        {/* Report an issue (#227) : canalise les feedbacks users vers le form bug
-            GitHub (#223). Lien externe icône-seule, même idiome que le toggle. */}
-        <a
-          href="https://github.com/5e1y/roadmapped/issues/new?template=bug_report.yml"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Report an issue on GitHub"
-          title="Report an issue"
-          className="flex items-center rounded-interactive ring-1 ring-inset ring-border bg-foreground px-2 py-1 text-textsoft transition-colors hover:bg-rollover"
-        >
-          <Bug size={12} className="my-0.5" />
-        </a>
-        {/* Palette (#394) + bascule clair/sombre (#269) : deux axes de theming,
-            derniers éléments du chrome d'app avant les contrôles propres à la vue. */}
-        <ThemePicker />
-        <ThemeToggle />
-        {children}
+      {/* Colonne 2 (auto, centrée) — recherche globale. Focus → Backlog. */}
+      <div className="relative w-72">
+        <Search size={13} className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-textsoft" />
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onFocus={() => setView('backlog')}
+          placeholder="Search tasks…"
+          aria-label="Search tasks"
+          className="w-full rounded-interactive bg-background py-1 pl-7 pr-2 text-xs text-texthard ring-1 ring-inset ring-border transition-[background-color] placeholder:text-textsoft focus:bg-foreground"
+        />
+      </div>
+      {/* Colonne 3 — « + task » collé à DROITE de la recherche (justify-self-start),
+          jamais tout à droite de l'écran (décision Rémi). */}
+      <div className="justify-self-start">
+        <button type="button" onClick={() => openCreateTask('02-feature')} className={primaryBtn}>
+          + task
+        </button>
       </div>
     </header>
   )
@@ -79,16 +72,14 @@ export function ViewHeader({ meta, children }: {
  * et les états vides vivent DANS `children`, sous le header. Le corps garde sa
  * propre gestion du scroll (chaque vue pose son `min-h-0 flex-1`).
  */
-export function ViewShell({ meta, controls, children }: {
+export function ViewShell({ meta, children }: {
   /** Info discrète après le titre, transmise au ViewHeader (compteurs, chemin…). */
   meta?: ReactNode
-  /** Contrôles propres à la vue, alignés à droite du header. */
-  controls?: ReactNode
   children: ReactNode
 }) {
   return (
     <div className="flex h-full flex-col">
-      <ViewHeader meta={meta}>{controls}</ViewHeader>
+      <ViewHeader meta={meta} />
       {children}
     </div>
   )

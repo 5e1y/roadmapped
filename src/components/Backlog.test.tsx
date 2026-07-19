@@ -1,10 +1,12 @@
 import '@testing-library/jest-dom/vitest'
 import { describe, it, expect, afterEach, beforeEach } from 'vitest'
+import { useState } from 'react'
 import { render, screen, fireEvent, cleanup } from '@testing-library/react'
 import { Backlog } from './Backlog'
 import { TreeContext, type TreeState } from '../state/TreeContext'
 import { PanelProvider } from '../state/PanelContext'
 import { ViewProvider } from '../state/ViewContext'
+import { SearchProvider } from '../state/search'
 import type { TaskNode, TaskTree, SectionNode } from '../lib/tasks'
 
 afterEach(cleanup)
@@ -42,6 +44,13 @@ const tree: TaskTree = {
   epics: [{ slug: 'releases-chapitres', title: 'Releases-chapitres' }],
 }
 
+// La barre de recherche vit désormais dans le header commun (global, #395) et lit
+// la requête via SearchProvider — le harnais porte l'état pour que le filtrage opère.
+function SearchHarness({ children }: { children: React.ReactNode }) {
+  const [query, setQuery] = useState('')
+  return <SearchProvider query={query} setQuery={setQuery}>{children}</SearchProvider>
+}
+
 function renderBacklog() {
   const value = {
     tree, errors: [], repoName: 'demo', update: null, loading: false, loadError: null,
@@ -50,9 +59,11 @@ function renderBacklog() {
   return render(
     <ViewProvider view="backlog" setView={() => {}}>
       <TreeContext.Provider value={value}>
-        <PanelProvider>
-          <Backlog />
-        </PanelProvider>
+        <SearchHarness>
+          <PanelProvider>
+            <Backlog />
+          </PanelProvider>
+        </SearchHarness>
       </TreeContext.Provider>
     </ViewProvider>,
   )

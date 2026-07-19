@@ -16,8 +16,10 @@ import { OverviewView } from './components/OverviewView'
 import { ActivityView } from './components/ActivityView'
 import { DocsView } from './components/DocsView'
 import { NotepadView } from './components/NotepadView'
+import { SettingsView } from './components/SettingsView'
 import { DesignSystemView } from './components/DesignSystemView'
 import { LiveActivityProvider } from './state/LiveActivity'
+import { SearchProvider } from './state/search'
 import { OPEN_DOC_EVENT } from './lib/events'
 
 function MainView({ view, docPath, onSelectDoc, epicFilter, onEpicFilter, onExitDesignSystem }: {
@@ -38,6 +40,7 @@ function MainView({ view, docPath, onSelectDoc, epicFilter, onEpicFilter, onExit
   if (view === 'graph') return <GraphView />
   if (view === 'activity') return <ActivityView />
   if (view === 'notepad') return <NotepadView />
+  if (view === 'settings') return <SettingsView />
   if (view === 'designsystem') return <DesignSystemView onBack={onExitDesignSystem} />
   return <DocsView path={docPath} onSelectDoc={onSelectDoc} />
 }
@@ -124,7 +127,7 @@ function Shell() {
       const v = localStorage.getItem('nav:view')
       // 'designsystem' incluse (#388) : hors NavRail mais vue courante à part
       // entière — persistée/restaurée comme les 8 autres (rechargement idempotent).
-      const known: View[] = ['overview', 'backlog', 'roadmap', 'dependencies', 'graph', 'activity', 'docs', 'notepad', 'designsystem']
+      const known: View[] = ['overview', 'backlog', 'roadmap', 'dependencies', 'graph', 'activity', 'docs', 'notepad', 'settings', 'designsystem']
       if (known.includes(v as View)) return v as View
     } catch { /* localStorage indisponible */ }
     return 'backlog'
@@ -132,6 +135,10 @@ function Shell() {
   // Filtre epic PARTAGÉ Roadmap ↔ Dépendances (#369) : porté ici pour survivre au
   // changement de vue (session, pas persisté — un filtre de lecture).
   const [epicFilter, setEpicFilter] = useState<string | null>(null)
+  // Recherche GLOBALE (#395) : la barre vit dans le header commun de toutes les
+  // vues (search.tsx) ; la requête est portée ici et consommée par le Backlog.
+  // Session seulement (un filtre de lecture, pas persisté).
+  const [query, setQuery] = useState('')
   const [docPath, setDocPath] = useState<string | null>(() => {
     try { return localStorage.getItem('nav:doc') } catch { return null }
   })
@@ -207,6 +214,7 @@ function Shell() {
       : view === 'activity' ? 'Activity'
       : view === 'docs' ? 'Docs'
       : view === 'notepad' ? 'Notepad'
+      : view === 'settings' ? 'Settings'
       : view === 'designsystem' ? 'Design System'
       : 'Backlog'
     document.title = repoName ? `${repoName} · ${name} · Roadmapped` : `${name} · Roadmapped`
@@ -227,13 +235,15 @@ function Shell() {
     // zone de vue consomment useView. Le rail vertical d'icônes (#370) remplace les
     // tabs du header ; la vue occupe le reste ; le(s) panneau(x) restent à droite.
     <ViewProvider view={view} setView={setView}>
-      <div className="flex h-screen w-screen overflow-hidden">
-        <NavRail />
-        <main className="min-w-0 flex-1 overflow-y-auto">
-          <MainView view={view} docPath={docPath} onSelectDoc={setDocPath} epicFilter={epicFilter} onEpicFilter={setEpicFilter} onExitDesignSystem={() => setView(prevViewRef.current)} />
-        </main>
-        <PanelHost />
-      </div>
+      <SearchProvider query={query} setQuery={setQuery}>
+        <div className="flex h-screen w-screen overflow-hidden">
+          <NavRail />
+          <main className="min-w-0 flex-1 overflow-y-auto">
+            <MainView view={view} docPath={docPath} onSelectDoc={setDocPath} epicFilter={epicFilter} onEpicFilter={setEpicFilter} onExitDesignSystem={() => setView(prevViewRef.current)} />
+          </main>
+          <PanelHost />
+        </div>
+      </SearchProvider>
     </ViewProvider>
   )
 }
