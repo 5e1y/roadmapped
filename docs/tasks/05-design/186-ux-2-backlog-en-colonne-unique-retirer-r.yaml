@@ -1,6 +1,6 @@
 id: 373
 title: "UX 2 : Backlog en colonne unique — retirer radar + graphe de tags du flanc gauche"
-status: todo
+status: done
 tags:
   - ui
 detail: >-
@@ -18,9 +18,16 @@ dependsOn: []
 epic: overview-activity
 source: ai
 createdAt: "2026-07-19T11:53:15"
-updatedAt: "2026-07-19T11:53:15"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+updatedAt: "2026-07-19T12:02:04"
+completedAt: "2026-07-19T12:02:04"
+commit: a059308
+outcome: >-
+  Backlog en colonne unique : le <div> flanc gauche (TypesRadar + TagGraph) retiré, liste pleine
+  largeur. Imports (TagGraph/TypesRadar/tagGraph) et calculs morts (themeTags, load/countLoad,
+  radarSelected/Select, tagSelected/Select, top de usePanel) supprimés.
+  TypesRadar.tsx/TagGraph.tsx/tagGraph.ts CONSERVÉS (réutilisés dans l'Overview #375). Chips de
+  filtre actif + recherche (#348) intacts.
+verification: >-
+  tsc clean, suite 692/692 (Backlog.test #348 vert, filtre/recherche OK). Vérif visuelle : Backlog
+  rendu en colonne unique, plus de flanc gauche.
+release: 0.2.3

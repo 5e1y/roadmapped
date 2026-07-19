@@ -1,6 +1,6 @@
 id: 374
 title: "UX 3 : helpers Overview — tris ancienneté/récence + bucketiseur créés-vs-fermés hebdo (+ tests)"
-status: todo
+status: done
 tags:
   - overview
   - data
@@ -20,9 +20,18 @@ dependsOn: []
 epic: overview-activity
 source: ai
 createdAt: "2026-07-19T11:53:15"
-updatedAt: "2026-07-19T11:53:15"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+updatedAt: "2026-07-19T12:02:05"
+completedAt: "2026-07-19T12:02:05"
+commit: a059308
+outcome: >-
+  Helpers Overview : ageInDays + localDayMs exportés de roadmap.ts (logique inchangée). Nouveau
+  src/lib/overview.ts : mostUrgent(tree,n) (température desc via temperature()+comparateur
+  nextQueue, ouverts seulement, ne réimplémente pas la chaleur), oldest(tree,n) (createdAt asc,
+  fallback id), recentlyAdded(tree,n) (createdAt desc, fallback id),
+  createdVsClosedByWeek(tree)→WeekBucket[]{weekStart,created,closed} (buckets ISO-semaine, semaines
+  vides comblées, parsing LOCAL des dates nues via localDayMs pour éviter le piège UTC #340/#363 ;
+  créations=tous, fermetures=done). Choix ouverts-vs-tous documenté en tête.
+verification: >-
+  TDD 10 tests overview.test.ts dont cas frontière dimanche→lundi prouvant le parsing local. tsc
+  clean, suite 692/692, build OK.
+release: 0.2.3
