@@ -3,7 +3,7 @@ import { ViewHeader } from './ViewHeader'
 import { TypesRadar } from './TypesRadar'
 import { KbGraph } from './KbGraph'
 import { TempBadge } from './Temperature'
-import { rowStateClass } from './ui'
+import { rowStateClass, TogglePill } from './ui'
 import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
 import { FlowAreaChart } from './FlowAreaChart'
@@ -72,29 +72,18 @@ const MODES: { key: PreviewMode; label: string }[] = [
 ]
 
 /**
- * Bascule segmentée à sélection unique (langage « actif » du DS : bg-accent-tint
- * sur l'option courante, hover neutre sur les autres). Boutons aria-pressed —
- * même idiome que le toggle `inferred` de KbView et les axes du radar.
+ * Bascule à sélection unique : un groupe de TogglePill (langage « contrôle
+ * enclenché » unifié, cf. ui.tsx), une seule active à la fois. Chaque pill gère
+ * son aria-pressed ; le groupe porte role/aria-label pour l'annonce lecteur.
  */
 function Segmented({ value, onChange }: { value: PreviewMode; onChange: (m: PreviewMode) => void }) {
   return (
-    <div role="group" aria-label="Choose preview" className="inline-flex rounded-md border border-neutral-300 bg-white p-0.5">
-      {MODES.map((m) => {
-        const active = m.key === value
-        return (
-          <button
-            key={m.key}
-            type="button"
-            onClick={() => onChange(m.key)}
-            aria-pressed={active}
-            className={`rounded px-2.5 py-1 text-xs transition-colors ${
-              active ? 'bg-accent-tint font-medium text-neutral-900' : 'text-neutral-600 hover:bg-neutral-100'
-            }`}
-          >
-            {m.label}
-          </button>
-        )
-      })}
+    <div role="group" aria-label="Choose preview" className="inline-flex gap-1">
+      {MODES.map((m) => (
+        <TogglePill key={m.key} active={m.key === value} onClick={() => onChange(m.key)}>
+          {m.label}
+        </TogglePill>
+      ))}
     </div>
   )
 }

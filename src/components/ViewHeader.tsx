@@ -4,6 +4,7 @@ import { type ReactNode } from 'react'
 import { useTree } from '../state/TreeContext'
 import { UpdateNotice } from './UpdateNotice'
 import { ThemeToggle } from './ThemeToggle'
+import { TogglePill } from './ui'
 
 /**
  * LE header commun des vues (décision Rémi) : une barre en haut, hauteur
@@ -97,17 +98,10 @@ export function FilterMenu({ allLabel, options, selected, onChange, multiple = f
 
   return (
     <Popover.Root>
-      {/* Trigger : langage « actif » DS des pills bordées (cf. bouton inferred du
-          KB, TagGraph/TypesRadar) — bord accent COMPLET + tint, jamais un demi-
-          filet inset qui jurait avec le rounded-md (#311). */}
-      <Popover.Trigger
-        aria-label={ariaLabel}
-        className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs transition-colors ${
-          selected.length > 0
-            ? 'border-accent bg-accent-tint text-neutral-900'
-            : 'border-neutral-300 bg-white text-neutral-600 hover:bg-neutral-100'
-        }`}
-      >
+      {/* Trigger : primitive TogglePill (langage « contrôle enclenché », #311,
+          cf. ui.tsx) — actif = un filtre est posé. Base UI monte le <button> via
+          `render` et y fusionne onClick/aria-expanded. */}
+      <Popover.Trigger aria-label={ariaLabel} render={<TogglePill active={selected.length > 0} />}>
         {label}
         <ChevronDown size={9} className="text-neutral-500" />
       </Popover.Trigger>

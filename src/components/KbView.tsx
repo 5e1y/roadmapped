@@ -4,7 +4,7 @@ import { useKb } from '../state/KbContext'
 import { KbGraph, GraphifyMark } from './KbGraph'
 import { KbDisplayMenu } from './KbDisplayMenu'
 import { FilterMenu } from './ViewHeader'
-import { ErrorBanner } from './ui'
+import { ErrorBanner, TogglePill } from './ui'
 import { communityOptions, fileTypeOptions, type KbFilters } from '../lib/kbFilter'
 import { relativeTime, absoluteDate } from '../lib/relativeTime'
 
@@ -88,18 +88,14 @@ export function KbView() {
           onChange={setFileTypes}
           multiple
         />
-        <button
-          type="button"
+        <TogglePill
+          active={hideInferred}
           onClick={() => setHideInferred((v) => !v)}
-          aria-pressed={hideInferred}
           title={hideInferred ? 'Show inferred edges' : 'Hide inferred edges'}
-          className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs transition-colors ${
-            hideInferred ? 'border-accent bg-accent-tint text-neutral-900' : 'border-neutral-300 bg-white text-neutral-600 hover:bg-neutral-100'
-          }`}
         >
           {hideInferred ? <EyeClosed size={12} /> : <EyeOpen size={12} />}
           inferred
-        </button>
+        </TogglePill>
         {/* Réglages d'affichage (#318) : params de la sim de forces, live +
             persistés (ui:kb-graph-params) — pill accent quand customisés. */}
         <KbDisplayMenu />
