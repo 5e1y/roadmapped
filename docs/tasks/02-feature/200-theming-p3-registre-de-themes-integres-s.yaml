@@ -1,6 +1,6 @@
 id: 394
 title: Theming P3 — registre de thèmes intégrés + sélecteur N-thèmes + persistance
-status: todo
+status: done
 tags:
   - theming
   - ui
@@ -18,9 +18,17 @@ dependsOn:
 epic: theming-foundations
 source: ai
 createdAt: "2026-07-19T14:02:37"
-updatedAt: "2026-07-19T14:02:37"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+startedAt: "2026-07-19T15:20:24"
+updatedAt: "2026-07-19T15:20:24"
+completedAt: "2026-07-19T15:20:24"
+commit: 64464fc
+outcome: >-
+  5 thèmes intégrés (Roadmapped base · GitHub · Cursor · Claude · Codex). Axe data-theme-name
+  orthogonal au clair/sombre, chaque thème light+dark. Store ThemeName + persistance ui:theme-name +
+  anti-flash. Sélecteur ThemePicker (Popover ColorPalette) dans le header. Pas de 10e couleur :
+  accents choisis pour tenir la symétrie de bascule.
+verification: >-
+  npx tsc --noEmit OK · vitest 742/742 (+4 resolveThemeName/setThemeName) · captures Playwright des
+  5 thèmes en clair ET sombre : palettes distinctes, rayons distincts, boutons lisibles (flip
+  symmetry), sélecteur fonctionnel
+release: 0.2.3
