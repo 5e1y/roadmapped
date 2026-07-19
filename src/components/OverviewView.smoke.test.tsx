@@ -31,10 +31,11 @@ const tree: TaskTree = {
   epics: [],
 }
 
-function frame(node: React.ReactNode) {
+function frame(node: React.ReactNode, over: Partial<TreeState> = {}) {
   const value = {
     tree, errors: [], repoName: 'demo', update: null, loading: false, loadError: null,
     reload: async () => {}, lastChange: null,
+    ...over,
   } satisfies TreeState
   return render(
     <ViewProvider view="overview" setView={() => {}}>
@@ -98,5 +99,15 @@ describe('OverviewView — smoke étape 1 (#375)', () => {
     const row = screen.getByText('#10').closest('button')!
     expect(row).toBeInTheDocument()
     fireEvent.click(within(row).getByText('Ancien'))
+  })
+
+  // #384 (H2) — Overview honore loadError : plus d'« en attente… » à l'infini quand
+  // le serveur est mort. La garde partagée montre l'erreur, sous le header.
+  it('serveur mort (loadError) : montre « Server unreachable », PAS un état d\'attente', () => {
+    const { container } = frame(<OverviewView />, { tree: null, loading: false, loadError: 'ECONNREFUSED' })
+    expect(container.querySelector('header')).toBeInTheDocument()
+    expect(screen.getByText('Server unreachable')).toBeInTheDocument()
+    expect(screen.getByText('ECONNREFUSED')).toBeInTheDocument()
+    expect(screen.queryByText(/waiting for the backlog/i)).not.toBeInTheDocument()
   })
 })

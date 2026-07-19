@@ -1,9 +1,11 @@
 import '@testing-library/jest-dom/vitest'
 import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest'
-import { render, cleanup } from '@testing-library/react'
+import { render, screen, cleanup } from '@testing-library/react'
 import { RoadmapView } from './RoadmapView'
 import { DependenciesView } from './DependenciesView'
 import { GraphView } from './GraphView'
+import { Backlog } from './Backlog'
+import { OverviewView } from './OverviewView'
 import { TreeContext, type TreeState } from '../state/TreeContext'
 import { PanelProvider } from '../state/PanelContext'
 import { ViewProvider } from '../state/ViewContext'
@@ -32,10 +34,11 @@ const tree: TaskTree = {
   epics: [{ slug: 'e1', title: 'Epic 1' }],
 }
 
-function frame(node: React.ReactNode) {
+function frame(node: React.ReactNode, over: Partial<TreeState> = {}) {
   const value = {
     tree, errors: [], repoName: 'demo', update: null, loading: false, loadError: null,
     reload: async () => {}, lastChange: null,
+    ...over,
   } satisfies TreeState
   return render(
     <ViewProvider view="roadmap" setView={() => {}}>
@@ -47,6 +50,41 @@ function frame(node: React.ReactNode) {
     </ViewProvider>,
   )
 }
+
+// #384 — la garde d'état PARTAGÉE (TreeStateGuard) vit SOUS le header commun
+// (ViewShell) : le ViewHeader reste monté en chargement ET en erreur. Régression
+// H1 : Backlog/Roadmap/Deps le faisaient sauter. On teste les vues qui basculaient.
+const LOADING: Partial<TreeState> = { tree: null, loading: true }
+const SERVER_DEAD: Partial<TreeState> = { tree: null, loading: false, loadError: 'ECONNREFUSED' }
+
+describe('#384 — le header reste monté pendant loading/erreur (TreeStateGuard sous ViewShell)', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ ok: true }), { status: 200 })))
+  })
+  afterEach(() => { cleanup(); vi.unstubAllGlobals() })
+
+  const cases: [string, () => React.ReactElement][] = [
+    ['Backlog', () => <Backlog />],
+    ['RoadmapView', () => <RoadmapView epicFilter={null} onEpicFilter={() => {}} />],
+    ['DependenciesView', () => <DependenciesView epicFilter={null} onEpicFilter={() => {}} />],
+    ['OverviewView', () => <OverviewView />],
+  ]
+
+  for (const [name, make] of cases) {
+    it(`${name} : header + « Loading… » pendant le chargement`, () => {
+      const { container } = frame(make(), LOADING)
+      expect(container.querySelector('header')).toBeInTheDocument()
+      expect(screen.getByText('Loading…')).toBeInTheDocument()
+    })
+
+    it(`${name} : header + « Server unreachable » quand le serveur est mort`, () => {
+      const { container } = frame(make(), SERVER_DEAD)
+      expect(container.querySelector('header')).toBeInTheDocument()
+      expect(screen.getByText('Server unreachable')).toBeInTheDocument()
+      expect(screen.getByText('ECONNREFUSED')).toBeInTheDocument()
+    })
+  }
+})
 
 describe('vues de 1er niveau (#369) — smoke de montage', () => {
   beforeEach(() => {

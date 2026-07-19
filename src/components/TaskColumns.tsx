@@ -6,6 +6,7 @@ import { Chevron } from './glyphs'
 import { allEpics, epicProgress } from '../lib/roadmap'
 import { type TaskNode, type TaskTree } from '../lib/tasks'
 import { groupByRelease, compareReleasesDesc, PRE_RELEASE } from '../lib/release'
+import { EmptyState } from './ui'
 
 const PREVIEW = 12
 
@@ -140,9 +141,7 @@ export function TaskList({ open, done, tree, filtered }: {
   // groupByRelease préserve cet ordre DANS chaque groupe.
   const releaseGroups = groupByRelease(doneItems, releaseOfItem)
   const empty = (label: string) => (
-    <p className="border border-dashed border-neutral-300 px-4 py-8 text-center text-xs text-neutral-500">
-      {label}{filtered ? ' with these filters' : ''}.
-    </p>
+    <EmptyState className="py-8" title={`${label}${filtered ? ' with these filters' : ''}`} />
   )
   return (
     <div className="flex flex-col gap-8">
