@@ -1,6 +1,6 @@
 id: 385
 title: "C6 — a11y : BLOQUANT nœuds KB au clavier + régressions contraste #108 + focus après action"
-status: todo
+status: in_progress
 tags:
   - a11y
   - bug
@@ -22,7 +22,8 @@ dependsOn: []
 epic: ds-consistency
 source: ai
 createdAt: "2026-07-19T13:03:28"
-updatedAt: "2026-07-19T13:03:28"
+startedAt: "2026-07-19T13:26:44"
+updatedAt: "2026-07-19T13:26:44"
 completedAt: null
 commit: null
 outcome: null
