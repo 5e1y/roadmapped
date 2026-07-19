@@ -1,6 +1,6 @@
 id: 392
 title: Theming P1b — poser la couche token (CSS des 9 rôles × thèmes + module de recettes d'état)
-status: todo
+status: done
 tags:
   - theming
   - ds
@@ -17,9 +17,17 @@ dependsOn:
 epic: theming-foundations
 source: ai
 createdAt: "2026-07-19T14:02:37"
-updatedAt: "2026-07-19T14:02:37"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+updatedAt: "2026-07-19T14:25:05"
+completedAt: "2026-07-19T14:25:05"
+commit: efc8319
+outcome: >-
+  Couche token posée dans src/index.css (@theme) : 8 --color-* sémantiques aliasant les primitives
+  (héritent du swap clair/sombre sans redéfinition dans le bloc dark), 4 --radius-*, 6 --spacing-*
+  (dont --spacing-listgap). Tailwind v4 génère les utilitaires (bg-active, text-textsoft,
+  border-border, rounded-interactive, rounded-listitem, gap-listgap, p-m…) à l'usage. L'échelle
+  numérique neutral-* reste en place PENDANT la migration (P2) — les deux coexistent, puis P2
+  bascule les usages sur les rôles.
+verification: >-
+  npm run build OK (syntaxe @theme valide). 8+4+6 tokens confirmés présents dans index.css. Aucun
+  usage encore migré (P2) — la couche existe, prête à être appelée.
+release: 0.2.3

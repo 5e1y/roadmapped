@@ -2,7 +2,7 @@ id: 391
 title: >-
   Theming P1 — figer la palette 9 rôles sémantiques + tokens de forme + jeu de recettes d'état (GATE
   Rémi)
-status: todo
+status: done
 tags:
   - theming
   - ds
@@ -22,9 +22,19 @@ dependsOn: []
 epic: theming-foundations
 source: ai
 createdAt: "2026-07-19T14:02:36"
-updatedAt: "2026-07-19T14:02:36"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+updatedAt: "2026-07-19T14:25:05"
+completedAt: "2026-07-19T14:25:05"
+commit: efc8319
+outcome: >-
+  Palette sémantique figée (vocabulaire Rémi). 8 COULEURS : Active=accent,
+  Rollover=neutral-50(hover), Action=accent-tint(fond actif/sélection), Foreground=carte,
+  Background=page, TextHard=neutral-900(+fond bouton primaire), TextSoft=neutral-500(plancher #108,
+  disabled/décoratif s'y replient), Border=neutral-200. Les gris 300/400/600/700 se collapsent →
+  l'allègement. 4 RADII : Interactive=6px (fusionne l'ancien 4/6), ListItem=0 (rangées collées par
+  défaut, thémable), Surface=8px, Round=9999. 6 SPACING : XS4/S8/M12/L16/XL24 + ListGap=0 (thémable
+  pour listes en cartes séparées). Mapping documenté dans design.md §1 (contrat de theming). Gate
+  levée : Rémi a défini les tokens.
+verification: >-
+  design.md §1 réécrit avec les 3 tables + mapping depuis l'échelle numérique. Cohérent avec la
+  couche CSS (#392).
+release: 0.2.3
