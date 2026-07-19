@@ -55,7 +55,7 @@ function NavButton({ item }: { item: NavItem }) {
       type="button"
       onClick={() => setView(item.id)}
       aria-current={active ? 'page' : undefined}
-      className="group flex w-full flex-col items-center gap-1 py-1 text-[10px] font-medium leading-none"
+      className="group flex w-full flex-col items-center gap-1 py-1 text-[11px] font-medium leading-none"
     >
       {/* Highlight UNIQUEMENT derrière l'icône (façon Figma) : carré arrondi qui
           réagit au survol (group-hover) et à l'état actif — le label reste du

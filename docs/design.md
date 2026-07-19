@@ -71,7 +71,7 @@ One scale for the whole app; a role picks a level, never an arbitrary px:
 | body | `text-sm` | task titles, doc prose, primary content |
 | label | `text-xs font-medium` | list headers, buttons, controls |
 | field-label | `text-[11px] font-medium` | panel field labels |
-| meta | `text-[11px]` (mono for ids/dates/counts) | **all** metadata — dates, counters, tags, paths, ages. NEVER 12px (the 11/12 oscillation was the #1 typo drift) |
+| meta | dates/tags/paths/ages `text-[11px]` · monospace ids & inline counts `text-xs` | Metadata. The 11/12 drift to fix is the NON-mono meta (dates/tags/paths) that wandered to 12px → pin at 11px; the mono `#id`/count register is already consistent at `text-xs` — leave it |
 | micro | 10px floor → 11px | nothing smaller than 11px renders |
 
 ### Vertical rhythm — one row height

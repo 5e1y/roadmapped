@@ -74,7 +74,7 @@ function ReleaseSection({ release, items, tree, defaultOpen, filtered = false }:
     <Collapsible.Root open={open} onOpenChange={setOpen}>
       <div
         data-panel-open={open ? '' : undefined}
-        className="relative flex w-full items-center gap-2 px-4 py-[5px] text-sm hover:bg-neutral-50"
+        className="relative flex w-full items-center gap-2 px-4 py-1.5 text-sm hover:bg-neutral-50"
       >
         <Collapsible.Trigger
           aria-label={`Release ${release} — ${count} done`}

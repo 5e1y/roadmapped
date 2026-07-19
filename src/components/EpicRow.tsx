@@ -232,7 +232,7 @@ export function EpicRow({ slug, title, tasks, progress, persistKey, forceOpen = 
           chevron ne vit plus dans le trigger. */}
       <div
         data-panel-open={open ? '' : undefined}
-        className="relative flex w-full items-center gap-2 px-4 py-[5px] text-sm hover:bg-neutral-50"
+        className="relative flex w-full items-center gap-2 px-4 py-1.5 text-sm hover:bg-neutral-50"
       >
         <Collapsible.Trigger
           aria-label={`${title} — ${countLabel}, ${progress.done} of ${progress.total} tasks done`}
