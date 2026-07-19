@@ -2,7 +2,7 @@ import { ArrowRotateCcw, Check, EditPen, Play, Plus, Pulse, Trash, Undo } from '
 import { useLiveActivity, type LiveEntry, type LiveVerb } from '../state/LiveActivity'
 import { usePanel } from '../state/PanelContext'
 import { groupByDay } from '../lib/activityFeed'
-import { rowStateClass } from './ui'
+import { EmptyState, rowStateClass } from './ui'
 import { ViewHeader } from './ViewHeader'
 
 /*
@@ -76,14 +76,12 @@ export function ActivityView() {
       <ViewHeader meta={log.length > 0 ? `${log.length} this session` : undefined} />
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
         {log.length === 0 ? (
-          <div className="flex h-full flex-col items-center justify-center gap-2 px-6 text-center">
-            <Pulse size={22} className="text-neutral-300" aria-hidden="true" />
-            <p className="mt-1 text-sm font-medium text-neutral-700">No activity this session</p>
-            <p className="max-w-sm text-xs text-neutral-500">
-              Live changes to your tasks show up here. The full history lives in your
-              git log over docs/tasks/ — every done is a commit.
-            </p>
-          </div>
+          <EmptyState
+            className="h-full"
+            glyph={<Pulse size={22} />}
+            title="No activity this session"
+            hint="Live changes to your tasks show up here. The full history lives in your git log over docs/tasks/ — every done is a commit."
+          />
         ) : (
           <ul>
             {groups.map((group) => (
