@@ -1,6 +1,6 @@
 id: 433
 title: Release 0.3.1 — multi-theming refinements, composant Button unifié, suppression thème Codex
-status: in_progress
+status: done
 tags:
   - release
 detail: >-
@@ -17,9 +17,15 @@ epic: null
 source: ai
 createdAt: "2026-07-24T00:26:47"
 startedAt: "2026-07-24T00:26:53"
-updatedAt: "2026-07-24T00:26:53"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+updatedAt: "2026-07-24T00:28:59"
+completedAt: "2026-07-24T00:28:59"
+commit: 7d8f1f27151401de0640e822ca6c69eba96e596d
+outcome: >-
+  Version bumpée à 0.3.1 (npm version --no-git-tag-version, la CI tague/publie/crée la release
+  GitHub automatiquement sur push de package.json vers main). Commit unique regroupant tout le
+  chantier theming de la session : Button unifié, retrait Codex, ajustements par thème, audits,
+  correctifs d'alignement, design.md réécrit. 85 fichiers.
+verification: >-
+  tsc -b clean, suite complète 58/58 fichiers 744/744 tests verts, npx roadmapped validate OK (416
+  tasks), npm run build (prod) réussi.
+release: 0.3.1
