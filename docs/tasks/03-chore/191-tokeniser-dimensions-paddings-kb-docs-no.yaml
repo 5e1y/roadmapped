@@ -1,0 +1,39 @@
+id: 414
+title: >-
+  Tokeniser dimensions+paddings — KB/Docs/Notes (KbView, KbNodePanel, KbDisplayMenu, GraphView,
+  DocsTree, DocsView, Markdown, NotepadView) : flancs dupliqués en w-[420px] + migration paddings
+  vers tokens
+status: done
+tags:
+  - ds
+  - theming
+detail: >-
+  Suite de l'audit #408 (findings détaillés dans son outcome + le journal du workflow
+  wf_16ada12c-329, groupe 'kb-docs-notes'). Deux volets sur ce lot de fichiers : (1) corriger les
+  dimensions figées cataloguées par l'audit pour ce groupe (h-*/w-*/size-*/style inline →
+  flex+padding-token ou clamp min/max légitime) ; (2) migrer TOUT padding/gap/margin sur l'échelle
+  Tailwind numérique par défaut (px-2.5, py-1, gap-2, px-4...) vers les utilitaires token
+  (px-xs/s/m/l/xl) selon la table de correspondance validée (arrondi au token le plus proche,
+  égalité tranchée vers le haut ; hors-échelle >24px composé en calc() de tokens plutôt que clampé).
+refs:
+  - src/components/DocsTree.tsx
+  - src/components/DocsView.tsx
+  - src/components/NotepadView.tsx
+  - src/components/KbView.tsx
+  - src/components/KbDisplayMenu.tsx
+links: []
+dependsOn: []
+epic: theming-foundations
+source: ai
+createdAt: "2026-07-23T19:55:44"
+startedAt: "2026-07-23T19:55:54"
+updatedAt: "2026-07-23T20:10:19"
+completedAt: "2026-07-23T20:10:18"
+commit: 345fcb2
+outcome: >-
+  KB/Docs/Notes : DocsView et NotepadView partagent désormais un FLANK_PANE_CLASS commun (basis-1/3
+  clampé min-w-0 max-w-[40%]) au lieu de deux w-[420px] dupliqués.
+  DocsTree.INDENT_PX/BASE_PADDING_PX remplacés par un retrait dérivé de calc(var(--spacing-l) * n).
+  KbView recherche en flex-1 clampé. KbDisplayMenu popup non figé.
+verification: tsc -b clean, suite complète 58/58 fichiers 742/742 tests verts.
+release: 0.3.0

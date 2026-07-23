@@ -1,0 +1,42 @@
+id: 399
+title: "Audit adversarial : valeurs hardcodées hors du contrat de tokens (couleurs/radii/spacing)"
+status: done
+tags:
+  - ds
+  - theming
+  - audit
+detail: >-
+  Ratisser tout le code applicatif (src/, hors tests) pour toute valeur visuelle qui contourne le
+  contrat de tokens sémantiques : hex couleur en dur (hors index.css lui-même), px de
+  rayon/marge/padding/gap en dur au lieu de var(--radius-*)/var(--spacing-*)/classes Tailwind
+  générées, rgba/oklch en dur dupliquant une valeur déjà nommée. Sert de base factuelle à la refonte
+  'suppression de la couche primitives' + à l'extension du theming aux spacing (discussion en cours
+  avec Rémi).
+refs:
+  - src/components/ThemePicker.tsx
+  - src/components/SettingsView.tsx
+  - src/components/FlowAreaChart.tsx
+  - src/index.css
+links: []
+dependsOn: []
+epic: theming-foundations
+source: ai
+createdAt: "2026-07-23T18:59:36"
+startedAt: "2026-07-23T18:59:39"
+updatedAt: "2026-07-23T19:07:24"
+completedAt: "2026-07-23T19:07:19"
+commit: 345fcb2
+outcome: >-
+  Audit adversarial complet (2 passages, angles croisés) : 11 trouvailles actionnables. Bug confirmé
+  : SWATCH thème Cursor désynchronisé (#0b6bcb bleu au lieu de #1a1a17 noir, dupliqué
+  ThemePicker.tsx+SettingsView.tsx). Doctrine contredite : text-[10px] (FlowAreaChart.tsx ×2) sous
+  le plancher 11px que le fichier prétend pourtant respecter. Risque structurel : --radius-* non
+  reseté dans @theme (silencieux si un rounded-md apparaît un jour). 6 échelons/valeurs innommés
+  mineurs (rounded-[3px], text-[13px], INDENT_PX=14, pl-[26px], w-[380px], text-[2rem]). 2 chantiers
+  de nommage identifiés pour la suite (text-[11px]×114, niveau text-base des titres de panneau).
+  Couverture détaillée dans le rapport agent. Suite → tickets #400-#404.
+verification: >-
+  Recherche pure, aucun fichier modifié. Couverture: 100% sur
+  hex/rgb/oklch/hsl/arbitrary-values/style inline/classes Tailwind par défaut ; TaskPanel.tsx
+  échantillonné plutôt qu'intégral (déclaré).
+release: 0.3.0

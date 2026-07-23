@@ -53,8 +53,8 @@ function EventCard({ entry, task, isCurrent, onOpenTask }: {
 
   const body = (
     <>
-      <div className="flex items-center gap-2">
-        <span className="flex size-6 shrink-0 items-center justify-center rounded-round bg-background text-textsoft">
+      <div className="flex items-center gap-s">
+        <span className="flex shrink-0 items-center justify-center rounded-round bg-background p-xs text-textsoft">
           <Icon size={13} aria-hidden="true" />
         </span>
         <span className="text-sm font-medium text-texthard">{VERB_LABEL[entry.verb]}</span>
@@ -64,7 +64,7 @@ function EventCard({ entry, task, isCurrent, onOpenTask }: {
       {entry.title && <div className="text-sm text-texthard">{entry.title}</div>}
       {/* Aperçu : la transition de statut (ce qui a changé)… */}
       {entry.from && entry.to && (
-        <div className="flex items-center gap-1.5 text-[11px] text-textsoft">
+        <div className="flex items-center gap-s text-[11px] text-textsoft">
           <StatusGlyph status={entry.from} />
           <span>{STATUS_LABEL[entry.from]}</span>
           <span aria-hidden="true">→</span>
@@ -74,8 +74,8 @@ function EventCard({ entry, task, isCurrent, onOpenTask }: {
       )}
       {/* …ou un résumé du ticket créé (type + tags + température). */}
       {entry.verb === 'created' && task && (
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-textsoft">
-          <span className="flex items-center gap-1">
+        <div className="flex flex-wrap items-center gap-x-s gap-y-xs text-[11px] text-textsoft">
+          <span className="flex items-center gap-xs">
             <KindGlyph task={task} />
             {typeOf(task)}
           </span>
@@ -86,7 +86,7 @@ function EventCard({ entry, task, isCurrent, onOpenTask }: {
     </>
   )
 
-  const cls = `rm-node flex flex-col gap-1.5 p-3 ${fresh ? 'live-entry-in' : ''}`
+  const cls = `rm-node flex flex-col gap-s p-m ${fresh ? 'live-entry-in' : ''}`
   if (gone) return <div className={`${cls} opacity-70`}>{body}</div>
   return (
     <button
@@ -128,13 +128,13 @@ export function ActivityView() {
             hint="Live changes to your tasks show up here as a feed. The full history lives in your git log over docs/tasks/ — every done is a commit."
           />
         ) : (
-          <div className="mx-auto max-w-[800px] px-3 py-4">
+          <div className="mx-auto max-w-[800px] px-m py-l">
             {groups.map((group) => (
-              <div key={group.dayMs} className="mb-1">
-                <div className="sticky top-0 z-10 -mx-3 bg-background px-3 py-1.5 text-[11px] font-medium text-textsoft">
+              <div key={group.dayMs} className="mb-xs">
+                <div className="sticky top-0 z-10 -mx-m bg-background px-m py-s text-[11px] font-medium text-textsoft">
                   {group.label}
                 </div>
-                <div className="flex flex-col gap-2 pt-2">
+                <div className="flex flex-col gap-s pt-s">
                   {group.entries.map((entry) => (
                     <EventCard
                       key={entry.key}

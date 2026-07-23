@@ -1,0 +1,43 @@
+id: 426
+title: >-
+  Audit adversarial Opus : bordures hors convention DS (border réelle au lieu de ring/shadow, chrome
+  natif non neutralisé)
+status: done
+tags:
+  - ds
+  - audit
+detail: >-
+  Suite de #425 (2 cas confirmés : checkbox FilterMenu en border réelle, input search KB en chrome
+  natif non neutralisé). Scanner TOUT le reste de l'app avec des agents Opus en prompt adversarial
+  pour trouver d'autres cas similaires : (a) toute classe Tailwind border-* RÉELLE (border,
+  border-t/b/l/r/x/y, border-2/4/8, border-solid/dashed/none, border-color sans ring) qui rend une
+  vraie bordure DOM au lieu du pattern ring-inset/box-shadow imposé par design.md (#395) ; (b) tout
+  <input>/<select>/<textarea> avec un type/appearance qui laisse le navigateur imposer son propre
+  chrome (bordure, radius, cancel-button) non neutralisé par appearance-none, notamment tout
+  type="search"/"date"/"number" restant.
+refs:
+  - src/components/ui.tsx
+  - src/components/KbDisplayMenu.tsx
+links: []
+dependsOn: []
+epic: theming-foundations
+source: ai
+createdAt: "2026-07-23T22:21:08"
+startedAt: "2026-07-23T22:21:12"
+updatedAt: "2026-07-23T22:25:20"
+completedAt: "2026-07-23T22:25:15"
+commit: 345fcb2
+outcome: >-
+  Audit complet (7 zones, 38 fichiers, 2 passages à méthodes différentes chacun) : AUCUNE autre
+  vraie bordure CSS trouvée au-delà des 2 déjà corrigées (#425). Tous les hits 'border' restants
+  sont des faux positifs vérifiés (ring-border/bg-border/shadow-inset var(--color-border), le token
+  couleur via une technique autorisée). 1 commentaire périmé corrigé (ui.tsx ErrorBanner,
+  mentionnait encore l'ancien border-l-4). 2 points substantiels remontés pour arbitrage (non
+  tranchés par les agents) : (1) TextInput/GhostInput (ui.tsx) spreadent ...props dans Base UI sans
+  appearance-none — un futur appelant POURRAIT réintroduire le bug KbView en passant type='search'
+  etc., aucun garde-fou dans le wrapper lui-même ; (2) KbDisplayMenu.tsx sliders <input
+  type='range'> sans appearance-none — mais AJOUTER appearance-none casserait tout le rendu
+  (piste+curseur) sans reconstruction manuelle ::-webkit-slider-thumb/::-moz-range-thumb, ce n'est
+  pas un fix à l'aveugle.
+verification: tsc -b clean, suite complète 58/58 fichiers 742/742 tests verts.
+release: 0.3.0

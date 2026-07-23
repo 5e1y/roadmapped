@@ -9,7 +9,7 @@
 export function Chip({ label, mono = false, strong = false }: { label: string; mono?: boolean; strong?: boolean }) {
   return (
     <span
-      className={`inline-flex items-center ring-1 ring-inset px-1.5 py-px text-[11px] leading-4 ${
+      className={`inline-flex items-center ring-1 ring-inset px-s py-xs text-[11px] leading-4 ${
         strong
           ? 'ring-border bg-background font-medium text-texthard'
           : 'ring-border bg-background text-textsoft'

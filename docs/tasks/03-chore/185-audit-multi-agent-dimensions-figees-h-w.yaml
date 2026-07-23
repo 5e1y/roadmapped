@@ -1,0 +1,53 @@
+id: 408
+title: >-
+  Audit multi-agent : dimensions figées (h-*/w-*/size-*) qui devraient dériver du flex + des tokens
+  spacing
+status: done
+tags:
+  - ds
+  - theming
+  - audit
+detail: >-
+  Constat déclencheur : augmenter le spacing du thème github n'a fait bouger AUCUN
+  bouton/header/rail — repéré : ViewHeader.tsx:41 header h-12 fixe, NavRail.tsx:71 icône size-9
+  fixe, NavRail.tsx:94 rail w-16 fixe, SidePanel.tsx:99/101 panneau w-[380px] + header h-12 fixes.
+  Aucun de ces éléments ne dérive sa taille du flex+padding via --spacing-*, alors que leur layout
+  EST déjà flex. Rémi : RIEN dans l'app ne doit avoir de dimension figée qui pourrait dériver d'un
+  flex/stack + token — SEULE exception : de vrais clamps min-w/max-w/min-h/max-h par-dessus un
+  dimensionnement flex (ex. barre de recherche : flex-1 + max-w, pas une largeur fixe). Scan
+  exhaustif multi-agent (plusieurs Fable en parallèle, un par zone du code) pour cataloguer CHAQUE
+  cas dans src/components. Pas de fix dans cette tâche — audit seul, catalogue des trouvailles avec
+  fichier:ligne + proposition de remplacement (padding+token / flex-basis / etc.).
+refs:
+  - src/components/ui.tsx
+  - src/components/ViewHeader.tsx
+  - src/components/NavRail.tsx
+  - src/components/SidePanel.tsx
+  - src/components/RoadmapColumns.tsx
+  - src/components/RoadmapGraph.tsx
+links: []
+dependsOn: []
+epic: theming-foundations
+source: ai
+createdAt: "2026-07-23T19:42:15"
+startedAt: "2026-07-23T19:42:19"
+updatedAt: "2026-07-23T19:47:59"
+completedAt: "2026-07-23T19:47:55"
+commit: 345fcb2
+outcome: >-
+  Scan multi-agent (7 Fable, 1 par zone, 38 composants) : 44 trouvailles (11 high / 15 medium / 18
+  low). Motif dominant : chrome répété (header h-12, rail w-16/size-9, panneaux latéraux
+  w-[380px]/w-[420px] dupliqués ×3 SidePanel/DocsView/NotepadView, recherche w-72 non-fluide, popups
+  w-44/w-56/w-64/w-80), constantes JS de layout (RoadmapColumns grid-template 180/280px,
+  RoadmapGraph CARD_W/H/MEMBER_H pour dagre, TagBars height:240). TROUVAILLE RACINE (high,
+  core-primitives) : les 5 peaux canoniques de ui.tsx
+  (fieldCls/ghostCls/primaryBtn/actionBtn/togglePillCls) utilisent l'échelle Tailwind NUMÉRIQUE par
+  défaut (px-2.5/py-1/py-1.5/gap-1.5) et non les utilitaires --spacing-* — c'est la cause DIRECTE du
+  symptôme déclencheur (rien ne bouge sur les boutons). Constat transverse signalé par 6 des 7
+  agents indépendamment : quasi TOUS les paddings/gaps de l'app sont sur l'échelle Tailwind par
+  défaut, pas les tokens — bien plus large que les 44 dimensions figées cataloguées, hors scope de
+  cet audit (dimensions de boîte, pas paddings).
+verification: >-
+  Recherche pure, aucun fichier modifié. Couverture 100% déclarée par les 7 agents (2-3 passages à
+  méthodes différentes chacun), détail par groupe dans le journal du workflow wf_16ada12c-329.
+release: 0.3.0

@@ -1,0 +1,31 @@
+id: 418
+title: "Cursor : radius-interactive 24→16px + foreground allégé (#ececed→#f0f0f0)"
+status: done
+tags:
+  - theming
+detail: null
+refs:
+  - src/index.css
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-23T20:53:33"
+startedAt: "2026-07-23T20:53:33"
+updatedAt: "2026-07-23T20:57:34"
+completedAt: "2026-07-23T20:57:30"
+commit: 345fcb2
+outcome: >-
+  Corrigé après retour Rémi : pas de nouveau token (radius-field annulé). --radius-interactive du
+  thème cursor ramené de 24px à 16px directement (impacte CTA ET inputs ensemble, assumé).
+  Foreground allégé #ececed→#f0f0f0 inchangé.
+verification: tsc -b clean, suite complète 58/58 fichiers 742/742 tests verts.
+release: 0.3.0
+feedback:
+  - date: "2026-07-23T20:57:22"
+    author: user
+    text: >-
+      Rémi : mauvaise approche — pas de token séparé (radius-field), il fallait juste baisser le
+      token global --radius-interactive. Annulé le split, --radius-interactive ramené à 16px pour
+      cursor (impacte CTA+inputs ensemble, assumé).
+    resolved: false

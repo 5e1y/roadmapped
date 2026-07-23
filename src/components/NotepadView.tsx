@@ -1,7 +1,10 @@
 import { Fragment, useEffect, useRef, useState, useCallback } from 'react'
+import { Cross, Plus } from 'trinil-react'
 import { ViewHeader } from './ViewHeader'
 import { relativeTime, absoluteDate } from '../lib/relativeTime'
 import { parseFileLine, fileLineOf, cleanForAgent, insertOnOwnLines, extractDropPaths } from '../lib/noteFiles'
+import { FLANK_PANE_CLASS } from './DocsTree'
+import { Button } from './ui'
 
 // Notepad (#88) — incubateur d'idées local. Liste à gauche (gabarit ligne de backlog :
 // pas de bords arrondis), éditeur ghost écriture-d'abord centré à droite. À l'ouverture,
@@ -28,9 +31,11 @@ const fetchNotes = async (): Promise<NoteMeta[]> => {
 
 // Métriques PARTAGÉES textarea ⇄ backdrop : le moindre écart (fonte, corps, interligne,
 // padding, règles de coupe) désynchronise les rectangles de survol des lignes fichier.
-// Le texte est borné à 48rem et centré via un padding qui absorbe l'espace libre (#101).
+// Le texte est borné à 48rem (clamp de mesure typographique, légitime) et centré via un
+// padding qui absorbe l'espace libre (#101) — plancher et py dérivés des tokens (#408) :
+// xl = ex-1.5rem/24px, xl+s = ex-py-8/32px.
 const EDITOR_METRICS =
-  'px-[max(1.5rem,calc((100%-48rem)/2))] py-8 text-[2rem] leading-relaxed whitespace-pre-wrap [overflow-wrap:break-word]'
+  'px-[max(var(--spacing-xl),calc((100%-48rem)/2))] py-[calc(var(--spacing-xl)+var(--spacing-s))] text-[2rem] leading-relaxed whitespace-pre-wrap [overflow-wrap:break-word]'
 
 export function NotepadView() {
   const [notes, setNotes] = useState<NoteMeta[]>([])
@@ -230,28 +235,31 @@ export function NotepadView() {
       {/* Bandeau d'avertissement en registre monochrome (modèle ErrorBanner, design.md §3.6) —
           l'ambre était la seule couleur hors palette du dashboard. */}
       {!warned && (
-        <div className="flex items-center justify-between gap-3 bg-background px-4 py-1.5 text-xs text-texthard shadow-[inset_0_-1px_0_var(--color-border)]">
+        <div className="flex items-center justify-between gap-m bg-background px-l py-s text-xs text-texthard shadow-[inset_0_-1px_0_var(--color-border)]">
           <span>Local notes — not versioned, not saved by git (docs/notes/).</span>
-          <button type="button" onClick={dismissWarning} className="shrink-0 rounded-interactive px-1.5 font-medium text-textsoft transition-colors hover:bg-rollover hover:text-texthard">OK</button>
+          <button type="button" onClick={dismissWarning} className="shrink-0 rounded-interactive px-s font-medium text-textsoft transition-colors hover:bg-rollover hover:text-texthard">OK</button>
         </div>
       )}
 
       <div className="flex min-h-0 flex-1">
-        <div className="flex w-[420px] shrink-0 flex-col bg-foreground py-2 shadow-[inset_-1px_0_0_var(--color-border)]">
-          {/* Création EN TÊTE de liste (pas de bouton en haut à droite, pas de ⌘N). */}
-          <button
-            ref={newNoteRef}
-            type="button" onClick={createNote}
-            className="flex items-center gap-2 px-4 py-2 text-left text-sm text-textsoft shadow-[inset_0_-1px_0_var(--color-border)] hover:bg-rollover hover:text-texthard"
-          >
-            <span className="text-base leading-none text-textsoft">+</span>
-            New note
-          </button>
+        <div className={FLANK_PANE_CLASS}>
+          {/* Création EN TÊTE du flanc (pas de bouton en haut à droite, pas de ⌘N) —
+              vrai Button primary (#432), plus un pseudo-item de liste avec « + »
+              littéral. Conteneur flex : le bouton se dimensionne sur son contenu
+              (jamais étiré pleine largeur, cf. « + task » du ViewHeader). Retrait
+              l + listgap = le bord gauche exact du TEXTE des lignes en dessous
+              (elles vivent dans `.rm-list.rm-nest` qui ajoute --spacing-listgap ;
+              0 en thème de base, 6-8px en thèmes « cartes »). */}
+          <div className="flex shrink-0 px-[calc(var(--spacing-l)+var(--spacing-listgap))] pb-s">
+            <Button ref={newNoteRef} variant="primary" icon={Plus} onClick={createNote}>
+              New note
+            </Button>
+          </div>
           <div className="rm-list rm-nest min-h-0 flex-1 overflow-y-auto">
             {notes.map((n) => (
               <div
                 key={n.slug}
-                className={`rm-list-item group flex items-center gap-2 px-4 py-1.5 text-sm ${
+                className={`rm-list-item group flex items-center gap-s px-l py-s text-sm ${
                   n.slug === slug ? 'bg-active text-texthard' : 'text-textsoft hover:bg-rollover'
                 }`}
               >
@@ -261,17 +269,18 @@ export function NotepadView() {
                 <span className="shrink-0 font-mono text-[11px] text-textsoft" title={absoluteDate(n.modified)}>{relativeTime(n.modified)}</span>
                 {/* Action destructive : confirmation (pattern window.confirm de
                     TaskPanel.remove) ; révélée au survol ET au focus (design.md §3.4). */}
-                <button
-                  type="button"
+                <Button
+                  variant="ghost"
+                  icon={Cross}
+                  reveal
+                  aria-label={`Delete note ${n.title || n.slug}`}
+                  title="Delete note"
                   onClick={() => {
                     if (window.confirm(`Delete note "${n.title || n.slug}"?`)) {
                       void removeNote(n.slug).then(() => newNoteRef.current?.focus())
                     }
                   }}
-                  title="Delete note"
-                  aria-label={`Delete note ${n.title || n.slug}`}
-                  className="shrink-0 rounded-interactive p-0.5 text-textsoft opacity-0 transition-[opacity,background-color,color] hover:bg-rollover hover:text-texthard focus-visible:opacity-100 group-hover:opacity-100"
-                >✕</button>
+                />
               </div>
             ))}
           </div>
@@ -306,7 +315,7 @@ export function NotepadView() {
                           data-fileline={i}
                           data-filepath={p}
                           className={`underline decoration-1 underline-offset-4 ${
-                            hoverLine === i ? 'bg-rollover decoration-accent' : 'decoration-neutral-300'
+                            hoverLine === i ? 'bg-rollover decoration-accent' : 'decoration-textsoft'
                           }`}
                         >{l}</span>
                       ) : l}
@@ -346,9 +355,9 @@ export function NotepadView() {
                 className={`absolute inset-0 h-full w-full resize-none border-0 bg-transparent text-texthard placeholder:text-textsoft ${EDITOR_METRICS}`}
               />
             </div>
-            <div className="flex w-full shrink-0 items-center justify-between px-[max(1.5rem,calc((100%-48rem)/2))] py-1.5 font-mono text-[11px] text-textsoft">
+            <div className="flex w-full shrink-0 items-center justify-between px-[max(var(--spacing-xl),calc((100%-48rem)/2))] py-s font-mono text-[11px] text-textsoft">
               <span>{content.length} chars · ≈{tokens} tokens</span>
-              <span className="flex items-center gap-4">
+              <span className="flex items-center gap-l">
                 <span data-notepad-flash>
                   {flash ?? (status === 'saving' ? 'saving…' : status === 'saved' ? 'saved' : '')}
                 </span>

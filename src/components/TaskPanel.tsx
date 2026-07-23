@@ -14,7 +14,7 @@ import { ThermoGlyph, formatTemp, tempBreakdown, tempTitle } from './Temperature
 import {
   ErrorBanner, Select, TextInput, AutoTextArea, GhostInput, GhostAutoTextArea,
   AddCombobox, TagsCombobox, EpicCombobox, ToastViewport, blurOnEnter,
-  SavedTick, FieldError, primaryBtn, actionBtn, type SelectItem,
+  SavedTick, FieldError, Button, type SelectItem,
 } from './ui'
 import { Markdown } from './Markdown'
 import { OPEN_DOC_EVENT } from '../lib/events'
@@ -103,7 +103,7 @@ function caretOffsetFromClick(container: HTMLElement, x: number, y: number, raw:
 }
 
 function SectionLabel({ children }: { children: ReactNode }) {
-  return <div className="px-1.5 text-[11px] font-medium text-textsoft">{children}</div>
+  return <div className="px-s text-[11px] font-medium text-textsoft">{children}</div>
 }
 
 /**
@@ -131,15 +131,14 @@ export function relItemOf(t: TaskNode): SelectItem {
 /** ✕ discret, révélé au survol de sa ligne (retrait d'une dépendance, d'un lien, d'une ref). */
 function RemoveButton({ label, onClick }: { label: string; onClick: () => void }) {
   return (
-    <button
-      type="button"
+    <Button
+      variant="ghost"
+      icon={Cross}
+      reveal
       aria-label={label}
       title={label}
       onClick={(e) => { e.stopPropagation(); onClick() }}
-      className="shrink-0 rounded-interactive p-1 text-textsoft opacity-0 transition-opacity hover:bg-rollover hover:text-texthard focus-visible:opacity-100 group-hover:opacity-100"
-    >
-      <Cross size={9} />
-    </button>
+    />
   )
 }
 
@@ -154,14 +153,14 @@ function RelationRow({ tree, id, badge, onRemove }: {
   const t = findTaskInTree(tree, id)
   if (!t) {
     // Ne devrait pas arriver (deps validées) — on reste lisible plutôt que de planter.
-    return <div className="px-1.5 py-1 font-mono text-xs text-textsoft">#{id}</div>
+    return <div className="px-s py-xs font-mono text-xs text-textsoft">#{id}</div>
   }
   return (
     <div className="group flex items-center">
       <button
         type="button"
         onClick={() => openTask(id)}
-        className="flex min-w-0 flex-1 items-center gap-2 px-1.5 py-1 text-left text-sm hover:bg-rollover"
+        className="flex min-w-0 flex-1 items-center gap-s px-s py-xs text-left text-sm hover:bg-rollover"
       >
         <KindGlyph task={t} />
         <span className="shrink-0 font-mono text-xs text-textsoft">#{t.id}</span>
@@ -187,7 +186,7 @@ function RelationList({ label, tree, ids, badgeOf }: {
 }) {
   if (ids.length === 0) return null
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-xs">
       <SectionLabel>{label}</SectionLabel>
       <div className="flex flex-col">
         {ids.map((id) => (
@@ -214,12 +213,12 @@ function RefLine({ refPath, onRemove }: { refPath: string; onRemove?: () => void
             window.dispatchEvent(new CustomEvent(OPEN_DOC_EVENT, { detail: refPath.replace(/^docs\//, '') }))
             close()
           }}
-          className="min-w-0 flex-1 truncate rounded-interactive px-1.5 py-0.5 text-left font-mono text-xs text-texthard underline decoration-textsoft underline-offset-2 transition-colors hover:bg-rollover"
+          className="min-w-0 flex-1 truncate rounded-interactive px-s py-xs text-left font-mono text-xs text-texthard underline decoration-textsoft underline-offset-2 transition-colors hover:bg-rollover"
         >
           {refPath}
         </button>
       ) : (
-        <div className="min-w-0 flex-1 truncate px-1.5 py-0.5 font-mono text-xs text-textsoft" title={refPath}>{refPath}</div>
+        <div className="min-w-0 flex-1 truncate px-s py-xs font-mono text-xs text-textsoft" title={refPath}>{refPath}</div>
       )}
       {onRemove && <RemoveButton label={`Remove ${refPath}`} onClick={onRemove} />}
     </div>
@@ -248,22 +247,22 @@ function KbConnections({ tree, taskId }: { tree: TaskTree; taskId: number }) {
       onClick={() => openKbNodeSource(n, root, close)}
       disabled={!n.sourceFile}
       title={n.sourceFile ?? n.label}
-      className="group flex w-full items-center gap-2 px-1.5 py-1 text-left text-sm hover:bg-rollover disabled:cursor-default disabled:hover:bg-transparent"
+      className="group flex w-full items-center gap-s px-s py-xs text-left text-sm hover:bg-rollover disabled:cursor-default disabled:hover:bg-transparent"
     >
       <span className="min-w-0 flex-1 truncate text-texthard">{n.label}</span>
       <span className="shrink-0 font-mono text-[11px] text-textsoft">{n.fileType}</span>
-      {n.sourceLocation && <span className="shrink-0 font-mono text-[11px] text-neutral-400">{n.sourceLocation}</span>}
+      {n.sourceLocation && <span className="shrink-0 font-mono text-[11px] text-textsoft">{n.sourceLocation}</span>}
     </button>
   )
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-xs">
       <SectionLabel>Connected in the knowledge base</SectionLabel>
       <div className="flex flex-col">
         {hood.direct.map((n) => <Row key={n.id} n={n} />)}
         {hood.neighbors.length > 0 && (
           <>
-            <div className="px-1.5 pt-1 text-[11px] text-neutral-400">via 1 hop</div>
+            <div className="px-s pt-xs text-[11px] text-textsoft">via 1 hop</div>
             {hood.neighbors.map((n) => <Row key={n.id} n={n} />)}
           </>
         )}
@@ -291,8 +290,8 @@ function DoneForm({ task, busy, onCancel, onSubmit }: {
   const canDone = outcome.trim().length > 0 && !busy
 
   return (
-    <div className="mt-2 flex flex-col gap-2.5 ring-1 ring-inset ring-border bg-background p-3">
-      <label className="flex flex-col gap-1">
+    <div className="mt-s flex flex-col gap-m ring-1 ring-inset ring-border bg-background p-m">
+      <label className="flex flex-col gap-xs">
         <span className="text-[11px] font-medium text-textsoft">Outcome — what was delivered (required)</span>
         <AutoTextArea
           autoFocus
@@ -301,23 +300,23 @@ function DoneForm({ task, busy, onCancel, onSubmit }: {
           placeholder="One user-facing sentence, changelog material."
         />
       </label>
-      <label className="flex flex-col gap-1">
+      <label className="flex flex-col gap-xs">
         <span className="text-[11px] font-medium text-textsoft">Verification (optional)</span>
         <TextInput value={verification} onChange={(e) => setVerification(e.target.value)} placeholder="How the artifact was verified." />
       </label>
-      <div className="grid grid-cols-2 gap-2">
-        <label className="flex flex-col gap-1">
+      <div className="grid grid-cols-2 gap-s">
+        <label className="flex flex-col gap-xs">
           <span className="text-[11px] font-medium text-textsoft">Commit (optional)</span>
           <TextInput value={commit} onChange={(e) => setCommit(e.target.value)} placeholder="sha" />
         </label>
-        <label className="flex flex-col gap-1">
+        <label className="flex flex-col gap-xs">
           <span className="text-[11px] font-medium text-textsoft">Release (optional)</span>
           <TextInput value={release} onChange={(e) => setRelease(e.target.value)} placeholder="v0.1.0" />
         </label>
       </div>
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
+      <div className="flex items-center gap-s">
+        <Button
+          variant="primary"
           disabled={!canDone}
           onClick={() => onSubmit({
             outcome: outcome.trim(),
@@ -325,11 +324,10 @@ function DoneForm({ task, busy, onCancel, onSubmit }: {
             commit: commit.trim() || null,
             release: release.trim() || null,
           })}
-          className={primaryBtn}
         >
           {busy ? 'Saving…' : 'Done ✓'}
-        </button>
-        <button type="button" onClick={onCancel} disabled={busy} className={actionBtn}>Cancel</button>
+        </Button>
+        <Button variant="secondary" onClick={onCancel} disabled={busy}>Cancel</Button>
       </div>
     </div>
   )
@@ -501,17 +499,19 @@ function TaskPanelBody({ id }: { id: number }) {
   const titleCls = task.status === 'done' ? 'text-textsoft line-through' : 'text-texthard'
 
   return (
-    <div className="flex min-h-full flex-col gap-5">
+    <div className="flex min-h-full flex-col gap-xl">
       <ErrorBanner errors={actionErrors} />
 
       {/* En-tête : glyphe + id + statut (ghost select permanent). */}
-      <div className="flex flex-col gap-1.5">
-        <div className="flex items-center gap-1.5">
+      <div className="flex flex-col gap-s">
+        <div className="flex items-center gap-s">
           {locked
             ? <LockLocked size={11} className="shrink-0 text-textsoft" ariaLabel="Locked" />
             : <KindGlyph task={task} />}
           <span className="font-mono text-xs text-textsoft">#{task.id}</span>
-          <div className="w-32">
+          {/* w-fit (audit #408) : le trigger ghost (w-full) prend la largeur de
+              son contenu au lieu d'une boîte figée à 128px. */}
+          <div className="w-fit">
             <Select
               ghost
               aria-label="Status"
@@ -547,7 +547,7 @@ function TaskPanelBody({ id }: { id: number }) {
           }}
           className={`text-base font-semibold leading-snug tracking-tight ${titleCls}`}
         />
-        <div className="px-1.5"><SavedTick show={savedIn('title')} /></div>
+        <div className="px-s"><SavedTick show={savedIn('title')} /></div>
         <FieldError errs={errors.title} />
 
         {/* Tags : Combobox multiple « Creatable » ghost — suggestions = tous les
@@ -558,28 +558,24 @@ function TaskPanelBody({ id }: { id: number }) {
           onSave={(next) => void save('tags', changed(task.tags, next), { tags: next })}
         />
         <FieldError errs={errors.tags} />
-        <div className="px-1.5"><SavedTick show={savedIn('tags')} /></div>
+        <div className="px-s"><SavedTick show={savedIn('tags')} /></div>
       </div>
 
       {/* #124 — LA barre d'actions : toutes les actions de la tâche, regroupées.
           Primaire (noir plein) = l'action de cycle de vie (#27) ; secondaires
-          (actionBtn) = brief agent et Supprimer — le destructif ferme la barre,
-          calé à droite. Le done guidé (#27) se déplie sous la barre, inchangé. */}
-      <div className="flex flex-col gap-2">
-        <div className="flex flex-wrap items-center gap-2">
+          (Button variant="secondary") = brief agent et Supprimer — le destructif
+          ferme la barre, calé à droite. Le done guidé (#27) se déplie sous la
+          barre, inchangé. */}
+      <div className="flex flex-col gap-s">
+        <div className="flex flex-wrap items-center gap-s">
           {task.status === 'todo' && (
-            <button type="button" onClick={start} disabled={pending} className={primaryBtn}>
-              {pending ? 'Starting…' : 'Start'}
-            </button>
+            <Button variant="primary" onClick={start} disabled={pending}>{pending ? 'Starting…' : 'Start'}</Button>
           )}
           {task.status === 'in_progress' && (
-            <button type="button" onClick={() => setDoneOpen((o) => !o)} className={primaryBtn}>
-              {doneOpen ? 'Close' : 'Finish…'}
-            </button>
+            <Button variant="primary" onClick={() => setDoneOpen((o) => !o)}>{doneOpen ? 'Close' : 'Finish…'}</Button>
           )}
-          <button
-            type="button"
-            className={actionBtn}
+          <Button
+            variant="secondary"
             onClick={async () => {
               try {
                 await navigator.clipboard.writeText(agentBrief(task))
@@ -592,10 +588,8 @@ function TaskPanelBody({ id }: { id: number }) {
             }}
           >
             {copied ? 'Copied' : 'Copy agent brief'}
-          </button>
-          <button type="button" onClick={remove} disabled={pending} className={`ml-auto ${actionBtn}`}>
-            Delete
-          </button>
+          </Button>
+          <Button variant="secondary" className="ml-auto" onClick={remove} disabled={pending}>Delete</Button>
         </div>
         <Collapsible.Root open={doneOpen} onOpenChange={setDoneOpen}>
           <Collapsible.Panel>
@@ -607,7 +601,7 @@ function TaskPanelBody({ id }: { id: number }) {
       {/* Type (#251) : la NATURE du ticket = son dossier. Le changer DÉPLACE le
           fichier (moveTask côté API) ; la base de température suit le nouveau type.
           key={file} : le Select se remonte sur la nouvelle valeur après déplacement. */}
-      <div className="flex flex-col gap-0.5">
+      <div className="flex flex-col gap-xs">
         <SectionLabel>Type</SectionLabel>
         <Select
           ghost
@@ -626,16 +620,16 @@ function TaskPanelBody({ id }: { id: number }) {
           base = nature du type, seed = champ heat). La VALEUR est calculée (lecture
           seule) ; le SEED `heat` (#237) est le seul levier manuel, éditable ici. */}
       {task.temperature && (
-        <div className="flex flex-col gap-0.5">
+        <div className="flex flex-col gap-xs">
           <SectionLabel>Temperature</SectionLabel>
-          <div className="flex items-center gap-2 px-1.5 py-0.5" title={tempTitle(task.temperature)}>
+          <div className="flex items-center gap-s px-s py-xs" title={tempTitle(task.temperature)}>
             <ThermoGlyph value={task.temperature.value} size={14} />
             <span className="font-mono text-sm text-texthard">{formatTemp(task.temperature.value, 2)}</span>
             <span className="font-mono text-[11px] text-textsoft">{tempBreakdown(task.temperature)}</span>
           </div>
           {/* Boost manuel (#237) : le seed `heat` 0–100 (le tiers HUMAIN, /3 dans la
               température). Vide = froid. NaN → erreur inline ; l'API valide 0–100 / 2 déc. */}
-          <div className="mt-0.5 flex items-center gap-1.5 px-1.5 py-0.5">
+          <div className="mt-xs flex items-center gap-s px-s py-xs">
             <label htmlFor="task-heat" className="text-[11px] text-textsoft">boost</label>
             <GhostInput
               id="task-heat"
@@ -644,7 +638,9 @@ function TaskPanelBody({ id }: { id: number }) {
               inputMode="decimal"
               placeholder="0–100"
               aria-label="Manual priority boost (heat seed, 0–100)"
-              className="w-20 font-mono text-xs"
+              // max-w en ch (audit #408) : borne le w-full de ghostCls à la
+              // largeur du contenu attendu (« 0–100 ») sans boîte figée.
+              className="max-w-[7ch] font-mono text-xs"
               onBlur={(e) => {
                 const raw = e.target.value.trim()
                 if (raw === '') { void save('heat', changed(task.heat, null), { heat: null }); return }
@@ -661,8 +657,8 @@ function TaskPanelBody({ id }: { id: number }) {
 
       {/* Epic : LE regroupement transverse aux stages (#133) — combobox des epics
           existants + création à la volée (saisie slugifiée), ✕ pour retirer. */}
-      <div className="flex flex-col gap-0.5">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-xs">
+        <div className="flex items-center gap-s">
           <SectionLabel>Epic</SectionLabel>
           <SavedTick show={savedIn('epic')} />
         </div>
@@ -677,8 +673,8 @@ function TaskPanelBody({ id }: { id: number }) {
       </div>
 
       {/* Détail : markdown rendu au repos ; clic → textarea à taille identique. */}
-      <div className="flex flex-col gap-1">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-xs">
+        <div className="flex items-center gap-s">
           <SectionLabel>Detail</SectionLabel>
           <SavedTick show={savedIn('detail')} />
         </div>
@@ -719,7 +715,7 @@ function TaskPanelBody({ id }: { id: number }) {
             onClick={(e) => { if (!(e.target as HTMLElement).closest('a')) openDetailEditor({ x: e.clientX, y: e.clientY }) }}
             // Un role="button" répond à Entrée ET Espace (design.md §3.5).
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDetailEditor() } }}
-            className="cursor-text rounded-interactive ring-1 ring-inset ring-transparent px-1.5 py-1 transition-colors hover:bg-rollover"
+            className="cursor-text rounded-interactive ring-1 ring-inset ring-transparent px-s py-xs transition-colors hover:bg-rollover"
           >
             {task.detail ? (
               <Markdown source={task.detail} className="doc-prose--panel" />
@@ -732,8 +728,8 @@ function TaskPanelBody({ id }: { id: number }) {
       </div>
 
       {/* Dépend de : lignes navigables (✕ au survol) + ajout ghost permanent. */}
-      <div className="flex flex-col gap-1">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-xs">
+        <div className="flex items-center gap-s">
           <SectionLabel>Depends on</SectionLabel>
           <SavedTick show={savedIn('dependsOn')} />
         </div>
@@ -758,8 +754,8 @@ function TaskPanelBody({ id }: { id: number }) {
       <RelationList label="Subtasks" tree={tree} ids={task.subtasks.map((s) => s.id)} badgeOf={subBadge} />
 
       {/* Liens : même patron que Depends on. */}
-      <div className="flex flex-col gap-1">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-xs">
+        <div className="flex items-center gap-s">
           <SectionLabel>Links</SectionLabel>
           <SavedTick show={savedIn('links')} />
         </div>
@@ -781,12 +777,12 @@ function TaskPanelBody({ id }: { id: number }) {
       </div>
 
       {/* Références : lignes (✕ au survol) + input d'ajout ghost (Entrée = ajouter). */}
-      <div className="flex flex-col gap-1">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-xs">
+        <div className="flex items-center gap-s">
           <SectionLabel>References</SectionLabel>
           <SavedTick show={savedIn('refs')} />
         </div>
-        <div ref={refsListRef} tabIndex={-1} className="flex flex-col gap-0.5">
+        <div ref={refsListRef} tabIndex={-1} className="flex flex-col gap-xs">
           {task.refs.map((r) => (
             <RefLine
               key={r} refPath={r}
@@ -817,40 +813,40 @@ function TaskPanelBody({ id }: { id: number }) {
           auteur · date, état résolu ; bascule résolu/rouvrir d'un bouton ;
           ajout via input ghost (Entrée). PATCH du TABLEAU COMPLET (save('feedback')),
           même mécanisme que les autres champs (lecture courante → modif → envoi). */}
-      <div className="flex flex-col gap-1">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-xs">
+        <div className="flex items-center gap-s">
           <SectionLabel>Feedback</SectionLabel>
           <SavedTick show={savedIn('feedback')} />
         </div>
-        <div className="flex flex-col gap-0.5">
+        <div className="flex flex-col gap-xs">
           {feedback.length === 0 && (
-            <p className="px-1.5 text-xs text-textsoft">No feedback yet.</p>
+            <p className="px-s text-xs text-textsoft">No feedback yet.</p>
           )}
           {feedback.map((f, i) => (
             <div
               key={i}
-              className={`flex items-start gap-2 py-1 pl-2 ${f.resolved ? 'shadow-[inset_2px_0_0_var(--color-border)]' : 'shadow-[inset_2px_0_0_var(--color-accent)]'}`}
+              className={`flex items-start gap-s py-xs pl-s ${f.resolved ? 'shadow-[inset_2px_0_0_var(--color-border)]' : 'shadow-[inset_2px_0_0_var(--color-accent)]'}`}
             >
               <div className="min-w-0 flex-1">
                 <div className={`whitespace-pre-wrap break-words text-sm ${f.resolved ? 'text-textsoft line-through' : 'text-texthard'}`}>
                   {f.text}
                 </div>
-                <div className="mt-0.5 flex items-center gap-1 text-[11px] text-textsoft">
+                <div className="mt-xs flex items-center gap-xs text-[11px] text-textsoft">
                   {f.resolved && <Check size={10} className="shrink-0" />}
                   <span>{f.author}</span>
                   <span>·</span>
                   <span title={absoluteDate(f.date)}>{relativeTime(f.date)}</span>
                 </div>
               </div>
-              <button
-                type="button"
+              <Button
+                variant="secondary"
+                className="shrink-0"
                 onClick={() => void save('feedback', true, {
                   feedback: feedback.map((x, j) => (j === i ? { ...x, resolved: !x.resolved } : x)),
                 })}
-                className={`shrink-0 ${actionBtn}`}
               >
                 {f.resolved ? 'Reopen' : 'Resolve'}
-              </button>
+              </Button>
             </div>
           ))}
           <GhostInput
@@ -873,12 +869,12 @@ function TaskPanelBody({ id }: { id: number }) {
       </div>
 
       {/* Consignation : inputs ghost permanents (corrections rares mais directes). */}
-      <div className="flex flex-col gap-1 ring-1 ring-inset ring-border bg-foreground px-2 py-2">
-        <div className="flex items-center gap-2 px-1.5">
+      <div className="flex flex-col gap-xs ring-1 ring-inset ring-border bg-foreground px-s py-s">
+        <div className="flex items-center gap-s px-s">
           <div className="text-[11px] font-medium text-textsoft">Log</div>
           <SavedTick show={savedIn('outcome', 'verification', 'commit', 'release')} />
         </div>
-        <div className="px-1.5 text-xs text-textsoft">
+        <div className="px-s text-xs text-textsoft">
           <span title={absoluteDate(task.createdAt)}>created {relativeTime(task.createdAt)}</span>
           {task.completedAt ? <> · <span title={absoluteDate(task.completedAt)}>completed {relativeTime(task.completedAt)}</span></> : ''}
         </div>
@@ -889,7 +885,7 @@ function TaskPanelBody({ id }: { id: number }) {
           { field: 'release', label: 'release', value: task.release, area: false },
         ] as const).map(({ field, label, value, area }) => (
           <label key={field} className="flex flex-col">
-            <span className="px-1.5 text-[11px] text-textsoft">{label}</span>
+            <span className="px-s text-[11px] text-textsoft">{label}</span>
             {area ? (
               <GhostAutoTextArea
                 key={`${field}-${value ?? ''}`}
@@ -917,7 +913,7 @@ function TaskPanelBody({ id }: { id: number }) {
       </div>
 
       {/* Pied : le chemin technique, relégué ici (audit UX). */}
-      <div className="mt-auto pt-3 shadow-[inset_0_1px_0_var(--color-border)]">
+      <div className="mt-auto pt-m shadow-[inset_0_1px_0_var(--color-border)]">
         <div className="truncate font-mono text-[11px] text-textsoft" title={task.file}>{task.file}</div>
       </div>
     </div>

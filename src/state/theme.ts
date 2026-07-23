@@ -84,10 +84,10 @@ mq?.addEventListener('change', (e) => {
  * Même mécanique que le mode : source de vérité hors React (dataset + localStorage),
  * store module-level pour garder les sélecteurs des vues synchrones.
  * ───────────────────────────────────────────────────────────────────────────── */
-export type ThemeName = 'roadmapped' | 'github' | 'cursor' | 'claude' | 'codex'
-export const THEME_NAMES: ThemeName[] = ['roadmapped', 'github', 'cursor', 'claude', 'codex']
+export type ThemeName = 'roadmapped' | 'github' | 'cursor' | 'claude'
+export const THEME_NAMES: ThemeName[] = ['roadmapped', 'github', 'cursor', 'claude']
 export const THEME_LABELS: Record<ThemeName, string> = {
-  roadmapped: 'Roadmapped', github: 'GitHub', cursor: 'Cursor', claude: 'Claude', codex: 'Codex',
+  roadmapped: 'Roadmapped', github: 'GitHub', cursor: 'Cursor', claude: 'Claude',
 }
 const NAME_KEY = 'ui:theme-name'
 

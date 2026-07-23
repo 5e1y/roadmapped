@@ -1,0 +1,41 @@
+id: 431
+title: "FlowAreaChart : ligne pointillée + légende à traits (pas couleurs) pour les thèmes monochromes"
+status: done
+tags:
+  - ds
+detail: >-
+  Le graphe 'Created vs closed / day' (OverviewView, src/components/FlowAreaChart.tsx) distingue
+  aujourd'hui ses 2 séries (Created=TextSoft, Closed=accent) uniquement par la couleur — sur un
+  thème monochrome où les lignes se confondent visuellement (accent proche du gris, ou vision des
+  couleurs limitée), les 2 courbes deviennent indiscernables. Demande Rémi : (1) une des deux lignes
+  (probablement Created, la série neutre, à trancher) en pointillé (strokeDasharray) au lieu de
+  plein ; (2) la légende (actuellement 2 pastilles de couleur ronde) doit montrer un ÉCHANTILLON DE
+  TRAIT (un petit segment de ligne avec le même style — plein vs pointillé, même stroke-width)
+  plutôt qu'un swatch de couleur, pour rester lisible même quand les couleurs se confondent.
+refs:
+  - src/components/FlowAreaChart.tsx
+links: []
+dependsOn: []
+epic: theming-foundations
+source: ai
+createdAt: "2026-07-23T23:45:03"
+startedAt: "2026-07-23T23:45:08"
+updatedAt: "2026-07-23T23:52:59"
+completedAt: "2026-07-23T23:52:59"
+commit: 345fcb2
+outcome: >-
+  Created (série neutre, secondaire) passée en pointillé (strokeDasharray='5 6'), Closed (série
+  accent, mise en avant par la doctrine existante) reste pleine — renforce la hiérarchie déjà en
+  place plutôt que de l'affaiblir. Légende : pastilles de couleur rondes remplacées par un mini-SVG
+  (18×8, <line>) partageant littéralement les mêmes constantes que la vraie crête (STROKE_W=1.5,
+  CREATED_DASH, strokeLinecap round) — l'échantillon EST un rendu 1:1 du style réel, pas une
+  approximation. vectorEffect=non-scaling-stroke vérifié empiriquement : résout le dasharray en px
+  écran, les tirets ne s'étirent pas malgré preserveAspectRatio=none.
+verification: >-
+  Vérification empirique via Chrome headless/CDP sur le dev server réel : fixture dédiée confirmant
+  que non-scaling-stroke empêche l'étirement du dasharray sous un viewBox étiré 3x, PUIS captures du
+  vrai graphe en thème Cursor light (le cas problème : accent quasi-neutre) + Cursor dark + thème
+  par défaut — les 2 séries restent distinguables au style de trait seul. tsc -b clean, suite
+  complète 58/58 fichiers 742/742 tests verts (FlowAreaChart.test.tsx inchangé, ne testait pas le
+  markup de légende).
+release: 0.3.0

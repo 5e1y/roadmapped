@@ -1,0 +1,25 @@
+id: 433
+title: Release 0.3.1 — multi-theming refinements, composant Button unifié, suppression thème Codex
+status: in_progress
+tags:
+  - release
+detail: >-
+  Commit + push + release npm de tout le chantier theming de cette session : suppression de la
+  couche primitives (#405), composant Button unifié 3 variants (#419/#420/#421), 5→4 thèmes intégrés
+  (Codex retiré), ajustements de tous les thèmes (accent/radius/spacing par thème), 2 audits
+  adversariaux (dimensions figées #408, bordures hors convention #426), correctifs UI (header
+  alignment #427, ZoomControls #428, FlowAreaChart légende #431, dot Settings + alignement Docs +
+  bouton New note #432), docs/design.md réécrit (#398).
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-24T00:26:47"
+startedAt: "2026-07-24T00:26:53"
+updatedAt: "2026-07-24T00:26:53"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

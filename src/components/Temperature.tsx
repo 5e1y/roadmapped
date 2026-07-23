@@ -106,7 +106,7 @@ export function TempBadge({ t, className = '' }: { t: Temperature; className?: s
   return (
     <span
       title={tempTitle(t)}
-      className={`inline-flex shrink-0 items-center gap-1 font-mono text-[11px] text-textsoft ${className}`}
+      className={`inline-flex shrink-0 items-center gap-xs font-mono text-[11px] text-textsoft ${className}`}
     >
       <ThermoGlyph value={t.value} />
       {formatTemp(t.value)}

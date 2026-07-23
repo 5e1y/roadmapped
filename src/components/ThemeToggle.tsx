@@ -20,10 +20,12 @@ export function ThemeToggle() {
       onClick={() => setMode(nextMode(mode))}
       aria-label={`${LABEL[mode]} (click to cycle)`}
       title={LABEL[mode]}
-      className="flex items-center rounded-interactive ring-1 ring-inset ring-border bg-foreground px-2 py-1 text-textsoft transition-colors hover:bg-rollover"
+      className="flex items-center rounded-interactive ring-1 ring-inset ring-border bg-foreground px-s py-xs text-textsoft transition-colors hover:bg-rollover"
     >
       {/* my-0.5 : cale l'icône dans la boîte 16px d'une ligne text-xs → même
-          hauteur exacte que les triggers FilterMenu voisins (py-1). */}
+          hauteur exacte que les triggers FilterMenu voisins (py-xs). Shim
+          OPTIQUE (12px de glyphe vs 16px de ligne), volontairement hors
+          tokens spacing : il dérive de la géométrie de l'icône, pas du thème. */}
       <Icon size={12} className="my-0.5" />
     </button>
   )

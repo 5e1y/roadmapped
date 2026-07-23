@@ -1,0 +1,36 @@
+id: 415
+title: >-
+  Tokeniser dimensions+paddings — Settings/Activity/DesignSystemView/BirdMascot : popups figés +
+  migration paddings vers tokens
+status: done
+tags:
+  - ds
+  - theming
+detail: >-
+  Suite de l'audit #408 (findings détaillés dans son outcome + le journal du workflow
+  wf_16ada12c-329, groupe 'settings-misc'). Deux volets sur ce lot de fichiers : (1) corriger les
+  dimensions figées cataloguées par l'audit pour ce groupe (h-*/w-*/size-*/style inline →
+  flex+padding-token ou clamp min/max légitime) ; (2) migrer TOUT padding/gap/margin sur l'échelle
+  Tailwind numérique par défaut (px-2.5, py-1, gap-2, px-4...) vers les utilitaires token
+  (px-xs/s/m/l/xl) selon la table de correspondance validée (arrondi au token le plus proche,
+  égalité tranchée vers le haut ; hors-échelle >24px composé en calc() de tokens plutôt que clampé).
+refs:
+  - src/components/ActivityView.tsx
+  - src/components/SettingsView.tsx
+  - src/components/UpdateNotice.tsx
+  - src/components/DesignSystemView.tsx
+links: []
+dependsOn: []
+epic: theming-foundations
+source: ai
+createdAt: "2026-07-23T19:55:45"
+startedAt: "2026-07-23T19:55:55"
+updatedAt: "2026-07-23T20:10:21"
+completedAt: "2026-07-23T20:10:20"
+commit: 345fcb2
+outcome: >-
+  Settings/Activity/DesignSystemView : capsule d'icône ActivityView, popup UpdateNotice (max-w-80
+  clampé), échantillons de rayon/spacing et tuiles de couleur du playground DesignSystemView tous
+  sans dimension figée.
+verification: tsc -b clean, suite complète 58/58 fichiers 742/742 tests verts.
+release: 0.3.0

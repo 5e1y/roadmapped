@@ -75,7 +75,7 @@ function ReleaseSection({ release, items, tree, defaultOpen, filtered = false }:
     <Collapsible.Root open={open} onOpenChange={setOpen}>
       <div
         data-panel-open={open ? '' : undefined}
-        className="relative flex w-full items-center gap-2 px-4 py-1.5 text-sm hover:bg-rollover"
+        className="relative flex w-full items-center gap-s px-l py-s text-sm hover:bg-rollover"
       >
         <Collapsible.Trigger
           aria-label={`Release ${release} — ${count} done`}
@@ -146,12 +146,13 @@ export function TaskList({ open, done, tree, filtered }: {
   // groupByRelease préserve cet ordre DANS chaque groupe.
   const releaseGroups = groupByRelease(doneItems, releaseOfItem)
   const empty = (label: string) => (
-    <EmptyState className="py-8" title={`${label}${filtered ? ' with these filters' : ''}`} />
+    <EmptyState className="py-[calc(var(--spacing-xl)+var(--spacing-s))]" title={`${label}${filtered ? ' with these filters' : ''}`} />
   )
   return (
-    <div className="flex flex-col gap-8">
+    // 32px hors échelle des tokens : composé xl+s (24+8) — respiration entre sections.
+    <div className="flex flex-col gap-[calc(var(--spacing-xl)+var(--spacing-s))]">
       <section>
-        <h2 className="mb-2 flex items-baseline justify-between px-1 text-xs font-medium text-textsoft">
+        <h2 className="mb-s flex items-baseline justify-between px-xs text-xs font-medium text-textsoft">
           <span>To do — hottest first</span>
           <span className="font-mono text-[11px]">{open.length}</span>
         </h2>
@@ -173,7 +174,7 @@ export function TaskList({ open, done, tree, filtered }: {
                   ref={toggleRef}
                   type="button"
                   onClick={() => toggleShowAll(true)}
-                  className="w-full px-4 py-2.5 text-center text-xs text-textsoft hover:bg-rollover hover:text-texthard"
+                  className="w-full px-l py-m text-center text-xs text-textsoft hover:bg-rollover hover:text-texthard"
                 >
                   Show {hidden} more
                 </button>
@@ -185,7 +186,7 @@ export function TaskList({ open, done, tree, filtered }: {
                   ref={toggleRef}
                   type="button"
                   onClick={() => toggleShowAll(false)}
-                  className="w-full px-4 py-2.5 text-center text-xs text-textsoft hover:bg-rollover hover:text-texthard"
+                  className="w-full px-l py-m text-center text-xs text-textsoft hover:bg-rollover hover:text-texthard"
                 >
                   Show less
                 </button>
@@ -195,7 +196,7 @@ export function TaskList({ open, done, tree, filtered }: {
         )}
       </section>
       <section>
-        <h2 className="mb-2 flex items-baseline justify-between px-1 text-xs font-medium text-textsoft">
+        <h2 className="mb-s flex items-baseline justify-between px-xs text-xs font-medium text-textsoft">
           <span>Done — most recently completed first</span>
           <span className="font-mono text-[11px]">{done.length}</span>
         </h2>

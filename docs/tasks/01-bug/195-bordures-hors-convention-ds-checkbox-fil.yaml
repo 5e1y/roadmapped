@@ -1,0 +1,34 @@
+id: 425
+title: >-
+  Bordures hors convention DS : checkbox FilterMenu (border réelle) + input search KB (chrome natif
+  du navigateur)
+status: done
+tags:
+  - ds
+detail: >-
+  2 cas confirmés avant audit plus large : (1) ViewHeader.tsx:160-161, la checkbox du menu de filtre
+  utilisait 'border' + 'border-accent'/'border-border' (vraie bordure CSS, largeur DOM) au lieu du
+  ring-inset/box-shadow imposé par la doctrine (#395 : jamais de vraie border). Corrigé en ring-1
+  ring-inset ring-accent/ring-border. (2) KbView.tsx:67-72, l'input de recherche KB est en
+  type="search" sans appearance-none : le chrome natif du navigateur (WebKit notamment) impose sa
+  propre bordure/forme, invisible dans le code mais bien réelle à l'écran, en plus du ring-border
+  applicatif — d'où l'impression d'une bordure en dur. Corrigé en ajoutant appearance-none.
+refs:
+  - src/components/ViewHeader.tsx
+  - src/components/KbView.tsx
+links: []
+dependsOn: []
+epic: theming-foundations
+source: ai
+createdAt: "2026-07-23T22:20:49"
+startedAt: "2026-07-23T22:20:57"
+updatedAt: "2026-07-23T22:20:58"
+completedAt: "2026-07-23T22:20:58"
+commit: 345fcb2
+outcome: >-
+  2 cas confirmés et corrigés : ViewHeader.tsx checkbox FilterMenu
+  (border/border-accent/border-border → ring-1 ring-inset ring-accent/ring-border), KbView.tsx input
+  type=search (ajout appearance-none pour neutraliser le chrome natif du navigateur qui imposait sa
+  propre bordure hors du contrôle du DS).
+verification: tsc -b clean, suite complète 58/58 fichiers 742/742 tests verts.
+release: 0.3.0

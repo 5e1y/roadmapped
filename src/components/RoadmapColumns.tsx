@@ -6,6 +6,7 @@ import { computeAvailability, missingPrereqs, reverseDependents, type Availabili
 import { EditPen, LockLocked } from 'trinil-react'
 import { Chevron, KindGlyph } from './glyphs'
 import { Chip } from './Chip'
+import { Button } from './ui'
 import { TempBadge, rowTemperature } from './Temperature'
 import { EpicBand, epicBandView } from './EpicBand'
 import { countTasksDeep, SECTION_STATUS_LABEL } from '../lib/tasks'
@@ -14,7 +15,7 @@ import type { SectionNode, TaskNode } from '../lib/tasks'
 function ProgressBar({ done, total }: { done: number; total: number }) {
   const pct = total === 0 ? 0 : Math.round((done / total) * 100)
   return (
-    <div className="h-1 w-full overflow-hidden rounded-round bg-border">
+    <div className="h-[var(--spacing-xs)] w-full overflow-hidden rounded-round bg-border">
       <div className="h-full bg-accent" style={{ width: `${pct}%` }} />
     </div>
   )
@@ -44,11 +45,13 @@ function TaskCard({ task, state, missing, blocksCount = 0 }: { task: TaskNode; s
   const subs = task.subtasks.length > 0 ? countTasksDeep(task.subtasks) : null
   const temp = rowTemperature(task)
   return (
-    // Densité (#246) : py-2 / gap-1 — la carte gagne ~6px sans perdre une info.
+    // Densité (#246) : py-s / gap-xs — la carte gagne ~6px sans perdre une info.
     <button type="button" onClick={() => openTask(task.id)} title={task.title}
-      className={`rm-list-item relative flex w-full flex-col gap-1 px-3 py-2 text-left ${skin}`}>
-      <div className="flex items-start gap-2">
-        <span className="flex h-5 shrink-0 items-center">
+      className={`rm-list-item relative flex w-full flex-col gap-xs px-m py-s text-left ${skin}`}>
+      <div className="flex items-start gap-s">
+        {/* h-lh (pas h-5 figé) : la hauteur du wrapper glyphe = la ligne de texte
+            (1lh du même leading-5 que l'id), le glyphe se centre dans la 1re ligne. */}
+        <span className="flex h-lh shrink-0 items-center leading-5">
           {state === 'locked'
             ? <LockLocked size={11} className="shrink-0 text-textsoft" ariaLabel="Locked" />
             : <KindGlyph task={task} />}
@@ -76,7 +79,9 @@ function TaskCard({ task, state, missing, blocksCount = 0 }: { task: TaskNode; s
         <span className="text-[11px] text-textsoft">blocks {blocksCount}</span>
       )}
       {/* Température (#235) — coin bas droit, l'emplacement exact de l'ex-chip team. */}
-      {temp && <span className="absolute bottom-1.5 right-2"><TempBadge t={temp} /></span>}
+      {/* Offsets en tokens (pas 1.5/2 figés) : le badge reste calé sur le padding
+          de carte (px-m/py-s) quel que soit le thème qui redéfinit l'échelle. */}
+      {temp && <span className="absolute bottom-s right-s"><TempBadge t={temp} /></span>}
     </button>
   )
 }
@@ -109,33 +114,25 @@ function Column({ section, scope, open, done, avail, blocksOf }: {
   const statusLabel = section.status !== 'open' ? SECTION_STATUS_LABEL[section.status] : null
   return (
     // min-w-0 : un enfant de grille a min-width:auto par défaut → sans ça, un contenu
-    // plus large que la piste (280px) déborde sur la colonne voisine (#97).
+    // plus large que la piste (minmax(220px, 1fr)) déborde sur la colonne voisine (#97).
     <div className="grid row-span-4 min-w-0 grid-rows-subgrid">
       {/* Rangée titre collante : le contexte (titre + compteur) survit au scroll
-          vertical. Le pt-5 du conteneur vit ici pour que rien ne dépasse au-dessus. */}
+          vertical. Le pt-xl du conteneur vit ici pour que rien ne dépasse au-dessus. */}
       {/* bg-page (pas neutral-50) : le header colle sur la PAGE — depuis le split
           page/neutral-50 (#269), neutral-50 est plus clair que la page en sombre
           et dessinait une bande. En clair les deux valent ~#fafafa. */}
-      <div className="group sticky top-0 z-20 flex items-baseline justify-between gap-2 bg-background pb-0.5 pt-5">
+      <div className="group sticky top-0 z-20 flex items-baseline justify-between gap-s bg-background pb-xs pt-xl">
         <span
           className={`min-w-0 truncate text-sm font-semibold tracking-tight ${empty ? 'text-textsoft' : 'text-texthard'}`}
           title={section.title}
         >
           {section.title}
         </span>
-        <span className="flex shrink-0 items-center gap-1.5">
+        <span className="flex shrink-0 items-center gap-s">
           {/* Entrée du panneau de section (#28) : LE point d'accès à l'édition
               statut/note depuis que le Backlog n'accordéonne plus les sections
               actives. Révélé au survol ET au focus (design.md §3.4). */}
-          <button
-            type="button"
-            aria-label={`Edit section ${section.title}`}
-            title="Edit section"
-            onClick={() => openSection(section.key)}
-            className="rounded-interactive p-1 text-textsoft opacity-0 transition-opacity hover:bg-rollover hover:text-texthard focus-visible:opacity-100 group-hover:opacity-100"
-          >
-            <EditPen size={12} />
-          </button>
+          <Button variant="ghost" icon={EditPen} reveal aria-label={`Edit section ${section.title}`} title="Edit section" onClick={() => openSection(section.key)} />
           {statusLabel && !empty && <Chip label={statusLabel} />}
           {/* Compteur porteur de sens même à 0/0 : plancher neutral-500 (audit #108). */}
           <span className="font-mono text-xs text-textsoft">{doneCount}/{total}</span>
@@ -155,7 +152,7 @@ function Column({ section, scope, open, done, avail, blocksOf }: {
           transversal vit dans la bande d'epics au-dessus, chaque tâche chez
           son type. Les cartes à liseré fort (sélection) passent au-dessus
           (z-10) pour que leur bordure ne soit pas mangée par la suivante. */}
-      <div className="rm-list min-w-0 pt-1.5">
+      <div className="rm-list min-w-0 pt-s">
         {open.map((task) => (
           <TaskCard key={task.id} task={task} state={avail.get(task.id) ?? 'available'} missing={missingPrereqs(task, avail)} blocksCount={blocksOf(task)} />
         ))}
@@ -165,7 +162,7 @@ function Column({ section, scope, open, done, avail, blocksOf }: {
           <Collapsible.Root open={doneOpen} onOpenChange={setDoneOpen}>
             <Collapsible.Trigger
               title={doneOpen ? 'Fold the completed tasks of this column' : 'Unfold the completed tasks of this column'}
-              className="rm-list-item flex w-full items-center gap-1.5 px-3 py-1.5 text-left text-xs text-textsoft transition-colors hover:bg-rollover hover:text-texthard"
+              className="rm-list-item flex w-full items-center gap-s px-m py-s text-left text-xs text-textsoft transition-colors hover:bg-rollover hover:text-texthard"
             >
               <Chevron />
               {done.length} done
@@ -215,15 +212,17 @@ export function RoadmapColumns({ showDone, epicFilter, onEpicFilter }: {
   const openOf = (s: SectionNode) => scopeOf(s).filter((t) => t.status !== 'done')
   const doneOf = (s: SectionNode) => (showDone ? scopeOf(s).filter((t) => t.status === 'done') : [])
 
-  // Largeurs par colonne : un type vide (ou vidé par le filtre epic) est
-  // resserré — les 9 colonnes restent visibles sans voler l'espace.
-  const template = sections.map((s) => (scopeOf(s).length === 0 ? '180px' : '280px')).join(' ')
+  // Largeurs par colonne FLUIDES (audit #408, fini les px figés) : un type
+  // peuplé prend minmax(220px, 1fr) — plancher lisible, part égale de l'espace
+  // restant ; un type vide (ou vidé par le filtre epic) est resserré à
+  // min-content — les 9 colonnes restent visibles sans voler l'espace.
+  const template = sections.map((s) => (scopeOf(s).length === 0 ? 'min-content' : 'minmax(220px, 1fr)')).join(' ')
 
   return (
     <div className="flex h-full flex-col">
       <EpicBand items={openBand} doneItems={doneBand} selected={selected} onSelect={onEpicFilter} />
       <div
-        className="roadmap-cols-scroll grid min-h-0 flex-1 grid-flow-col grid-rows-[auto_auto_auto_1fr] gap-x-4 gap-y-1.5 overflow-x-auto px-6 pb-6"
+        className="roadmap-cols-scroll grid min-h-0 flex-1 grid-flow-col grid-rows-[auto_auto_auto_1fr] gap-x-l gap-y-s overflow-x-auto px-xl pb-xl"
         style={{ gridTemplateColumns: template }}
       >
         {sections.map((s) => (

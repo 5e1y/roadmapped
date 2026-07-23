@@ -35,7 +35,7 @@ describe('DesignSystemView (#388) — smoke de montage', () => {
     const { container } = frame(<DesignSystemView onBack={() => {}} />)
     expect(container.querySelector('header')).toBeInTheDocument()
     // Sections vivantes présentes (rendues depuis les vrais tokens/composants).
-    expect(screen.getByRole('heading', { name: 'Colors & tokens' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Theming playground — the whole contract, live' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Typography scale' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Primitives' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Glyph family' })).toBeInTheDocument()
@@ -73,12 +73,12 @@ describe('Raccourci « g d » → Design System (#388)', () => {
 
   it('« g » puis « d » sur window ouvre la page (setView designsystem)', () => {
     render(<App />)
-    expect(screen.queryByRole('heading', { name: 'Colors & tokens' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Theming playground — the whole contract, live' })).not.toBeInTheDocument()
 
     fireEvent.keyDown(document.body, { key: 'g' })
     fireEvent.keyDown(document.body, { key: 'd' })
 
-    expect(screen.getByRole('heading', { name: 'Colors & tokens' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Theming playground — the whole contract, live' })).toBeInTheDocument()
     expect(document.title).toContain('Design System')
   })
 
@@ -91,7 +91,7 @@ describe('Raccourci « g d » → Design System (#388)', () => {
     fireEvent.keyDown(input, { key: 'g' })
     fireEvent.keyDown(input, { key: 'd' })
 
-    expect(screen.queryByRole('heading', { name: 'Colors & tokens' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Theming playground — the whole contract, live' })).not.toBeInTheDocument()
     input.remove()
   })
 })

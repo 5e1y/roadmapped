@@ -1,0 +1,63 @@
+id: 396
+title: "Thème GitHub : ajuster les tokens au vrai github.com (delta réel)"
+status: done
+tags:
+  - theming
+detail: >-
+  Comparer le bloc :root[data-theme-name="github"] (src/index.css) à l'UI réelle de github.com (repo
+  page) et resserrer l'écart : accent, accent-tint, page/carte, neutral-200 (bordures), rayons,
+  spacing-listgap. Contrainte stricte : n'agir QUE via les tokens sémantiques partagés du DS (les 9
+  couleurs / 4 rayons / 6 spacing définis dans @theme) — pas de token ad hoc ni de CSS spécifique au
+  thème hors de ce contrat. Si une feature du DS GitHub semble indispensable à l'ambiance (ex:
+  header sombre distinct de la carte, tabs soulignés, badges) mais ne rentre pas dans le contrat de
+  tokens actuel, PROPOSER (ne pas juste coder) une intégration strictement composant + token
+  sémantique, à valider avant d'étendre le contrat.
+refs:
+  - src/components/NavRail.tsx
+  - src/index.css
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-23T18:18:27"
+startedAt: "2026-07-23T18:18:31"
+updatedAt: "2026-07-23T20:12:40"
+completedAt: "2026-07-23T20:12:40"
+commit: 345fcb2
+outcome: >-
+  radius-interactive du thème github abaissé de 12px à 8px (retour Rémi : CTA/inputs un peu plus
+  faible que listitem/surface, qui restent à 12px).
+verification: tsc -b clean, theme.test.ts 8/8.
+release: 0.3.0
+feedback:
+  - date: "2026-07-23T18:33:11"
+    author: user
+    text: >-
+      Rémi : le fond bleu léger (accent-tint, sélection bg-active) ne colle pas à la DA GitHub —
+      remplacé par une version claire du corail --color-highlight au lieu du bleu.
+    resolved: true
+  - date: "2026-07-23T18:34:42"
+    author: user
+    text: >-
+      Rémi : contraste rail vs pill active trop faible — allégé le gris (--color-white
+      #f6f8fa→#fafbfc) et foncé l'orange (--color-accent-tint #fff4f1→#ffe8e3).
+    resolved: true
+  - date: "2026-07-23T18:38:43"
+    author: user
+    text: >-
+      Rémi : la DA GitHub n'a pas de fond coloré pour la sélection, juste un gris (le foreground) en
+      transparence pour rester visible sur la carte. Remplacé --color-accent-tint (orange) par un
+      overlay translucide, même technique que --color-rollover.
+    resolved: true
+  - date: "2026-07-23T19:31:52"
+    author: user
+    text: >-
+      Rémi : thème github — spacing xs=6/s=12/m=16/xl=32 (listgap inchangé à 8), et les 3 rayons
+      (interactive/listitem/surface) à 12px.
+    resolved: true
+  - date: "2026-07-23T20:11:53"
+    author: user
+    text: >-
+      Rémi : thème github — --radius-interactive (CTA/inputs) un peu plus faible que
+      listitem/surface, actuellement les 3 à 12px.
+    resolved: true

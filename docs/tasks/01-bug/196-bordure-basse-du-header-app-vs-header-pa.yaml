@@ -1,0 +1,56 @@
+id: 427
+title: "Bordure basse du header app vs header panneau : léger décalage vertical (~1-2px perçu)"
+status: done
+tags:
+  - ds
+detail: >-
+  Rémi perçoit un décalage de ~1-2px entre le trait bas
+  (shadow-[inset_0_-1px_0_var(--color-border)]) du header de l'app (ViewHeader.tsx) et celui du
+  header de panneau (SidePanel.tsx). Analyse préalable (à vérifier, pas à prendre pour acquis) : les
+  deux headers utilisent la même recette px-l py-s + shadow-[inset_0_-1px_0_var(--color-border)].
+  Depuis #420, le search input de ViewHeader (py-s + text-xs leading-none = 28px) et le Button (p-s
+  + icône/texte 12px = 28px carré) ont le même gabarit — sur le papier, les deux headers devraient
+  calculer à 44px (8 padding + 28 contenu + 8 padding) et donc s'aligner parfaitement. Le décalage
+  perçu reste donc à investiguer précisément (rendu réel, pas seulement le calcul sur papier).
+refs:
+  - src/components/ViewHeader.tsx
+  - src/components/ui.tsx
+links: []
+dependsOn: []
+epic: theming-foundations
+source: ai
+createdAt: "2026-07-23T22:36:28"
+startedAt: "2026-07-23T22:36:33"
+updatedAt: "2026-07-23T22:58:02"
+completedAt: "2026-07-23T22:58:00"
+commit: 345fcb2
+outcome: >-
+  Correction STRUCTURELLE (pas une nouvelle formule) : le champ de recherche suit désormais la même
+  logique flex que Button. Tout le chrome (p-s, bg-background, ring-border, rounded-interactive,
+  focus) vit sur le conteneur flex (icône Search + input en enfants), plus sur l'input lui-même.
+  Input nu : bg-transparent/border-0/outline-none/p-0/flex-1, hauteur figée à 12px (littéral, matche
+  BUTTON_ICON_SIZE désormais exporté depuis ui.tsx — un choix typo global, pas un token thémable,
+  donc légitimement en dur). La hauteur totale n'est plus calculée nulle part : le navigateur
+  additionne nativement p-s(thème)+12+p-s(thème) via le box model, exactement comme Button. Vérifié
+  empiriquement (Chrome headless/CDP) sur 5 thèmes : base/github/claude/cursor/codex, delta=0
+  partout (les régressions +4px github et +2px claude sont éliminées, pas juste rapetissées).
+verification: >-
+  Mesures empiriques par thème AVANT et APRÈS sur le dev server réel (getBoundingClientRect) : base
+  28/28, github 36/36 (était 40 vs 36), claude 32/32 (était 34 vs 32), cursor 28/28, codex 28/28 —
+  delta=0 partout. tsc -b clean, suite complète 58/58 fichiers 742/742 tests verts.
+release: 0.3.0
+feedback:
+  - date: "2026-07-23T22:52:03"
+    author: user
+    text: >-
+      Rémi : le décalage persiste sur TOUS les thèmes. Cause trouvée avant re-délégation : ma
+      formule h-[calc(var(--spacing-m)+var(--spacing-s)*2)] est FAUSSE — elle ne correspond au vrai
+      calcul du Button (2×var(--spacing-s, propre au thème)+12px icône fixe) que par coïncidence sur
+      les thèmes où spacing-m=12 (base/cursor/codex). Sur github (s=12, m=16) elle donne 40px au
+      lieu des 36px réels du Button — écart 4px. Sur claude (s=10, m=14) elle donne 34px au lieu de
+      32px — écart 2px. Demande : restructurer le champ de recherche pour suivre la MÊME logique
+      flex que Button (conteneur flex+p-s qui porte le padding, icône+input en enfants flex, hauteur
+      du contenu fixée à 12px comme BUTTON_ICON_SIZE) plutôt qu'une formule calc() qui doit deviner
+      la hauteur — le navigateur calcule alors nativement la bonne hauteur pour n'importe quel
+      thème, sans recalcul manuel.
+    resolved: false

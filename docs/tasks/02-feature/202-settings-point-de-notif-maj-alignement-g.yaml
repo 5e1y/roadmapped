@@ -1,0 +1,44 @@
+id: 432
+title: "Settings: point de notif MAJ + alignement gauche Docs + bouton New note en Button primary"
+status: done
+tags:
+  - ds
+detail: >-
+  3 demandes groupées Rémi (en quick) : (1) Point bleu de notif (même pattern que NavRail Activity :
+  useOptionalTreeState()?.update non-null, size-[calc(var(--spacing-xs)*1.5)] rounded-round
+  bg-accent en absolute sur l'icône) sur l'item Settings du NavRail quand une MAJ est disponible.
+  (2) Les textes dans le panneau de gauche de la vue Docs (DocsTree.tsx, arbre de fichiers) ne sont
+  pas correctement alignés à gauche — DocsTreeFolder/DocsTreeFile déclarent déjà text-left, donc le
+  bug (si confirmé visuellement) est ailleurs (items-baseline au lieu de items-center ? troncature ?
+  autre chose) — à diagnostiquer visuellement, pas en lecture statique seule. (3) Le bouton 'New
+  note' de NotepadView.tsx (actuellement un item de liste étendu avec un '+' littéral, px-l py-s
+  text-left, pas le composant Button) doit devenir un vrai <Button variant="primary" icon={Plus}>.
+refs:
+  - src/components/NavRail.tsx
+  - src/components/DocsTree.tsx
+  - src/components/DocsView.tsx
+  - src/components/NotepadView.tsx
+links: []
+dependsOn: []
+epic: theming-foundations
+source: ai
+createdAt: "2026-07-24T00:11:31"
+startedAt: "2026-07-24T00:11:38"
+updatedAt: "2026-07-24T00:25:38"
+completedAt: "2026-07-24T00:25:37"
+commit: 345fcb2
+outcome: >-
+  3 fixs livrés et vérifiés visuellement au rendu (Chrome headless/CDP). (1) Dot bleu MAJ sur
+  Settings : useOptionalTreeState()?.update non-null, même mécanique que le dot Activity (coexistent
+  sans conflit, aucun n'est cassé). (2) Alignement flanc Docs — cause réelle mesurée au pixel (pas
+  une supposition) : indentation fichier/dossier désalignée de 3px (fichier n'avait pas la gouttière
+  chevron invisible du dossier) + header 'Files' non aligné avec le padding interne de
+  .rm-list/.rm-nest (spacing-listgap variable par thème) — les deux corrigés via calc() de tokens
+  uniquement. items-baseline→items-center en bonus (delta vertical résiduel). (3) 'New note' devenu
+  un vrai <Button variant='primary' icon={Plus}>, dimensionné sur son contenu (pas étiré pleine
+  largeur), ref préservée pour le refocus post-suppression.
+verification: >-
+  Vérification empirique multi-thèmes (Cursor/base/imbriqué) via Chrome headless/CDP sur le dev
+  server réel, avant/après avec captures. tsc -b clean, suite complète 58/58 fichiers 744/744 tests
+  verts (742 existants + 2 nouveaux sur NavRail).
+release: 0.3.0

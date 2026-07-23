@@ -1,0 +1,26 @@
+id: 421
+title: >-
+  Button : gap retiré du conteneur, espacement icône/texte porté par un span px-s sur le texte
+  (icône seule reste un carré exact, texte gagne son propre respire)
+status: done
+tags:
+  - ds
+  - theming
+detail: null
+refs:
+  - src/components/ui.tsx
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-23T21:55:55"
+startedAt: "2026-07-23T21:55:55"
+updatedAt: "2026-07-23T21:56:32"
+completedAt: "2026-07-23T21:56:31"
+commit: 345fcb2
+outcome: >-
+  gap-s retiré du conteneur flex du Button. Le texte (children) est désormais enveloppé dans un span
+  px-s quand présent — porte l'espacement icône-texte ET le respire propre au texte, sans jamais
+  toucher au carré exact p-s+icône+p-s de l'icône seule (rien à retirer/casser dans ce cas).
+verification: tsc -b clean, suite complète 58/58 fichiers 742/742 tests verts.
+release: 0.3.0

@@ -13,7 +13,7 @@ import { useThemeName, THEME_NAMES, THEME_LABELS, type ThemeName } from '../stat
  * vivent dans src/state/theme.ts.
  */
 const SWATCH: Record<ThemeName, string> = {
-  roadmapped: '#2563eb', github: '#0969da', cursor: '#0b6bcb', claude: '#c15f3c', codex: '#0a7a5c',
+  roadmapped: '#2563eb', github: '#0969da', cursor: '#141414', claude: '#c15f3c',
 }
 
 export function ThemePicker() {
@@ -23,13 +23,13 @@ export function ThemePicker() {
       <Popover.Trigger
         aria-label={`Theme: ${THEME_LABELS[name]} (click to change)`}
         title="Theme"
-        className="flex items-center rounded-interactive ring-1 ring-inset ring-border bg-foreground px-2 py-1 text-textsoft transition-colors hover:bg-rollover data-[popup-open]:bg-active data-[popup-open]:text-texthard"
+        className="flex items-center rounded-interactive ring-1 ring-inset ring-border bg-foreground px-s py-xs text-textsoft transition-colors hover:bg-rollover data-[popup-open]:bg-active data-[popup-open]:text-texthard"
       >
         <ColorPalette size={12} className="my-0.5" />
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Positioner sideOffset={4} align="end" className="z-50">
-          <Popover.Popup className="w-44 origin-[var(--transform-origin)] overflow-hidden rounded-interactive bg-foreground ring-1 ring-inset ring-border py-1 shadow-lg transition-[opacity,transform] duration-150 ease-out data-[ending-style]:scale-[0.98] data-[ending-style]:opacity-0 data-[starting-style]:scale-[0.98] data-[starting-style]:opacity-0 motion-reduce:transition-none">
+          <Popover.Popup className="origin-[var(--transform-origin)] overflow-hidden rounded-interactive bg-foreground ring-1 ring-inset ring-border py-xs shadow-lg transition-[opacity,transform] duration-150 ease-out data-[ending-style]:scale-[0.98] data-[ending-style]:opacity-0 data-[starting-style]:scale-[0.98] data-[starting-style]:opacity-0 motion-reduce:transition-none">
             {THEME_NAMES.map((t) => {
               const active = t === name
               return (
@@ -38,7 +38,7 @@ export function ThemePicker() {
                   type="button"
                   onClick={() => setName(t)}
                   aria-pressed={active}
-                  className={`flex w-full items-center gap-2 px-2.5 py-1.5 text-left text-xs hover:bg-rollover ${
+                  className={`flex w-full items-center gap-s px-m py-s text-left text-xs hover:bg-rollover ${
                     active ? 'font-medium text-texthard' : 'text-textsoft'
                   }`}
                 >
@@ -47,7 +47,7 @@ export function ThemePicker() {
                     style={{ backgroundColor: SWATCH[t] }}
                     aria-hidden="true"
                   />
-                  <span className="min-w-0 flex-1 truncate">{THEME_LABELS[t]}</span>
+                  <span className="whitespace-nowrap">{THEME_LABELS[t]}</span>
                   {active && <Check size={12} className="shrink-0 text-accent" aria-hidden="true" />}
                 </button>
               )

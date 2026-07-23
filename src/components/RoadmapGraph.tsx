@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
 import { usePersistentStrings, usePersistentStringFlag } from '../state/uiPersist'
@@ -17,13 +17,79 @@ import type { TaskTree, TaskNode } from '../lib/tasks'
 import { useZoomPan, ZOOM_STEP } from './useZoomPan'
 import { ZoomControls } from './ZoomControls'
 
-const CARD_W = 248, CARD_H = 72
-/** Hauteur d'une ligne membre dans un nœud-epic déplié (px-3 py-1 + text-sm). */
-const MEMBER_H = 28
-/** Estimation de hauteur d'une carte tâche : socle (padding + titre + footer chips)… */
-const TASK_BASE_H = 66
-/** …+ une ligne de texte par info (état « Disponible »/« Prérequis », « bloque n »). */
-const TASK_LINE_H = 22
+/**
+ * Gabarits du layout dagre — DÉRIVÉS des tokens spacing du thème (#408) : dagre
+ * a besoin de NOMBRES, on lit donc --spacing-xs/s/m une fois au montage (et au
+ * changement de thème) au lieu de px durs. Les hauteurs de LIGNE, elles, sont
+ * des unités de CONTENU (text-sm / text-[11px]) — hors échelle spacing, comme
+ * les tailles d'icônes.
+ */
+interface SpacingTokens { xs: number; s: number; m: number }
+export interface GraphMetrics {
+  /** Largeur d'une carte : contenu fixe + 2× padding horizontal (px-m). */
+  cardW: number
+  /** Hauteur de référence d'une carte : py-m ×2 + titre + gap-s + ligne d'état. */
+  cardH: number
+  /** Ligne membre d'un nœud-epic déplié (py-xs ×2 + ligne text-sm). */
+  memberH: number
+  /** Socle d'une carte tâche : padding + titre + gap-s + footer chips. */
+  taskBaseH: number
+  /** Une ligne d'info en plus (« Disponible »/« Prérequis », « bloque n ») + son gap. */
+  taskLineH: number
+}
+
+/** Hauteurs de ligne (unités de contenu — pas des tokens spacing). */
+const LINE_SM = 20
+const LINE_MICRO = 14
+/** Largeur de CONTENU d'une carte, hors padding (les 248px historiques − 2×12). */
+const CARD_CONTENT_W = 224
+
+/** Valeurs de base des tokens (index.css @theme) — fallback jsdom/SSR. */
+const BASE_TOKENS: SpacingTokens = { xs: 4, s: 8, m: 12 }
+
+/** Dérivation pure tokens → gabarits (au thème de base : 248/72/28/66/22, inchangé). */
+export function graphMetrics(t: SpacingTokens): GraphMetrics {
+  return {
+    cardW: CARD_CONTENT_W + 2 * t.m,
+    cardH: 2 * t.m + LINE_SM + t.s + LINE_SM,
+    memberH: 2 * t.xs + LINE_SM,
+    taskBaseH: 2 * t.m + LINE_SM + t.s + LINE_MICRO,
+    taskLineH: t.s + LINE_MICRO,
+  }
+}
+
+const BASE_METRICS = graphMetrics(BASE_TOKENS)
+
+/** Lit les tokens spacing effectifs du thème courant sur `<html>`. */
+function readSpacingTokens(): SpacingTokens {
+  if (typeof document === 'undefined' || typeof getComputedStyle !== 'function') return BASE_TOKENS
+  const cs = getComputedStyle(document.documentElement)
+  const px = (name: keyof SpacingTokens): number => {
+    const v = parseFloat(cs.getPropertyValue(`--spacing-${name}`))
+    return Number.isFinite(v) && v > 0 ? v : BASE_TOKENS[name]
+  }
+  return { xs: px('xs'), s: px('s'), m: px('m') }
+}
+
+/**
+ * Gabarits RÉACTIFS au thème : relus quand `data-theme` / `data-theme-name`
+ * change sur `<html>` (un thème peut redéfinir l'échelle spacing — github).
+ */
+function useGraphMetrics(): GraphMetrics {
+  const [tokens, setTokens] = useState<SpacingTokens>(readSpacingTokens)
+  useEffect(() => {
+    const update = () => setTokens((cur) => {
+      const next = readSpacingTokens()
+      return next.xs === cur.xs && next.s === cur.s && next.m === cur.m ? cur : next
+    })
+    update()
+    if (typeof MutationObserver !== 'function') return
+    const mo = new MutationObserver(update)
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-theme-name'] })
+    return () => mo.disconnect()
+  }, [])
+  return useMemo(() => graphMetrics(tokens), [tokens])
+}
 
 /**
  * Nœud du graphe (#135) : une tâche à plat OU un EPIC — les tâches portant un
@@ -101,11 +167,11 @@ interface GraphModel {
   avail: Map<number, Availability>
 }
 
-const taskHeight = (state: Availability, blocksCount: number): number =>
-  Math.max(CARD_H, TASK_BASE_H + (state !== 'done' ? TASK_LINE_H : 0) + (blocksCount > 0 ? TASK_LINE_H : 0))
+const taskHeight = (g: GraphMetrics, state: Availability, blocksCount: number): number =>
+  Math.max(g.cardH, g.taskBaseH + (state !== 'done' ? g.taskLineH : 0) + (blocksCount > 0 ? g.taskLineH : 0))
 
-const epicHeight = (n: Extract<GNode, { kind: 'epic' }>, expandedEpics: string[]): number =>
-  expandedEpics.includes(n.slug) ? CARD_H + 1 + n.tasks.length * MEMBER_H + 4 : CARD_H
+const epicHeight = (g: GraphMetrics, n: Extract<GNode, { kind: 'epic' }>, expandedEpics: string[]): number =>
+  expandedEpics.includes(n.slug) ? g.cardH + 1 + n.tasks.length * g.memberH + 4 : g.cardH
 
 /**
  * Sélection des nœuds + arêtes (logique conservée de la v1) :
@@ -113,7 +179,7 @@ const epicHeight = (n: Extract<GNode, { kind: 'epic' }>, expandedEpics: string[]
  * membres d'epic fusionnés en nœuds-groupe. Le PLACEMENT, lui, est parti dans
  * graphLayout (dagre) — plus aucune colonne par stage ici.
  */
-export function buildGraphModel(tree: TaskTree, showDone: boolean, expandedEpics: string[]): GraphModel {
+export function buildGraphModel(tree: TaskTree, showDone: boolean, expandedEpics: string[], metrics: GraphMetrics = BASE_METRICS): GraphModel {
   const sections = tree.sections.filter((s) => s.status !== 'abandoned')
   const avail = computeAvailability(tree)
   // « Build Stage » → chip « Build » : la métadonnée reste courte sur la carte.
@@ -186,7 +252,7 @@ export function buildGraphModel(tree: TaskTree, showDone: boolean, expandedEpics
   const standaloneIds = new Set(gnodes.flatMap((n) => (n.kind === 'task' ? [n.task.id] : [])))
   const nodes: GraphNodeModel[] = gnodes.map((n) => {
     if (n.kind === 'epic') {
-      return { node: n, h: epicHeight(n, expandedEpics), state: 'available' as const, missing: [], hidden: [], blocksCount: 0, stage: null }
+      return { node: n, h: epicHeight(metrics, n, expandedEpics), state: 'available' as const, missing: [], hidden: [], blocksCount: 0, stage: null }
     }
     const t = n.task
     const state = avail.get(t.id) ?? 'available'
@@ -201,11 +267,11 @@ export function buildGraphModel(tree: TaskTree, showDone: boolean, expandedEpics
       return { id: d, epicTitle: slug ? (epicTitles.get(slug) ?? slug) : null }
     })
     const blocksCount = t.kind === 'milestone' ? reverseDependents(tree, t.id).length : 0
-    return { node: n, h: taskHeight(state, blocksCount), state, missing, hidden, blocksCount, stage: stageOfKey.get(n.key) ?? null }
+    return { node: n, h: taskHeight(metrics, state, blocksCount), state, missing, hidden, blocksCount, stage: stageOfKey.get(n.key) ?? null }
   })
 
   const input: GraphInput = {
-    nodes: nodes.map((m) => ({ id: m.node.key, width: CARD_W, height: m.h })),
+    nodes: nodes.map((m) => ({ id: m.node.key, width: metrics.cardW, height: m.h })),
     edges,
   }
   return { nodes, edges, input, avail }
@@ -238,7 +304,9 @@ export function filterGraphToEpic(
   const keep = new Set<string>([epicKey, ...borderKeys])
   const nodes = model.nodes.filter((m) => keep.has(m.node.key))
   const input: GraphInput = {
-    nodes: nodes.map((m) => ({ id: m.node.key, width: CARD_W, height: m.h })),
+    // Les largeurs/hauteurs (dérivées des tokens) sont REPRISES du modèle
+    // complet — pas de re-dérivation ici, filtre pur.
+    nodes: model.input.nodes.filter((n) => keep.has(n.id)),
     edges,
   }
   return { model: { nodes, edges, input, avail: model.avail }, borderKeys }
@@ -281,7 +349,7 @@ export function RoadmapGraph({ showDone, epicFilter, onEpicFilter }: {
   const sections = tree.sections.filter((s) => s.status !== 'abandoned')
   if (sections.every((s) => s.tasks.length === 0)) {
     return (
-      <div className="px-6 py-8 text-sm text-textsoft">
+      <div className="px-xl py-[calc(var(--spacing-xl)+var(--spacing-s))] text-sm text-textsoft">
         Nothing to display — the graph is built from tasks and their dependencies.
       </div>
     )
@@ -310,7 +378,10 @@ function GraphCanvas({ tree, showDone, selected }: { tree: TaskTree; showDone: b
     () => (selected && !expandedEpics.includes(selected) ? [...expandedEpics, selected] : expandedEpics),
     [expandedEpics, selected],
   )
-  const fullModel = useMemo(() => buildGraphModel(tree, showDone, effectiveExpanded), [tree, showDone, effectiveExpanded])
+  // Gabarits dagre dérivés des tokens spacing du thème courant (#408) : un
+  // changement de thème (échelle redéfinie) reconstruit le modèle, donc le layout.
+  const metrics = useGraphMetrics()
+  const fullModel = useMemo(() => buildGraphModel(tree, showDone, effectiveExpanded, metrics), [tree, showDone, effectiveExpanded, metrics])
   // Filtre epic (#343) : post-étape PURE sur le modèle complet — l'epic + ses
   // frontières directes. Absent du modèle (epic tout-done masqué) → pas de
   // filtre, graphe complet. NO_BORDERS a une identité stable (pas de re-render).
@@ -330,7 +401,7 @@ function GraphCanvas({ tree, showDone, selected }: { tree: TaskTree; showDone: b
   )
   if (model.nodes.length === 0) {
     return (
-      <div className="px-6 py-8 text-sm text-textsoft">
+      <div className="px-xl py-[calc(var(--spacing-xl)+var(--spacing-s))] text-sm text-textsoft">
         Nothing to display — the graph is built from tasks and their dependencies.
       </div>
     )
@@ -475,9 +546,9 @@ function GraphCard({ model, task, pos, dimmed, focused, onHoverChange }: NodeChr
     <button type="button" onClick={() => openTask(task.id)} title={task.title}
       onPointerEnter={() => onHoverChange(true)}
       onPointerLeave={() => onHoverChange(false)}
-      className={`absolute flex flex-col gap-1.5 overflow-hidden rounded-listitem px-3 py-2.5 text-left ${skin}`}
+      className={`absolute flex flex-col gap-s overflow-hidden rounded-listitem px-m py-m text-left ${skin}`}
       style={{ left: pos.x, top: pos.y, width: pos.w, minHeight: pos.h }}>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-s">
         {state === 'locked'
           ? <LockLocked size={11} className="shrink-0 text-textsoft" ariaLabel="Locked" />
           : <KindGlyph task={task} />}
@@ -508,7 +579,7 @@ function GraphCard({ model, task, pos, dimmed, focused, onHoverChange }: NodeChr
       {/* Footer chip : le stage devenu métadonnée (graph-v2 — le layout est le
           flux de dépendances). Même rendu que le Backlog : Chip (design.md §2). */}
       {model.stage !== null && (
-        <span className="mt-auto flex items-center gap-2 pt-0.5">
+        <span className="mt-auto flex items-center gap-s pt-xs">
           <Chip label={model.stage} />
         </span>
       )}
@@ -540,7 +611,7 @@ function EpicGraphNode({ epic, pos, avail, dimmed, focused, onHoverChange }: Nod
   const pct = progress.total === 0 ? 0 : Math.round((progress.done / progress.total) * 100)
   // PAS d'overflow-hidden : il clipperait l'outline :focus-visible des boutons
   // internes (en-tête + membres) → focus clavier invisible. Le rayon arrondit déjà
-  // le fond propre du nœud ; le `pb-1` du bloc membres écarte leurs coins du bas
+  // le fond propre du nœud ; le padding du bloc membres écarte leurs coins du bas
   // arrondi. Halo au POINTEUR seulement (pas onFocus) pour ne pas doubler l'outline.
   return (
     <div
@@ -556,20 +627,29 @@ function EpicGraphNode({ epic, pos, avail, dimmed, focused, onHoverChange }: Nod
         aria-expanded={open}
         data-panel-open={open ? '' : undefined}
         title={epic.title}
-        className="flex w-full flex-col gap-1.5 px-3 py-2.5 text-left"
-        style={{ minHeight: CARD_H - 2 }}
+        // Pas de minHeight figé (#408) : padding tokens + le contenu (2 lignes)
+        // déterminent la hauteur — l'estimation dagre (cardH) reste dérivée des
+        // MÊMES tokens, elles bougent ensemble au changement de thème.
+        className="flex w-full flex-col gap-s px-m py-s text-left"
       >
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-s">
           <Chevron />
           <EpicGlyph status={epicStatusOf(progress, epic.tasks)} />
           <span className="min-w-0 truncate text-sm font-medium text-texthard">{epic.title}</span>
         </div>
-        <div className="flex items-center gap-1.5 pl-[26px]">
-          <span className="text-[11px] text-textsoft">
+        {/* Indente la 2e ligne pour la glisser sous le titre, en dégageant le
+            cluster chevron+glyph de la ligne du dessus (Chevron 11 + gap-s 8 +
+            EpicGlyph 10 = ~29). L'ancien 26px arbitraire → spacing-xl (24px),
+            sur la grille, visuellement identique (le compte/jauge reste calé
+            juste avant le titre). */}
+        <div className="flex items-center gap-s pl-xl">
+          <span className="shrink-0 text-[11px] text-textsoft">
             {epic.tasks.length} task{epic.tasks.length === 1 ? '' : 's'}{partial ? ' here' : ''}
           </span>
-          <span className="ml-auto flex items-center gap-1.5">
-            <span aria-hidden className="inline-block h-1 w-14 overflow-hidden rounded-round bg-border">
+          {/* Piste de jauge en flex-1 borné (#408) — plus de largeur figée : elle
+              remplit l'espace restant de la rangée, clampée à sa largeur historique. */}
+          <span className="flex min-w-0 flex-1 items-center justify-end gap-s">
+            <span aria-hidden className="h-1 min-w-0 max-w-14 flex-1 overflow-hidden rounded-round bg-border">
               <span className="block h-full bg-accent" style={{ width: `${pct}%` }} />
             </span>
             <span
@@ -595,8 +675,9 @@ function EpicGraphNode({ epic, pos, avail, dimmed, focused, onHoverChange }: Nod
                 title={t.title}
                 // last:rounded-b-listitem : le fond du dernier membre épouse le coin
                 // bas arrondi de la carte (sans overflow-hidden, qui clipperait le focus).
-                className={`flex w-full items-center gap-2 px-3 py-1 text-left last:rounded-b-listitem ${isOpenInPanel ? 'bg-active' : 'hover:bg-rollover'}`}
-                style={{ height: MEMBER_H }}
+                // Pas de height figé (#408) : py-xs + la ligne de texte font la
+                // hauteur — l'estimation dagre (memberH) dérive des mêmes tokens.
+                className={`flex w-full items-center gap-s px-m py-xs text-left last:rounded-b-listitem ${isOpenInPanel ? 'bg-active' : 'hover:bg-rollover'}`}
               >
                 {st === 'locked'
                   ? <LockLocked size={11} className="shrink-0 text-textsoft" ariaLabel="Locked" />

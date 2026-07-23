@@ -1,3 +1,4 @@
+import { Cross } from 'trinil-react'
 import { useTree } from '../state/TreeContext'
 import { type TaskNode } from '../lib/tasks'
 import { TaskList, sortOpen, sortDone } from './TaskColumns'
@@ -5,7 +6,7 @@ import { TaskList, sortOpen, sortDone } from './TaskColumns'
 import { useTagFilter, useTypeFilter } from '../state/filters'
 import { useSearch } from '../state/search'
 import { ViewShell } from './ViewHeader'
-import { TreeStateGuard } from './ui'
+import { TreeStateGuard, Button } from './ui'
 
 /** Accord singulier/pluriel élémentaire (anglais). */
 const plural = (n: number, s: string) => `${n} ${s}${n === 1 ? '' : 's'}`
@@ -20,16 +21,9 @@ const plural = (n: number, s: string) => `${n} ${s}${n === 1 ? '' : 's'}`
  */
 function RemovableChip({ label, onRemove, ariaLabel }: { label: string; onRemove: () => void; ariaLabel: string }) {
   return (
-    <span className="inline-flex max-w-[16rem] items-center gap-1 rounded-interactive ring-1 ring-inset ring-border bg-foreground py-0.5 pl-2 pr-1 text-xs text-texthard">
+    <span className="inline-flex max-w-[16rem] items-center gap-xs rounded-interactive ring-1 ring-inset ring-border bg-foreground py-xs pl-s pr-xs text-xs text-texthard">
       <span className="min-w-0 truncate">{label}</span>
-      <button
-        type="button"
-        onClick={onRemove}
-        aria-label={ariaLabel}
-        className="flex size-4 shrink-0 items-center justify-center rounded-interactive text-textsoft transition-colors hover:bg-rollover hover:text-texthard"
-      >
-        ×
-      </button>
+      <Button variant="ghost" icon={Cross} aria-label={ariaLabel} onClick={onRemove} />
     </span>
   )
 }
@@ -115,7 +109,7 @@ export function Backlog() {
         {/* Chips de filtres actifs (#210) : toujours visibles au-dessus du scroller. */}
         {hasFilters && (
           <div className="shrink-0 bg-foreground shadow-[inset_0_-1px_0_var(--color-border)]">
-            <div className="mx-auto flex max-w-3xl flex-wrap items-center gap-1.5 px-6 py-2">
+            <div className="mx-auto flex max-w-3xl flex-wrap items-center gap-s px-xl py-s">
               {typeFilter.map((k) => (
                 <RemovableChip key={`type:${k}`} label={typeLabel.get(k) ?? k} ariaLabel={`Remove type filter: ${typeLabel.get(k) ?? k}`}
                   onRemove={() => removeFilter(() => setTypeFilter(typeFilter.filter((x) => x !== k)))} />
@@ -130,7 +124,7 @@ export function Backlog() {
               <button
                 type="button"
                 onClick={() => removeFilter(clearAll)}
-                className="ml-1 rounded-interactive px-2 py-0.5 text-xs text-textsoft transition-colors hover:bg-rollover hover:text-texthard"
+                className="ml-xs rounded-interactive px-s py-xs text-xs text-textsoft transition-colors hover:bg-rollover hover:text-texthard"
               >
                 Clear all
               </button>
@@ -142,8 +136,8 @@ export function Backlog() {
             remonte jusqu'à <html>, échappe au clip d'overflow et rend la page
             entière scrollable dans le vide. */}
         <div className="relative min-h-0 flex-1 overflow-y-auto">
-          <div className="mx-auto max-w-3xl px-6 py-8">
-            <div className="flex flex-col gap-8">
+          <div className="mx-auto max-w-3xl px-xl py-[calc(var(--spacing-xl)+var(--spacing-s))]">
+            <div className="flex flex-col gap-[calc(var(--spacing-xl)+var(--spacing-s))]">
               {/* Epics (#135) : lignes-groupe repliables DANS la liste — plus de vue
                   alternative « par epic » (#133 rejeté), le groupe est le défaut. */}
               <TaskList open={open} done={done} tree={tree} filtered={hasFilters} />

@@ -79,14 +79,16 @@ export function KbDisplayMenu() {
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Positioner sideOffset={4} align="end" className="z-50">
-          <Popover.Popup className="w-64 overflow-hidden rounded-interactive bg-foreground ring-1 ring-inset ring-border shadow-sm">
-            <div className="max-h-[60vh] overflow-y-auto px-3 py-2">
+          {/* Largeur dérivée des tokens : 16 × spacing-l = 256px (ex-w-64) — suit la
+              densité du thème au lieu d'une mesure Tailwind brute. */}
+          <Popover.Popup className="w-[calc(var(--spacing-l)*16)] overflow-hidden rounded-interactive bg-foreground ring-1 ring-inset ring-border shadow-sm">
+            <div className="max-h-[60vh] overflow-y-auto px-m py-s">
               {SLIDERS.map((s) => {
                 const cur = overrides[s.key] ?? KB_SIM[s.key]
                 const ui = s.fromParam ? s.fromParam(cur) : cur
                 return (
-                  <label key={s.key} className="block py-1.5">
-                    <span className="flex items-baseline justify-between gap-2 text-xs text-textsoft">
+                  <label key={s.key} className="block py-s">
+                    <span className="flex items-baseline justify-between gap-s text-xs text-textsoft">
                       <span>{s.label}</span>
                       <span className="font-mono text-[11px] text-textsoft">{s.fmt(ui)}</span>
                     </span>
@@ -98,7 +100,7 @@ export function KbDisplayMenu() {
                       value={ui}
                       onChange={(e) => setParam(s, Number(e.target.value))}
                       aria-label={s.label}
-                      className="mt-1 block w-full accent-accent"
+                      className="mt-xs block w-full accent-accent"
                     />
                   </label>
                 )
@@ -108,7 +110,7 @@ export function KbDisplayMenu() {
               type="button"
               onClick={() => setKbSimOverrides({})}
               disabled={!dirty}
-              className="flex w-full shadow-[inset_0_1px_0_var(--color-border)] px-3 py-1.5 text-left text-xs text-textsoft transition-colors enabled:hover:bg-rollover enabled:hover:text-texthard disabled:text-textsoft"
+              className="flex w-full shadow-[inset_0_1px_0_var(--color-border)] px-m py-s text-left text-xs text-textsoft transition-colors enabled:hover:bg-rollover enabled:hover:text-texthard disabled:text-textsoft"
             >
               Reset defaults
             </button>

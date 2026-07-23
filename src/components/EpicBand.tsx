@@ -91,21 +91,21 @@ function EpicCard({ item, active, onSelect }: {
       onClick={() => onSelect(active ? null : item.slug)}
       aria-pressed={active}
       title={`${item.title} — ${item.progress.done}/${item.progress.total} tasks done. ${active ? 'Click to show every epic again.' : 'Click to filter the columns on this epic.'}`}
-      className={`rm-list-item flex w-48 flex-col gap-0.5 px-2.5 py-1.5 text-left transition-colors ${
+      className={`rm-list-item flex min-w-0 max-w-64 flex-col gap-xs px-m py-s text-left transition-colors ${
         active ? 'bg-active font-medium' : 'hover:bg-rollover'
       }`}
     >
-      <span className="flex items-center gap-1.5">
+      <span className="flex items-center gap-s">
         <EpicGlyph status={item.status} />
-        <span className={`min-w-0 truncate text-[13px] font-medium ${isDone ? 'text-textsoft line-through' : 'text-texthard'}`}>
+        <span className={`min-w-0 truncate text-sm font-medium ${isDone ? 'text-textsoft line-through' : 'text-texthard'}`}>
           {item.title}
         </span>
       </span>
-      <span className="flex w-full items-center gap-1.5">
+      <span className="flex w-full items-center gap-s">
         <span className="min-w-0 truncate text-[11px] text-textsoft">
           {pills || 'all done'}
         </span>
-        <span className="ml-auto flex shrink-0 items-center gap-1.5">
+        <span className="ml-auto flex shrink-0 items-center gap-s">
           <EpicProgressBar done={item.progress.done} total={item.progress.total} />
           <span className="font-mono text-[11px] text-textsoft">
             {item.progress.done}/{item.progress.total}
@@ -142,11 +142,11 @@ export function EpicBand({ items, doneItems = [], selected, onSelect }: {
   const selectedItem = [...items, ...doneItems].find((i) => i.slug === selected) ?? null
   return (
     <Collapsible.Root open={!collapsed} onOpenChange={(o) => setCollapsed(!o)}>
-      <div className="shrink-0 shadow-[inset_0_-1px_0_var(--color-border)] px-6 py-1.5">
-        <div className="flex items-center gap-2">
+      <div className="shrink-0 shadow-[inset_0_-1px_0_var(--color-border)] px-xl py-s">
+        <div className="flex items-center gap-s">
           <Collapsible.Trigger
             title="Epics — click a card to filter the board"
-            className="flex items-center gap-1.5 rounded-interactive px-1 py-0.5 text-xs font-medium text-textsoft transition-colors hover:bg-rollover hover:text-texthard"
+            className="flex items-center gap-s rounded-interactive px-xs py-xs text-xs font-medium text-textsoft transition-colors hover:bg-rollover hover:text-texthard"
           >
             <Chevron />
             Epics
@@ -160,7 +160,7 @@ export function EpicBand({ items, doneItems = [], selected, onSelect }: {
               type="button"
               onClick={() => onSelect(null)}
               title="Clear the epic filter"
-              className="flex min-w-0 items-center gap-1 rounded-interactive bg-active px-2 py-0.5 text-[11px] text-texthard transition-colors hover:bg-rollover"
+              className="flex min-w-0 items-center gap-xs rounded-interactive bg-active px-s py-xs text-[11px] text-texthard transition-colors hover:bg-rollover"
             >
               <span className="min-w-0 truncate">{selectedItem.title}</span>
               <span aria-hidden>×</span>
@@ -169,7 +169,7 @@ export function EpicBand({ items, doneItems = [], selected, onSelect }: {
         </div>
         <Collapsible.Panel>
           {/* Hauteur bornée + scroll interne (#245) : ~2 rangées de cartes visibles. */}
-          <div className="max-h-32 overflow-y-auto pb-1 pt-1.5">
+          <div className="max-h-32 overflow-y-auto pb-xs pt-s">
             <div className="rm-list-row">
               {items.map((item) => (
                 <EpicCard key={item.slug} item={item} active={selected === item.slug} onSelect={onSelect} />
@@ -180,7 +180,7 @@ export function EpicBand({ items, doneItems = [], selected, onSelect }: {
                   aria-expanded={showDoneEpics}
                   onClick={() => setShowDoneEpics(!showDoneEpics)}
                   title={showDoneEpics ? 'Fold the completed epics' : 'Unfold the completed epics'}
-                  className="rm-list-item flex items-center px-2.5 text-xs text-textsoft transition-colors hover:bg-rollover hover:text-texthard"
+                  className="rm-list-item flex items-center px-m text-xs text-textsoft transition-colors hover:bg-rollover hover:text-texthard"
                 >
                   {showDoneEpics ? '− done' : `+ ${doneItems.length} done`}
                 </button>

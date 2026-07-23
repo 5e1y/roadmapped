@@ -28,15 +28,15 @@ export function KbView() {
   const typeOpts = useMemo(() => (graph ? fileTypeOptions(graph.nodes) : []), [graph])
 
   if (loading && !graph) {
-    return <div className="mx-auto max-w-2xl px-6 py-8 text-sm text-textsoft">Loading…</div>
+    return <div className="mx-auto max-w-2xl px-xl py-[calc(var(--spacing-xl)+var(--spacing-s))] text-sm text-textsoft">Loading…</div>
   }
 
   if (error) {
     return (
-      <div className="mx-auto max-w-2xl px-6 py-8">
+      <div className="mx-auto max-w-2xl px-xl py-[calc(var(--spacing-xl)+var(--spacing-s))]">
         <h1 className="text-lg font-semibold tracking-tight text-texthard">graph.json unreadable</h1>
-        <p className="mt-1 text-sm text-textsoft">Regenerate the graph with <code className="font-mono">/graphify .</code>.</p>
-        <div className="mt-3"><ErrorBanner errors={[error]} /></div>
+        <p className="mt-xs text-sm text-textsoft">Regenerate the graph with <code className="font-mono">/graphify .</code>.</p>
+        <div className="mt-m"><ErrorBanner errors={[error]} /></div>
       </div>
     )
   }
@@ -62,14 +62,14 @@ export function KbView() {
   return (
     <div className="flex h-full flex-col">
       {/* Barre d'outils KB : recherche à gauche, filtres + stats à droite. */}
-      <div className="flex shrink-0 flex-wrap items-center gap-2 shadow-[inset_0_-1px_0_var(--color-border)] bg-foreground px-4 py-1.5">
+      <div className="flex shrink-0 flex-wrap items-center gap-s shadow-[inset_0_-1px_0_var(--color-border)] bg-foreground px-l py-s">
         <input
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search nodes…"
           aria-label="Search knowledge base nodes"
-          className="w-48 rounded-interactive ring-1 ring-inset ring-border bg-foreground px-2.5 py-1 text-xs text-texthard placeholder:text-textsoft"
+          className="min-w-0 flex-1 max-w-64 appearance-none rounded-interactive ring-1 ring-inset ring-border bg-foreground px-m py-xs text-xs text-texthard placeholder:text-textsoft"
         />
         <FilterMenu
           allLabel="All communities"
@@ -99,11 +99,11 @@ export function KbView() {
             persistés (ui:kb-graph-params) — pill accent quand customisés. */}
         <KbDisplayMenu />
 
-        <div className="ml-auto flex items-center gap-3 font-mono text-[11px] text-textsoft">
+        <div className="ml-auto flex items-center gap-m font-mono text-[11px] text-textsoft">
           {stale && (
             // Badge INERTE (#380) : registre neutre, PAS le costume accent d'un toggle
             // enclenché — c'est un avertissement statique, pas un contrôle actif.
-            <span className="rounded-interactive ring-1 ring-inset ring-border bg-background px-1.5 py-0.5 text-textsoft" title="The corpus changed since generation — run /graphify --update">
+            <span className="rounded-interactive ring-1 ring-inset ring-border bg-background px-s py-xs text-textsoft" title="The corpus changed since generation — run /graphify --update">
               maybe stale
             </span>
           )}
@@ -128,26 +128,26 @@ export function KbView() {
  */
 function KbHero() {
   return (
-    <div className="mx-auto flex h-full max-w-xl flex-col justify-center px-6 py-8">
-      <div className="mb-3">
+    <div className="mx-auto flex h-full max-w-xl flex-col justify-center px-xl py-[calc(var(--spacing-xl)+var(--spacing-s))]">
+      <div className="mb-m">
         <GraphifyMark size={28} />
       </div>
       <h1 className="text-lg font-semibold tracking-tight text-texthard">Knowledge base — not generated yet</h1>
-      <p className="mt-2 text-sm text-textsoft">
+      <p className="mt-s text-sm text-textsoft">
         The graph is built with Graphify (open source, MIT), from Claude Code:
       </p>
-      <pre className="mt-3 overflow-x-auto ring-1 ring-inset ring-border bg-background px-3 py-2 font-mono text-xs text-texthard">
+      <pre className="mt-m overflow-x-auto ring-1 ring-inset ring-border bg-background px-m py-s font-mono text-xs text-texthard">
 {`pip install graphifyy && graphify install   # once
 /graphify .                                 # in Claude Code, at the root`}
       </pre>
-      <p className="mt-3 text-sm text-textsoft">
+      <p className="mt-m text-sm text-textsoft">
         The dashboard will read <code className="font-mono">graphify-out/graph.json</code> automatically.
       </p>
       <a
         href="https://github.com/Graphify-Labs/graphify"
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-3 self-start rounded-interactive ring-1 ring-inset ring-border bg-foreground px-2.5 py-1 text-xs text-textsoft transition-colors hover:bg-rollover"
+        className="mt-m self-start rounded-interactive ring-1 ring-inset ring-border bg-foreground px-m py-xs text-xs text-textsoft transition-colors hover:bg-rollover"
       >
         Learn more about Graphify ↗
       </a>

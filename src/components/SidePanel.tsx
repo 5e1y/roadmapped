@@ -1,9 +1,10 @@
 import { useEffect, useRef, type ReactNode } from 'react'
 import { ArrowLeft, Cross } from 'trinil-react'
+import { Button } from './ui'
 
 /**
- * Coquille d'un panneau latéral droit : largeur fixe 380px, fond blanc, filet
- * à gauche. Entièrement pilotée par PROPS (découplée de PanelContext, #313) :
+ * Coquille d'un panneau latéral droit : dimensionnement flex clampé
+ * (basis 380px, borné 320–420px), fond blanc, filet à gauche. Entièrement pilotée par PROPS (découplée de PanelContext, #313) :
  * PanelHost peut en rendre DEUX côte à côte (mode double kb-node + task) sans
  * qu'elles se marchent dessus.
  *
@@ -96,32 +97,16 @@ export function SidePanel({
       role="dialog"
       aria-label={title}
       tabIndex={-1}
-      className="flex w-[380px] shrink-0 flex-col shadow-[inset_1px_0_0_var(--color-border)] bg-foreground focus:outline-none"
+      className="flex min-w-[320px] max-w-[420px] shrink basis-[380px] flex-col shadow-[inset_1px_0_0_var(--color-border)] bg-foreground focus:outline-none"
     >
-      <header className="flex h-12 shrink-0 items-center justify-between shadow-[inset_0_-1px_0_var(--color-border)] px-4">
-        <div className="flex min-w-0 items-center gap-2">
-          {onBack && (
-            <button
-              type="button"
-              onClick={onBack}
-              aria-label="Back"
-              className="rounded-interactive p-1 text-textsoft transition-colors hover:bg-rollover hover:text-texthard"
-            >
-              <ArrowLeft size={14} />
-            </button>
-          )}
+      <header className="flex shrink-0 items-center justify-between shadow-[inset_0_-1px_0_var(--color-border)] px-l py-s">
+        <div className="flex min-w-0 items-center gap-s">
+          {onBack && <Button variant="ghost" icon={ArrowLeft} aria-label="Back" title="Back" onClick={onBack} />}
           <h2 className="truncate text-sm font-semibold tracking-tight text-texthard">{title}</h2>
         </div>
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Close panel"
-          className="rounded-interactive p-1 text-textsoft transition-colors hover:bg-rollover hover:text-texthard"
-        >
-          <Cross size={13} />
-        </button>
+        <Button variant="ghost" icon={Cross} aria-label="Close panel" title="Close panel" onClick={onClose} />
       </header>
-      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">{children}</div>
+      <div className="min-h-0 flex-1 overflow-y-auto p-l">{children}</div>
     </aside>
   )
 }

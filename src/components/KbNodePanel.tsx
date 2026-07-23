@@ -32,10 +32,10 @@ export function KbNodePanel({ nodeId }: { nodeId: string }) {
   }
 
   return (
-    <div className="flex min-h-full flex-col gap-5">
-      <div className="flex flex-col gap-1.5">
+    <div className="flex min-h-full flex-col gap-xl">
+      <div className="flex flex-col gap-s">
         <h2 className="text-base font-semibold leading-snug tracking-tight text-texthard">{node.label}</h2>
-        <div className="flex items-center gap-2 text-[11px] text-textsoft">
+        <div className="flex items-center gap-s text-[11px] text-textsoft">
           <span className="font-mono">{node.fileType}</span>
           {node.community >= 0 && <span className="font-mono">community {node.community}</span>}
         </div>
@@ -43,33 +43,33 @@ export function KbNodePanel({ nodeId }: { nodeId: string }) {
 
       {/* Fichier source : cliquable (code → reveal, doc → Vue Docs). */}
       {node.sourceFile && (
-        <div className="flex flex-col gap-0.5">
-          <div className="px-1.5 text-[11px] font-medium text-textsoft">Source</div>
+        <div className="flex flex-col gap-xs">
+          <div className="px-s text-[11px] font-medium text-textsoft">Source</div>
           <button
             type="button"
             onClick={() => openKbNodeSource(node, root, close)}
             title={node.sourceFile}
-            className="flex min-w-0 items-baseline gap-2 rounded-interactive px-1.5 py-1 text-left font-mono text-xs text-texthard underline decoration-textsoft underline-offset-2 transition-colors hover:bg-rollover"
+            className="flex min-w-0 items-baseline gap-s rounded-interactive px-s py-xs text-left font-mono text-xs text-texthard underline decoration-textsoft underline-offset-2 transition-colors hover:bg-rollover"
           >
             <span className="min-w-0 truncate">{node.sourceFile}</span>
-            {node.sourceLocation && <span className="shrink-0 text-neutral-400">{node.sourceLocation}</span>}
+            {node.sourceLocation && <span className="shrink-0 text-textsoft">{node.sourceLocation}</span>}
           </button>
         </div>
       )}
 
       {/* Rationale (le POURQUOI, quand Graphify l'a attaché sur un nœud de doc). */}
       {node.rationale && (
-        <div className="flex flex-col gap-0.5">
-          <div className="px-1.5 text-[11px] font-medium text-textsoft">Rationale</div>
-          <p className="px-1.5 text-sm text-texthard">{node.rationale}</p>
+        <div className="flex flex-col gap-xs">
+          <div className="px-s text-[11px] font-medium text-textsoft">Rationale</div>
+          <p className="px-s text-sm text-texthard">{node.rationale}</p>
         </div>
       )}
 
       {/* Tickets touching this — index inverse kbLink. */}
-      <div className="flex flex-col gap-1">
-        <div className="px-1.5 text-[11px] font-medium text-textsoft">Tickets touching this</div>
+      <div className="flex flex-col gap-xs">
+        <div className="px-s text-[11px] font-medium text-textsoft">Tickets touching this</div>
         {tickets.length === 0 ? (
-          <p className="px-1.5 text-xs text-textsoft">No ticket references this file.</p>
+          <p className="px-s text-xs text-textsoft">No ticket references this file.</p>
         ) : (
           <div className="flex flex-col">
             {tickets.map((id) => {
@@ -79,7 +79,7 @@ export function KbNodePanel({ nodeId }: { nodeId: string }) {
                   key={id}
                   type="button"
                   onClick={() => openTask(id)}
-                  className="flex min-w-0 items-center gap-2 px-1.5 py-1 text-left text-sm hover:bg-rollover"
+                  className="flex min-w-0 items-center gap-s px-s py-xs text-left text-sm hover:bg-rollover"
                 >
                   {t && <KindGlyph task={t} />}
                   <span className="shrink-0 font-mono text-xs text-textsoft">#{id}</span>

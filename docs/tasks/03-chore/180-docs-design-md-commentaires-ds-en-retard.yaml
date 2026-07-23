@@ -1,0 +1,47 @@
+id: 398
+title: >-
+  docs/design.md + commentaires DS en retard sur #396 (Action découplé, --color-highlight,
+  accent-tint overlay)
+status: done
+tags:
+  - ds
+  - docs
+heat: 100
+detail: >-
+  Repéré en marge de #397, ré-vérifié le 23/07 avant exécution — le scope a GRANDI depuis le dépôt
+  initial : 2 des 4 points d'origine sont déjà corrigés (ErrorBanner ui.tsx fixé lors de #426 ; le
+  commentaire --color-neutral-50 d'index.css n'existe plus du tout, toute la couche de primitives
+  neutral-N a été supprimée par #405). docs/design.md §1 est donc DOUBLEMENT en retard : (1)
+  toujours 'Colors (9)' au lieu de 10 (manque --color-highlight) et décrit encore Action comme
+  systématiquement lié à l'accent sans mentionner le découplage (thème github) ; (2) surtout, TOUTE
+  la doc §1 décrit encore l'ANCIENNE couche de primitives (neutral-50, neutral-500, --color-page
+  comme primitive séparée de Background...) alors que #405 a supprimé cette couche : les thèmes
+  posent désormais les 10 rôles sémantiques en valeurs LITTÉRALES directes, sans primitives nommées
+  par position. La table de mapping 'rôle → primitive' n'a plus de sens telle quelle. Objectif :
+  réécrire design.md §1 pour qu'il reflète l'état RÉEL du contrat de tokens (voir src/index.css
+  @theme + les 5 thèmes intégrés + src/components/DesignSystemView.tsx qui, lui, est déjà à jour et
+  peut servir de référence vivante).
+refs:
+  - docs/design.md
+links: []
+dependsOn: []
+epic: theming-foundations
+source: ai
+createdAt: "2026-07-23T18:51:19"
+startedAt: "2026-07-23T23:59:50"
+updatedAt: "2026-07-24T00:05:37"
+completedAt: "2026-07-24T00:05:36"
+commit: 345fcb2
+outcome: >-
+  docs/design.md §1 réécrit entièrement pour matcher l'état réel du contrat : 10 couleurs (Highlight
+  ajouté), suppression de la section 'underlying primitives' obsolète depuis #405 (remplacée par
+  'Color doctrine — one accent, monochrome elsewhere' décrivant l'architecture littérale actuelle),
+  4 thèmes intégrés au lieu de 5 (Codex retiré partout dans le fichier), Action documenté comme
+  découplable de l'accent (exemple github vivant), toutes les valeurs numériques revérifiées contre
+  src/index.css (aucune devinée). Nettoyage annexe : header blurb, §2 bouton primary, §4 Settings,
+  canonical templates.
+verification: >-
+  Vérifié après coup : 'Colors (10)' présent, zéro mention de Codex comme thème actif, section
+  'underlying primitives' remplacée par 'Color doctrine'. Pas de build/test applicable (fichier
+  markdown seul).
+release: 0.3.0

@@ -1,0 +1,38 @@
+id: 410
+title: >-
+  Tokeniser dimensions+paddings — Primitives DS (ui.tsx, Chip, ThemePicker, ThemeToggle, glyphs) :
+  les 5 peaux canoniques (fieldCls/ghostCls/primaryBtn/actionBtn/togglePillCls) sur l'échelle
+  Tailwind au lieu des tokens spacing — cause racine du symptôme
+status: done
+tags:
+  - ds
+  - theming
+detail: >-
+  Suite de l'audit #408 (findings détaillés dans son outcome + le journal du workflow
+  wf_16ada12c-329, groupe 'core-primitives'). Deux volets sur ce lot de fichiers : (1) corriger les
+  dimensions figées cataloguées par l'audit pour ce groupe (h-*/w-*/size-*/style inline →
+  flex+padding-token ou clamp min/max légitime) ; (2) migrer TOUT padding/gap/margin sur l'échelle
+  Tailwind numérique par défaut (px-2.5, py-1, gap-2, px-4...) vers les utilitaires token
+  (px-xs/s/m/l/xl) selon la table de correspondance validée (arrondi au token le plus proche,
+  égalité tranchée vers le haut ; hors-échelle >24px composé en calc() de tokens plutôt que clampé).
+refs:
+  - src/components/ui.tsx
+  - src/components/ThemePicker.tsx
+  - src/components/ThemeToggle.tsx
+  - src/components/Chip.tsx
+links: []
+dependsOn: []
+epic: theming-foundations
+source: ai
+createdAt: "2026-07-23T19:55:40"
+startedAt: "2026-07-23T19:55:50"
+updatedAt: "2026-07-23T20:09:46"
+completedAt: "2026-07-23T20:09:45"
+commit: 345fcb2
+outcome: >-
+  Core-primitives : les 5 peaux canoniques de ui.tsx
+  (fieldCls/ghostCls/primaryBtn/actionBtn/togglePillCls) migrées sur les tokens spacing — cause
+  racine du symptôme déclencheur corrigée. Popup ThemePicker, Toast.Viewport, TextArea/AutoTextArea
+  (rows au lieu de min-h en dur) traités.
+verification: tsc -b clean, suite complète 58/58 fichiers 742/742 tests verts.
+release: 0.3.0

@@ -1,0 +1,36 @@
+id: 417
+title: "Thème Cursor : ajuster tokens au vrai outil (radii CTA/inputs 24px, palette moins beige que perçu)"
+status: done
+tags:
+  - theming
+detail: >-
+  Screenshot fourni (Customize/Plugins de Cursor) : le mainteneur note que la DA de marque de Cursor
+  est perçue 'un peu beige' mais l'outil réel est 'presque blanc pur'. Radii explicites :
+  --radius-interactive (CTA/inputs) → 24px. Les autres rayons (listitem/surface) à augmenter un peu
+  (pas de valeur imposée, jugement sur le screen). Séparateurs/bordures notés TRÈS légers dans le
+  vrai outil (à vérifier si --color-border doit s'adoucir). Spacing probablement déjà correct (à
+  confirmer, pas de changement présumé). Accent reste noir (CTA confirmés noirs sur le screen, ne
+  pas changer --color-accent sans raison). Étudier le screenshot en détail, passer sur chaque token
+  (les 9 rôles + 4 rayons + 6 spacing du thème cursor, clair ET sombre) et ne changer que ce qui ne
+  colle pas, en restant strictement dans le contrat de tokens sémantiques partagé.
+refs:
+  - src/index.css
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-23T20:24:19"
+startedAt: "2026-07-23T20:24:24"
+updatedAt: "2026-07-23T20:32:31"
+completedAt: "2026-07-23T20:32:26"
+commit: 345fcb2
+outcome: >-
+  Thème cursor recalibré par échantillonnage pixel du screenshot (PIL, échelle des feux macOS).
+  Confirmé : outil quasi blanc (background #f6f5f5), rail plus foncé (foreground #ececed, inversion
+  façon github), tout neutre (aucun beige mesuré nulle part, y compris le CTA noir #141414).
+  Bordures adoucies (#dcdcdd), textsoft regréci pour tenir le plancher 4,5:1 sur le foreground
+  grisé. Radii : interactive 4→24px (demande produit, confirmé par la searchbar/CTA/pills en pilule
+  sur le screenshot), listitem 2→6px, surface 4→8px. Bloc sombre en miroir. Accent/spacing confirmés
+  déjà corrects, inchangés.
+verification: tsc -b clean, theme.test.ts 8/8.
+release: 0.3.0

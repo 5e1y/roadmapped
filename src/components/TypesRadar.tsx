@@ -50,11 +50,11 @@ export function TypesRadar({ counts }: {
     <div className="relative aspect-square w-full" role="img" aria-label="Open tickets by type">
       <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="absolute inset-[15%] h-[70%] w-[70%] overflow-visible" aria-hidden="true">
         {Array.from({ length: RINGS }, (_, k) => (
-          <polygon key={k} points={ringPath(((k + 1) / RINGS) * R)} fill="none" stroke="var(--color-neutral-200)" strokeWidth={1} vectorEffect="non-scaling-stroke" />
+          <polygon key={k} points={ringPath(((k + 1) / RINGS) * R)} fill="none" stroke="var(--color-border)" strokeWidth={1} vectorEffect="non-scaling-stroke" />
         ))}
         {TYPE_META.map((_, i) => {
           const [x, y] = vertex(i, R)
-          return <line key={i} x1={CX} y1={CY} x2={x} y2={y} stroke="var(--color-neutral-200)" strokeWidth={1} vectorEffect="non-scaling-stroke" />
+          return <line key={i} x1={CX} y1={CY} x2={x} y2={y} stroke="var(--color-border)" strokeWidth={1} vectorEffect="non-scaling-stroke" />
         })}
         {/* Le polygone de charge = LA donnée, en ACCENT (#395, Rémi) : le radar
             n'a plus de sélection à réserver l'accent (labels en lecture), autant
@@ -80,7 +80,7 @@ export function TypesRadar({ counts }: {
               top: `${50 + sin * 38}%`,
               transform: 'translate(-50%, -50%)',
             }}
-            className="absolute flex items-center gap-1 whitespace-nowrap rounded-interactive bg-foreground px-1.5 py-0.5 text-[11px] text-texthard ring-1 ring-inset ring-border"
+            className="absolute flex items-center gap-xs whitespace-nowrap rounded-interactive bg-foreground px-s py-xs text-[11px] text-texthard ring-1 ring-inset ring-border"
           >
             <Icon size={11} className="text-textsoft" />
             {t.label}

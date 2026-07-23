@@ -1,0 +1,37 @@
+id: 397
+title: "Page Design System (DesignSystemView) : remettre à jour avec les derniers changements DS/theming"
+status: done
+tags:
+  - ds
+  - theming
+detail: >-
+  Le living styleguide (#388) doit refléter TOUT ce qui a changé côté tokens/DS depuis sa création,
+  pas seulement la session en cours : le registre de thèmes intégrés (#394,
+  roadmapped/cursor/claude/codex/github), l'allègement/refonte DS-UX (#395, release 0.3.0), et les
+  derniers ajustements du thème github (#396 : --color-action découplé de l'accent,
+  --color-highlight comme marque de nav active, --color-accent-tint devenu overlay translucide au
+  lieu d'une teinte). Vérifier que COLOR_TOKENS/COLOR_ROLES et toute section pertinente de
+  src/components/DesignSystemView.tsx couvrent ces nouvelles clés et ce nouveau sélecteur de thème
+  (data-theme-name), et que rien n'y est resté obsolète ou trompeur (design.md fait foi).
+refs:
+  - src/components/DesignSystemView.tsx
+  - docs/design.md
+links: []
+dependsOn: []
+epic: ds-consistency
+source: ai
+createdAt: "2026-07-23T18:43:02"
+startedAt: "2026-07-23T18:43:07"
+updatedAt: "2026-07-23T18:51:08"
+completedAt: "2026-07-23T18:51:02"
+commit: 345fcb2
+outcome: >-
+  DesignSystemView.tsx remis à jour depuis les vrais tokens/composants : grille des 9 couleurs
+  sémantiques + highlight (au lieu des seules primitives), nouvelle section Theming
+  (ThemeToggle+ThemePicker réels, 5 thèmes, readout live data-theme + data-theme-name),
+  rayons/spacing corrigés (4 vrais tokens + 6 spacing en barres à largeur réelle), section liste
+  tokenisée (.rm-list/.rm-nest, ring en box-shadow), plusieurs textes trompeurs corrigés (trait
+  gauche retiré #395, Rollover=overlay pas neutral-100, ErrorBanner=inset accent, SVG data-viz sans
+  neutral-* brut, Section en rounded-surface).
+verification: tsc -b clean. Suite complète 58 fichiers / 742 tests verts (smoke test existant intact).
+release: 0.3.0
