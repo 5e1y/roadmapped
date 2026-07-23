@@ -2,6 +2,7 @@ import { type ComponentType } from 'react'
 import { Dashboard, List, LayoutColumns, GitBranch, NodeGraph, Pulse, FileDoc, Pencil, Gear } from 'trinil-react'
 import { useView, type View } from '../state/ViewContext'
 import { useLiveActivity } from '../state/LiveActivity'
+import { useOptionalTreeState } from '../state/TreeContext'
 import { BirdMascot } from './BirdMascot'
 
 // Icônes du rail = trinil-react (la lib d'icônes de l'app, cf. header/Backlog/…) :
@@ -11,8 +12,9 @@ type NavItem = { id: View; label: string; Icon: ComponentType<{ size?: number }>
 
 // Deux groupes séparés par un filet, comme le rail Figma sépare File/Agents/Assets
 // des Variables : d'abord le TRAVAIL (Backlog, Roadmap, Dépendances), puis
-// l'EXPLORATION (Graphe, Docs, Notes). Labels COURTS pour tenir sous l'icône dans
-// une bande de 64 px, mais toujours du texte visible (jamais d'icône seule).
+// l'EXPLORATION (Graphe, Docs, Notes). Labels COURTS pour tenir sous l'icône —
+// c'est le label le plus large qui dimensionne le rail (plus de w-16 figé) —
+// mais toujours du texte visible (jamais d'icône seule).
 const WORK: NavItem[] = [
   { id: 'overview', label: 'Overview', Icon: Dashboard },
   { id: 'backlog', label: 'Backlog', Icon: List },
@@ -27,10 +29,11 @@ const EXPLORE: NavItem[] = [
 ]
 
 /** Filet de séparation du rail (mascotte↔items, groupe travail↔exploration).
- *  Plus d'air AU-DESSUS (mt-3) qu'en-dessous : détache le filet de l'élément qui
- *  le précède (mascotte / dernier item du groupe) sans l'éloigner du suivant. */
+ *  Plus d'air AU-DESSUS (mt-m) qu'en-dessous : détache le filet de l'élément qui
+ *  le précède (mascotte / dernier item du groupe) sans l'éloigner du suivant.
+ *  self-stretch + mx-xs : la largeur suit celle du rail (plus de w-7 figé). */
 function Rule() {
-  return <div className="mb-1 mt-3 h-px w-7 shrink-0 bg-border" aria-hidden="true" />
+  return <div className="mx-xs mb-xs mt-m h-px shrink-0 self-stretch bg-border" aria-hidden="true" />
 }
 
 /**
@@ -40,8 +43,9 @@ function Rule() {
  *
  * En tête : la mascotte pixel (le « logo » du rail — elle a QUITTÉ le header pour
  * ne pas être dupliquée ; le header garde le titre marque × repo). Puis les 6 vues
- * empilées, icône AU-DESSUS d'un label court. Actif = accent (doctrine monochrome
- * + accent rare : l'accent ne sert QUE l'état actif), le reste en gris neutre.
+ * empilées, icône AU-DESSUS d'un label court. Actif = `text-highlight` (#396 :
+ * alias sur accent partout sauf où un thème le redéfinit, ex. GitHub → corail —
+ * doctrine monochrome + marque rare inchangée), le reste en gris neutre.
  *
  * A11y : <nav aria-label="Vues"> ; l'item courant porte aria-current="page" ; focus
  * clavier visibles (règle :focus-visible globale, index.css) ; cibles ≥ 40 px ;
@@ -56,28 +60,33 @@ function NavButton({ item }: { item: NavItem }) {
   // (tests / build démo) : useLiveActivity() = null → pas de point.
   const unread = useLiveActivity()?.unread ?? 0
   const showDot = item.id === 'activity' && unread > 0 && !active
+  // Point accent sur Settings quand une MAJ est disponible (#432) — même source
+  // de vérité que UpdateNotice : useTree().update, non-null = MAJ dispo. Hors
+  // provider (tests / build démo) : useOptionalTreeState() = null → pas de point.
+  const update = useOptionalTreeState()?.update ?? null
+  const showUpdateDot = item.id === 'settings' && update !== null && !active
   return (
     <button
       type="button"
       onClick={() => setView(item.id)}
       aria-current={active ? 'page' : undefined}
-      className="group flex w-full flex-col items-center gap-1 py-1 text-[11px] font-medium leading-none"
+      className="group flex w-full flex-col items-center gap-xs py-xs text-[11px] font-medium leading-none"
     >
       {/* Highlight UNIQUEMENT derrière l'icône (façon Figma) : carré arrondi qui
           réagit au survol (group-hover) et à l'état actif — le label reste du
           texte nu. La cible cliquable reste le bouton entier (icône + label). */}
       <span
-        className={`relative flex size-9 items-center justify-center rounded-interactive transition-colors ${
+        className={`relative flex items-center justify-center rounded-interactive p-s transition-colors ${
           active
-            ? 'bg-active text-accent'
+            ? 'bg-active text-highlight'
             : 'text-textsoft group-hover:bg-rollover group-hover:text-texthard'
         }`}
       >
         <Icon size={18} />
-        {showDot && (
+        {(showDot || showUpdateDot) && (
           <span
-            className="absolute right-1 top-1 size-1.5 rounded-round bg-accent"
-            aria-label={`${unread} unread`}
+            className="absolute right-1 top-1 size-[calc(var(--spacing-xs)*1.5)] rounded-round bg-accent"
+            aria-label={showDot ? `${unread} unread` : 'Update available'}
           />
         )}
       </span>
@@ -90,28 +99,28 @@ export function NavRail() {
   return (
     <nav
       aria-label="Vues"
-      className="flex h-full w-16 shrink-0 flex-col items-center gap-1 shadow-[inset_-1px_0_0_var(--color-border)] bg-foreground px-2 py-3"
+      className="flex h-full shrink-0 flex-col items-center gap-xs shadow-[inset_-1px_0_0_var(--color-border)] bg-foreground px-xs py-m"
     >
       {/* Mascotte = le logo en tête du rail (comme Figma). Décorative (aria-hidden
           dans le composant) — c'est le titre du header qui nomme l'app. */}
       <BirdMascot />
       {/* Séparateur mascotte ↕ navigation (#372) : détache le logo des vues. */}
       <Rule />
-      <div className="flex w-full flex-col gap-1">
+      <div className="flex w-full flex-col gap-xs">
         {WORK.map((item) => (
           <NavButton key={item.id} item={item} />
         ))}
       </div>
       {/* Filet de groupe : travail ↕ exploration. */}
       <Rule />
-      <div className="flex w-full flex-col gap-1">
+      <div className="flex w-full flex-col gap-xs">
         {EXPLORE.map((item) => (
           <NavButton key={item.id} item={item} />
         ))}
       </div>
       {/* Settings ancré EN BAS du rail (#395) : thème + signalement de bug + MAJ.
           mt-auto pousse le groupe tout en bas. */}
-      <div className="mt-auto flex w-full flex-col gap-1">
+      <div className="mt-auto flex w-full flex-col gap-xs">
         <NavButton item={{ id: 'settings', label: 'Settings', Icon: Gear }} />
       </div>
     </nav>

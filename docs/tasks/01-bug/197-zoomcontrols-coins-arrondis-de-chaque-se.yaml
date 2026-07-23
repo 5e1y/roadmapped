@@ -1,0 +1,49 @@
+id: 428
+title: >-
+  ZoomControls : coins arrondis de chaque segment visibles individuellement sur les thèmes à radius
+  élevé
+status: done
+tags:
+  - ds
+detail: >-
+  Screenshot fourni par Rémi (barre −/Fit/100%/+ des canvas KbGraph/RoadmapGraph). Chaque Button
+  (variant ghost, composant unifié #419/#420) applique SA PROPRE rounded-interactive, et le
+  conteneur ne fait qu'un overflow-hidden rounded-interactive autour du tout — les coins internes de
+  chaque segment restent visibles individuellement au lieu de former une seule pilule cohérente avec
+  seulement les 2 coins extérieurs arrondis. Très visible sur les thèmes à radius-interactive élevé
+  (cursor 16px, github 12px), presque invisible en dessous (base/codex 6px, claude 8px) — d'où "un
+  peu bugué sur les thèmes arrondis". Fichier : src/components/ZoomControls.tsx. Aucun autre groupe
+  de boutons segmentés similaire ailleurs dans l'app (vérifié) — portée isolée à ce composant, mais
+  si le fix introduit une capacité générique sur Button (variant de coin, prop pour désactiver le
+  radius individuel...), la documenter clairement pour réutilisation future plutôt que de la cacher
+  dans ZoomControls seul.
+refs:
+  - src/components/ZoomControls.tsx
+  - src/components/ui.tsx
+links: []
+dependsOn: []
+epic: theming-foundations
+source: ai
+createdAt: "2026-07-23T23:07:32"
+startedAt: "2026-07-23T23:07:37"
+updatedAt: "2026-07-23T23:35:11"
+completedAt: "2026-07-23T23:35:11"
+commit: 345fcb2
+outcome: >-
+  Cause confirmée par preuve DOM (getComputedStyle via CDP) : chaque segment portait son propre
+  border-radius (rounded-interactive inconditionnel de Button), et un box-shadow inset (les
+  séparateurs 1px) suit la border-box ARRONDIE de l'élément qui le porte — chaque segment dessinait
+  sa propre silhouette de pilule au lieu d'une barre continue. overflow-hidden du conteneur ne
+  clippe que hors de ses propres bounds, ne corrige rien à l'intérieur. Fix : nouveau prop Button
+  rounded?:boolean (défaut true) qui OMET rounded-interactive de la classe interne quand false —
+  fiable car une seule règle border-radius possible (pas de dépendance à l'ordre de cascade
+  Tailwind). Appliqué rounded={false} aux 4 segments de ZoomControls ; le conteneur
+  (rounded-interactive + overflow-hidden) reste seul responsable des 2 coins extérieurs. Piège
+  annexe découvert et évité : le scanner Tailwind lit aussi les commentaires, un doc-comment citant
+  littéralement l'utilitaire zéro-rayon l'aurait fait émettre par erreur.
+verification: >-
+  Preuve empirique AVANT/APRÈS sur cursor (16px, le plus flagrant) et base (6px) via Chrome
+  headless/CDP réel sur le dev server : border-radius 0px sur les 4 segments après fix (vs 16px/6px
+  avant), séparateurs redevenus des traits verticaux droits pleine hauteur. tsc -b clean, suite
+  complète 58/58 fichiers 742/742 tests verts.
+release: 0.3.0

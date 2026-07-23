@@ -1,0 +1,25 @@
+id: 424
+title: >-
+  Thème claude : -2px sur tout le spacing (xs 6→4, s 12→10, m 16→14, l 16→14 explicite, xl 32→30,
+  listgap 8→6)
+status: done
+tags:
+  - theming
+detail: null
+refs:
+  - src/index.css
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-23T22:14:25"
+startedAt: "2026-07-23T22:14:25"
+updatedAt: "2026-07-23T22:14:36"
+completedAt: "2026-07-23T22:14:33"
+commit: 345fcb2
+outcome: >-
+  -2px appliqué à tout le spacing du thème claude : xs 6→4, s 12→10, m 16→14, xl 32→30, listgap 8→6.
+  l (hérité de la base à 16px, non redéfini jusqu'ici) rendu explicite à 14px pour que le -2px
+  s'applique aussi à lui — rompt volontairement la parité avec la base/github sur ce token.
+verification: tsc -b clean, theme.test.ts 8/8.
+release: 0.3.0

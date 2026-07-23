@@ -1,0 +1,51 @@
+id: 422
+title: "Thème cursor : accent vert (proche github action) + action/highlight découplés en noir"
+status: done
+tags:
+  - ds
+  - theming
+detail: null
+refs:
+  - src/index.css
+  - src/components/ThemePicker.tsx
+  - src/components/SettingsView.tsx
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-23T22:00:45"
+startedAt: "2026-07-23T22:00:45"
+updatedAt: "2026-07-23T23:40:39"
+completedAt: "2026-07-23T23:40:39"
+commit: 345fcb2
+outcome: >-
+  Cursor : --color-accent revenu du vert (#1a7f37/#3fb950) au noir neutre (#141414/#e8e8e8),
+  identique à Action/Highlight déjà en place — les 3 tokens ont maintenant la même valeur mais
+  restent des rôles distincts du contrat. Pastilles ThemePicker/SettingsView resynchronisées sur
+  #141414.
+verification: tsc -b clean, suite complète 58/58 fichiers 742/742 tests verts.
+release: 0.3.0
+feedback:
+  - date: "2026-07-23T22:08:52"
+    author: user
+    text: >-
+      Rémi : erreur de périmètre — appliqué par erreur au thème de base (roadmapped) au lieu du
+      thème cursor demandé. Rollback complet du thème de base (bleu #2563eb/#3b82f6, listgap 0px,
+      pastilles restaurées), et ré-application sur cursor : accent #4f6350 clair/#9cbf93 sombre
+      (remplace le noir neutre mesuré), listgap 4→8px, pastilles ThemePicker/SettingsView
+      resynchronisées.
+    resolved: false
+  - date: "2026-07-23T22:11:39"
+    author: user
+    text: >-
+      Rémi : re-précision — je parlais du TOKEN accent uniquement. Vert corrigé pour être proche du
+      vert bouton github (--color-action #1a7f37/#3fb950) au lieu du vert boisé précédent. Action et
+      Highlight redéfinis explicitement en noir cursor (#141414/#e8e8e8), découplés de l'accent pour
+      ne pas suivre le changement.
+    resolved: false
+  - date: "2026-07-23T23:40:37"
+    author: user
+    text: >-
+      Rémi : re-changement — accent cursor revenu au noir neutre (#141414 clair/#e8e8e8 sombre),
+      aligné sur Action/Highlight qui l'étaient déjà. Pastilles resynchronisées.
+    resolved: false

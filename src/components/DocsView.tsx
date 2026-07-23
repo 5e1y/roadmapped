@@ -1,7 +1,7 @@
 import { useEffect, useState, type MouseEvent } from 'react'
 import { renderMarkdown } from './Markdown'
 import { ViewHeader } from './ViewHeader'
-import { DocsTree } from './DocsTree'
+import { DocsTree, FLANK_PANE_CLASS } from './DocsTree'
 import { EmptyState, ErrorBanner } from './ui'
 import { useDocsTree } from '../state/useDocsTree'
 
@@ -102,17 +102,22 @@ export function DocsView({ path, onSelectDoc }: { path: string | null; onSelectD
     <div className="flex h-full flex-col">
       <ViewHeader meta={path ?? undefined} />
       <div className="flex min-h-0 flex-1">
-        <div className="flex w-[420px] shrink-0 flex-col bg-foreground py-2 shadow-[inset_-1px_0_0_var(--color-border)]">
-          <div className="shrink-0 px-4 pb-1.5 text-[11px] font-medium text-textsoft">Files</div>
+        <div className={FLANK_PANE_CLASS}>
+          {/* Retrait du header = celui du CONTENU des lignes en dessous (#432, mesuré
+              au rendu) : les rangées vivent dans `.rm-list.rm-nest` qui ajoute un
+              padding --spacing-listgap (0 en thème de base — inchangé ; 6-8px en
+              thèmes « cartes » où le px-l seul laissait le header désaligné de
+              tout). l + listgap = le bord gauche exact de la gouttière des lignes. */}
+          <div className="shrink-0 px-[calc(var(--spacing-l)+var(--spacing-listgap))] pb-s text-[11px] font-medium text-textsoft">Files</div>
           <div className="min-h-0 flex-1 overflow-y-auto">
-            {docs.loading && !docs.tree && <p className="px-4 text-xs text-textsoft">Loading…</p>}
+            {docs.loading && !docs.tree && <p className="px-l text-xs text-textsoft">Loading…</p>}
             {/* Registre d'erreur canonique (ErrorBanner, role=alert) — plus de boîte ad hoc. */}
             {docs.loadError && (
-              <div className="mx-4">
+              <div className="mx-l">
                 <ErrorBanner errors={[`Couldn’t load: ${docs.loadError}`]} />
               </div>
             )}
-            {docs.tree && docs.tree.length === 0 && <EmptyState className="py-6" title="No .md document" />}
+            {docs.tree && docs.tree.length === 0 && <EmptyState className="py-xl" title="No .md document" />}
             {docs.tree && docs.tree.length > 0 && (
               <DocsTree nodes={docs.tree} docPath={path} onSelectDoc={onSelectDoc} />
             )}
@@ -129,12 +134,12 @@ export function DocsView({ path, onSelectDoc }: { path: string | null; onSelectD
 
   if (loading) {
     // Même gabarit que le contenu : la zone de lecture ne se déplace pas au chargement.
-    return shell(<div className="mx-auto max-w-3xl px-6 py-8 text-sm text-textsoft">Loading…</div>)
+    return shell(<div className="mx-auto max-w-3xl px-xl py-[calc(var(--spacing-xl)+var(--spacing-s))] text-sm text-textsoft">Loading…</div>)
   }
 
   if (error) {
     return shell(
-      <div className="flex h-full flex-col items-center justify-center gap-2 px-6 text-center">
+      <div className="flex h-full flex-col items-center justify-center gap-s px-xl text-center">
         <p className="text-sm text-textsoft">Couldn’t load this document.</p>
         <p className="text-xs text-textsoft">{error}</p>
       </div>,
@@ -147,7 +152,7 @@ export function DocsView({ path, onSelectDoc }: { path: string | null; onSelectD
   // injection (point unique partagé avec le rendu du détail de tâche).
   const html = renderMarkdown(content ?? '')
   return shell(
-    <div className="mx-auto max-w-3xl px-6 py-8">
+    <div className="mx-auto max-w-3xl px-xl py-[calc(var(--spacing-xl)+var(--spacing-s))]">
       <div className="doc-prose" onClick={onProseClick} dangerouslySetInnerHTML={{ __html: html }} />
     </div>,
   )

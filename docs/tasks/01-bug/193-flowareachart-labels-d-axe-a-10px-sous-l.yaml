@@ -1,0 +1,26 @@
+id: 401
+title: "FlowAreaChart : labels d'axe à 10px, sous le plancher 11px documenté"
+status: done
+tags:
+  - ds
+detail: >-
+  src/components/FlowAreaChart.tsx:135,145 — text-[10px] sur les labels d'axe, alors que
+  design.md:107 documente explicitement le plancher 11px et le commentaire du fichier (lignes 14-15)
+  prétend déjà qu'ils sont passés de 9 à 11px. Le code contredit sa propre doctrine. Repéré par
+  l'audit #399. Fix : text-[10px] → text-[11px] aux deux endroits.
+refs:
+  - src/components/FlowAreaChart.tsx
+links: []
+dependsOn: []
+epic: theming-foundations
+source: ai
+createdAt: "2026-07-23T19:07:40"
+startedAt: "2026-07-23T19:07:45"
+updatedAt: "2026-07-23T19:08:41"
+completedAt: "2026-07-23T19:08:41"
+commit: 345fcb2
+outcome: >-
+  text-[10px] → text-[11px] aux 2 endroits (FlowAreaChart.tsx:135,145), conforme au plancher
+  documenté.
+verification: "tsc -b + suite complète : 58/58 fichiers, 742/742 tests verts."
+release: 0.3.0

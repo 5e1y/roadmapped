@@ -1,0 +1,84 @@
+id: 405
+title: >-
+  Supprimer la couche primitives : les 10 rôles sémantiques en valeurs directes (plus de
+  white/page/accent-tint/neutral-N)
+status: done
+tags:
+  - ds
+  - theming
+detail: >-
+  PORTÉE RADICALE (validée par Rémi) : plus AUCUN nom de primitive dans src/index.css
+  (--color-white, --color-page, --color-accent-tint, --color-neutral-50..900 disparaissent tous),
+  chaque thème définit directement ses 10 clés sémantiques
+  (Active/Rollover/Action/accent/Foreground/Background/TextHard/TextSoft/Border/highlight) en
+  valeurs LITTÉRALES. EXCEPTION voulue, pas une primitive : --color-action et --color-highlight
+  restent 'var(--color-accent)' par défaut dans @theme (alias RÔLE→RÔLE, pas primitive→rôle) — c'est
+  ce qui fait suivre automatiquement le sombre/les thèmes sans redéclaration (déjà le comportement
+  actuel de --color-action, vérifié par le mécanisme de cascade CSS : la valeur var() se résout sur
+  les tokens de l'ÉLÉMENT, pas au point de déclaration). Rayons : déjà 100% sémantiques (4 rôles
+  nommés), RIEN à changer là.\n\nPLAN MÉCANIQUE (@theme, bloc :root[data-theme=dark], et les 5 blocs
+  de thème) — RENOMMAGE de propriété, valeurs identiques :\n--color-accent-tint → --color-active
+  (partout, y compris github qui l'a déjà en overlay rgb())\n--color-white →
+  --color-foreground\n--color-page → --color-background\n--color-neutral-900 → --color-texthard
+  (valeur littérale, plus d'alias)\n--color-neutral-500 → --color-textsoft (valeur
+  littérale)\n--color-neutral-200 → --color-border (valeur littérale)\nSupprimer purement :
+  --color-neutral-50/100/300/400/600/700/800 (aucun rôle direct, jamais consommés à l'identique par
+  un token existant).\n\n14 USAGES EXTERNES RÉELS À REMAPPER (grep 'neutral-[0-9]' déjà fait, liste
+  exhaustive hors commentaires) :\n- KbGraph.tsx:373,464 var(--color-neutral-900) →
+  var(--color-texthard)\n- KbGraph.tsx:434,457 dim?var(--color-neutral-200):var(--color-neutral-500)
+  → dim?var(--color-border):var(--color-textsoft)\n- KbGraph.tsx:612
+  dim?var(--color-neutral-400):var(--color-neutral-700) →
+  dim?var(--color-textsoft):var(--color-texthard) ⚠ VÉRIFIER VISUELLEMENT EN PRIORITÉ :
+  neutral-700→TextHard est le saut le plus net (medium-gray → encre forte), confirmer que les nœuds
+  non-dim du graphe KB ne paraissent pas cramés\n- NotepadView.tsx:309 decoration-neutral-300 →
+  decoration-textsoft\n- KbNodePanel.tsx:55, TaskPanel.tsx:255+266, UpdateNotice.tsx:125,
+  ViewHeader.tsx:48 : text-neutral-400 → text-textsoft\n- ui.tsx:80 text-neutral-300 →
+  text-textsoft\n- ViewHeader.tsx:159 border-neutral-300 → border-border\n- TypesRadar.tsx:53,57
+  var(--color-neutral-200) → var(--color-border)\n- TaskRow.tsx:79 : commentaire mentionne
+  bg-neutral-200 mais AUCUNE classe correspondante trouvée dans le fichier — vérifier si le
+  commentaire est juste périmé (le corriger) ou si une classe a été ratée\n-
+  DesignSystemView.tsx:288 bg-neutral-200 (track du meter radius/spacing) → bg-border — MINIMAL
+  seulement (ce fichier est intégralement restructuré par la tâche suivante #playground, ne pas
+  aller plus loin ici que supprimer les références aux primitives qui casseraient le
+  typecheck/rendu)\n\nNE PAS toucher aux tests visuels ; mettre à jour les commentaires directement
+  adjacents aux lignes modifiées seulement (pas de sweep exhaustif des commentaires ailleurs dans le
+  repo).\n\nDONE : tsc -b clean, suite complète verte, zéro occurrence de 'neutral-' restante dans
+  src/ (hors ce fichier historique si mention dans un commentaire explicatif du renommage), les 5
+  thèmes + clair/sombre inspectés visuellement (capture ou description) pour confirmer qu'aucune
+  couleur n'a bougé sauf le cas KbGraph signalé.
+refs:
+  - src/index.css
+  - src/components/KbGraph.tsx
+  - src/components/KbNodePanel.tsx
+  - src/components/NotepadView.tsx
+  - src/components/TaskPanel.tsx
+  - src/components/TaskRow.tsx
+  - src/components/TypesRadar.tsx
+  - src/components/UpdateNotice.tsx
+  - src/components/ViewHeader.tsx
+  - src/components/ui.tsx
+  - src/components/DesignSystemView.tsx
+links: []
+dependsOn: []
+epic: theming-foundations
+source: ai
+createdAt: "2026-07-23T19:11:10"
+startedAt: "2026-07-23T19:12:09"
+updatedAt: "2026-07-23T19:22:41"
+completedAt: "2026-07-23T19:21:58"
+commit: 345fcb2
+outcome: >-
+  Couche primitives supprimée : accent-tint/white/page/neutral-900/500/200 renommés en
+  active/foreground/background/texthard/textsoft/border (valeurs littérales, plus d'alias var())
+  dans @theme, le bloc dark de base et les 5 thèmes intégrés (10 blocs).
+  neutral-50/100/300/400/600/700/800 supprimés. Action/highlight restent des alias rôle→rôle
+  (var(--color-accent)), pas des primitives — la bascule sombre/thème continue de suivre sans
+  redéclaration. 14 usages externes + 1 trouvé en plus (KbGraph.tsx:603 fill=var(--color-white))
+  remappés sur les rôles. Usages internes d'index.css (body, scrollbar, .doc-prose) remappés :
+  neutral-100→background ('recessed field fill', déjà doctrine design.md), neutral-600→textsoft.
+  Commentaire périmé (border-neutral-200) corrigé en ring-border/border-border.
+verification: >-
+  tsc -b clean, suite complète 58/58 fichiers, 742/742 tests verts. grep
+  neutral-/accent-tint/color-white/color-page dans src/ : zéro usage réel restant (seuls des
+  mentions en commentaires/prose hors des zones touchées, hors scope de cette tâche).
+release: 0.3.0

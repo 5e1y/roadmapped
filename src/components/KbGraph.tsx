@@ -322,12 +322,12 @@ export function KbGraph({ graph, filters, query, onNodeClick: onNodeClickProp }:
       />
 
       {truncated && (
-        <div className="absolute left-3 top-3 z-10 rounded-surface ring-1 ring-inset ring-border bg-foreground px-2.5 py-1 text-[11px] text-textsoft shadow-sm">
+        <div className="absolute left-3 top-3 z-10 rounded-surface ring-1 ring-inset ring-border bg-foreground px-m py-xs text-[11px] text-textsoft shadow-sm">
           Graphe tronqué aux {KB_MAX_NODES} nœuds les plus connectés — filtre pour zoomer.
         </div>
       )}
       {searching && matches.size === 0 && (
-        <div className="absolute left-3 top-3 z-10 rounded-surface ring-1 ring-inset ring-border bg-foreground px-2.5 py-1 text-[11px] text-textsoft shadow-sm">
+        <div className="absolute left-3 top-3 z-10 rounded-surface ring-1 ring-inset ring-border bg-foreground px-m py-xs text-[11px] text-textsoft shadow-sm">
           No node matches “{query}”.
         </div>
       )}
@@ -370,7 +370,7 @@ export function KbGraph({ graph, filters, query, onNodeClick: onNodeClickProp }:
                 <>
                   {basePaths && <EdgesLayer solid={basePaths.solid} dashed={basePaths.dashed} dim={focus !== null} />}
                   {focusPaths && (
-                    <g pointerEvents="none" stroke="var(--color-neutral-900)" strokeOpacity={0.8} strokeWidth={1.5} fill="none">
+                    <g pointerEvents="none" stroke="var(--color-texthard)" strokeOpacity={0.8} strokeWidth={1.5} fill="none">
                       {focusPaths.solid && <path d={focusPaths.solid} vectorEffect="non-scaling-stroke" />}
                       {focusPaths.dashed && <path d={focusPaths.dashed} strokeDasharray="3 3" vectorEffect="non-scaling-stroke" />}
                     </g>
@@ -431,7 +431,7 @@ const EdgesLayer = memo(function EdgesLayer({
     <g
       pointerEvents="none"
       fill="none"
-      stroke={dim ? 'var(--color-neutral-200)' : 'var(--color-neutral-500)'}
+      stroke={dim ? 'var(--color-border)' : 'var(--color-textsoft)'}
       strokeOpacity={dim ? 0.6 : 0.8}
       strokeWidth={1}
     >
@@ -454,14 +454,14 @@ const LiveEdgesLayer = memo(function LiveEdgesLayer({ driver, dim }: { driver: K
         className="kb-edges-in"
         pointerEvents="none"
         fill="none"
-        stroke={dim ? 'var(--color-neutral-200)' : 'var(--color-neutral-500)'}
+        stroke={dim ? 'var(--color-border)' : 'var(--color-textsoft)'}
         strokeOpacity={dim ? 0.6 : 0.8}
         strokeWidth={1}
       >
         <path ref={(el) => driver.attachPath('solid', el)} vectorEffect="non-scaling-stroke" />
         <path ref={(el) => driver.attachPath('dashed', el)} strokeDasharray="3 3" vectorEffect="non-scaling-stroke" />
       </g>
-      <g pointerEvents="none" stroke="var(--color-neutral-900)" strokeOpacity={0.8} strokeWidth={1.5} fill="none">
+      <g pointerEvents="none" stroke="var(--color-texthard)" strokeOpacity={0.8} strokeWidth={1.5} fill="none">
         <path ref={(el) => driver.attachPath('focusSolid', el)} vectorEffect="non-scaling-stroke" />
         <path ref={(el) => driver.attachPath('focusDashed', el)} strokeDasharray="3 3" vectorEffect="non-scaling-stroke" />
       </g>
@@ -600,7 +600,7 @@ const NodesLayer = memo(function NodesLayer({
                   height={LABEL_FONT + 3}
                   rx={3}
                   className="pointer-events-none"
-                  fill="var(--color-white)"
+                  fill="var(--color-foreground)"
                   fillOpacity={0.82}
                 />
                 <text
@@ -609,7 +609,7 @@ const NodesLayer = memo(function NodesLayer({
                   className="pointer-events-none"
                   style={{
                     fontSize: LABEL_FONT,
-                    fill: tone.dim ? 'var(--color-neutral-400)' : 'var(--color-neutral-700)',
+                    fill: tone.dim ? 'var(--color-textsoft)' : 'var(--color-texthard)',
                   }}
                 >
                   {node.label}
@@ -660,7 +660,7 @@ function PoweredByGraphify() {
       href="https://graphify.com/"
       target="_blank"
       rel="noopener noreferrer"
-      className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1.5 rounded-surface ring-1 ring-inset ring-border bg-foreground px-2.5 py-1 text-[11px] text-textsoft shadow-sm transition-colors hover:bg-rollover"
+      className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 items-center gap-s rounded-surface ring-1 ring-inset ring-border bg-foreground px-m py-xs text-[11px] text-textsoft shadow-sm transition-colors hover:bg-rollover"
     >
       powered by
       <GraphifyMark />

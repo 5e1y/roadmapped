@@ -4,7 +4,7 @@ import { useTree } from '../state/TreeContext'
 import { usePanel } from '../state/PanelContext'
 import {
   Select, TextInput, TextArea, ErrorBanner, MultiCombobox, TagsCombobox,
-  GhostAutoTextArea, SavedTick, FieldError, ToastViewport, primaryBtn, actionBtn,
+  GhostAutoTextArea, SavedTick, FieldError, ToastViewport, Button,
   type SelectItem,
 } from './ui'
 import { relItemOf } from './TaskPanel'
@@ -22,7 +22,7 @@ const SECTION_STATUS_ITEMS: SelectItem[] = [
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <label className="flex flex-col gap-1">
+    <label className="flex flex-col gap-xs">
       <span className="text-[11px] font-medium text-textsoft">{label}</span>
       {children}
     </label>
@@ -90,12 +90,12 @@ export function CreateTaskPanel({ section }: { section: string }) {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-l">
       <ErrorBanner errors={errors} />
       <Field label="Title">
         <TextInput value={title} autoFocus disabled={busy} onChange={(e) => setTitle(e.target.value)} onKeyDown={createOnEnter} />
       </Field>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-m">
         <Field label="Type">
           <Select
             aria-label="Type"
@@ -110,7 +110,7 @@ export function CreateTaskPanel({ section }: { section: string }) {
         <TagsCombobox tags={tags} suggestions={allTags} disabled={busy} onSave={setTags} />
       </Field>
       <Field label="Detail">
-        <TextArea className="min-h-[100px]" value={detail} disabled={busy} onChange={(e) => setDetail(e.target.value)} />
+        <TextArea rows={4} value={detail} disabled={busy} onChange={(e) => setDetail(e.target.value)} />
       </Field>
       <Field label="Depends on">
         <MultiCombobox aria-label="Depends on" value={dependsOn} items={relItems}
@@ -121,16 +121,12 @@ export function CreateTaskPanel({ section }: { section: string }) {
           placeholder="Search for a related task…" onValueChange={setLinks} />
       </Field>
       <Field label="Refs (one path per line)">
-        <TextArea className="min-h-[60px] font-mono text-xs" value={refs} disabled={busy}
+        <TextArea rows={3} className="font-mono text-xs" value={refs} disabled={busy}
           placeholder={'docs/specs/....md\nsrc/lib/....ts'} onChange={(e) => setRefs(e.target.value)} />
       </Field>
-      <div className="flex gap-2">
-        <button type="button" onClick={create} disabled={busy} className={primaryBtn}>
-          {busy ? 'Creating…' : 'Create task'}
-        </button>
-        <button type="button" onClick={close} className={actionBtn}>
-          Cancel
-        </button>
+      <div className="flex gap-s">
+        <Button variant="primary" onClick={create} disabled={busy}>{busy ? 'Creating…' : 'Create task'}</Button>
+        <Button variant="secondary" onClick={close}>Cancel</Button>
       </div>
     </div>
   )
@@ -188,11 +184,11 @@ function SectionPanelBody({ dir }: { dir: string }) {
   }
 
   return (
-    <div className="flex min-h-full flex-col gap-5">
+    <div className="flex min-h-full flex-col gap-xl">
       {/* En-tête : statut (ghost select) puis titre — miroir de TaskPanel. */}
-      <div className="flex flex-col gap-1.5">
-        <div className="flex items-center gap-1.5">
-          <div className="w-32">
+      <div className="flex flex-col gap-s">
+        <div className="flex items-center gap-s">
+          <div className="w-fit min-w-24">
             <Select
               ghost
               aria-label="Section status"
@@ -205,16 +201,16 @@ function SectionPanelBody({ dir }: { dir: string }) {
         </div>
         <FieldError errs={errors.status} />
         {/* Titre canonique (lecture seule) — même typo que le titre de tâche,
-            même retrait px-1.5 que les champs ghost. */}
-        <h3 className="px-1.5 py-1 text-base font-semibold leading-snug tracking-tight text-texthard">
+            même retrait px-s que les champs ghost. */}
+        <h3 className="px-s py-xs text-base font-semibold leading-snug tracking-tight text-texthard">
           {section.title}
         </h3>
       </div>
 
       {/* Note : textarea ghost permanente (jamais de swap), sauvegarde au blur. */}
-      <div className="flex flex-col gap-1">
-        <div className="flex items-center gap-2">
-          <div className="px-1.5 text-[11px] font-medium text-textsoft">Note</div>
+      <div className="flex flex-col gap-xs">
+        <div className="flex items-center gap-s">
+          <div className="px-s text-[11px] font-medium text-textsoft">Note</div>
           <SavedTick show={savedField === 'note'} />
         </div>
         <GhostAutoTextArea
@@ -233,7 +229,7 @@ function SectionPanelBody({ dir }: { dir: string }) {
       </div>
 
       {/* Pied : le chemin technique, relégué ici (audit UX — même place que TaskPanel). */}
-      <div className="mt-auto pt-3 shadow-[inset_0_1px_0_var(--color-border)]">
+      <div className="mt-auto pt-m shadow-[inset_0_1px_0_var(--color-border)]">
         <div className="truncate font-mono text-[11px] text-textsoft" title={sectionPath}>{sectionPath}</div>
       </div>
     </div>

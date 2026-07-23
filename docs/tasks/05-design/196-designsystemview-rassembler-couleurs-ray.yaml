@@ -1,0 +1,39 @@
+id: 406
+title: >-
+  DesignSystemView : rassembler couleurs/rayons/spacing dans une seule section « theming playground
+  »
+status: done
+tags:
+  - ds
+  - theming
+detail: >-
+  Suite de #405 (suppression des primitives) — dépend de lui car il change les noms de tokens que
+  cette section doit lire. Objectif Rémi : au lieu de sections séparées (Colors&tokens / Theming /
+  Corner radii & spacing / Tokenised list), UNE seule section qui montre TOUTES les variables (10
+  couleurs sémantiques + 4 rayons + 6 spacing) CÔTE À CÔTE, avec le vrai ThemeToggle+ThemePicker
+  au-dessus comme pilote — changer de thème doit visiblement faire bouger les 3 catégories en même
+  temps, preuve vivante que le contrat est complet. Continuer le principe fondateur de la page :
+  jamais de valeur en dur, toujours useTokenValues/getComputedStyle ou les vrais composants.
+refs:
+  - src/components/DesignSystemView.tsx
+  - src/components/DesignSystemView.smoke.test.tsx
+links: []
+dependsOn:
+  - 405
+epic: theming-foundations
+source: ai
+createdAt: "2026-07-23T19:11:19"
+startedAt: "2026-07-23T19:23:24"
+updatedAt: "2026-07-23T19:27:30"
+completedAt: "2026-07-23T19:27:26"
+commit: 345fcb2
+outcome: >-
+  3 sections de variables (Colors/Theming/Radii&Spacing) fusionnées en une seule 'Theming playground
+  — the whole contract, live' : ThemeToggle+ThemePicker en tête, puis les 10 couleurs + 4 rayons + 6
+  spacing dans le même bloc, un seul useTokenValues(CONTRACT_TOKENS) observant
+  data-theme+data-theme-name. Sections qui montrent un vrai composant/pattern (Typography, Tokenised
+  list, Primitives, Selection, Glyphs, Data-viz) laissées séparées à dessein.
+verification: >-
+  tsc -b clean, suite complète 58/58 fichiers, 742/742 tests verts (smoke test DesignSystemView
+  ajusté sur le nouveau titre de section).
+release: 0.3.0

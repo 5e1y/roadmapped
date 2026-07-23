@@ -1,0 +1,22 @@
+id: 423
+title: "Thème github : radius-interactive 8→12px (aligné sur listitem/surface)"
+status: done
+tags:
+  - theming
+detail: null
+refs:
+  - src/index.css
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-23T22:02:03"
+startedAt: "2026-07-23T22:02:03"
+updatedAt: "2026-07-23T22:02:11"
+completedAt: "2026-07-23T22:02:09"
+commit: 345fcb2
+outcome: >-
+  radius-interactive du thème github 8px→12px, désormais aligné sur listitem/surface (les 3 rayons à
+  12px).
+verification: tsc -b clean, theme.test.ts 8/8.
+release: 0.3.0

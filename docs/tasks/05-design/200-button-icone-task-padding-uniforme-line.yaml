@@ -1,0 +1,45 @@
+id: 420
+title: >-
+  Button : icône +task, padding uniforme, line-height resserrée + harmonisation UI (carte blanche
+  Fable)
+status: done
+tags:
+  - ds
+  - theming
+detail: >-
+  Suite de #419. 3 ajustements précis + mandat d'harmonisation large, délégué à une instance Fable
+  avec contexte complet de tout le fil #419 (voir prompt agent pour le détail exhaustif).
+refs:
+  - src/components/ui.tsx
+  - src/components/ViewHeader.tsx
+  - src/components/DesignSystemView.tsx
+  - docs/design.md
+links: []
+dependsOn: []
+epic: theming-foundations
+source: ai
+createdAt: "2026-07-23T21:40:13"
+startedAt: "2026-07-23T21:40:17"
+updatedAt: "2026-07-23T21:50:51"
+completedAt: "2026-07-23T21:50:41"
+commit: 345fcb2
+outcome: >-
+  Gabarit unique du Button figé : padding p-s (8px uniforme 4 côtés, était px-m/py-xs 12/4),
+  text-xs+leading-none (line-height 12px, text-xs n'est pas un token custom du repo — vérifié dans
+  @theme, confirmé), BUTTON_ICON_SIZE 16→12 (= exactement la nouvelle line-height). Bouton = 28px de
+  haut dans tous les cas (texte, icône seule = carré 28x28, ou les deux). +task : '+' littéral →
+  icône Plus (pattern déjà établi par ZoomControls). Carte blanche exercée : Button passé en
+  forwardRef (doctrine TogglePill) pour composer via Base UI render= ; Toast.Close (la 'croix de la
+  notif' de la toute première demande) migré sur <Button variant='ghost' icon={Cross}> via render= —
+  la limitation 'Base UI non-enveloppable' du tour précédent était fausse ; ViewHeader : input
+  recherche réaligné sur le même gabarit 28px que le bouton +task voisin (py-xs→py-s + leading-none)
+  ; SidePanel/ViewHeader passent ensemble de 40 à 44px, restent alignés entre eux ; DesignSystemView
+  playground + docs/design.md §2 mis à jour pour refléter le nouveau contrat. Impacts visuels notés
+  et NON compensés localement (règle explicite) : RemovableChip (Backlog) désormais plus bas que sa
+  pilule 24px, écart 24px/28px avec le registre TogglePill (thème/filtres) ailleurs dans l'app.
+  Proposition hors-contrat non tranchée : étendre le gabarit 28px à TogglePill pour résorber cet
+  écart — à valider.
+verification: >-
+  tsc -b clean, suite complète 58/58 fichiers 742/742 tests verts (vérifié aussi par l'agent :
+  composition Toast.Close/Button testée à l'exécution avant nettoyage).
+release: 0.3.0

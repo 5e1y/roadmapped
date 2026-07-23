@@ -71,15 +71,15 @@ export function TaskRow({ task }: { task: TaskNode }) {
     <Collapsible.Root open={open} onOpenChange={setOpen}>
       {/* Le padding vertical vit dans les éléments INTERACTIFS (pas le
           conteneur) : toute la hauteur de la ligne est cliquable. */}
-      <div className={`flex w-full flex-wrap items-center gap-2 px-4 text-sm ${rowStateClass(isOpenInPanel)}`}>
+      <div className={`flex w-full flex-wrap items-center gap-s px-l text-sm ${rowStateClass(isOpenInPanel)}`}>
         {/* Chevron = toggle des sous-tâches, rendu UNIQUEMENT si la tâche en a. Pas de
             spacer fantôme sinon (#97) : les lignes sans sous-tâche s'alignent à gauche. */}
         {hasSubs && (
           // Chevron NU, aligné sur les epics (#252) : plus de boîte de hover
-          // (rounded + bg-neutral-200) — la zone reste cliquable (self-stretch
+          // (rounded + fond gris) — la zone reste cliquable (self-stretch
           // px-0.5), le survol de la LIGNE suffit comme affordance, comme un epic.
           <Collapsible.Trigger
-            className="flex shrink-0 items-center self-stretch px-0.5"
+            className="flex shrink-0 items-center self-stretch px-xs"
             aria-label={open ? 'Collapse subtasks' : 'Expand subtasks'}
             onClick={(e) => e.stopPropagation()}
           >
@@ -90,7 +90,7 @@ export function TaskRow({ task }: { task: TaskNode }) {
         <button
           type="button"
           onClick={() => openTask(task.id)}
-          className="flex min-w-0 flex-1 items-center gap-2 py-2.5 text-left"
+          className="flex min-w-0 flex-1 items-center gap-s py-m text-left"
         >
           {locked
             ? <LockLocked size={11} className="shrink-0 text-textsoft" ariaLabel="Locked" />
@@ -115,7 +115,7 @@ export function TaskRow({ task }: { task: TaskNode }) {
           >
             {task.title}
           </span>
-          <span className="ml-auto flex shrink-0 items-center gap-1.5">
+          <span className="ml-auto flex shrink-0 items-center gap-s">
             {/* Liste une-colonne : la date de bouclage passe sur la ligne. */}
             {task.completedAt && (
               <span className="font-mono text-[11px] text-textsoft" title={absoluteDate(task.completedAt)}>{relativeTime(task.completedAt)}</span>
@@ -149,7 +149,8 @@ export function TaskRow({ task }: { task: TaskNode }) {
       </div>
       {hasSubs && (
         <Collapsible.Panel>
-          <div className="rm-list rm-nest ml-9">
+          {/* Retrait 36px hors échelle des tokens : composé xl+m (24+12). */}
+          <div className="rm-list rm-nest ml-[calc(var(--spacing-xl)+var(--spacing-m))]">
             {task.subtasks.map((sub) => (
               <div key={sub.id} className="rm-list-item">
                 <TaskRow task={sub} />

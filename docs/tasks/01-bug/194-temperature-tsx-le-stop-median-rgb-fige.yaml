@@ -1,0 +1,21 @@
+id: 404
+title: >-
+  Temperature.tsx : le stop médian rgb figé (163,163,163) reste un neutral-400 clair même en thème
+  sombre — se fond moins bien qu'en clair
+status: todo
+tags:
+  - ds
+  - debt
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-23T19:08:57"
+updatedAt: "2026-07-23T19:08:57"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

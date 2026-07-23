@@ -43,7 +43,7 @@ function Card({ title, children, className = '' }: { title?: string; children: R
   return (
     <section className={`flex flex-col overflow-hidden rounded-surface bg-foreground ring-1 ring-inset ring-border ${className}`}>
       {title && (
-        <h2 className="shrink-0 px-4 py-2 text-xs font-medium text-textsoft shadow-[inset_0_-1px_0_var(--color-border)]">{title}</h2>
+        <h2 className="shrink-0 px-l py-s text-xs font-medium text-textsoft shadow-[inset_0_-1px_0_var(--color-border)]">{title}</h2>
       )}
       <div className="min-h-0 flex-1">{children}</div>
     </section>
@@ -80,7 +80,7 @@ const MODES: { key: PreviewMode; label: string }[] = [
  */
 function Segmented({ value, onChange }: { value: PreviewMode; onChange: (m: PreviewMode) => void }) {
   return (
-    <div role="group" aria-label="Choose preview" className="inline-flex gap-1">
+    <div role="group" aria-label="Choose preview" className="inline-flex gap-xs">
       {MODES.map((m) => (
         <TogglePill key={m.key} active={m.key === value} onClick={() => onChange(m.key)}>
           {m.label}
@@ -102,7 +102,7 @@ function PreviewRow({ task, hint, isCurrent, onOpen }: { task: TaskNode; hint: R
       type="button"
       onClick={() => onOpen(task.id)}
       aria-current={isCurrent ? 'true' : undefined}
-      className={`flex w-full items-center gap-2 px-4 py-2 text-left text-sm transition-colors ${rowStateClass(isCurrent)}`}
+      className={`flex w-full items-center gap-s px-l py-s text-left text-sm transition-colors ${rowStateClass(isCurrent)}`}
     >
       <span className="shrink-0 font-mono text-xs text-textsoft">#{task.id}</span>
       <span title={task.title} className="min-w-0 flex-1 truncate text-texthard">{task.title}</span>
@@ -160,8 +160,8 @@ export function OverviewView() {
       {/* Scroller sur la PAGE (#fafafa, jamais redéclaré) : la grille s'empile en
           une colonne sur petit écran, deux à partir de lg. */}
       <div className="min-h-0 flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-6xl px-6 py-6">
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div className="mx-auto max-w-6xl px-xl py-xl">
+          <div className="grid grid-cols-1 gap-l lg:grid-cols-2">
             {/* Rangée 1 (retour Rémi) — radar | chart CÔTE À CÔTE : deux viz de
                 hauteur comparable, fini la colonne à moitié vide. */}
             {/* 1 — Radar par type (LECTURE pure, la sélection ne filtrait rien).
@@ -169,7 +169,7 @@ export function OverviewView() {
                 c'est le CHART qui s'étire en hauteur pour s'aligner sur lui (un graphe
                 x/y grandit sans coût d'UX), pas l'inverse (décision Rémi). */}
             <Card title="Open tickets by type">
-              <div className="p-4">
+              <div className="p-l">
                 <TypesRadar counts={counts} />
               </div>
             </Card>
@@ -183,11 +183,11 @@ export function OverviewView() {
             {/* Rangée 2 — Aperçu 5 tickets à 3 bascules, PLEINE LARGEUR sous la rangée. */}
             <Card title="Backlog preview" className="lg:col-span-2">
               <div className="flex h-full flex-col">
-                <div className="shrink-0 px-4 pb-3 pt-1">
+                <div className="shrink-0 px-l pb-m pt-xs">
                   <Segmented value={mode} onChange={setMode} />
                 </div>
                 {preview.length === 0 ? (
-                  <EmptyState className="py-8" title="No tickets to show" />
+                  <EmptyState className="py-[calc(var(--spacing-xl)+var(--spacing-s))]" title="No tickets to show" />
                 ) : (
                   <div className="rm-list rm-nest">
                     {preview.map((t) => (
@@ -206,7 +206,7 @@ export function OverviewView() {
               {tagCounts.length > 0 ? (
                 <TagBars data={tagCounts} />
               ) : (
-                <EmptyState className="py-12" title="No tags on tickets yet" hint="The chart appears once an open ticket carries tags." />
+                <EmptyState className="py-[calc(var(--spacing-xl)*2)]" title="No tags on tickets yet" hint="The chart appears once an open ticket carries tags." />
               )}
             </Card>
           </div>

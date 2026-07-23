@@ -1,0 +1,37 @@
+id: 407
+title: >-
+  Groundwork spacing-theming : corriger les paddings/gaps en dur qui bloquent une redéfinition par
+  thème
+status: done
+tags:
+  - ds
+  - theming
+detail: >-
+  Portée GROUNDWORK seule (validé Rémi) : PAS de renommage de xs/s/m/l/xl cette passe (déjà
+  theming-ready mécaniquement, un thème peut déjà les redéfinir). S'appuyer sur les trouvailles de
+  l'audit #399 qui bloquent concrètement un thème d'agir sur l'espacement : DocsTree.tsx:7
+  INDENT_PX=14 (hors grille 4/8/12/16/24, en style inline donc invisible à tout theming) — aligner
+  sur un multiple de la grille (12 ou 16) et si possible le sortir en token spacing plutôt qu'une
+  constante JS. Vérifier aussi si d'autres constantes JS similaires (recherche 'PX' en majuscules
+  dans src/components) échappent de la même façon au contrat. Ne PAS toucher aux dimensions de
+  layout pur (largeurs de colonnes, tailles de chart) qui ne sont pas du spacing sémantique.
+refs:
+  - src/components/DocsTree.tsx
+links: []
+dependsOn:
+  - 399
+epic: theming-foundations
+source: ai
+createdAt: "2026-07-23T19:11:28"
+startedAt: "2026-07-23T19:11:36"
+updatedAt: "2026-07-23T19:12:05"
+completedAt: "2026-07-23T19:12:01"
+commit: 345fcb2
+outcome: >-
+  INDENT_PX 14→16 (DocsTree.tsx), aligné sur la grille spacing et sur BASE_PADDING_PX. Recherche
+  d'autres constantes _PX en dur : aucune autre trouvée dans src/components. Extraction en vrai
+  token spacing SKIPPÉE (nécessiterait lire var(--spacing-l) via getComputedStyle en JS pour un gain
+  marginal sur une constante purement décorative d'indentation d'arbre) — si un thème doit un jour
+  vraiment retoucher cet indent, le refaire alors.
+verification: tsc -b clean.
+release: 0.3.0

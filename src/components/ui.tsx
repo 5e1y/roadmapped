@@ -2,7 +2,7 @@ import { Select as BaseSelect } from '@base-ui/react/select'
 import { Input as BaseInput } from '@base-ui/react/input'
 import { Combobox } from '@base-ui/react/combobox'
 import { Toast } from '@base-ui/react/toast'
-import { forwardRef, useEffect, useRef, useState, type ComponentProps, type KeyboardEvent, type ReactNode } from 'react'
+import { forwardRef, useEffect, useRef, useState, type ComponentProps, type ComponentPropsWithoutRef, type ComponentType, type KeyboardEvent, type ReactNode } from 'react'
 import { Check, ChevronDown, Cross, Plus, Warning } from 'trinil-react'
 import { KindGlyph } from './glyphs'
 import { useTree } from '../state/TreeContext'
@@ -39,7 +39,7 @@ export const rowStateClass = (isCurrent: boolean) =>
  * Base UI fusionne ses props (onClick, aria-expanded, ref) sur le <button>.
  */
 const togglePillCls = (active: boolean) =>
-  `flex items-center gap-1.5 rounded-interactive px-2.5 py-1 text-xs transition-colors ${
+  `flex items-center gap-s rounded-interactive px-m py-xs text-xs transition-colors ${
     active
       ? 'ring-1 ring-inset ring-accent bg-active font-medium text-texthard'
       : 'ring-1 ring-inset ring-border bg-foreground text-textsoft hover:bg-rollover'
@@ -64,7 +64,7 @@ export const TogglePill = forwardRef<HTMLButtonElement, ComponentProps<'button'>
 /**
  * État VIDE canonique (design.md §4, #384) — UNE seule primitive pour les ~12
  * empty states qui divergeaient (dashed box, héro, `<p>` nu…). Centré : glyphe
- * optionnel (encre neutral-300, purement décoratif → aria-hidden) + titre
+ * optionnel (encre TextSoft, purement décoratif → aria-hidden) + titre
  * (`text-sm font-medium text-texthard`) + indice optionnel sur une ligne
  * (`text-xs text-textsoft`). Le `className` porte le calage vertical/hauteur
  * du contexte : `h-full` en pleine zone, `py-8`/`py-12` dans une carte.
@@ -76,8 +76,8 @@ export function EmptyState({ glyph, title, hint, className = '' }: {
   className?: string
 }) {
   return (
-    <div className={`flex flex-col items-center justify-center gap-2 px-6 text-center ${className}`}>
-      {glyph && <div className="text-neutral-300" aria-hidden="true">{glyph}</div>}
+    <div className={`flex flex-col items-center justify-center gap-s px-xl text-center ${className}`}>
+      {glyph && <div className="text-textsoft" aria-hidden="true">{glyph}</div>}
       <p className="text-sm font-medium text-texthard">{title}</p>
       {hint && <p className="max-w-sm text-xs text-textsoft">{hint}</p>}
     </div>
@@ -96,35 +96,35 @@ export function EmptyState({ glyph, title, hint, className = '' }: {
 export function TreeStateGuard({ detail = false, children }: { detail?: boolean; children: ReactNode }) {
   const { tree, errors, loading, loadError } = useTree()
   if (loading && !tree) {
-    return <div className="mx-auto max-w-3xl px-6 py-8 text-sm text-textsoft">Loading…</div>
+    return <div className="mx-auto max-w-3xl px-xl py-[calc(var(--spacing-xl)+var(--spacing-s))] text-sm text-textsoft">Loading…</div>
   }
   if (loadError) {
     return (
-      <div className="mx-auto max-w-3xl px-6 py-8">
+      <div className="mx-auto max-w-3xl px-xl py-[calc(var(--spacing-xl)+var(--spacing-s))]">
         <h1 className="text-lg font-semibold tracking-tight">Server unreachable</h1>
-        <p className="mt-1 font-mono text-xs text-textsoft">{loadError}</p>
+        <p className="mt-xs font-mono text-xs text-textsoft">{loadError}</p>
       </div>
     )
   }
   if (errors.length > 0) {
     return (
-      <div className="mx-auto max-w-3xl px-6 py-8">
+      <div className="mx-auto max-w-3xl px-xl py-[calc(var(--spacing-xl)+var(--spacing-s))]">
         <h1 className="text-lg font-semibold tracking-tight">
           {errors.length} validation error{errors.length > 1 ? 's' : ''} in docs/tasks/
         </h1>
         {detail ? (
           <>
-            <p className="mt-1 text-sm text-textsoft">
+            <p className="mt-xs text-sm text-textsoft">
               Fix the offending files — nothing renders until the source is healthy.
             </p>
-            <ul className="rm-list mt-6 bg-foreground">
+            <ul className="rm-list mt-xl bg-foreground">
               {errors.map((e, i) => (
-                <li key={i} className="rm-list-item px-4 py-2.5 font-mono text-xs text-texthard">{e}</li>
+                <li key={i} className="rm-list-item px-l py-m font-mono text-xs text-texthard">{e}</li>
               ))}
             </ul>
           </>
         ) : (
-          <p className="mt-1 text-sm text-textsoft">The roadmap will render once the source is healthy — details in the Backlog.</p>
+          <p className="mt-xs text-sm text-textsoft">The roadmap will render once the source is healthy — details in the Backlog.</p>
         )}
       </div>
     )
@@ -137,7 +137,7 @@ export function TreeStateGuard({ detail = false, children }: { detail?: boolean;
 // 2px accent — indicateur de focus UNIQUE partagé par tous les cousins (ghost,
 // Select, Combobox). Aucune largeur DOM (ring = box-shadow).
 export const fieldCls =
-  'w-full rounded-interactive bg-background px-2 py-1.5 text-sm text-texthard ring-1 ring-inset ring-border transition-[background-color,box-shadow] focus:bg-foreground disabled:bg-background disabled:text-textsoft'
+  'w-full rounded-interactive bg-background px-s py-s text-sm text-texthard ring-1 ring-inset ring-border transition-[background-color,box-shadow] focus:bg-foreground disabled:bg-background disabled:text-textsoft'
 
 /**
  * Peau « ghost » (décision Rémi 2026-07-07) : l'élément éditable est un input
@@ -146,24 +146,90 @@ export const fieldCls =
  * d'index.css). Jamais de swap lecture→input, jamais d'étape crayon.
  */
 export const ghostCls =
-  'w-full rounded-interactive bg-transparent px-1.5 py-1 text-texthard transition-colors hover:bg-rollover focus:bg-foreground disabled:text-textsoft disabled:hover:bg-transparent'
+  'w-full rounded-interactive bg-transparent px-s py-xs text-texthard transition-colors hover:bg-rollover focus:bg-foreground disabled:text-textsoft disabled:hover:bg-transparent'
+
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost'
+
+/** Icône du bouton canonique : TOUJOURS 12px = la line-height du libellé
+ *  (text-xs 12px × leading-none, cf. className du Button) — seule ou à côté
+ *  d'un libellé, jamais ajustée par emplacement (#419/#420, retour Rémi : on
+ *  unifie d'abord, les impacts UI se corrigent après coup, pas de surcharge
+ *  de taille au cas par cas). Si la typo du bouton change, cette constante
+ *  DOIT suivre sa line-height en px. Exporté (#427) pour que le champ de
+ *  recherche global (ViewHeader) matérialise le MÊME gabarit vertical : son
+ *  icône Search reprend cette taille, et son <input> est figé à cette hauteur
+ *  littérale (12px) — voir le commentaire là-bas. */
+export const BUTTON_ICON_SIZE = 12
+
+const VARIANT_CLS: Record<ButtonVariant, string> = {
+  primary: 'bg-action text-foreground transition-[filter] hover:brightness-95',
+  secondary: 'ring-1 ring-inset ring-border text-texthard transition-colors hover:bg-rollover',
+  ghost: 'text-textsoft transition-colors hover:bg-rollover hover:text-texthard',
+}
 
 /**
- * Boutons canoniques des panneaux (design.md §2) — source unique :
- * primaire = L'action principale (démarrer/terminer, créer, done) ;
- * secondaire (actionBtn) = tout le reste, « Supprimer » compris (registre
- * destructif global : non — monochrome assumé).
+ * LE bouton canonique (design.md §2, #419) — UN composant, 3 variants
+ * (primary = fond plein, secondary = bordé, ghost = aucun fond). `icon` et
+ * `children` (texte) sont chacun OPTIONNELS et combinables : icône seule,
+ * texte seul, ou les deux — pas de composant « bouton icône » séparé.
+ * GABARIT UNIQUE (#420, retour Rémi) : padding UNIFORME `p-s` (même valeur sur
+ * les 4 côtés), texte text-xs à line-height resserrée (`leading-none` → 12px),
+ * icône = exactement cette line-height (BUTTON_ICON_SIZE) — la hauteur ne varie
+ * jamais selon variant/icône/texte (icône seule = carré exact 28×28, RIEN
+ * d'autre autour). Zéro `gap` sur le conteneur : l'espacement icône↔texte est
+ * porté par le SPAN du texte (`px-s`), pas par le bouton — le texte (seul ou
+ * à côté d'une icône) gagne son propre respire, sans jamais toucher au carré
+ * de l'icône seule.
+ * `reveal` = registre « révélé au survol/focus de sa ligne » (retrait d'une
+ * dépendance/ref/ligne de liste) — nécessite un ancêtre `.group`.
+ * `rounded={false}` = registre « segment d'un groupe » (ex. ZoomControls) : le
+ * bouton ABANDONNE son propre rayon — c'est le CONTENEUR du groupe qui porte
+ * `rounded-interactive overflow-hidden` et clippe les seuls coins extérieurs de
+ * la pilule. Sans ça, chaque segment garde son rayon individuel et les
+ * séparateurs `shadow-inset` suivent ses coins arrondis (effet « boursouflé »
+ * sur les thèmes à grand rayon). Prop dédié plutôt qu'un écrasement du rayon
+ * via className : l'ordre de cascade des utilitaires Tailwind ne suit PAS
+ * l'ordre textuel du className (ordre d'émission dans la feuille compilée),
+ * l'écrasement ne serait pas garanti. (Et ne PAS citer l'utilitaire zéro-rayon
+ * littéralement ici : le scanner Tailwind lit aussi les commentaires et
+ * l'émettrait dans le CSS.)
+ * forwardRef (même doctrine que TogglePill) : se compose via `render={<Button …/>}`
+ * dans Base UI (Toast.Close, Popover.Trigger…) — Base UI y fusionne ses props.
  */
-export const primaryBtn =
-  'rounded-interactive bg-action px-2.5 py-1 text-xs text-foreground transition-[filter] hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50'
-export const actionBtn =
-  'rounded-interactive ring-1 ring-inset ring-border px-2.5 py-1 text-[11px] text-texthard transition-colors hover:bg-rollover disabled:opacity-50'
+export const Button = forwardRef<HTMLButtonElement, {
+  variant: ButtonVariant
+  icon?: ComponentType<{ size?: number }>
+  children?: ReactNode
+  reveal?: boolean
+  rounded?: boolean
+} & ComponentPropsWithoutRef<'button'>>(function Button({
+  variant, icon: Icon, children, reveal = false, rounded = true, className = '', ...rest
+}, ref) {
+  return (
+    <button
+      type="button"
+      ref={ref}
+      className={`flex items-center justify-center ${rounded ? 'rounded-interactive ' : ''}p-s text-xs leading-none disabled:cursor-not-allowed disabled:opacity-50 ${VARIANT_CLS[variant]} ${
+        reveal ? 'opacity-0 focus-visible:opacity-100 group-hover:opacity-100' : ''
+      } ${className}`}
+      {...rest}
+    >
+      {Icon && <Icon size={BUTTON_ICON_SIZE} />}
+      {/* Espacement porté par le SPAN du texte (retour Rémi), pas par un gap du
+          bouton : icône seule reste le carré exact p-s+icône+p-s (rien à retirer),
+          texte (seul ou à côté de l'icône) gagne son propre respire px-s de
+          chaque côté — le déséquilibre "plus d'air pour le texte" est voulu et
+          ne dépend plus de la présence de l'icône. */}
+      {children && <span className="px-s">{children}</span>}
+    </button>
+  )
+})
 
 /** ✓ fugace « enregistré » posé sur la zone sauvée (spec §Feedback des panneaux). */
 export function SavedTick({ show }: { show: boolean }) {
   if (!show) return null
   return (
-    <span className="flex shrink-0 items-center gap-1 text-[11px] text-textsoft">
+    <span className="flex shrink-0 items-center gap-xs text-[11px] text-textsoft">
       <Check size={10} />
       saved
     </span>
@@ -174,7 +240,7 @@ export function SavedTick({ show }: { show: boolean }) {
 export function FieldError({ errs }: { errs?: string[] }) {
   if (!errs || errs.length === 0) return null
   return (
-    <div className="flex items-start gap-1.5 px-1.5 text-[11px] text-texthard">
+    <div className="flex items-start gap-s px-s text-[11px] text-texthard">
       <Warning size={11} className="mt-px shrink-0" />
       <span className="font-mono">{errs.join(' · ')}</span>
     </div>
@@ -199,18 +265,19 @@ export const blurOnEnter = (e: KeyboardEvent<HTMLInputElement>) => {
 
 /**
  * Bandeau d'erreur des panneaux : registre visuel distinct d'une simple boîte
- * d'info neutre — libellé « Erreur » + icône d'alerte, bord gauche appuyé
- * (border-l-4 neutral-900), fond neutre-100. Monochrome strict.
+ * d'info neutre — libellé « Erreur » + icône d'alerte, trait gauche en inset
+ * box-shadow accent (`shadow-[inset_3px_0_0_var(--color-accent)]`, #395 —
+ * jamais de vraie `border`), fond Foreground. Monochrome strict.
  */
 export function ErrorBanner({ errors }: { errors: string[] }) {
   if (errors.length === 0) return null
   return (
-    <div role="alert" className="rounded-surface bg-foreground px-3 py-2 text-xs text-textsoft shadow-[inset_3px_0_0_var(--color-accent)]">
-      <div className="mb-1 flex items-center gap-1.5 font-semibold text-texthard">
+    <div role="alert" className="rounded-surface bg-foreground px-m py-s text-xs text-textsoft shadow-[inset_3px_0_0_var(--color-accent)]">
+      <div className="mb-xs flex items-center gap-s font-semibold text-texthard">
         <Warning size={12} className="shrink-0" />
         Error
       </div>
-      <ul className="flex flex-col gap-1">
+      <ul className="flex flex-col gap-xs">
         {errors.map((e, i) => <li key={i} className="font-mono">{e}</li>)}
       </ul>
     </div>
@@ -247,7 +314,7 @@ export function GhostAutoTextArea({ className = '', style, ...props }: Component
 
 export function TextArea(props: ComponentProps<'textarea'>) {
   // Base UI n'a pas de textarea — même peau que les autres champs.
-  return <textarea {...props} className={`${fieldCls} min-h-[100px] resize-y ${props.className ?? ''}`} />
+  return <textarea rows={4} {...props} className={`${fieldCls} resize-y ${props.className ?? ''}`} />
 }
 
 /**
@@ -266,7 +333,8 @@ export function AutoTextArea({ className = '', ...props }: ComponentProps<'texta
     <textarea
       ref={ref}
       onInput={(e) => grow(e.currentTarget)}
-      className={`${fieldCls} min-h-[80px] resize-none overflow-hidden ${className}`}
+      className={`${fieldCls} resize-none overflow-hidden ${className}`}
+      rows={3}
       {...props}
     />
   )
@@ -281,28 +349,30 @@ export function AutoTextArea({ className = '', ...props }: ComponentProps<'texta
 export function ToastViewport() {
   const { toasts } = Toast.useToastManager()
   return (
-    <Toast.Viewport className="fixed bottom-4 right-4 z-[100] flex w-72 flex-col gap-2">
+    <Toast.Viewport className="fixed bottom-4 right-4 z-[100] flex max-w-72 flex-col gap-s">
       {toasts.map((toast) => (
         <Toast.Root
           key={toast.id}
           toast={toast}
-          className="rounded-surface bg-foreground px-3 py-2.5 shadow-lg ring-1 ring-inset ring-border transition-opacity duration-150 data-[ending]:opacity-0 data-[starting]:opacity-0 motion-reduce:transition-none"
+          className="rounded-surface bg-foreground px-m py-m shadow-lg ring-1 ring-inset ring-border transition-opacity duration-150 data-[ending]:opacity-0 data-[starting]:opacity-0 motion-reduce:transition-none"
         >
           {/* Aligné sur le popup Activity (filet neutral-200, shadow-lg, rounded-md,
               monochrome) — un petit Check accent signale la tâche bouclée (l'accent
               est ici légitime : point d'attention). Fini la boîte à bordure noire. */}
-          <div className="flex items-start gap-2">
+          <div className="flex items-start gap-s">
             <Check size={12} className="mt-px shrink-0 text-accent" aria-hidden="true" />
             <div className="min-w-0 flex-1">
               <Toast.Title className="text-xs font-semibold text-texthard" />
-              <Toast.Description className="mt-0.5 text-xs text-textsoft" />
+              <Toast.Description className="mt-xs text-xs text-textsoft" />
             </div>
+            {/* La croix du toast est LE vrai Button (demande initiale #419 : « la
+                croix de la notif… un vrai composant ») : Toast.Close se compose via
+                `render` (même doctrine que Popover.Trigger×TogglePill) — Base UI
+                fusionne onClick/ref sur le <button> du Button ghost. */}
             <Toast.Close
               aria-label="Close"
-              className="shrink-0 rounded-interactive p-0.5 text-textsoft transition-colors hover:bg-rollover hover:text-texthard"
-            >
-              <Cross size={10} />
-            </Toast.Close>
+              render={<Button variant="ghost" icon={Cross} className="shrink-0" />}
+            />
           </div>
         </Toast.Root>
       ))}
@@ -342,7 +412,7 @@ function RelOption({ item }: { item: SelectItem }) {
   const p = item.preview
   if (!p) return <span className="min-w-0 flex-1 truncate">{item.label}</span>
   return (
-    <span className="flex min-w-0 flex-1 items-center gap-2">
+    <span className="flex min-w-0 flex-1 items-center gap-s">
       <KindGlyph task={{ kind: p.kind, status: p.status }} />
       <span className="shrink-0 font-mono text-xs text-textsoft">#{p.id}</span>
       <span
@@ -351,7 +421,7 @@ function RelOption({ item }: { item: SelectItem }) {
       >
         {p.title}
       </span>
-      <span className="ml-auto flex shrink-0 items-center gap-1.5">
+      <span className="ml-auto flex shrink-0 items-center gap-s">
         {p.stage && <span className="font-mono text-[11px] text-textsoft">{p.stage}</span>}
       </span>
     </span>
@@ -376,7 +446,7 @@ export function Select({
   /** Peau camouflée (ghostCls) — pour les champs permanents du panneau. */
   ghost?: boolean
   /** Variante compacte du corps des vues : hauteur réduite
-      (py-1, text-xs) — rounded-interactive 4px comme tout contrôle du corps (design.md §1). */
+      (py-xs, text-xs) — rounded-interactive 4px comme tout contrôle du corps (design.md §1). */
   compact?: boolean
   'aria-label'?: string
 }) {
@@ -389,7 +459,7 @@ export function Select({
     >
       <BaseSelect.Trigger
         aria-label={ariaLabel}
-        className={`${ghost ? `${ghostCls} text-sm` : compact ? 'w-full rounded-interactive bg-foreground px-2.5 py-1 text-xs text-texthard ring-1 ring-inset ring-border transition-colors hover:bg-rollover' : fieldCls} flex items-center justify-between gap-2 text-left data-[disabled]:opacity-60 data-[disabled]:text-textsoft ${ghost ? 'data-[disabled]:bg-transparent' : ''}`}
+        className={`${ghost ? `${ghostCls} text-sm` : compact ? 'w-full rounded-interactive bg-foreground px-m py-xs text-xs text-texthard ring-1 ring-inset ring-border transition-colors hover:bg-rollover' : fieldCls} flex items-center justify-between gap-s text-left data-[disabled]:opacity-60 data-[disabled]:text-textsoft ${ghost ? 'data-[disabled]:bg-transparent' : ''}`}
       >
         <BaseSelect.Value />
         <BaseSelect.Icon className="shrink-0 text-textsoft">
@@ -398,12 +468,12 @@ export function Select({
       </BaseSelect.Trigger>
       <BaseSelect.Portal>
         <BaseSelect.Positioner sideOffset={4} className="z-50">
-          <BaseSelect.Popup className="min-w-[var(--anchor-width)] rounded-interactive bg-foreground py-1 shadow-sm ring-1 ring-inset ring-border">
+          <BaseSelect.Popup className="min-w-[var(--anchor-width)] rounded-interactive bg-foreground py-xs shadow-sm ring-1 ring-inset ring-border">
             {items.map((item) => (
               <BaseSelect.Item
                 key={item.value}
                 value={item.value}
-                className="flex cursor-default items-center justify-between gap-2 px-2.5 py-1.5 text-sm text-texthard data-[highlighted]:bg-rollover"
+                className="flex cursor-default items-center justify-between gap-s px-m py-s text-sm text-texthard data-[highlighted]:bg-rollover"
               >
                 <BaseSelect.ItemText>{item.label}</BaseSelect.ItemText>
                 <BaseSelect.ItemIndicator className="text-texthard">
@@ -455,14 +525,14 @@ export function AddCombobox({ items, placeholder, onAdd, 'aria-label': ariaLabel
         <Combobox.Positioner sideOffset={4} className="z-50">
           {/* Largeur = celle du champ (pas min-) : les lignes riches (#125)
               tronquent leur titre au lieu de dilater le popup à l'écran. */}
-          <Combobox.Popup className="max-h-64 w-[var(--anchor-width)] overflow-y-auto rounded-interactive bg-foreground py-1 shadow-sm ring-1 ring-inset ring-border">
-            <Combobox.Empty className="px-2.5 py-1.5 text-sm text-textsoft">No tasks.</Combobox.Empty>
+          <Combobox.Popup className="max-h-64 w-[var(--anchor-width)] overflow-y-auto rounded-interactive bg-foreground py-xs shadow-sm ring-1 ring-inset ring-border">
+            <Combobox.Empty className="px-m py-s text-sm text-textsoft">No tasks.</Combobox.Empty>
             <Combobox.List>
               {(item: SelectItem) => (
                 <Combobox.Item
                   key={item.value}
                   value={item}
-                  className="flex cursor-default items-center px-2.5 py-1.5 text-sm text-texthard data-[highlighted]:bg-rollover"
+                  className="flex cursor-default items-center px-m py-s text-sm text-texthard data-[highlighted]:bg-rollover"
                 >
                   <RelOption item={item} />
                 </Combobox.Item>
@@ -507,7 +577,7 @@ export function TagsCombobox({ tags, suggestions, disabled = false, onSave }: {
 
   if (disabled) {
     return (
-      <div className="flex flex-wrap items-center gap-1.5 px-1.5 py-1">
+      <div className="flex flex-wrap items-center gap-s px-s py-xs">
         {tags.length === 0 && <span className="text-sm text-textsoft">—</span>}
         {tags.map((t) => <span key={t} className="text-sm text-textsoft">#{t}</span>)}
       </div>
@@ -532,11 +602,11 @@ export function TagsCombobox({ tags, suggestions, disabled = false, onSave }: {
         onSave(next.filter((i) => !i.creatable).map((i) => i.value))
       }}
     >
-      <Combobox.Chips className={`${ghostCls} flex flex-wrap items-center gap-1.5 focus-within:ring-2 focus-within:ring-inset focus-within:ring-accent focus-within:bg-foreground`}>
+      <Combobox.Chips className={`${ghostCls} flex flex-wrap items-center gap-s focus-within:ring-2 focus-within:ring-inset focus-within:ring-accent focus-within:bg-foreground`}>
         {selected.map((item) => (
           <Combobox.Chip
             key={item.id}
-            className="flex items-center gap-1 text-sm text-textsoft"
+            className="flex items-center gap-xs text-sm text-textsoft"
           >
             #{item.value}
             <Combobox.ChipRemove aria-label={`Remove ${item.value}`} className="shrink-0 rounded-interactive text-textsoft hover:text-texthard">
@@ -552,14 +622,14 @@ export function TagsCombobox({ tags, suggestions, disabled = false, onSave }: {
       </Combobox.Chips>
       <Combobox.Portal>
         <Combobox.Positioner sideOffset={4} className="z-50">
-          <Combobox.Popup className="max-h-56 min-w-[var(--anchor-width)] overflow-y-auto rounded-interactive bg-foreground py-1 shadow-sm ring-1 ring-inset ring-border">
-            <Combobox.Empty className="px-2.5 py-1.5 text-sm text-textsoft">No tags.</Combobox.Empty>
+          <Combobox.Popup className="max-h-56 min-w-[var(--anchor-width)] overflow-y-auto rounded-interactive bg-foreground py-xs shadow-sm ring-1 ring-inset ring-border">
+            <Combobox.Empty className="px-m py-s text-sm text-textsoft">No tags.</Combobox.Empty>
             <Combobox.List>
               {(item: TagItem) => (
                 <Combobox.Item
                   key={item.id}
                   value={item}
-                  className="flex cursor-default items-center gap-2 px-2.5 py-1.5 text-sm text-texthard data-[highlighted]:bg-rollover"
+                  className="flex cursor-default items-center gap-s px-m py-s text-sm text-texthard data-[highlighted]:bg-rollover"
                 >
                   {item.creatable ? (
                     <>
@@ -609,7 +679,7 @@ export function EpicCombobox({ value, suggestions, disabled = false, onSave, toS
 
   if (disabled) {
     return (
-      <div className="px-1.5 py-1 font-mono text-sm text-textsoft">{value ?? '—'}</div>
+      <div className="px-s py-xs font-mono text-sm text-textsoft">{value ?? '—'}</div>
     )
   }
 
@@ -639,14 +709,14 @@ export function EpicCombobox({ value, suggestions, disabled = false, onSave, toS
         />
         <Combobox.Portal>
           <Combobox.Positioner sideOffset={4} className="z-50">
-            <Combobox.Popup className="max-h-56 min-w-[var(--anchor-width)] overflow-y-auto rounded-interactive bg-foreground py-1 shadow-sm ring-1 ring-inset ring-border">
-              <Combobox.Empty className="px-2.5 py-1.5 text-sm text-textsoft">No epics.</Combobox.Empty>
+            <Combobox.Popup className="max-h-56 min-w-[var(--anchor-width)] overflow-y-auto rounded-interactive bg-foreground py-xs shadow-sm ring-1 ring-inset ring-border">
+              <Combobox.Empty className="px-m py-s text-sm text-textsoft">No epics.</Combobox.Empty>
               <Combobox.List>
                 {(item: string) => (
                   <Combobox.Item
                     key={item}
                     value={item}
-                    className="flex cursor-default items-center gap-2 px-2.5 py-1.5 text-sm text-texthard data-[highlighted]:bg-rollover"
+                    className="flex cursor-default items-center gap-s px-m py-s text-sm text-texthard data-[highlighted]:bg-rollover"
                   >
                     {known.includes(item) ? (
                       <>
@@ -669,15 +739,7 @@ export function EpicCombobox({ value, suggestions, disabled = false, onSave, toS
         </Combobox.Portal>
       </Combobox.Root>
       {value !== null && (
-        <button
-          type="button"
-          aria-label="Remove epic"
-          title="Remove epic"
-          onClick={() => onSave(null)}
-          className="shrink-0 rounded-interactive p-1 text-textsoft opacity-0 transition-opacity hover:bg-rollover hover:text-texthard focus-visible:opacity-100 group-hover:opacity-100"
-        >
-          <Cross size={9} />
-        </button>
+        <Button variant="ghost" icon={Cross} reveal aria-label="Remove epic" title="Remove epic" onClick={() => onSave(null)} />
       )}
     </div>
   )
@@ -704,11 +766,11 @@ export function MultiCombobox({
       value={selected}
       onValueChange={(objs: SelectItem[]) => onValueChange(objs.map((o) => Number(o.value)))}
     >
-      <Combobox.Chips className={`${fieldCls} flex flex-wrap items-center gap-1 focus-within:ring-2 focus-within:ring-inset focus-within:ring-accent focus-within:bg-foreground`}>
+      <Combobox.Chips className={`${fieldCls} flex flex-wrap items-center gap-xs focus-within:ring-2 focus-within:ring-inset focus-within:ring-accent focus-within:bg-foreground`}>
         {selected.map((item) => (
           <Combobox.Chip
             key={item.value}
-            className="flex max-w-full items-center gap-1 bg-active px-1.5 py-0.5 text-xs text-texthard"
+            className="flex max-w-full items-center gap-xs bg-active px-s py-xs text-xs text-texthard"
           >
             <span className="min-w-0 max-w-[200px] truncate" title={item.label}>{item.label}</span>
             <Combobox.ChipRemove className="shrink-0 text-textsoft hover:text-texthard" aria-label={`Remove ${item.label}`}>
@@ -726,14 +788,14 @@ export function MultiCombobox({
         <Combobox.Positioner sideOffset={4} className="z-50">
           {/* Largeur = celle du champ (pas min-) : les lignes riches (#125)
               tronquent leur titre au lieu de dilater le popup à l'écran. */}
-          <Combobox.Popup className="max-h-64 w-[var(--anchor-width)] overflow-y-auto rounded-interactive bg-foreground py-1 shadow-sm ring-1 ring-inset ring-border">
-            <Combobox.Empty className="px-2.5 py-1.5 text-sm text-textsoft">No tasks.</Combobox.Empty>
+          <Combobox.Popup className="max-h-64 w-[var(--anchor-width)] overflow-y-auto rounded-interactive bg-foreground py-xs shadow-sm ring-1 ring-inset ring-border">
+            <Combobox.Empty className="px-m py-s text-sm text-textsoft">No tasks.</Combobox.Empty>
             <Combobox.List>
               {(item: SelectItem) => (
                 <Combobox.Item
                   key={item.value}
                   value={item}
-                  className="flex cursor-default items-center gap-2 px-2.5 py-1.5 text-sm text-texthard data-[highlighted]:bg-rollover"
+                  className="flex cursor-default items-center gap-s px-m py-s text-sm text-texthard data-[highlighted]:bg-rollover"
                 >
                   <RelOption item={item} />
                   <Combobox.ItemIndicator className="shrink-0 text-texthard">

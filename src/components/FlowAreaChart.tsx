@@ -7,7 +7,21 @@ import type { DayBucket } from '../lib/overview'
  * avant en ACCENT (seule série colorée — doctrine monochrome + accent rare).
  * SVG maison, courbe lissée Catmull-Rom (le flux « qui coule » de la réf), aires
  * remplies par un dégradé qui s'estompe vers la ligne de base. Tokens CSS only.
+ *
+ * #431 (retour Rémi) : sur un thème monochrome (ex. Cursor, accent ≈ neutre) les
+ * deux crêtes se confondaient. Le STYLE de trait devient le signal primaire :
+ * Created (secondaire, neutre) passe en POINTILLÉ, Closed (la série mise en
+ * avant) reste pleine — plein+accent = important, pointillé+neutre = contexte.
+ * La légende montre un échantillon de trait (mini-SVG au même style/épaisseur
+ * que la vraie crête) au lieu d'une pastille de couleur.
  */
+
+/** Pointillé de la crête Created — en px ÉCRAN (vectorEffect non-scaling-stroke
+ *  résout dasharray comme stroke-width dans le repère externe : les tirets ne
+ *  s'étirent pas avec le preserveAspectRatio="none"). Réutilisé tel quel par
+ *  l'échantillon de légende (SVG 1:1) pour que légende et graphe coïncident. */
+const CREATED_DASH = '5 6'
+const STROKE_W = 1.5
 
 const W = 720
 const H = 240
@@ -59,7 +73,7 @@ const short = (iso: string) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}`
 export function FlowAreaChart({ data }: { data: DayBucket[] }) {
   if (data.length === 0) {
     return (
-      <div className="flex h-full min-h-[200px] items-center justify-center px-4 text-center text-xs text-textsoft">
+      <div className="flex h-full min-h-[200px] items-center justify-center px-l text-center text-xs text-textsoft">
         No activity to chart yet.
       </div>
     )
@@ -80,14 +94,24 @@ export function FlowAreaChart({ data }: { data: DayBucket[] }) {
   const pct = (n: number, total: number) => `${(n / total) * 100}%`
 
   return (
-    <div className="flex h-full flex-col px-4 pb-3 pt-1">
-      {/* Légende — même registre que les autres viz de l'Overview. */}
-      <div className="mb-2 flex shrink-0 items-center gap-4 text-[11px] text-textsoft">
-        <span className="flex items-center gap-1.5">
-          <span className="inline-block h-2 w-2 rounded-round" style={{ backgroundColor: 'var(--color-textsoft)' }} aria-hidden="true" /> Created
+    <div className="flex h-full flex-col px-l pb-m pt-xs">
+      {/* Légende — échantillons de TRAIT (#431) : un segment au même style que la
+          crête réelle (pointillé/plein, même épaisseur), pas une pastille de
+          couleur — la distinction survit aux thèmes monochromes. Mini-SVG plutôt
+          qu'une border CSS : rendu 1:1 prévisible du dasharray et des caps, et
+          c'est un trait de dataviz, pas un séparateur d'UI. */}
+      <div className="mb-s flex shrink-0 items-center gap-l text-[11px] text-textsoft">
+        <span className="flex items-center gap-s">
+          <svg width="18" height="8" viewBox="0 0 18 8" className="shrink-0" aria-hidden="true">
+            <line x1="1" y1="4" x2="17" y2="4" stroke="var(--color-textsoft)" strokeWidth={STROKE_W} strokeLinecap="round" strokeDasharray={CREATED_DASH} />
+          </svg>
+          Created
         </span>
-        <span className="flex items-center gap-1.5">
-          <span className="inline-block h-2 w-2 rounded-round bg-accent" aria-hidden="true" /> Closed
+        <span className="flex items-center gap-s">
+          <svg width="18" height="8" viewBox="0 0 18 8" className="shrink-0" aria-hidden="true">
+            <line x1="1" y1="4" x2="17" y2="4" stroke="var(--color-accent)" strokeWidth={STROKE_W} strokeLinecap="round" />
+          </svg>
+          Closed
         </span>
       </div>
       {/* Conteneur relatif : le SVG remplit sa largeur (hauteur via viewBox), les
@@ -123,16 +147,16 @@ export function FlowAreaChart({ data }: { data: DayBucket[] }) {
           {/* Aires superposées : créés (neutre) dessous, fermés (accent) au-dessus. */}
           <path d={smoothArea(createdPts)} fill="url(#flow-created)" />
           <path d={smoothArea(closedPts)} fill="url(#flow-closed)" />
-          {/* Lignes de crête par-dessus les aires. */}
-          <path d={smoothLine(createdPts)} fill="none" stroke="var(--color-textsoft)" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-          <path d={smoothLine(closedPts)} fill="none" stroke="var(--color-accent)" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+          {/* Lignes de crête par-dessus les aires. Created en pointillé (#431). */}
+          <path d={smoothLine(createdPts)} fill="none" stroke="var(--color-textsoft)" strokeWidth={STROKE_W} strokeDasharray={CREATED_DASH} strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+          <path d={smoothLine(closedPts)} fill="none" stroke="var(--color-accent)" strokeWidth={STROKE_W} strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
         </svg>
 
         {/* Étiquettes Y (overlay HTML, alignées à droite juste avant le tracé). */}
         {[0, 0.5, 1].map((f) => (
           <span
             key={f}
-            className="pointer-events-none absolute -translate-y-1/2 font-mono text-[10px] tabular-nums text-textsoft"
+            className="pointer-events-none absolute -translate-y-1/2 font-mono text-[11px] tabular-nums text-textsoft"
             style={{ left: pct(PAD.left - 4, W), top: pct(BASE_Y - f * PLOT_H, H), transform: 'translate(-100%, -50%)' }}
           >
             {Math.round(f * max)}
@@ -142,7 +166,7 @@ export function FlowAreaChart({ data }: { data: DayBucket[] }) {
         {xTicks.map((i) => (
           <span
             key={i}
-            className="pointer-events-none absolute bottom-0 font-mono text-[10px] text-textsoft"
+            className="pointer-events-none absolute bottom-0 font-mono text-[11px] text-textsoft"
             style={{
               left: pct(createdPts[i][0], W),
               transform: i === 0 ? 'translateX(0)' : i === data.length - 1 ? 'translateX(-100%)' : 'translateX(-50%)',

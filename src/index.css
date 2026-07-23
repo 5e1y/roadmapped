@@ -13,40 +13,24 @@
      système (text-red-600, bg-slate-100…) ne génère AUCUN style : l'écart
      est visible immédiatement au lieu de passer en silence. */
   --color-*: initial;
-
-  --color-accent: #2563eb;
-  /* Tint de sélection OPAQUE (accent ~6% sur blanc) : ne se mélange pas au
-     fond gris et ne laisse rien transparaître (arêtes du graphe). */
-  --color-accent-tint: #eef3fd;
-
-  /* L'échelle monochrome (valeurs Tailwind v4 d'origine, oklch — zéro dérive
-     de rendu). Plancher informatif : 500 sur fond clair, 600 sur fond gris
-     (design.md §1) ; 300/400 = décoratif et disabled uniquement. */
-  --color-white: #fff;
-  /* Fond du body — SCINDÉ de neutral-50 (#269) : en sombre la page passe SOUS la
-     carte, alors que hover:bg-neutral-50 (survol de rangée sur carte) doit rester
-     PLUS clair qu'elle. En clair les deux valent ~#fafafa. */
-  --color-page: #fafafa;
-  --color-neutral-50: oklch(0.985 0 0);
-  --color-neutral-100: oklch(0.97 0 0);
-  --color-neutral-200: oklch(0.922 0 0);
-  --color-neutral-300: oklch(0.87 0 0);
-  --color-neutral-400: oklch(0.708 0 0);
-  --color-neutral-500: oklch(0.556 0 0);
-  --color-neutral-600: oklch(0.439 0 0);
-  --color-neutral-700: oklch(0.371 0 0);
-  --color-neutral-800: oklch(0.269 0 0);
-  --color-neutral-900: oklch(0.205 0 0);
+  /* Même strip-down pour les RAYONS : sans ce reset, une classe par défaut
+     (rounded-md/-lg…) compilerait SILENCIEUSEMENT avec la valeur Tailwind au
+     lieu des 4 tokens du contrat (interactive/listitem/surface/round). Reseté,
+     elle ne génère plus rien — l'écart devient visible comme pour les couleurs. */
+  --radius-*: initial;
 
   /* ─────────────────────────────────────────────────────────────────────────
-   * TOKENS SÉMANTIQUES (theming-foundations, décision Rémi) — la couche que les
-   * composants appellent désormais. Un THÈME = ces valeurs. Ils ALIASENT les
-   * primitives ci-dessus, donc ils suivent le basculement clair/sombre SANS être
-   * redéfinis dans le bloc dark. La refonte « alléger » = régler ces tokens.
+   * TOKENS SÉMANTIQUES (theming-foundations, décision Rémi) — LA seule couche
+   * (#405 : plus de primitives nommées par position, white/page/neutral-N).
+   * Un THÈME = ces valeurs, posées en LITTÉRAL par chaque bloc de thème.
+   * Seules exceptions : Action et Highlight aliasent le RÔLE accent par défaut
+   * (alias rôle→rôle, résolu sur les tokens cascadés de l'élément courant →
+   * ils suivent le sombre et les thèmes sans redéclaration). La refonte
+   * « alléger » = régler ces tokens.
    *
-   * 9 COULEURS (mapping depuis l'échelle numérique, cf. design.md §1) :
-   *   Active     = fond des éléments actifs/sélectionnés (accent-tint, bleu CLAIR)
-   *   Rollover   = survol de rangée/surface (neutral-50 : > carte en sombre)
+   * 10 COULEURS (cf. design.md §1) :
+   *   Active     = fond des éléments actifs/sélectionnés (bleu CLAIR)
+   *   Rollover   = survol de rangée/surface (overlay translucide)
    *   Action     = fond des boutons primaires (accent, bleu ; remplace l'ancien noir)
    *   accent     = LE trait/point d'attention (barre gauche de rangée, glyphe
    *                in_progress, icône active) — même bleu qu'Action mais rôle
@@ -54,23 +38,37 @@
    *   Foreground = surface (carte, panneau, popup, flanc) — et texte sur Action
    *                (symétrie de bascule : blanc/#2563eb en clair ≈ encre/#3b82f6
    *                en sombre, ~5,8:1 des deux côtés, zéro token « on-accent »)
-   *   Background = page (sous les surfaces)
+   *   Background = page (sous les surfaces) — et fond « en creux » (code, champs)
    *   TextHard   = encre primaire (texte SEULEMENT — plus le fond des boutons)
    *   TextSoft   = texte atténué / méta (plancher contraste #108) ; disabled/décoratif se replie ici
    *   Border     = filets, séparateurs, bordures de contrôle
+   *   Highlight  = marque de nav active (#396)
    */
-  --color-active: var(--color-accent-tint);
-  /* Rollover = OVERLAY TRANSLUCIDE (#395, Rémi) : un neutral-50 OPAQUE est
+  --color-accent: #2563eb;
+  /* Active = tint de sélection OPAQUE (accent ~6% sur blanc) : ne se mélange
+     pas au fond gris et ne laisse rien transparaître (arêtes du graphe). */
+  --color-active: #eef3fd;
+  /* Rollover = OVERLAY TRANSLUCIDE (#395, Rémi) : un gris clair OPAQUE est
      invisible sur le fond Background (page grise). Un voile noir léger assombrit
      ce qu'il y a dessous → le survol se voit sur la carte blanche ET sur la page
      grise ET sur une carte déjà teintée. */
   --color-rollover: rgb(0 0 0 / 0.045);
   --color-action: var(--color-accent);
-  --color-foreground: var(--color-white);
-  --color-background: var(--color-page);
-  --color-texthard: var(--color-neutral-900);
-  --color-textsoft: var(--color-neutral-500);
-  --color-border: var(--color-neutral-200);
+  --color-foreground: #fff;
+  /* Background SCINDÉ de la carte (#269) : en sombre la page passe SOUS la
+     carte, alors que le survol de rangée (Rollover) doit rester PLUS clair
+     qu'elle. */
+  --color-background: #fafafa;
+  /* Encres et filet : les valeurs oklch Tailwind v4 d'origine (zéro dérive de
+     rendu). TextSoft = plancher informatif sur fond clair (design.md §1). */
+  --color-texthard: oklch(0.205 0 0);
+  --color-textsoft: oklch(0.556 0 0);
+  --color-border: oklch(0.922 0 0);
+  /* Marque de nav active (#396) — alias sur accent par défaut (zéro changement
+     pour les thèmes qui ne la redéfinissent pas). Un thème dont le DS réel
+     distingue la couleur de « marque active » du bleu d'action/accent (ex.
+     GitHub : soulignement corail des tabs) la redéfinit seule. */
+  --color-highlight: var(--color-accent);
 
   /* 4 RAYONS : Interactive (contrôles, fusionne l'ancien 4/6px) · ListItem
    * (rangées — 0 = liste collée par défaut, le token que les thèmes aèrent) ·
@@ -97,8 +95,8 @@
  * Posé par data-theme sur <html> (script anti-flash dans index.html, état dans
  * src/state/theme.ts). Tri-couche INVERSÉ, pas naïf : page #0f0f0f / carte #171717
  * (l'encre du clair devient la surface) / filets #303030 ; encre #f5f5f5 (jamais
- * #fff — pas de halo). Le cœur de l'échelle réutilise les oklch canoniques en
- * miroir (900↔ ancien 50, etc. — zéro dérive de rendu). Spec complète :
+ * #fff — pas de halo). Les encres réutilisent les oklch canoniques du clair en
+ * miroir (zéro dérive de rendu). Spec complète :
  * docs/specs/2026-07-10-dark-mode.md.
  *
  * CSS non-layered → gagne sur le @theme (émis dans @layer theme) quel que soit
@@ -110,26 +108,19 @@
   color-scheme: dark;
 
   --color-accent: #3b82f6;        /* #2563eb ne tient que 3,5:1 sur la carte */
-  --color-accent-tint: #1c2636;   /* accent 14 % dans la carte, OPAQUE (graphe) */
+  --color-active: #1c2636;        /* accent 14 % dans la carte, OPAQUE (graphe) */
   --color-rollover: rgb(255 255 255 / 0.06);  /* voile CLAIR en sombre (le noir n'y ferait rien) */
 
-  --color-white: oklch(0.205 0 0);       /* carte #171717 */
-  --color-page: oklch(0.168 0 0);        /* page ≈ #0f0f0f (sous la carte) */
-  --color-neutral-50: oklch(0.24 0 0);   /* hover rangée — > carte */
-  --color-neutral-100: oklch(0.269 0 0);
-  --color-neutral-200: oklch(0.31 0 0);  /* LES filets */
-  --color-neutral-300: oklch(0.371 0 0);
-  --color-neutral-400: oklch(0.556 0 0);
-  --color-neutral-500: oklch(0.708 0 0); /* plancher texte : 7,1:1 sur carte */
-  --color-neutral-600: oklch(0.78 0 0);  /* plancher sur fond gris (100/200) */
-  --color-neutral-700: oklch(0.87 0 0);
-  --color-neutral-800: oklch(0.922 0 0);
-  --color-neutral-900: oklch(0.97 0 0);  /* L'ENCRE #f5f5f5 */
+  --color-foreground: oklch(0.205 0 0);  /* carte #171717 */
+  --color-background: oklch(0.168 0 0);  /* page ≈ #0f0f0f (sous la carte) */
+  --color-border: oklch(0.31 0 0);       /* LES filets */
+  --color-textsoft: oklch(0.708 0 0);    /* plancher texte : 7,1:1 sur carte */
+  --color-texthard: oklch(0.97 0 0);     /* L'ENCRE #f5f5f5 */
 }
 /* Ombres densifiées en sombre : le défaut (noir 10 %) est invisible sur fond
    sombre. --tw-shadow-color est @property{inherits:false} → cibler la classe
    porteuse, PAS :root (l'override ne se propagerait pas). La séparation nette est
-   déjà portée par les `border-neutral-200` présents sur tous les popups/toasts. */
+   déjà portée par les `ring-border`/`border-border` présents sur tous les popups/toasts. */
 :root[data-theme="dark"] .shadow-sm { --tw-shadow-color: rgb(0 0 0 / 0.45); }
 :root[data-theme="dark"] .shadow-lg { --tw-shadow-color: rgb(0 0 0 / 0.6); }
 
@@ -140,9 +131,9 @@
  * (aucun bloc : `data-theme-name` absent ou "roadmapped" → @theme + le bloc dark
  * ci-dessus s'appliquent seuls).
  *
- * Chaque thème ne redéfinit qu'un « kit d'identité » : accent, accent-tint, page,
- * carte (--color-white), bordure (neutral-200) + les rayons. Le reste de l'échelle
- * neutre (encre, plancher texte) hérite de la base → lisibilité garantie.
+ * Chaque thème ne redéfinit qu'un « kit d'identité » : accent, Active, Background,
+ * carte (Foreground), Border + les rayons. Les encres (TextHard/TextSoft)
+ * héritent de la base → lisibilité garantie.
  *
  * SPÉCIFICITÉ : le bloc CLAIR d'un thème (`[data-theme-name="x"]`, 1 attribut) a la
  * même force que le bloc dark de base (`[data-theme="dark"]`, 1 attribut). Pour que
@@ -160,82 +151,131 @@
       blanche, cartes grises — décision Rémi) + arrondis augmentés. ── */
 :root[data-theme-name="github"] {
   --color-accent: #0969da;
-  --color-accent-tint: #ddf4ff;
-  --color-page: #ffffff;          /* page BLANCHE (ex-carte) */
-  --color-white: #f6f8fa;         /* cartes GRISES (ex-page) */
-  --color-neutral-200: #d0d7de;
-  --radius-interactive: 8px;
-  --radius-listitem: 8px;
+  /* PAS de teinte (retour Rémi, #396) : la DA GitHub réelle n'a aucun fond
+     coloré pour la sélection — juste un gris, le même que le foreground, posé
+     en OVERLAY TRANSLUCIDE (même technique que --color-rollover du bloc
+     @theme) pour rester visible aussi bien sur la page que sur la carte.
+     Un peu plus opaque que le rollover (0,045) pour se distinguer du survol. */
+  --color-active: rgb(0 0 0 / 0.08);
+  --color-background: #ffffff;    /* page BLANCHE (ex-carte) */
+  /* Cartes/rail éclaircis un cran (retour Rémi, #396) : #f6f8fa se confondait
+     avec le tint orange de la sélection (bg-active) — moins de gris = plus
+     d'écart entre les deux fonds clairs. */
+  --color-foreground: #fafbfc;
+  --color-border: #d0d7de;
+  --color-texthard: #1f2328;      /* fgColor-default Primer : encre FROIDE (pas neutre pur) */
+  --color-textsoft: #59636e;      /* fgColor-muted Primer (≥5,8:1 sur carte #fafbfc) */
+  /* Action DÉCOUPLÉ de l'accent (#396, retour Rémi) — seul thème à le faire :
+     le CTA primaire GitHub réel est VERT (Primer btn-primary), le bleu ne sert
+     QUE les liens/marques. #1a7f37 (pas #1f883d) : le texte de bouton reste
+     `text-foreground` = la carte #fafbfc (symétrie de bascule, doctrine ci-dessus)
+     et #1f883d ne tenait que ~4,3:1 avec cette encre claire — #1a7f37 tient ~4,9:1. */
+  --color-action: #1a7f37;
+  /* Marque de nav active en corail (#396) — sépare visuellement l'état actif de
+     navigation du bleu d'accent/liens, comme le soulignement des tabs GitHub. */
+  --color-highlight: #fd8c73;
+  --radius-interactive: 12px;     /* remonté (retour Rémi) — aligné sur listitem/surface */
+  --radius-listitem: 12px;
   --radius-surface: 12px;
-  --spacing-listgap: 8px;   /* listes en cartes séparées (décision Rémi) */
+  /* Échelle d'espacement -2px sur toute la ligne (retour Rémi), sauf ListGap
+     inchangé. `l` était hérité du 16px de base — rendu explicite ici (14px)
+     pour que le -2px s'applique aussi à lui. */
+  --spacing-xs: 4px;
+  --spacing-s: 10px;
+  --spacing-m: 14px;
+  --spacing-l: 14px;
+  --spacing-xl: 30px;
+  --spacing-listgap: 8px;   /* inchangé — listes en cartes séparées (décision Rémi) */
 }
 :root[data-theme-name="github"][data-theme="dark"] {
-  --color-accent: #1f6feb;        /* blob bouton GitHub sombre, blanc/encre lisible */
-  --color-accent-tint: #121d2f;
-  --color-page: #161b22;          /* inversé */
-  --color-white: #0d1117;         /* inversé */
-  --color-neutral-200: #30363d;
+  --color-accent: #4493f8;        /* fgColor-accent Primer dark (liens) ; #1f6feb ne tenait
+                                     que ~4:1 avec l'encre-carte #0d1117 — 6:1 ici */
+  --color-active: rgb(255 255 255 / 0.1);  /* même overlay gris, voile CLAIR en sombre (idem --color-rollover) */
+  --color-background: #161b22;    /* inversé */
+  --color-foreground: #0d1117;    /* inversé */
+  --color-border: #30363d;
+  --color-texthard: #f0f6fc;      /* fgColor-default Primer dark (froid, sans halo) */
+  --color-textsoft: #9198a1;      /* fgColor-muted Primer dark (~6,4:1 sur carte) */
+  /* fgColor-success Primer dark : texte-carte #0d1117 dessus tient ~7,5:1
+     (#238636, le vert de fond réel du bouton, ne tenait que ~4,1:1). */
+  --color-action: #3fb950;
+  --color-highlight: #f78166;     /* corail nav-active Primer dark */
 }
 
-/* ── Cursor : couleur principale = NOIR (décision Rémi), sur un thème très
-      légèrement BEIGE. Monochrome noir/blanc, coins nets. ── */
+/* ── Cursor : couleur principale = NOIR (décision Rémi), sur des GRIS NEUTRES
+      purs (#417 : mesures sur le vrai outil — aucun beige dans l'interface).
+      Background↔Foreground INVERSÉS comme github : zone principale quasi
+      blanche, rail/cartes un cran plus gris. Contrôles en pilule (24px). ── */
 :root[data-theme-name="cursor"] {
-  --color-accent: #1a1a17;        /* NOIR (légèrement chaud) = bouton + marques */
-  --color-accent-tint: #eae7e0;   /* sélection : beige-gris (pas de bleu) */
-  --color-page: #f5f3ee;          /* beige très léger */
-  --color-white: #fdfcf8;         /* carte : beige plus clair */
-  --color-neutral-200: #e5e1d7;   /* filet chaud */
-  --radius-interactive: 4px;
-  --radius-listitem: 2px;
-  --radius-surface: 4px;
-  --spacing-listgap: 4px;         /* ListItem arrondi → un gap (petit, coins nets) */
+  /* Noir neutre (retour Rémi) — revenu sur l'accent après l'essai vert :
+     même valeur que Action/Highlight ci-dessous (#141414, mesuré sur le vrai
+     outil). Les 3 tokens sont désormais identiques mais restent 3 rôles
+     distincts dans le contrat (pas de redondance à retirer). */
+  --color-accent: #141414;
+  /* Sélection SANS couleur, en OVERLAY TRANSLUCIDE (même move que github) :
+     le vrai Cursor pose un gris (rail sélectionné #e0e0e1 sur #ececed, pill
+     active #e4e3e4 sur #f6f5f5 ≈ un voile noir ~8 %) → visible sur les DEUX
+     fonds et distinct du rollover (0,045). */
+  --color-active: rgb(0 0 0 / 0.08);
+  /* Action/Highlight DÉCOUPLÉS de l'accent (retour Rémi) — noir neutre mesuré
+     sur le vrai outil, comme avant l'introduction de l'accent vert. */
+  --color-action: #141414;
+  --color-highlight: #141414;
+  --color-background: #f6f5f5;    /* zone principale mesurée : gris neutre quasi blanc */
+  --color-foreground: #f0f0f0;    /* rail allégé (retour Rémi) : gris neutre, un cran seulement sous la page */
+  /* Filets TRÈS légers du vrai outil (bordure de carte #e4e3e3 sur #f6f5f5,
+     séparateur rail #dadadc sur #ececed) — un seul token, calibré pour rester
+     perceptible sur les cartes sans saillir sur la page. */
+  --color-border: #dcdcdd;
+  /* Le #737373 hérité ne tient que ~4:1 sur la carte (plancher #108 : 4,5:1) —
+     largement au-delà ici (même move que github avec son foreground grisé). */
+  --color-textsoft: #5f5f5f;
+  --radius-interactive: 16px;     /* CTA/inputs/pills (retour Rémi : ramené de 24 à 16, sur le token global) */
+  --radius-listitem: 6px;         /* rangée sélectionnée du rail réel : légèrement arrondie (~4-5px) */
+  --radius-surface: 8px;          /* carte "Extend Cursor with Plugins" ≈ 8px CSS mesurés */
+  --spacing-listgap: 8px;         /* monté (retour Rémi) — cartes plus détachées que le petit gap mesuré */
 }
 :root[data-theme-name="cursor"][data-theme="dark"] {
-  --color-accent: #e8e6df;        /* clair/beige : encre-carte lisible dessus */
-  --color-accent-tint: #26251f;
-  --color-page: #0b0b09;          /* quasi-noir chaud */
-  --color-white: #161511;
-  --color-neutral-200: #2b2924;
+  --color-accent: #e8e8e8;        /* revenu sur le clair/beige neutre (même valeur qu'Action/Highlight) */
+  --color-active: rgb(255 255 255 / 0.1);  /* même overlay, voile CLAIR en sombre */
+  --color-action: #e8e8e8;
+  --color-highlight: #e8e8e8;
+  --color-background: #1d1d1d;    /* inversion conservée : page un cran PLUS CLAIRE que les cartes */
+  --color-foreground: #141414;
+  --color-border: #2a2a2a;        /* filets discrets, neutres (le #303030 de base saillait plus) */
+  /* Re-posé à la valeur sombre de base : le bloc CLAIR du thème (même
+     spécificité, plus bas dans le fichier) écraserait sinon le textsoft
+     sombre avec son #5f5f5f illisible sur carte noire. */
+  --color-textsoft: oklch(0.708 0 0);
 }
 
 /* ── Claude : terre de Sienne (clay), coins DOUX, neutres CHAUDS ── */
 :root[data-theme-name="claude"] {
   --color-accent: #c15f3c;
-  --color-accent-tint: #f6e8e1;
-  --color-page: #faf9f5;          /* crème */
-  --color-white: #ffffff;
-  --color-neutral-200: #e6e1d6;   /* filet chaud */
+  --color-active: #f6e8e1;
+  --color-background: #faf9f5;    /* crème */
+  --color-foreground: #ffffff;
+  --color-border: #e6e1d6;        /* filet chaud */
   --radius-interactive: 8px;
   --radius-listitem: 8px;
   --radius-surface: 12px;
-  --spacing-listgap: 8px;         /* ListItem doux → cartes séparées (thème aéré) */
+  /* Échelle d'espacement -2px sur toute la ligne (retour Rémi) — partait de la
+     même échelle que github (xs/s/m/xl montés d'un cran, l hérité de la base) ;
+     `l` est maintenant explicite ici (14px) pour que le -2px s'applique aussi
+     à lui, ce qui rompt volontairement la parité avec la base/github. */
+  --spacing-xs: 4px;
+  --spacing-s: 10px;
+  --spacing-m: 14px;
+  --spacing-l: 14px;
+  --spacing-xl: 30px;
+  --spacing-listgap: 6px;         /* ListItem doux → cartes séparées (thème aéré) */
 }
 :root[data-theme-name="claude"][data-theme="dark"] {
   --color-accent: #d97757;        /* clay clair, encre-carte lisible dessus */
-  --color-accent-tint: #3a2620;
-  --color-page: #262624;          /* charbon chaud */
-  --color-white: #30302e;
-  --color-neutral-200: #413d36;
-}
-
-/* ── Codex (OpenAI) : vert signature, coins medium, quasi-noir froid ── */
-:root[data-theme-name="codex"] {
-  --color-accent: #0a7a5c;        /* vert foncé assez pour du blanc (4,5:1) */
-  --color-accent-tint: #d7f5ec;
-  --color-page: #ffffff;
-  --color-white: #ffffff;
-  --color-neutral-200: #e5e5e5;
-  --radius-interactive: 6px;
-  --radius-listitem: 4px;
-  --radius-surface: 8px;
-  --spacing-listgap: 6px;         /* ListItem arrondi → un gap */
-}
-:root[data-theme-name="codex"][data-theme="dark"] {
-  --color-accent: #19c37d;        /* vert vif, encre-carte lisible dessus */
-  --color-accent-tint: #0f2620;
-  --color-page: #0a0a0a;
-  --color-white: #171717;
-  --color-neutral-200: #2f2f2f;
+  --color-active: #3a2620;
+  --color-background: #262624;    /* charbon chaud */
+  --color-foreground: #30302e;
+  --color-border: #413d36;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -326,11 +366,11 @@
  * AUCUN import du DS de l'app parente (l'ex-import de tokens.css posait
  * `overflow: hidden` + `user-select: none` sur body — correct pour un éditeur
  * canvas, catastrophique pour une page document scrollable).
- * Trois couches : page #fafafa / carte #ffffff / filets var(--color-neutral-200). Encre var(--color-neutral-900).
+ * Trois couches : page Background / carte Foreground / filets var(--color-border). Encre var(--color-texthard).
  */
 body {
-  background-color: var(--color-page);
-  color: var(--color-neutral-900);
+  background-color: var(--color-background);
+  color: var(--color-texthard);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -384,13 +424,13 @@ body {
 
 /*
  * Live updates V2 (#205) : une entrée fraîchement arrivée dans le panneau
- * Activity s'allume à l'accent-tint puis s'éteint — l'œil tombe dessus à
+ * Activity s'allume au fond Active puis s'éteint — l'œil tombe dessus à
  * l'ouverture sans que le panneau crie. Jouée au montage de la ligne ; les
  * entrées anciennes ne la reçoivent pas (garde `receivedAt` côté React).
  * Coupée sous prefers-reduced-motion.
  */
 @keyframes rm-entry-in {
-  from { background-color: var(--color-accent-tint); }
+  from { background-color: var(--color-active); }
   to { background-color: transparent; }
 }
 .live-entry-in {
@@ -440,13 +480,13 @@ body {
  */
 .roadmap-cols-scroll {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-neutral-500) transparent;
+  scrollbar-color: var(--color-textsoft) transparent;
 }
 .roadmap-cols-scroll::-webkit-scrollbar {
   height: 8px;
 }
 .roadmap-cols-scroll::-webkit-scrollbar-thumb {
-  background: var(--color-neutral-500);
+  background: var(--color-textsoft);
 
 }
 .roadmap-cols-scroll::-webkit-scrollbar-track {
@@ -455,13 +495,13 @@ body {
 
 /*
  * Rendu markdown de la Vue Docs (lecteur seul, `marked` → HTML brut injecté).
- * Fait maison, monochrome strict (encre var(--color-neutral-900), filets var(--color-neutral-200), fond
- * neutre var(--color-neutral-100) pour le code) — pas de plugin @tailwindcss/typography.
+ * Fait maison, monochrome strict (encre var(--color-texthard), filets var(--color-border), fond
+ * « en creux » var(--color-background) pour le code) — pas de plugin @tailwindcss/typography.
  */
 .doc-prose {
   font-size: 0.9375rem;
   line-height: 1.7;
-  color: var(--color-neutral-900);
+  color: var(--color-texthard);
 }
 .doc-prose > *:first-child {
   margin-top: 0;
@@ -472,13 +512,13 @@ body {
 .doc-prose h4 {
   font-weight: 600;
   letter-spacing: -0.01em;
-  color: var(--color-neutral-900);
+  color: var(--color-texthard);
 }
 .doc-prose h1 {
   font-size: 1.75rem;
   margin: 0 0 1rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--color-neutral-200);
+  border-bottom: 1px solid var(--color-border);
 }
 .doc-prose h2 {
   font-size: 1.375rem;
@@ -516,16 +556,16 @@ body {
 .doc-prose code {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.85em;
-  background: var(--color-neutral-100);
-  border: 1px solid var(--color-neutral-200);
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
 
   padding: 0.1em 0.35em;
 }
 .doc-prose pre {
   margin: 1rem 0;
   padding: 0.875rem 1rem;
-  background: var(--color-neutral-100);
-  border: 1px solid var(--color-neutral-200);
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
 
   overflow-x: auto;
 }
@@ -539,8 +579,8 @@ body {
 .doc-prose blockquote {
   margin: 1rem 0;
   padding: 0.25rem 0 0.25rem 1rem;
-  border-left: 2px solid var(--color-neutral-200);
-  color: var(--color-neutral-600);
+  border-left: 2px solid var(--color-border);
+  color: var(--color-textsoft);
 }
 .doc-prose table {
   display: block;
@@ -553,23 +593,23 @@ body {
 }
 .doc-prose th,
 .doc-prose td {
-  border: 1px solid var(--color-neutral-200);
+  border: 1px solid var(--color-border);
   padding: 0.4rem 0.6rem;
   text-align: left;
 }
 .doc-prose th {
-  background: var(--color-neutral-100);
+  background: var(--color-background);
   font-weight: 600;
 }
 .doc-prose a {
-  color: var(--color-neutral-900);
+  color: var(--color-texthard);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 .doc-prose hr {
   margin: 1.5rem 0;
   border: none;
-  border-top: 1px solid var(--color-neutral-200);
+  border-top: 1px solid var(--color-border);
 }
 .doc-prose img {
   max-width: 100%;

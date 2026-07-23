@@ -3,8 +3,10 @@
 **Status**: active (#111) · **Fed by**: docs/audit-a11y-2026-07.md (#107-109)
 **Enforced by**: #113 (BaseUI), #114 (uniformity), #115 (a11y), #116 (Tailwind)
 **Refonte #395** (theming multi-thème + repasse DS « alléger ») : tokens sémantiques,
-5 thèmes intégrés, bordures en box-shadow, focus accent unique, header global +
-Settings + feed Activity. Deux audits adversariaux (tokens statiques + états d'interaction).
+thèmes intégrés (4 today — Codex removed), bordures en box-shadow, focus accent unique,
+header global + Settings + feed Activity. Deux audits adversariaux (tokens statiques +
+états d'interaction). **#396** : 10e couleur `Highlight`, Action découplable de l'accent.
+**#405** : plus de primitives — chaque thème pose ses 10 rôles en littéral.
 
 A Design.md, not a design system: this document settles every token, every canonical
 component, and every rule. Any deviation found in the code is a bug, not a variant.
@@ -14,34 +16,41 @@ component, and every rule. Any deviation found in the code is a bug, not a varia
 
 ### Semantic tokens — THE theming contract (Rémi)
 
-Components call SEMANTIC tokens (roles), never numeric shades. A **theme = these
-values** (color + form). Light/dark are two themes; N more are cheap. Défini dans
-`src/index.css` (@theme) ; les tokens couleur aliasent les primitives → ils suivent
-le swap clair/sombre sans redéfinition.
+Components call SEMANTIC tokens (roles), never raw values. A **theme = these
+values** (color + form). Light/dark are two themes; N more are cheap. Defined in
+`src/index.css` (`@theme`). **There is no primitive layer (#405)**: the old
+position-named primitives (`neutral-50…900`, `--color-page`, `--color-white`,
+`accent-tint`) were deleted — every theme block, the base `@theme` included, poses
+its roles as LITERAL values. **A theme = these 10 values, literally.** The only
+indirection left is role→role: `Action` and `Highlight` alias the `accent` ROLE by
+default (resolved against the element's cascaded tokens, so they follow dark mode
+and themes without redeclaration) until a theme decouples them.
 
-**Colors (9)** — `bg-active`, `bg-action`, `text-textsoft`, `border-border`, … (utilitaires Tailwind) :
+**Colors (10)** — `bg-active`, `bg-action`, `text-textsoft`, `border-border`, … (Tailwind utilities):
 
-| Token | Role | Maps from (numeric) |
+| Token | Role | Base value (light · dark) |
 |---|---|---|
-| `Active` | fill of active/selected elements (current row bg, toggle on) | `accent-tint` (bleu clair) |
-| `Rollover` | row/surface hover | `neutral-50` |
-| `Action` | **primary-button fill (blue)** — replaces the old black button | `accent` |
-| `accent` | THE attention mark: in_progress glyph, active icon/text, focus ring, gauge fill. Same blue as `Action` but a distinct ROLE (Action = clickable *fill*, accent = a *mark*) | `accent` |
-| `Foreground` | surface (card, panel, popup, side) — **and text on `Action`** (flip symmetry: white/#2563eb light ≈ ink/#3b82f6 dark, ~5.8:1 both sides, no `on-accent` token) | `white`/card |
-| `Background` | page (under surfaces) — **and recessed field fill** | `page` |
-| `TextHard` | primary ink — **text only** (no longer any button fill) | `neutral-900` |
-| `TextSoft` | muted/meta text (contrast floor #108) ; disabled & decorative fold here | `neutral-500` |
-| `Border` | rules, separators, control borders | `neutral-200` |
+| `Active` | fill of active/selected elements (current row bg, toggle on) — FILL only, no left rule (#395) | `#eef3fd` · `#1c2636` |
+| `Rollover` | row/surface hover — a translucent overlay, never selection | `rgb(0 0 0 / .045)` · `rgb(255 255 255 / .06)` |
+| `Action` | **primary-button fill** — aliases `accent` by default; a theme may DECOUPLE it (#396, GitHub: green) | `var(--color-accent)` |
+| `accent` | THE attention mark: in_progress glyph, active icon/text, focus ring, gauge fill. Same value as `Action` by default but a distinct ROLE (Action = clickable *fill*, accent = a *mark*) | `#2563eb` · `#3b82f6` |
+| `Foreground` | surface (card, panel, popup, side) — **and text on `Action`** (flip symmetry: white/#2563eb light ≈ ink/#3b82f6 dark, ~5.8:1 both sides, no `on-accent` token) | `#ffffff` · `oklch(0.205 0 0)` ≈ #171717 |
+| `Background` | page (under surfaces) — **and recessed field fill** | `#fafafa` · `oklch(0.168 0 0)` ≈ #0f0f0f |
+| `TextHard` | primary ink — **text only** (no longer any button fill) | `oklch(0.205 0 0)` · `oklch(0.97 0 0)` ≈ #f5f5f5 |
+| `TextSoft` | muted/meta text (contrast floor #108) ; disabled & decorative fold here | `oklch(0.556 0 0)` · `oklch(0.708 0 0)` |
+| `Border` | rules, separators, control borders | `oklch(0.922 0 0)` · `oklch(0.31 0 0)` |
+| `Highlight` | active-nav mark (#396) — aliases `accent` by default; a theme whose real DS separates the nav mark from the accent redefines it alone (GitHub: coral) | `var(--color-accent)` |
 
-The intermediate greys (300/400/600/700) collapse into these — that IS the
-"alléger". Nothing carries meaning below `TextSoft`'s contrast. **Decision (Rémi):
-buttons go black → blue.** The old inverted black button (`bg-neutral-900 text-white`)
-becomes `bg-action text-foreground`; the flip symmetry keeps the label readable in
-both themes without a dedicated on-accent token. **Selected/current = `bg-active` FILL
-ONLY** — the old left accent rule was removed (#395): too Roadmapped-specific, it
-clashed with the other themes. `Rollover` is a **translucent overlay** (`rgb(0 0 0 /
-.045)` light, white in dark), not opaque `neutral-50`: it must show on the grey
-`Background` page as well as on a white card.
+The old intermediate greys (300/400/600/700) collapsed into these roles — that IS
+the "alléger"; #405 then deleted the numeric scale itself. Nothing carries meaning
+below `TextSoft`'s contrast. **Decision (Rémi): buttons go black → blue.** The old
+inverted black button becomes `bg-action text-foreground`; the flip symmetry keeps
+the label readable in both themes without a dedicated on-accent token. **Selected/
+current = `bg-active` FILL ONLY** — the old left accent rule was removed (#395):
+too Roadmapped-specific, it clashed with the other themes. `Rollover` is a
+**translucent overlay** (a light black veil in light mode, a white veil in dark),
+not an opaque grey: it must show on the grey `Background` page as well as on a
+white card.
 
 **Radii (4)** — `rounded-interactive`, `rounded-listitem`, `rounded-surface`, `rounded-round` :
 
@@ -59,52 +68,71 @@ separate list items (paired with `ListItem` radius) — hence the two dedicated 
 ### Theming — multi-theme, one contract
 
 The token layer above is the theming contract. A **theme = a set of these token
-values** (colour + shape/density). It lives on TWO orthogonal `<html>` axes:
-`data-theme` = **mode** (light/dark), `data-theme-name` = **palette family**. They
-compose. Both are set before first paint by the anti-flash script (`index.html`) and
-persisted (`ui:theme`, `ui:theme-name`).
+values** (colour + shape/density), posed as literals in its own CSS block. It lives
+on TWO orthogonal `<html>` axes: `data-theme` = **mode** (light/dark),
+`data-theme-name` = **palette family**. They compose. Both are set before first
+paint by the anti-flash script (`index.html`) and persisted (`ui:theme`,
+`ui:theme-name`).
 
-- **5 built-in themes** (`src/index.css`): **Roadmapped** (base) · **GitHub** ·
-  **Cursor** · **Claude** · **Codex**. Each redefines an *identity kit* — accent,
-  accent-tint, page, card, border + radii — in light AND dark; the rest of the neutral
-  scale inherits from the base (so text stays readable). Roadmapped = no block (base).
-- **Constraint on any new accent**: text on `Action` stays `Foreground` (no on-accent
-  token), so each accent must hold ≥4.5:1 — the LIGHT accent against white, the DARK
-  accent against the dark card.
+- **4 built-in themes** (`src/index.css`; the list is `THEME_NAMES` in
+  `src/state/theme.ts`): **Roadmapped** (base) · **GitHub** · **Cursor** ·
+  **Claude**. Roadmapped = no block (the base `@theme` + the base dark block ARE
+  the theme). Each other theme re-poses only the keys of its *identity kit* —
+  accent, Active, surfaces, Border, radii/spacing, plus Action/Highlight/inks when
+  its real DS calls for it (GitHub re-pins Primer's cold inks; Claude keeps the
+  base inks) — anything not re-posed falls through to the base values. Each theme
+  ships a light block AND a dark block (`[data-theme-name][data-theme="dark"]`,
+  2 attributes so it beats the base dark block) re-posing the SAME colour keys;
+  radii/spacing, mode-independent, are posed once in the light block.
+- **Action may be DECOUPLED from accent** (#396): a theme whose real DS separates
+  the primary button from the attention mark re-poses `--color-action` alone.
+  GitHub is the living example — blue accent (`#0969da`, marks/links) but a GREEN
+  `Action` (`#1a7f37` light / `#3fb950` dark, Primer's btn-primary). Same
+  mechanism for `Highlight`: GitHub's active-nav mark is coral (`#fd8c73` /
+  `#f78166`), like its tab underline.
+- **Constraint on any new accent/Action**: text on `Action` stays `Foreground` (no
+  on-accent token), so each value must hold ≥4.5:1 — the LIGHT one against the
+  light card, the DARK one against the dark card.
 - **Dark mode is a value swap, not a parallel theme (#269)** — zero `dark:` variant, a
   hardcoded hex is a dark-mode bug (SVG glyphs/graph/radar included).
 - Switched from the **Settings** view (rail, bottom), NOT the header.
 
-### Colors — the underlying primitives (mapped above)
+### Color doctrine — one accent, monochrome elsewhere
 
-The doctrine (Rémi's decision #36, index.css): **the only color is the accent blue**,
+The doctrine (Rémi's decision #36, index.css): **the only color is the accent**,
 reserved for active elements and points of attention. Its rarity makes it spottable.
 Everything else is neutral. **No semantic colors** (no amber, no red) — error and
 destructive states are expressed through an emphatic monochrome register (see §3).
 
-| Token | Light | Dark (#269) | Role |
-|---|---|---|---|
-| `--color-accent` | #2563eb | #3b82f6 | Active, selection, in_progress (5.17:1 on white ; #2563eb only 3.5:1 on the dark card → lightened) |
-| `--color-accent-tint` | #eef3fd | #1c2636 | Opaque selection background (`Active` fill) |
-| `--color-page` | #fafafa | ≈#0f0f0f | THE body background — its OWN token (split from neutral-50: in dark the page sits *under* the card, while `hover:bg-neutral-50` must stay *above* it) |
-| card (`--color-white`) | #ffffff | #171717 | "Card" surfaces: list sides, cards, panels, popups. In dark the light ink becomes the surface |
-| rule (`neutral-200`) | #e5e5e5 | ≈#303030 | NON-interactive separator borders |
-| ink (`neutral-900`) | #171717 | #f5f5f5 | Primary text (never #fff in dark — no halo) |
+**Dark mode is a set of values, not a parallel theme (#269).** The semantic roles
+are re-posed under `:root[data-theme="dark"]` (index.css) — Tailwind v4 utilities
+read `var(--color-*)`, so every component flips with zero `dark:` variant and zero
+conditional class (`Action`/`Highlight`, role→role aliases, follow for free).
+**Corollary: a hardcoded hex is a dark-mode bug** — all colors live in tokens (SVG
+glyphs/graph/radar included). The dark tri-layer is INVERTED, not naïve: page
+≈#0f0f0f *under* the card #171717 (the light ink becomes the surface), ink #f5f5f5
+— never #fff (no halo) — and the accent is lightened (#2563eb holds only 3.5:1 on
+the dark card → #3b82f6). Default = `prefers-color-scheme`, anti-flash script in
+`index.html`, mode toggle in Settings. Full spec: `docs/specs/2026-07-10-dark-mode.md`.
 
-**Dark mode is a set of values, not a parallel theme (#269).** The whole neutral scale + `--color-white`/`--color-page`/accent are redefined under `:root[data-theme="dark"]` (index.css) — Tailwind v4 utilities read `var(--color-*)`, so every component flips with zero `dark:` variant and zero conditional class. **Corollary: a hardcoded hex is a dark-mode bug** — all colors live in tokens (SVG glyphs/graph/radar included). The core scale mirrors the canonical oklch values (900 ↔ old 50…), so light rendering is unchanged. Toggle in the header, default = `prefers-color-scheme`, anti-flash script in `index.html`. Full spec: `docs/specs/2026-07-10-dark-mode.md`.
+> Historical note: before #405 these roles aliased a layer of position-named
+> primitives (`neutral-50…900`, `--color-page`, `--color-white`, `accent-tint`).
+> That layer is gone — any `neutral-*` reference in code or docs is stale.
 
-### Gray scale — the contrast rule (audit #108)
+### Muted ink — the contrast rule (audit #108)
 
 A systemic decision, not case by case:
 
-- **`neutral-500` (#737373) is the FLOOR** for all text and all meaning-bearing controls
-  on a white/page background (4.74:1 / 4.54:1). `text-neutral-400` and `text-neutral-300`
-  on informative content = non-compliant (2.58:1 / 1.48:1), to be promoted.
-- On a gray background (`neutral-100`/`200`): floor **`neutral-600`** (#525252).
-- `neutral-300`/`400` stay allowed ONLY for the purely decorative (radar grid, rules) —
-  never for text, a meaning-bearing icon, or a control.
-- `disabled` states: exempt from WCAG, keep the current rendering.
-- Micro-text: nothing below 10px; existing 10px to be bumped to 11px (audit §3).
+- **`TextSoft` is the FLOOR** for all text and all meaning-bearing controls. The
+  base values hold it (light `oklch(0.556 0 0)` ≈ #737373: 4.74:1 on the white
+  card / 4.54:1 on the page; dark `oklch(0.708 0 0)`: ~7.1:1 on the card), and a
+  theme that greys its card re-pins the value to keep the floor (GitHub `#59636e`,
+  Cursor `#5f5f5f`). Nothing meaning-bearing renders below it — the old
+  sub-threshold greys were promoted, then deleted with the scale (#405).
+- Purely decorative strokes (radar grid, rules) use `Border` — never text, a
+  meaning-bearing icon, or a control.
+- `disabled` states: exempt from WCAG; they fold into `TextSoft` (see the table).
+- Micro-text: nothing below 11px renders (audit §3).
 
 ### Corner radii — the 4 semantic radii (supersedes the old 4/6px rule)
 
@@ -121,7 +149,7 @@ theme-dialled — NOT the old hardcoded `rounded`/`rounded-md`. Mapping: any con
 - Fixed left side: `w-[420px]` + `py-2`, inner rows `px-4`.
 - Micro-labels: **two levels only** — `text-xs font-medium` for view list headers,
   `text-[11px] font-medium` for panel field labels. Ink:
-  `text-neutral-500` (post-promotion). No third register (no `uppercase tracking-wide`).
+  `text-textsoft`. No third register (no `uppercase tracking-wide`).
 
 ### Typography scale — named levels (audit §2, #383)
 
@@ -157,7 +185,7 @@ Most live in `src/components/ui.tsx` (the exceptions, still canonical: `Chip` in
 | Error | `ErrorBanner` (+ `Toast` for the ephemeral) | role=alert; left rule via `shadow-[inset_3px_0_0_var(--color-accent)]` (box-shadow, not `border`) on a `rounded-surface` card |
 | Popover/filters | `FilterMenu` (Base UI Popover) | Never use `Popover.Close disabled` (it makes the option inert) |
 | Metadata chip | `Chip` | The `code`/`size` chips on task rows and cards (same rendering in Backlog and Roadmap). Temperature is NOT a chip — it's the `TempBadge` thermometer (§ Temperature exception) |
-| Buttons | Primary (`primaryBtn`): `rounded-interactive bg-action text-foreground hover:brightness-95` (blue fill, `transition-[filter]`) · Secondary (`actionBtn`): `ring-1 ring-inset ring-border` + `hover:bg-rollover` | "Delete" = secondary (global destructive register: no — YAGNI, monochrome by design). No `border` utility on either (box-shadow ring) |
+| Buttons | `Button` (#419/#420) — ONE component, 3 variants: `primary` (`bg-action text-foreground hover:brightness-95`, `Action` fill) · `secondary` (`ring-1 ring-inset ring-border` + `hover:bg-rollover`) · `ghost` (no fill, `hover:bg-rollover`). Single template: uniform `p-s` padding, `text-xs leading-none` (12px), icon ALWAYS 12px = the text line-height (`BUTTON_ICON_SIZE`); `icon` and `children` each optional and combinable (icon-only = 28×28 square) | "Delete" = secondary (global destructive register: no — YAGNI, monochrome by design). No `border` utility (box-shadow ring). Never a per-callsite icon size or padding override; composes into Base UI via `render={<Button …/>}` (Toast.Close) |
 
 ## 3. Rules
 
@@ -222,7 +250,7 @@ Most live in `src/components/ui.tsx` (the exceptions, still canonical: `Chip` in
   header — theme, report-a-bug and the update banner moved OUT.
 - **NavRail** (left): the views, then **Settings** pinned at the bottom (gear).
 - **Settings view** = the home of the cross-cutting controls that used to clutter the
-  header: theme **mode** (light/dark/system) + **theme** (5 built-in), report-a-bug,
+  header: theme **mode** (light/dark/system) + **theme** (4 built-in), report-a-bug,
   update banner.
 - **Activity** = a **feed**, NOT full-width rows: a 400px centred column of event CARDS
   (icon + verb + `#id` + time; the ticket title; then a preview — the status transition

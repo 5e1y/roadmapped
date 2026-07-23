@@ -181,7 +181,7 @@ function EpicTitleInput({ slug, title, onError, done = false }: {
         // `text-neutral-500!` (important) : ghostCls impose `text-neutral-900` en
         // base — sans le forcer, le titre d'epic terminé reste barré mais en encre
         // foncée, pas gris comme une task done (#209).
-        className={`truncate py-0.5 text-sm font-medium ${done ? 'text-textsoft! line-through' : ''}`}
+        className={`truncate py-xs text-sm font-medium ${done ? 'text-textsoft! line-through' : ''}`}
       />
     </span>
   )
@@ -232,7 +232,7 @@ export function EpicRow({ slug, title, tasks, progress, persistKey, forceOpen = 
           chevron ne vit plus dans le trigger. */}
       <div
         data-panel-open={open ? '' : undefined}
-        className="relative flex w-full items-center gap-2 px-4 py-1.5 text-sm hover:bg-rollover"
+        className="relative flex w-full items-center gap-s px-l py-s text-sm hover:bg-rollover"
       >
         <Collapsible.Trigger
           aria-label={`${title} — ${countLabel}, ${progress.done} of ${progress.total} tasks done`}
@@ -245,7 +245,7 @@ export function EpicRow({ slug, title, tasks, progress, persistKey, forceOpen = 
         <EpicTitleInput slug={slug} title={title} onError={setRenameError} done={status === 'done'} />
         {/* aria-hidden : la même info vit dans le nom accessible du trigger. */}
         <span aria-hidden className="pointer-events-none shrink-0 text-[11px] text-textsoft">{countLabel}</span>
-        <span aria-hidden className="pointer-events-none ml-auto flex shrink-0 items-center gap-1.5">
+        <span aria-hidden className="pointer-events-none ml-auto flex shrink-0 items-center gap-s">
           <EpicProgressBar done={progress.done} total={progress.total} />
           <span
             className="font-mono text-[11px] text-textsoft"
@@ -256,7 +256,7 @@ export function EpicRow({ slug, title, tasks, progress, persistKey, forceOpen = 
         </span>
       </div>
       {renameError && (
-        <div className="px-4 py-1.5">
+        <div className="px-l py-s">
           <ErrorBanner errors={[renameError]} />
         </div>
       )}
@@ -280,7 +280,9 @@ export function EpicRow({ slug, title, tasks, progress, persistKey, forceOpen = 
 export function EpicProgressBar({ done, total }: { done: number; total: number }) {
   const pct = total === 0 ? 0 : Math.round((done / total) * 100)
   return (
-    <span aria-hidden className="h-1 w-14 overflow-hidden rounded-round bg-border">
+    // Piste dérivée des tokens (audit #408) : hauteur = xs, largeur = 2·xl + s
+    // (56px en base) — la barre suit la densité du thème au lieu d'être figée.
+    <span aria-hidden className="h-xs w-[calc(var(--spacing-xl)*2+var(--spacing-s))] overflow-hidden rounded-round bg-border">
       <span className="block h-full bg-accent" style={{ width: `${pct}%` }} />
     </span>
   )

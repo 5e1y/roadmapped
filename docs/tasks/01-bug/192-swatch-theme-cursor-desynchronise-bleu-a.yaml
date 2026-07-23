@@ -1,0 +1,25 @@
+id: 400
+title: SWATCH thème Cursor désynchronisé — bleu au lieu de noir (ThemePicker + SettingsView)
+status: done
+tags:
+  - ds
+  - theming
+detail: >-
+  ThemePicker.tsx:16 et SettingsView.tsx:24 dupliquent la même map de couleurs de pastille : cursor:
+  '#0b6bcb' (bleu) alors que l'accent réel du thème Cursor est #1a1a17 (noir, décision « Cursor
+  noir/beige », index.css). Repéré par l'audit #399. Fix : #0b6bcb → #1a1a17 dans les deux fichiers.
+refs:
+  - src/components/ThemePicker.tsx
+  - src/components/SettingsView.tsx
+links: []
+dependsOn: []
+epic: theming-foundations
+source: ai
+createdAt: "2026-07-23T19:07:34"
+startedAt: "2026-07-23T19:07:44"
+updatedAt: "2026-07-23T19:08:39"
+completedAt: "2026-07-23T19:08:39"
+commit: 345fcb2
+outcome: "cursor: '#0b6bcb' → '#1a1a17' dans ThemePicker.tsx et SettingsView.tsx."
+verification: "tsc -b + suite complète : 58/58 fichiers, 742/742 tests verts."
+release: 0.3.0

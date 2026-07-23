@@ -1,0 +1,22 @@
+id: 416
+title: "Thème Claude : échelle spacing alignée sur github (xs 6, s 12, m 16, xl 32)"
+status: done
+tags:
+  - theming
+detail: null
+refs:
+  - src/index.css
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-23T20:13:59"
+startedAt: "2026-07-23T20:13:59"
+updatedAt: "2026-07-23T20:14:12"
+completedAt: "2026-07-23T20:14:07"
+commit: 345fcb2
+outcome: >-
+  spacing-xs/s/m/xl du thème claude alignés sur github (6/12/16/32px) ; l hérite du 16px de base
+  comme github ; listgap déjà à 8px, inchangé.
+verification: tsc -b clean, theme.test.ts 8/8.
+release: 0.3.0

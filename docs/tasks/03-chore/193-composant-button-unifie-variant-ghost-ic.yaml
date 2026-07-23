@@ -1,0 +1,84 @@
+id: 419
+title: >-
+  Composant Button unifié (primary/secondary/ghost) — icône toujours à la line-height, migration
+  complète
+status: done
+tags:
+  - ds
+  - theming
+detail: >-
+  Constat (retour Rémi) : primaryBtn/actionBtn (ui.tsx) sont les 2 seules recettes de bouton
+  canoniques (primaire plein, secondaire bordé) mais tout bouton icône-seule de l'app (retour/fermer
+  de SidePanel, RemoveButton de TaskPanel/NotepadView/Backlog/RoadmapColumns, croix de dismiss
+  d'UpdateNotice, ChipRemove...) est un className dupliqué ad hoc (rounded-interactive p-xs
+  text-textsoft hover:bg-rollover hover:text-texthard, répété ~15 fois avec des variations mineures)
+  au lieu de passer par un vrai composant partagé.\n\nObjectif : ajouter un 3e variant 'ghost' au
+  système de bouton (à côté de primaryBtn/actionBtn) — un IconButton dédié, dimensionné pour que
+  l'icône seule occupe la MÊME hauteur de ligne que le texte des boutons primary/secondary
+  (aujourd'hui primaryBtn = py-xs + text-xs ≈ 24px de haut ; l'icône du ghost doit remplir ce même
+  gabarit — calibrer padding/taille d'icône pour tomber sur ~24px, en restant sur des tokens spacing
+  existants, pas une valeur en dur). États : hover:bg-rollover hover:text-texthard (déjà le pattern
+  actuel, à centraliser), focus-visible standard (global index.css), disabled si besoin.\n\nMigrer
+  TOUS les usages ad hoc recensés vers ce composant (grep 'rounded-interactive p-xs' comme point de
+  départ, mais vérifier exhaustivement — ne pas se fier qu'au grep) : SidePanel.tsx (boutons retour
+  + fermer), TaskPanel.tsx (RemoveButton + autres icônes ponctuelles), NotepadView.tsx (bouton
+  retrait de ligne), Backlog.tsx (RemoveButton de chip), RoadmapColumns.tsx (bouton edit),
+  UpdateNotice.tsx (dismiss), ui.tsx (Combobox.ChipRemove, Toast dismiss si présent). Ne pas toucher
+  aux boutons qui portent AUSSI du texte (ceux-là restent sur primaryBtn/actionBtn) ni aux
+  boutons-icône qui ont une sémantique de TOGGLE (ThemeToggle, ThemePicker trigger — ceux-là gardent
+  leur propre recette, ce ne sont pas des actions ponctuelles ghost).\n\nGate : ce composant
+  remplace un pattern dupliqué par un seul point de vérité — si un usage a une variation visuelle
+  légitime (ex. opacity-0 + group-hover pour les RemoveButton révélés au survol de leur ligne), le
+  composant doit accepter cette variation en prop plutôt que de forcer un seul rendu partout.
+refs:
+  - src/components/ui.tsx
+  - src/components/SectionPanel.tsx
+  - src/components/ViewHeader.tsx
+  - src/components/TaskPanel.tsx
+  - src/components/DesignSystemView.tsx
+  - src/components/UpdateNotice.tsx
+  - src/components/SidePanel.tsx
+  - src/components/RoadmapColumns.tsx
+  - src/components/NotepadView.tsx
+  - src/components/Backlog.tsx
+  - src/components/ZoomControls.tsx
+links: []
+dependsOn: []
+epic: theming-foundations
+source: ai
+createdAt: "2026-07-23T20:54:19"
+startedAt: "2026-07-23T20:54:24"
+updatedAt: "2026-07-23T21:33:20"
+completedAt: "2026-07-23T21:33:15"
+commit: 345fcb2
+outcome: >-
+  Vraie unification cette fois : UN composant Button (ui.tsx), 3 variants (primary/secondary/ghost),
+  icône ET texte chacun optionnels/combinables. Icône TOUJOURS fixée à 16px (constante, aucun prop
+  size, aucune adaptation par emplacement) et texte TOUJOURS text-xs, pour les 3 variants sans
+  exception. primaryBtn/actionBtn (strings historiques) supprimés — plus aucun usage direct. TOUS
+  les call-sites migrés : SectionPanel, ViewHeader (+task), TaskPanel (Done/Cancel/Start/Finish/Copy
+  brief/Delete/Resolve-Reopen + RemoveButton), DesignSystemView (playground), UpdateNotice
+  (Update&restart avec Download, Copy/Copied avec Check/Copy — c'était le bug concret pointé : icône
+  à 11px hors du composant), + crawl complet (ZoomControls −/Fit/100%/+ passés en ghost). Exclusions
+  documentées (hors scope, pas des boutons d'action ponctuelle) : ThemeToggle/ThemePicker (toggles à
+  état persistant), triggers Select/Combobox/Popover (menus), Popover.Close pleine-largeur
+  d'UpdateNotice, EpicBand chip de filtre actif (fond plein au repos = pas ghost), Toast.Close et
+  Combobox.ChipRemove (composants Base UI natifs, structurellement non-enveloppables — alignés
+  manuellement sur icône=16 où pertinent).
+verification: >-
+  tsc -b clean, suite complète 58/58 fichiers 742/742 tests verts. Aucune vérification visuelle
+  navigateur (outil indisponible) — les changements de gabarit (py-s→py-xs sur UpdateNotice, icônes
+  agrandies partout) sont attendus et acceptés tels quels, à ajuster visuellement plus tard si
+  besoin (décision explicite de Rémi).
+release: 0.3.0
+feedback:
+  - date: "2026-07-23T21:20:20"
+    author: user
+    text: >-
+      Rémi : mauvaise compréhension totale — (1) pas de composant icône-seule, un seul Button unifié
+      (variant primary/secondary/ghost) avec texte ET icône chacun optionnels/combinables ; (2)
+      icône TOUJOURS à la taille de la line-height du texte, aucune adaptation par emplacement (on
+      unifie d'abord, on corrige les impacts UI après) ; (3) crawl de TOUTE l'app, pas un grep
+      filtré sur les 7 sites déjà repérés — ça inclut aussi les usages actuels de
+      primaryBtn/actionBtn. Recommence.
+    resolved: false

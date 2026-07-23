@@ -1,0 +1,33 @@
+id: 430
+title: Supprimer le thème Codex du registre de theming
+status: done
+tags:
+  - theming
+detail: >-
+  Retrait complet du thème intégré codex : bloc CSS (src/index.css, clair+sombre),
+  ThemeName/THEME_NAMES/THEME_LABELS (src/state/theme.ts), pastilles de sélecteur (ThemePicker.tsx,
+  SettingsView.tsx). Vérifier aussi theme.test.ts pour toute référence à ajuster, et qu'aucun
+  localStorage résiduel 'codex' ne casse resolveThemeName (doit déjà retomber sur 'roadmapped'
+  proprement, à confirmer).
+refs:
+  - src/index.css
+  - src/state/theme.ts
+  - src/components/ThemePicker.tsx
+  - src/components/SettingsView.tsx
+links: []
+dependsOn: []
+epic: theming-foundations
+source: ai
+createdAt: "2026-07-23T23:42:43"
+startedAt: "2026-07-23T23:42:47"
+updatedAt: "2026-07-23T23:44:40"
+completedAt: "2026-07-23T23:44:35"
+commit: 345fcb2
+outcome: >-
+  Thème codex intégralement retiré : bloc CSS clair+sombre supprimé (src/index.css),
+  ThemeName/THEME_NAMES/THEME_LABELS mis à jour (src/state/theme.ts), pastilles retirées
+  (ThemePicker.tsx, SettingsView.tsx). resolveThemeName() retombe déjà proprement sur 'roadmapped'
+  pour toute valeur hors de THEME_NAMES (dont un localStorage résiduel 'codex') — aucun fix requis
+  là. Zéro référence 'codex' restante dans src/ ou docs/ (vérifié par grep).
+verification: tsc -b clean, suite complète 58/58 fichiers 742/742 tests verts.
+release: 0.3.0

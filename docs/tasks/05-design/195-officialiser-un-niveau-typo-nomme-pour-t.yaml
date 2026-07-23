@@ -1,0 +1,21 @@
+id: 403
+title: >-
+  Officialiser un niveau typo nommé pour text-[11px] (×114) et le text-base des titres de panneau
+  (usage de fait, non documenté)
+status: todo
+tags:
+  - ds
+  - debt
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-23T19:08:56"
+updatedAt: "2026-07-23T19:08:56"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

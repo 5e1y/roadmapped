@@ -1,0 +1,41 @@
+id: 402
+title: "Combler les petits trous d'échelle repérés par l'audit #399 (radius/spacing/type innommés)"
+status: done
+tags:
+  - ds
+  - theming
+heat: 100
+detail: >-
+  Repéré par l'audit #399, ré-vérifié le 23/07 avant exécution — 3 points sur 6 restent valides (les
+  3 autres déjà corrigés par des chantiers ultérieurs cette session : rounded-[3px] ViewHeader
+  résolu par #426, INDENT_PX DocsTree résolu par le groundwork spacing, w-[380px] SidePanel résolu
+  par la tokenisation #409-415). RESTE À FAIRE : (1) --radius-* non reseté dans @theme
+  (src/index.css) — seul --color-*: initial existe, --radius-* n'a pas d'équivalent, risque
+  silencieux si un rounded-md Tailwind par défaut apparaît un jour. (2) text-[13px]
+  (EpicBand.tsx:100, titre carte epic) hors échelle typo 11/12/14 documentée. (3) pl-[26px]
+  (RoadmapGraph.tsx:640) hors grille spacing, à exprimer via calc() de tokens ou un padding
+  existant.
+refs:
+  - src/index.css
+  - src/components/EpicBand.tsx
+  - src/components/RoadmapGraph.tsx
+links: []
+dependsOn: []
+epic: theming-foundations
+source: ai
+createdAt: "2026-07-23T19:08:54"
+startedAt: "2026-07-23T23:59:15"
+updatedAt: "2026-07-24T00:05:12"
+completedAt: "2026-07-24T00:05:11"
+commit: 345fcb2
+outcome: >-
+  3 points restants traités : (1) --radius-*: initial; ajouté dans @theme (index.css) — grep
+  app-wide vérifié AVANT commit, aucune classe rounded-* par défaut trouvée dans src/, reset sûr.
+  (2) text-[13px] EpicBand.tsx → text-sm (14px), aligné sur le registre 'titre d'epic' déjà établi
+  ailleurs (EpicRow.tsx, RoadmapGraph.tsx utilisent tous les deux text-sm pour un titre d'epic). (3)
+  pl-[26px] RoadmapGraph.tsx → pl-xl (24px, le token le plus proche, -2px visuellement identique),
+  raisonnement documenté en commentaire (alignement sous le cluster chevron+glyph du titre).
+verification: >-
+  Grep de vérification app-wide pour le point 1 (critique, avant tout commit) : zéro classe
+  rounded-* par défaut trouvée. tsc -b clean, suite complète 58/58 fichiers 742/742 tests verts.
+release: 0.3.0
