@@ -2,7 +2,7 @@ id: 436
 title: >-
   Site : maquettes how-it-works encore en onglets horizontaux + rayons d'angle vif — trancher
   l'alignement DA sur l'app 0.3.x (rail vertical, surfaces 8px) ou assumer le parti pris du site
-status: todo
+status: done
 tags:
   - debt
 detail: null
@@ -12,9 +12,23 @@ dependsOn: []
 epic: null
 source: ai
 createdAt: "2026-07-24T10:15:27"
-updatedAt: "2026-07-24T10:15:27"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+startedAt: "2026-07-24T10:28:47"
+updatedAt: "2026-07-24T10:58:57"
+completedAt: "2026-07-24T10:58:57"
+commit: be09f93
+outcome: >-
+  Le site marketing rend désormais la VRAIE UI de l'app, isolée, à la place des wireframes .ui-* et
+  du SVG de graphe fait-main (demande Rémi). Nouveau mode démo ?piece=<nom> (src/demo/piece.tsx) :
+  monte le vrai composant (backlog=TaskList, activity=ActivityView feed seedé, taskpanel=TaskPanel
+  #3 scrollé au Log, overview=OverviewView radar+charts, graph=KbView) dans la pile minimale de
+  providers, sans NavRail/header/panneaux — ChromeProvider(header:false) ajouté à ViewHeader (garde
+  avant hooks jetants, défaut true = app intacte). Graphe : /api/kb shimé (api.ts) servant un
+  extrait RÉEL normalisé de graph.json (~82 nœuds, src/demo/graph.ts) → vrai KbView interactif. SITE
+  : how-it-works = 1 iframe commutée par postMessage au fil des 4 étapes ; section KB = iframe du
+  Graph view ; -22,7 KB de HTML mockup + -11 KB de CSS mort (.ui-*/.kbg-*) retirés ; thème
+  généralisé à toutes les iframes démo.
+verification: >-
+  744 tests + tsc OK. Headless : 5 pièces rendues (clair+sombre), commutation postMessage
+  backlog→graph validée de bout en bout, page site complète OK, HTML bien imbriqué, CSS équilibré (0
+  sélecteur mort résiduel).
+release: 0.3.1
