@@ -1,6 +1,6 @@
 id: 434
 title: Supprimer le compteur de tickets open/done du header en mode backlog
-status: in_progress
+status: done
 tags: []
 detail: null
 refs: []
@@ -10,9 +10,11 @@ epic: null
 source: ai
 createdAt: "2026-07-24T09:40:43"
 startedAt: "2026-07-24T09:40:43"
-updatedAt: "2026-07-24T09:40:43"
-completedAt: null
-commit: null
-outcome: null
-verification: null
-release: null
+updatedAt: "2026-07-24T09:42:03"
+completedAt: "2026-07-24T09:42:03"
+commit: 1d10b7d
+outcome: >-
+  Retiré le meta={...} du ViewShell dans Backlog.tsx (compteur 'N open · N done') et le helper
+  plural() devenu mort ; tests Backlog.test.tsx et tsc verts.
+verification: npx vitest run src/components/Backlog.test.tsx (5 tests OK) + npx tsc --noEmit (aucune erreur)
+release: 0.3.1
