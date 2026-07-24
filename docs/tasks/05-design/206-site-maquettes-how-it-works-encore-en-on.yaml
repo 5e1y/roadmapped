@@ -1,0 +1,20 @@
+id: 436
+title: >-
+  Site : maquettes how-it-works encore en onglets horizontaux + rayons d'angle vif — trancher
+  l'alignement DA sur l'app 0.3.x (rail vertical, surfaces 8px) ou assumer le parti pris du site
+status: todo
+tags:
+  - debt
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-24T10:15:27"
+updatedAt: "2026-07-24T10:15:27"
+completedAt: null
+commit: null
+outcome: null
+verification: null
+release: null

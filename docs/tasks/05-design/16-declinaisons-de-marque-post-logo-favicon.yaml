@@ -17,7 +17,7 @@ epic: brand-identity
 source: ai
 createdAt: "2026-07-09T13:55:03"
 startedAt: "2026-07-13T17:46:36"
-updatedAt: "2026-07-13T17:51:07"
+updatedAt: "2026-07-24T10:15:27"
 completedAt: null
 commit: null
 outcome: null
@@ -46,4 +46,12 @@ feedback:
       roadmapped-site@5ffa720, déployé via push). Reste au scope : og image réelle (côté repo site,
       cf. feedback précédent) ; app icons/manifest toujours jugés YAGNI. Les dashboards des AUTRES
       repos verront le favicon au prochain bump de version npm.
+    resolved: false
+  - date: "2026-07-24T10:15:27"
+    author: user
+    text: >-
+      og.png confirmé périmé par l'audit site du 2026-07-24 : daté du 11/07, il montre la DA 0.2.x
+      (bouton noir, header avec compteur/onglets). À re-shooter sur le dashboard 0.3.1 (thème
+      Roadmapped, bouton bleu, header épuré, rail vertical) en 1200×630. L'app tourne en démo
+      statique headless-capturable si besoin.
     resolved: false

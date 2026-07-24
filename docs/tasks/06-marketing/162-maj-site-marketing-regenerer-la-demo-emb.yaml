@@ -1,0 +1,33 @@
+id: 435
+title: >-
+  MAJ site marketing : régénérer la démo embarquée (0.3.x multi-theming/DS/Button) + copy en retard
+  sur l'app réelle
+status: done
+tags: []
+detail: null
+refs: []
+links: []
+dependsOn: []
+epic: null
+source: ai
+createdAt: "2026-07-24T09:51:01"
+startedAt: "2026-07-24T09:51:01"
+updatedAt: "2026-07-24T10:15:01"
+completedAt: "2026-07-24T10:15:01"
+commit: 79ef42b
+outcome: >-
+  MAJ complète du site marketing (repo 5e1y/roadmapped-site) contre l'app 0.3.1. PREVIEW : démo
+  embarquée régénérée (build:demo, 439 modules — capte multi-theming, refonte DS, Button unifié,
+  backlog sans compteur #434) + favicon oiseau corrigé À LA SOURCE (index.demo.html) + reset palette
+  par visite (main.tsx). Smoke-test headless OK en clair ET sombre. STALENESS (audit 4-agents, 16
+  constats vérifiés contre le code) : CTA noir→bleu (Action app), accent sombre #60a5fa→#3b82f6 (un
+  seul accent), iframe fond→var(--page) (fin du flash blanc), llms.txt 'never npm'→3 portes + fait
+  Knowledge base, figcaption 869→2800+ nœuds, KB 'onglet Docs'→vue Graph du rail, Activity 'popup
+  header'→vue du rail, +2 cartes (Overview, Themes) en largeur double pour remplir la grille. HTML
+  bien imbriqué, CSS équilibré.
+verification: >-
+  npm run build:demo OK (tsc -b + vite) ; vitest src/demo/ (2) + Backlog (5) verts ; HTMLParser 0
+  balise orpheline sur index.html ; accolades CSS équilibrées ; Chrome headless : démo rendue
+  clair+sombre (rail complet, bouton bleu, pas de compteur), homepage grille features dernière
+  rangée pleine, CTA bleu.
+release: 0.3.1
