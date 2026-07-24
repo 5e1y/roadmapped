@@ -73,7 +73,10 @@ export interface LiveActivityState {
   setOpen: (open: boolean) => void
 }
 
-const LiveActivityContext = createContext<LiveActivityState | null>(null)
+/** Exporté pour le mode DÉMO « pièce » (#436) : le build statique n'a pas de SSE,
+ *  donc la pièce `activity` fournit ce contexte avec un log seedé (src/demo/piece.tsx)
+ *  pour exhiber un vrai feed. En prod c'est LiveActivityInner qui le peuple. */
+export const LiveActivityContext = createContext<LiveActivityState | null>(null)
 
 /**
  * NON-JETANT (modèle useOptionalTree) : ViewHeader est aussi monté hors

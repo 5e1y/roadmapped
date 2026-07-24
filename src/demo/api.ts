@@ -1,4 +1,5 @@
 import { demoTree } from './tree'
+import { demoGraph } from './graph'
 import { DEMO_DOCS, DEMO_DOC_CONTENT, DEMO_NOTE } from './content'
 
 /*
@@ -87,6 +88,13 @@ export function installDemoApi(): void {
         notes.delete(seg[1])
         return json(200, { ok: true, slug: seg[1] })
       }
+    }
+
+    // Knowledge base (#436) : la pièce démo `graph` monte le VRAI KbView, qui
+    // fetch /api/kb. On sert un extrait réel du graphe du repo (src/demo/graph.ts).
+    // root:null → reveal reste 403 (pas de Finder en démo, cf. ci-dessous).
+    if (seg[0] === 'kb' && method === 'GET') {
+      return json(200, { ok: true, graph: demoGraph(), root: null })
     }
 
     if (seg[0] === 'reveal') {

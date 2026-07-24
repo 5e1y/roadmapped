@@ -1,6 +1,6 @@
 import { Popover } from '@base-ui/react/popover'
 import { ChevronDown, Check, Plus, Search } from 'trinil-react'
-import { type ReactNode } from 'react'
+import { createContext, useContext, type ReactNode } from 'react'
 import { useTree } from '../state/TreeContext'
 import { useView } from '../state/ViewContext'
 import { useSearch } from '../state/search'
@@ -19,10 +19,29 @@ import { TogglePill, Button, BUTTON_ICON_SIZE } from './ui'
  * Backlog (le seul écran qui filtre) et la requête (state App, cf. search.tsx) y
  * pilote la liste. « + task » aussi présent partout (crée une Feature par défaut).
  */
+/**
+ * Chrome de vue (#436) : laisse le mode DÉMO « pièce » rendre une vue RÉELLE sans
+ * son ViewHeader (le site marketing embarque des vues isolées, sans le rail ni la
+ * barre titre/recherche/+task). Défaut header:true → l'app normale est inchangée
+ * et n'a rien à fournir. La garde vit dans ViewHeader (pas ViewShell) car
+ * ActivityView monte SON propre ViewHeader hors ViewShell : un point unique les
+ * couvre tous.
+ */
+const ChromeContext = createContext<{ header: boolean }>({ header: true })
+export function ChromeProvider({ header, children }: { header: boolean; children: ReactNode }) {
+  return <ChromeContext.Provider value={{ header }}>{children}</ChromeContext.Provider>
+}
+
 export function ViewHeader({ meta }: {
   /** Info discrète après le titre (compteurs, chemin du doc…). */
   meta?: ReactNode
 }) {
+  // Mode pièce (#436) : header retiré AVANT les hooks jetants (useTree/usePanel…)
+  // — une vue isolée n'a donc même pas besoin de leurs providers pour son header.
+  // Le flag est fourni une seule fois à la racine (jamais togglé) : l'ordre des
+  // hooks reste stable d'un rendu à l'autre.
+  const { header } = useContext(ChromeContext)
+  if (!header) return null
   const { repoName } = useTree()
   const { view, setView } = useView()
   const { query, setQuery } = useSearch()

@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import App from '../App'
 import '../index.css'
 import { installDemoApi } from './api'
+import { DemoPiece } from './piece'
 
 /*
  * Entrée DÉMO (#148) — le bundle embarqué sur roadmapped.dev.
@@ -29,8 +30,13 @@ try {
   localStorage.setItem('graph:epics', JSON.stringify(['homepage']))
 } catch { /* localStorage indisponible (iframe très restreinte) — l'app gère */ }
 
+// ?piece=<nom> (#436) : le site embarque une VUE RÉELLE isolée (how-it-works,
+// graphe) au lieu de wireframes. Même bundle, même entrée — on ne change que la
+// racine rendue. Sinon, la démo complète habituelle.
+const isPiece = new URLSearchParams(location.search).has('piece')
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <App />
+    {isPiece ? <DemoPiece /> : <App />}
   </React.StrictMode>,
 )
