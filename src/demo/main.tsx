@@ -19,6 +19,12 @@ installDemoApi()
 try {
   localStorage.removeItem('nav:view')
   localStorage.removeItem('nav:doc')
+  // Palette (#394) : chaque visite rouvre sur le thème Roadmapped. Sans ça, un
+  // visiteur qui bascule GitHub/Cursor/Claude dans les Settings de la démo garde
+  // sa palette d'une visite à l'autre (clé sur l'origine partagée roadmapped.dev),
+  // divergente du chrome roadmapped autour de l'iframe. Le mode clair/sombre, lui,
+  // reste piloté par le ?theme= du site.
+  localStorage.removeItem('ui:theme-name')
   localStorage.setItem('backlog:epics', JSON.stringify(['homepage']))
   localStorage.setItem('graph:epics', JSON.stringify(['homepage']))
 } catch { /* localStorage indisponible (iframe très restreinte) — l'app gère */ }

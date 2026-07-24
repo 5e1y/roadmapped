@@ -90,8 +90,9 @@ the agent recording a task from the CLI.*
 5. **A local app, not a tab you log into**
    > The dashboard is a small server that runs from your repo and serves a
    > pre-built app — it updates live as your agent writes, no reload. Installing
-   > it pulls ~30 MB, not a front-end toolchain. Light and dark, because your
-   > eyes.
+   > it pulls ~30 MB, not a front-end toolchain. Light and dark — plus four
+   > built-in themes (Roadmapped, GitHub, Cursor, Claude), because your eyes
+   > have opinions.
 
 ---
 
