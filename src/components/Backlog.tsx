@@ -8,9 +8,6 @@ import { useSearch } from '../state/search'
 import { ViewShell } from './ViewHeader'
 import { TreeStateGuard, Button } from './ui'
 
-/** Accord singulier/pluriel élémentaire (anglais). */
-const plural = (n: number, s: string) => `${n} ${s}${n === 1 ? '' : 's'}`
-
 /**
  * Chip de filtre actif supprimable (#210). Pilule neutre — sa seule présence
  * dans la barre « filtres actifs » suffit à signaler l'état ; le × retire CE
@@ -97,7 +94,7 @@ export function Backlog() {
   const clearAll = () => { setTypeFilter([]); setTagFilter([]); setQuery('') }
 
   return (
-    <ViewShell meta={`${plural(open.length, 'open')} · ${plural(done.length, 'done')}`}>
+    <ViewShell>
       {/* Garde partagée : même avec un arbre présent, des erreurs de VALIDATION
           reprennent la main (parité avec l'ancien early-return) — `detail` liste
           les fichiers fautifs, le Backlog étant la vue de détail. */}
